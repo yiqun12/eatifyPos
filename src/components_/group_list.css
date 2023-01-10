@@ -1,0 +1,21 @@
+MDBListGroupItem {
+    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  
+  MDBListGroupItem:active,
+  MDBListGroupItem:focus {
+    background-color: #eee;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.2);
+  }
+  
+  .list-group-item {
+    color: white;
+    transition: color 0.2s ease-in-out;
+  }
+  
+  .list-group-item.active {
+    color: white;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  }
+  
+  
