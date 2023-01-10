@@ -33,7 +33,7 @@ const CARD_ELEMENT_OPTIONS = {
 
 
 function CardSection() {
-  const { user, logoutUser, emailVerification,currentUser } = useUserContext();
+  const { currentUser } = useUserContext();
   let customerData ={}
   ///
   const stripe = useStripe();
@@ -142,7 +142,7 @@ function CardSection() {
       </label>
       <fieldset>
         <div id="card-element">
-        <label>
+        <label style={{width: "400px"}}>
       Card details
       <CardElement options={CARD_ELEMENT_OPTIONS} />
     </label>

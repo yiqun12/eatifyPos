@@ -6,10 +6,15 @@ import Card from 'react-bootstrap/Card';
 import React, { useState } from 'react';
 import './group_list.css';
 import { useLocation } from 'react-router-dom';
+import  CardSection from "../components/CardSection";
+import {Elements} from '@stripe/react-stripe-js';
+import { useUserContext } from "../context/userContext";
+import firebase from 'firebase/compat/app';
 
 var url = "http://localhost:8080";
 const Account = () => {
-  
+  const { promise,user, logoutUser, emailVerification, customerData,currentUser } = useUserContext();
+
   /// for tap button:
   const [activeTab, setActiveTab] = useState('');
 
@@ -21,42 +26,16 @@ const Account = () => {
 
   const location = useLocation();
   
-  /* Yiqun do not touch code from HERE */
-  // authenticate user first
-  const authURL = url + "/auth";
-  // function to allow user in if signed in
-  async function getAuth() {
-    let res = await fetch(authURL, {method: "post",
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    //make sure to serialize your JSON body
-    body: JSON.stringify({
-      cookies: sessionStorage.getItem('token'),
-    })
-  });
-    let auth = await res.json();
-    if (auth.data == false) {
-      window.location.href = "/";
-    }
-  }
-  getAuth();
-  /*to HERE, got it!!!*/
-
 
  //google login button functions
- const [loginData, setLoginData] = useState(
-    localStorage.getItem('loginData')
-    ?JSON.parse(localStorage.getItem('loginData'))
-    :null
-   );
    
   return (
     <>
+
       <Navbar />
       <>
   <meta charSet="utf-8" />
+  
   {/*  This file has been downloaded from bootdey.com @bootdey on twitter */}
   {/*  All snippets are MIT license http://bootdey.com/license */}
   <title>Profile settings - Bootdey.com</title>
@@ -338,7 +317,7 @@ const Account = () => {
                     id="fullName"
                     aria-describedby="fullNameHelp"
                     placeholder="Enter your fullname"
-                    defaultValue={loginData.name}
+                    defaultValue="mu nmame"
                   />
                   <small id="fullNameHelp" className="form-text text-muted">
                    Your name should match the name associated with the your Gmail account.
@@ -357,7 +336,7 @@ const Account = () => {
                       height: 62
                     }}
                     defaultValue={
-                      loginData.email
+                      "loginData.email"
                     }
                   />
                 </div>
@@ -640,6 +619,9 @@ const Account = () => {
                   <button className="btn btn-info" type="button">
                     Add Payment Method
                   </button>
+                  <Elements stripe={promise}>
+                <CardSection />
+                </Elements>
                 </div>
                 <div className="form-group mb-0">
                   <label className="d-block">Payment History</label>

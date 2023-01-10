@@ -1,4 +1,4 @@
-import { useState } from 'react';
+
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,37 +12,39 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Axios from "axios";
+import { useUserContext } from "../context/userContext";
+import React, { useRef } from "react";
 
 
 const theme = createTheme();
 
 export default function SignUp() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    Axios({
-      method: "POST",
-      data: {
-        email: data.get('email'),
-        password: data.get('password'),
-        username:data.get('username'),
-        phoneNumber:data.get('phoneNumber'),
-      },
-      url: "http://localhost:8080/register",
-    }).then((res) => console.log(res))//handle success
-    .catch((error) => {
-        console.log(error.response.data); // "The username or password is incorrect"
-      });
+  const { user, loading, error } = useUserContext();
+
+  const { registerUser } = useUserContext();
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    const email = data.get('email');
+    const name = data.get('NickName');
+    const password = data.get('password');
+    console.log((email && password && name))
+    if (email && password && name) registerUser(email, password, name);
   };
-
-
+  if (user) {
+    window.location.href = "/";
+  }
   return (
     <div
     style={{
       
     }}
 >
+{user ?
+  <div>
+ User in
+  </div>
+        :
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -60,8 +62,20 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Box component="form" noValidate onSubmit={onSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
+            <Grid item xs={12}>
+                <TextField
+
+                  required
+                  fullWidth
+                  id="NickName"
+                  label="Nick name"
+                  name="NickName"
+                  autoComplete="NickName"
+                  autoFocus
+                />
+              </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
@@ -72,27 +86,7 @@ export default function SignUp() {
                   autoComplete="email"
                 />
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  autoComplete="userName"
-                  name="userName"
-                  required
-                  fullWidth
-                  id="userName"
-                  label="User Name"
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="phoneNumber"
-                  label="Phone Number"
-                  name="phoneNumber"
-                  autoComplete="phoneNumber"
-                />
-              </Grid>
+
               <Grid item xs={12}>
                 <TextField
                   required
@@ -130,6 +124,7 @@ export default function SignUp() {
         </Box>
       </Container>
     </ThemeProvider>
+}
   </div>
   );
 }

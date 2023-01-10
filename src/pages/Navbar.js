@@ -339,7 +339,6 @@ const Navbar = () => {
 <div className="login">
 
 <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} ref={btnRef} onClick={openModal}>Cart</Button>
-
 </div>
 }
 

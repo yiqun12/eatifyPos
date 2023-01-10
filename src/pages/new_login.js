@@ -1,71 +1,56 @@
-import Axios from "axios";
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useState } from 'react';
-import ReactDOM from 'react-dom';
-import axios from "axios";
 import './button.css';
-import Card from 'react-bootstrap/Card';
 import {Row, Col, Container} from "react-bootstrap"
-import signin_pic from './sigin.png';
 import * as React from 'react';
+import { useRef } from "react";
+import { useUserContext } from "../context/userContext";
+
+
 const theme = createTheme();
 
 export default function SignIn() {
-    const [isTrue, setIsTrue] = React.useState(false);
+  const [isTrue, setIsTrue] = React.useState(false);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    Axios({
-        method: "POST",
-        data: {
-          email: data.get('email'),
-          password: data.get('password'),
-        },
-        withCredentials: true,
-        url: "http://localhost:8080/login",
-      }).then((res) => console.log(res))
-      .catch((error) => {
-        console.log(error.response.data); // "The username or password is incorrect"
-      });
-      setIsTrue(true);
+  const emailRef = useRef();
+  const { signInUser, forgotPassword } = useUserContext();
+  const { user, loading, error } = useUserContext();
+  if (user) {
+    window.location.href = "/";
+  }
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    const email = data.get('email');
+    const password = data.get('password');
+    if (email && password) signInUser(email, password);
   };
-  const handleLogout  = () => {
-    Axios({
-      method: "get",
-      withCredentials: true,
-      url: "http://localhost:8080/logout",
-    }).then((res) => console.log(res))
-    .catch((error) => {
-        console.log(error.response.data); // "The username or password is incorrect"
+
+  const forgotPasswordHandler = (e) => {
+    const email = emailRef.current.value;
+    console.log(email)
+    if (email)
+      forgotPassword(email).then(() => {
+        emailRef.current.value = "";
+        console.log("send")
       });
-      setIsTrue(false);
- };
- 
+  }; 
   return (
     <div
     style={{
     }}
 >
-{isTrue ?
+{user ?
   <div>
-        <Button
-              sx={{ mt: 3, mb: 2 }}
-              onClick={handleLogout}
-            >
-              logout
-            </Button>
+ User in
   </div>
         :
     <ThemeProvider theme={theme} >
@@ -87,7 +72,7 @@ export default function SignIn() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
             <Grid container spacing={2}>           
             <TextField
               margin="normal"
@@ -98,6 +83,7 @@ export default function SignIn() {
               name="email"
               autoComplete="email"
               autoFocus
+              inputRef={emailRef}
             />
             <TextField
               margin="normal"
@@ -127,7 +113,7 @@ export default function SignIn() {
             </Grid>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
+                <Link style={{cursor: 'pointer'}} onClick={forgotPasswordHandler} variant="body2">
                   Forgot password?
                 </Link>
               </Grid>

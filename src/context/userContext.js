@@ -27,7 +27,7 @@ let customerData = {};
  * Set up Stripe Elements
  */
 
-const stripe = loadStripe(STRIPE_PUBLISHABLE_KEY);
+const promise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 
 
@@ -148,7 +148,7 @@ function zeroDecimalCurrency(amount, currency) {
 }
 // Handle card actions like 3D Secure
 async function handleCardAction(payment, docId) {
-  const { error, paymentIntent } = await stripe.handleCardAction(
+  const { error, paymentIntent } = await promise.handleCardAction(
     payment.client_secret
   );
   if (error) {
@@ -349,7 +349,8 @@ document
     signInWithGoogle,
     emailVerification,
     customerData,
-    currentUser
+    currentUser,
+    promise
     // isEmailVerified
   };
 
