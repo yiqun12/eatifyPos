@@ -33,16 +33,16 @@ const CARD_ELEMENT_OPTIONS = {
 
 
 function CardSection() {
-  const { currentUser } = useUserContext();
+  
+  const { user } = useUserContext();
   let customerData ={}
   ///
   const stripe = useStripe();
   const elements = useElements();
-  console.log(currentUser)
+  console.log(user.uid)
   let paymentMethodAdded = false;
   useEffect(() => {
-
-
+    
     document
       .querySelector('#payment-method-form')
       .addEventListener('submit', async (event) => {
@@ -55,22 +55,28 @@ function CardSection() {
           .querySelectorAll('button')
           .forEach((button) => (button.disabled = true));
         if (!stripe || !elements) {
+          
           // Stripe.js has not yet loaded.
           // Make sure to disable form submission until Stripe.js has loaded.
           return;
         } else if (!paymentMethodAdded) {
+          
           // Payment method has not yet been added
           // Proceed with adding payment method
           console.log(elements);
           console.log(stripe);
-    
+
+          //console.log(result.setupIntent.payment_method)
           const form = new FormData(event.target);
           const cardholderName = form.get('name');
+          console.log(user.uid)
+          console.log("hello")
           await firebase
             .firestore()
             .collection('stripe_customers')
-            .doc(currentUser.uid)
+            .doc(user.uid)
             .onSnapshot((snapshot) => {
+              console.log("hello")
               if (snapshot.data()) {
                 console.log('user found in stripe');
                 customerData = snapshot.data();
@@ -95,10 +101,11 @@ function CardSection() {
                       .querySelectorAll('button')
                       .forEach((button) => (button.disabled = false));
                   } else if (result.setupIntent != null) {
+
                     firebase
                     .firestore()
                     .collection('stripe_customers')
-                    .doc(currentUser.uid)
+                    .doc(user.uid)
                     .collection('payment_methods')
                     .add({ id: result.setupIntent.payment_method })
                     .then(() => {

@@ -7,6 +7,9 @@ import React, { useState } from 'react';
 import './group_list.css';
 import { useLocation } from 'react-router-dom';
 import  CardSection from "../components/CardSection";
+import  Checkout from "../components/Checkout";
+import  PayHistory from "../components/PayHistory";
+
 import {Elements} from '@stripe/react-stripe-js';
 import { useUserContext } from "../context/userContext";
 import firebase from 'firebase/compat/app';
@@ -14,7 +17,7 @@ import firebase from 'firebase/compat/app';
 var url = "http://localhost:8080";
 const Account = () => {
   const { promise,user, logoutUser, emailVerification, customerData,currentUser } = useUserContext();
-
+  
   /// for tap button:
   const [activeTab, setActiveTab] = useState('');
 
@@ -621,6 +624,8 @@ const Account = () => {
                   </button>
                   <Elements stripe={promise}>
                 <CardSection />
+                <Checkout/>
+          <PayHistory />
                 </Elements>
                 </div>
                 <div className="form-group mb-0">
