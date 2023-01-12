@@ -1,8 +1,5 @@
 import Navbar from './Navbar'
-import signin_pic from './sigin.jpg';
 import 'bootstrap/dist/css/bootstrap.css'; 
-import {Row, Col, Container, Button} from "react-bootstrap"
-import Card from 'react-bootstrap/Card';
 import React, { useState } from 'react';
 import './group_list.css';
 import { useLocation } from 'react-router-dom';
@@ -12,11 +9,10 @@ import  PayHistory from "../components/PayHistory";
 
 import {Elements} from '@stripe/react-stripe-js';
 import { useUserContext } from "../context/userContext";
-import firebase from 'firebase/compat/app';
 
 var url = "http://localhost:8080";
 const Account = () => {
-  const { promise,user, logoutUser, emailVerification, customerData,currentUser } = useUserContext();
+  const { promise } = useUserContext();
   
   /// for tap button:
   const [activeTab, setActiveTab] = useState('');

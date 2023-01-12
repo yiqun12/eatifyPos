@@ -2,9 +2,7 @@
 * Use the CSS tab above to style your Element's container.
 */
 import React from 'react';
-import {CardElement} from '@stripe/react-stripe-js';
 import {useStripe, useElements} from '@stripe/react-stripe-js';
-import {loadStripe} from '@stripe/stripe-js';
 
 import firebase from 'firebase/compat/app';
 import { useUserContext } from "../context/userContext";

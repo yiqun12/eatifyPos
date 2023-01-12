@@ -2,9 +2,6 @@
 * Use the CSS tab above to style your Element's container.
 */
 import React from 'react';
-import {CardElement} from '@stripe/react-stripe-js';
-import {useStripe, useElements} from '@stripe/react-stripe-js';
-import {loadStripe} from '@stripe/stripe-js';
 
 import firebase from 'firebase/compat/app';
 import { useUserContext } from "../context/userContext";
@@ -14,12 +11,7 @@ import { useEffect } from 'react';
 function Checkout() {
 // Format amount for diplay in the UI
 
-  const { user,promise } = useUserContext();
-  let customerData ={}
-  ///
-  const stripe = useStripe();
-  const elements = useElements();
-  console.log(user.uid)
+  const { user } = useUserContext();
   
   function startDataListeners() {
   
@@ -115,34 +107,10 @@ function Checkout() {
       : Math.round(amount * 100);
   }
 
-  
-  let helloLogged = false;
   useEffect(() => {
     startDataListeners();
   }, []);
   
-    firebase
-    .firestore()
-    .collection('stripe_customers')
-    .doc(user.uid)
-    .onSnapshot((snapshot) => {
-      if (snapshot.data()) {
-        console.log("user found in stripe")
-        console.log()
-        customerData = snapshot.data();
-        console.log(customerData)
-        if (!helloLogged) {
-          startDataListeners();
-          helloLogged = true;
-        }
-      } else {
-        console.warn(
-          `No Stripe customer found in Firestore for user: ${user.uid}`
-        );
-      }
-    });
-
-
 
   return (
     <div>
