@@ -17,7 +17,7 @@ import { useUserContext } from "../context/userContext";
 const Navbar = () => {
   const { user , logoutUser} = useUserContext();
   const location = useLocation();
-
+  console.log(user)
   ///shopping cart products
   const [products, setProducts] = useState([
   ]);

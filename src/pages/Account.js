@@ -12,18 +12,17 @@ import { useUserContext } from "../context/userContext";
 
 
 const Account = () => {
-  const { promise,user, logoutUser, emailVerification } = useUserContext();
-  //console.log(user)
-  /// for tap button:
+  const { promise,user, logoutUser } = useUserContext();
+  
   const [activeTab, setActiveTab] = useState('');
   const [NickName, SetNickName] = useState('');
   const [Email, SetEmail] = useState('');
-
+  
   const handleTabClick = (e, tabHref) => {
     e.preventDefault();
     setActiveTab(tabHref);
   }
-
+ 
   const location = useLocation();
   useEffect(() => {
     if (user) {
@@ -37,6 +36,7 @@ const Account = () => {
   return (
     <>
       <Navbar />
+      <Elements stripe={promise}>
       <>
   <meta charSet="utf-8" />
   
@@ -199,7 +199,7 @@ const Account = () => {
       ) : null}
 
           {activeTab  === '#billing' ? (
-            <Elements stripe={promise}>
+            
             <div className="tab-pane-active" id="billing">
               <h6>BILLING SETTINGS</h6>
               <hr />
@@ -225,7 +225,7 @@ const Account = () => {
                 </div>
               </form>
             </div>
-            </Elements>
+
       ) : null}
 
           </div>
@@ -234,7 +234,7 @@ const Account = () => {
     </div>
   </div>
 </>
-
+</Elements>
     </>
   )
 }

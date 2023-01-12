@@ -20,7 +20,7 @@ import Navbar from './Navbar'
 const theme = createTheme();
 
 export default function SignUp() {
-  const { user, loading, error } = useUserContext();
+  const { user } = useUserContext();
 
   const { registerUser } = useUserContext();
   const onSubmit = (e) => {
@@ -43,7 +43,7 @@ export default function SignUp() {
 >
 {user ?
   <div>
- User in
+ Loading...
   </div>
 
         :

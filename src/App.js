@@ -14,14 +14,11 @@ import {
   Route,
 } from "react-router-dom";
 function App() {
-  
-
+    
   return (
     <div className="App">
-
       <BrowserRouter>
       <Routes>
-
       <Route exact path="/" element={<Home />} />
       <Route path="Auth" element={<Auth />} />
       <Route path="Dashboard" element={<Dashboard />} />

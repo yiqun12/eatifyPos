@@ -50,7 +50,7 @@ export default function SignIn() {
 >
 {user ?
   <div>
- User in
+ Loading...
   </div>
         :
         <><Navbar />
