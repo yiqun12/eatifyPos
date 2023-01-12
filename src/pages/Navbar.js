@@ -12,9 +12,10 @@ import plusSvg from './plus.svg';
 import minusSvg from './minus.svg';
 import { useLocation } from 'react-router-dom';
 import { FaPlus } from 'react-icons/fa';
+import { useUserContext } from "../context/userContext";
 
 const Navbar = () => {
-  
+  const { user , logoutUser} = useUserContext();
   const location = useLocation();
 
   ///shopping cart products
@@ -326,19 +327,21 @@ const Navbar = () => {
                     <h1 onClick={event =>  window.location.href='/'} className='font-bold text-3xl sm:text-4xl lg:text-4xl '>Eatify</h1>
                 </div>
                 <div className='flex'>
-                {loginData  ?
+                {user  ?
                 
                     <div className="login">
 
       {location.pathname !== '/account' && <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} ref={btnRef} onClick={openModal}>Cart</Button>}
       {location.pathname !== '/' && <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} onClick={event =>  window.location.href='/'}>Home</Button>}
-      {location.pathname !== '/account' && <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} onClick={event =>  window.location.href='/account#profile'}>Account</Button>}
-      <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} onClick= {handleLogout}>Log Out</Button>
+      {location.pathname !== '/account' && <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} onClick={event =>  window.location.href='/account'}>Account</Button>}
+      <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} onClick= {logoutUser}>Log Out</Button>
                     </div>
 :
 <div className="login">
+<Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} onClick={event =>  window.location.href='/login'}>Log in</Button>
+<Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} onClick={event =>  window.location.href='/signup'}>Sign up</Button>
+{location.pathname !== '/login' &&location.pathname !== '/signup' && <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} ref={btnRef} onClick={openModal}>Cart</Button>}
 
-<Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} ref={btnRef} onClick={openModal}>Cart</Button>
 </div>
 }
 

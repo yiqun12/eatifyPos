@@ -14,6 +14,7 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useUserContext } from "../context/userContext";
 import React, { useRef } from "react";
+import Navbar from './Navbar'
 
 
 const theme = createTheme();
@@ -44,7 +45,10 @@ export default function SignUp() {
   <div>
  User in
   </div>
+
         :
+        <>
+        <Navbar />
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -99,10 +103,7 @@ export default function SignUp() {
                 />
               </Grid>
               <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
-                />
+
               </Grid>
             </Grid>
             <Button
@@ -115,7 +116,7 @@ export default function SignUp() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="/signin" variant="body2">
+                <Link href="/login" variant="body2">
                   Already have an account? Sign in
                 </Link>
               </Grid>
@@ -124,6 +125,7 @@ export default function SignUp() {
         </Box>
       </Container>
     </ThemeProvider>
+    </>
 }
   </div>
   );

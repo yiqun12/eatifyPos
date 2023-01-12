@@ -13,7 +13,7 @@ import {Row, Col, Container} from "react-bootstrap"
 import * as React from 'react';
 import { useRef } from "react";
 import { useUserContext } from "../context/userContext";
-
+import Navbar from './Navbar'
 
 const theme = createTheme();
 
@@ -22,7 +22,7 @@ export default function SignIn() {
 
   const emailRef = useRef();
   const { signInUser, forgotPassword } = useUserContext();
-  const { user, loading, error } = useUserContext();
+  const { user, loading, signInWithGoogle, } = useUserContext();
   if (user) {
     window.location.href = "/";
   }
@@ -53,6 +53,8 @@ export default function SignIn() {
  User in
   </div>
         :
+        <><Navbar />
+
     <ThemeProvider theme={theme} >
 
       <Container component="main" maxWidth="xs">
@@ -105,7 +107,7 @@ export default function SignIn() {
             >
               Sign In
             </Button>
-            <Button               type="submit"
+            <Button    onClick={signInWithGoogle}
           fullWidth
           variant="contained"
           sx={{ mb: 2 }} role="button" >
@@ -130,6 +132,7 @@ export default function SignIn() {
       </Container>
 
     </ThemeProvider>
+    </>
         }
     </div>
   );

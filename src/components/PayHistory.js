@@ -120,7 +120,6 @@ async function handleCardAction(payment, docId) {
   //console.log(elements.getElement(CardElement))
   return (
     <div>
-          <h2>Payments</h2>
   <ul id="payments-list"></ul>
     </div>
   );
