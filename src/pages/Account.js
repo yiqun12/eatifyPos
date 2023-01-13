@@ -12,7 +12,7 @@ import { useUserContext } from "../context/userContext";
 
 
 const Account = () => {
-  const { promise,user, logoutUser } = useUserContext();
+  const { promise, logoutUser } = useUserContext();
   
   const [activeTab, setActiveTab] = useState('');
   const [NickName, SetNickName] = useState('');
@@ -22,20 +22,18 @@ const Account = () => {
     e.preventDefault();
     setActiveTab(tabHref);
   }
- 
+  const user = JSON.parse(localStorage.getItem('user'));
+
   const location = useLocation();
+
   useEffect(() => {
-    if (user) {
-      SetNickName(user.displayName)
-      SetEmail(user.email)
-    }
+
     setActiveTab(window.location.hash);
-  }, [user]);
+  }, []);
  //google login button functions
-   //console.log(NickName,Email)
   return (
     <>
-      <Navbar />
+
       <Elements stripe={promise}>
       <>
   <meta charSet="utf-8" />
@@ -178,11 +176,11 @@ const Account = () => {
               <form>
                 <div className="form-group">
                   <label style={{"font-size": "200%", 
-                  "font-weight": "bold"}}>{NickName}</label>
+                  "font-weight": "bold"}}>{ (user)?user.displayName:""}</label>
 
                 </div>
                 <div className="form-group">
-                  <label htmlFor="bio">{Email}</label>
+                  <label htmlFor="bio">{ (user)?user.email:""}</label>
 
                 </div>
                 <div className="form-group small text-muted">

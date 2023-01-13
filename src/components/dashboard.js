@@ -6,7 +6,9 @@ import Checkout from './Checkout';
 import PayHistory from './PayHistory';
 
 const Dashboard = () => {
-  const { promise,user, logoutUser, emailVerification } = useUserContext();
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  const { promise, logoutUser, emailVerification } = useUserContext();
   var verificationStatus = user.emailVerified ? "Verified" : "Not Verified";
   return (
     <div>

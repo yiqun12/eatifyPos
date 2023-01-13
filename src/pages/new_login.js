@@ -22,7 +22,9 @@ export default function SignIn() {
 
   const emailRef = useRef();
   const { signInUser, forgotPassword } = useUserContext();
-  const { user, loading, signInWithGoogle, } = useUserContext();
+  const { signInWithGoogle, } = useUserContext();
+  const user = JSON.parse(localStorage.getItem('user'));
+
   if (user) {
     window.location.href = "/";
   }
@@ -53,7 +55,7 @@ export default function SignIn() {
  Loading...
   </div>
         :
-        <><Navbar />
+        <>
 
     <ThemeProvider theme={theme} >
 

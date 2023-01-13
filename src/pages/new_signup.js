@@ -20,7 +20,9 @@ import Navbar from './Navbar'
 const theme = createTheme();
 
 export default function SignUp() {
-  const { user } = useUserContext();
+  
+  //const { user } = useUserContext();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const { registerUser } = useUserContext();
   const onSubmit = (e) => {
@@ -45,10 +47,8 @@ export default function SignUp() {
   <div>
  Loading...
   </div>
-
         :
         <>
-        <Navbar />
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />

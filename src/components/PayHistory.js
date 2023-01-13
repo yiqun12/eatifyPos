@@ -56,7 +56,9 @@ async function handleCardAction(payment, docId) {
       .set(payment, { merge: true });
   }
   
-  const { user,promise } = useUserContext();
+  const { promise } = useUserContext();
+  const user = JSON.parse(localStorage.getItem('user'));
+
   let customerData ={}
   ///
   const stripe = useStripe();

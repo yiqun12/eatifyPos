@@ -11,8 +11,8 @@ import { useEffect } from 'react';
 function Checkout() {
 // Format amount for diplay in the UI
 
-  const { user } = useUserContext();
-  
+  const user = JSON.parse(localStorage.getItem('user'));
+
   function startDataListeners() {
   
     /**

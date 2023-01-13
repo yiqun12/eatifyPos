@@ -44,10 +44,10 @@ export const UserContextProvider = ({ children }) => {
     setLoading(true);
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        setUser(firebaseUser);
+        const {uid, displayName, email} = firebaseUser;
+        const filteredProperties = Object.assign({}, {uid}, {displayName}, {email});
+        setUser(filteredProperties);
         currentUser = firebaseUser;
-        console.log(currentUser.uid)
-
       } else {
         setUser(null);
       }
@@ -151,8 +151,6 @@ export const UserContextProvider = ({ children }) => {
     forgotPassword,
     signInWithGoogle,
     emailVerification,
-    customerData,
-    currentUser,
     promise
     // isEmailVerified
   };

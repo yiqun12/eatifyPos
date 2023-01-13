@@ -25,15 +25,14 @@
 }
 
 .item {
+  border-top:  1px solid #E1E8EE;
   padding: 20px 30px;
   height: 120px;
   display: flex;
-}
-
-.item:nth-child(3) {
-  border-top:  1px solid #E1E8EE;
   border-bottom:  1px solid #E1E8EE;
 }
+
+
 
 /* Buttons -  Delete and Like */
 .buttons {

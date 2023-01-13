@@ -9,7 +9,7 @@ import Navbar from './Navbar'
 const Account = () => {
   return (
     <>
-      <Navbar/>
+
       <Hero />
       <Card />
       <Food />

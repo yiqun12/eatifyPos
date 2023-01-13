@@ -15,8 +15,12 @@ import { FaPlus } from 'react-icons/fa';
 import { useUserContext } from "../context/userContext";
 
 const Navbar = () => {
-  const { user , logoutUser} = useUserContext();
+  const { logoutUser} = useUserContext();
+  const user = JSON.parse(localStorage.getItem('user'));
+
   const location = useLocation();
+  const [totalPrice, setTotalPrice] = useState(0);
+
   console.log(user)
   ///shopping cart products
   const [products, setProducts] = useState([
@@ -36,7 +40,11 @@ const Navbar = () => {
     // Update the height of the shopping cart element
     document.querySelector('.shopping-cart').style.height = `${height}px`;
     //maybe add a line here...
-
+    const calculateTotalPrice = () => {
+      const total = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
+      setTotalPrice(total);
+    }
+    calculateTotalPrice();
   }, [products]);
   const handleDeleteClick = (productId) => {
     setProducts((prevProducts) => prevProducts.filter((product) => product.id !== productId));
@@ -277,11 +285,13 @@ const Navbar = () => {
       {/* shoppig cart */}
       <div className="title">
         Shopping Bag
-        <button className="add-product-btn" onClick={() => HandleCheckout()}>Checkout</button>
-        <span ref={spanRef} onClick={closeModal}>&times;</span>
+        <button style={{color:"black"}} onClick={() => HandleCheckout()}>Checkout $${totalPrice}</button>
+
+        <span className="delete-btn" style={{cursor: 'pointer'}} ref={spanRef} onClick={closeModal}></span>
       </div>
 
       {products.map((product) => (
+        
         <div key={product.id} className="item">
           <div className="buttons">
             <span className="delete-btn" onClick={() => handleDeleteClick(product.id)}></span>
@@ -295,8 +305,8 @@ const Navbar = () => {
           </div>
 
           <div className="description">
-            <span>{JSON.stringify(product.name)}</span>
-            <span>${JSON.stringify(product.quantity * product.subtotal)}</span>
+            <span>{product.name}</span>
+            <span>${product.quantity * product.subtotal}</span>
           </div>
 
           <div className="quantity">
@@ -306,7 +316,7 @@ const Navbar = () => {
             <input
   type="number"
   name="name"
-  value={JSON.stringify(product.quantity)}
+  value={product.quantity}
   onChange={(e) => handleQuantityChange(product.id, e.target.value)}
   min="1"
 />
@@ -317,6 +327,7 @@ const Navbar = () => {
           </div>
         </div>
       ))}
+          
     </div>
     
       </div>
