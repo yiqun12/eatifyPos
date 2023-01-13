@@ -2,6 +2,7 @@ import React from 'react'
 import {categories} from '../data/data.js'
 
 const Category = () => {
+  console.log("Category printed once")
   return (
     <div className='max-w-[1240px] mx-auto px-4 py-12'>
         <h1 className='text-orange-600 font-bold text-4xl text-center'>Topsss Rated Menu Items</h1>

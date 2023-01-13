@@ -3,6 +3,7 @@ import {data} from '../data/data.js'
 
 const Card = () => {
 
+    console.log("Card printed once")
     function getRandomNumbers(n) {
         var numbers = Array.from({length: n}, (_, i) => i);
         var randomNumbers = [];

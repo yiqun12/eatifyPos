@@ -6,6 +6,7 @@ import Button from 'react-bootstrap/Button';
 import { BsPlusCircle} from 'react-icons/bs';
 
 const Food = () => {
+    console.log("Food printed once")
     const [foods, setFoods] = useState(data);
 
     const filterType = (category) => {

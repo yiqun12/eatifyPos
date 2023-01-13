@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -40,7 +40,24 @@ export const UserContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useState(() => {
+  // useState(() => {
+  //   setLoading(true);
+  //   const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+  //     if (firebaseUser) {
+  //       setUser(firebaseUser);
+  //       currentUser = firebaseUser;
+  //       console.log(currentUser.uid)
+
+  //     } else {
+  //       setUser(null);
+  //     }
+  //     setError("");
+  //     setLoading(false);
+  //   });
+  //   return unsubscribe;
+  // }, []);
+
+  useEffect(() => {
     setLoading(true);
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
@@ -55,7 +72,7 @@ export const UserContextProvider = ({ children }) => {
       setLoading(false);
     });
     return unsubscribe;
-  }, []);
+}, [onAuthStateChanged]);
 
   const registerUser = (email, password, name) => {
     setLoading(true);

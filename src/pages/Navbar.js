@@ -22,12 +22,12 @@ const Navbar = () => {
   const [products, setProducts] = useState([
   ]);
 
-  useEffect(() => {
-    // Call the displayAllProductInfo function to retrieve the array of products from local storage
-    let productArray = displayAllProductInfo();
-    // Update the products state with the array of products
-    setProducts(productArray);
-  }, []);
+  // useEffect(() => {
+  //   // Call the displayAllProductInfo function to retrieve the array of products from local storage
+  //   let productArray = displayAllProductInfo();
+  //   // Update the products state with the array of products
+  //   setProducts(productArray);
+  // }, []);
 
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products

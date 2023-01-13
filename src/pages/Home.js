@@ -6,7 +6,7 @@ import Hero from './Hero'
 import Navbar from './Navbar'
 
 
-const Account = () => {
+const Home = () => {
   return (
     <>
       <Navbar/>
@@ -18,4 +18,4 @@ const Account = () => {
   )
 }
 
-export default Account
+export default Home
