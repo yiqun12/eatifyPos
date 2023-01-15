@@ -207,10 +207,7 @@ const Account = () => {
                   <div className="small text-muted mb-3">
                     You have not added a payment method
                   </div>
-                  <button className="btn btn-info" type="button">
-                    Add Payment Method
-                  </button>
-                  
+
                 <CardSection />
                 <Checkout/>
                 

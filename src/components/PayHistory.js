@@ -2,11 +2,10 @@
 * Use the CSS tab above to style your Element's container.
 */
 import React from 'react';
-import {useStripe, useElements} from '@stripe/react-stripe-js';
 
 import firebase from 'firebase/compat/app';
-import { useUserContext } from "../context/userContext";
-import { useEffect } from 'react';
+import {loadStripe} from '@stripe/stripe-js';
+
 
 
 function PayHistory() {
@@ -56,17 +55,10 @@ async function handleCardAction(payment, docId) {
       .set(payment, { merge: true });
   }
   
-  const { promise } = useUserContext();
+  const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
+  const promise = loadStripe(STRIPE_PUBLISHABLE_KEY);
+  
   const user = JSON.parse(localStorage.getItem('user'));
-
-  let customerData ={}
-  ///
-  const stripe = useStripe();
-  const elements = useElements();
-  console.log(user.uid)
-  let paymentMethodAdded = false;
-  useEffect(() => {
-
   /**
    * Get all payments for the logged in customer
    */
@@ -118,7 +110,7 @@ async function handleCardAction(payment, docId) {
       });
     });
     
-}, [stripe, elements]);
+
   //console.log(elements.getElement(CardElement))
   return (
     <div>

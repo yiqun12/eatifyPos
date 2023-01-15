@@ -13,6 +13,7 @@ import minusSvg from './minus.svg';
 import { useLocation } from 'react-router-dom';
 import { FaPlus } from 'react-icons/fa';
 import { useUserContext } from "../context/userContext";
+import { AbcSharp } from '@mui/icons-material';
 
 const Navbar = () => {
   const { logoutUser} = useUserContext();
@@ -35,7 +36,7 @@ const Navbar = () => {
 
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
-    const height = products.length * 123 + 80; // 123 is the height of each product element and 80 is the top and bottom margin of the shopping cart
+    const height = products.length * 123 + 100; // 123 is the height of each product element and 80 is the top and bottom margin of the shopping cart
     
     // Update the height of the shopping cart element
     document.querySelector('.shopping-cart').style.height = `${height}px`;
@@ -283,11 +284,11 @@ const Navbar = () => {
           <div className="shopping-cart">
             
       {/* shoppig cart */}
-      <div className="title">
-        Shopping Bag
-        <button style={{color:"black"}} onClick={() => HandleCheckout()}>Checkout $${totalPrice}</button>
+      <div className="title" style={{height:'80px'}}>
+        Total Price: ${totalPrice} 
+        <button style={{ margin: '10px', marginLeft: '10px'}} className="btn btn-info" onClick={() => HandleCheckout()}>Checkout</button>
 
-        <span className="delete-btn" style={{cursor: 'pointer'}} ref={spanRef} onClick={closeModal}></span>
+        <span className="delete-btn" style={{float: 'right',cursor: 'pointer'}} ref={spanRef} onClick={closeModal}></span>
       </div>
 
       {products.map((product) => (
@@ -329,8 +330,7 @@ const Navbar = () => {
       ))}
           
     </div>
-    
-      </div>
+  ==-     </div>
 
             <div className="flex max-w-[1240px] mx-auto items-center p-4 justify-between"
             style = {{"border-bottom": "solid"}} >

@@ -34,8 +34,7 @@ const CARD_ELEMENT_OPTIONS = {
 
 function CardSection() {
   
-  const user = JSON.parse(localStorage.getItem('user'));
-
+  const { user } = useUserContext();
   let customerData ={}
   ///
   const stripe = useStripe();
@@ -85,14 +84,12 @@ function CardSection() {
                 console.log(elements.getElement(CardElement));
                 const { setupIntent, error } = stripe.confirmCardSetup(
                   customerData.setup_secret,
-                 
                   {
                     payment_method: {
                       card: elements.getElement(CardElement),
                       billing_details: {
                         name: cardholderName,
                       },
-                      //unique_by_default:true,
                     },
                   }
                 ).then(function(result) {
@@ -118,7 +115,7 @@ function CardSection() {
                         .querySelectorAll('button')
                         .forEach((button) => (button.disabled = false));
                       paymentMethodAdded = true;
-                      //window.location.reload()
+                      window.location.reload()
                     });
 
                   }
@@ -137,14 +134,8 @@ function CardSection() {
   return (
     <div>
     <details id="add-new-card">
-    <summary>Add new</summary>
-    <p>
-      Use any of the
-      <a href="https://stripe.com/docs/testing#international-cards">
-        Stripe test cards
-      </a>
-      for this demo!
-    </p>
+
+    <summary className="btn btn-info" >Add New Payment Method</summary>
     <form id="payment-method-form">
       <label>
         Cardholder name
