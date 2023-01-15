@@ -330,7 +330,7 @@ const Navbar = () => {
       ))}
           
     </div>
-  ==-     </div>
+    </div>
 
             <div className="flex max-w-[1240px] mx-auto items-center p-4 justify-between"
             style = {{"border-bottom": "solid"}} >

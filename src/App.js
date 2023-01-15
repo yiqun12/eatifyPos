@@ -8,6 +8,7 @@ import LogIn from './pages/new_login';
 import Navbar from './pages/Navbar'
 import Account from './pages/Account';
 import Home from './pages/Home'
+import Checkout from './pages/Checkout'
 import {
   BrowserRouter,
   Routes,
@@ -28,6 +29,7 @@ function App() {
       <Routes>
       <Route exact path="/" element={<Home />} />
       <Route path="Auth" element={<Auth />} />
+      <Route path="Checkout" element={<Checkout />} />
       <Route path="Dashboard" element={<Dashboard />} />
       <Route path="Account" element={<Account />}></Route>
       <Route path="success.html" element={<Success />}></Route>
