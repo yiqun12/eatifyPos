@@ -10,23 +10,62 @@ import  PayHistory from "../components/PayHistory";
 import {Elements} from '@stripe/react-stripe-js';
 import { useUserContext } from "../context/userContext";
 
+// const { user } = useUserContext();
 
 const Account = () => {
+
+
+  // const { user } = useUserContext();
+  // if (user === null) {
+  //   window.location.href = '/login';
+  // }
+  // if (localStorage.getItem('user') == null) {
+  //   window.location.href = '/login';
+  // }
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  // const location = useLocation();
+  // const [totalPrice, setTotalPrice] = useState(0);
+
+  // console.log(user)
+  // if (JSON.parse(localStorage.getItem('user')) == null) {
+  //   window.location.href = '/login';
+  // }
+
+
+  // window.location.href = '/login';
+
   const { promise, logoutUser } = useUserContext();
   console.log(promise)
   const [activeTab, setActiveTab] = useState('');
   const [NickName, SetNickName] = useState('');
   const [Email, SetEmail] = useState('');
+
+  // if (localStorage.getItem('user') == null) {
+  //   window.location.href = '/login';
+  // }
   
   const handleTabClick = (e, tabHref) => {
     e.preventDefault();
     setActiveTab(tabHref);
   }
-  const user = JSON.parse(localStorage.getItem('user'));
+
+  // const user = JSON.parse(localStorage.getItem('user'));
+  // console.log(user)
+  // if (user === null) {
+  //   window.location.href = '/login';
+  //   // console.log("user is null")
+
+  // }
 
   const location = useLocation();
-
+ 
   useEffect(() => {
+    // const isAllowed = JSON.parse(localStorage.getItem('user'));
+    // console.log(isAllowed)
+    // if (!isAllowed) {
+    //   window.location.href = '/login'; // or any other page you want to redirect to
+    // }
 
     setActiveTab(window.location.hash);
   }, []);

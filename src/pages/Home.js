@@ -13,7 +13,7 @@ const Account = () => {
       <Hero />
       <Card />
       <Food />
-      <Category />
+      {/* <Category /> */}
     </>
   )
 }
