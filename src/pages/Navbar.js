@@ -288,8 +288,7 @@ const Navbar = () => {
       {/* shoppig cart */}
       <div className="title" style={{height:'80px'}}>
         Total Price: ${totalPrice} 
-        <button style={{ margin: '10px', marginLeft: '10px'}} className="btn btn-info" onClick={() => HandleCheckout()}>Checkout</button>
-
+        <button style={{ margin: '10px', marginLeft: '10px'}} className="btn btn-info" onClick={event =>  window.location.href='/'}>Checkout</button>
         <span className="delete-btn" style={{float: 'right',cursor: 'pointer'}} ref={spanRef} onClick={closeModal}></span>
       </div>
 
