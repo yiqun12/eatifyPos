@@ -1,5 +1,4 @@
 import React from 'react'
-import { FiSearch } from 'react-icons/fi'
 import { useState } from 'react';
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.css';
@@ -11,9 +10,9 @@ import item_1_pic from "./item-1.png"
 import plusSvg from './plus.svg';
 import minusSvg from './minus.svg';
 import { useLocation } from 'react-router-dom';
-import { FaPlus } from 'react-icons/fa';
 import { useUserContext } from "../context/userContext";
-import { AbcSharp } from '@mui/icons-material';
+import 'bootstrap/dist/css/bootstrap.css'; 
+import './group_list.css';
 
 const Navbar = () => {
   const { logoutUser} = useUserContext();
@@ -274,12 +273,15 @@ const Navbar = () => {
           console.error(error);
         }
       };
+      const { promise } = useUserContext();
 
     return (
         <>
-
+<div>
+  </div>
       <div ref={modalRef} className="modal">
             
+
 {/* popup content */}
           <div className="shopping-cart">
             

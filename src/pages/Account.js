@@ -13,7 +13,7 @@ import { useUserContext } from "../context/userContext";
 
 const Account = () => {
   const { promise, logoutUser } = useUserContext();
-  
+  console.log(promise)
   const [activeTab, setActiveTab] = useState('');
   const [NickName, SetNickName] = useState('');
   const [Email, SetEmail] = useState('');
@@ -209,7 +209,6 @@ const Account = () => {
                   </div>
 
                 <CardSection />
-                <Checkout/>
                 
                 </div>
                 <div className="form-group mb-0">

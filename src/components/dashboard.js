@@ -5,9 +5,9 @@ import CardSection from './CardSection';
 import Checkout from './Checkout';
 import PayHistory from './PayHistory';
 
-const Dashboard = () => {
+const Dashboard = (props) => {
   const user = JSON.parse(localStorage.getItem('user'));
-
+  const { totalPrice } = props;
   const { promise, logoutUser, emailVerification } = useUserContext();
   var verificationStatus = user.emailVerified ? "Verified" : "Not Verified";
   return (
@@ -20,23 +20,12 @@ const Dashboard = () => {
         href="https://www.gstatic.com/firebasejs/ui/4.5.0/firebase-ui-auth.css"
       />
       </React.Fragment>
-      <h1>Dashboard </h1>
-      {user.photoURL && <img src={user.photoURL} />}
-      <h2>Name : {user.displayName}</h2>
-      <h2>Email : {user.email}</h2>
-      <button onClick={logoutUser}>Log out</button>
-      <button onClick={emailVerification}>Verify Email</button>
-      <h2>Verification Status : {verificationStatus} </h2>
-      <div>
-        <h2>Payment Methods</h2>
         <Elements stripe={promise}>
                 <CardSection />
-          <Checkout/>
+          <Checkout totalPrice={totalPrice}/>
           <PayHistory />
         </Elements>
       </div>
-
-    </div>
   );
 };
 

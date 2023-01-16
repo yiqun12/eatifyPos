@@ -133,12 +133,11 @@ function CardSection() {
   //console.log(elements.getElement(CardElement))
   return (
     <div>
-    <details id="add-new-card">
-
-    <summary className="btn btn-info" >Add New Payment Method</summary>
+    <div id="add-new-card">
     <form id="payment-method-form">
       <label>
         Cardholder name
+        <br></br>
         <input type="text" name="name" required />
       </label>
       <fieldset>
@@ -152,7 +151,7 @@ function CardSection() {
       <div id="error-message" role="alert"></div>
       <button>Save Card</button>
     </form>
-  </details>
+  </div>
 
     </div>
 

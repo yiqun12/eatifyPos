@@ -2,10 +2,14 @@ import React from 'react'
 import { useState } from 'react';
 import './checkout.css';
 import  CardSection from "../components/CardSection";
-import  Checkout_com from "../components/Checkout";
 import {Elements} from '@stripe/react-stripe-js';
-import { useUserContext } from "../context/userContext";
 import {loadStripe} from '@stripe/stripe-js';
+import 'bootstrap/dist/css/bootstrap.css'; 
+import React, { seEffect } from 'react';
+import './group_list.css';
+import Dashboard from "../components/dashboard";
+import { useUserContext } from "../context/userContext";
+
 
 const App = () => {
   
@@ -56,8 +60,6 @@ return(
     const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
     const promise = loadStripe(STRIPE_PUBLISHABLE_KEY);
     return (
-    <Elements stripe={promise}>
-      <CardSection />
    <div className="checkout ">
       <div className="checkout-container" >
        <h3 className="heading-3">Credit card checkout</h3>
@@ -74,7 +76,7 @@ return(
         <Button text="Place order" />
       </div>
    </div>
-   </Elements>)
+   )
   };
   
   const Input = (props) => (
