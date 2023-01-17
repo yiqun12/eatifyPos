@@ -68,6 +68,7 @@ async function handleCardAction(payment, docId) {
     .collection('stripe_customers')
     .doc(user.uid)
     .collection('payments')
+    .orderBy("dateTime", "desc")
     .onSnapshot((snapshot) => {
       snapshot.forEach((doc) => {
         const payment = doc.data();
@@ -77,13 +78,15 @@ async function handleCardAction(payment, docId) {
           liElement = document.createElement('li');
           liElement.id = `payment-${doc.id}`;
         }
-
+        console.log(payment.dateTime)
         let content = '';
+
         if (
-          payment.status === 'new' ||
+          payment.status === 'new' & !payment.error ||
           payment.status === 'requires_confirmation'
         ) {
-          content = `Creating Payment for ${formatAmount(
+          
+          content = `(Pending)🚨 Creating Payment for ${formatAmount(
             payment.amount,
             payment.currency
           )}`;
@@ -99,7 +102,9 @@ async function handleCardAction(payment, docId) {
             payment.currency
           )} ${payment.status}`;
           handleCardAction(payment, doc.id);
-        } else {
+        } else if(payment.error) {
+          content = `⚠️ Payment failed. ${payment.error}`;
+        }else {
           content = `⚠️ Payment for ${formatAmount(
             payment.amount,
             payment.currency

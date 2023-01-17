@@ -15,6 +15,7 @@ import { useRef, useEffect } from 'react';
 const App = () => {
   
     let products = JSON.parse(localStorage.getItem("products"));
+    //console.log(localStorage.getItem("products"))
     const [totalPrice, setTotalPrice] = useState(0);
     useEffect(() => {
       //maybe add a line here...

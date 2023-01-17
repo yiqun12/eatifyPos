@@ -67,12 +67,17 @@ function Checkout(props) {
     const currency = 'usd';
     console.log(currency)
     console.log(amount)
-    const data = {
+    const dateTime = new Date().toISOString();
+    const date = dateTime.slice(0,10) + '-' + dateTime.slice(11,13) + '-' + dateTime.slice(14,16) + '-' + dateTime.slice(17,19) + '-' + dateTime.slice(20,22);        
+  const data = {
       payment_method: form.get('payment-method'),
       currency,
-      amount: formatAmountForStripe(amount, currency),
+      amount: amount,
       status: 'new',
+      receipt:localStorage.getItem("products"),
+      dateTime:date,
     };
+    //console.log(data)
   
     await firebase
       .firestore()
@@ -120,7 +125,7 @@ function Checkout(props) {
           <form id="payment-form">
             <div>
               <label>
-                Card:
+                Or Select Card and pay:
                 <select name="payment-method" required></select>
               </label>
             </div>
