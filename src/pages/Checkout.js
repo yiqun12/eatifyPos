@@ -36,7 +36,6 @@ const App = () => {
           </div>
           <div className="col no-gutters" style={{height:"100%"}} >
           <Checkout totalPrice={totalPrice} />
-
           </div>
         </div>
       </div>

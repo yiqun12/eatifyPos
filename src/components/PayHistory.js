@@ -45,7 +45,6 @@ async function handleCardAction(payment, docId) {
     } else if (paymentIntent) {
       payment = paymentIntent;
     }
-  
     await firebase
       .firestore()
       .collection('stripe_customers')
@@ -53,6 +52,7 @@ async function handleCardAction(payment, docId) {
       .collection('payments')
       .doc(docId)
       .set(payment, { merge: true });
+  
   }
   
   const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
@@ -87,7 +87,7 @@ async function handleCardAction(payment, docId) {
         ) {
           
           content = `(Pending)🚨 Creating Payment for ${formatAmount(
-            payment.amount,
+            payment.amount*100,
             payment.currency
           )}`;
         } else if (payment.status === 'succeeded') {
@@ -95,7 +95,7 @@ async function handleCardAction(payment, docId) {
           content = `✅ Payment for ${formatAmount(
             payment.amount,
             payment.currency
-          )} on ${card.brand} card •••• ${card.last4}.`;
+          )} on ${card.brand} card •••• ${card.last4}.`;//${payment.dateTime} ${payment.receiptData} ${payment.charges.data[0].billing_details.name} 
         } else if (payment.status === 'requires_action') {
           content = `🚨 Payment for ${formatAmount(
             payment.amount,

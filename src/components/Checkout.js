@@ -69,7 +69,8 @@ function Checkout(props) {
     console.log(amount)
     const dateTime = new Date().toISOString();
     const date = dateTime.slice(0,10) + '-' + dateTime.slice(11,13) + '-' + dateTime.slice(14,16) + '-' + dateTime.slice(17,19) + '-' + dateTime.slice(20,22);        
-  const data = {
+    console.log(form.get('payment-method'))
+    const data = {
       payment_method: form.get('payment-method'),
       currency,
       amount: amount,
