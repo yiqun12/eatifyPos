@@ -7,8 +7,8 @@ import { useRef, useEffect } from 'react';
 import "./modal.css"
 import "./shopping_cart.css"
 import item_1_pic from "./item-1.png"
-import plusSvg from './plus.svg';
-import minusSvg from './minus.svg';
+//import plusSvg from './plus.svg';
+//import minusSvg from './minus.svg';
 import { useLocation } from 'react-router-dom';
 import { useUserContext } from "../context/userContext";
 import 'bootstrap/dist/css/bootstrap.css'; 
@@ -313,7 +313,7 @@ const Navbar = () => {
 
           <div className="quantity">
             <button className="plus-btn" type="button" name="button" onClick={() => handlePlusClick(product.id)}>
-            <img src={plusSvg} alt="" />
+            +
             </button>
             <input
   type="number"
@@ -323,7 +323,7 @@ const Navbar = () => {
   min="1"
 />
             <button className="minus-btn" type="button" name="button" onClick={() => handleMinusClick(product.id)}>
-            <img src={minusSvg} alt="" />
+            -
             </button>
 
           </div>
