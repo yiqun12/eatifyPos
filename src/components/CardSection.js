@@ -19,6 +19,7 @@ const CARD_ELEMENT_OPTIONS = {
       fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
       fontSmoothing: "antialiased",
       fontSize: "16px",
+      margin: "20px 5px",
       "::placeholder": {
         color: "#aab7c4",
       },
@@ -29,6 +30,7 @@ const CARD_ELEMENT_OPTIONS = {
     },
   },
 };
+
 
 
 
@@ -149,7 +151,7 @@ function CardSection() {
         </div>
       </fieldset>
       <div id="error-message" role="alert"></div>
-      <button>Save Card</button>
+      <button style ={{color:"white", background:"#007bff", padding:"6px 12px", textAlign:"center", borderRadius:"0.25rem"}}> Save Card</button>
     </form>
   </div>
 

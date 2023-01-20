@@ -50,16 +50,16 @@ const [products, setProducts] = useState(props.products);
 const { totalPrice } = props;
 return(
     <div className="item-container">
-      <h1>Total price: {totalPrice}</h1>
+      <h1>Total price: ${totalPrice}</h1>
         {products.map((product) => (
             <div key={product.id} className="item">
-          <div class="image-container">
+       <div class="image-container">
   <img src={product.image} alt="" />
-</div>
+</div> 
                 <div className="item-image">
 
                 <span className="item-price">{product.name} * {product.quantity}</span>
-    <h2 className="item-price">${product.subtotal* product.quantity}</h2>
+                <p className="item-price">${product.subtotal* product.quantity}</p>
 
                 </div>
             </div>

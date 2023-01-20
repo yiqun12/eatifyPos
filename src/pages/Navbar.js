@@ -35,7 +35,7 @@ const Navbar = () => {
 
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
-    const height = products.length * 123 + 100; // 123 is the height of each product element and 80 is the top and bottom margin of the shopping cart
+    const height = products.length * 123 + 150; // 123 is the height of each product element and 80 is the top and bottom margin of the shopping cart
     
     // Update the height of the shopping cart element
     document.querySelector('.shopping-cart').style.height = `${height}px`;
@@ -283,12 +283,11 @@ const Navbar = () => {
             
 
 {/* popup content */}
-          <div className="shopping-cart">
+          <div className="shopping-cart" >
             
       {/* shoppig cart */}
-      <div className="title" style={{height:'80px'}}>
+      <div className="title">
         Total Price: ${totalPrice} 
-        <button style={{ margin: '10px', marginLeft: '10px'}} className="btn btn-info" onClick={event =>  window.location.href='/Checkout'}>Checkout</button>
         <span className="delete-btn" style={{float: 'right',cursor: 'pointer'}} ref={spanRef} onClick={closeModal}></span>
       </div>
 
@@ -329,7 +328,10 @@ const Navbar = () => {
           </div>
         </div>
       ))}
-          
+      <div style={{margin:"10px", textAlign:"center"}}> 
+        <button style={{width:"80%", display:"block", background:"#dab600", color:"white", border:"0px", margin:"auto", marginTop:"10px"}} className="btn btn-info" onClick={event => window.location.href='/Checkout'}>Checkout</button> 
+      </div>
+
     </div>
     </div>
 
