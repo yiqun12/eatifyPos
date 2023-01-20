@@ -77,6 +77,7 @@ const Checkout = (props) => {
         <h3 className="heading-3">Credit card checkout</h3>
         {loading ? <h2>Loading Payment...</h2> : <> <Dashboard totalPrice={totalPrice} /> </>}
       </div>
+      <span class="loader"></span> <span>You just got hacked $_$</span>
     </div>
   )
 };

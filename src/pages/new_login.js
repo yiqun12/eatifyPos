@@ -65,6 +65,9 @@ export default function SignIn() {
         <Box
           sx={{
             marginTop: 0,
+
+            marginLeft: 2,
+            
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
