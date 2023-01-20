@@ -91,24 +91,32 @@ export const UserContextProvider = ({ children }) => {
     setLoading(true);
     setError("");
 
-
     signInWithEmailAndPassword(auth, email, password)
-      .then((res) => {
-        if (auth.currentUser.emailVerified) {
-          console.log("You're verified")
-        } else { 
-          logoutUser()
-          setError("Email not verified");
-          alert("Your email is not verified, go verify your email at your email address provided")
-          // setError("Email not verified, please verify your email first");
-          // throw new Error("Email not verified");
-          // logoutUser()
-        }
-    
-      })
-      .catch((err) => setError(err.code))
-      .finally(() => setLoading(false));
-  };
+    .then(() => {
+      if (!auth.currentUser.emailVerified) {
+        logoutUser();
+        localStorage.removeItem("user");
+        setError("Email not verified");
+        throw new Error("Email not verified, go verify your email at your email address provided");
+      } else {
+        updateProfile(auth.currentUser, {
+          displayName: auth.currentUser.displayName,
+        })
+      }
+    })
+    .catch((err) => {
+      // alert("Your email is not verified, go verify your email at your email address provided")
+      setError(err.message)
+    })
+    .finally(
+      () => {
+        // if (error === "Email not verified, go verify your email at your email address provided") {
+        //   alert("Your email is not verified, go verify your email at your email address provided")
+        // }
+        setLoading(false)
+      }
+      );
+};
 
   
 

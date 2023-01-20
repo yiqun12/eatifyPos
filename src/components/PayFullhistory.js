@@ -8,7 +8,7 @@ import {loadStripe} from '@stripe/stripe-js';
 
 
 
-function PayHistory() {
+function PayFullhistory() {
 // Format amount for diplay in the UI
 function formatAmount(amount, currency) {
     amount = zeroDecimalCurrency(amount, currency)
@@ -64,16 +64,16 @@ async function handleCardAction(payment, docId) {
    */
   const dateTime = new Date().toISOString();
   const date = dateTime.slice(0,10) + '-' + dateTime.slice(11,13) + '-' + dateTime.slice(14,16) + '-' + dateTime.slice(17,19) + '-' + dateTime.slice(20,22);        
-  
+
   firebase
     .firestore()
     .collection('stripe_customers')
     .doc(user.uid)
     .collection('payments')
     .orderBy("dateTime", "desc")
-    .limit(1) // add this line
-    .where('dateTime', '>', date)
     .onSnapshot((snapshot) => {
+      let count = snapshot.size;
+
       snapshot.forEach((doc) => {
         const payment = doc.data();
 
@@ -90,32 +90,33 @@ async function handleCardAction(payment, docId) {
           payment.status === 'requires_confirmation'
         ) {
           
-          content = `(Pending)🚨 Creating Payment for ${formatAmount(
+          content = `${count} (Pending)🚨 Creating Payment for ${formatAmount(
             payment.amount*100,
             payment.currency
           )}`;
         } else if (payment.status === 'succeeded') {
           const card = payment.charges.data[0].payment_method_details.card;
-          content = `✅ Payment for ${formatAmount(
+          content = `${count} ✅ Successful Payment ${formatAmount(
             payment.amount,
             payment.currency
           )} on ${card.brand} card •••• ${card.last4}.`;//${payment.dateTime} ${payment.receiptData} ${payment.charges.data[0].billing_details.name} 
         } else if (payment.status === 'requires_action') {
-          content = `🚨 Payment for ${formatAmount(
+          content = `${count} 🚨 Payment for ${formatAmount(
             payment.amount,
             payment.currency
-          )} ${payment.status}`;
+          )} ${payment.status} requires action`;
           handleCardAction(payment, doc.id);
         } else if(payment.error) {
-          content = `⚠️ Payment failed. ${payment.error}`;
+          content = `${count} ⚠️ Failed Payment. ${payment.error}`;
         }else {
-          content = `⚠️ Payment for ${formatAmount(
+          content = `${count} ⚠️ Payment for ${formatAmount(
             payment.amount,
             payment.currency
           )} ${payment.status}`;
         }
-        liElement.innerText = content;
+        liElement.innerHTML = content;
         document.querySelector('#payments-list').appendChild(liElement);
+        count--;
       });
     });
     
@@ -128,4 +129,4 @@ async function handleCardAction(payment, docId) {
   );
 };
 
-export default PayHistory;
+export default PayFullhistory;

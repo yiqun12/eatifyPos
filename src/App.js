@@ -15,7 +15,6 @@ import {
   Route,
 } from "react-router-dom";
 
-
 function App() {
   const { user} = useUserContext();
   localStorage.setItem('user', JSON.stringify(user));
@@ -30,7 +29,7 @@ function App() {
       <Route path="Auth" element={<Auth />} />
       <Route path="Checkout" element={<Checkout />} />
       <Route path="Dashboard" element={<Dashboard />} />
-      <Route path="Account" element={<Account />}></Route>
+      { user ?  <Route path="Account" element={<Account />}></Route> : <Route path="Account" element={<LogIn />}></Route> }
       <Route path="success.html" element={<Success />}></Route>
       <Route path="canceled.html" element={<Canceled />}></Route>
       <Route path="SignUp" element={<SignUp />}></Route>

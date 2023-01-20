@@ -5,7 +5,7 @@ import './group_list.css';
 import { useLocation } from 'react-router-dom';
 import  CardSection from "../components/CardSection";
 import  Checkout from "../components/Checkout";
-import  PayHistory from "../components/PayHistory";
+import  PayFullhistory from "../components/PayFullhistory";
 
 import {Elements} from '@stripe/react-stripe-js';
 import { useUserContext } from "../context/userContext";
@@ -211,10 +211,12 @@ const Account = () => {
                 <CardSection />
                 
                 </div>
-                <div className="form-group mb-0">
-                  <label className="d-block">Payment History</label>
+                <label className="d-block">Payment History</label>
+                <div className="form-group mb-0" style={{  "height": "150px",
+  "overflow-y":" scroll"}}>
+                  
                   <div className="border border-gray-500 bg-gray-200 p-3 text-center font-size-sm">
-                  <PayHistory />
+                  <PayFullhistory />
                   </div>
                 </div>
               </form>
