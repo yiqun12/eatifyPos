@@ -112,17 +112,17 @@ async function handleCardAction(payment, docId) {
               }
               console.log(payment)
               //应该显示这次交易id 时间不够 下次再加。
-          content = `<div style="display: inline-block;">
-          <details>
-            <summary>
-            ${count} ✅ ${formatAmount(payment.amount, payment.currency)} ${card.brand} •••• ${card.last4}. <i class="fas fa-arrow-circle-down"></i>
-            </summary>
-            <p>${payment.charges.data[0].billing_details.name} </p>
-            <p>${formattedString}</p>
-            <p>${formattedDate}</p>
-          </details>
-          
-      </div>`;//${payment.dateTime} ${payment.receiptData} ${payment.charges.data[0].billing_details.name} 
+      content = `<div style="display: inline-block;">
+      <details>
+        <summary>
+        ${count}  ✅${formatAmount(payment.amount, payment.currency)} ${card.brand} •••• ${card.last4}. <i class="fas fa-arrow-circle-down"></i>
+        </summary>
+        <div style="border: 1px solid; padding: 10px; background-color: white;">
+        <p style="padding: 0; margin: 0;">Card Owner: ${payment.charges.data[0].billing_details.name} </p>
+        <p style="padding: 0; margin: 0px 0px 0px 5px;">${formattedString}</p>
+        <p style="padding: 0; margin: 0;">${formattedDate}</p>
+        </div>
+      </details>`;//${payment.dateTime} ${payment.receiptData} ${payment.charges.data[0].billing_details.name} 
         } else if (payment.status === 'requires_action') {
           content = `${count} 🚨 Payment for ${formatAmount(
             payment.amount,
@@ -135,7 +135,9 @@ async function handleCardAction(payment, docId) {
             <summary>
             ${count} ⚠️ Failed Payment. <i class="fas fa-arrow-circle-down"></i>
             </summary>
+            <div style="border: 1px solid; padding: 10px; background-color: white;">
             <p>${payment.error} </p>
+            </div>
           </details>
       </div>`;
         }else {

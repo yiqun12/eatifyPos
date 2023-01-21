@@ -33,7 +33,7 @@ const Account = () => {
  //google login button functions
   return (
     <>
-
+<hr></hr>
       <Elements stripe={promise}>
       <>
   <meta charSet="utf-8" />
@@ -191,6 +191,7 @@ const Account = () => {
                 className="btn btn-primary">
                   sign out
                 </button>
+                <hr></hr>
               </form>
             </div>
       ) : null}
@@ -203,10 +204,6 @@ const Account = () => {
               <form>
                 <div className="form-group">
                   <label className="d-block mb-0">Payment Method</label>
-                  <div className="small text-muted mb-3">
-                    You have not added a payment method
-                  </div>
-
                 <CardSection />
                 
                 </div>

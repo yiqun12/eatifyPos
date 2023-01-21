@@ -10,7 +10,7 @@ import firebase from 'firebase/compat/app';
 import { useUserContext } from "../context/userContext";
 import { useEffect } from 'react';
 import e from 'cors';
-
+import './blueButton.css';
 
 const CARD_ELEMENT_OPTIONS = {
   style: {
@@ -156,11 +156,11 @@ function CardSection() {
               <CardElement id="card-element" options={CARD_ELEMENT_OPTIONS} />
             </div>
           </div>
-
+          
             </div>
           </fieldset>
           <div id="error-message" role="alert"></div>
-          <button style={{width : "100%"}} type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save Card</button>
+          <button style={{width : "100%"}} class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save Card</button>
         </form>
       </div>
     </div>
@@ -168,3 +168,4 @@ function CardSection() {
 };
 
 export default CardSection;
+

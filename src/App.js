@@ -31,7 +31,7 @@ function App() {
       <Route path="Auth" element={<Auth />} />
       <Route path="Html" element={<Html />} />
       <Route path="Html2" element={<Html2 />} />
-      <Route path="Checkout" element={<Checkout />} />
+      { user ?  <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route> }
       <Route path="Dashboard" element={<Dashboard />} />
       { user ?  <Route path="Account" element={<Account />}></Route> : <Route path="Account" element={<LogIn />}></Route> }
       <Route path="success.html" element={<Success />}></Route>

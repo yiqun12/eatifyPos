@@ -10,10 +10,11 @@ import './group_list.css';
 import Dashboard from "../components/dashboard";
 import { useUserContext } from "../context/userContext";
 import { useRef, useEffect } from 'react';
+//import './html.css';
 
 
 const App = () => {
-
+  
   let products = JSON.parse(localStorage.getItem("products"));
   //console.log(localStorage.getItem("products"))
   const [totalPrice, setTotalPrice] = useState(0);
@@ -61,8 +62,11 @@ const Item = (props) => {
       </div>
       <div className="gap">
         <div className="col-2 d-flex mx-auto" />
+        <div style={{'text-align': "center"}}>
+  <div className="title" style={{margin: "auto"}}>Thank you!</div>
+  </div>
       </div>
-      <div className="title mx-auto">Thank you!</div>
+
       <div className="main">
         <span id="sub-title">
           <p>

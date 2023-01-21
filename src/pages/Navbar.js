@@ -13,6 +13,7 @@ import { useLocation } from 'react-router-dom';
 import { useUserContext } from "../context/userContext";
 import 'bootstrap/dist/css/bootstrap.css'; 
 import './group_list.css';
+import { flexbox } from '@mui/system';
 
 const Navbar = () => {
   const { logoutUser} = useUserContext();
@@ -273,7 +274,7 @@ const Navbar = () => {
           console.error(error);
         }
       };
-      const { promise } = useUserContext();
+      //const { promise } = useUserContext();
 
     return (
         <>
@@ -288,8 +289,8 @@ const Navbar = () => {
       {/* shoppig cart */}
       <div className="title" style={{height:'80px'}}>
         Total Price: ${totalPrice} 
-        <button style={{ margin: '10px', marginLeft: '10px'}} className="btn btn-info" onClick={event =>  window.location.href='/Checkout'}>Checkout</button>
-        <span className="delete-btn" style={{float: 'right',cursor: 'pointer'}} ref={spanRef} onClick={closeModal}></span>
+        <button style={{ margin: '10px', marginLeft: '10px', backgroundColor: 'black', color: 'white'}} className="btn btn-info" onClick={event =>  window.location.href='/Checkout'}>Checkout</button>
+        <span className="delete-btn" style={{float: 'right',cursor: 'pointer', margin: '0'}} ref={spanRef} onClick={closeModal}></span>
       </div>
 
       {products.map((product) => (
@@ -302,29 +303,36 @@ const Navbar = () => {
 
           <div className="image">
           <div class="image-container">
-  <img src={product.image} alt="" />
+  <img style={{margin: '0px'}} src={product.image} alt="" />
 </div>
           </div>
 
           <div className="description">
-            <span>{product.name}</span>
+            <span style={{whiteSpace: 'nowrap'}}>{product.name}</span>
             <span>${product.quantity * product.subtotal}</span>
           </div>
 
-          <div className="quantity">
-            <button className="plus-btn" type="button" name="button" onClick={() => handlePlusClick(product.id)}>
-            <img src={plusSvg} alt="" />
+        {/* <div className="theset"> */}
+          <div className="quantity" style={{marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
+            <div style={{padding: '2px',  border: "1px solid", alignItems: 'center', justifyContent: 'center', display: "flex"}}>
+            <button className="plus-btn" type="button" name="button" style={{margin: '0px', width: '20px', height: '20px',alignItems: 'center', justifyContent: 'center', display: "flex"}} onClick={() => handlePlusClick(product.id)}>
+            <img style={{margin: '0px', width: '20px', height: '20px'}} src={plusSvg} alt="" />
             </button>
-            <input
+            </div>
+            <span style= {{width: '40px', height: '40px' ,alignItems: 'center', justifyContent: 'center', border: "1px solid", display: "flex"}}>{product.quantity}</span>
+            {/* <input
   type="number"
   name="name"
   value={product.quantity}
   onChange={(e) => handleQuantityChange(product.id, e.target.value)}
   min="1"
-/>
-            <button className="minus-btn" type="button" name="button" onClick={() => handleMinusClick(product.id)}>
-            <img src={minusSvg} alt="" />
+/> */}
+            <div style={{padding: '2px', border: "1px solid", alignItems: 'center', justifyContent: 'center', display: "flex"}}>
+            <button className="minus-btn" type="button" name="button" style={{marginTop: '0px', width: '20px', height: '20px' ,alignItems: 'center', justifyContent: 'center', display: "flex"}} onClick={() => handleMinusClick(product.id)}>
+            <img style={{margin: '0px', width: '20px', height: '20px'}} src={minusSvg} alt="" />
             </button>
+            </div>
+            {/* </div> */}
 
           </div>
         </div>
@@ -341,18 +349,19 @@ const Navbar = () => {
                 <div className='flex'>
                 {user  ?
                 
-                    <div className="login">
+                    <div className="login" style={{whiteSpace: 'nowrap', maxWidth: '70%'}}>
+                    {/* // <div className="login" style={{                    display: flex justify-content: space-around;}}> */}
 
-      {location.pathname !== '/account' && <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} ref={btnRef} onClick={openModal}>Cart</Button>}
-      {location.pathname !== '/' && <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} onClick={event =>  window.location.href='/'}>Home</Button>}
-      {location.pathname !== '/account' && <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} onClick={event =>  window.location.href='/account'}>Account</Button>}
-      <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} onClick= {logoutUser}>Log Out</Button>
+      {location.pathname !== '/account' && <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px'}} ref={btnRef} onClick={openModal}>Cart</Button>}
+      {location.pathname !== '/' && <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick={event =>  window.location.href='/'}>Home</Button>}
+      {location.pathname !== '/account' && <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick={event =>  window.location.href='/account'}>Account</Button>}
+      <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick= {logoutUser}>Log Out</Button>
                     </div>
 :
-<div className="login">
-<Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} onClick={event =>  window.location.href='/login'}>Log in</Button>
-<Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} onClick={event =>  window.location.href='/signup'}>Sign up</Button>
-{location.pathname !== '/login' &&location.pathname !== '/signup' && <Button variant="dark" style={{ marginLeft: '10px',padding:' 7px 20px' }} ref={btnRef} onClick={openModal}>Cart</Button>}
+<div className="login" style={{whiteSpace: 'nowrap', maxWidth: '70%'}}>
+<Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick={event =>  window.location.href='/login'}>Log in</Button>
+<Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick={event =>  window.location.href='/signup'}>Sign up</Button>
+{location.pathname !== '/login' &&location.pathname !== '/signup' && <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} ref={btnRef} onClick={openModal}>Cart</Button>}
 
 </div>
 }
