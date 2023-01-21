@@ -2,9 +2,9 @@
 * Use the CSS tab above to style your Element's container.
 */
 import React from 'react';
-import {CardElement} from '@stripe/react-stripe-js';
-import {useStripe, useElements} from '@stripe/react-stripe-js';
-import {loadStripe} from '@stripe/stripe-js';
+import { CardElement } from '@stripe/react-stripe-js';
+import { useStripe, useElements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
 import firebase from 'firebase/compat/app';
 import { useUserContext } from "../context/userContext";
@@ -33,16 +33,16 @@ const CARD_ELEMENT_OPTIONS = {
 
 
 function CardSection() {
-  
+
   const { user } = useUserContext();
-  let customerData ={}
+  let customerData = {}
   ///
   const stripe = useStripe();
   const elements = useElements();
   console.log(user.uid)
   let paymentMethodAdded = false;
   useEffect(() => {
-    
+
     document
       .querySelector('#payment-method-form')
       .addEventListener('submit', async (event) => {
@@ -50,17 +50,17 @@ function CardSection() {
         if (!event.target.reportValidity()) {
           return;
         }
-    
+
         document
           .querySelectorAll('button')
           .forEach((button) => (button.disabled = true));
         if (!stripe || !elements) {
-          
+
           // Stripe.js has not yet loaded.
           // Make sure to disable form submission until Stripe.js has loaded.
           return;
         } else if (!paymentMethodAdded) {
-          
+
           // Payment method has not yet been added
           // Proceed with adding payment method
           console.log(elements);
@@ -92,7 +92,7 @@ function CardSection() {
                       },
                     },
                   }
-                ).then(function(result) {
+                ).then(function (result) {
                   console.log(result.error);
                   if (result.error != null) {
                     console.log('error');
@@ -103,20 +103,20 @@ function CardSection() {
                   } else if (result.setupIntent != null) {
 
                     firebase
-                    .firestore()
-                    .collection('stripe_customers')
-                    .doc(user.uid)
-                    .collection('payment_methods')
-                    .add({ id: result.setupIntent.payment_method })
-                    .then(() => {
-                      // Payment method was successfully added
-                      document.querySelector('#add-new-card').open = false;
-                      document
-                        .querySelectorAll('button')
-                        .forEach((button) => (button.disabled = false));
-                      paymentMethodAdded = true;
-                      window.location.reload()
-                    });
+                      .firestore()
+                      .collection('stripe_customers')
+                      .doc(user.uid)
+                      .collection('payment_methods')
+                      .add({ id: result.setupIntent.payment_method })
+                      .then(() => {
+                        // Payment method was successfully added
+                        document.querySelector('#add-new-card').open = false;
+                        document
+                          .querySelectorAll('button')
+                          .forEach((button) => (button.disabled = false));
+                        paymentMethodAdded = true;
+                        window.location.reload()
+                      });
 
                   }
                 });
@@ -128,34 +128,42 @@ function CardSection() {
           return;
         }
       });
-    
-}, [stripe, elements]);
+
+  }, [stripe, elements]);
   //console.log(elements.getElement(CardElement))
   return (
-    <div>
-    <div id="add-new-card">
-    <form id="payment-method-form">
-      <label>
-        Cardholder name
-        <br></br>
-        <input type="text" name="name" required />
-      </label>
-      <fieldset>
-        <div id="card-element">
-        <label style={{width: "400px"}}>
-      Card details
-      <CardElement options={CARD_ELEMENT_OPTIONS} />
-    </label>
-        </div>
-      </fieldset>
-      <div id="error-message" role="alert"></div>
-      <button>Save Card</button>
-    </form>
-  </div>
+    <div id="card2-header">
+      <div id="add-new-card">
+        <form id="payment-method-form">
 
+          <div className="row-1">
+            <div className="row row-2">
+              <span id="card2-inner">Card holder name</span>
+            </div>
+            <div className="row row-2">
+              <input type="text" name="name" required placeholder="Your name" />
+            </div>
+          </div>
+
+          <fieldset>
+            <div id="card-element">
+                
+              <div className="row-1" style={{ width: "100%" }}>
+            <div className="row row-2">
+              <span id="card2-inner">Card details</span>
+            </div>
+            <div className="row row-2">
+              <CardElement id="card-element" options={CARD_ELEMENT_OPTIONS} />
+            </div>
+          </div>
+
+            </div>
+          </fieldset>
+          <div id="error-message" role="alert"></div>
+          <button style={{width : "100%"}} type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save Card</button>
+        </form>
+      </div>
     </div>
-
-
   );
 };
 

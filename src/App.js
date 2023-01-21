@@ -8,6 +8,8 @@ import LogIn from './pages/new_login';
 import Navbar from './pages/Navbar'
 import Account from './pages/Account';
 import Home from './pages/Home'
+import Html from './pages/Html'
+import Html2 from './pages/Html2'
 import Checkout from './pages/Checkout'
 import {
   BrowserRouter,
@@ -27,6 +29,8 @@ function App() {
       <Routes>
       <Route exact path="/" element={<Home />} />
       <Route path="Auth" element={<Auth />} />
+      <Route path="Html" element={<Html />} />
+      <Route path="Html2" element={<Html2 />} />
       <Route path="Checkout" element={<Checkout />} />
       <Route path="Dashboard" element={<Dashboard />} />
       { user ?  <Route path="Account" element={<Account />}></Route> : <Route path="Account" element={<LogIn />}></Route> }

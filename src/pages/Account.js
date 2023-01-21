@@ -48,7 +48,6 @@ const Account = () => {
   />
   
   <div className="container">
-<hr></hr>
     {/* /Breadcrumb */}
     <div className="row gutters-sm">
       <div className="col-md-4 d-none d-md-block">
@@ -211,7 +210,7 @@ const Account = () => {
                 <CardSection />
                 
                 </div>
-                <label className="d-block">Payment History</label>
+                <label className="d-block">Payment History (click triangle for details)</label>
                 <div className="form-group mb-0" style={{  "height": "150px",
   "overflow-y":" scroll"}}>
                   

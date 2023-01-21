@@ -46,24 +46,68 @@ const App = () => {
   height: '100px',
   'object-fit': 'cover'}}/> */
 const Item = (props) => {
+
   const [products, setProducts] = useState(props.products);
   const { totalPrice } = props;
+  console.log(products)
+
   return (
-    <div className="item-container">
-      <h1>Total price: {totalPrice}</h1>
-      {products.map((product) => (
-        <div key={product.id} className="item">
-          <div class="image-container">
-            <img src={product.image} alt="" />
-          </div>
-          <div className="item-image">
-
-            <span className="item-price">{product.name} * {product.quantity}</span>
-            <h2 className="item-price">${product.subtotal * product.quantity}</h2>
-
-          </div>
+    <div className="card2 mt-50 mb-50">
+      <div className="col d-flex">
+        {/** 
+        <span className="text-muted" id="orderno">
+          order #546924
+        </span>*/}
+      </div>
+      <div className="gap">
+        <div className="col-2 d-flex mx-auto" />
+      </div>
+      <div className="title mx-auto">Thank you!</div>
+      <div className="main">
+        <span id="sub-title">
+          <p>
+            <b>Payment Summary</b>
+          </p>
+        </span>
+        {products.map((product, index) => {
+          return (
+            <div className="row row-main" key={index}>
+              <div className="col-3">
+                <div style={{ width: '65px', height: '65px', marginTop: '-10px' }} class="image-container">
+                  <img src={product.image} alt="" />
+                </div>
+              </div>
+              <div className="col-6">
+                <div className="row d-flex">
+                  <p>
+                    <b>{product.name}</b>
+                  </p>
+                </div>
+                <div className="row d-flex">
+                  <p className="text-muted">@ ${product.subtotal} each x {product.quantity}</p>
+                </div>
+              </div>
+              <div className="col-3 d-flex justify-content-end">
+                <p>
+                  <b>${product.subtotal * product.quantity}</b>
+                </p>
+              </div>
+            </div>
+          );
+        })}
+        <hr />
+        <div className="total">
+          <div className="row">
+            <div className="col">
+              <b> Total:</b>
+            </div>
+            <div className="col d-flex justify-content-end">
+              <b>${totalPrice}</b>
+            </div>
+          </div>{" "}
+          <button className="btn d-flex mx-auto"> Track your order </button>
         </div>
-      ))}
+      </div>
     </div>
   )
 };
@@ -74,7 +118,6 @@ const Checkout = (props) => {
   return (
     <div className="checkout ">
       <div className="checkout-container" >
-        <h3 className="heading-3">Credit card checkout</h3>
         {loading ? <h2>Loading Payment...</h2> : <> <Dashboard totalPrice={totalPrice} /> </>}
       </div>
     </div>

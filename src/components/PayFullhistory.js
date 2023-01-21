@@ -5,6 +5,8 @@ import React from 'react';
 
 import firebase from 'firebase/compat/app';
 import {loadStripe} from '@stripe/stripe-js';
+import DOMPurify from 'dompurify';
+import moment from 'moment';
 
 
 
@@ -95,11 +97,32 @@ async function handleCardAction(payment, docId) {
             payment.currency
           )}`;
         } else if (payment.status === 'succeeded') {
+            
           const card = payment.charges.data[0].payment_method_details.card;
-          content = `${count} ✅ Successful Payment ${formatAmount(
-            payment.amount,
-            payment.currency
-          )} on ${card.brand} card •••• ${card.last4}.`;//${payment.dateTime} ${payment.receiptData} ${payment.charges.data[0].billing_details.name} 
+          const dateTime = payment.dateTime;
+          const formattedDate = moment(dateTime, "YYYY-MM-DD-HH-mm-ss-SS").format("MMMM D, YYYY h:mm a");
+            // Format receipt data
+            let products_ = JSON.parse(payment.receiptData)
+            const newItems = products_.map(item => {
+                return {name: item.name, quantity: item.quantity, subtotal: item.subtotal,item_Total: item.subtotal * item.quantity}
+              });
+              var formattedString = "";
+              for(var i=0;i<newItems.length;i++){
+                  formattedString += `${newItems[i].quantity} x ${newItems[i].name}($${newItems[i].subtotal}) = $${newItems[i].item_Total}<br>`;
+              }
+              console.log(payment)
+              //应该显示这次交易id 时间不够 下次再加。
+          content = `<div style="display: inline-block;">
+          <details>
+            <summary>
+            ${count} ✅ ${formatAmount(payment.amount, payment.currency)} ${card.brand} •••• ${card.last4}. <i class="fas fa-arrow-circle-down"></i>
+            </summary>
+            <p>${payment.charges.data[0].billing_details.name} </p>
+            <p>${formattedString}</p>
+            <p>${formattedDate}</p>
+          </details>
+          
+      </div>`;//${payment.dateTime} ${payment.receiptData} ${payment.charges.data[0].billing_details.name} 
         } else if (payment.status === 'requires_action') {
           content = `${count} 🚨 Payment for ${formatAmount(
             payment.amount,
@@ -107,14 +130,22 @@ async function handleCardAction(payment, docId) {
           )} ${payment.status} requires action`;
           handleCardAction(payment, doc.id);
         } else if(payment.error) {
-          content = `${count} ⚠️ Failed Payment. ${payment.error}`;
+          content = `<div style="display: inline-block;">
+          <details>
+            <summary>
+            ${count} ⚠️ Failed Payment. <i class="fas fa-arrow-circle-down"></i>
+            </summary>
+            <p>${payment.error} </p>
+          </details>
+      </div>`;
         }else {
           content = `${count} ⚠️ Payment for ${formatAmount(
             payment.amount,
             payment.currency
           )} ${payment.status}`;
         }
-        liElement.innerHTML = content;
+        const sanitizedContent = DOMPurify.sanitize(content);//DOMPurify to sanitize the content, it can remove any malicious code and make it safe to use with innerHTML.
+        liElement.innerHTML = sanitizedContent;
         document.querySelector('#payments-list').appendChild(liElement);
         count--;
       });
@@ -124,7 +155,7 @@ async function handleCardAction(payment, docId) {
   //console.log(elements.getElement(CardElement))
   return (
     <div>
-  <ul id="payments-list"></ul>
+  <ul style = {{"text-align": "left"}}id="payments-list"></ul>
     </div>
   );
 };
