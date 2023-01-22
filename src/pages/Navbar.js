@@ -293,9 +293,7 @@ const Navbar = () => {
       {/* shoppig cart */}
       <div className="title" style={{height:'80px'}}>
         Total Price: ${totalPrice} 
-        <button style={{width:"80%", display:"block", background:"#FFA500", color:"white", border:"0px", margin:"auto", marginTop:"15px"}} 
-        className="btn" onClick={HandleCheckout_local_stripe}>Checkout</button> 
-
+        
         <span className="delete-btn" style={{float: 'right',cursor: 'pointer', margin: '0'}} ref={spanRef} onClick={closeModal}></span>
       </div>
 
@@ -333,17 +331,24 @@ const Navbar = () => {
   onChange={(e) => handleQuantityChange(product.id, e.target.value)}
   min="1"
 /> */}
+
             <div style={{padding: '2px', border: "1px solid", alignItems: 'center', justifyContent: 'center', display: "flex"}}>
             <button className="minus-btn" type="button" name="button" style={{marginTop: '0px', width: '20px', height: '20px' ,alignItems: 'center', justifyContent: 'center', display: "flex"}} onClick={() => handleMinusClick(product.id)}>
             <img style={{margin: '0px', width: '20px', height: '20px'}} src={minusSvg} alt="" />
             </button>
+            
             </div>
             {/* </div> */}
 
           </div>
-        </div>
-      ))}
           
+        </div>
+        
+      ))}
+
+                  <button style={{width:"80%", display:"block", border:"0px", margin:"auto", marginTop:"15px"}} 
+        className="btn" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+        onClick={HandleCheckout_local_stripe}>Checkout</button> 
     </div>
     </div>
 

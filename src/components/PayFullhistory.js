@@ -100,7 +100,7 @@ async function handleCardAction(payment, docId) {
             
           const card = payment.charges.data[0].payment_method_details.card;
           const dateTime = payment.dateTime;
-          const formattedDate = moment(dateTime, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-8).format("MMMM D, YYYY h:mm a");
+          const formattedDate = moment(dateTime, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-13).format("MMMM D, YYYY h:mm a");
             // Format receipt data
             let products_ = JSON.parse(payment.receiptData)
             const newItems = products_.map(item => {
