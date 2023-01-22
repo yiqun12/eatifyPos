@@ -52,6 +52,7 @@ function Checkout(props) {
           optionElement.text = `•••• ${paymentMethod.card.last4} | ${paymentMethod.card.exp_month}/${paymentMethod.card.exp_year}`;
           //console.log("exist card:",optionElement.text)
 
+          
         });
       });
 
@@ -73,6 +74,7 @@ function Checkout(props) {
         const dateTime = new Date().toISOString();
         const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
         console.log(form.get('payment-method'))
+        const user = JSON.parse(localStorage.getItem('user'));
         const data = {
           payment_method: form.get('payment-method'),
           currency,
@@ -80,6 +82,7 @@ function Checkout(props) {
           status: 'new',
           receipt: localStorage.getItem("products"),
           dateTime: date,
+          user_email:user.email,
         };
         //console.log(data)
 
@@ -154,7 +157,7 @@ function Checkout(props) {
               <div className="col-7">
 
                 <select style={{ 'background-color': "#f5f7f9", color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
-                  <option data-type="mastercard" >•••• •••• | mm/yyyy</option>
+                  <option data-type="mastercard" >Select account</option>
                 </select>
               </div>
               <div className="col-3 d-flex justify-content-center">
