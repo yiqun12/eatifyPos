@@ -1,0 +1,10 @@
+.scrolling-wrapper-filter {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+  }
+  
+  .scrolling-wrapper-filter::-webkit-scrollbar{
+    width:0
+  }
+  
