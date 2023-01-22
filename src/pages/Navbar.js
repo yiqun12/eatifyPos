@@ -276,6 +276,10 @@ const Navbar = () => {
       };
       //const { promise } = useUserContext();
 
+      const HandleCheckout_local_stripe = async () => {
+        localStorage.setItem('products', JSON.stringify(products));
+        window.location.href='/Checkout'
+      };
     return (
         <>
 <div>
@@ -289,7 +293,7 @@ const Navbar = () => {
       {/* shoppig cart */}
       <div className="title" style={{height:'80px'}}>
         Total Price: ${totalPrice} 
-        <button style={{ margin: '10px', marginLeft: '10px', backgroundColor: 'black', color: 'white'}} className="btn btn-info" onClick={event =>  window.location.href='/Checkout'}>Checkout</button>
+        <button style={{ margin: '10px', marginLeft: '10px', backgroundColor: 'black', color: 'white'}} className="btn btn-info" onClick={HandleCheckout_local_stripe}>Checkout</button>
         <span className="delete-btn" style={{float: 'right',cursor: 'pointer', margin: '0'}} ref={spanRef} onClick={closeModal}></span>
       </div>
 

@@ -14,6 +14,8 @@ import * as React from 'react';
 import { useRef } from "react";
 import { useUserContext } from "../context/userContext";
 import Navbar from './Navbar'
+import './container.css'
+import { useState, useEffect } from 'react';
 
 const theme = createTheme();
 
@@ -45,6 +47,17 @@ export default function SignIn() {
         console.log("send")
       });
   }; 
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    function handleResize() {
+      setWidth(window.innerWidth);
+    }
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
   return (
     <div
     style={{
@@ -56,87 +69,185 @@ export default function SignIn() {
   </div>
         :
         <>
+            <div>
+      {width > 640 ? (
+ <div className="container">
 
-    <ThemeProvider theme={theme} >
-
-      <Container component="main" maxWidth="xs">
-
-            <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 0,
-
-            marginLeft: 2,
-            
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
-          <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
-            <Grid container spacing={2}>           
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              inputRef={emailRef}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
-            </Grid>
-            <Grid container spacing={2}>   
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In
-            </Button>
-            <Button    onClick={signInWithGoogle}
-          fullWidth
-          variant="contained"
-          sx={{ mb: 2 }} role="button" >
-            Google Sign in</Button>
-            </Grid>
-            <Grid container>
-              <Grid item xs>
-                <Link style={{cursor: 'pointer'}} onClick={forgotPasswordHandler} variant="body2">
-                  Forgot password?
-                </Link>
+ <div style={{ width: "600px", margin: "0 auto" }}>
+     <div className="card2 mt-50 mb-50">
+       <div className="main">
+       <ThemeProvider theme={theme} >
+ 
+ <Container component="main" maxWidth="xs">
+ 
+       <CssBaseline />
+   <Box
+     sx={{
+       marginTop: 0,
+ 
+       marginLeft: 2,
+       
+       display: 'flex',
+       flexDirection: 'column',
+       alignItems: 'center',
+     }}
+   >
+     <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+       <LockOutlinedIcon />
+     </Avatar>
+     <Typography component="h1" variant="h5">
+       Sign in
+     </Typography>
+     <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
+       <Grid container spacing={2}>           
+       <TextField
+         margin="normal"
+         required
+         fullWidth
+         id="email"
+         label="Email Address"
+         name="email"
+         autoComplete="email"
+         autoFocus
+         inputRef={emailRef}
+       />
+       <TextField
+         margin="normal"
+         required
+         fullWidth
+         name="password"
+         label="Password"
+         type="password"
+         id="password"
+         autoComplete="current-password"
+       />
+       </Grid>
+       <Grid container spacing={2}>   
+       <Button
+         type="submit"
+         fullWidth
+         variant="contained"
+         sx={{ mt: 3, mb: 2 }}
+       >
+         Sign In
+       </Button>
+       <Button    onClick={signInWithGoogle}
+     fullWidth
+     variant="contained"
+     sx={{ mb: 2 }} role="button" >
+       Google Sign in</Button>
+       </Grid>
+       <Grid container>
+         <Grid item xs>
+           <Link style={{cursor: 'pointer'}} onClick={forgotPasswordHandler} variant="body2">
+             Forgot password?
+           </Link>
+         </Grid>
+         <Grid item>
+           <Link href='/signup' variant="body2">
+             {"Don't have an account? Sign Up"}
+           </Link>
+         </Grid>
+       </Grid>
+     </Box>
+   </Box>
+ 
+ 
+ </Container>
+ 
+ </ThemeProvider>
+       </div>
+     </div>
+     </div>
+     </div>
+      ) : (
+              <div className="main">
+                 <br/>
+              <ThemeProvider theme={theme} >
+        
+        <Container component="main" maxWidth="xs">
+        
+              <CssBaseline />
+          <Box
+            sx={{
+              marginTop: 0,
+        
+              marginLeft: 2,
+              
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Sign in
+            </Typography>
+            <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
+              <Grid container spacing={2}>           
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+                autoFocus
+                inputRef={emailRef}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+              />
               </Grid>
-              <Grid item>
-                <Link href='/signup' variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
+              <Grid container spacing={2}>   
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Sign In
+              </Button>
+              <Button    onClick={signInWithGoogle}
+            fullWidth
+            variant="contained"
+            sx={{ mb: 2 }} role="button" >
+              Google Sign in</Button>
               </Grid>
-            </Grid>
+              <Grid container>
+                <Grid item xs>
+                  <Link style={{cursor: 'pointer'}} onClick={forgotPasswordHandler} variant="body2">
+                    Forgot password?
+                  </Link>
+                </Grid>
+                <Grid item>
+                  <Link href='/signup' variant="body2">
+                    {"Don't have an account? Sign Up"}
+                  </Link>
+                </Grid>
+              </Grid>
+            </Box>
           </Box>
-        </Box>
+        
+        
+        </Container>
+        
+        </ThemeProvider>
+              </div>
 
-
-      </Container>
-
-    </ThemeProvider>
+      )}
+    </div>
+       
     </>
         }
     </div>

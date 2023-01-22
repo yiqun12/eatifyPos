@@ -15,6 +15,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useUserContext } from "../context/userContext";
 import React, { useRef } from "react";
 import Navbar from './Navbar'
+import './container.css'
+import { useState, useEffect } from 'react';
 
 
 const theme = createTheme();
@@ -37,6 +39,17 @@ export default function SignUp() {
   if (user) {
     window.location.href = "/";
   }
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    function handleResize() {
+      setWidth(window.innerWidth);
+    }
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
   return (
     <div
     style={{
@@ -48,8 +61,16 @@ export default function SignUp() {
  Loading...
   </div>
         :
+        
         <>
-    <ThemeProvider theme={theme}>
+            <div>
+      {width > 640 ? (
+        <div className="container">
+
+        <div style={{ "max-width": "600px", margin: "0 auto" }}>
+    <div className="card2 mt-50 mb-50">
+      <div className="main">
+      <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -125,6 +146,95 @@ export default function SignUp() {
         </Box>
       </Container>
     </ThemeProvider>
+      </div>
+    </div>
+    </div>
+    </div>
+      ) : (
+
+      <div className="main">
+        <br/>
+      <ThemeProvider theme={theme}>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign up
+          </Typography>
+          <Box component="form" noValidate onSubmit={onSubmit} sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+            <Grid item xs={12}>
+                <TextField
+
+                  required
+                  fullWidth
+                  id="NickName"
+                  label="Nick name"
+                  name="NickName"
+                  autoComplete="NickName"
+                  autoFocus
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="new-password"
+                />
+              </Grid>
+              <Grid item xs={12}>
+
+              </Grid>
+            </Grid>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign Up
+            </Button>
+            <Grid container justifyContent="flex-end">
+              <Grid item>
+                <Link href="/login" variant="body2">
+                  Already have an account? Sign in
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+      </Container>
+    </ThemeProvider>
+      </div>
+
+
+      )}
+    </div>
     </>
 }
   </div>
