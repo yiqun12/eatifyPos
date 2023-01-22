@@ -21,6 +21,7 @@ import { auth } from "../firebase";
 //import {useStripe, useElements, CardElement} from '@stripe/react-stripe-js';
 
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
+
 let currentUser = {};
 let customerData = {};
 /**

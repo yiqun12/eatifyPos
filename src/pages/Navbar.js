@@ -316,14 +316,15 @@ const Navbar = () => {
             <span>${product.quantity * product.subtotal}</span>
           </div>
 
+
         {/* <div className="theset"> */}
-          <div className="quantity" style={{marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
-            <div style={{padding: '2px',  border: "1px solid", alignItems: 'center', justifyContent: 'center', display: "flex"}}>
-            <button className="plus-btn" type="button" name="button" style={{margin: '0px', width: '20px', height: '20px',alignItems: 'center', justifyContent: 'center', display: "flex"}} onClick={() => handlePlusClick(product.id)}>
-            <img style={{margin: '0px', width: '20px', height: '20px'}} src={plusSvg} alt="" />
+        <div className="quantity" style={{marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
+            <div style={{padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid",borderRadius: "12rem 0 0 12rem", height: "30px"}}>
+            <button className="plus-btn" type="button" name="button" style={{margin: '0px', width: '20px', height: '15px',alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handleMinusClick(product.id)}>
+            <img style={{margin: '0px', width: '10px', height: '10px'}} src={minusSvg} alt="" />
             </button>
             </div>
-            <span style= {{width: '40px', height: '40px' ,alignItems: 'center', justifyContent: 'center', border: "1px solid", display: "flex"}}>{product.quantity}</span>
+            <span style= {{width: '20px', height: '30px' ,alignItems: 'center', justifyContent: 'center',borderTop: "1px solid", borderBottom: "1px solid", display: "flex"}}>{product.quantity}</span>
             {/* <input
   type="number"
   name="name"
@@ -331,14 +332,13 @@ const Navbar = () => {
   onChange={(e) => handleQuantityChange(product.id, e.target.value)}
   min="1"
 /> */}
-
-            <div style={{padding: '2px', border: "1px solid", alignItems: 'center', justifyContent: 'center', display: "flex"}}>
-            <button className="minus-btn" type="button" name="button" style={{marginTop: '0px', width: '20px', height: '20px' ,alignItems: 'center', justifyContent: 'center', display: "flex"}} onClick={() => handleMinusClick(product.id)}>
-            <img style={{margin: '0px', width: '20px', height: '20px'}} src={minusSvg} alt="" />
+            <div style={{padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex",  borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px"}}>
+            <button className="minus-btn" type="button" name="button" style={{marginTop: '0px', width: '20px', height: '15px' ,alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handlePlusClick(product.id)}>
+            <img style={{margin: '0px', width: '10px', height: '10px'}} src={plusSvg} alt="" />
             </button>
-            
             </div>
             {/* </div> */}
+
 
           </div>
           
@@ -347,7 +347,7 @@ const Navbar = () => {
       ))}
 
                   <button style={{width:"80%", display:"block", border:"0px", margin:"auto", marginTop:"15px"}} 
-        className="btn" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+        className="btn" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         onClick={HandleCheckout_local_stripe}>Checkout</button> 
     </div>
     </div>

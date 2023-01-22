@@ -106,7 +106,7 @@ const Food = () => {
                             className="border shadow-lg rounded-lg hover:scale-105 duration-500 cursor-pointer">
                             <img className='w-full h-[150px] md:h-[200px] object-cover rounded-t-lg' src={item.image} alt={item.name}  />
                             <div className='flex justify-between px-2 py-4'>
-                                <p>{item.name} <span>{item.subtotal}</span></p>
+                                <p>{item.name} <span>${item.subtotal}</span></p>
                                 <Button
   variant="light"
   style={divStyle}
