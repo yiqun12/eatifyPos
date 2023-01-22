@@ -36,7 +36,7 @@ const Navbar = () => {
 
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
-    const height = products.length * 123 + 100; // 123 is the height of each product element and 80 is the top and bottom margin of the shopping cart
+    const height = products.length * 123 + 150; // 123 is the height of each product element and 80 is the top and bottom margin of the shopping cart
     
     // Update the height of the shopping cart element
     document.querySelector('.shopping-cart').style.height = `${height}px`;
@@ -293,7 +293,9 @@ const Navbar = () => {
       {/* shoppig cart */}
       <div className="title" style={{height:'80px'}}>
         Total Price: ${totalPrice} 
-        <button style={{ margin: '10px', marginLeft: '10px', backgroundColor: 'black', color: 'white'}} className="btn btn-info" onClick={HandleCheckout_local_stripe}>Checkout</button>
+        <button style={{width:"80%", display:"block", background:"#FFA500", color:"white", border:"0px", margin:"auto", marginTop:"15px"}} 
+        className="btn" onClick={HandleCheckout_local_stripe}>Checkout</button> 
+
         <span className="delete-btn" style={{float: 'right',cursor: 'pointer', margin: '0'}} ref={spanRef} onClick={closeModal}></span>
       </div>
 
@@ -357,8 +359,9 @@ const Navbar = () => {
                     {/* // <div className="login" style={{                    display: flex justify-content: space-around;}}> */}
 
       {location.pathname !== '/account' && <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px'}} ref={btnRef} onClick={openModal}>Cart</Button>}
-      {location.pathname !== '/' && <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick={event =>  window.location.href='/'}>Home</Button>}
-      {location.pathname !== '/account' && <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick={event =>  window.location.href='/account'}>Account</Button>}
+      {location.pathname !== '/' && location.pathname !== '/Checkout' && (
+        <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick={event =>  window.location.href='/'}>Home</Button>
+      )}      {location.pathname !== '/account' && <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick={event =>  window.location.href='/account'}>Account</Button>}
       <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick= {logoutUser}>Log Out</Button>
                     </div>
 :

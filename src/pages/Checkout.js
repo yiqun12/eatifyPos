@@ -109,7 +109,6 @@ const Item = (props) => {
               <b>${totalPrice}</b>
             </div>
           </div>{" "}
-          <button className="btn d-flex mx-auto"> Track your order </button>
         </div>
       </div>
     </div>
