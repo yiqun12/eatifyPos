@@ -329,7 +329,7 @@ const Navbar = () => {
         </div>
       ))}
       <div style={{margin:"10px", textAlign:"center"}}> 
-        <button style={{width:"80%", display:"block", background:"#dab600", color:"white", border:"0px", margin:"auto", marginTop:"10px"}} className="btn btn-info" onClick={event => window.location.href='/Checkout'}>Checkout</button> 
+        <button style={{width:"80%", display:"block", background:"#FFA500", color:"white", border:"0px", margin:"auto", marginTop:"15px"}} className="btn" onClick={event => window.location.href='/Checkout'}>Checkout</button> 
       </div>
 
     </div>

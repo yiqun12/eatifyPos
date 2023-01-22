@@ -19,7 +19,6 @@ const CARD_ELEMENT_OPTIONS = {
       fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
       fontSmoothing: "antialiased",
       fontSize: "16px",
-      margin: "20px 5px",
       "::placeholder": {
         color: "#aab7c4",
       },
