@@ -1,18 +1,21 @@
 import React, { useState} from 'react';
 import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
+import { Button, Checkbox, Form } from 'semantic-ui-react'
+// import { Button, Dropdown, Input, Page, setOptions } from '@mobiscroll/react';
+
 //import {data} from '../data/data.js'
 
 const Admin = () => {
     /**change app namne and logo */
-    const [faviconUrl, setFaviconUrl] = useState('favicon1.ico');
+    const [faviconUrl, setFaviconUrl] = useState('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
     const [pageTitle, setPageTitle] = useState("Title1");
     
     const handleClickFavicon = () => {
-        if (faviconUrl === 'favicon1.ico')
-          setFaviconUrl('favicon.ico');
+        if (faviconUrl === 'https://upload.wikimedia.org/wikipedia/en/thumb/6/65/LehighMountainHawks.svg/1200px-LehighMountainHawks.svg.png')
+          setFaviconUrl('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
         else
-          setFaviconUrl('favicon1.ico')
+          setFaviconUrl('https://upload.wikimedia.org/wikipedia/en/thumb/6/65/LehighMountainHawks.svg/1200px-LehighMountainHawks.svg.png')
         updateFavicon();
       }
     
@@ -140,103 +143,142 @@ const addJson_array = async (name, category, image, price, subtotal) => {
         }
     }
     //Food_arrays = 
-   
+    // margin: auto;
+    // max-width: 1240px;
+    // display: grid;
+    // justify-self: center;
+    // justify-content: center;
+    // align-items: stretch;
 
     return (
-        <section className="Food_array-container">
+        <section className="Food_array-container" style={{maxWidth: '1240px', display: 'grid', justifySelf: 'center', justifyContent: 'center', margin: 'auto',alignItems: 'center'}}>
 
-            <div className="Food_array">
-                <h1 className="header">
+            <div className="Food_array" style={{maxWidth: '1240px'}}>
+                <h1 className="header" style={{display: 'flex', justifyContent: 'center'}}>
                     Admin App
                 </h1>
 
-                <div>
+                <div style={{display:'flex', justifyContent: 'center', margin: '10px'}}>
 
-                    <form onSubmit={addFood_array}>
-                        <label>
-                            Name:
-                            <input type="text" name="name" onChange={(e) => setName(e.target.value)} required />
-                        </label>
-                        <br />
-                        <label>
-                            Category:
-                            <input type="text" name="category" onChange={(e) => setCategory(e.target.value)} required />
-                        </label>
-                        <br />
-                        <label>
-                            Image:
-                            <input type="text" name="image" onChange={(e) => setImage(e.target.value)} required />
-                        </label>
-                        <br />
-                        <label>
+                    <form style={{display: 'flex', flexDirection: 'column'}} onSubmit={addFood_array}>
+                        <div style={{display: 'flex'}}>
+                            <label>
+                                Name:
+                                <input type="text" name="name" style={{display: 'flex', flexDirection: 'column',border: "1px solid", borderRadius: '10px', width: "175px", marginRight: "5px"}} onChange={(e) => setName(e.target.value)} required />
+                            </label>
+                            <label>
+                                Category:
+                                <input type="text" name="category" style={{display: 'flex', flexDirection: 'column',border: "1px solid", borderRadius: '10px', width: "175px", marginRight: "5px"}} onChange={(e) => setCategory(e.target.value)} required />
+                            </label>
+                            <label>
                             Price:
-                            <input type="text" name="price" onChange={(e) => setPrice(e.target.value)} required />
-                        </label>
-                        <br />
-                        <label>
+                            <input type="text" name="price" style={{display: 'flex', flexDirection: 'column',border: "1px solid", borderRadius: '10px', width: "175px", marginRight: "5px"}} onChange={(e) => setPrice(e.target.value)} required />
+                            </label>
+                            <label>
                             Subtotal:
-                            <input type="text" name="subtotal" onChange={(e) => setSubtotal(e.target.value)} required />
-                        </label>
-                        <br />
-                        <input type="submit" value="Add Food Item" />
-                    </form>
-
-                </div>
-
-                <div>
-                    <form>
-                        <label>
-                            Name:
-                            <input type="text" value={updateName} onChange={e => setUpdateName(e.target.value)} />
-                        </label>
-                        <label>
-                            Category:
-                            <input type="text" value={updateCategory} onChange={e => setUpdateCategory(e.target.value)} />
-                        </label>
-                        <label>
-                            Image:
-                            <input type="text" value={updateImage} onChange={e => setUpdateImage(e.target.value)} />
-                        </label>
-                        <label>
-                            Price:
-                            <input type="text" value={updatePrice} onChange={e => setUpdatePrice(e.target.value)} />
-                        </label>
-                        <label>
-                            Subtotal:
-                            <input type="text" value={updateSubtotal} onChange={e => setUpdateSubtotal(e.target.value)} />
-                        </label>
-                        <button onClick={(e) => { e.preventDefault(); updateFood_array(updateId, { name: updateName, category: updateCategory, image: updateImage, price: updatePrice, subtotal: updateSubtotal }) }}>Update</button>
-
-                    </form>
-                </div>
-                {
-                    Food_arrays?.map((Food_array, i) => (
-                        <div key={i}>
-                            <p>{Food_array.name}</p>
-                            <button onClick={() => handleUpdateForm(Food_array.id)}>Show</button>
-                            <button onClick={() => deleteFood_array(Food_array.id)}>Delete</button>
+                            <input type="text" name="subtotal" style={{display: 'flex', flexDirection: 'column',border: "1px solid", borderRadius: '10px', width: "175px", marginRight: "5px"}} onChange={(e) => setSubtotal(e.target.value)} required />
+                            </label>
                         </div>
-                    )
-                    )
-                }
+                        <div style={{display: 'flex'}}>
+                            <label style={{display: 'flex', flexDirection: 'column', width: '100%'}}>
+                                Image:
+                                <div>
+                                <input type="text" name="image"  style={{border: "1px solid", borderRadius: '10px', marginTop: "5px", marginBottom: "5px", width: "80%"}} onChange={(e) => setImage(e.target.value)} required />
+                                <input type="submit" style={{border: "1px solid", width: "fit-content", padding: '3px', marginLeft: "20px", borderRadius: "10px", boxShadow: "rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px" }} value="Add Food Item" />
+                                </div>
+                            </label>
+                        </div>
+                    </form>
 
+                </div>
+
+                <div style={{display: "flex", justifyContent:'space-evenly', margin: '10px'}}>
+                
+                    <div style={{maxHeight: '300px', overflowY: 'scroll', width: 'fitContent'}}>
+                        {
+                            Food_arrays?.map((Food_array, i) => (
+                                <div key={i}>
+                                    <div style={{display: 'flex', flexDirection: "column"}}>
+                                        <span>{Food_array.name}</span>
+                                        <div style={{display: 'flex'}}>
+                                            <button style={{marginRight: '5px', padding: '2px', border: '1px solid', borderRadius: '10px', backgroundColor: 'green', color: "white", boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px"}} onClick={() => handleUpdateForm(Food_array.id)}>Show</button>
+                                            <button style={{marginRight: '5px', padding: '2px', border: '1px solid', borderRadius: '10px', backgroundColor: 'red', color: "white", boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px"}} onClick={() => deleteFood_array(Food_array.id)}>Delete</button>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                </div>
+                            )
+                            )
+                        }
+                    </div>
+
+                        {/* this is the update div */}
+                        <div style={{display:'flex',justifyContent: 'space-evenly'}}>
+                            <form style={{display: "inline-grid"}}>
+                                <div style={{display: 'flex', height: '300px'}}>
+                                <div style={{display: "flex", flexDirection: 'column', margin: 'auto'}}>
+                                <label>
+                                    Name:
+                                    <input type="text" style={{border: "1px solid" }} value={updateName} onChange={e => setUpdateName(e.target.value)} />
+                                </label>
+                                <label>
+                                    Category:
+                                    <input type="text" style={{border: "1px solid" }} value={updateCategory} onChange={e => setUpdateCategory(e.target.value)} />
+                                </label>
+                                <label>
+                                    Image:
+                                    <input type="text" style={{border: "1px solid" }} value={updateImage} onChange={e => setUpdateImage(e.target.value)} />
+                                </label>
+                                <label>
+                                    Price:
+                                    <input type="text" style={{border: "1px solid" }} value={updatePrice} onChange={e => setUpdatePrice(e.target.value)} />
+                                </label>
+                                <label>
+                                    Subtotal:
+                                    <input type="text" style={{border: "1px solid" }} value={updateSubtotal} onChange={e => setUpdateSubtotal(e.target.value)} />
+                                </label>
+                                </div>
+                                    <div style={{justifyContent: "center", alignItems: 'center', display: 'flex', flexDirection: 'column'}}>
+                                        <img style={{width: '200px', height: '200px', padding: '20px'}} src={updateImage}/>
+                                        <button style={{border: "1px solid", padding: "20px", borderRadius: "10px", boxShadow: "rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px" }} onClick={(e) => { e.preventDefault(); updateFood_array(updateId, { name: updateName, category: updateCategory, image: updateImage, price: updatePrice, subtotal: updateSubtotal }) }}>Update</button>
+                                    </div>
+                                </div>
+                                
+                            </form>
+                        </div>
+
+                    {/* picture element */}
+                    {/* <div>
+                        <div>
+                            <span>{updateCategory}</span>
+                            <img style={{width: '200px', height: '200px'}} src={updateImage}/>
+                        </div>
+                        <div></div>
+                        <div></div>
+                    </div> */}
+
+                </div>
 
             </div>
 
-            <form onSubmit={handleSubmit}>
-      <label>
-        Input Json Data:
-        <textarea name="inputData" rows="8" cols="50" onChange={(e) => setInputData(e.target.value)} value={inputData}/>
-      </label>
-      <br />
-      <button type="submit">Submit</button>
-      <br />
-      <p>Output: {inputData}</p>
+    <form style={{display:'flex', justifyContent: 'center', margin: '10px'}} onSubmit={handleSubmit}>
+    <div style={{display: 'grid'}}>
+        <div style={{display: 'flex'}}>
+            <div style={{display: 'inline-grid'}}>
+                <label>
+                    Input Json Data:
+                </label>
+                <textarea name="inputData" rows="4" cols="80" style={{border: '1px solid'}} onChange={(e) => setInputData(e.target.value)} value={inputData}/>
+            </div>
+            <button style={{margin: 'auto', padding: '10px',border: '1px solid', borderRadius: "10px", boxShadow: "rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px"}}type="submit">Submit</button>
+        </div>
+        <p style={{width: '750px', overflowX: 'scroll'}}>Output: {inputData}</p>
+    </div>
     </form>
 
-    <div>
-      <button onClick={handleClickFavicon}>Change Favicon</button>
-      <button onClick={handleClickTitle}>Change Title</button>
+    <div style={{display: 'flex', justifyContent: 'space-evenly', margin: '10px'}}>
+      <button style={{border: '1px solid', padding: '3px', margin: '5px', borderRadius: "10px", boxShadow: "rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px"}} onClick={handleClickFavicon}>Change Favicon</button>
+      <button style={{border: '1px solid', padding: '3px', margin: '5px', borderRadius: "10px", boxShadow: "rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px"}} onClick={handleClickTitle}>Change Title</button>
     </div>
 
         </section>

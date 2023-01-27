@@ -17,7 +17,8 @@ const Card = () => {
     }
 
     // console.log(data.length)
-    var itemNumbers = getRandomNumbers(data.length)
+    if(data != null){
+        var itemNumbers = getRandomNumbers(data.length)}
     // console.log(itemNumbers) 
     // console.log(itemNumbers)  
 
