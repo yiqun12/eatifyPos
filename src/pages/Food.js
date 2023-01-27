@@ -1,11 +1,18 @@
 import React, { useState } from 'react'
-import { data } from '../data/data.js'
+//import { data } from '../data/data.js'
 import { motion, AnimatePresence } from "framer-motion"
-import { FaThumbsUp } from 'react-icons/fa';
 import Button from 'react-bootstrap/Button';
 import { BsPlusCircle} from 'react-icons/bs';
+import './Food.css';
+import chicken from './chicken.png';
+import salad from './salad.png'
+import burger from './burger.png'
+import pizza from './pizza.png'
+import all from './all_food.png'
 
 const Food = () => {
+    const data  = JSON.parse(localStorage.getItem("Food_arrays"))
+
     const [foods, setFoods] = useState(data);
 
     const filterType = (category) => {
@@ -24,7 +31,7 @@ const Food = () => {
     }
 
     // timesClicked is an object that stores the number of times a item is clicked
-    const timesClicked = new Map();
+    //const timesClicked = new Map();
 
 
     const divStyle = {
@@ -66,28 +73,30 @@ const Food = () => {
             <h1 className='text-orange-600 font-bold text-4xl text-center'>
                 Top Rated Menu Items
             </h1>
-            <div className='flex flex-col lg:flex-row justify-between'>
+            <div className='flex flex-col lg:flex-row justify-between' style={{flexDirection: "column"}}>
                 {/* Filter Type */}
-                <div>
+                <div className='Type'>
                     <p className='font-bold text-gray-700'>Filter Type</p>
-                    <div className='flex justify-between flex-wrap'>
-                        <button onClick={() => setFoods(data)} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1'>All</button>
-                        <button onClick={() => filterType('burger')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1'>Burgers</button>
-                        <button onClick={() => filterType('pizza')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1'>Pizza</button>
-                        <button onClick={() => filterType('salad')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1'>Salads</button>
-                        <button onClick={() => filterType('chicken')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1'>Chicken</button>
+                    {/* <div className='flex justify-between flex-wrap'> */}
+                    <div className='scrolling-wrapper-filter'>
+                        <button onClick={() => setFoods(data)} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1' style={{display: "inline-block"}}><img style={{width: "40px", height: "40px", margin: "auto"}} src={all} alt=""/>All</button>
+                        <button onClick={() => filterType('burger')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1' style={{display: "inline-block"}}><img style={{width: "40px", height: "40px", margin: "auto"}} src={burger} alt=""/>Burgers</button>
+                        <button onClick={() => filterType('pizza')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1' style={{display: "inline-block"}}><img style={{width: "40px", height: "40px", margin: "auto"}} src={pizza} alt=""/>Pizza</button>
+                        <button onClick={() => filterType('salad')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1' style={{display: "inline-block"}}><img style={{width: "40px", height: "40px", margin: "auto"}} src={salad} alt=""/>Salads</button>
+                        <button onClick={() => filterType('chicken')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1' style={{display: "inline-block"}}><img style={{width: "40px", height: "40px", margin: "auto"}} src={chicken} alt=""/>Chicken</button>
                     </div>
                 </div>
 
                 {/* Filter Price */}
-                <div>
+                <div className='Price'>
                     <p className='font-bold text-gray-700'>Filter Price</p>
                     {/* <div className='flex justify-between flex-wrap max-w-[390px] w-full'> */}
-                    <div className='flex justify-between flex-wrap w-full'>
-                        <button onClick={() => filterPrice('$')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1'>$</button>
-                        <button onClick={() => filterPrice('$$')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1'>$$</button>
-                        <button onClick={() => filterPrice('$$$')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1'>$$$</button>
-                        <button onClick={() => filterPrice('$$$$')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1'>$$$$</button>
+                    {/* <div className='flex justify-between flex-wrap w-full'> */}
+                    <div className='scrolling-wrapper-filter'>
+                        <button onClick={() => filterPrice('$')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1' style={{display: "inline-block"}}>$</button>
+                        <button onClick={() => filterPrice('$$')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1' style={{display: "inline-block"}}>$$</button>
+                        <button onClick={() => filterPrice('$$$')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1' style={{display: "inline-block"}}>$$$</button>
+                        <button onClick={() => filterPrice('$$$$')} className='m-1 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white border rounded-xl px-5 py-1' style={{display: "inline-block"}}>$$$$</button>
                     </div>
                 </div>
             </div>

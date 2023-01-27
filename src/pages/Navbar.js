@@ -13,7 +13,7 @@ import { useLocation } from 'react-router-dom';
 import { useUserContext } from "../context/userContext";
 import 'bootstrap/dist/css/bootstrap.css'; 
 import './group_list.css';
-import { flexbox } from '@mui/system';
+//import { flexbox } from '@mui/system';
 
 const Navbar = () => {
   const { logoutUser} = useUserContext();
@@ -22,7 +22,7 @@ const Navbar = () => {
   const location = useLocation();
   const [totalPrice, setTotalPrice] = useState(0);
 
-  console.log(user)
+  //console.log(user)
   ///shopping cart products
   const [products, setProducts] = useState([
   ]);

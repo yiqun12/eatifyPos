@@ -1,5 +1,6 @@
 import Auth from "./components/auth";
 import Dashboard from "./components/dashboard";
+import Admin from "./components/Admin";
 import { useUserContext } from "./context/userContext";
 import Success from './pages/Success';
 import Canceled from './pages/Canceled';
@@ -17,10 +18,37 @@ import {
   Route,
 } from "react-router-dom";
 
+import React, { useState,useEffect } from 'react'
+import { collection, getDocs } from "firebase/firestore";
+import { db } from './firebase/index';
+
 function App() {
   const { user} = useUserContext();
   localStorage.setItem('user', JSON.stringify(user));
   
+  const fetchPost = async () => {
+      //console.log("fetchPost")
+      await getDocs(collection(db, "food_data"))
+          .then((querySnapshot) => {
+              const newData = querySnapshot.docs
+                  .map((doc) => ({ ...doc.data(), id: doc.id }));
+              localStorage.setItem("Food_arrays", JSON.stringify(newData));
+          })
+
+      await getDocs(collection(db, "TitleLogoNameContent"))
+          .then((querySnapshot) => {
+              const newData = querySnapshot.docs
+                  .map((doc) => ({ ...doc.data(), id: doc.id }));
+              localStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
+              console.log(newData)
+          })
+  }
+
+  useEffect(() => {
+      fetchPost();
+  }, [])
+
+
   return (
     
     <div className="App">
@@ -29,6 +57,7 @@ function App() {
       <Routes>
       <Route exact path="/" element={<Home />} />
       <Route path="Auth" element={<Auth />} />
+      <Route path="Admin" element={<Admin />} />
       <Route path="Html" element={<Html />} />
       <Route path="Html2" element={<Html2 />} />
       { user ?  <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route> }

@@ -1,5 +1,18 @@
 import React from 'react'
-import {categories} from '../data/data.js'
+//import {categories} from '../data/data.js'
+
+const Category = () => {
+  return (
+    <div className='max-w-[1240px] mx-auto px-4 py-12'>
+
+    </div>
+  )
+}
+
+export default Category
+/*
+import React from 'react'
+//import {categories} from '../data/data.js'
 
 const Category = () => {
   return (
@@ -20,3 +33,4 @@ const Category = () => {
 }
 
 export default Category
+*/

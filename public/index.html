@@ -35,12 +35,26 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
-    
+    <!--  change title logo-->
+    <script src="data.js"></script>
+    <!--  change title logo-->
   </head>
   <body>
+    <!--  change title logo-->
     
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <script>
+      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+      link.type = 'image/x-icon';
+      link.rel = 'shortcut icon';
+      link.href = `${data.favicon}?t=${Date.now()}`;
+      document.getElementsByTagName('head')[0].appendChild(link);
+      // var header = document.getElementById("header");
+      // header.innerHTML = data.headerText;
+      document.title = data.title;
+    </script>
+    <!--  change title logo-->
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

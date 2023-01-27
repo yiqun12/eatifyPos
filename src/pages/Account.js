@@ -1,30 +1,24 @@
-import Navbar from './Navbar'
+//import Navbar from './Navbar'
 import 'bootstrap/dist/css/bootstrap.css';
 import React, { useState, useEffect } from 'react';
 import './group_list.css';
-import { useLocation } from 'react-router-dom';
 import CardSection from "../components/CardSection";
-import Checkout from "../components/Checkout";
+//import Checkout from "../components/Checkout";
 import PayFullhistory from "../components/PayFullhistory";
 
 import { Elements } from '@stripe/react-stripe-js';
 import { useUserContext } from "../context/userContext";
 
-
 const Account = () => {
   const { promise, logoutUser } = useUserContext();
   console.log(promise)
   const [activeTab, setActiveTab] = useState('');
-  const [NickName, SetNickName] = useState('');
-  const [Email, SetEmail] = useState('');
 
   const handleTabClick = (e, tabHref) => {
     e.preventDefault();
     setActiveTab(tabHref);
   }
   const user = JSON.parse(localStorage.getItem('user'));
-
-  const location = useLocation();
 
   useEffect(() => {
 

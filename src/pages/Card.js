@@ -1,7 +1,8 @@
 import React from 'react'
-import {data} from '../data/data.js'
+//import {data} from '../data/data.js'
 
 const Card = () => {
+    const data  = JSON.parse(localStorage.getItem("Food_arrays"))
 
     console.log("Card printed once")
     function getRandomNumbers(n) {

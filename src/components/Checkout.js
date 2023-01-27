@@ -51,8 +51,6 @@ function Checkout(props) {
           //console(optionElement.value)
           optionElement.text = `•••• ${paymentMethod.card.last4} | ${paymentMethod.card.exp_month}/${paymentMethod.card.exp_year}`;
           //console.log("exist card:",optionElement.text)
-
-          
         });
       });
 
