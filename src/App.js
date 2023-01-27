@@ -25,7 +25,8 @@ import { db } from './firebase/index';
 function App() {
   const { user} = useUserContext();
   localStorage.setItem('user', JSON.stringify(user));
-  
+  const [loading, setLoading] = useState(true);
+
   const fetchPost = async () => {
       //console.log("fetchPost")
       await getDocs(collection(db, "food_data"))
@@ -42,12 +43,15 @@ function App() {
               localStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
               console.log(newData)
           })
+      setLoading(false);    
   }
 
   useEffect(() => {
       fetchPost();
   }, [])
-
+  if (loading) {
+    return <p>Loading...</p>;
+} else {
 
   return (
     
@@ -72,6 +76,7 @@ function App() {
     </div>
     
   );
+}
 }
 
 export default App;
