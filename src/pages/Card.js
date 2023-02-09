@@ -1,14 +1,26 @@
-import React from 'react'
+
 //import {data} from '../data/data.js'
+import React, { useState,useEffect } from 'react'
+
 
 const Card = () => {
-    const data  = JSON.parse(localStorage.getItem("Food_arrays"))
+  /**click show add */
+  const [clicked, setClicked] = useState(false);
+  useEffect(() => {
+    let timeoutId;
+    if (clicked) {
+      timeoutId = setTimeout(() => setClicked(false), 1200);
+    }
+    return () => clearTimeout(timeoutId);
+  }, [clicked]);
+  /**other */  
+  const data  = JSON.parse(localStorage.getItem("Food_arrays"))
 
     console.log("Card printed once")
     function getRandomNumbers(n) {
         var numbers = Array.from({length: n}, (_, i) => i);
         var randomNumbers = [];
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < 2; i++) {
             var randomIndex = Math.floor(Math.random() * numbers.length);
             randomNumbers.push(numbers[randomIndex]);
             numbers.splice(randomIndex, 1);
@@ -59,37 +71,26 @@ const Card = () => {
     
       var item1 = data[itemNumbers[0]]
       var item2 = data[itemNumbers[1]]
-      var item3 = data[itemNumbers[2]]
-
-
-
+      //var item3 = data[itemNumbers[2]]
 
   return (
-    <div className='max-w-[1240px] mx-auto p-4 py-12 grid md:grid-cols-3 gap-6'>
+    <div>
+
+
+    <div className='max-w-[1240px] mx-auto p-4 py-12 grid md:grid-cols-1 gap-6'>
+
         <div className='rounded-xl relative hover:scale-105 duration-500 cursor-pointer'>
             <div className='absolute w-full h-full bg-black/50 rounded-xl text-white'>
-                <p className=' font-bold text-2xl px-2 pt-4'>{item1.name}</p>
-                <p className='px-2'>Through 8/26</p>
-                <button className='border border-white bg-white text-black mx-2 rounded-xl px-5 py-1 absolute bottom-4 shadow-md' onClick={(e) => updateLocalStorage(item1.id, item1.name, item1.subtotal, item1.image)}>Order Now</button>
+                <p className=' font-bold text-2xl px-2 pt-4'>{['Guess you would like:', <br />, item1.name]}</p>
+                <button className='border border-white bg-white text-black mx-2 rounded-xl px-5 py-1 absolute bottom-4 shadow-md' 
+                onClick={() =>  
+                  updateLocalStorage(item1.id, item1.name, item1.subtotal, item1.image)
+                  }>Order Now</button>
             </div>
-            <img className='max-h-[160px] md:max-h-[200px] w-full object-cover rounded-xl' src={item1.image} alt="" />
+            <img className='max-h-[160px] md:max-h-[350px] w-full object-cover rounded-xl' src={item1.image} alt="" />
         </div>
-        <div className='rounded-xl relative hover:scale-105 duration-500 cursor-pointer'>
-            <div className='absolute w-full h-full bg-black/50 rounded-xl text-white'>
-                <p className=' font-bold text-2xl px-2 pt-4'>{item2.name}</p>
-                <p className='px-2'>Through 8/26</p>
-                <button className='border border-white bg-white text-black mx-2 rounded-xl px-5 py-1 absolute bottom-4 shadow-md' onClick={(e) => updateLocalStorage(item2.id, item2.name, item2.subtotal, item2.image)}>Order Now</button>
-            </div>
-            <img className='max-h-[160px] md:max-h-[200px] w-full object-cover rounded-xl' src={item2.image} alt="" />
-        </div>
-        <div className='rounded-xl relative hover:scale-105 duration-500 cursor-pointer'>
-            <div className='absolute w-full h-full bg-black/50 rounded-xl text-white'>
-                <p className=' font-bold text-2xl px-2 pt-4'>{item3.name}</p>
-                <p className='px-2'>Through 8/26</p>
-                <button className='border border-white bg-white text-black mx-2 rounded-xl px-5 py-1 absolute bottom-4 shadow-md' onClick={(e) => updateLocalStorage(item3.id, item3.name, item3.subtotal, item3.image)}>Order Now</button>
-            </div>
-            <img className='max-h-[160px] md:max-h-[200px] w-full object-cover rounded-xl' src={item3.image} alt="" />
-        </div>
+
+    </div>
     </div>
   )
 }

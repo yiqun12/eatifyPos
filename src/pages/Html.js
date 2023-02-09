@@ -1,73 +1,81 @@
-import React from 'react';
-
+import React, { useState, useEffect } from 'react';
 import './html.css';
+import './html2.css';
+import $ from 'jquery';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 
-const Card = () => {
-  return (
-    <div className="card2 mt-50 mb-50">
-      <div className="card2-title mx-auto">
-        Settings
-      </div>
-      <div className="nav">
-        <ul className="mx-auto">
-          <li><a href="#">Account</a></li>
-          <li className="active"><a href="#">Payment</a></li>
-        </ul>
-      </div>
-      <form>
-        <span id="card2-header">Saved cards:</span>
-        <div className="row row-1">
-          <div className="col-2">
-            <img className="img-fluid" src="https://img.icons8.com/color/48/000000/mastercard-logo.png"/>
-          </div>
-          <div className="col-7">
-            <input type="text" placeholder="**** **** **** 3193"/>
-          </div>
-          <div className="col-3 d-flex justify-content-center">
-            <a href="#">Remove card</a>
-          </div>
-        </div>
-        <div className="row row-1">
-          <div className="col-2">
-            <img className="img-fluid" src="https://img.icons8.com/color/48/000000/visa.png"/>
-          </div>
-          <div className="col-7">
-            <input type="text" placeholder="**** **** **** 4296"/>
-          </div>
-          <div className="col-3 d-flex justify-content-center">
-            <a href="#">Remove card</a>
-          </div>
-        </div>
-        <span id="card2-header">Add new card:</span>
-        <div className="row-1">
-          <div className="row row-2">
-            <span id="card2-inner">Card holder name</span>
-          </div>
-          <div className="row row-2">
-            <input type="text" placeholder="Bojan Viner"/>
-          </div>
-        </div>
-        <div className="row three">
-          <div className="col-7">
-            <div className="row-1">
-              <div className="row row-2">
-                <span id="card2-inner">Card number</span>
-              </div>
-              <div className="row row-2">
-                <input type="text" placeholder="5134-5264-4"/>
-              </div>
-            </div>
-          </div>
-          <div className="col-2">
-            <input type="text" placeholder="Exp. date"/>
-          </div>
-          <div className="col-2">
-            <input type="text" placeholder="CVV"/>
-          </div>
-        </div>
-        <button className="btn d-flex mx-auto"><b>Add card</b></button>
-      </form>
-      </div>
+const Cart = () => {
+  /**dorp food */
+  const charSet = [
+    "banana",
+    "bento"
+  ];
+
+  const [width, setWidth] = useState(window.innerWidth - 64);
+
+  useEffect(() => {
+    function handleResize() {
+      setWidth(window.innerWidth - 64);
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handleDropFood = () => {
+    /**shake */
+    const cart = $('#cart');
+    const newCartTotal = cartTotal + 1;
+    setCartTotal(newCartTotal);//update cart bubble
+
+    setTimeout(() => {
+      $('#cart').addClass('shake');
+    }, 500);
+
+    setTimeout(() => {
+      cart.removeClass('shake');
+    }, 1000);
+    /**drop */
+    const left = Math.floor(Math.random() * width);
+    const emoji = charSet[Math.floor(Math.random() * charSet.length)];
+    const add = `<img class="emoji" style="left: ${left}px;" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/168840/${emoji}.svg"/>`;
+    $(add).appendTo(".container").animate(
+      {
+        top: $(document).height()
+      },
+      1600,
+      function () {
+        $(this).remove();
+      }
+    );
+  };
+  /**drop food */
+
+  const [cartTotal, setCartTotal] = useState(
+    parseInt(localStorage.getItem('cartTotal')) || 0
   );
-}
-export default Card;
+
+  useEffect(() => {
+    localStorage.setItem('cartTotal', cartTotal);
+  }, [cartTotal]);
+
+
+  return (
+    <div>
+      <div id="cart" className="cart" data-totalitems={cartTotal}>
+      <FontAwesomeIcon icon={faCartShopping} />
+      Cart
+      </div>
+      <div className="container">
+      <button className="button" onClick={handleDropFood}>
+        DROP FOOD
+      </button>
+      </div>
+
+    </div>
+  );
+};
+
+export default Cart;

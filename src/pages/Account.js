@@ -21,7 +21,6 @@ const Account = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
-
     setActiveTab(window.location.hash);
   }, []);
   //google login button functions

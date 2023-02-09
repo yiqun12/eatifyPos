@@ -11,12 +11,45 @@ import plusSvg from './plus.svg';
 import minusSvg from './minus.svg';
 import { useLocation } from 'react-router-dom';
 import { useUserContext } from "../context/userContext";
-import 'bootstrap/dist/css/bootstrap.css'; 
+import 'bootstrap/dist/css/bootstrap.css';
 import './group_list.css';
+import './cartcheckout.css';
+import $ from 'jquery';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
+import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
+import logo_transparent from './logo_transparent.png'
 //import { flexbox } from '@mui/system';
+import "./html2.css";
+
 
 const Navbar = () => {
-  const { logoutUser} = useUserContext();
+  /**check if its mobile/browser */
+  const [width, setWidth] = useState(window.innerWidth);
+
+  function handleWindowSizeChange() {
+    setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowSizeChange);
+    return () => {
+      window.removeEventListener('resize', handleWindowSizeChange);
+    }
+  }, []);
+
+  const isMobile = width <= 768;
+
+  const [isHover, setIsHover] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHover(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHover(false);
+  };
+
+  const { logoutUser } = useUserContext();
   const user = JSON.parse(localStorage.getItem('user'));
 
   const location = useLocation();
@@ -36,8 +69,8 @@ const Navbar = () => {
 
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
-    const height = products.length * 123 + 150; // 123 is the height of each product element and 80 is the top and bottom margin of the shopping cart
-    
+    const height = products.length * 123 + 100; // 123 is the height of each product element and 80 is the top and bottom margin of the shopping cart
+
     // Update the height of the shopping cart element
     document.querySelector('.shopping-cart').style.height = `${height}px`;
     //maybe add a line here...
@@ -56,7 +89,7 @@ const Navbar = () => {
       id: prevProducts.length + 1,
       quantity: 1,
       subtotal: 0,
-      image:item_1_pic
+      image: item_1_pic
     }]);
   }
   const handlePlusClick = (productId) => {
@@ -78,37 +111,37 @@ const Navbar = () => {
   };
   //display every item.
   const displayAllProductInfo = () => {
-  // Retrieve the array from local storage
-  let products = JSON.parse(localStorage.getItem("products"));
-  //console.log("displayProductFunction")
-  //console.log(products)
-  // Create an empty array to store the products
-  let productArray = [];
+    // Retrieve the array from local storage
+    let products = JSON.parse(localStorage.getItem("products"));
+    //console.log("displayProductFunction")
+    //console.log(products)
+    // Create an empty array to store the products
+    let productArray = [];
 
-  // Loop through the array of products
-  for (let i = 0; products != null && i < products.length; i++) {
-    let product = products[i];
-    // Push the product object to the array
-    productArray.push({
-      id: product.id,
-      name: product.name,
-      quantity: product.quantity,
-      subtotal: product.subtotal,
-      image: product.image,
-    });
-  }
+    // Loop through the array of products
+    for (let i = 0; products != null && i < products.length; i++) {
+      let product = products[i];
+      // Push the product object to the array
+      productArray.push({
+        id: product.id,
+        name: product.name,
+        quantity: product.quantity,
+        subtotal: product.subtotal,
+        image: product.image,
+      });
+    }
 
-  // Return the array of product objects
-  return productArray;
+    // Return the array of product objects
+    return productArray;
   };
   //display one item by id.
   const displayProductInfo = (id) => {
     // Retrieve the array from local storage
     let products = JSON.parse(localStorage.getItem("products"));
-  
+
     // Find the product with the matching id
     let product = products.find((product) => product.id === id);
-  
+
     // Display the product info
     console.log(`Product ID: ${product.id}`);
     console.log(`Product Name: ${product.name}`);
@@ -133,7 +166,7 @@ const Navbar = () => {
   const handleQuantityChange = (productId, newQuantity) => {
     // Ensure that the newQuantity is a number and is at least 1
     const safeQuantity = newQuantity ? Math.max(parseInt(newQuantity, 10), 1) : 1;
-  
+
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId) {
@@ -160,228 +193,314 @@ const Navbar = () => {
       });
     });
   };
-    // modal. 
-    const modalRef = useRef(null);
-    const btnRef = useRef(null);
-    const spanRef = useRef(null);
-    const openModal = () => {
+  // modal. 
+  const modalRef = useRef(null);
+  const btnRef = useRef(null);
+  const spanRef = useRef(null);
+  const openModal = () => {
     // Call the displayAllProductInfo function to retrieve the array of products from local storage
     let productArray = displayAllProductInfo();
     console.log(productArray)
     // Update the products state with the array of products
     setProducts(productArray);
-      modalRef.current.style.display = 'block';
+    modalRef.current.style.display = 'block';
     // Retrieve the array from local storage
-    };
-  
-    const closeModal = () => {
-      console.log(products)
-      localStorage.setItem('products', JSON.stringify(products));
-      modalRef.current.style.display = 'none';
-      
-    };
-  
-    useEffect(() => {
-      // Get the modal
-      const modal = modalRef.current;
-  
-      // Get the button that opens the modal
-      const btn = btnRef.current;
-  
-      // Get the <span> element that closes the modal
-      const span = spanRef.current;
+  };
 
-      // When the user clicks anywhere outside of the modal, close it
-      window.onclick = (event) => {
-        if (event.target === modal) {
-          
-          localStorage.setItem('products', JSON.stringify(products));
-          modal.style.display = "none";
-        }
+  const closeModal = () => {
+    console.log(products)
+    localStorage.setItem('products', JSON.stringify(products));
+    modalRef.current.style.display = 'none';
+
+  };
+
+  useEffect(() => {
+    // Get the modal
+    const modal = modalRef.current;
+
+    // Get the button that opens the modal
+    const btn = btnRef.current;
+
+    // Get the <span> element that closes the modal
+    const span = spanRef.current;
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = (event) => {
+      if (event.target === modal) {
+
+        localStorage.setItem('products', JSON.stringify(products));
+        modal.style.display = "none";
       }
-    }, [products]);// pass `products` as a dependency
+    }
+  }, [products]);// pass `products` as a dependency
   //This will ensure that the useEffect hook is re-run every time the products value changes, and the latest value will be saved to local storage.
-    //google login button functions
-    const [loginData, setLoginData] = useState(
+  //google login button functions
+  const [loginData, setLoginData] = useState(
     localStorage.getItem('loginData')
-    ?JSON.parse(localStorage.getItem('loginData'))
-    :null
-   );
-    const url = "http://localhost:8080"
-    const handleLogin = async (googleData) => {
-        const res = await fetch(url + '/api/google-login', {
-          method: 'POST',
-          credentials: 'include',
-          body: JSON.stringify({
-            token: googleData.tokenId,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-         const data = await res.json();
-         setLoginData(data);
-         console.log(data)
-         localStorage.setItem('loginData', JSON.stringify(data));
-         localStorage.setItem('picture', JSON.stringify(data.picture));
-         sessionStorage.setItem('token', googleData.tokenId);
-         localStorage.setItem('loginID',JSON.stringify(data.id))
-         // console.log(document.cookie);
-         window.location.reload(false);
-       };
-       const handleLogout = () => {
-        axios.get(url + "/logout").then((response) => {//get logout for cookie 
-        // delete cookies front end :)
-          //document.cookie=document.cookie+";max-age=0";
-          //document.cookie=document.cookie+";max-age=0";
-          console.log("clean cookie");
-        });
-       localStorage.removeItem('loginData');//remove localstorage data user name.
-       localStorage.removeItem('loginID');
-       localStorage.removeItem('picture');
-       localStorage.removeItem('name');
-       localStorage.removeItem('email');
-       sessionStorage.removeItem('token');
-       setLoginData(null);//empty the localstorage data
-       window.location.reload(false);
-     };
-     const handleFailure = (response) => {
-        console.log("Fail to login",response)
-      }
+      ? JSON.parse(localStorage.getItem('loginData'))
+      : null
+  );
+  const url = "http://localhost:8080"
+  const handleLogin = async (googleData) => {
+    const res = await fetch(url + '/api/google-login', {
+      method: 'POST',
+      credentials: 'include',
+      body: JSON.stringify({
+        token: googleData.tokenId,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await res.json();
+    setLoginData(data);
+    console.log(data)
+    localStorage.setItem('loginData', JSON.stringify(data));
+    localStorage.setItem('picture', JSON.stringify(data.picture));
+    sessionStorage.setItem('token', googleData.tokenId);
+    localStorage.setItem('loginID', JSON.stringify(data.id))
+    // console.log(document.cookie);
+    window.location.reload(false);
+  };
+  const handleLogout = () => {
+    axios.get(url + "/logout").then((response) => {//get logout for cookie 
+      // delete cookies front end :)
+      //document.cookie=document.cookie+";max-age=0";
+      //document.cookie=document.cookie+";max-age=0";
+      console.log("clean cookie");
+    });
+    localStorage.removeItem('loginData');//remove localstorage data user name.
+    localStorage.removeItem('loginID');
+    localStorage.removeItem('picture');
+    localStorage.removeItem('name');
+    localStorage.removeItem('email');
+    sessionStorage.removeItem('token');
+    setLoginData(null);//empty the localstorage data
+    window.location.reload(false);
+  };
+  const handleFailure = (response) => {
+    console.log("Fail to login", response)
+  }
 
-      const HandleCheckout = async () => {
-        localStorage.setItem('products', JSON.stringify(products));
-  // Get the products from local storage
-  const lineItem = JSON.parse(localStorage.getItem('products'));
+  const HandleCheckout = async () => {
+    localStorage.setItem('products', JSON.stringify(products));
+    // Get the products from local storage
+    const lineItem = JSON.parse(localStorage.getItem('products'));
 
-  // Create the line items array
-  const lineItems = lineItem.map((product) => {
-    return { price: product.id, quantity: product.quantity };
-  });
-        try {
-          const response = await fetch('http://localhost:4242/create-checkout-session', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ line_items: lineItems }),
-          });
-          const data = await response.json();
-      
-          // Redirect the user to the Checkout session URL
-          window.location.href = data.sessionUrl;
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      //const { promise } = useUserContext();
+    // Create the line items array
+    const lineItems = lineItem.map((product) => {
+      return { price: product.id, quantity: product.quantity };
+    });
+    try {
+      const response = await fetch('http://localhost:4242/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ line_items: lineItems }),
+      });
+      const data = await response.json();
 
-      const HandleCheckout_local_stripe = async () => {
-        localStorage.setItem('products', JSON.stringify(products));
-        window.location.href='/Checkout'
-      };
-    return (
-        <>
-<div>
-  </div>
+      // Redirect the user to the Checkout session URL
+      window.location.href = data.sessionUrl;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  //const { promise } = useUserContext();
+
+  const HandleCheckout_local_stripe = async () => {
+    localStorage.setItem('products', JSON.stringify(products));
+    window.location.href = '/Checkout'
+  };
+  return (
+
+    <>
       <div ref={modalRef} className="modal">
-            
-
-{/* popup content */}
-          <div className="shopping-cart">
-            
-      {/* shoppig cart */}
-      <div className="title" style={{height:'80px'}}>
-        Total Price: ${totalPrice} 
-        
-        <span className="delete-btn" style={{float: 'right',cursor: 'pointer', margin: '0'}} ref={spanRef} onClick={closeModal}></span>
-      </div>
-
-      {products.map((product) => (
-        
-        <div key={product.id} className="item">
-          <div className="buttons">
-            <span className="delete-btn" onClick={() => handleDeleteClick(product.id)}></span>
-            {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
-          </div>
-
-          <div className="image">
-          <div class="image-container">
-  <img style={{margin: '0px'}} src={product.image} alt="" />
-</div>
-          </div>
-
-          <div className="description">
-            <span style={{whiteSpace: 'nowrap'}}>{product.name}</span>
-            <span>${product.quantity * product.subtotal}</span>
-          </div>
 
 
-        {/* <div className="theset"> */}
-        <div className="quantity" style={{marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
-            <div style={{padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid",borderRadius: "12rem 0 0 12rem", height: "30px"}}>
-            <button className="plus-btn" type="button" name="button" style={{margin: '0px', width: '20px', height: '15px',alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handleMinusClick(product.id)}>
-            <img style={{margin: '0px', width: '10px', height: '10px'}} src={minusSvg} alt="" />
-            </button>
+        {/* popup content */}
+        <div className="shopping-cart">
+
+          {/* shoppig cart */}
+          <div className="title" style={{ height: '80px' }}>
+
+
+            <span className="delete-btn" style={{ 'postion': 'absolute', float: 'right', cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></span>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <button
+                style={{ width: "80%", border: "0px", margin: "auto" }}
+
+                class="w-80 mx-auto border-0 rounded-full text-white bg-amber-700 hover:bg-amber-800 focus:outline-none focus:ring-4 focus:ring-amber-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-amber-600 dark:hover:bg-amber-700 dark:focus:ring-amber-800 flex justify-between"
+                onClick={HandleCheckout_local_stripe}>
+                <span class="text-left"> <FontAwesomeIcon icon={faCreditCard} /> Checkout </span>
+                <span class="text-right"> ${totalPrice}</span>
+              </button>
+
             </div>
-            <span style= {{width: '20px', height: '30px' ,alignItems: 'center', justifyContent: 'center',borderTop: "1px solid", borderBottom: "1px solid", display: "flex"}}>{product.quantity}</span>
-            {/* <input
+
+          </div>
+
+          {products.map((product) => (
+
+            <div key={product.id} className="item">
+              <div className="buttons">
+                <span className="delete-btn" onClick={() => handleDeleteClick(product.id)}></span>
+                {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
+              </div>
+
+              <div className="image">
+                <div class="image-container">
+                  <img style={{ margin: '0px' }} src={product.image} alt="" />
+                </div>
+              </div>
+
+              <div className="description">
+                <span style={{ whiteSpace: 'nowrap' }}>{product.name}</span>
+                <span>${product.quantity * product.subtotal}</span>
+              </div>
+
+
+              {/* <div className="theset"> */}
+              <div className="quantity" style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
+                <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                  <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '15px', alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handleMinusClick(product.id)}>
+                    <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
+                  </button>
+                </div>
+                <span style={{ width: '20px', height: '30px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex" }}>{product.quantity}</span>
+                {/* <input
   type="number"
   name="name"
   value={product.quantity}
   onChange={(e) => handleQuantityChange(product.id, e.target.value)}
   min="1"
 /> */}
-            <div style={{padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex",  borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px"}}>
-            <button className="minus-btn" type="button" name="button" style={{marginTop: '0px', width: '20px', height: '15px' ,alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handlePlusClick(product.id)}>
-            <img style={{margin: '0px', width: '10px', height: '10px'}} src={plusSvg} alt="" />
-            </button>
+                <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                  <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '15px', alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handlePlusClick(product.id)}>
+                    <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
+                  </button>
+                </div>
+                {/* </div> */}
+
+
+              </div>
+
             </div>
-            {/* </div> */}
+
+          ))}
 
 
-          </div>
-          
         </div>
-        
-      ))}
+      </div>
+      {/**navbar */}
+      
+      <div className= {!isMobile ?"justify-between sticky top-0 bg-white z-10":"justify-between bg-white z-10"}>
 
-                  <button style={{width:"80%", display:"block", border:"0px", margin:"auto", marginTop:"15px"}} 
-        className="btn" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        onClick={HandleCheckout_local_stripe}>Checkout</button> 
-    </div>
-    </div>
+        <div className="grid grid-cols-8 flex max-w-[1240px] mx-auto items-center p-4 justify-between sticky top-0 bg-white z-10"
+          style={{ "border-bottom": "solid" }} >
+          <div className="col-span-2">
+            <img
+              src={logo_transparent}
+              alt=""
+              style={{ 'cursor': "pointer", maxHeight: '50px', maxWidth: '200px' }}
+              onClick={event => window.location.href = '/'}
+            />
+          </div>
 
-            <div className="flex max-w-[1240px] mx-auto items-center p-4 justify-between"
-            style = {{"border-bottom": "solid"}} >
-                <div className="cursor-pointer" >
-                    <h1 onClick={event =>  window.location.href='/'} className='font-bold text-3xl sm:text-4xl lg:text-4xl '>Eatify</h1>
-                </div>
-                <div className='flex'>
-                {user  ?
-                
-                    <div className="login" style={{whiteSpace: 'nowrap', maxWidth: '70%'}}>
-                    {/* // <div className="login" style={{                    display: flex justify-content: space-around;}}> */}
+          {!isMobile ?
 
-      {location.pathname !== '/account' && <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px'}} ref={btnRef} onClick={openModal}>Cart</Button>}
-      {location.pathname !== '/' && location.pathname !== '/Checkout' && (
-        <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick={event =>  window.location.href='/'}>Home</Button>
-      )}      {location.pathname !== '/account' && <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick={event =>  window.location.href='/account'}>Account</Button>}
-      <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick= {logoutUser}>Log Out</Button>
-                    </div>
-:
-<div className="login" style={{whiteSpace: 'nowrap', maxWidth: '70%'}}>
-<Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick={event =>  window.location.href='/login'}>Log in</Button>
-<Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} onClick={event =>  window.location.href='/signup'}>Sign up</Button>
-{location.pathname !== '/login' &&location.pathname !== '/signup' && <Button variant="dark" style={{ marginLeft: '10px', maxWidth: '80px' }} ref={btnRef} onClick={openModal}>Cart</Button>}
 
-</div>
-}
+            <div className="col-span-4 grid grid-cols-3 ">
+              <a 
+              style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
+                <i className="material-icons nav__icon">home</i>
+                <span className="nav__text">Home</span>
+              </a>
+              <div>
 
-                </div>
+                <a
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                  style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
+                  <i style={{
+                    color: 'transparent'
+                  }}
+                    className="material-icons nav__icon">home</i>
+                  <span style={{
+                    color: 'transparent'
+                  }} className="nav__text">
+                    1</span>
+                  <div id="cart"
+                    style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
+                    className="cart" data-totalitems={0} ref={btnRef} >
+                    <i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
+                      className="material-icons nav__icon">shopping_cart_checkout</i>
+                    Cart
+                  </div>
+                </a>
+
+
+              </div>
+
+              <div>
+                <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
+                  <i className="material-icons nav__icon">person</i>
+                  <span className="nav__text">Account</span>
+                </a>
+              </div>
+            </div> :
+
+            <div className="col-span-4 grid grid-cols-3 ">
+
             </div>
-        </>
-    )
+          }
+          <div className="col-span-2">
+            <select class="selectpicker" data-width="fit">
+              {/**如果选择中文，框显示成lang，如果是eng,框显示语言 */}
+              <option data-content='<span class="flag-icon flag-icon-us"></span> English'>English</option>
+              <option data-content='<span class="flag-icon flag-icon-mx"></span> Chinese'>中文</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+      {isMobile ?
+      <nav className="nav___">
+      <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
+                <i className="material-icons nav__icon">home</i>
+                <span className="nav__text">Home</span>
+              </a>
+        <a
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                  style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
+                  <i style={{
+                    color: 'transparent'
+                  }}
+                    className="material-icons nav__icon">home</i>
+                  <span style={{
+                    color: 'transparent'
+                  }} className="nav__text">
+                    1</span>
+                  <div id="cart"
+                    style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
+                    className="cart" data-totalitems={0} ref={btnRef} >
+                    <i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
+                      className="material-icons nav__icon">shopping_cart_checkout</i>
+                    Cart
+                  </div>
+                </a>
+        <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
+                  <i className="material-icons nav__icon">person</i>
+                  <span className="nav__text">Account</span>
+                </a>
+      </nav>:<></>}
+    </>
+  )
 }
 
 export default Navbar

@@ -56,8 +56,9 @@ function App() {
   return (
     
     <div className="App">
+      
       <BrowserRouter>
-      <Navbar />
+      <Navbar/>
       <Routes>
       <Route exact path="/" element={<Home />} />
       <Route path="Auth" element={<Auth />} />
@@ -72,6 +73,9 @@ function App() {
       <Route path="SignUp" element={<SignUp />}></Route>
       <Route path="LogIn" element={<LogIn />}></Route>
       </Routes>
+      <footer style={{'height':"100px",'color':'transparent'}}>
+        empty
+      </footer>
     </BrowserRouter>
     </div>
     
