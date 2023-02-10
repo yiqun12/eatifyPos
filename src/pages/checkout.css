@@ -12,7 +12,7 @@
   height: 100%;
 }
 
-/* here is the loader/spinning wheel(coin) code */
+/* here is the loader/spinning wheel(coin) code 
 .loader {
   transform: translateZ(1px);
 }
@@ -48,4 +48,4 @@
     transform: rotateY(3600deg);
   }
 }
-      
+      */

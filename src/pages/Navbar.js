@@ -399,13 +399,17 @@ const Navbar = () => {
                     <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
                   </button>
                 </div>
-                <input 
+              {/*  <input 
   type="text" 
   style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }} 
   value={product.quantity} 
   onChange={(e) => handleQuantityChange(product.id, e.target.value)} 
   onBlur={() => handleBlur(product)} 
-/>
+          />*/}
+                <span 
+  type="text" 
+  style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }} 
+>{product.quantity}</span>
                 <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
                   <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handlePlusClick(product.id)}>
                     <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />

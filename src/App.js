@@ -9,7 +9,7 @@ import LogIn from './pages/new_login';
 import Navbar from './pages/Navbar'
 import Account from './pages/Account';
 import Home from './pages/Home'
-import Html from './pages/Html'
+import ForgotPassword from './pages/ForgotPassword'
 import Html2 from './pages/Html2'
 import Checkout from './pages/Checkout'
 import {
@@ -17,7 +17,7 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-
+import './loading.css';
 import React, { useState,useEffect } from 'react'
 import { collection, getDocs } from "firebase/firestore";
 import { db } from './firebase/index';
@@ -33,6 +33,7 @@ function App() {
           .then((querySnapshot) => {
               const newData = querySnapshot.docs
                   .map((doc) => ({ ...doc.data(), id: doc.id }));
+              console.log(JSON.stringify(newData))
               localStorage.setItem("Food_arrays", JSON.stringify(newData));
           })
 
@@ -50,7 +51,15 @@ function App() {
       fetchPost();
   }, [])
   if (loading) {
-    return <p>Loading...</p>;
+    return <p>  <div className="pan-loader">
+      Loading...
+    <div className="loader"></div>
+    <div className="pan-container">
+      <div className="pan"></div>
+      <div className="handle"></div>
+    </div>
+    <div className="shadow"></div>
+  </div></p>;
 } else {
 
   return (
@@ -63,18 +72,18 @@ function App() {
       <Route exact path="/" element={<Home />} />
       <Route path="Auth" element={<Auth />} />
       <Route path="Admin" element={<Admin />} />
-      <Route path="Html" element={<Html />} />
       <Route path="Html2" element={<Html2 />} />
       { user ?  <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route> }
       <Route path="Dashboard" element={<Dashboard />} />
       { user ?  <Route path="Account" element={<Account />}></Route> : <Route path="Account" element={<LogIn />}></Route> }
       <Route path="success.html" element={<Success />}></Route>
       <Route path="canceled.html" element={<Canceled />}></Route>
-      <Route path="SignUp" element={<SignUp />}></Route>
-      <Route path="LogIn" element={<LogIn />}></Route>
+      { user ? <Route path="SignUp" element={<Account />}></Route>: <Route path="SignUp" element={<SignUp />}></Route>}
+      { user ? <Route path="LogIn" element={<Account />}></Route>: <Route path="LogIn" element={<LogIn />}></Route>}
+      { user ? <Route path="LogIn" element={<Account />}></Route>: <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
       </Routes>
       <footer style={{'height':"100px",'color':'transparent'}}>
-        empty
+        void
       </footer>
     </BrowserRouter>
     </div>

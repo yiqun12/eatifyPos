@@ -23,6 +23,10 @@ const Account = () => {
   useEffect(() => {
     setActiveTab(window.location.hash);
   }, []);
+  function removeFromLocalStorage() {
+    localStorage.removeItem('products');
+    localStorage.removeItem('Food_arrays');
+  }
   //google login button functions
   return (
     <>
@@ -181,7 +185,11 @@ const Account = () => {
                             We do not share user data with third parties for their marketing or advertising unless you give us or the third party permission to do so.
 
                           </div>
-                          <button onClick={logoutUser}
+                          <button
+                            onClick={() => {
+                              logoutUser();
+                              removeFromLocalStorage();
+                            }}
                             type="button"
                             className="btn btn-primary">
                             sign out

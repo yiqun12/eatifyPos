@@ -46,11 +46,11 @@ const Food = () => {
    
     setTimeout(() => {
       $('#cart').addClass('shake');
-    }, 1000);
+    }, 400);
 
     setTimeout(() => {
       cart.removeClass('shake');
-    }, 500);
+    }, 0);
     /**drop */
     const left = Math.floor(Math.random() * width);
     const emoji = charSet[0][category]
