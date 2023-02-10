@@ -137,10 +137,14 @@ function CardSection() {
 
           <div className="row-1">
             <div className="row row-2">
+              
               <span id="card2-inner">Card holder name</span>
             </div>
             <div className="row row-2">
-              <input type="text" name="name" required placeholder="Your name" />
+              <input style={{
+'background-color': 'transparent',
+'border-color': 'transparent'
+              }}className = "card_input" type="text" name="name" required placeholder="Your name" />
             </div>
           </div>
 

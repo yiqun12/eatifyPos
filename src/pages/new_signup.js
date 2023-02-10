@@ -15,7 +15,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useUserContext } from "../context/userContext";
 import React, { useRef } from "react";
 import Navbar from './Navbar'
-import './container.css'
 import { useState, useEffect } from 'react';
 
 

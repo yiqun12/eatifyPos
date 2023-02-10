@@ -14,7 +14,6 @@ import * as React from 'react';
 import { useRef } from "react";
 import { useUserContext } from "../context/userContext";
 import Navbar from './Navbar'
-import './container.css'
 import { useState, useEffect } from 'react';
 
 const theme = createTheme();
