@@ -384,40 +384,33 @@ const Navbar = () => {
                   <img style={{ margin: '0px' }} src={product.image} alt="" />
                 </div>
               </div>
-
               <div className="description">
                 <span style={{ whiteSpace: 'nowrap' }}>{product.name}</span>
                 <span>${product.quantity * product.subtotal}</span>
               </div>
 
-
               {/* <div className="theset"> */}
-
-              <div className="quantity" style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
+              <div className="quantity" 
+              style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
                 <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
                   <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handleMinusClick(product.id)}>
                     <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
                   </button>
                 </div>
                 <input 
-                type="text" style={{ width: '40px', height: '30px',  fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid",
-                 borderBottom: "1px solid", display: "flex"
-                }} 
-                 value={product.quantity} 
-                 onChange={(e) => handleQuantityChange(product.id, e.target.value)} 
-                 onBlur={() => handleBlur(product)} />
+  type="text" 
+  style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }} 
+  value={product.quantity} 
+  onChange={(e) => handleQuantityChange(product.id, e.target.value)} 
+  onBlur={() => handleBlur(product)} 
+/>
                 <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
                   <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handlePlusClick(product.id)}>
                     <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
                   </button>
                 </div>
-
-                {/* </div> */}
-
-
               </div>
-
-            </div>
+              </div>
 
           ))}
 

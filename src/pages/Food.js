@@ -184,12 +184,13 @@ const Food = () => {
                                     </div>
                                     <div className="col-span-1"> 
                                     <div className="container" 
-                                    style={{"left": "-100px",
-                                    padding:'0',width: '45px', height: '45px'
+                                    style={{
+                                      
+                                    padding:'0',width: '38px', height: '38px'
                                     }}>
                                     <Button
                                     variant="light"
-                                    style={{width: '45px', height: '45px',...divStyle}}
+                                    style={{width: '38px', height: '38px',...divStyle}}
                                     onClick={() => {
                                         updateLocalStorage(item.id, item.name, item.subtotal, item.image);
                                         handleDropFood();
