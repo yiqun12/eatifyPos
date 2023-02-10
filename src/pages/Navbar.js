@@ -82,13 +82,15 @@ const Navbar = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
       setTotalPrice(total);
     }
+    calculateTotalPrice();
     const calculateTotalQuant = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity), 0);
       console.log(total)
+      $('#cart').attr("data-totalitems", total);
       setTotalQuant(total);
     }
-    calculateTotalPrice();
     calculateTotalQuant();
+    
     uploadProductsToLocalStorage(products);
   }, [products]);
   const handleDeleteClick = (productId) => {
@@ -458,7 +460,7 @@ const Navbar = () => {
                     1</span>
                   <div id="cart"
                     style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
-                    className="cart" data-totalitems={0} ref={btnRef} >
+                    className="cart" data-totalitems={totalQuant} ref={btnRef} >
                     <i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
                       className="material-icons nav__icon">shopping_cart_checkout</i>
                     Cart
@@ -471,7 +473,7 @@ const Navbar = () => {
               <div>
                 <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
                   <i className="material-icons nav__icon">person</i>
-                  <span className="nav__text">Account</span>
+                  <span className="nav__text">{user ? "Account" : "Login"}</span>
                 </a>
               </div>
             </div> :
@@ -512,7 +514,7 @@ const Navbar = () => {
                     1</span>
                   <div id="cart"
                     style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
-                    className="cart" data-totalitems={0} ref={btnRef} >
+                    className="cart" data-totalitems={totalQuant} ref={btnRef} >
                     <i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
                       className="material-icons nav__icon">shopping_cart_checkout</i>
                     Cart
@@ -520,7 +522,7 @@ const Navbar = () => {
                 </a>
         <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
                   <i className="material-icons nav__icon">person</i>
-                  <span className="nav__text">Account</span>
+                  <span className="nav__text">{user ? "Account" : "Login"}</span>
                 </a>
       </nav>:<></>}
     </>

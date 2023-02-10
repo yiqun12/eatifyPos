@@ -15,11 +15,14 @@ import './html2.css';
 
 const Food = () => {
   /**dorp food */
+
   const charSet = [
-    "banana",
-    "bento",
-    "birthday_cake",
-    "bread"
+    {
+    "pizza":pizza,
+    "salad":salad,
+    "burger":burger,
+    "chicken":chicken
+  }
   ];
 
   const [width, setWidth] = useState(window.innerWidth - 64);
@@ -34,16 +37,15 @@ const Food = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleDropFood = () => {
+  const handleDropFood = (category) => {
     //console.log("hello")
     /**shake */
     const cart = $('#cart');
     const newCartTotal = cartTotal + 1;
     setCartTotal(newCartTotal);//update cart bubble
-
+   
     setTimeout(() => {
       $('#cart').addClass('shake');
-      $('#cart').content(1);
     }, 1000);
 
     setTimeout(() => {
@@ -51,8 +53,8 @@ const Food = () => {
     }, 500);
     /**drop */
     const left = Math.floor(Math.random() * width);
-    const emoji = charSet[Math.floor(Math.random() * charSet.length)];
-    const add = `<img class="emoji" style="left: ${left}px;" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/168840/${emoji}.svg"/>`;
+    const emoji = charSet[0][category]
+    const add = `<img class="emoji" style="left: ${left}px;" src="${emoji}"/>`;
     $(add).appendTo(".container").animate(
       {
         top: $(document).height()
@@ -130,6 +132,13 @@ const Food = () => {
 
         // Update the array in local storage
         localStorage.setItem("products", JSON.stringify(products));
+
+    const calculateTotalQuant = () => {
+      const total = products.reduce((acc, product) => acc + (product.quantity), 0);
+      console.log(total)
+      $('#cart').attr("data-totalitems", total);
+    }
+    calculateTotalQuant();
     };
 
     return (
@@ -193,7 +202,7 @@ const Food = () => {
                                     style={{width: '38px', height: '38px',...divStyle}}
                                     onClick={() => {
                                         updateLocalStorage(item.id, item.name, item.subtotal, item.image);
-                                        handleDropFood();
+                                        handleDropFood(item.category);
                                       }}                                    >
                                     <BsPlusCircle />
                                 </Button>
