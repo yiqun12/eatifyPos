@@ -23,6 +23,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from './firebase/index';
 
 function App() {
+
   const { user} = useUserContext();
   localStorage.setItem('user', JSON.stringify(user));
   const [loading, setLoading] = useState(true);
@@ -46,7 +47,9 @@ function App() {
           })
       setLoading(false);    
   }
-
+  useEffect(() => {
+    document.title = "EatifyPos"
+ }, []);
   useEffect(() => {
       fetchPost();
   }, [])
@@ -78,9 +81,9 @@ function App() {
       { user ?  <Route path="Account" element={<Account />}></Route> : <Route path="Account" element={<LogIn />}></Route> }
       <Route path="success.html" element={<Success />}></Route>
       <Route path="canceled.html" element={<Canceled />}></Route>
-      { user ? <Route path="SignUp" element={<Account />}></Route>: <Route path="SignUp" element={<SignUp />}></Route>}
+      <Route path="SignUp" element={<SignUp />}></Route>
       { user ? <Route path="LogIn" element={<Account />}></Route>: <Route path="LogIn" element={<LogIn />}></Route>}
-      { user ? <Route path="LogIn" element={<Account />}></Route>: <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
+      { user ? <Route path="ForgotPassword" element={<Account />}></Route>: <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
       </Routes>
       <footer style={{'height':"100px",'color':'transparent'}}>
         void

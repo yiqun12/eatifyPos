@@ -194,6 +194,7 @@ export default function SignIn() {
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>
+            <div className='error message' style={{ display: errorVisibility, color: 'red' }}>{error}</div>
             <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
               <Grid container spacing={2}>           
               <TextField

@@ -58,11 +58,11 @@ export const UserContextProvider = ({ children }) => {
     return unsubscribe;
   }, []);
 
-  const registerUser = (email, password, name) => {
+  const registerUser = async (email, password, name) => {
     setLoading(true);
     setError("");
 
-    createUserWithEmailAndPassword(auth, email, password)
+     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         updateProfile(auth.currentUser, {
           displayName: name,
@@ -71,20 +71,14 @@ export const UserContextProvider = ({ children }) => {
         logoutUser()
           }
       )
-      // .then((res) => console.log(auth.currentUser))
-      .then(
-        alert("Email verification sent")
-        // (res) => {    
-        // sendEmailVerification(auth.currentUser)
-        // logoutUser()
-        // .then((res) => alert("Email verification sent"))
-        // .catch((err) => setError(err.code))}
+      .then(()=>{
+        logoutUser()
+      }
         )
-      // .then((res) => console.log(res))
-      .catch((err) => setError(err.message))
+      .catch((err) => {
+        alert(err.message);
+    })
       .finally(() => setLoading(false));
-      // console.log(auth)
-      // console.log(user)
   };
 
 

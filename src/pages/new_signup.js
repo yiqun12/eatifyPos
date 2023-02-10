@@ -21,22 +21,27 @@ import { useState, useEffect } from 'react';
 const theme = createTheme();
 
 export default function SignUp() {
-  
   //const { user } = useUserContext();
   const user = JSON.parse(localStorage.getItem('user'));
+  const [errorVisibility, setErrorVisibility] = useState("none");
 
   const { registerUser } = useUserContext();
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     const email = data.get('email');
     const name = data.get('NickName');
     const password = data.get('password');
     console.log((email && password && name))
-    if (email && password && name) registerUser(email, password, name);
+    if (email && password && name){
+      const response = await registerUser(email, password, name);
+
+    } 
+
   };
   if (user) {
-    window.location.href = "/";
+    setErrorVisibility("block");
+    window.location.href = "/login";
   }
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -86,6 +91,8 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
+          <div className='error message' style={{ display: errorVisibility, color: 'red' }}>Please verify your email.</div>
+
           <Box component="form" noValidate onSubmit={onSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -170,6 +177,7 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
+          <div className='error message' style={{ display: errorVisibility, color: 'red' }}>Please verify your email.</div>
           <Box component="form" noValidate onSubmit={onSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
             <Grid item xs={12}>
