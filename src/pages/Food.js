@@ -43,6 +43,7 @@ const Food = () => {
 
     setTimeout(() => {
       $('#cart').addClass('shake');
+      $('#cart').content(1);
     }, 1000);
 
     setTimeout(() => {
@@ -177,10 +178,15 @@ const Food = () => {
                                   <div class="h-min overflow-hidden rounded-md">
     <img class="w-full h-[150px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[200px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
   </div>
-                                <div className='flex justify-between px-2 py-4'>
+                                <div className='flex justify-between px-2 py-4 grid grid-cols-4'>
+                                    <div className="col-span-3"> 
                                     <p>{item.name} <span>${item.subtotal}</span></p>
-                                    
-                                    <div className="container" style={{padding:'0',width: '45px', height: '45px'}}>
+                                    </div>
+                                    <div className="col-span-1"> 
+                                    <div className="container" 
+                                    style={{"left": "-100px",
+                                    padding:'0',width: '45px', height: '45px'
+                                    }}>
                                     <Button
                                     variant="light"
                                     style={{width: '45px', height: '45px',...divStyle}}
@@ -190,6 +196,7 @@ const Food = () => {
                                       }}                                    >
                                     <BsPlusCircle />
                                 </Button>
+                                 </div>
                                  </div>
       
                                 </div>

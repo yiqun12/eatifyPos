@@ -24,6 +24,8 @@ import "./html2.css";
 
 
 const Navbar = () => {
+  /**listen to localtsorage */
+
   /**check if its mobile/browser */
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -60,6 +62,7 @@ const Navbar = () => {
   const [products, setProducts] = useState([
   ]);
 
+
   useEffect(() => {
     // Call the displayAllProductInfo function to retrieve the array of products from local storage
     let productArray = displayAllProductInfo();
@@ -67,10 +70,11 @@ const Navbar = () => {
     setProducts(productArray);
   }, []);
 
+  const [totalQuant, setTotalQuant] = useState(0);
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
     const height = products.length * 123 + 100; // 123 is the height of each product element and 80 is the top and bottom margin of the shopping cart
-
+    console.log("product changed")
     // Update the height of the shopping cart element
     document.querySelector('.shopping-cart').style.height = `${height}px`;
     //maybe add a line here...
@@ -78,7 +82,14 @@ const Navbar = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
       setTotalPrice(total);
     }
+    const calculateTotalQuant = () => {
+      const total = products.reduce((acc, product) => acc + (product.quantity), 0);
+      console.log(total)
+      setTotalQuant(total);
+    }
     calculateTotalPrice();
+    calculateTotalQuant();
+    uploadProductsToLocalStorage(products);
   }, [products]);
   const handleDeleteClick = (productId) => {
     setProducts((prevProducts) => prevProducts.filter((product) => product.id !== productId));
@@ -98,13 +109,14 @@ const Navbar = () => {
         if (product.id === productId) {
           return {
             ...product,
-            quantity: product.quantity + 1,
+            quantity: Math.min(product.quantity + 1, 99),
           };
         }
         return product;
       });
     });
-  }
+  };
+  
   const uploadProductsToLocalStorage = (products) => {
     // Set the products array in local storage
     localStorage.setItem("products", JSON.stringify(products));
@@ -163,10 +175,13 @@ const Navbar = () => {
       });
     });
   }
-  const handleQuantityChange = (productId, newQuantity) => {
-    // Ensure that the newQuantity is a number and is at least 1
-    const safeQuantity = newQuantity ? Math.max(parseInt(newQuantity, 10), 1) : 1;
+  const [inputConfirmed, setInputConfirmed] = useState(false);
 
+  const handleQuantityChange = (productId, newQuantity) => {
+    const safeQuantity = newQuantity ? Math.min(Math.max(parseInt(newQuantity, 10), 0), 99) : 0;
+  
+    setInputConfirmed(false);
+  
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId) {
@@ -179,19 +194,33 @@ const Navbar = () => {
       });
     });
   };
+  
+  const handleBlur = (product) => {
+    setInputConfirmed(true);
+    if (product.quantity === 0) {
+      handleDeleteClick(product.id)
+    }
+  };
+
   const handleMinusClick = (productId) => {
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId) {
-          // Constrain the quantity of the product to be at least 1
+          // Constrain the quantity of the product to be at least 0
+          let newQuantity = Math.max(product.quantity - 1, 0);
+          if (newQuantity === 0) {
+            handleDeleteClick(product.id)
+            //console.log(0);
+          }
           return {
             ...product,
-            quantity: Math.max(product.quantity - 1, 1),
+            quantity: newQuantity,
           };
         }
         return product;
       });
     });
+    uploadProductsToLocalStorage(products);
   };
   // modal. 
   const modalRef = useRef(null);
@@ -208,7 +237,7 @@ const Navbar = () => {
   };
 
   const closeModal = () => {
-    console.log(products)
+    //console.log(products)
     localStorage.setItem('products', JSON.stringify(products));
     modalRef.current.style.display = 'none';
 
@@ -351,7 +380,7 @@ const Navbar = () => {
               </div>
 
               <div className="image">
-                <div class="image-container">
+                <div class="image-container" >
                   <img style={{ margin: '0px' }} src={product.image} alt="" />
                 </div>
               </div>
@@ -363,25 +392,26 @@ const Navbar = () => {
 
 
               {/* <div className="theset"> */}
+
               <div className="quantity" style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
                 <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                  <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '15px', alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handleMinusClick(product.id)}>
+                  <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handleMinusClick(product.id)}>
                     <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
                   </button>
                 </div>
-                <span style={{ width: '20px', height: '30px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex" }}>{product.quantity}</span>
-                {/* <input
-  type="number"
-  name="name"
-  value={product.quantity}
-  onChange={(e) => handleQuantityChange(product.id, e.target.value)}
-  min="1"
-/> */}
+                <input 
+                type="text" style={{ width: '40px', height: '30px',  fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid",
+                 borderBottom: "1px solid", display: "flex"
+                }} 
+                 value={product.quantity} 
+                 onChange={(e) => handleQuantityChange(product.id, e.target.value)} 
+                 onBlur={() => handleBlur(product)} />
                 <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                  <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '15px', alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handlePlusClick(product.id)}>
+                  <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handlePlusClick(product.id)}>
                     <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
                   </button>
                 </div>
+
                 {/* </div> */}
 
 
@@ -416,6 +446,7 @@ const Navbar = () => {
               <a 
               style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
                 <i className="material-icons nav__icon">home</i>
+
                 <span className="nav__text">Home</span>
               </a>
               <div>
