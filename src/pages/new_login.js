@@ -31,9 +31,10 @@ export default function SignIn() {
   if (user) {
     window.location.href = "/";
   }
-  window.addEventListener('beforeunload', () => {
+  window.addEventListener('pagehide', () => {
     localStorage.removeItem('user_not_verified');
   });
+
   const onSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
