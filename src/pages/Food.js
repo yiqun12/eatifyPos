@@ -10,8 +10,7 @@ import burger from './burger.png'
 import pizza from './pizza.png'
 import all from './all_food.png'
 import $ from 'jquery';
-import './html.css';
-import './html2.css';
+import './fooddropAnimate.css';
 
 const Food = () => {
   /**dorp food */

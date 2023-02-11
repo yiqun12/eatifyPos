@@ -20,7 +20,7 @@ import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import logo_transparent from './logo_transparent.png'
 //import { flexbox } from '@mui/system';
-import "./html2.css";
+import "./navbar.css";
 
 
 const Navbar = () => {
@@ -362,8 +362,7 @@ const Navbar = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button
                 style={{ width: "80%", border: "0px", margin: "auto" }}
-
-                class="w-80 mx-auto border-0 rounded-full text-white bg-amber-700 hover:bg-amber-800 focus:outline-none focus:ring-4 focus:ring-amber-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-amber-600 dark:hover:bg-amber-700 dark:focus:ring-amber-800 flex justify-between"
+                class="w-80 mx-auto border-0 rounded-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
                 onClick={HandleCheckout_local_stripe}>
                 <span class="text-left"> <FontAwesomeIcon icon={faCreditCard} /> Checkout </span>
                 <span class="text-right"> ${totalPrice}</span>

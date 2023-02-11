@@ -84,8 +84,9 @@ const Card = () => {
                 <p className=' font-bold text-2xl px-2 pt-4'>{['Guess you would like:', <br />, item1.name]}</p>
                 <button className='border border-white bg-white text-black mx-2 rounded-xl px-5 py-1 absolute bottom-4 shadow-md' 
                 onClick={() =>  
-                  updateLocalStorage(item1.id, item1.name, item1.subtotal, item1.image)
-                  }>Order Now</button>
+                  window.location.href = '/Reservation'
+                  //updateLocalStorage(item1.id, item1.name, item1.subtotal, item1.image)
+                  }>Make a reservation</button>
             </div>
             <img className='max-h-[160px] md:max-h-[350px] w-full object-cover rounded-xl' src={item1.image} alt="" />
         </div>

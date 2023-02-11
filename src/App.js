@@ -10,7 +10,7 @@ import Navbar from './pages/Navbar'
 import Account from './pages/Account';
 import Home from './pages/Home'
 import ForgotPassword from './pages/ForgotPassword'
-import Html2 from './pages/Html2'
+import Reservation from './pages/reservation'
 import Checkout from './pages/Checkout'
 import {
   BrowserRouter,
@@ -72,10 +72,11 @@ function App() {
       <BrowserRouter>
       <Navbar/>
       <Routes>
+      <Route path='*' exact={true} element={<Home />} />
       <Route exact path="/" element={<Home />} />
       <Route path="Auth" element={<Auth />} />
       <Route path="Admin" element={<Admin />} />
-      <Route path="Html2" element={<Html2 />} />
+      <Route path="Reservation" element={<Reservation />} />
       { user ?  <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route> }
       <Route path="Dashboard" element={<Dashboard />} />
       { user ?  <Route path="Account" element={<Account />}></Route> : <Route path="Account" element={<LogIn />}></Route> }
@@ -84,6 +85,7 @@ function App() {
       <Route path="SignUp" element={<SignUp />}></Route>
       { user ? <Route path="LogIn" element={<Account />}></Route>: <Route path="LogIn" element={<LogIn />}></Route>}
       { user ? <Route path="ForgotPassword" element={<Account />}></Route>: <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
+      
       </Routes>
       <footer style={{'height':"100px",'color':'transparent'}}>
         void
