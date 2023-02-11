@@ -35,7 +35,7 @@ export default function SignUp() {
     console.log((email && password && name))
     if (email && password && name){
       const response = await registerUser(email, password, name);
-
+      console(response)
     } 
 
   };
@@ -133,6 +133,9 @@ export default function SignUp() {
 
               </Grid>
             </Grid>
+            <Typography  variant="body2">
+             {"We would send you a link to verify your email."}
+           </Typography>
             <Button
               type="submit"
               fullWidth
@@ -218,6 +221,9 @@ export default function SignUp() {
 
               </Grid>
             </Grid>
+            <Typography  variant="body2">
+             {"We would send you a link to verify your email."}
+           </Typography>
             <Button
               type="submit"
               fullWidth

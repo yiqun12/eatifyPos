@@ -57,27 +57,21 @@ export const UserContextProvider = ({ children }) => {
     });
     return unsubscribe;
   }, []);
-
+// logout untill full filled.
   const registerUser = async (email, password, name) => {
     setLoading(true);
     setError("");
-
-     createUserWithEmailAndPassword(auth, email, password)
+  
+    createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         updateProfile(auth.currentUser, {
           displayName: name,
-        })
-        sendEmailVerification(auth.currentUser)
+        });
         logoutUser()
-          }
-      )
-      .then(()=>{
-        logoutUser()
-      }
-        )
+      })
       .catch((err) => {
         alert(err.message);
-    })
+      })
       .finally(() => setLoading(false));
   };
 
@@ -149,7 +143,6 @@ export const UserContextProvider = ({ children }) => {
     logoutUser,
     forgotPassword,
     signInWithGoogle,
-    emailVerification,
     promise
     // isEmailVerified
   };
