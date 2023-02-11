@@ -141,6 +141,12 @@ export default function SignIn() {
        >
          Sign In
        </Button>
+       <Button  
+            fullWidth
+            variant="contained"
+            sx={{ mb: 2 }} role="button" >
+              Guest Sign in</Button>
+
        <Button  onClick={signInWithGoogle}
      fullWidth
      variant="contained"
@@ -230,11 +236,17 @@ export default function SignIn() {
               >
                 Sign In
               </Button>
+              <Button  
+            fullWidth
+            variant="contained"
+            sx={{ mb: 2 }} role="button" >
+              Guest Sign in</Button>
               <Button    onClick={signInWithGoogle}
             fullWidth
             variant="contained"
             sx={{ mb: 2 }} role="button" >
               Google Sign in</Button>
+
               </Grid>
               <Grid container>
                 <Grid item xs>
