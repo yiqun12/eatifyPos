@@ -48,6 +48,10 @@ export const UserContextProvider = ({ children }) => {
       if (firebaseUser) {
         const {uid, displayName, email} = firebaseUser;
         const filteredProperties = Object.assign({}, {uid}, {displayName}, {email});
+        if(filteredProperties.uid!=null&&filteredProperties.displayName==null&&email==null){
+          filteredProperties.displayName = "Anonymously mode"
+          filteredProperties.email = "Anonymously@eatifyPos.com"
+        }
         setUser(filteredProperties);
         currentUser = firebaseUser;
       } else {
@@ -122,10 +126,10 @@ export const UserContextProvider = ({ children }) => {
   
     try {
       signInAnonymously(auth)
-  
+/*  
       updateProfile(auth.currentUser, {
         displayName: 'Guest',
-      });
+      });*/
       return;
     } catch (err) {
       //console.log(err.message);

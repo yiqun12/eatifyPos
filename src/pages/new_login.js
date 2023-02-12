@@ -141,17 +141,18 @@ export default function SignIn() {
        >
          Sign In
        </Button>
-       <Button  
-            fullWidth
-            variant="contained"
-            sx={{ mb: 2 }} role="button" onClick={signInWithGuest} >
-              Guest Sign in</Button>
+
 
        <Button  onClick={signInWithGoogle}
      fullWidth
      variant="contained"
      sx={{ mb: 2 }} role="button" >
        Google Sign in</Button>
+       <Button  
+            fullWidth
+            variant="contained"
+            sx={{ mb: 2 }} role="button" onClick={signInWithGuest} >
+              One Time Sign in</Button>
        </Grid>
        <Grid container>
          <Grid item xs>
@@ -236,17 +237,17 @@ export default function SignIn() {
               >
                 Sign In
               </Button>
-              <Button  
-            fullWidth
-            variant="contained"
-            sx={{ mb: 2 }} role="button" onClick={signInWithGuest}>
-              Guest Sign in</Button>
+
               <Button    onClick={signInWithGoogle}
             fullWidth
             variant="contained"
             sx={{ mb: 2 }} role="button" >
               Google Sign in</Button>
-
+              <Button  
+            fullWidth
+            variant="contained"
+            sx={{ mb: 2 }} role="button" onClick={signInWithGuest}>
+              One Time Sign in</Button>
               </Grid>
               <Grid container>
                 <Grid item xs>

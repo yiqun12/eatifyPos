@@ -100,21 +100,12 @@ const ReservationForm = () => {
           required
         />
       </div>
-      <div className="elem-group inlined">
+      <div style = {{width:"100%"}}className="elem-group inlined">
         <label htmlFor="checkin-date">Check-in Date</label>
         <input
           type="date"
           id="checkin-date"
           name="checkin"
-          required
-        />
-      </div>
-      <div className="elem-group inlined">
-        <label htmlFor="checkout-date">Check-out Date</label>
-        <input
-          type="date"
-          id="checkout-date"
-          name="checkout"
           required
         />
       </div>
@@ -125,13 +116,12 @@ const ReservationForm = () => {
           name="room_preference"
           required
         >
-          <option value="">Choose a Room from the List</option>
+          <option value="">Choose a Room</option>
           <option value="connecting">Room1</option>
           <option value="adjoining">Room2</option>
           <option value="adjacent">Room3</option>
         </select>
       </div>
-      <hr />
       <div className="elem-group">
       <label htmlFor="message">Anything Else?</label>
         <textarea

@@ -144,7 +144,6 @@ const Food = () => {
         <div>
 
             <div className='max-w-[1240px] m-auto px-4 '>
-                <hr />
                 <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
                     {/* Filter Type */}
                     <div className='Type'>

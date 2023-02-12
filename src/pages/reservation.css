@@ -28,16 +28,8 @@
     padding: 10px;
   }
   
-  div.elem-group.inlined input {
-    width: 95%;
-    display: inline-block;
-  }
   
   textarea {
     height: 250px;
-  }
-  
-  hr {
-    border: 1px dotted #ccc;
   }
   
