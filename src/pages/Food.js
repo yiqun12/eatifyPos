@@ -198,12 +198,12 @@ const Food = () => {
                                     }}>
                                     <Button
                                     variant="light"
-                                    style={{width: '38px', height: '38px',...divStyle}}
+                                    style={{width: '38px', height: '38px', padding:'0', margin:'0', ...divStyle}}
                                     onClick={() => {
                                         updateLocalStorage(item.id, item.name, item.subtotal, item.image);
                                         handleDropFood(item.category);
                                       }}                                    >
-                                    <BsPlusCircle />
+                                    <BsPlusCircle style={{margin: 'auto'}}/>
                                 </Button>
                                  </div>
                                  </div>
