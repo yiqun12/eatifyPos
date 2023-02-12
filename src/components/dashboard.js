@@ -14,7 +14,7 @@ const Dashboard = (props) => {
   return (
     <div>
       <Elements stripe={promise}>
-          <div className="card2 mt-50 mb-50">
+          <div className="card2 mb-50">
       <div className="card2-title mx-auto">
       Checkout
       </div>

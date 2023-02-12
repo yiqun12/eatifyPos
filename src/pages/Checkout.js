@@ -53,7 +53,7 @@ const Item = (props) => {
   console.log(products)
 
   return (
-    <div className="card2 mt-50 mb-50">
+    <div className="card2 mb-50">
       <div className="col d-flex">
         {/** 
         <span className="text-muted" id="orderno">
