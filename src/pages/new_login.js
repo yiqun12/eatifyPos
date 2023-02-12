@@ -9,7 +9,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './button.css';
-import {Row, Col, Container} from "react-bootstrap"
+import { Row, Col, Container } from "react-bootstrap"
 import * as React from 'react';
 import { useRef } from "react";
 import { useUserContext } from "../context/userContext";
@@ -49,11 +49,11 @@ export default function SignIn() {
       }
     }
   };
-  
+
 
   const forgotPasswordHandler = (e) => {
     window.location.href = "/ForgotPassword";
-  }; 
+  };
   const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -67,214 +67,118 @@ export default function SignIn() {
   }, []);
   return (
     <div
-    style={{
-    }}
->
-{user ?
-  <div>
- Loading...
-  </div>
+      style={{
+      }}
+    >
+      {user ?
+        <div>
+          Loading...
+        </div>
         :
         <>
-            <div>
-      {width > 640 ? (
- <div className="container">
+          <div>
+            <div className="container">
+              <div style={width > 640 ? { width: "600px", margin: "0 auto" } : {}}>
+                <div className={width > 640 ? "card2 mt-50 mb-50" : ""}>
+                  <div style={{ 'padding': '10px 12px' }} className={width > 640 ? "main" : ""}>
+                    <ThemeProvider theme={theme} >
 
- <div style={{ width: "600px", margin: "0 auto" }}>
-     <div className="card2 mt-50 mb-50">
-       <div className="main">
-       <ThemeProvider theme={theme} >
- 
- <Container component="main" maxWidth="xs">
- 
-       <CssBaseline />
-   <Box
-     sx={{
-       marginTop: 0,
- 
-       marginLeft: 2,
-       
-       display: 'flex',
-       flexDirection: 'column',
-       alignItems: 'center',
-     }}
-   >
-     <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-       <LockOutlinedIcon />
-     </Avatar>
-     <Typography component="h1" variant="h5">
-       Sign in
-     </Typography>
-     <div className='error message' style={{ display: errorVisibility, color: 'red' }}>{error}</div>
-     {user_not_verified? <div style={{ color: 'red' }}>{user_not_verified}</div>:<></>}
-     <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
-       <Grid container spacing={2}>           
-       <TextField
-         margin="normal"
-         required
-         fullWidth
-         id="email"
-         label="Email Address"
-         name="email"
-         autoComplete="email"
-         autoFocus
-         inputRef={emailRef}
-       />
-       <TextField
-         margin="normal"
-         required
-         fullWidth
-         name="password"
-         label="Password"
-         type="password"
-         id="password"
-         autoComplete="current-password"
-         
-       />
-       </Grid>
-       <Grid container spacing={2}>   
-       <Button
-         type="submit"
-         fullWidth
-         variant="contained"
-         sx={{ mt: 3, mb: 2 }}
-       >
-         Sign In
-       </Button>
+                      <Container component="main" maxWidth="xs">
+
+                        <CssBaseline />
+                        <Box
+                          sx={{
+                            marginTop: 0,
+
+                            marginLeft: 2,
+
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                            <LockOutlinedIcon />
+                          </Avatar>
+                          <Typography component="h1" variant="h5">
+                            Sign in
+                          </Typography>
+                          <div className='error message' style={{ display: errorVisibility, color: 'red' }}>{error}</div>
+                          {user_not_verified ? <div style={{ color: 'red' }}>{user_not_verified}</div> : <></>}
+                          <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
+                            <Grid container spacing={2}>
+                              <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="email"
+                                label="Email Address"
+                                name="email"
+                                autoComplete="email"
+                                autoFocus
+                                inputRef={emailRef}
+                              />
+                              <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                name="password"
+                                label="Password"
+                                type="password"
+                                id="password"
+                                autoComplete="current-password"
+
+                              />
+                            </Grid>
+                            <Grid container spacing={2}>
+                              <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2 }}
+                              >
+                                Sign In
+                              </Button>
 
 
-       <Button  onClick={signInWithGoogle}
-     fullWidth
-     variant="contained"
-     sx={{ mb: 2 }} role="button" >
-       Google Sign in</Button>
-       <Button  
-            fullWidth
-            variant="contained"
-            sx={{ mb: 2 }} role="button" onClick={signInWithGuest} >
-              One Time Sign in</Button>
-       </Grid>
-       <Grid container>
-         <Grid item xs>
-           <Link style={{cursor: 'pointer'}} onClick={forgotPasswordHandler} variant="body2">
-             Forgot password?
-           </Link>
-         </Grid>
-         <Grid item>
-           <Link href='/signup' variant="body2">
-             {"Don't have an account? Sign Up"}
-           </Link>
-         </Grid>
-       </Grid>
-     </Box>
-   </Box>
- 
- 
- </Container>
- 
- </ThemeProvider>
-       </div>
-     </div>
-     </div>
-     </div>
-      ) : (
-              <div className="main">
-                 <br/>
-              <ThemeProvider theme={theme} >
-        
-        <Container component="main" maxWidth="xs">
-        
-              <CssBaseline />
-          <Box
-            sx={{
-              marginTop: 0,
-        
-              marginLeft: 2,
-              
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Sign in
-            </Typography>
-            {user_not_verified? <div style={{ color: 'red' }}>{user_not_verified}</div>:<></>}
-            <div className='error message' style={{ display: errorVisibility, color: 'red' }}>{error}</div>
-            <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
-              <Grid container spacing={2}>           
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                autoFocus
-                inputRef={emailRef}
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-              />
-              </Grid>
-              <Grid container spacing={2}>   
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Sign In
-              </Button>
+                              <Button onClick={signInWithGoogle}
+                                fullWidth
+                                variant="contained"
+                                sx={{ mb: 2 }} role="button" >
+                                Google Sign in</Button>
+                              <Button
+                                fullWidth
+                                variant="contained"
+                                sx={{ mb: 2 }} role="button" onClick={signInWithGuest} >
+                                One Time Sign in</Button>
+                            </Grid>
+                            <Grid container>
+                              <Grid item xs>
+                                <Link style={{ cursor: 'pointer' }} onClick={forgotPasswordHandler} variant="body2">
+                                  Forgot password?
+                                </Link>
+                              </Grid>
+                              <Grid item>
+                                <Link href='/signup' variant="body2">
+                                  {"Don't have an account? Sign Up"}
+                                </Link>
+                              </Grid>
+                            </Grid>
+                          </Box>
+                        </Box>
 
-              <Button    onClick={signInWithGoogle}
-            fullWidth
-            variant="contained"
-            sx={{ mb: 2 }} role="button" >
-              Google Sign in</Button>
-              <Button  
-            fullWidth
-            variant="contained"
-            sx={{ mb: 2 }} role="button" onClick={signInWithGuest}>
-              One Time Sign in</Button>
-              </Grid>
-              <Grid container>
-                <Grid item xs>
-                  <Link style={{cursor: 'pointer'}} onClick={forgotPasswordHandler} variant="body2">
-                    Forgot password?
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Link href='/signup' variant="body2">
-                    {"Don't have an account? Sign Up"}
-                  </Link>
-                </Grid>
-              </Grid>
-            </Box>
-          </Box>
-        
-        
-        </Container>
-        
-        </ThemeProvider>
+
+                      </Container>
+
+                    </ThemeProvider>
+                  </div>
+                </div>
               </div>
+            </div>
+          </div>
 
-      )}
-    </div>
-       
-    </>
-        }
+        </>
+      }
     </div>
   );
 }

@@ -3,7 +3,21 @@ import './reservation.css';
 
 const ReservationForm = () => {
     const [width, setWidth] = useState(window.innerWidth);
-
+    const input_style = {
+      'border-radius': '5px',
+      'border': '2px solid #777',
+      'box-sizing': 'border-box',
+      'font-size': '1.25em',
+      'font-family': 'Nanum Gothic',
+      'width': '100%',
+      'padding': '10px'
+    }
+    const label_style = {
+        "display": "block",
+        "font-family": 'Nanum Gothic',
+        "padding-bottom": "10px",
+        "font-size": "1.25em"
+    }
     function handleWindowSizeChange() {
       setWidth(window.innerWidth);
     }
@@ -42,12 +56,15 @@ const ReservationForm = () => {
     style={{
         'max-width': '500px',
         'margin': '0 auto',
-        'padding':' 50px'
+        'padding': '0 24px'
       }}
     action="reservation.php" method="post">
       <div className="elem-group">
-        <label htmlFor="name">Your Name</label>
+        <label
+        style={label_style}
+        htmlFor="name">Your Name</label>
         <input
+        style={input_style}
           type="text"
           id="name"
           name="visitor_name"
@@ -57,8 +74,9 @@ const ReservationForm = () => {
         />
       </div>
       <div className="elem-group">
-        <label htmlFor="email">Your E-mail</label>
+        <label style={label_style} htmlFor="email">Your E-mail</label>
         <input
+        style={input_style}
           type="email"
           id="email"
           name="visitor_email"
@@ -67,8 +85,9 @@ const ReservationForm = () => {
         />
       </div>
       <div className="elem-group">
-        <label htmlFor="phone">Your Phone</label>
+        <label style={label_style} htmlFor="phone">Your Phone</label>
         <input
+        style={input_style}
           type="tel"
           id="phone"
           name="visitor_phone"
@@ -79,8 +98,9 @@ const ReservationForm = () => {
       </div>
       <hr />
       <div className="elem-group inlined">
-        <label htmlFor="adult">Adults</label>
+        <label style={label_style} htmlFor="adult">Adults</label>
         <input
+        style={input_style}
           type="number"
           id="adult"
           name="total_adults"
@@ -90,8 +110,9 @@ const ReservationForm = () => {
         />
       </div>
       <div className="elem-group inlined">
-        <label htmlFor="child">Children</label>
+        <label style={label_style} htmlFor="child">Children</label>
         <input
+        style={input_style}
           type="number"
           id="child"
           name="total_children"
@@ -101,8 +122,9 @@ const ReservationForm = () => {
         />
       </div>
       <div style = {{width:"100%"}}className="elem-group inlined">
-        <label htmlFor="checkin-date">Check-in Date</label>
+        <label style={label_style} htmlFor="checkin-date">Check-in Date</label>
         <input
+        style={input_style}
           type="date"
           id="checkin-date"
           name="checkin"
@@ -110,8 +132,9 @@ const ReservationForm = () => {
         />
       </div>
       <div className="elem-group">
-        <label htmlFor="room-selection">Select Room Preference</label>
+        <label style={label_style} htmlFor="room-selection">Select Room Preference</label>
         <select
+        style={input_style}
           id="room-selection"
           name="room_preference"
           required
@@ -123,8 +146,9 @@ const ReservationForm = () => {
         </select>
       </div>
       <div className="elem-group">
-      <label htmlFor="message">Anything Else?</label>
+      <label style={label_style} htmlFor="message">Anything Else?</label>
         <textarea
+          style={{ ...input_style,'height': '250px'}}
           id="message"
           name="visitor_message"
           placeholder="Tell us anything else that might be important."

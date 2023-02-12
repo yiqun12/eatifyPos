@@ -9,7 +9,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './button.css';
-import {Row, Col, Container} from "react-bootstrap"
+import { Row, Col, Container } from "react-bootstrap"
 import * as React from 'react';
 import { useRef } from "react";
 import { useUserContext } from "../context/userContext";
@@ -45,8 +45,8 @@ export default function SignIn() {
         alert("Email was sent")
         window.location.href = "/login";
       });
-      
-  }; 
+
+  };
   const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -58,165 +58,101 @@ export default function SignIn() {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+  //width > 640 ?
   return (
     <div
-    style={{
-    }}
->
-{user ?
-  <div>
- Loading...
-  </div>
+      style={{
+      }}
+    >
+      {user ?
+        <div>
+          Loading...
+        </div>
         :
         <>
-            <div>
-      {width > 640 ? (
- <div className="container">
+          <div>
+            <div className="container">
+              <div style={width > 640 ? { width: "600px", margin: "0 auto" } : {}}>
+                <div className={width > 640 ? "card2 mt-50 mb-50" : ""}>
+                  <div style={{ 'padding': '10px 12px' }} className={width > 640 ? "main" : ""}>
 
- <div style={{ width: "600px", margin: "0 auto" }}>
-     <div className="card2 mt-50 mb-50">
-       <div className="main">
-       <ThemeProvider theme={theme} >
- 
- <Container component="main" maxWidth="xs">
- 
-       <CssBaseline />
-   <Box
-     sx={{
-       marginTop: 0,
- 
-       marginLeft: 2,
-       
-       display: 'flex',
-       flexDirection: 'column',
-       alignItems: 'center',
-     }}
-   >
-     <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-       <LockOutlinedIcon />
-     </Avatar>
-     <Typography component="h1" variant="h5">
-     Forgot your password? No worries!
-     </Typography>
-     <div className='error message' style={{ display: errorVisibility, color: 'red' }}>{error}</div>
-     {user_not_verified? <div style={{ color: 'red' }}>{user_not_verified}</div>:<></>}
-     <Box component="form" noValidate sx={{ mt: 1 }}>
-       <Grid container spacing={2}>           
-       <TextField
-         margin="normal"
-         required
-         fullWidth
-         id="email"
-         label="Enter Email Address"
-         name="email"
-         autoComplete="email"
-         autoFocus
-         inputRef={emailRef}
-       />
-       </Grid>
-       <Grid container spacing={2}>   
-       <Button 
-         onClick={forgotPasswordHandler}
-         fullWidth
-         variant="contained"
-         sx={{ mt: 3, mb: 2 }}
-       >
-         Confirm
-       </Button>
+                    <ThemeProvider theme={theme} >
 
-       </Grid>
-       <Grid container>
-         <Grid item xs>
-         </Grid>
-         <Grid item>
-           <Typography  variant="body2">
-             {"We would send you a link to reset password"}
-           </Typography>
-         </Grid>
-       </Grid>
-     </Box>
-   </Box>
- 
- 
- </Container>
- 
- </ThemeProvider>
-       </div>
-     </div>
-     </div>
-     </div>
-      ) : (
-              <div className="main">
-                 <br/>
-              <ThemeProvider theme={theme} >
-        
-        <Container component="main" maxWidth="xs">
-        
-              <CssBaseline />
-          <Box
-            sx={{
-              marginTop: 0,
-        
-              marginLeft: 2,
-              
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-            Forgot your password? No worries!
-            </Typography>
-            <Box component="form" noValidate sx={{ mt: 1 }}>
-              <Grid container spacing={2}>           
-              <TextField
-         margin="normal"
-         required
-         fullWidth
-         id="email"
-         label="Enter Email Address"
-         name="email"
-         autoComplete="email"
-         autoFocus
-         inputRef={emailRef}
-       />
-              </Grid>
-              <Grid container spacing={2}>   
-              <Button 
-         onClick={forgotPasswordHandler}
-         fullWidth
-         variant="contained"
-         sx={{ mt: 3, mb: 2 }}
-       >
-         Confirm
-       </Button>
-              </Grid>
-              <Grid container>
-                <Grid item xs>
-                </Grid>
-                <Grid item>
-                <Typography  variant="body2">
-             {"We would send you a link to reset password"}
-           </Typography>
-                </Grid>
-              </Grid>
-            </Box>
-          </Box>
-        
-        
-        </Container>
-        
-        </ThemeProvider>
+                      <Container component="main" maxWidth="xs">
+
+                        <CssBaseline />
+                        <Box
+                          sx={{
+                            marginTop: 0,
+
+                            marginLeft: 2,
+
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                            <LockOutlinedIcon />
+
+                          </Avatar>
+                          <Typography component="h1" variant="h5" sx={{ m: 1 }}>
+                            Forgot your password?
+
+                          </Typography>
+
+                          <div className='error message' style={{ display: errorVisibility, color: 'red' }}>{error}</div>
+                          {user_not_verified ? <div style={{ color: 'red' }}>{user_not_verified}</div> : <></>}
+                          <Box component="form" noValidate sx={{ mt: 1 }}>
+                            <Grid container spacing={2}>
+                              <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="email"
+                                label="Enter Email Address"
+                                name="email"
+                                autoComplete="email"
+                                autoFocus
+                                inputRef={emailRef}
+                              />
+                            </Grid>
+                            <Grid container spacing={2}>
+                              <Button
+                                onClick={forgotPasswordHandler}
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2 }}
+                              >
+                                Confirm
+                              </Button>
+
+                            </Grid>
+                            <Grid container>
+                              <Grid item xs>
+                              </Grid>
+                              <Grid item>
+                                <Typography variant="body2">
+                                  {"We would send you a link to reset password"}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          </Box>
+                        </Box>
+
+
+                      </Container>
+
+                    </ThemeProvider>
+                  </div>
+                </div>
               </div>
+            </div>
 
-      )}
-    </div>
-       
-    </>
-        }
+          </div>
+
+        </>
+      }
     </div>
   );
 }

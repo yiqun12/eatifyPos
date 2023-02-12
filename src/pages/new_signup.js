@@ -33,10 +33,10 @@ export default function SignUp() {
     const name = data.get('NickName');
     const password = data.get('password');
     console.log((email && password && name))
-    if (email && password && name){
+    if (email && password && name) {
       const response = await registerUser(email, password, name);
       console(response)
-    } 
+    }
 
   };
   if (user) {
@@ -56,201 +56,112 @@ export default function SignUp() {
   }, []);
   return (
     <div
-    style={{
-      
-    }}
->
-{user ?
-  <div>
- Loading...
-  </div>
+      style={{
+
+      }}
+    >
+      {user ?
+        <div>
+          Loading...
+        </div>
         :
-        
+
         <>
-            <div>
-      {width > 640 ? (
-        <div className="container">
+          <div>
+            <div className="container">
+              <div style={width > 640 ? { width: "600px", margin: "0 auto" } : {}}>
+                <div className={width > 640 ? "card2 mt-50 mb-50" : ""}>
+                  <div style={{ 'padding': '10px 12px' }} className={width > 640 ? "main" : ""}>
 
-        <div style={{ "max-width": "600px", margin: "0 auto" }}>
-    <div className="card2 mt-50 mb-50">
-      <div className="main">
-      <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign up
-          </Typography>
-          <div className='error message' style={{ display: errorVisibility, color: 'red' }}>Please verify your email.</div>
+                    <ThemeProvider theme={theme}>
+                      <Container component="main" maxWidth="xs">
+                        <CssBaseline />
+                        <Box
+                          sx={{
+                            marginTop: 0,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                            <LockOutlinedIcon />
+                          </Avatar>
+                          <Typography component="h1" variant="h5">
+                            Sign up
+                          </Typography>
+                          <div className='error message' style={{ display: errorVisibility, color: 'red' }}>Please verify your email.</div>
 
-          <Box component="form" noValidate onSubmit={onSubmit} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-            <Grid item xs={12}>
-                <TextField
+                          <Box component="form" noValidate onSubmit={onSubmit} sx={{ mt: 3 }}>
+                            <Grid container spacing={2}>
+                              <Grid item xs={12}>
+                                <TextField
 
-                  required
-                  fullWidth
-                  id="NickName"
-                  label="Nick name"
-                  name="NickName"
-                  autoComplete="NickName"
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                />
-              </Grid>
+                                  required
+                                  fullWidth
+                                  id="NickName"
+                                  label="Nick name"
+                                  name="NickName"
+                                  autoComplete="NickName"
+                                  autoFocus
+                                />
+                              </Grid>
+                              <Grid item xs={12}>
+                                <TextField
+                                  required
+                                  fullWidth
+                                  id="email"
+                                  label="Email Address"
+                                  name="email"
+                                  autoComplete="email"
+                                />
+                              </Grid>
 
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                />
-              </Grid>
-              <Grid item xs={12}>
+                              <Grid item xs={12}>
+                                <TextField
+                                  required
+                                  fullWidth
+                                  name="password"
+                                  label="Password"
+                                  type="password"
+                                  id="password"
+                                  autoComplete="new-password"
+                                />
+                              </Grid>
+                              <Grid item xs={12}>
 
-              </Grid>
-            </Grid>
-            <Typography  variant="body2">
-             {"We would send you a link to verify your email."}
-           </Typography>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="/login" variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      </Container>
-    </ThemeProvider>
-      </div>
+                              </Grid>
+                            </Grid>
+                            <Typography variant="body2">
+                              {"We would send you a link to verify your email."}
+                            </Typography>
+                            <Button
+                              type="submit"
+                              fullWidth
+                              variant="contained"
+                              sx={{ mt: 3, mb: 2 }}
+                            >
+                              Sign Up
+                            </Button>
+                            <Grid container justifyContent="flex-end">
+                              <Grid item>
+                                <Link href="/login" variant="body2">
+                                  Already have an account? Sign in
+                                </Link>
+                              </Grid>
+                            </Grid>
+                          </Box>
+                        </Box>
+                      </Container>
+                    </ThemeProvider>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      }
     </div>
-    </div>
-    </div>
-      ) : (
-
-      <div className="main">
-        <br/>
-      <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign up
-          </Typography>
-          <div className='error message' style={{ display: errorVisibility, color: 'red' }}>Please verify your email.</div>
-          <Box component="form" noValidate onSubmit={onSubmit} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-            <Grid item xs={12}>
-                <TextField
-
-                  required
-                  fullWidth
-                  id="NickName"
-                  label="Nick name"
-                  name="NickName"
-                  autoComplete="NickName"
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                />
-              </Grid>
-              <Grid item xs={12}>
-
-              </Grid>
-            </Grid>
-            <Typography  variant="body2">
-             {"We would send you a link to verify your email."}
-           </Typography>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="/login" variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      </Container>
-    </ThemeProvider>
-      </div>
-
-
-      )}
-    </div>
-    </>
-}
-  </div>
   );
 }
 
