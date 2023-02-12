@@ -9,6 +9,7 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   sendEmailVerification,
+  signInAnonymously
 } from "firebase/auth";
 
 import {loadStripe} from '@stripe/stripe-js';
@@ -115,6 +116,48 @@ export const UserContextProvider = ({ children }) => {
       .finally(() => setLoading(false));
   };
 
+  const signInWithGuest = () => {
+    setLoading(true);
+    setError("");
+  
+    try {
+      signInAnonymously(auth)
+  
+      updateProfile(auth.currentUser, {
+        displayName: 'Guest',
+      });
+      return;
+    } catch (err) {
+      //console.log(err.message);
+      setError(err.message);
+      return err.message;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // const signInWithGuest = () => {
+  //   setLoading(true);
+  //   setError("");
+  
+  // //   signInAnonymously(auth)
+  // // .then(() => {
+  // //   // Signed in..
+  // // })
+  // // .catch((error) => {
+  // //   const errorCode = error.code;
+  // //   const errorMessage = error.message;
+  // //   // ...
+  // // });
+
+  //   signInAnonymously(auth)
+  //   .then(updateProfile(auth.currentUser, {
+  //     displayName: 'guest',
+  //   }))
+  //   .catch((err) => setError(err.code))
+  //   .finally(() => setLoading(false));
+  // }
+
   const emailVerification = () => {
     setError("");
     sendEmailVerification(auth.currentUser)
@@ -143,7 +186,8 @@ export const UserContextProvider = ({ children }) => {
     logoutUser,
     forgotPassword,
     signInWithGoogle,
-    promise
+    promise,
+    signInWithGuest
     // isEmailVerified
   };
 

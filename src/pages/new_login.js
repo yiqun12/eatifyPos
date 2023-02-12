@@ -25,7 +25,7 @@ export default function SignIn() {
 
   const emailRef = useRef();
   const { signInUser, forgotPassword } = useUserContext();
-  const { signInWithGoogle, } = useUserContext();
+  const { signInWithGoogle, signInWithGuest } = useUserContext();
   const user = JSON.parse(localStorage.getItem('user'));
   const user_not_verified = JSON.parse(localStorage.getItem('user_not_verified'));
   if (user) {
@@ -144,7 +144,7 @@ export default function SignIn() {
        <Button  
             fullWidth
             variant="contained"
-            sx={{ mb: 2 }} role="button" >
+            sx={{ mb: 2 }} role="button" onClick={signInWithGuest} >
               Guest Sign in</Button>
 
        <Button  onClick={signInWithGoogle}
@@ -239,7 +239,7 @@ export default function SignIn() {
               <Button  
             fullWidth
             variant="contained"
-            sx={{ mb: 2 }} role="button" >
+            sx={{ mb: 2 }} role="button" onClick={signInWithGuest}>
               Guest Sign in</Button>
               <Button    onClick={signInWithGoogle}
             fullWidth
