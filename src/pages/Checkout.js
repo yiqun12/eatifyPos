@@ -11,10 +11,17 @@ import Dashboard from "../components/dashboard";
 import { useUserContext } from "../context/userContext";
 import { useRef, useEffect } from 'react';
 //import './html.css';
+import { MyHookProvider, useMyHook } from './myHook';
 
 
 const App = () => {
-  
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    console.log('Component A - ID changed:', id);
+  }, [id]);
+
+  //fetch data from local stroage products.
   let products = JSON.parse(localStorage.getItem("products"));
   //console.log(localStorage.getItem("products"))
   const [totalPrice, setTotalPrice] = useState(0);
@@ -33,6 +40,11 @@ const App = () => {
       <div className="app-container" style={{ height: "100%" }}>
         <div className="row">
           <div className="col">
+          <div>
+      <p>Component B</p>
+      <p>ID: {id}</p>
+      <button onClick={() => saveId(3)}>Change ID to 3</button>
+    </div>
             <Item products={products} totalPrice={totalPrice} />
           </div>
           <div className="col no-gutters" style={{ height: "100%" }} >

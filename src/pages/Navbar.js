@@ -21,10 +21,15 @@ import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import logo_transparent from './logo_transparent.png'
 //import { flexbox } from '@mui/system';
 import "./navbar.css";
+import { MyHookProvider, useMyHook } from './myHook';
 
 
 const Navbar = () => {
   /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    console.log('Component B - ID changed:', id);
+  }, [id]);
 
   /**check if its mobile/browser */
   const [width, setWidth] = useState(window.innerWidth);
@@ -379,7 +384,11 @@ const Navbar = () => {
                 <span className="delete-btn" onClick={() => handleDeleteClick(product.id)}></span>
                 {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
               </div>
-
+              <div>
+      <p>Component A</p>
+      <p>ID: {id}</p>
+      <button onClick={() => saveId(Math.random())}>Change ID to 2</button>
+    </div>
               <div className="image">
                 <div class="image-container" >
                   <img style={{ margin: '0px' }} src={product.image} alt="" />

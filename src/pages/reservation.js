@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import './reservation.css';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 
 const ReservationForm = () => {
     const [width, setWidth] = useState(window.innerWidth);
     const input_style = {
-      'border-radius': '5px',
+      'border-radius': '7px',
       'border': '2px solid #777',
       'box-sizing': 'border-box',
       'font-size': '1.25em',
@@ -48,9 +50,10 @@ const ReservationForm = () => {
       console.log(isMobile )
       
   return (
+
     <div className="container">
  <div style= {!isMobile?{ width: "600px", margin: "0 auto" }:{}}>
-     <div className={!isMobile?"card2 mt-50 mb-50":""}>
+     <div style={{'opacity': '0.9'}} className={!isMobile?"card2 mt-50 mb-50":""}>
        <div className={!isMobile?"main":""}>     
     <form 
     style={{
@@ -96,7 +99,6 @@ const ReservationForm = () => {
           required
         />
       </div>
-      <hr />
       <div className="elem-group inlined">
         <label style={label_style} htmlFor="adult">Adults</label>
         <input
@@ -125,6 +127,7 @@ const ReservationForm = () => {
         <label style={label_style} htmlFor="checkin-date">Check-in Date</label>
         <input
         style={input_style}
+          placeholder = "mm/dd/yyyy"
           type="date"
           id="checkin-date"
           name="checkin"

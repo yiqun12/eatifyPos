@@ -21,6 +21,7 @@ import './loading.css';
 import React, { useState,useEffect } from 'react'
 import { collection, getDocs } from "firebase/firestore";
 import { db } from './firebase/index';
+import { MyHookProvider, useMyHook } from './pages/myHook';
 
 function App() {
 
@@ -70,6 +71,8 @@ function App() {
     <div className="App">
       
       <BrowserRouter>
+      <MyHookProvider>
+
       <Navbar/>
       <Routes>
       <Route path='*' exact={true} element={<Home />} />
@@ -90,6 +93,7 @@ function App() {
       <footer style={{'height':"100px",'color':'transparent'}}>
         void
       </footer>
+      </MyHookProvider>
     </BrowserRouter>
     </div>
     

@@ -151,10 +151,9 @@ export default function SignIn() {
                                 variant="contained"
                                 sx={{ mb: 2 }} role="button" onClick={signInWithGuest} >
                                 One Time Sign in</Button>
-                            </Grid>
-                            <Grid container>
+                                <Grid container>
                               <Grid item xs>
-                                <Link style={{ cursor: 'pointer' }} onClick={forgotPasswordHandler} variant="body2">
+                                <Link style={{cursor: 'pointer' }} onClick={forgotPasswordHandler} variant="body2">
                                   Forgot password?
                                 </Link>
                               </Grid>
@@ -164,6 +163,8 @@ export default function SignIn() {
                                 </Link>
                               </Grid>
                             </Grid>
+                            </Grid>
+
                           </Box>
                         </Box>
 

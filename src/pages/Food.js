@@ -157,17 +157,16 @@ const Food = () => {
                         </div>
                     </div>
 
-                    {/* Filter Price */}
-                    <div className='Price'>
-                        {/* <div className='flex justify-between flex-wrap max-w-[390px] w-full'> */}
-                        {/* <div className='flex justify-between flex-wrap w-full'> */}
+                    {/* Filter Price
+                                        <div className='Price'>
                         <div className='scrolling-wrapper-filter'>
                             <button onClick={() => filterPrice('$')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>$1-$10</button>
                             <button onClick={() => filterPrice('$$')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>$11-$20</button>
                             <button onClick={() => filterPrice('$$$')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>$21-$30</button>
                             <button onClick={() => filterPrice('$$$$')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>$31-$40</button>
                         </div>
-                    </div>
+                    </div> */}
+
                 </div>
 
                 {/* diplay food */}
