@@ -28,7 +28,7 @@ const Navbar = () => {
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
-    console.log('Component B - ID changed:', id);
+    //console.log('Component B - ID changed:', id);
   }, [id]);
 
   /**check if its mobile/browser */
@@ -100,7 +100,7 @@ const Navbar = () => {
   }, [products]);
   const handleDeleteClick = (productId) => {
     setProducts((prevProducts) => prevProducts.filter((product) => product.id !== productId));
-
+    saveId(Math.random())
   }
   const handleAddProductClick = () => {
     setProducts((prevProducts) => [...prevProducts, {
@@ -214,11 +214,8 @@ const Navbar = () => {
       return prevProducts.map((product) => {
         if (product.id === productId) {
           // Constrain the quantity of the product to be at least 0
-          let newQuantity = Math.max(product.quantity - 1, 0);
-          if (newQuantity === 0) {
-            handleDeleteClick(product.id)
-            //console.log(0);
-          }
+          let newQuantity = Math.max(product.quantity - 1, 1);
+          saveId(Math.random());
           return {
             ...product,
             quantity: newQuantity,
@@ -228,6 +225,7 @@ const Navbar = () => {
       });
     });
     uploadProductsToLocalStorage(products);
+    
   };
   // modal. 
   const modalRef = useRef(null);
@@ -381,14 +379,12 @@ const Navbar = () => {
 
             <div key={product.id} className="item">
               <div className="buttons">
-                <span className="delete-btn" onClick={() => handleDeleteClick(product.id)}></span>
+                <span className="delete-btn" 
+                                  onClick={() => {
+                                    handleDeleteClick(product.id)
+                                  }}></span>
                 {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
               </div>
-              <div>
-      <p>Component A</p>
-      <p>ID: {id}</p>
-      <button onClick={() => saveId(Math.random())}>Change ID to 2</button>
-    </div>
               <div className="image">
                 <div class="image-container" >
                   <img style={{ margin: '0px' }} src={product.image} alt="" />
@@ -403,7 +399,14 @@ const Navbar = () => {
               <div className="quantity" 
               style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
                 <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                  <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handleMinusClick(product.id)}>
+                <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }} 
+  onClick={() => {
+    if (product.quantity === 1) {
+      handleDeleteClick(product.id);
+    } else {
+      handleMinusClick(product.id);
+    }
+  }}>
                     <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
                   </button>
                 </div>
@@ -419,7 +422,11 @@ const Navbar = () => {
   style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }} 
 >{product.quantity}</span>
                 <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                  <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }} onClick={() => handlePlusClick(product.id)}>
+                  <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }} 
+                                    onClick={() => {
+                                      handlePlusClick(product.id)
+                                      saveId(Math.random());
+                                    }}>
                     <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
                   </button>
                 </div>

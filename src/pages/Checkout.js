@@ -15,22 +15,25 @@ import { MyHookProvider, useMyHook } from './myHook';
 
 
 const App = () => {
-  /**listen to localtsorage */
+  /**re-render everytime button clicked from shopping cart */
   const { id, saveId } = useMyHook(null);
-  useEffect(() => {
-    console.log('Component A - ID changed:', id);
-  }, [id]);
-
-  //fetch data from local stroage products.
   let products = JSON.parse(localStorage.getItem("products"));
+  useEffect(() => {
+    products = JSON.parse(localStorage.getItem("products"));
+  }, [id]);
+  
+  //fetch data from local stroage products.
   //console.log(localStorage.getItem("products"))
   const [totalPrice, setTotalPrice] = useState(0);
   useEffect(() => {
     //maybe add a line here...
     const calculateTotalPrice = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
+      //console.log(total)
+      //console.log(products)
       setTotalPrice(total);
     }
+    
     calculateTotalPrice();
   }, [products]);
 
@@ -40,11 +43,6 @@ const App = () => {
       <div className="app-container" style={{ height: "100%" }}>
         <div className="row">
           <div className="col">
-          <div>
-      <p>Component B</p>
-      <p>ID: {id}</p>
-      <button onClick={() => saveId(3)}>Change ID to 3</button>
-    </div>
             <Item products={products} totalPrice={totalPrice} />
           </div>
           <div className="col no-gutters" style={{ height: "100%" }} >
@@ -59,10 +57,12 @@ const App = () => {
   height: '100px',
   'object-fit': 'cover'}}/> */
 const Item = (props) => {
+  //const { id, saveId } = useMyHook(null);
+  //const [totalPrice, setTotalPrice] = useState(0);
+  let products = JSON.parse(localStorage.getItem("products"));
 
-  const [products, setProducts] = useState(props.products);
   const { totalPrice } = props;
-  console.log(products)
+  console.log(props.products)
 
   return (
     <div className="card2 mb-50">
