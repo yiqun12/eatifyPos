@@ -63,13 +63,18 @@ function CardSection() {
         if (!event.target.reportValidity()) {
           return;
         }
-
+        console.log(customerData.current == null)
+        console.log(!elements)
+        console.log(!stripe)
         document
           .querySelectorAll('button')
           .forEach((button) => (button.disabled = true));
       //  console.log(customerData.current)
         if (!stripe || !elements || customerData.current == null) {
-  
+          document
+          .querySelectorAll('button')
+          .forEach((button) => (button.disabled = false));
+          document.querySelector('#error-message').textContent = "Too frequent operations";
           // Stripe.js has not yet loaded.
           // Make sure to disable form submission until Stripe.js has loaded.
           return;
@@ -80,9 +85,9 @@ function CardSection() {
           const form = new FormData(event.target);
           const cardholderName = form.get('name');
   
-         // console.log('user found in stripe');
+          console.log('user found in stripe');
   
-          //console.log(customerData.current);
+          console.log(customerData.current);
           const { setupIntent, error } = stripe.confirmCardSetup(
             customerData.current.setup_secret,
             {
@@ -103,7 +108,6 @@ function CardSection() {
                 .forEach((button) => (button.disabled = false));
             } else if (result.setupIntent != null) {
   
-             console.log( 
               firebase
                 .firestore()
                 .collection('stripe_customers')
@@ -112,14 +116,13 @@ function CardSection() {
                 .add({ id: result.setupIntent.payment_method })
                 .then(() => {
                   // Payment method was successfully added
-                  //console.log(result.setupIntent)
+                  console.log(result.setupIntent)
                   document
                   .querySelectorAll('button')
                   .forEach((button) => (button.disabled = false));
                   document.querySelector('#error-message').textContent = "successfuly added!";
-                  customerData.current = null //cleanup
+                  //customerData.current = null //cleanup
                 })
-                )
   
             }
           });
