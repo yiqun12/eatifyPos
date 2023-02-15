@@ -5,6 +5,7 @@ import './group_list.css';
 import CardSection from "../components/CardSection";
 //import Checkout from "../components/Checkout";
 import PayFullhistory from "../components/PayFullhistory";
+import DeleteCard from "../components/deleteInt";
 
 import { Elements } from '@stripe/react-stripe-js';
 import { useUserContext } from "../context/userContext";
@@ -208,7 +209,7 @@ const Account = () => {
                           <div className="form-group">
                             <label className="d-block mb-0">Payment Method</label>
                             <CardSection />
-
+                            <DeleteCard/>
                           </div>
                           <label className="d-block">Payment History (click triangle for details)</label>
                           <div className="form-group mb-0" style={{
