@@ -1,3 +1,4 @@
+[Click here to go to the first line of the README](#readme)
 # readme
 ## EatifyPos:
 If you're an eater, welcome to EatifyPos - your go-to online ordering platform for both dine-in and takeout. With EatifyPos, you can easily browse menus, place orders, and securely pay online for all your favorite meals.
