@@ -7,7 +7,7 @@ If you're a business owner, EatifyPos is designed to make your operations smooth
 You can peruse through menus and order food for delivery or takeout through our platform. Payment can be made securely using Stripe. The merchant will receive a digital receipt via email and a physical receipt from a thermal printer. The option to track your order status in real-time will be available from March onwards. To simplify reordering, you can save your preferred orders. To begin, please access the demo at https://eatify-22231.web.app/. The Beta version of EatifyPos is scheduled for release in March and will not only include all the features mentioned above but also the capability to process verbal orders, manage the cash drawer and POS terminal, and provide revenue, tip, and tax summaries on the data summary page. Our goal is to continue development and optimization to bring EatifyPos to commercial viability.
 
 # Table of contents
-### [App_Overview](#App_Overview)
+### App_Overview
   * [Home_Page](#Home_Page)
   * [Checkout_Page](#Checkout_Page)
   * [Account_Page](#Account_Page)
