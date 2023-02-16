@@ -25,6 +25,7 @@ This indicates how to display all the items on the shopping cart.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image2.png" width="80%"></p>
 This indicates how to see all the available burgers on the Home Page.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image20.png" width="80%"></p>
+[Click here to go to the first line of the README](#readme)
 
 
 ### Checkout_Page
@@ -52,7 +53,6 @@ This image demonstrates the steps to delete a payment method.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.7.png" width="80%"></p>
 This image displays the email notification sent to the administrator confirming that a credit card has been deleted.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.8.png" width="80%"></p>
-[Click here to go to the first line of the README](#readme)
 
 ### Account_Page
 This page exhibits the user's account information, comprising both their profile and billing details.
