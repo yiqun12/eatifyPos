@@ -1,4 +1,3 @@
-[Click here to go to the first line of the README](#readme)
 # readme
 ## EatifyPos:
 If you're an eater, welcome to EatifyPos - your go-to online ordering platform for both dine-in and takeout. With EatifyPos, you can easily browse menus, place orders, and securely pay online for all your favorite meals.
@@ -26,7 +25,6 @@ This indicates how to display all the items on the shopping cart.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image2.png" width="80%"></p>
 This indicates how to see all the available burgers on the Home Page.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image20.png" width="80%"></p>
-[Click here to go to the first line of the README](#readme)
 
 
 ### Checkout_Page
