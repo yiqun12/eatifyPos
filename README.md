@@ -12,7 +12,10 @@ You can peruse through menus and order food for delivery or takeout through our 
   * [Product_Details_Page](#Product_Details_Page)
 
 ### Products_List_Page
-hello
+This page displays all the available products on the website.
+<p align="center">
+  <img src="https://github.com/YashMarmat/Pages-App-django/blob/master/templates/ecommerce%20%20products%20list%20page.png?raw=true" width="100%">
+</p>
 
 ## Technical details
 EatifyPos is built with a React.js frontend and Node.js backend. We used Firebase for authentication, database, hosting, and cloud functions. We use Stripe for handling online payments, and thermal printers are used to generate receipts.
