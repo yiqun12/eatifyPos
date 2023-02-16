@@ -24,7 +24,7 @@ This indicates how to display all the items on the shopping cart.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image2.png" width="80%"></p>
 This indicates how to see all the available burgers on the Home Page.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image20.png" width="80%"></p>
-### back to [App_Overview](#App_Overview)
+back to ### [App_Overview](#App_Overview)
 
 
 ### Checkout_Page
