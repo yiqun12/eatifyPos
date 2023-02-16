@@ -14,7 +14,7 @@ You can peruse through menus and order food for delivery or takeout through our 
 ### Products_List_Page
 This page displays all the available products on the website.
 <p align="center">
-  <img src="https://github.com/YashMarmat/Pages-App-django/blob/master/templates/ecommerce%20%20products%20list%20page.png?raw=true" width="100%">
+  <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image1.png" width="100%">
 </p>
 
 ## Technical details
