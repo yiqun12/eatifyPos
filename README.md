@@ -1,7 +1,5 @@
 https://drive.google.com/file/d/1GYWOB2KddQO7W4Lc1NkwI55qFNsCVVQp/view
-<img src="https://drive.google.com/file/d/1pjaKvjqEw4S-Bd-J8rdDSHnaoTza8KJq/view" width="80%"></p>
-This indicates how to display all the items on the shopping cart.
-<p align="center">
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/myCheeseBurger1.png" width="80%"></p>
 
 ## EatifyPos:
 If you're an eater, welcome to EatifyPos - your go-to online ordering platform for both dine-in and takeout. With EatifyPos, you can easily browse menus, place orders, and securely pay online for all your favorite meals.
