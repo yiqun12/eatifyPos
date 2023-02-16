@@ -8,14 +8,72 @@ You can peruse through menus and order food for delivery or takeout through our 
 
 # Table of contents
 - App Overview
-  * [Products_List_Page](#Products_List_Page)
-  * [Product_Details_Page](#Product_Details_Page)
+  * [Home_Page](#Home_Page)
+  * [Checkout_Page](#Checkout_Page)
 
-### Products_List_Page
+### Home_Page
 This page displays all the available products on the website.
 <p align="center">
-  <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image1.png" width="80%">
-  <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image2.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image1.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image2.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image20.png" width="80%">
+</p>
+
+### Checkout_Page
+This page displays all the available products on the website.
+<p align="center">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image3.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image4.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image5.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image6.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image7.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image8.5.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image8.6.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image8.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.5.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.6.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.7.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.8.png" width="80%">
+</p>
+
+### Account_Page
+This page displays all the available products on the website.
+<p align="center">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image10.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image11.png" width="80%">
+</p>
+
+### Authentication_Page
+This page displays all the available products on the website.
+<p align="center">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image12.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image13.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image14.5.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image14.png" width="80%">
+</p>
+
+### Admin_Page
+This page displays all the available products on the website.
+<p align="center">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image16.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image15.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image18.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image19.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image17.png" width="80%">
+</p>
+
+### SignIn_Page
+This page displays all the available products on the website.
+<p align="center">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image14.png" width="80%">
+</p>
+
+### Reservation_Page
+This page displays all the available products on the website.
+<p align="center">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image21.png" width="80%">
+ <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image22.png" width="80%">
 </p>
 
 ## Technical details
