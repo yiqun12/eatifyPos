@@ -15,6 +15,7 @@ You can peruse through menus and order food for delivery or takeout through our 
 This page displays all the available products on the website.
 <p align="center">
   <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image1.png" width="100%">
+  <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image2.png" width="100%">
 </p>
 
 ## Technical details
