@@ -10,71 +10,80 @@ You can peruse through menus and order food for delivery or takeout through our 
 - App Overview
   * [Home_Page](#Home_Page)
   * [Checkout_Page](#Checkout_Page)
+  * [Account_Page](#Account_Page)
+  * [Authentication_Page](#Authentication_Page)
+  * [Admin_Page](#Admin_Page)
+  * [SignIn_Page](#SignIn_Page)
+  * [Reservation_Page](#Reservation_Page)
+
 
 ### Home_Page
-This page displays all the available products on the website.
-<p align="center">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image1.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image2.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image20.png" width="80%">
-</p>
+This page displays all the available products on the Home Page.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image1.png" width="80%"></p>
+This indicates how to display all the items on the shopping cart.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image2.png" width="80%"></p>
+This indicates how to see all the available burgers on the Home Page.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image20.png" width="80%"></p>
+
 
 ### Checkout_Page
-This page displays all the available products on the website.
-<p align="center">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image3.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image4.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image5.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image6.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image7.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image8.5.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image8.6.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image8.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.5.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.6.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.7.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.8.png" width="80%">
-</p>
+This pages displays all the shopping cart items on the Checkout Page.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image3.png" width="80%"></p>
+This image displays how to add new credit card in the Checkout Page.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image4.png" width="80%"></p>
+This image displays how to modify the items in shopping cart in before checkout.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image5.png" width="80%"></p>
+The prompt that appears after adding a credit card is displayed in this image.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image6.png" width="80%"></p>
+The prompt that appears after checkout the items.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image7.png" width="80%"></p>
+This image displays the email receipt sent to the customer after checkout.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image8.5.png" width="80%"></p>
+This image depicts the email receipt for the administrator.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image8.6.png" width="80%"></p>
+When a user attempts to checkout with an empty credit card selection, the following prompt will appear indicating that the checkout has failed: "user select an empty credit card"
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image8.png" width="80%"></p>
+This image portrays the email notification for fault detection sent to the customer.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.5.png" width="80%"></p>
+This image portrays the email notification for fault detection sent to the administrator.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.6.png" width="80%"></p>
+This image demonstrates the steps to delete a payment method.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.7.png" width="80%"></p>
+This image displays the email notification sent to the administrator confirming that a credit card has been deleted.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.8.png" width="80%"></p>
 
 ### Account_Page
-This page displays all the available products on the website.
-<p align="center">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image10.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image11.png" width="80%">
-</p>
+This page exhibits the user's account information, comprising both their profile and billing details.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.png" width="80%"></p>
+These two images illustrate the payment details stored in the transaction history.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image10.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image11.png" width="80%"></p>
 
 ### Authentication_Page
-This page displays all the available products on the website.
-<p align="center">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image12.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image13.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image14.5.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image14.png" width="80%">
-</p>
+This page displays the Authentication Page on the website. 
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image14.png" width="80%"></p>
+Google Signin
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image12.png" width="80%"></p>
+Reset password
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image13.png" width="80%"></p>
+Email for resetting password
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image14.5.png" width="80%"></p>
+
 
 ### Admin_Page
-This page displays all the available products on the website.
-<p align="center">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image16.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image15.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image18.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image19.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image17.png" width="80%">
-</p>
-
-### SignIn_Page
-This page displays all the available products on the website.
-<p align="center">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image14.png" width="80%">
-</p>
+The following showcases all the available features on the Admin Page.
+Input products by Json.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image16.png" width="80%"></p>
+Examples are provided below for updating products and their corresponding pictures:
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image15.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image18.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image19.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image17.png" width="80%"></p>
 
 ### Reservation_Page
-This page displays all the available products on the website.
-<p align="center">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image21.png" width="80%">
- <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image22.png" width="80%">
-</p>
+This page displays how to access our Reservation Page.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image21.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image22.png" width="80%"></p>
 
 ## Technical details
 EatifyPos is built with a React.js frontend and Node.js backend. We used Firebase for authentication, database, hosting, and cloud functions. We use Stripe for handling online payments, and thermal printers are used to generate receipts.
