@@ -505,7 +505,7 @@ const Navbar = () => {
             <select class="selectpicker" data-width="fit">
               {/**如果选择中文，框显示成lang，如果是eng,框显示语言 */}
               <option data-content='<span class="flag-icon flag-icon-us"></span> English'>English</option>
-              <option data-content='<span class="flag-icon flag-icon-mx"></span> Chinese'>中文</option>
+              {/*<option data-content='<span class="flag-icon flag-icon-mx"></span> Chinese'>中文</option>*/}
             </select>
           </div>
         </div>

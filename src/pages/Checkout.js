@@ -24,7 +24,7 @@ const App = () => {
   
   //fetch data from local stroage products.
   //console.log(localStorage.getItem("products"))
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0));
   useEffect(() => {
     //maybe add a line here...
     const calculateTotalPrice = () => {
@@ -33,7 +33,7 @@ const App = () => {
       //console.log(products)
       setTotalPrice(total);
     }
-    
+    console.log(totalPrice)
     calculateTotalPrice();
   }, [products]);
 

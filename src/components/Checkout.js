@@ -192,7 +192,7 @@ if (optionElementToDelete) {
                 </select>
               </div>
               <div className="col-3 d-flex justify-content-center">
-              <button type="submit" name="delete">Delete</button>
+              <button type="submit" style={{color: "#9ca3af"}}name="delete">Delete</button>
               </div>
             </div>
           </label>

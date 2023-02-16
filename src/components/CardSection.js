@@ -74,7 +74,7 @@ function CardSection() {
           document
           .querySelectorAll('button')
           .forEach((button) => (button.disabled = false));
-          document.querySelector('#error-message').textContent = "Too frequent operations";
+          //document.querySelector('#error-message').textContent = "Too frequent operations";
           // Stripe.js has not yet loaded.
           // Make sure to disable form submission until Stripe.js has loaded.
           return;

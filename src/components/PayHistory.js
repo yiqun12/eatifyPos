@@ -5,7 +5,8 @@ import React from 'react';
 
 import firebase from 'firebase/compat/app';
 import {loadStripe} from '@stripe/stripe-js';
-
+import { MyHookProvider, useMyHook } from '../pages/myHook';
+import { useState ,useEffect} from 'react';
 
 
 function PayHistory() {
@@ -64,7 +65,28 @@ async function handleCardAction(payment, docId) {
    */
   const dateTime = new Date().toISOString();
   const date = dateTime.slice(0,10) + '-' + dateTime.slice(11,13) + '-' + dateTime.slice(14,16) + '-' + dateTime.slice(17,19) + '-' + dateTime.slice(20,22);        
+  const { id, saveId } = useMyHook(null);
+  let products = JSON.parse(localStorage.getItem("products"));
+
+  useEffect(() => {
+    products = JSON.parse(localStorage.getItem("products"));
+  }, [id]);
   
+  //fetch data from local stroage products.
+  //console.log(localStorage.getItem("products"))
+  const [totalPrice, setTotalPrice] = useState(products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0));
+  useEffect(() => {
+    //maybe add a line here...
+    const calculateTotalPrice = () => {
+      const total = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
+      //console.log(total)
+      //console.log(products)
+      setTotalPrice(total);
+    }
+    console.log(totalPrice)
+    calculateTotalPrice();
+  }, [products]);
+
   firebase
     .firestore()
     .collection('stripe_customers')
@@ -90,10 +112,7 @@ async function handleCardAction(payment, docId) {
           payment.status === 'requires_confirmation'
         ) {
           
-          content = `(Pending)🚨 Creating Payment for ${formatAmount(
-            payment.amount*100,
-            payment.currency
-          )}`;
+          content = `(Pending)🚨 Creating Payment for $${totalPrice}`;
         } else if (payment.status === 'succeeded') {
           const card = payment.charges.data[0].payment_method_details.card;
           content = `✅ Payment for ${formatAmount(
