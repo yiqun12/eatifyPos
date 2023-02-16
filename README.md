@@ -1,6 +1,3 @@
-https://drive.google.com/file/d/1GYWOB2KddQO7W4Lc1NkwI55qFNsCVVQp/view
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/myCheeseBurger1.jpg" width="80%"></p>
-
 ## EatifyPos:
 If you're an eater, welcome to EatifyPos - your go-to online ordering platform for both dine-in and takeout. With EatifyPos, you can easily browse menus, place orders, and securely pay online for all your favorite meals.
 
@@ -54,6 +51,9 @@ This image demonstrates the steps to delete a payment method.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.7.png" width="80%"></p>
 This image displays the email notification sent to the administrator confirming that a credit card has been deleted.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.8.png" width="80%"></p>
+This is the receipt from the thermal printer:
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/myCheeseBurger1.jpg" width="80%"></p>
+Here is the video: https://drive.google.com/file/d/1GYWOB2KddQO7W4Lc1NkwI55qFNsCVVQp/view
 
 ### Account_Page
 This page exhibits the user's account information, comprising both their profile and billing details.
