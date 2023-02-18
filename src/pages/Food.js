@@ -11,8 +11,15 @@ import pizza from './pizza.png'
 import all from './all_food.png'
 import $ from 'jquery';
 import './fooddropAnimate.css';
+import { useMyHook } from './myHook';
 
 const Food = () => {
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
+
   /**dorp food */
 
   const charSet = [
@@ -200,6 +207,7 @@ const Food = () => {
                                     onClick={() => {
                                         updateLocalStorage(item.id, item.name, item.subtotal, item.image);
                                         handleDropFood(item.category);
+                                        saveId(Math.random());
                                       }}                                    >
                                     <BsPlusCircle style={{margin: 'auto'}}/>
                                 </Button>

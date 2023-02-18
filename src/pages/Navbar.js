@@ -21,7 +21,7 @@ import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import logo_transparent from './logo_transparent.png'
 //import { flexbox } from '@mui/system';
 import "./navbar.css";
-import { MyHookProvider, useMyHook } from './myHook';
+import { useMyHook } from './myHook';
 
 
 const Navbar = () => {
