@@ -5,7 +5,7 @@
 }
 
 .shopping-cart {
-  width: 600px;
+  width: 550px;
   height: 423px;
   margin: 80px auto;
   background: #FFFFFF;
@@ -141,7 +141,7 @@
 }
 
 /* Responsive */
-@media (max-width: 800px) {
+@media (max-width: 575px) {
   .shopping-cart {
     width: 360px;
     height: 423px;

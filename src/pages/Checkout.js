@@ -39,7 +39,7 @@ const App = () => {
 
   return (
 
-    <div className='max-w-[1240px] mx-auto p-4 '>
+    <div className='max-w-[1000px] mx-auto p-4 '>
       <div className="app-container" style={{ height: "100%" }}>
         <div className="row">
           <div className="col">

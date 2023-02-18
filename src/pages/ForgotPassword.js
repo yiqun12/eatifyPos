@@ -72,9 +72,9 @@ export default function SignIn() {
         <>
           <div>
             <div className="container">
-              <div style={width > 640 ? { width: "600px", margin: "0 auto" } : {}}>
-                <div className={width > 640 ? "card2 mt-50 mb-50" : ""}>
-                  <div style={{ 'padding': '10px 12px' }} className={width > 640 ? "main" : ""}>
+              <div style={width > 768 ? { width: "550px", margin: "0 auto" } : {}}>
+                <div className={width > 768 ? "card2 mt-50 mb-50" : ""}>
+                  <div style={{ 'padding': '10px 12px' }} className={width > 768 ? "main" : ""}>
 
                     <ThemeProvider theme={theme} >
 

@@ -31,11 +31,9 @@ const Account = () => {
     <>
       <hr></hr>
       <Elements stripe={promise}>
-        <>
+        <div className='max-w-[1000px] mx-auto p-4'>
           <meta charSet="utf-8" />
-
-          {/*  This file has been downloaded from bootdey.com @bootdey on twitter */}
-          {/*  All snippets are MIT license http://bootdey.com/license */}
+          
           <title>Profile settings - Bootdey.com</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link
@@ -228,7 +226,7 @@ const Account = () => {
               </div>
             </div>
           </div>
-        </>
+        </div>
       </Elements>
     </>
   )

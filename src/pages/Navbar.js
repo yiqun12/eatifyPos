@@ -95,7 +95,7 @@ const Navbar = () => {
       setTotalQuant(total);
     }
     calculateTotalQuant();
-    
+
     uploadProductsToLocalStorage(products);
   }, [products]);
   const handleDeleteClick = (productId) => {
@@ -123,7 +123,7 @@ const Navbar = () => {
       });
     });
   };
-  
+
   const uploadProductsToLocalStorage = (products) => {
     // Set the products array in local storage
     localStorage.setItem("products", JSON.stringify(products));
@@ -186,9 +186,9 @@ const Navbar = () => {
 
   const handleQuantityChange = (productId, newQuantity) => {
     const safeQuantity = newQuantity ? Math.min(Math.max(parseInt(newQuantity, 10), 0), 99) : 0;
-  
+
     setInputConfirmed(false);
-  
+
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId) {
@@ -201,7 +201,7 @@ const Navbar = () => {
       });
     });
   };
-  
+
   const handleBlur = (product) => {
     setInputConfirmed(true);
     if (product.quantity === 0) {
@@ -225,7 +225,7 @@ const Navbar = () => {
       });
     });
     uploadProductsToLocalStorage(products);
-    
+
   };
   // modal. 
   const modalRef = useRef(null);
@@ -379,10 +379,10 @@ const Navbar = () => {
 
             <div key={product.id} className="item">
               <div className="buttons">
-                <span className="delete-btn" 
-                                  onClick={() => {
-                                    handleDeleteClick(product.id)
-                                  }}></span>
+                <span className="delete-btn"
+                  onClick={() => {
+                    handleDeleteClick(product.id)
+                  }}></span>
                 {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
               </div>
               <div className="image">
@@ -396,42 +396,42 @@ const Navbar = () => {
               </div>
 
               {/* <div className="theset"> */}
-              <div className="quantity" 
-              style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
+              <div className="quantity"
+                style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
                 <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }} 
-  onClick={() => {
-    if (product.quantity === 1) {
-      handleDeleteClick(product.id);
-    } else {
-      handleMinusClick(product.id);
-    }
-  }}>
+                  <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                    onClick={() => {
+                      if (product.quantity === 1) {
+                        handleDeleteClick(product.id);
+                      } else {
+                        handleMinusClick(product.id);
+                      }
+                    }}>
                     <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
                   </button>
                 </div>
-              {/*  <input 
+                {/*  <input 
   type="text" 
   style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }} 
   value={product.quantity} 
   onChange={(e) => handleQuantityChange(product.id, e.target.value)} 
   onBlur={() => handleBlur(product)} 
           />*/}
-                <span 
-  type="text" 
-  style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }} 
->{product.quantity}</span>
+                <span
+                  type="text"
+                  style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                >{product.quantity}</span>
                 <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                  <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }} 
-                                    onClick={() => {
-                                      handlePlusClick(product.id)
-                                      saveId(Math.random());
-                                    }}>
+                  <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                    onClick={() => {
+                      handlePlusClick(product.id)
+                      saveId(Math.random());
+                    }}>
                     <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
                   </button>
                 </div>
               </div>
-              </div>
+            </div>
 
           ))}
 
@@ -439,10 +439,10 @@ const Navbar = () => {
         </div>
       </div>
       {/**navbar */}
-      
-      <div className= {!isMobile ?"justify-between sticky top-0 bg-white z-10":"justify-between bg-white z-10"}>
 
-        <div className="grid grid-cols-8 flex max-w-[1240px] mx-auto items-center p-4 justify-between sticky top-0 bg-white z-10"
+      <div className={!isMobile ? "justify-between sticky top-0 bg-white z-10" : "justify-between bg-white z-10"}>
+
+        <div className="grid grid-cols-8 flex max-w-[1000px] mx-auto items-center p-4 justify-between sticky top-0 bg-white z-10"
           style={{ "border-bottom": "solid" }} >
           <div className="col-span-2">
             <img
@@ -457,8 +457,8 @@ const Navbar = () => {
 
 
             <div className="col-span-4 grid grid-cols-3 ">
-              <a 
-              style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
+              <a
+                style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
                 <i className="material-icons nav__icon">home</i>
 
                 <span className="nav__text">Home</span>
@@ -514,36 +514,36 @@ const Navbar = () => {
 
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       {isMobile ?
-      <nav className="nav___">
-      <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
-                <i className="material-icons nav__icon">home</i>
-                <span className="nav__text">Home</span>
-              </a>
-        <a
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
-                  style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
-                  <i style={{
-                    color: 'transparent'
-                  }}
-                    className="material-icons nav__icon">home</i>
-                  <span style={{
-                    color: 'transparent'
-                  }} className="nav__text">
-                    1</span>
-                  <div id="cart"
-                    style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
-                    className="cart" data-totalitems={totalQuant} ref={btnRef} >
-                    <i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
-                      className="material-icons nav__icon">shopping_cart_checkout</i>
-                    Cart
-                  </div>
-                </a>
-        <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
-                  <i className="material-icons nav__icon">person</i>
-                  <span className="nav__text">{user ? "Account" : "Login"}</span>
-                </a>
-      </nav>:<></>}
+        <nav className="nav___">
+          <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
+            <i className="material-icons nav__icon">home</i>
+            <span className="nav__text">Home</span>
+          </a>
+          <a
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
+            <i style={{
+              color: 'transparent'
+            }}
+              className="material-icons nav__icon">home</i>
+            <span style={{
+              color: 'transparent'
+            }} className="nav__text">
+              1</span>
+            <div id="cart"
+              style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
+              className="cart" data-totalitems={totalQuant} ref={btnRef} >
+              <i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
+                className="material-icons nav__icon">shopping_cart_checkout</i>
+              Cart
+            </div>
+          </a>
+          <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
+            <i className="material-icons nav__icon">person</i>
+            <span className="nav__text">{user ? "Account" : "Login"}</span>
+          </a>
+        </nav> : <></>}
     </>
   )
 }
