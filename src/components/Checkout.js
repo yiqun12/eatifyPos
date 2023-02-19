@@ -56,6 +56,8 @@ function Checkout(props) {
           optionElement.setAttribute("data-type", paymentMethod.card.brand);
           //console(optionElement.value)
           optionElement.text = `•••• ${paymentMethod.card.last4} | ${paymentMethod.card.exp_month}/${paymentMethod.card.exp_year}`;
+          optionElement.selected = true;
+          saveId(Math.random())
           //console.log("exist card:",optionElement.text)
         });
       });
@@ -192,7 +194,7 @@ if (optionElementToDelete) {
 
               <div className="col-7">
               <select style={{ 'background-color': "#f5f7f9", color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
-  <option data-type="mastercard">Select Card</option>
+  <option  data-type="mastercard">Select Account</option>
 </select>
               </div>
               <div className="col-3 d-flex justify-content-center">
