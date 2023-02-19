@@ -9,7 +9,7 @@ import { useUserContext } from "../context/userContext";
 //import { useEffect } from 'react';
 import e from 'cors';
 import './blueButton.css';
-
+import { useMyHook } from '../pages/myHook';
 
 const CARD_ELEMENT_OPTIONS = {
   style: {
@@ -32,6 +32,11 @@ const CARD_ELEMENT_OPTIONS = {
 
 
 function CardSection() {
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
 
   const { user } = useUserContext();
   const stripe = useStripe();
@@ -121,6 +126,7 @@ function CardSection() {
                   .querySelectorAll('button')
                   .forEach((button) => (button.disabled = false));
                   document.querySelector('#error-message').textContent = "successfuly added!";
+                  saveId(Math.random())
                   //customerData.current = null //cleanup
                 })
   

@@ -10,7 +10,7 @@ const useMyHookEffect = (initId) => {
     window.localStorage.setItem('id', id);
     setId(id);
   };
-
+  
   useEffect(() => {
     //Now you can get the id from the localStorage
     const myId = window.localStorage.getItem('id');

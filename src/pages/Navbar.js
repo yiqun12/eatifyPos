@@ -78,7 +78,21 @@ const Navbar = () => {
   const [totalQuant, setTotalQuant] = useState(0);
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
-    const height = products.length * 123 + 100; // 123 is the height of each product element and 80 is the top and bottom margin of the shopping cart
+    let height = 100;
+    if(width > 575){
+      console.log(width)
+    if (products && products.length > 0) {
+      if (products.length < 4) {
+        height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
+      } else {
+        height = 3 * 123 + 140; // set height to show only the first 3 items and the shopping cart header
+      }
+    }}else{
+
+      console.log(width)
+      height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
+    }
+
     console.log("product changed")
     // Update the height of the shopping cart element
     document.querySelector('.shopping-cart').style.height = `${height}px`;
@@ -97,7 +111,7 @@ const Navbar = () => {
     calculateTotalQuant();
 
     uploadProductsToLocalStorage(products);
-  }, [products]);
+  }, [products,width]);
   const handleDeleteClick = (productId) => {
     setProducts((prevProducts) => prevProducts.filter((product) => product.id !== productId));
     saveId(Math.random())
@@ -374,8 +388,8 @@ const Navbar = () => {
             </div>
 
           </div>
-
-          {products.map((product) => (
+          <div style={width > 575 ? { overflowY: "auto" ,  borderBottom: "1px solid #E1E8EE" } : {}}>
+            {products.map((product) => (
 
             <div key={product.id} className="item">
               <div className="buttons">
@@ -435,7 +449,7 @@ const Navbar = () => {
 
           ))}
 
-
+</div>
         </div>
       </div>
       {/**navbar */}

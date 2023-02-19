@@ -7,13 +7,18 @@ import firebase from 'firebase/compat/app';
 import { useUserContext } from "../context/userContext";
 import { useEffect } from 'react';
 import { useState } from 'react';
-
+import { useMyHook } from '../pages/myHook';
 
 function Checkout(props) {
   // Format amount for diplay in the UI
 
   const user = JSON.parse(localStorage.getItem('user'));
   const { totalPrice } = props;
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
 
   function startDataListeners() {
 
@@ -186,10 +191,9 @@ if (optionElementToDelete) {
               </div>
 
               <div className="col-7">
-
-                <select style={{ 'background-color': "#f5f7f9", color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
-                  <option data-type="mastercard" >Select account</option>
-                </select>
+              <select style={{ 'background-color': "#f5f7f9", color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
+  <option data-type="mastercard">Select Card</option>
+</select>
               </div>
               <div className="col-3 d-flex justify-content-center">
               <button type="submit" style={{color: "#9ca3af"}}name="delete">Delete</button>

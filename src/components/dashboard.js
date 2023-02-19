@@ -4,6 +4,7 @@ import {Elements} from '@stripe/react-stripe-js';
 import CardSection from './CardSection';
 import Checkout from './Checkout';
 import PayHistory from './PayHistory';
+import { MyHookProvider } from '../pages/myHook';
 
 
 const Dashboard = (props) => {
@@ -18,7 +19,6 @@ const Dashboard = (props) => {
       <div className="card2-title mx-auto">
       Checkout
       </div>
-
 
     <CardSection />
 

@@ -1,77 +1,176 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <style>
-      .container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-      }
+@import url(https://fonts.googleapis.com/css?family=Roboto:300,400,500);
 
-      button {
-        padding: 1rem 2rem;
-        border-radius: 10px;
-        background-color: skyblue;
-        color: white;
-        font-size: 1.2rem;
-        cursor: pointer;
-        position: relative;
-      }
+* {
+  box-sizing: border-box;
+}
 
-      .fireworks {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: none;
-      }
+.shopping-cart {
+  width: 600px;
+  height: 423px;
+  margin: 80px auto;
+  background: #FFFFFF;
+  box-shadow: 1px 2px 3px 0px rgba(0,0,0,0.10);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+}
 
-      .fireworks span {
-        position: absolute;
-        display: block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background-color: yellow;
-        animation: fireworks 1s ease-out;
-      }
+.title {
+  height: 60px;
+  border-bottom: 1px solid #E1E8EE;
+  padding: 20px 30px;
+  color: #5E6977;
+  font-size: 18px;
+  font-weight: 400;
+}
 
-      @keyframes fireworks {
-        0% {
-          transform: translateY(0) scale(1);
-          opacity: 1;
-        }
-        100% {
-          transform: translateY(-100%) scale(0);
-          opacity: 0;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <button>Click me</button>
-      <div class="fireworks">
-        <span style="top: 10%; left: 10%;"></span>
-        <span style="top: 20%; left: 20%;"></span>
-        <span style="top: 30%; left: 30%;"></span>
-        <span style="top: 40%; left: 40%;"></span>
-        <span style="top: 50%; left: 50%;"></span>
-      </div>
-    </div>
+.item {
+  border-top:  1px solid #E1E8EE;
+  padding: 20px 30px;
+  height: 120px;
+  display: flex;
+  border-bottom:  1px solid #E1E8EE;
+}
 
-    <script>
-      const button = document.querySelector("button");
-      const fireworks = document.querySelector(".fireworks");
 
-      button.addEventListener("click", function () {
-        fireworks.style.display = "flex";
-        setTimeout(() => {
-          fireworks.style.display = "none";
-        }, 1000);
-      });
-    </script>
-  </body>
-</html>
+
+/* Buttons -  Delete and Like */
+.buttons {
+  position: relative;
+  padding-top: 30px;
+}
+
+.delete-btn {
+  display: inline-block;
+  cursor: pointer;
+  width: 18px;
+  height: 17px;
+  background: url("delete-icn.svg") no-repeat center;
+  margin-right: 20px;
+}
+
+.like-btn {
+  position: absolute;
+  top: 9px;
+  left: 15px;
+  display: inline-block;
+  background: url('twitter-heart.png');
+  width: 60px;
+  height: 60px;
+  background-size: 2900%;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.is-active {
+  animation-name: animate;
+  animation-duration: .8s;
+  animation-iteration-count: 1;
+  animation-timing-function: steps(28);
+  animation-fill-mode: forwards;
+}
+
+@keyframes animate {
+  0%   { background-position: left;  }
+  50%  { background-position: right; }
+  100% { background-position: right; }
+}
+
+/* Product Image */
+.image {
+  width: 35%;
+  margin-right:5px
+}
+
+/* Product Description */
+.description {
+  padding-top: 10px;
+  margin-right: 60px;
+  width: 115px;
+}
+
+.description span {
+  display: block;
+  font-size: 14px;
+  color: #43484D;
+  font-weight: 400;
+}
+
+.description span:first-child {
+  font-size: 17px;
+  margin-bottom: 5px;
+}
+.description span:last-child {
+  font-size: 17px;
+  font-weight: 300;
+  margin-top: 8px;
+  color: #86939E;
+}
+
+/* Product Quantity */
+.quantity {
+  padding-top: 20px;
+  margin-right: 60px;
+}
+.quantity input {
+  -webkit-appearance: none;
+  border: none;
+  text-align: center;
+  width: 32px;
+  font-size: 32px;
+  color: #43484D;
+  font-weight: 300;
+}
+
+
+.minus-btn img {
+  margin-bottom: 3px;
+}
+.plus-btn img {
+  margin-top: 2px;
+}
+
+/* Total Price */
+.total-price {
+  width: 83px;
+  padding-top: 27px;
+  text-align: center;
+  font-size: 16px;
+  color: #43484D;
+  font-weight: 300;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+  .shopping-cart {
+    width: 360px;
+    height: 423px;
+    margin: 80px auto;
+    background: #FFFFFF;
+    box-shadow: 1px 2px 3px 0px rgba(0,0,0,0.10);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+  }
+
+/* Product Quantity */
+.quantity {
+  position: absolute;
+  margin-top: 30px;
+  margin-left: 240px;
+}
+
+}
+
+.image-container {
+  width: 90px;
+  height: 90px;
+  overflow: hidden;
+}
+
+.image-container img {
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
+  height: 100%;
+}
