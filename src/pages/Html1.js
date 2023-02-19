@@ -1,13 +1,137 @@
-import React from 'react'
-import './Html1.css';
 
-const Html = () => {
+import React from 'react'
+import { useState } from 'react';
+import './checkout.css';
+import CardSection from "../components/CardSection";
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import 'bootstrap/dist/css/bootstrap.css';
+import './group_list.css';
+import Dashboard from "../components/dashboard";
+import { useUserContext } from "../context/userContext";
+import { useRef, useEffect } from 'react';
+//import './html.css';
+import { MyHookProvider, useMyHook } from './myHook';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faUtensils } from '@fortawesome/free-solid-svg-icons'
+import { faShoppingBag } from '@fortawesome/free-solid-svg-icons'
+import './SwitchToggle.css';
+
+const App = () => {
+  /**re-render everytime button clicked from shopping cart */
+  const { id, saveId } = useMyHook(null);
+  let products = JSON.parse(localStorage.getItem("products"));
+  useEffect(() => {
+    products = JSON.parse(localStorage.getItem("products"));
+  }, [id]);
+
+  //fetch data from local stroage products.
+  //console.log(localStorage.getItem("products"))
+  const [totalPrice, setTotalPrice] = useState(products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0));
+  useEffect(() => {
+    //maybe add a line here...
+    const calculateTotalPrice = () => {
+      const total = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
+      //console.log(total)
+      //console.log(products)
+      setTotalPrice(total);
+    }
+    console.log(totalPrice)
+    calculateTotalPrice();
+  }, [products]);
+
   return (
-    <div>
-hello
-      {/* <Category /> */}
+
+    <div className='max-w-[1000px] mx-auto p-4 '>
+      <div className="app-container" style={{ height: "100%" }}>
+        <div className="row">
+          <div className="col">
+            <Item products={products} totalPrice={totalPrice} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+/**                    <img src={product.image} style ={{    width: '100px',
+  height: '100px',
+  'object-fit': 'cover'}}/> */
+const Item = (props) => {
+  //const { id, saveId } = useMyHook(null);
+  //const [totalPrice, setTotalPrice] = useState(0);
+  let products = JSON.parse(localStorage.getItem("products"));
+
+  const { totalPrice } = props;
+  console.log(props.products)
+  const [isModeOne, setIsModeOne] = useState(true);
+
+  const handleToggle = () => {
+    setIsModeOne(!isModeOne);
+  };
+
+  return (
+    <div className="card2 mb-50">
+      <div className="col d-flex">
+        {/** 
+        <span className="text-muted" id="orderno">
+          order #546924
+        </span>*/}
+      </div>
+      <div className="gap">
+  <div className="col-2 d-flex mx-auto" />
+  <span className="text-black select-none text-2xl">DINE IN</span>
+  <span className="block text-black select-none text-sm">Name: Yiqun</span>
+  <span className="block text-black select-none text-sm">Order ID: LEbJC4W5nzF84ZOHtazV</span>
+</div>
+
+      <div className="main">
+        <span id="sub-title">
+          <p>
+            <b>Payment Summary</b>
+          </p>
+        </span>
+        {products.map((product, index) => {
+          return (
+            <div className="row row-main" key={index}>
+              <div className="col-3">
+                <div style={{ width: '65px', height: '65px', marginTop: '-10px' }} class="image-container">
+                  <img src={product.image} alt="" />
+                </div>
+              </div>
+              <div className="col-6">
+                <div className="row d-flex">
+                  <p>
+                    <b>{product.name}</b>
+                  </p>
+                </div>
+                <div className="row d-flex">
+                  <p className="text-muted">@ ${product.subtotal} each x {product.quantity}</p>
+                </div>
+              </div>
+              <div className="col-3 d-flex justify-content-end">
+                <p>
+                  <b>${product.subtotal * product.quantity}</b>
+                </p>
+              </div>
+            </div>
+          );
+        })}
+        <hr />
+        <div className="total">
+          <div className="row">
+            <div className="col">
+              <b> Total:</b>
+            </div>
+            <div className="col d-flex justify-content-end">
+              <b>${totalPrice}</b>
+            </div>
+          </div>{" "}
+        </div>
+      </div>
     </div>
   )
-}
+};
 
-export default Html
+
+
+export default App

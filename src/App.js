@@ -95,9 +95,10 @@ function App() {
       { user ? <Route path="ForgotPassword" element={<Account />}></Route>: <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
       
       </Routes>
-      <footer style={{'height':"100px",'color':'transparent'}}>
-        void
-      </footer>
+      <footer style={{'height':"100px",'color':'transparent', 'userSelect': 'none'}}>
+  void
+</footer>
+
       </MyHookProvider>
     </BrowserRouter>
     </div>

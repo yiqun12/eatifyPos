@@ -61,7 +61,6 @@ const handleMouseLeave = () => {
 
 
         } else {
-          // TODO: delete the empty button if card exists.
           console.log('payment methods found for the customer');
           if(document.getElementById('404null')){
             const optionElementToDelete = document.querySelector(`option[id="${'404null'}"]`);

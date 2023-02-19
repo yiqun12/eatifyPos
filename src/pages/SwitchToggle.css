@@ -1,0 +1,127 @@
+  /* ON/OFF Switch */
+  .onoffswitch {
+    position: relative;
+    width: 55px;
+    display: inline-block;
+    font-size: 80%;
+    margin-left: 5px; /* added margin */
+  }
+  .onoffswitch .onoffswitch-label {
+    display: block;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid hsl(0, 0%, 90%);
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+    margin: 0;
+  }
+  .onoffswitch .onoffswitch-inner {
+    width: 200%;
+    margin-left: -100%;
+    -webkit-transition: right 0.5s ease-in-out; /* modified duration */
+    -o-transition: right 0.5s ease-in-out; /* modified duration */
+    -moz-transition: right 0.5s ease-in-out; /* modified duration */
+    transition: right 0.5s ease-in-out; /* modified duration */
+  }
+  .onoffswitch .onoffswitch-inner:before,
+  .onoffswitch .onoffswitch-inner:after {
+    float: left;
+    width: 50%;
+    height: 24px;
+    padding: 0;
+    line-height: 24px;
+    font-size: 80%;
+    color: hsl(0, 0%, 100%);
+    font-weight: normal;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  .onoffswitch .onoffswitch-inner:before {
+    content: "IN";
+    padding-left: 10px;
+    background-color: #bada55;
+    color: hsl(0, 0%, 100%);
+  }
+  .onoffswitch .onoffswitch-inner:after {
+    content: "OUT";
+    padding-right: 10px;
+    background-color: blueviolet;
+    color: hsl(0, 0%, 100%);
+    text-align: right;
+  }
+  .onoffswitch .onoffswitch-switch {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    background: hsl(0, 0%, 100%);
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    bottom: 0;
+    right: 35px;
+    -webkit-transition: right 0.5s ease-in-out; /* modified duration */
+    -o-transition: right 0.5s ease-in-out; /* modified duration */
+    -moz-transition: right 0.5s ease-in-out; /* modified duration */
+    transition: right 0.5s ease-in-out; /* modified duration */
+  }
+  .onoffswitch .onoffswitch-switch:active:after {
+    width: 30px; 
+  }
+  .toggle-group {
+    position: relative;
+    height: 27px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    top: 50%;
+  }
+  .toggle-group input[type="checkbox"] {
+    position: absolute;
+  }
+  .toggle-group input[type="checkbox"]:checked ~ .onoffswitch .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+  }
+  .toggle-group input[type="checkbox"]:checked ~ .onoffswitch .onoffswitch-label .onoffswitch-switch {
+    right: 1px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  }
+  .toggle-group input[type="checkbox"]:focus ~ .onoffswitch {
+    outline: thin dotted #333;
+    outline: 0;
+  }
+  .toggle-group label {
+    width: 0px; /* reduced width */
+    top: 2px; /* added top offset */
+    position: absolute;
+    cursor: pointer;
+    display: inline-block;
+    text-align: left;
+    line-height: 24px;
+    width: 100%;
+    z-index: 1;
+    height: 24px;
+  }
+  /* ==== Accessibility ===== */
+  .aural {
+    clip: rect(1px, 1px, 1px, 1px);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    width: 1px;
+  }
+  .aural:focus {
+    clip: rect(0, 0, 0, 0);
+    font-size: 1em;
+    height: auto;
+    outline: thin dotted;
+    position: static !important;
+    width: auto;
+    overflow: visible;
+  }
+  

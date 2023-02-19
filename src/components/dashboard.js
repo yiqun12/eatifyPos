@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from 'react';
 import { useUserContext } from "../context/userContext";
 import {Elements} from '@stripe/react-stripe-js';
 import CardSection from './CardSection';
@@ -12,6 +12,9 @@ const Dashboard = (props) => {
   const { totalPrice } = props;
   const { promise, logoutUser, emailVerification } = useUserContext();
   var verificationStatus = user.emailVerified ? "Verified" : "Not Verified";
+
+
+
   return (
     <div>
       <Elements stripe={promise}>
@@ -19,6 +22,8 @@ const Dashboard = (props) => {
       <div className="card2-title mx-auto">
       Checkout
       </div>
+      
+
 
     <CardSection />
 

@@ -12,7 +12,10 @@ import { useUserContext } from "../context/userContext";
 import { useRef, useEffect } from 'react';
 //import './html.css';
 import { MyHookProvider, useMyHook } from './myHook';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faUtensils } from '@fortawesome/free-solid-svg-icons'
+import { faShoppingBag } from '@fortawesome/free-solid-svg-icons'
+import './SwitchToggle.css';
 
 const App = () => {
   /**re-render everytime button clicked from shopping cart */
@@ -21,7 +24,7 @@ const App = () => {
   useEffect(() => {
     products = JSON.parse(localStorage.getItem("products"));
   }, [id]);
-  
+
   //fetch data from local stroage products.
   //console.log(localStorage.getItem("products"))
   const [totalPrice, setTotalPrice] = useState(products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0));
@@ -63,6 +66,11 @@ const Item = (props) => {
 
   const { totalPrice } = props;
   console.log(props.products)
+  const [isModeOne, setIsModeOne] = useState(true);
+
+  const handleToggle = () => {
+    setIsModeOne(!isModeOne);
+  };
 
   return (
     <div className="card2 mb-50">
@@ -74,9 +82,64 @@ const Item = (props) => {
       </div>
       <div className="gap">
         <div className="col-2 d-flex mx-auto" />
-        <div style={{'text-align': "center"}}>
-  <div className="title" style={{margin: "auto"}}>Thank you!</div>
-  </div>
+
+        <div className="title" style={{
+          "paddingLeft": "0", "paddingRight": "0",
+          margin: "auto", "marginLeft": "0", "marginRight": "0",
+          "paddingBottom": "40px"
+        }}>
+          <div className="toggle-group" style={{
+            "paddingLeft": "0", "paddingRight": "0",
+            margin: "auto", "marginLeft": "0", "marginRight": "0",
+          }} >
+
+
+            <div className="row">
+              <div className="col flex items-start">
+                {isModeOne ? (
+                  <span className="text-black select-none text-2xl">DINE</span>
+                ) : (
+                  <span className="text-black select-none text-2xl">TAKE</span>
+                )}
+              </div>
+              <div className="col d-flex justify-content-end">
+                <input
+                  style={{ "display": " none" }}
+                  type="checkbox"
+                  name="on-off-switch"
+                  id="on-off-switch"
+                  tabIndex="1"
+                  checked={isModeOne}
+                  onChange={handleToggle}
+                />
+                <label style={{
+                  "paddingLeft": "0",
+                  margin: "auto", "marginLeft": "0",
+                  "width": "63px",
+                  "height": "30px"
+                }} htmlFor="on-off-switch">
+
+                </label>
+                <div className="onoffswitch pull-right" aria-hidden="true">
+                  <div className="onoffswitch-label">
+
+                    <div className="onoffswitch-inner"></div>
+                    <div className="onoffswitch-switch">
+                      {isModeOne ? (
+                        <FontAwesomeIcon icon={faUtensils} />
+                      ) : (
+                        <FontAwesomeIcon icon={faShoppingBag} />
+                      )}
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+            </div>{" "}
+
+          </div>
+        </div>
       </div>
 
       <div className="main">
