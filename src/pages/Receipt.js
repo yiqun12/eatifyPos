@@ -2,32 +2,26 @@
 import React from 'react'
 import { useState } from 'react';
 import './checkout.css';
-import CardSection from "../components/CardSection";
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
 import 'bootstrap/dist/css/bootstrap.css';
 import './group_list.css';
-import Dashboard from "../components/dashboard";
-import { useUserContext } from "../context/userContext";
-import { useRef, useEffect } from 'react';
+import { useEffect } from 'react';
 //import './html.css';
-import { MyHookProvider, useMyHook } from './myHook';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUtensils } from '@fortawesome/free-solid-svg-icons'
-import { faShoppingBag } from '@fortawesome/free-solid-svg-icons'
+import { useMyHook } from './myHook';
 import './SwitchToggle.css';
 
 const App = () => {
+
+  //const sessionId = location.search.replace('?session_id=', '');
   /**re-render everytime button clicked from shopping cart */
   const { id, saveId } = useMyHook(null);
-  let products = JSON.parse(localStorage.getItem("products"));
+  let products = JSON.parse(JSON.parse(localStorage.getItem('collection_data')).receipt_data)
   useEffect(() => {
-    products = JSON.parse(localStorage.getItem("products"));
+    products = JSON.parse(JSON.parse(localStorage.getItem('collection_data')).receipt_data)
   }, [id]);
 
   //fetch data from local stroage products.
-  //console.log(localStorage.getItem("products"))
   const [totalPrice, setTotalPrice] = useState(products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0));
+
   useEffect(() => {
     //maybe add a line here...
     const calculateTotalPrice = () => {
@@ -42,7 +36,7 @@ const App = () => {
 
   return (
 
-    <div className='max-w-[1000px] mx-auto p-4 '>
+    <div className='max-w-[500px] mx-auto p-4 '>
       <div className="app-container" style={{ height: "100%" }}>
         <div className="row">
           <div className="col">
@@ -59,7 +53,7 @@ const App = () => {
 const Item = (props) => {
   //const { id, saveId } = useMyHook(null);
   //const [totalPrice, setTotalPrice] = useState(0);
-  let products = JSON.parse(localStorage.getItem("products"));
+  let products = JSON.parse(JSON.parse(localStorage.getItem('collection_data')).receipt_data)
 
   const { totalPrice } = props;
   console.log(props.products)
@@ -68,9 +62,11 @@ const Item = (props) => {
   const handleToggle = () => {
     setIsModeOne(!isModeOne);
   };
-
+ console.log(products)
+ console.log()
+ console.log(JSON.parse(localStorage.getItem('collection_data')).time)
   return (
-    <div className="card2 mb-50">
+    <div className="card2 mb-50" >
       <div className="col d-flex">
         {/** 
         <span className="text-muted" id="orderno">
@@ -78,34 +74,30 @@ const Item = (props) => {
         </span>*/}
       </div>
       <div className="gap">
-  <div className="col-2 d-flex mx-auto" />
-  <span className="text-black select-none text-2xl">DINE IN</span>
-  <span className="block text-black select-none text-sm">Name: Yiqun</span>
-  <span className="block text-black select-none text-sm">Order ID: LEbJC4W5nzF84ZOHtazV</span>
-</div>
-
+        <div className="col-2 d-flex mx-auto" />
+        
+        <b className="text-black text-2xl">DINE IN (PAID)</b>
+        <span className="block text-black text-sm">Name: {JSON.parse(localStorage.getItem('collection_data')).pay_name}
+        
+        </span>
+        <span className="block text-black text-sm">Order ID: {JSON.parse(localStorage.getItem('collection_data')).document_id}</span>
+        <span className="block text-black text-sm">{JSON.parse(localStorage.getItem('collection_data')).time}</span>
+      </div>
       <div className="main">
         <span id="sub-title">
           <p>
-            <b>Payment Summary</b>
+            <b>Order Summary</b>
           </p>
         </span>
         {products.map((product, index) => {
           return (
             <div className="row row-main" key={index}>
-              <div className="col-3">
-                <div style={{ width: '65px', height: '65px', marginTop: '-10px' }} class="image-container">
-                  <img src={product.image} alt="" />
-                </div>
-              </div>
-              <div className="col-6">
+              <div className="col-9">
                 <div className="row d-flex">
-                  <p>
-                    <b>{product.name}</b>
-                  </p>
+                    <b>{index+1}.{product.name}</b>
                 </div>
                 <div className="row d-flex">
-                  <p className="text-muted">@ ${product.subtotal} each x {product.quantity}</p>
+                  <p className="text-muted  mb-0 pb-0">@ ${product.subtotal} each x {product.quantity}</p>
                 </div>
               </div>
               <div className="col-3 d-flex justify-content-end">

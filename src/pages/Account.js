@@ -29,7 +29,6 @@ const Account = () => {
   //google login button functions
   return (
     <>
-      <hr></hr>
       <Elements stripe={promise}>
         <div className='max-w-[1000px] mx-auto p-4'>
           <meta charSet="utf-8" />

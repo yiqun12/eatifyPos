@@ -66,12 +66,13 @@ const Item = (props) => {
 
   const { totalPrice } = props;
   console.log(props.products)
-  const [isModeOne, setIsModeOne] = useState(true);
+  const [isTakeout, setIsTakeout] = useState(true);
 
   const handleToggle = () => {
-    setIsModeOne(!isModeOne);
+    setIsTakeout(!isTakeout);
+    localStorage.setItem('isTakeout', JSON.stringify(isTakeout));
   };
-
+  
   return (
     <div className="card2 mb-50">
       <div className="col d-flex">
@@ -96,7 +97,7 @@ const Item = (props) => {
 
             <div className="row">
               <div className="col flex items-start">
-                {isModeOne ? (
+                {isTakeout ? (
                   <span className="text-black select-none text-2xl">DINE</span>
                 ) : (
                   <span className="text-black select-none text-2xl">TAKE</span>
@@ -109,7 +110,7 @@ const Item = (props) => {
                   name="on-off-switch"
                   id="on-off-switch"
                   tabIndex="1"
-                  checked={isModeOne}
+                  checked={isTakeout}
                   onChange={handleToggle}
                 />
                 <label style={{
@@ -125,7 +126,7 @@ const Item = (props) => {
 
                     <div className="onoffswitch-inner"></div>
                     <div className="onoffswitch-switch">
-                      {isModeOne ? (
+                      {isTakeout ? (
                         <FontAwesomeIcon icon={faUtensils} />
                       ) : (
                         <FontAwesomeIcon icon={faShoppingBag} />

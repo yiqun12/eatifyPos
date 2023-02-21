@@ -110,7 +110,8 @@ async function handleCardAction(payment, docId) {
               for(var i=0;i<newItems.length;i++){
                   formattedString += `${newItems[i].quantity} x ${newItems[i].name}($${newItems[i].subtotal}) = $${newItems[i].item_Total}<br>`;
               }
-              console.log(payment)
+              console.log(doc.id)
+              //console.log(payment.receiptData)
               //应该显示这次交易id 时间不够 下次再加。
       content = `<div style="display: inline-block;">
       <details>

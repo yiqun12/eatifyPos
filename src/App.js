@@ -23,7 +23,7 @@ import React, { useState,useEffect } from 'react'
 import { collection, getDocs } from "firebase/firestore";
 import { db } from './firebase/index';
 import { MyHookProvider, useMyHook } from './pages/myHook';
-import Html1 from './pages/Html1'
+import Receipt from './pages/Receipt'
 import Html2 from './pages/Html2'
 
 function App() {
@@ -82,7 +82,7 @@ function App() {
       <Route exact path="/" element={<Home />} />
       <Route path="Auth" element={<Auth />} />
       <Route path="Admin" element={<Admin />} />
-      <Route path="Html1" element={<Html1 />} />
+      <Route path="Receipt" element={<Receipt />} />
       <Route path="Html2" element={<Html2 />} />
       <Route path="Reservation" element={<Reservation />} />
       { user ?  <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route> }

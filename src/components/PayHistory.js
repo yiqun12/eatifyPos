@@ -113,26 +113,50 @@ async function handleCardAction(payment, docId) {
         ) {
           
           content = `(Pending)🚨 Creating Payment for $${totalPrice}`;
+          
         } else if (payment.status === 'succeeded') {
           const card = payment.charges.data[0].payment_method_details.card;
           content = `✅ Payment for ${formatAmount(
             payment.amount,
             payment.currency
-          )} on ${card.brand} card •••• ${card.last4}.`;//${payment.dateTime} ${payment.receiptData} ${payment.charges.data[0].billing_details.name} 
+          )} on ${card.brand} card •••• ${card.last4}.
+          `;
+        
+        const collection_data = {
+          receipt_data : payment.receiptData,
+          document_id : doc.id,
+          time: payment.dateTime,
+          pay_name: payment.charges.data[0].billing_details.name
+        };
+        //console.log(JSON.stringify(collection_data)); // output the JSON object to the console
+        localStorage.setItem('collection_data', JSON.stringify(collection_data));
+        localStorage.removeItem("products");
+        saveId(Math.random());
+        window.location.href = '/Receipt'
         } else if (payment.status === 'requires_action') {
+          document
+            .querySelectorAll('button')
+            .forEach((button) => (button.disabled = false));
           content = `🚨 Payment for ${formatAmount(
             payment.amount,
             payment.currency
           )} ${payment.status}`;
           handleCardAction(payment, doc.id);
         } else if(payment.error) {
+          document
+          .querySelectorAll('button')
+          .forEach((button) => (button.disabled = false));
           content = `⚠️ Payment failed. ${payment.error}`;
         }else {
+          document
+          .querySelectorAll('button')
+          .forEach((button) => (button.disabled = false));
           content = `⚠️ Payment for ${formatAmount(
             payment.amount,
             payment.currency
           )} ${payment.status}`;
         }
+        
         liElement.innerText = content;
         document.querySelector('#payments-list').appendChild(liElement);
       });

@@ -173,9 +173,7 @@ const handleMouseLeave = () => {
             .collection('payments')
             .add(data);
 
-          document
-            .querySelectorAll('button')
-            .forEach((button) => (button.disabled = false));
+
         }
 
       });

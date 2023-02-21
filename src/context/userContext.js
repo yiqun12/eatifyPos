@@ -49,8 +49,8 @@ export const UserContextProvider = ({ children }) => {
         const {uid, displayName, email} = firebaseUser;
         const filteredProperties = Object.assign({}, {uid}, {displayName}, {email});
         if(filteredProperties.uid!=null&&filteredProperties.displayName==null&&email==null){
-          filteredProperties.displayName = "Anonymously mode"
-          filteredProperties.email = "Anonymously@eatifyPos.com"
+          filteredProperties.displayName = "Anonymous mode"
+          filteredProperties.email = "Anonymous@eatifyPos.com"
         }
         setUser(filteredProperties);
         currentUser = firebaseUser;
