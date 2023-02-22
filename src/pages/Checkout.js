@@ -24,6 +24,28 @@ const App = () => {
   useEffect(() => {
     products = JSON.parse(localStorage.getItem("products"));
   }, [id]);
+  /**check if its mobile/browser */
+  const [width, setWidth] = useState(window.innerWidth);
+  /**check if its too small */
+  const [cardidth, setCardidth] = useState(0);
+
+  function handleWindowSizeChange() {
+    const card2Header = document.getElementById('card2-header');
+    setCardidth(card2Header.offsetWidth);
+    setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+    const card2Header = document.getElementById('card2-header');
+    setCardidth(card2Header.offsetWidth);
+    window.addEventListener('resize', handleWindowSizeChange);
+    return () => {
+      window.removeEventListener('resize', handleWindowSizeChange);
+    }
+  }, []);
+
+  const isMobile = width <= 768;
+
+  const isTooSmall= cardidth <= 270;
 
   //fetch data from local stroage products.
   //console.log(localStorage.getItem("products"))
@@ -43,14 +65,24 @@ const App = () => {
   return (
 
     <div className='max-w-[1000px] mx-auto p-4 '>
-      <div className="app-container" style={{ height: "100%" }}>
+      <div className="app-container" style={{ height: "100%"}}>
         <div className="row">
-          <div className="col">
-            <Item products={products} totalPrice={totalPrice} />
-          </div>
-          <div className="col no-gutters" style={{ height: "100%" }} >
-            <Checkout totalPrice={totalPrice} />
-          </div>
+        {isMobile?
+                <div className="col" style={{paddingLeft:0,paddingRight:0}}>
+                <Item products={products} totalPrice={totalPrice} />
+                <Checkout totalPrice={totalPrice} />
+              </div>
+      :  
+      <>
+      <div className="col" >
+      <Item products={products} totalPrice={totalPrice} />
+    </div>
+    <div className="col no-gutters" style={{ height: "100%" }} >
+      <Checkout totalPrice={totalPrice} />
+    </div>
+    </>
+      }
+
         </div>
       </div>
     </div>
@@ -65,7 +97,7 @@ const Item = (props) => {
   let products = JSON.parse(localStorage.getItem("products"));
 
   const { totalPrice } = props;
-  console.log(props.products)
+  //console.log(props.products)
   const [isTakeout, setIsTakeout] = useState(true);
 
   const handleToggle = () => {

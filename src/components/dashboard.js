@@ -25,7 +25,7 @@ const Dashboard = (props) => {
       
 
 
-    <CardSection />
+    <CardSection  totalPrice={totalPrice}/>
 
       Choose Card
           <Checkout totalPrice={totalPrice}/>

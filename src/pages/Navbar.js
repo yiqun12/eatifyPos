@@ -80,7 +80,6 @@ const Navbar = () => {
     // Calculate the height of the shopping cart based on the number of products
     let height = 100;
     if(width > 575){
-      console.log(width)
     if (products && products.length > 0) {
       if (products.length < 4) {
         height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
@@ -89,7 +88,6 @@ const Navbar = () => {
       }
     }}else{
 
-      console.log(width)
       height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
     }
 

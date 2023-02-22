@@ -26,6 +26,7 @@
     "font-awesome": "^4.7.0",
     "framer-motion": "^7.6.15",
     "fs": "^0.0.1-security",
+    "mdb-react-ui-kit": "^5.1.0",
     "mobiscroll": "^3.0.0-beta6",
     "moment": "^2.29.4",
     "patch-package": "^6.5.1",
