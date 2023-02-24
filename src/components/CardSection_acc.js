@@ -103,8 +103,8 @@ function CardSection(props) {
             // Proceed with adding payment method
             const form = new FormData(event.target);
             const cardholderName = form.get('name');
-            console.log(form.get('address1'))
-            console.log(form.get('address2'))
+            console.log(form.get('Line1'))
+            console.log(form.get('Line2'))
             console.log(form.get('City'))
             console.log(form.get('State'))
             console.log('user found in stripe');
@@ -136,41 +136,7 @@ function CardSection(props) {
                   .querySelectorAll('button')
                   .forEach((button) => (button.disabled = false));
               } else if (result.setupIntent != null) {
- document
-.querySelectorAll('button')
-.forEach((button) => (button.disabled = true));
-const amount = Number(totalPrice);
-const currency = 'usd';
-const dateTime = new Date().toISOString();
-const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-//console.log(form.get('payment-method'))
-const user = JSON.parse(localStorage.getItem('user'));
-const data = {
-payment_method: result.setupIntent.payment_method,
-currency,
-amount: amount,
-status: 'new',
-receipt: localStorage.getItem("products"),
-dateTime: date,
-user_email: user.email,
-};
-//console.log(data)
 
-firebase
-.firestore()
-.collection('stripe_customers')
-.doc(user.uid)
-.collection('payments')
-.add(data).then(() => {
-  console.log("hello");
-})
-.catch((error) => {
-  console.log("Error writing payment to Firestore: ", error);
-});
-
-saveId(Math.random())
-console.log(isChecked.current )
-if(isChecked.current ){
                 firebase
                   .firestore()
                   .collection('stripe_customers')
@@ -203,7 +169,6 @@ if(isChecked.current ){
                     saveId(Math.random())
                     //customerData.current = null //cleanup
                   })
-                }
               }
             });
           }
@@ -396,17 +361,8 @@ if(isChecked.current ){
             </div>
           </div>
           <div id="prompt-message" role="alert"></div>
-
-          <MDBCheckbox
-      name='flexCheck'
-      value=''
-      id='flexCheckChecked'
-      label='Save Card'
-      defaultChecked={isChecked.current }
-      onChange={handleCheckboxChange}
-              />
               
-          <button style={{ width: "100%" }} class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Pay ${totalPrice}</button>
+          <button style={{ width: "100%" }} class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add</button>
         </form>
         
       </div>

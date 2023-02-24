@@ -7,6 +7,7 @@ import firebase from 'firebase/compat/app';
 import {loadStripe} from '@stripe/stripe-js';
 import DOMPurify from 'dompurify';
 import moment from 'moment';
+import { useState ,useEffect} from 'react';
 
 
 
@@ -66,7 +67,7 @@ async function handleCardAction(payment, docId) {
    */
   const dateTime = new Date().toISOString();
   const date = dateTime.slice(0,10) + '-' + dateTime.slice(11,13) + '-' + dateTime.slice(14,16) + '-' + dateTime.slice(17,19) + '-' + dateTime.slice(20,22);        
-
+  useEffect(() => {
   firebase
     .firestore()
     .collection('stripe_customers')
@@ -153,7 +154,8 @@ async function handleCardAction(payment, docId) {
         count--;
       });
     });
-    
+  }, []); // empty dependency array to run once on mount
+
 
   //console.log(elements.getElement(CardElement))
   return (

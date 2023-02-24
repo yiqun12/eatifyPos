@@ -2,7 +2,8 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import React, { useState, useEffect } from 'react';
 import './group_list.css';
-import CardSection from "../components/CardSection";
+import CardSection from "../components/CardSection_acc";
+import Checkout from "../components/Checkout_acc";
 //import Checkout from "../components/Checkout";
 import PayFullhistory from "../components/PayFullhistory";
 import { Elements } from '@stripe/react-stripe-js';
@@ -69,7 +70,7 @@ const Account = () => {
                           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                           <circle cx={12} cy={7} r={4} />
                         </svg>
-                        Profile Information
+                        Profile
                       </a>
 
                       <a
@@ -94,6 +95,29 @@ const Account = () => {
                           <line x1={1} y1={10} x2={23} y2={10} />
                         </svg>
                         Billing
+                      </a>
+                      <a
+                        href="#History"
+                        data-toggle="tab"
+                        className={`nav-item nav-link has-icon ${activeTab === '#History' ? 'nav-link-faded active' : 'nav-link-faded'}`}
+                        onClick={(e) => handleTabClick(e, '#History')}
+                      >
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={24}
+  height={24}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  strokeWidth={2}
+  strokeLinecap="round"
+  strokeLinejoin="round"
+  className="feather feather-clock mr-2"
+>
+  <path d="M18.364 5.636c-3.905-3.905-10.237-3.905-14.142 0s-3.905 10.237 0 14.142 10.237 3.905 14.142 0 3.905-10.237 0-14.142z" />
+  <path d="M12 6v6l4 2" />
+</svg>
+                        History
                       </a>
                     </nav>
                   </div>
@@ -154,6 +178,30 @@ const Account = () => {
                           </svg>
                         </a>
                       </li>
+                      <li className="nav-item">
+                        <a
+                          href="#History"
+                          data-toggle="tab"
+                          className={`nav-link has-icon ${activeTab === '#History' ? 'active' : ''}`}
+                          onClick={(e) => handleTabClick(e, '#History')}
+                        >
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={24}
+  height={24}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  strokeWidth={2}
+  strokeLinecap="round"
+  strokeLinejoin="round"
+  className="feather feather-clock mr-2"
+>
+  <path d="M18.364 5.636c-3.905-3.905-10.237-3.905-14.142 0s-3.905 10.237 0 14.142 10.237 3.905 14.142 0 3.905-10.237 0-14.142z" />
+  <path d="M12 6v6l4 2" />
+</svg>
+                        </a>
+                      </li>
                     </ul>
                   </div>
                   <div className="card-body tab-content">
@@ -202,12 +250,24 @@ const Account = () => {
                         <hr />
                         <form>
                           <div className="form-group">
+                            
                             <label className="d-block mb-0">Payment Method</label>
+                            <Checkout/>
                             <CardSection />
                           </div>
+                        </form>
+                      </div>
+
+                    ) : null}
+                    {activeTab === '#History' ? (
+
+                      <div className="tab-pane-active" id="History">
+                        <h6>BILLING SETTINGS</h6>
+                        <hr />
+                        <form>
                           <label className="d-block">Payment History (click triangle for details)</label>
                           <div className="form-group mb-0" style={{
-                            "height": "150px",
+                            "height": "400px",
                             "overflow-y": " scroll"
                           }}>
 
@@ -219,7 +279,6 @@ const Account = () => {
                       </div>
 
                     ) : null}
-
                   </div>
                 </div>
               </div>

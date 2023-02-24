@@ -86,16 +86,17 @@ async function handleCardAction(payment, docId) {
     console.log(totalPrice)
     calculateTotalPrice();
   }, [products]);
+  useEffect(() => {
 
   firebase
-    .firestore()
-    .collection('stripe_customers')
-    .doc(user.uid)
-    .collection('payments')
-    .orderBy("dateTime", "desc")
-    .limit(1) // add this line
-    .where('dateTime', '>', date)
-    .onSnapshot((snapshot) => {
+  .firestore()
+  .collection('stripe_customers')
+  .doc(user.uid)
+  .collection('payments')
+  .where('dateTime', '>', date)
+  .orderBy('dateTime', 'desc')
+  .limit(1)
+  .onSnapshot((snapshot) => {
       snapshot.forEach((doc) => {
         const payment = doc.data();
 
@@ -132,7 +133,7 @@ async function handleCardAction(payment, docId) {
         localStorage.setItem('collection_data', JSON.stringify(collection_data));
         localStorage.removeItem("products");
         saveId(Math.random());
-        window.location.href = '/Receipt'
+        //window.location.href = '/Receipt'
         } else if (payment.status === 'requires_action') {
           document
             .querySelectorAll('button')
@@ -162,7 +163,7 @@ async function handleCardAction(payment, docId) {
       });
     });
     
-
+  }, []); // empty dependency array to run once on mount
   //console.log(elements.getElement(CardElement))
   return (
     <div>
