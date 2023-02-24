@@ -163,6 +163,7 @@ const handleMouseLeave = () => {
             receipt: localStorage.getItem("products"),
             dateTime: date,
             user_email: user.email,
+            isTakeout:localStorage.getItem("isTakeout")
           };
           //console.log(data)
 

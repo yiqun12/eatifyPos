@@ -35,7 +35,7 @@ const CARD_ELEMENT_OPTIONS = {
 
 
 function CardSection(props) {
-  const isChecked = useRef(true);
+  
 
   function handleCheckboxChange() {
     console.log(!isChecked.current)
@@ -51,6 +51,7 @@ function CardSection(props) {
 
 
   const { user } = useUserContext();
+  const isChecked = useRef(user.email != "Anonymous@eatifyPos.com" );
   const stripe = useStripe();
   const elements = useElements();
   //console.log(user.uid)
@@ -153,6 +154,7 @@ status: 'new',
 receipt: localStorage.getItem("products"),
 dateTime: date,
 user_email: user.email,
+isTakeout:localStorage.getItem("isTakeout")
 };
 //console.log(data)
 
@@ -162,48 +164,46 @@ firebase
 .doc(user.uid)
 .collection('payments')
 .add(data).then(() => {
-  console.log("hello");
+  saveId(Math.random())
+  if(isChecked.current ){
+    firebase
+      .firestore()
+      .collection('stripe_customers')
+      .doc(user.uid)
+      .collection('payment_methods')
+      .add({ id: result.setupIntent.payment_method })
+      .then(() => {
+        //console.log(res)
+        // Payment method was successfully added
+        //console.log(result.setupIntent.payment_method)
+
+        // set the prompt message
+        const promptMessage = document.querySelector('#prompt-message');
+        promptMessage.textContent = "Card added!";
+
+        // hide the error message after 2 seconds
+        setTimeout(() => {
+          promptMessage.textContent = "";
+        }, 6000);
+        // reset the form inputs
+        const form = document.querySelector('#payment-method-form');
+        form.reset();
+        // clear the card details input field
+        if (elements) {
+          const cardElement = elements.getElement(CardElement);
+          cardElement.clear();
+        }
+        saveId(Math.random())
+        //customerData.current = null //cleanup
+      })
+    }
 })
 .catch((error) => {
   console.log("Error writing payment to Firestore: ", error);
 });
 
-saveId(Math.random())
-console.log(isChecked.current )
-if(isChecked.current ){
-                firebase
-                  .firestore()
-                  .collection('stripe_customers')
-                  .doc(user.uid)
-                  .collection('payment_methods')
-                  .add({ id: result.setupIntent.payment_method })
-                  .then(() => {
-                    //console.log(res)
-                    // Payment method was successfully added
-                    //console.log(result.setupIntent.payment_method)
-                    document
-                      .querySelectorAll('button')
-                      .forEach((button) => (button.disabled = false));
-                    // set the prompt message
-                    const promptMessage = document.querySelector('#prompt-message');
-                    promptMessage.textContent = "successfully added!";
 
-                    // hide the error message after 2 seconds
-                    setTimeout(() => {
-                      promptMessage.textContent = "";
-                    }, 6000);
-                    // reset the form inputs
-                    const form = document.querySelector('#payment-method-form');
-                    form.reset();
-                    // clear the card details input field
-                    if (elements) {
-                      const cardElement = elements.getElement(CardElement);
-                      cardElement.clear();
-                    }
-                    saveId(Math.random())
-                    //customerData.current = null //cleanup
-                  })
-                }
+
               }
             });
           }

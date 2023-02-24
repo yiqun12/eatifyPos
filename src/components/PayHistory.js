@@ -132,8 +132,8 @@ async function handleCardAction(payment, docId) {
         //console.log(JSON.stringify(collection_data)); // output the JSON object to the console
         localStorage.setItem('collection_data', JSON.stringify(collection_data));
         localStorage.removeItem("products");
-        saveId(Math.random());
-        //window.location.href = '/Receipt'
+        window.location.href = '/Receipt'
+        
         } else if (payment.status === 'requires_action') {
           document
             .querySelectorAll('button')
