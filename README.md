@@ -1,4 +1,6 @@
 ## EatifyPos:
+[![Everything Is AWESOME](https://img.youtube.com/vi/StTqXEQ2l-Y/0.jpg)](https://www.youtube.com/watch?v=StTqXEQ2l-Y "Everything Is AWESOME")
+
 If you're an eater, welcome to EatifyPos - your go-to online ordering platform for both dine-in and takeout. With EatifyPos, you can easily browse menus, place orders, and securely pay online for all your favorite meals.
 
 If you're a business owner, EatifyPos is designed to make your operations smoother by streamlining your ordering, payment, and kitchen processes. Our app can seamlessly send order information to the kitchen thermal printers in real-time to prepare your food. With real-time messaging, you'll be alerted if there are any issues and faults, and our email confirmation system will notify both you and your customers every time an order is successfully placed. You can even customize the logo, title, and food items on the app's administrative page. We're also working on a management app that will transform EatifyPos into a Platform as a Service, complete with a system for you to purchase, use, and deploy the app online.
