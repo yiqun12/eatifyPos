@@ -23,7 +23,7 @@ You can peruse through menus and order food for delivery or takeout through our 
 **Earlier version demo:**
 <br />
 
-[![Earlier version](https://github.com/yiqun12/eatifyPos/blob/master/pictures/first_round_video.png)](https://www.youtube.com/watch?v=StTqXEQ2l-Y "Earlier version")
+[![Earlier version](https://github.com/yiqun12/eatifyPos/blob/master/pictures/first_round_video.png)](https://www.youtube.com/shorts/MqSUspurhw4 "Earlier version")
 # Table of contents
 ### App_Overview
   * [Home_Page](#Home_Page)
