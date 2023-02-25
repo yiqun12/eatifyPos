@@ -31,12 +31,12 @@ This pages displays all the shopping cart items on the Checkout Page.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image3.png" width="80%"></p>
 This image displays how to add new credit card in the Checkout Page.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image4.png" width="80%"></p>
-This image displays how to modify the items in shopping cart in before checkout.
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image5.png" width="80%"></p>
-The prompt that appears after adding a credit card is displayed in this image.
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image6.png" width="80%"></p>
-The prompt that appears after checkout the items.
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image7.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image5.1.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image5.2.png" width="80%"></p>
+The image demonstrate the promp after a new online card is placed.
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image5.3.png" width="80%"></p>
+The receipt page appears when a order is finalized.  
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image5.4.png" width="80%"></p>
 This image displays the email receipt sent to the customer after checkout.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image8.5.png" width="80%"></p>
 This image depicts the email receipt for the administrator.
@@ -52,14 +52,13 @@ This image demonstrates the steps to delete a payment method.
 This image displays the email notification sent to the administrator confirming that a credit card has been deleted.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.8.png" width="80%"></p>
 This is the receipt from the thermal printer:
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/myCheeseBurger1.jpg" width="80%"></p>
-Here is the video: https://drive.google.com/file/d/1GYWOB2KddQO7W4Lc1NkwI55qFNsCVVQp/view
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/burger1.png" width="80%"></p>
 
 ### Account_Page
-This page exhibits the user's account information, comprising both their profile and billing details.
+These two page exhibits the user's account information, comprising both their profile and billing details.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image9.png" width="80%"></p>
-These two images illustrate the payment details stored in the transaction history.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image10.png" width="80%"></p>
+This image illustrates the payment details stored in the transaction history.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image11.png" width="80%"></p>
 
 ### Authentication_Page
