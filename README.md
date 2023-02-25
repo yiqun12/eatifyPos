@@ -7,19 +7,19 @@ If you're a business owner, EatifyPos is designed to make your operations smooth
 ## Features
 You can peruse through menus and order food for delivery or takeout through our platform. Payment can be made securely using Stripe. The merchant will receive a digital receipt via email and a physical receipt from a thermal printer. The option to track your order status in real-time will be available from March onwards. To simplify reordering, you can save your preferred orders. To begin, please access the demo at https://eatify-22231.web.app/. The Beta version of EatifyPos is scheduled for release in March and will not only include all the features mentioned above but also the capability to process verbal orders, manage the cash drawer and POS terminal, and provide revenue, tip, and tax summaries on the data summary page. Our goal is to continue development and optimization to bring EatifyPos to commercial viability.
 <br />
-Remote control cash draw functionality:
+** Remote control cash draw functionality: **
 <br />
 
 [![Cash Draw Demo](https://github.com/yiqun12/eatifyPos/blob/master/pictures/cash_drawer_video1.png)](https://youtu.be/KjKph0GSXjU "Cash Draw Demo")
 <br />
 
-Remote control thermal printer functionality:
+** Remote control thermal printer functionality: **
 <br />
 
 [![Thermal printer](https://github.com/yiqun12/eatifyPos/blob/master/pictures/thermal_printer_video.png)](https://youtu.be/IAa4_3I1Hgk "Thermal printer")
 <br />
 
-Earlier version demo:
+** Earlier version demo: **
 <br />
 
 [![Earlier version](https://github.com/yiqun12/eatifyPos/blob/master/pictures/first_round_video.png)](https://www.youtube.com/watch?v=StTqXEQ2l-Y "Earlier version")
