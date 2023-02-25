@@ -35,7 +35,8 @@ The frontend of EatifyPos is developed using React.js, while the backend is buil
 <br />
 If you're interested in adding personalized features to my app, and wish to deploy and purchase it for your store or restaurant, please get in touch with me at yix223@lehigh.edu. 
 
-
+## Contribution
+We welcome any contributions to the project. If you would like to contribute, please email us at yix223@lehigh.edu.
 
 
 # Table of contents
@@ -118,5 +119,4 @@ This page displays how to access our Reservation Page.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image21.png" width="80%"></p>
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image22.png" width="80%"></p>
 
-## Contribution
-We welcome any contributions to the project. If you would like to contribute, please email us at yix223@lehigh.edu.
+
