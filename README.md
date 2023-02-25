@@ -32,10 +32,10 @@ The frontend of EatifyPos is developed using React.js, while the backend is buil
  - Install dependencies in the functions directory `npm install`
  - run this project locally and see the demo: `npm start`
 <br />
-If you're interested in adding personalized features to my app, and wish to deploy and purchase it for your store or restaurant, please get in touch with me at yix223@lehigh.edu. 
+If you're interested in adding personalized features to my app, and wish to deploy and purchase it for your store or restaurant, please email me at yix223@lehigh.edu.
 
 ## Contribution
-We welcome any contributions to the project. If you would like to contribute, please email us at yix223@lehigh.edu.
+We welcome any contributions to the project. If you would like to contribute, please email me at yix223@lehigh.edu.
 
 
 # Table of contents
