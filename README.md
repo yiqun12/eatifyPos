@@ -1,6 +1,7 @@
 ## EatifyPos:
-[![Little red riding hood](http://i.imgur.com/7YTMFQp.png)](https://vimeo.com/3514904 "Little red riding hood - Click to Watch!")
-
+[![Cash Draw Demo](https://github.com/yiqun12/eatifyPos/blob/master/pictures/cash_drawer_video.png)](https://youtu.be/KjKph0GSXjU "Cash Draw Demo")
+[![Thermal printer](https://github.com/yiqun12/eatifyPos/blob/master/pictures/thermal_printer_video.png)](https://youtu.be/IAa4_3I1Hgk "Thermal printer")
+[![Earlier version](https://github.com/yiqun12/eatifyPos/blob/master/pictures/first_round_video.png)](https://www.youtube.com/watch?v=StTqXEQ2l-Y "Earlier version")
 
 If you're an eater, welcome to EatifyPos - your go-to online ordering platform for both dine-in and takeout. With EatifyPos, you can easily browse menus, place orders, and securely pay online for all your favorite meals.
 
