@@ -1,5 +1,6 @@
 ## EatifyPos:
-[![Everything Is AWESOME](https://img.youtube.com/vi/StTqXEQ2l-Y/0.jpg)](https://www.youtube.com/watch?v=StTqXEQ2l-Y "Everything Is AWESOME")
+[![Little red riding hood](http://i.imgur.com/7YTMFQp.png)](https://vimeo.com/3514904 "Little red riding hood - Click to Watch!")
+
 
 If you're an eater, welcome to EatifyPos - your go-to online ordering platform for both dine-in and takeout. With EatifyPos, you can easily browse menus, place orders, and securely pay online for all your favorite meals.
 
