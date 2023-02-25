@@ -24,6 +24,18 @@ You can peruse through menus and order food for delivery or takeout through our 
 <br />
 
 [![Earlier version](https://github.com/yiqun12/eatifyPos/blob/master/pictures/first_round_video.png)](https://www.youtube.com/shorts/MqSUspurhw4 "Earlier version")
+
+## Technical details && install instruction
+EatifyPos is built with a React.js frontend and Node.js backend. We used Firebase for authentication, database, hosting, and cloud functions. We use Stripe for handling online payments, and thermal printers are used to generate receipts.
+
+ - Create a Firebase project on the [Firebase Console](https://console.firebase.google.com) and visit the **Storage** tab.
+ - Clone this repo: `git clone https://github.com/firebase/functions-samples`.
+ - Open this sample's directory: `cd functions-samples/publish-model`
+ - Setup your project by running `firebase use --add` and select the project you had created.
+ - Install dependencies in the functions directory: `cd functions; npm install; cd -`
+ - Deploy your project using `firebase deploy`
+
+
 # Table of contents
 ### App_Overview
   * [Home_Page](#Home_Page)
@@ -103,9 +115,6 @@ Examples are provided below for updating products and their corresponding pictur
 This page displays how to access our Reservation Page.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image21.png" width="80%"></p>
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image22.png" width="80%"></p>
-
-## Technical details
-EatifyPos is built with a React.js frontend and Node.js backend. We used Firebase for authentication, database, hosting, and cloud functions. We use Stripe for handling online payments, and thermal printers are used to generate receipts.
 
 ## Contribution
 We welcome any contributions to the project. If you would like to contribute, please email us at yix223@lehigh.edu.
