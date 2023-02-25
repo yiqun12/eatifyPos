@@ -1,5 +1,5 @@
 ## EatifyPos:
-[![Cash Draw Demo](https://github.com/yiqun12/eatifyPos/blob/master/pictures/cash_drawer_video.png)](https://youtu.be/KjKph0GSXjU "Cash Draw Demo")
+[![Cash Draw Demo](https://github.com/yiqun12/eatifyPos/blob/master/pictures/cash_drawer_video1.png)](https://youtu.be/KjKph0GSXjU "Cash Draw Demo")
 [![Thermal printer](https://github.com/yiqun12/eatifyPos/blob/master/pictures/thermal_printer_video.png)](https://youtu.be/IAa4_3I1Hgk "Thermal printer")
 [![Earlier version](https://github.com/yiqun12/eatifyPos/blob/master/pictures/first_round_video.png)](https://www.youtube.com/watch?v=StTqXEQ2l-Y "Earlier version")
 
