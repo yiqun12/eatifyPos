@@ -76,7 +76,7 @@ const Item = (props) => {
       <div className="gap">
         <div className="col-2 d-flex mx-auto" />
         
-        <b className="text-black text-2xl">DINE IN (PAID)</b>
+        <b className="text-black text-2xl">{JSON.parse(localStorage.getItem('collection_data')).isDinein} (PAID)</b>
         <span className="block text-black text-sm">Name: {JSON.parse(localStorage.getItem('collection_data')).pay_name}
         
         </span>

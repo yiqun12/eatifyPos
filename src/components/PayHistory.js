@@ -127,7 +127,8 @@ async function handleCardAction(payment, docId) {
           receipt_data : payment.receiptData,
           document_id : doc.id,
           time: payment.dateTime,
-          pay_name: payment.charges.data[0].billing_details.name
+          pay_name: payment.charges.data[0].billing_details.name,
+          isDinein:payment.isDinein
         };
         //console.log(JSON.stringify(collection_data)); // output the JSON object to the console
         localStorage.setItem('collection_data', JSON.stringify(collection_data));

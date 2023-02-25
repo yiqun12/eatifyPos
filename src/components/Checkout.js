@@ -143,6 +143,7 @@ const handleMouseLeave = () => {
                     }, 6000);
         }
         if (event.submitter.name === 'pay') {
+          //console.log(localStorage.getItem("isDinein")== "true"?"TakeOut":"DineIn")
           document
             .querySelectorAll('button')
             .forEach((button) => (button.disabled = true));
@@ -163,7 +164,7 @@ const handleMouseLeave = () => {
             receipt: localStorage.getItem("products"),
             dateTime: date,
             user_email: user.email,
-            isTakeout:localStorage.getItem("isTakeout")
+            isDinein:localStorage.getItem("isDinein")== "true"?"DineIn":"TakeOut"
           };
           //console.log(data)
 

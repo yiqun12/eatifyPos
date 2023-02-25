@@ -95,14 +95,20 @@ const Item = (props) => {
   //const { id, saveId } = useMyHook(null);
   //const [totalPrice, setTotalPrice] = useState(0);
   let products = JSON.parse(localStorage.getItem("products"));
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+  }, [id]);
 
   const { totalPrice } = props;
   //console.log(props.products)
-  const [isTakeout, setIsTakeout] = useState(true);
-
+  const [isDinein, setIsDinein] = useState(true);
+  localStorage.setItem('isDinein', JSON.stringify(isDinein));
+  console.log(isDinein)
   const handleToggle = () => {
-    setIsTakeout(!isTakeout);
-    localStorage.setItem('isTakeout', JSON.stringify(isTakeout));
+    setIsDinein(!isDinein);
+    console.log(isDinein)
+    localStorage.setItem('isDinein', JSON.stringify(isDinein));
+    saveId(Math.random())
   };
   
   return (
@@ -129,7 +135,7 @@ const Item = (props) => {
 
             <div className="row">
               <div className="col flex items-start">
-                {isTakeout ? (
+                {isDinein ? (
                   <span className="text-black select-none text-2xl">DINE</span>
                 ) : (
                   <span className="text-black select-none text-2xl">TAKE</span>
@@ -142,7 +148,7 @@ const Item = (props) => {
                   name="on-off-switch"
                   id="on-off-switch"
                   tabIndex="1"
-                  checked={isTakeout}
+                  checked={isDinein}
                   onChange={handleToggle}
                 />
                 <label style={{
@@ -158,7 +164,7 @@ const Item = (props) => {
 
                     <div className="onoffswitch-inner"></div>
                     <div className="onoffswitch-switch">
-                      {isTakeout ? (
+                      {isDinein ? (
                         <FontAwesomeIcon icon={faUtensils} />
                       ) : (
                         <FontAwesomeIcon icon={faShoppingBag} />

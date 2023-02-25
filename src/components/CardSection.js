@@ -137,6 +137,8 @@ function CardSection(props) {
                   .querySelectorAll('button')
                   .forEach((button) => (button.disabled = false));
               } else if (result.setupIntent != null) {
+                //console.log(localStorage.getItem("isDinein"))
+                //console.log(localStorage.getItem("isDinein")== "true"?"DineIN":"TakeOut")
  document
 .querySelectorAll('button')
 .forEach((button) => (button.disabled = true));
@@ -154,7 +156,7 @@ status: 'new',
 receipt: localStorage.getItem("products"),
 dateTime: date,
 user_email: user.email,
-isTakeout:localStorage.getItem("isTakeout")
+isDinein:localStorage.getItem("isDinein")== "true"?"DineIn":"TakeOut"
 };
 //console.log(data)
 
