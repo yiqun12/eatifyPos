@@ -10,8 +10,21 @@ const Admin = () => {
     /**change app namne and logo */
     const [faviconUrl, setFaviconUrl] = useState('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
     const [pageTitle, setPageTitle] = useState("Title1");
-    
-    const handleClickFavicon = () => {
+    const handleOpenCashDraw =async ()=>{
+        try {
+            const dateTime = new Date().toISOString();
+            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+            const docRef = await addDoc(collection(db, "open_cashdraw"), {
+                date: date
+            });
+            console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+    }
+    const handleClickFavicon = (e) => {
+        e.preventDefault();
+        console.log(e.target.faviconURL.value);
         if (faviconUrl === 'https://upload.wikimedia.org/wikipedia/en/thumb/6/65/LehighMountainHawks.svg/1200px-LehighMountainHawks.svg.png')
           setFaviconUrl('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
         else
@@ -19,7 +32,9 @@ const Admin = () => {
         updateFavicon();
       }
     
-      const handleClickTitle = () => {
+      const handleClickTitle = (e) => {
+        e.preventDefault();
+        console.log(e.target.title.value);
         if (pageTitle === "Title1")
           setPageTitle("Title2")
         else 
@@ -153,10 +168,9 @@ const addJson_array = async (name, category, image, price, subtotal) => {
     return (
         <section className="Food_array-container" style={{maxWidth: '1240px', display: 'grid', justifySelf: 'center', justifyContent: 'center', margin: 'auto',alignItems: 'center'}}>
 
-            <div className="Food_array" style={{maxWidth: '1240px'}}>
+            <div className="Food_array" style={{"background-color":"#f5f7f9",maxWidth: '1240px'}}>
                 <h1 className="header" style={{display: 'flex', justifyContent: 'center'}}>
-                    Admin App
-                </h1>
+                <button style={{border: '1px solid', padding: '3px', margin: '5px', borderRadius: "10px", boxShadow: "rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px"}} onClick={handleOpenCashDraw}>OPEN CASH DRAW</button>                </h1>
 
                 <div style={{display:'flex', justifyContent: 'center', margin: '10px'}}>
 
@@ -192,9 +206,9 @@ const addJson_array = async (name, category, image, price, subtotal) => {
 
                 </div>
 
-                <div style={{display: "flex", justifyContent:'space-evenly', margin: '10px'}}>
+                <div style={{ "background-color":"#f5f7f9",display: "flex", justifyContent:'space-evenly', margin: '10px'}}>
                 
-                    <div style={{maxHeight: '300px', overflowY: 'scroll', width: 'fitContent'}}>
+                    <div style={{"background-color":"#f5f7f9",maxHeight: '300px', overflowY: 'scroll', width: 'fitContent'}}>
                         {
                             Food_arrays?.map((Food_array, i) => (
                                 <div key={i}>
@@ -277,9 +291,15 @@ const addJson_array = async (name, category, image, price, subtotal) => {
     </form>
 
     <div style={{display: 'flex', justifyContent: 'space-evenly', margin: '10px'}}>
-      <button style={{border: '1px solid', padding: '3px', margin: '5px', borderRadius: "10px", boxShadow: "rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px"}} onClick={handleClickFavicon}>Change Favicon</button>
-      <button style={{border: '1px solid', padding: '3px', margin: '5px', borderRadius: "10px", boxShadow: "rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px"}} onClick={handleClickTitle}>Change Title</button>
-    </div>
+  <form onSubmit={handleClickFavicon}>
+    <input type="text" name="faviconURL" placeholder="Enter Favicon URL" />
+    <button style={{border: '1px solid', padding: '3px', margin: '5px', borderRadius: "10px", boxShadow: "rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px"}}>Change Favicon</button>
+  </form>
+  <form onSubmit={handleClickTitle}>
+    <input type="text" name="title" placeholder="Enter Title" />
+    <button style={{border: '1px solid', padding: '3px', margin: '5px', borderRadius: "10px", boxShadow: "rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px"}}>Change Title</button>
+  </form>
+</div>
 
         </section>
 
