@@ -26,7 +26,7 @@ You can peruse through menus and order food for delivery or takeout through our 
 [![Earlier version](https://github.com/yiqun12/eatifyPos/blob/master/pictures/first_round_video.png)](https://www.youtube.com/shorts/MqSUspurhw4 "Earlier version")
 
 ## Technical details && install instruction
-The frontend of EatifyPos is developed using React.js, while the backend is built on Node.js. Firebase is utilized for authentication, database management, hosting, and cloud functions. Online payments are handled by Stripe, and thermal printers are utilized to generate receipts.
+The frontend of EatifyPos is developed using React.js, while the backend is built on Node.js. Firebase is utilized for authentication, database management, hosting, and cloud functions. Online payments are handled by Stripe, and thermal printers are utilized to generate receipts. The application was designed to be responsive on PC and compatible with 95% of mobile devices.
 
  - Clone this repo: `git clone https://github.com/yiqun12/eatifyPos.git`.
  - Open this sample's directory: `cd eatifyPos`
