@@ -26,6 +26,9 @@ import { MyHookProvider, useMyHook } from './pages/myHook';
 import Receipt from './pages/Receipt'
 import Html2 from './pages/Html2'
 
+// translation purposes -> can switch to using fetchPost() to grab translation file just like food_array
+import { translations } from './data/translations.js'
+
 function App() {
 
   const { user} = useUserContext();
@@ -49,12 +52,16 @@ function App() {
               localStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
               console.log(newData)
           })
+
       setLoading(false);    
   }
   useEffect(() => {
     document.title = "EatifyPos"
  }, []);
   useEffect(() => {
+      // added line to grab translation file (can use the same method as food_data to grab translations file)
+      localStorage.setItem("translations", JSON.stringify(translations))
+      // localStorage.setItem("translationsMode", "en")
       fetchPost();
   }, [])
   if (loading) {

@@ -10,6 +10,7 @@ import { useState ,useEffect} from 'react';
 
 
 function PayHistory() {
+
 // Format amount for diplay in the UI
 function formatAmount(amount, currency) {
     amount = zeroDecimalCurrency(amount, currency)
@@ -113,14 +114,14 @@ async function handleCardAction(payment, docId) {
           payment.status === 'requires_confirmation'
         ) {
           
-          content = `(Pending)🚨 Creating Payment for $${totalPrice}`;
+          content = `(` + t('Pending') + `)🚨 ` + t("Creating Payment for") + ` $${totalPrice}`;
           
         } else if (payment.status === 'succeeded') {
           const card = payment.charges.data[0].payment_method_details.card;
-          content = `✅ Payment for ${formatAmount(
+          content = `✅ ` + t("Payment for") + `${formatAmount(
             payment.amount,
             payment.currency
-          )} on ${card.brand} card •••• ${card.last4}.
+          )} ` + t("on") +  ` ${card.brand} ` + t("card") + ` •••• ${card.last4}.
           `;
         
         const collection_data = {
@@ -139,7 +140,7 @@ async function handleCardAction(payment, docId) {
           document
             .querySelectorAll('button')
             .forEach((button) => (button.disabled = false));
-          content = `🚨 Payment for ${formatAmount(
+          content = `🚨 ` + t("Payment for") + `${formatAmount(
             payment.amount,
             payment.currency
           )} ${payment.status}`;
@@ -148,12 +149,12 @@ async function handleCardAction(payment, docId) {
           document
           .querySelectorAll('button')
           .forEach((button) => (button.disabled = false));
-          content = `⚠️ Payment failed. ${payment.error}`;
+          content = `⚠️ ` + t("Payment failed") + `. ${t(payment.error)}`;
         }else {
           document
           .querySelectorAll('button')
           .forEach((button) => (button.disabled = false));
-          content = `⚠️ Payment for ${formatAmount(
+          content = `⚠️ ` + t("Payment for") + `${formatAmount(
             payment.amount,
             payment.currency
           )} ${payment.status}`;
@@ -166,6 +167,26 @@ async function handleCardAction(payment, docId) {
     
   }, []); // empty dependency array to run once on mount
   //console.log(elements.getElement(CardElement))
+
+  const trans = JSON.parse(localStorage.getItem("translations"))
+  const t = (text) => {
+    // const trans = localStorage.getItem("translations")
+    console.log(trans)
+    console.log(localStorage.getItem("translationsMode"))
+
+    if (trans != null) {
+      if (localStorage.getItem("translationsMode") != null) {
+        // return the translated text with the right mode
+        if (trans[text] != null) {
+            if (trans[text][localStorage.getItem("translationsMode")] != null)
+              return trans[text][localStorage.getItem("translationsMode")]
+        }
+      }
+    } 
+    // base case to just return the text if no modes/translations are found
+    return text
+  }
+
   return (
     <div>
   <ul id="payments-list"></ul>

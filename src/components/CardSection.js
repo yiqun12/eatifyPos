@@ -160,6 +160,26 @@ isDinein:localStorage.getItem("isDinein")== "true"?"DineIn":"TakeOut"
 };
 //console.log(data)
 
+          // for translation
+          const trans = JSON.parse(localStorage.getItem("translations"))
+          const t = (text) => {
+            // const trans = localStorage.getItem("translations")
+            console.log(trans)
+            console.log(localStorage.getItem("translationsMode"))
+        
+            if (trans != null) {
+              if (localStorage.getItem("translationsMode") != null) {
+                // return the translated text with the right mode
+                if (trans[text] != null) {
+                    if (trans[text][localStorage.getItem("translationsMode")] != null)
+                      return trans[text][localStorage.getItem("translationsMode")]
+                }
+              }
+            } 
+            // base case to just return the text if no modes/translations are found
+            return text
+          }
+
 firebase
 .firestore()
 .collection('stripe_customers')
@@ -181,7 +201,7 @@ firebase
 
         // set the prompt message
         const promptMessage = document.querySelector('#prompt-message');
-        promptMessage.textContent = "Card added!";
+        promptMessage.textContent = t("Card added") + "!";
 
         // hide the error message after 2 seconds
         setTimeout(() => {
@@ -214,6 +234,26 @@ firebase
 
   }, [customerData.current, stripe, elements,isChecked.current ]);
 
+            // for translation
+            const trans = JSON.parse(localStorage.getItem("translations"))
+            const t = (text) => {
+              // const trans = localStorage.getItem("translations")
+              console.log(trans)
+              console.log(localStorage.getItem("translationsMode"))
+          
+              if (trans != null) {
+                if (localStorage.getItem("translationsMode") != null) {
+                  // return the translated text with the right mode
+                  if (trans[text] != null) {
+                      if (trans[text][localStorage.getItem("translationsMode")] != null)
+                        return trans[text][localStorage.getItem("translationsMode")]
+                  }
+                }
+              } 
+              // base case to just return the text if no modes/translations are found
+              return text
+            }
+
   return (
     <div id="card2-header">
       <div id="add-new-card">
@@ -229,7 +269,7 @@ firebase
                   'paddingLeft': 0,
                   'paddingRight': 0,
                   color: "black"
-                }}>Card details</span>
+                }}>{t("Card details")}</span>
               </div>
               <div className="row row-2" style={{
                 'paddingLeft': 0,
@@ -259,7 +299,7 @@ firebase
                 'paddingLeft': 0,
                 'paddingRight': 0,
                 color: "black"
-              }} >Card holder name</span>
+              }} >{t("Card holder name")}</span>
             </div>
             <div className="row row-2" style={{
               'paddingLeft': 0,
@@ -283,7 +323,7 @@ firebase
                 'paddingLeft': 0,
                 'paddingRight': 0,
                 color: "black"
-              }} >Billing address</span>
+              }} >{t("Billing address")}</span>
             </div>
             <div className="row row-2" style={{
               'paddingLeft': 0,
@@ -403,12 +443,12 @@ firebase
       name='flexCheck'
       value=''
       id='flexCheckChecked'
-      label='Save Card'
+      label={t('Save Card')}
       defaultChecked={isChecked.current }
       onChange={handleCheckboxChange}
               />
               
-          <button style={{ width: "100%" }} class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Pay ${totalPrice}</button>
+          <button style={{ width: "100%" }} class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">{t("Pay")} ${totalPrice}</button>
         </form>
         
       </div>

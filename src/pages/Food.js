@@ -147,6 +147,26 @@ const Food = () => {
     calculateTotalQuant();
   };
 
+  // for translations sake
+  const trans = JSON.parse(localStorage.getItem("translations"))
+  const t = (text) => {
+    // const trans = localStorage.getItem("translations")
+    console.log(trans)
+    console.log(localStorage.getItem("translationsMode"))
+
+    if (trans != null) {
+      if (localStorage.getItem("translationsMode") != null) {
+        // return the translated text with the right mode
+        if (trans[text] != null) {
+            if (trans[text][localStorage.getItem("translationsMode")] != null)
+              return trans[text][localStorage.getItem("translationsMode")]
+        }
+      }
+    } 
+    // base case to just return the text if no modes/translations are found
+    return text
+  }
+
   return (
     <div>
 
@@ -156,11 +176,11 @@ const Food = () => {
           <div className='Type'>
             {/* <div className='flex justify-between flex-wrap'> */}
             <div className='scrolling-wrapper-filter' >
-              <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={all} alt="" />All</button>
-              <button onClick={() => filterType('burger')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={burger} alt="" />Burgers</button>
-              <button onClick={() => filterType('pizza')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={pizza} alt="" />Pizza</button>
-              <button onClick={() => filterType('salad')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={salad} alt="" />Salads</button>
-              <button onClick={() => filterType('chicken')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={chicken} alt="" />Chicken</button>
+              <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={all} alt="" />{t("All")}</button>
+              <button onClick={() => filterType('burger')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={burger} alt="" />{t("Burgers")}</button>
+              <button onClick={() => filterType('pizza')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={pizza} alt="" />{t("Pizza")}</button>
+              <button onClick={() => filterType('salad')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={salad} alt="" />{t("Salads")}</button>
+              <button onClick={() => filterType('chicken')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={chicken} alt="" />{t("Chicken")}</button>
             </div>
           </div>
 
@@ -193,7 +213,7 @@ const Food = () => {
                 </div>
                 <div className='flex justify-between px-2 py-4 grid grid-cols-4'>
                   <div className="col-span-3">
-                    <p>{item.name} <span>${item.subtotal}</span></p>
+                    <p>{t(item.name)} <span>${item.subtotal}</span></p>
                   </div>
                   <div className="col-span-1">
                     <div className="container"

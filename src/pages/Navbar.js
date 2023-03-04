@@ -74,6 +74,7 @@ const Navbar = () => {
     // Update the products state with the array of products
     setProducts(productArray);
   }, []);
+  
 
   const [totalQuant, setTotalQuant] = useState(0);
   useEffect(() => {
@@ -359,6 +360,44 @@ const Navbar = () => {
     localStorage.setItem('products', JSON.stringify(products));
     window.location.href = '/Checkout'
   };
+
+
+          // for translations sake
+          const trans = JSON.parse(localStorage.getItem("translations"))
+          const t = (text) => {
+            // const trans = localStorage.getItem("translations")
+            console.log(trans)
+            console.log(localStorage.getItem("translationsMode"))
+        
+            if (trans != null) {
+              if (localStorage.getItem("translationsMode") != null) {
+              // return the translated text with the right mode
+                if (trans[text] != null) {
+                  if (trans[text][localStorage.getItem("translationsMode")] != null)
+                    return trans[text][localStorage.getItem("translationsMode")]
+                }
+              }
+            } 
+            // base case to just return the text if no modes/translations are found
+            return text
+          }
+
+          const changeLanguage = (e) => {
+            var languageCode = e.target.value
+            localStorage.setItem("translationsMode", languageCode)
+            saveId(Math.random()) 
+            // if (languageCode == "ch")
+            // console.log(languageCode)
+          }
+
+          const languageOption = () => {
+            console.log(localStorage.getItem("translationsMode"))
+            if (localStorage.getItem("translationsMode") == null)
+              return 'en'
+            else
+              return localStorage.getItem("translationsMode")
+          }
+
   return (
 
     <>
@@ -379,7 +418,7 @@ const Navbar = () => {
                 style={{ width: "80%", border: "0px", margin: "auto" }}
                 class="w-80 mx-auto border-0 rounded-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
                 onClick={HandleCheckout_local_stripe}>
-                <span class="text-left"> <FontAwesomeIcon icon={faCreditCard} /> Checkout </span>
+                <span class="text-left"> <FontAwesomeIcon icon={faCreditCard} /> {t("Checkout")} </span>
                 <span class="text-right"> ${totalPrice}</span>
               </button>
 
@@ -403,7 +442,7 @@ const Navbar = () => {
                 </div>
               </div>
               <div className="description">
-                <span style={{ whiteSpace: 'nowrap' }}>{product.name}</span>
+                <span style={{ whiteSpace: 'nowrap' }}>{t(product.name)}</span>
                 <span>${product.quantity * product.subtotal}</span>
               </div>
 
@@ -473,7 +512,7 @@ const Navbar = () => {
                 style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
                 <i className="material-icons nav__icon">home</i>
 
-                <span className="nav__text">Home</span>
+                <span className="nav__text">{t("Home")}</span>
               </a>
               <div>
 
@@ -494,7 +533,7 @@ const Navbar = () => {
                     className="cart" data-totalitems={totalQuant} ref={btnRef} >
                     <i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
                       className="material-icons nav__icon">shopping_cart_checkout</i>
-                    Cart
+                    {t("Cart")}
                   </div>
                 </a>
 
@@ -504,7 +543,7 @@ const Navbar = () => {
               <div>
                 <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
                   <i className="material-icons nav__icon">person</i>
-                  <span className="nav__text">{user ? "Account" : "Login"}</span>
+                  <span className="nav__text">{user ? t("Account") : t("Login")}</span>
                 </a>
               </div>
             </div> :
@@ -514,10 +553,10 @@ const Navbar = () => {
             </div>
           }
           <div className="col-span-2">
-            <select class="selectpicker" data-width="fit">
+            <select class="selectpicker" data-width="fit" onChange={changeLanguage}>
               {/**如果选择中文，框显示成lang，如果是eng,框显示语言 */}
-              <option data-content='<span class="flag-icon flag-icon-us"></span> English'>English</option>
-              {/*<option data-content='<span class="flag-icon flag-icon-mx"></span> Chinese'>中文</option>*/}
+              <option value='en' data-content='<span class="flag-icon flag-icon-us"></span> English' selected={languageOption() == 'en' ? true : false}>English</option>
+              <option value='ch' data-content='<span class="flag-icon flag-icon-mx"></span> Chinese' selected={languageOption() == 'ch' ? true : false}>中文</option>
             </select>
           </div>
         </div>
@@ -529,7 +568,7 @@ const Navbar = () => {
         <nav className="nav___">
           <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
             <i className="material-icons nav__icon">home</i>
-            <span className="nav__text">Home</span>
+            <span className="nav__text">{t("Home")}</span>
           </a>
           <a
             onMouseEnter={handleMouseEnter}
@@ -548,12 +587,12 @@ const Navbar = () => {
               className="cart" data-totalitems={totalQuant} ref={btnRef} >
               <i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
                 className="material-icons nav__icon">shopping_cart_checkout</i>
-              Cart
+              {t("Cart")}
             </div>
           </a>
           <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
             <i className="material-icons nav__icon">person</i>
-            <span className="nav__text">{user ? "Account" : "Login"}</span>
+            <span className="nav__text">{user ? t("Account") : t("Login")}</span>
           </a>
         </nav> : <></>}
     </>

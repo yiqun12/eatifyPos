@@ -15,10 +15,17 @@ import { useRef } from "react";
 import { useUserContext } from "../context/userContext";
 import Navbar from './Navbar'
 import { useState, useEffect } from 'react';
+import { useMyHook } from './myHook';
 
 const theme = createTheme();
 
 export default function SignIn() {
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
+
   const [isTrue, setIsTrue] = React.useState(false);
   const [errorVisibility, setErrorVisibility] = useState("none");
   const [error, setError] = useState("");
@@ -65,6 +72,27 @@ export default function SignIn() {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+        // for translations sake
+        const trans = JSON.parse(localStorage.getItem("translations"))
+        const t = (text) => {
+          // const trans = localStorage.getItem("translations")
+          console.log(trans)
+          console.log(localStorage.getItem("translationsMode"))
+      
+          if (trans != null) {
+            if (localStorage.getItem("translationsMode") != null) {
+            // return the translated text with the right mode
+              if (trans[text] != null) {
+                if (trans[text][localStorage.getItem("translationsMode")] != null)
+                  return trans[text][localStorage.getItem("translationsMode")]
+              }
+            }
+          } 
+          // base case to just return the text if no modes/translations are found
+          return text
+        }
+
   return (
     <div
       style={{
@@ -101,7 +129,7 @@ export default function SignIn() {
                             <LockOutlinedIcon />
                           </Avatar>
                           <Typography component="h1" variant="h5">
-                            Sign in
+                            {t("Sign in")}
                           </Typography>
                           <div className='error message' style={{ display: errorVisibility, color: 'red' }}>{error}</div>
                           {user_not_verified ? <div style={{ color: 'red' }}>{user_not_verified}</div> : <></>}
@@ -112,7 +140,7 @@ export default function SignIn() {
                                 required
                                 fullWidth
                                 id="email"
-                                label="Email Address"
+                                label={t("Email Address")}
                                 name="email"
                                 autoComplete="email"
                                 autoFocus
@@ -123,7 +151,7 @@ export default function SignIn() {
                                 required
                                 fullWidth
                                 name="password"
-                                label="Password"
+                                label={t("Password")}
                                 type="password"
                                 id="password"
                                 autoComplete="current-password"
@@ -137,7 +165,7 @@ export default function SignIn() {
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2 }}
                               >
-                                Sign In
+                                {t("SIGN IN")}
                               </Button>
 
 
@@ -145,21 +173,21 @@ export default function SignIn() {
                                 fullWidth
                                 variant="contained"
                                 sx={{ mb: 2 }} role="button" >
-                                Google Sign in</Button>
+                                {t("Google Sign in")}</Button>
                               <Button
                                 fullWidth
                                 variant="contained"
                                 sx={{ mb: 2 }} role="button" onClick={signInWithGuest} >
-                                One Time Sign in</Button>
+                                {t("One Time Sign in")}</Button>
                                 <Grid container>
                               <Grid item xs>
                                 <Link style={{cursor: 'pointer' }} onClick={forgotPasswordHandler} variant="body2">
-                                  Forgot password?
+                                  {t("Forgot password")}?
                                 </Link>
                               </Grid>
                               <Grid item>
                                 <Link href='/signup' variant="body2">
-                                  {"Don't have an account? Sign Up"}
+                                  {t("Don't have an account? Sign Up")}
                                 </Link>
                               </Grid>
                             </Grid>

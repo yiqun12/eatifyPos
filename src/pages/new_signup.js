@@ -16,11 +16,18 @@ import { useUserContext } from "../context/userContext";
 import React, { useRef } from "react";
 import Navbar from './Navbar'
 import { useState, useEffect } from 'react';
+import { useMyHook } from './myHook';
 
 
 const theme = createTheme();
 
 export default function SignUp() {
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
+
   //const { user } = useUserContext();
   const user = JSON.parse(localStorage.getItem('user'));
   const [errorVisibility, setErrorVisibility] = useState("none");
@@ -54,6 +61,27 @@ export default function SignUp() {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+      // for translations sake
+      const trans = JSON.parse(localStorage.getItem("translations"))
+      const t = (text) => {
+        // const trans = localStorage.getItem("translations")
+        console.log(trans)
+        console.log(localStorage.getItem("translationsMode"))
+    
+        if (trans != null) {
+          if (localStorage.getItem("translationsMode") != null) {
+          // return the translated text with the right mode
+            if (trans[text] != null) {
+              if (trans[text][localStorage.getItem("translationsMode")] != null)
+                return trans[text][localStorage.getItem("translationsMode")]
+            }
+          }
+        } 
+        // base case to just return the text if no modes/translations are found
+        return text
+      }
+
   return (
     <div
       style={{
@@ -88,9 +116,9 @@ export default function SignUp() {
                             <LockOutlinedIcon />
                           </Avatar>
                           <Typography component="h1" variant="h5">
-                            Sign up
+                            {t('Sign up')}
                           </Typography>
-                          <div className='error message' style={{ display: errorVisibility, color: 'red' }}>Please verify your email.</div>
+                          <div className='error message' style={{ display: errorVisibility, color: 'red' }}>{t("Please verify your email")}.</div>
 
                           <Box component="form" noValidate onSubmit={onSubmit} sx={{ mt: 3 }}>
                             <Grid container spacing={2}>
@@ -100,7 +128,7 @@ export default function SignUp() {
                                   required
                                   fullWidth
                                   id="NickName"
-                                  label="Nick name"
+                                  label={t("Nick name")}
                                   name="NickName"
                                   autoComplete="NickName"
                                   autoFocus
@@ -111,7 +139,7 @@ export default function SignUp() {
                                   required
                                   fullWidth
                                   id="email"
-                                  label="Email Address"
+                                  label={t("Email Address")}
                                   name="email"
                                   autoComplete="email"
                                 />
@@ -122,7 +150,7 @@ export default function SignUp() {
                                   required
                                   fullWidth
                                   name="password"
-                                  label="Password"
+                                  label={t("Password")}
                                   type="password"
                                   id="password"
                                   autoComplete="new-password"
@@ -133,7 +161,7 @@ export default function SignUp() {
                               </Grid>
                             </Grid>
                             <Typography variant="body2">
-                              {"We would send you a link to verify your email."}
+                              {t("We would send you a link to verify your email") + "."}
                             </Typography>
                             <Button
                               type="submit"
@@ -141,12 +169,12 @@ export default function SignUp() {
                               variant="contained"
                               sx={{ mt: 3, mb: 2 }}
                             >
-                              Sign Up
+                              {t("SIGN UP")}
                             </Button>
                             <Grid container justifyContent="flex-end">
                               <Grid item>
                                 <Link href="/login" variant="body2">
-                                  Already have an account? Sign in
+                                  {t("Already have an account? Sign in")}
                                 </Link>
                               </Grid>
                             </Grid>

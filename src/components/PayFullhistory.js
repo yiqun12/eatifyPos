@@ -8,10 +8,17 @@ import {loadStripe} from '@stripe/stripe-js';
 import DOMPurify from 'dompurify';
 import moment from 'moment';
 import { useState ,useEffect} from 'react';
+import { useMyHook } from '../pages/myHook';
 
 
 
 function PayFullhistory() {
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
+
 // Format amount for diplay in the UI
 function formatAmount(amount, currency) {
     amount = zeroDecimalCurrency(amount, currency)
@@ -93,7 +100,7 @@ async function handleCardAction(payment, docId) {
           payment.status === 'requires_confirmation'
         ) {
           
-          content = `${count} (Pending)🚨 Creating Payment for ${formatAmount(
+          content = `${count} (${t("Pending")})🚨 ${t("Creating Payment for")} ${formatAmount(
             payment.amount*100,
             payment.currency
           )}`;
@@ -109,7 +116,7 @@ async function handleCardAction(payment, docId) {
               });
               var formattedString = "";
               for(var i=0;i<newItems.length;i++){
-                  formattedString += `${newItems[i].quantity} x ${newItems[i].name}($${newItems[i].subtotal}) = $${newItems[i].item_Total}<br>`;
+                  formattedString += `${newItems[i].quantity} x ${t(newItems[i].name)}($${newItems[i].subtotal}) = $${newItems[i].item_Total}<br>`;
               }
               console.log(doc.id)
               //console.log(payment.receiptData)
@@ -120,22 +127,22 @@ async function handleCardAction(payment, docId) {
         ${count}  ✅${formatAmount(payment.amount, payment.currency)} ${card.brand} •••• ${card.last4}. <i class="fas fa-arrow-circle-down"></i>
         </summary>
         <div style="border: 1px solid; padding: 10px; background-color: white;">
-        <p style="padding: 0; margin: 0;">Card Owner: ${payment.charges.data[0].billing_details.name} </p>
+        <p style="padding: 0; margin: 0;">${t("Card Owner")}: ${payment.charges.data[0].billing_details.name} </p>
         <p style="padding: 0; margin: 0px 0px 0px 5px;">${formattedString}</p>
         <p style="padding: 0; margin: 0;">${formattedDate}</p>
         </div>
       </details>`;//${payment.dateTime} ${payment.receiptData} ${payment.charges.data[0].billing_details.name} 
         } else if (payment.status === 'requires_action') {
-          content = `${count} 🚨 Payment for ${formatAmount(
+          content = `${count} 🚨 ${t("Payment for")} ${formatAmount(
             payment.amount,
             payment.currency
-          )} ${payment.status} requires action`;
+          )} ${payment.status} ${t("requires action")}`;
           handleCardAction(payment, doc.id);
         } else if(payment.error) {
           content = `<div style="display: inline-block;">
           <details>
             <summary>
-            ${count} ⚠️ Failed Payment. <i class="fas fa-arrow-circle-down"></i>
+            ${count} ⚠️ ${t("Failed Payment")}. <i class="fas fa-arrow-circle-down"></i>
             </summary>
             <div style="border: 1px solid; padding: 10px; background-color: white;">
             <p>${payment.error} </p>
@@ -143,7 +150,7 @@ async function handleCardAction(payment, docId) {
           </details>
       </div>`;
         }else {
-          content = `${count} ⚠️ Payment for ${formatAmount(
+          content = `${count} ⚠️ ` + t("Payment for") + ` ${formatAmount(
             payment.amount,
             payment.currency
           )} ${payment.status}`;
@@ -156,7 +163,24 @@ async function handleCardAction(payment, docId) {
     });
   }, []); // empty dependency array to run once on mount
 
+  const trans = JSON.parse(localStorage.getItem("translations"))
+  const t = (text) => {
+    // const trans = localStorage.getItem("translations")
+    console.log(trans)
+    console.log(localStorage.getItem("translationsMode"))
 
+    if (trans != null) {
+      if (localStorage.getItem("translationsMode") != null) {
+        // return the translated text with the right mode
+        if (trans[text] != null) {
+            if (trans[text][localStorage.getItem("translationsMode")] != null)
+              return trans[text][localStorage.getItem("translationsMode")]
+        }
+      }
+    } 
+    // base case to just return the text if no modes/translations are found
+    return text
+  }
   //console.log(elements.getElement(CardElement))
   return (
     <div>

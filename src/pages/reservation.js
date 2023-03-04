@@ -2,8 +2,15 @@ import React, { useEffect, useState } from 'react';
 import './reservation.css';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import { useMyHook } from './myHook';
 
 const ReservationForm = () => {
+    /**listen to localtsorage */
+    const { id, saveId } = useMyHook(null);
+    useEffect(() => {
+      //console.log('Component B - ID changed:', id);
+    }, [id]);
+
     const [width, setWidth] = useState(window.innerWidth);
     const input_style = {
       'border-radius': '7px',
@@ -48,6 +55,26 @@ const ReservationForm = () => {
 
       }, []);
       console.log(isMobile )
+
+    // for translations sake
+    const trans = JSON.parse(localStorage.getItem("translations"))
+    const t = (text) => {
+      // const trans = localStorage.getItem("translations")
+      console.log(trans)
+      console.log(localStorage.getItem("translationsMode"))
+  
+      if (trans != null) {
+        if (localStorage.getItem("translationsMode") != null) {
+        // return the translated text with the right mode
+          if (trans[text] != null) {
+            if (trans[text][localStorage.getItem("translationsMode")] != null)
+              return trans[text][localStorage.getItem("translationsMode")]
+          }
+        }
+      } 
+      // base case to just return the text if no modes/translations are found
+      return text
+    }
       
   return (
 
@@ -65,42 +92,42 @@ const ReservationForm = () => {
       <div className="elem-group">
         <label
         style={label_style}
-        htmlFor="name">Your Name</label>
+        htmlFor="name">{t("Your Name")}</label>
         <input
         style={input_style}
           type="text"
           id="name"
           name="visitor_name"
-          placeholder="Enter your name"
+          placeholder={t("Enter your name")}
           pattern="[A-Z\sa-z]{3,20}"
           required
         />
       </div>
       <div className="elem-group">
-        <label style={label_style} htmlFor="email">Your E-mail</label>
+        <label style={label_style} htmlFor="email">{t("Your E-mail")}</label>
         <input
         style={input_style}
           type="email"
           id="email"
           name="visitor_email"
-          placeholder="Enter your email"
+          placeholder={t("Enter your email")}
           required
         />
       </div>
       <div className="elem-group">
-        <label style={label_style} htmlFor="phone">Your Phone</label>
+        <label style={label_style} htmlFor="phone">{t("Your Phone")}</label>
         <input
         style={input_style}
           type="tel"
           id="phone"
           name="visitor_phone"
-          placeholder="Enter your phone"
+          placeholder={t("Enter your phone")}
           pattern="(\d{3})-?\s?(\d{3})-?\s?(\d{4})"
           required
         />
       </div>
       <div className="elem-group inlined">
-        <label style={label_style} htmlFor="adult">Adults</label>
+        <label style={label_style} htmlFor="adult">{t("Adults")}</label>
         <input
         style={input_style}
           type="number"
@@ -112,7 +139,7 @@ const ReservationForm = () => {
         />
       </div>
       <div className="elem-group inlined">
-        <label style={label_style} htmlFor="child">Children</label>
+        <label style={label_style} htmlFor="child">{t("Children")}</label>
         <input
         style={input_style}
           type="number"
@@ -124,7 +151,7 @@ const ReservationForm = () => {
         />
       </div>
       <div style = {{width:"100%"}}className="elem-group inlined">
-        <label style={label_style} htmlFor="checkin-date">Check-in Date</label>
+        <label style={label_style} htmlFor="checkin-date">{t("Check-in Date")}</label>
         <input
         style={input_style}
           placeholder = "mm/dd/yyyy"
@@ -135,26 +162,26 @@ const ReservationForm = () => {
         />
       </div>
       <div className="elem-group">
-        <label style={label_style} htmlFor="room-selection">Select Room Preference</label>
+        <label style={label_style} htmlFor="room-selection">{t("Select Room Preference")}</label>
         <select
         style={input_style}
           id="room-selection"
           name="room_preference"
           required
         >
-          <option value="">Choose a Room</option>
-          <option value="connecting">Room1</option>
-          <option value="adjoining">Room2</option>
-          <option value="adjacent">Room3</option>
+          <option value="">{t("Choose a Room")}</option>
+          <option value="connecting">{t("Room")}1</option>
+          <option value="adjoining">{t("Room")}2</option>
+          <option value="adjacent">{t("Room")}3</option>
         </select>
       </div>
       <div className="elem-group">
-      <label style={label_style} htmlFor="message">Anything Else?</label>
+      <label style={label_style} htmlFor="message">{t("Anything Else")}?</label>
         <textarea
           style={{ ...input_style,'height': '250px'}}
           id="message"
           name="visitor_message"
-          placeholder="Tell us anything else that might be important."
+          placeholder={t("Tell us anything else that might be important") + '.'}
           required
         />
       </div>
@@ -162,7 +189,7 @@ const ReservationForm = () => {
                   style={{ width: "100%", textAlign: "center" }}
                 class="w-80 mx-auto border-0 rounded-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-center"
                 >
-                 Book The Rooms 
+                 {t("Book The Rooms")} 
               </button>
     </form>
 

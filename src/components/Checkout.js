@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 function Checkout(props) {
+
   // Format amount for diplay in the UI
 
   const user = JSON.parse(localStorage.getItem('user'));
@@ -100,7 +101,25 @@ const handleMouseLeave = () => {
         });
       });
 
-
+      // for translation
+      const trans = JSON.parse(localStorage.getItem("translations"))
+      const t = (text) => {
+        // const trans = localStorage.getItem("translations")
+        console.log(trans)
+        console.log(localStorage.getItem("translationsMode"))
+    
+        if (trans != null) {
+          if (localStorage.getItem("translationsMode") != null) {
+            // return the translated text with the right mode
+            if (trans[text] != null) {
+                if (trans[text][localStorage.getItem("translationsMode")] != null)
+                  return trans[text][localStorage.getItem("translationsMode")]
+            }
+          }
+        } 
+        // base case to just return the text if no modes/translations are found
+        return text
+      }
 
     document
       .querySelector('#payment-form')
@@ -135,7 +154,7 @@ const handleMouseLeave = () => {
             .forEach((button) => (button.disabled = false));
                     // set the prompt message
                     const promptMessage = document.querySelector('#delete-message');
-                    promptMessage.textContent = "successfully deleted!";
+                    promptMessage.textContent = t("successfully deleted") + "!";
 
                     // hide the error message after 2 seconds
                     setTimeout(() => {
@@ -219,6 +238,26 @@ const handleMouseLeave = () => {
   }
   //console.log(selectedOption)
 
+        // for translation
+        const trans = JSON.parse(localStorage.getItem("translations"))
+        const t = (text) => {
+          // const trans = localStorage.getItem("translations")
+          console.log(trans)
+          console.log(localStorage.getItem("translationsMode"))
+      
+          if (trans != null) {
+            if (localStorage.getItem("translationsMode") != null) {
+              // return the translated text with the right mode
+              if (trans[text] != null) {
+                  if (trans[text][localStorage.getItem("translationsMode")] != null)
+                    return trans[text][localStorage.getItem("translationsMode")]
+              }
+            }
+          } 
+          // base case to just return the text if no modes/translations are found
+          return text
+        }
+
   return (
     <div>
     <div id="card2-header">
@@ -239,7 +278,7 @@ const handleMouseLeave = () => {
 
               <div className="col-7">
                 <select style={{ 'background-color': "#f5f7f9", color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
-                  <option hidden data-type="mastercard">Select Account</option>
+                  <option hidden data-type="mastercard">{t("Select Account")}</option>
                 </select>
               </div>
               <div className="col-3 d-flex justify-content-center">
@@ -255,7 +294,7 @@ const handleMouseLeave = () => {
           </label>
         </div>
         <div id="delete-message" role="alert"></div>
-        <button type="submit" name="pay" style={{ width: "100%" }} class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Pay ${totalPrice}</button>
+        <button type="submit" name="pay" style={{ width: "100%" }} class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">{t("Pay")} ${totalPrice}</button>
       </form>
     </div>
     </div>

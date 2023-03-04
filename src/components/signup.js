@@ -1,7 +1,14 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { useUserContext } from "../context/userContext";
+import { useMyHook } from '../pages/myHook';
 
 const Signup = () => {
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
+
   const emailRef = useRef();
   const nameRef = useRef();
   const psdRef = useRef();
@@ -15,14 +22,34 @@ const Signup = () => {
     if (email && password && name) registerUser(email, password, name);
   };
 
+  // for translate
+  const trans = JSON.parse(localStorage.getItem("translations"))
+  const t = (text) => {
+    // const trans = localStorage.getItem("translations")
+    console.log(trans)
+    console.log(localStorage.getItem("translationsMode"))
+
+    if (trans != null) {
+      if (localStorage.getItem("translationsMode") != null) {
+        // return the translated text with the right mode
+        if (trans[text] != null) {
+            if (trans[text][localStorage.getItem("translationsMode")] != null)
+              return trans[text][localStorage.getItem("translationsMode")]
+        }
+      }
+    } 
+    // base case to just return the text if no modes/translations are found
+    return text
+  }
+
   return (
     <div className="form">
-      <h2> New User</h2>
+      <h2>{t("New User")}</h2>
       <form onSubmit={onSubmit}>
         <input placeholder="Email" type="email" ref={emailRef} />
         <input placeholder="Name" type="name" ref={nameRef} />
         <input placeholder="Password" type="password" ref={psdRef} />
-        <button type="submit">Register</button>
+        <button type="submit">{t("Register")}</button>
       </form>
     </div>
   );
