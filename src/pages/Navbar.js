@@ -515,9 +515,8 @@ const Navbar = () => {
             <div className="col-span-4 grid grid-cols-3 ">
               <a
                 style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
-                <i className="material-icons nav__icon">home</i>
-
-                <span className="nav__text">{t("Home")}</span>
+                <a className="email-link"><i className="material-icons nav__icon">home</i></a>
+                <a className="email-link">{t("Home")}</a>
               </a>
               <div>
 
@@ -536,9 +535,9 @@ const Navbar = () => {
                   <div id="cart"
                     style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
                     className="cart" data-totalitems={totalQuant} ref={btnRef} >
-                    <i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
-                      className="material-icons nav__icon">shopping_cart_checkout</i>
-                    {t("Cart")}
+                    <a className="email-link"><i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
+                      className="material-icons nav__icon">shopping_cart_checkout</i></a>
+                    <a className="email-link">{t("Cart")}</a>
                   </div>
                 </a>
 
@@ -547,8 +546,8 @@ const Navbar = () => {
 
               <div>
                 <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
-                  <i className="material-icons nav__icon">person</i>
-                  <span className="nav__text">{user ? t("Account") : t("Login")}</span>
+                <a className="email-link"><i className="material-icons nav__icon">person</i></a>
+                  <a className="email-link">{user ? t("Account") : t("Login")}</a>
                 </a>
               </div>
             </div> :
@@ -572,8 +571,9 @@ const Navbar = () => {
       {isMobile ?
         <nav className="nav___">
           <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
-            <i className="material-icons nav__icon">home</i>
-            <span className="nav__text">{t("Home")}</span>
+          <a className="email-link"><i className="material-icons nav__icon">home</i></a>
+            <a className="email-link">{t("Home")}</a>
+            
           </a>
           <a
             onMouseEnter={handleMouseEnter}
@@ -590,14 +590,14 @@ const Navbar = () => {
             <div id="cart"
               style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
               className="cart" data-totalitems={totalQuant} ref={btnRef} >
-              <i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
-                className="material-icons nav__icon">shopping_cart_checkout</i>
-              {t("Cart")}
+              <a className="email-link"><i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
+                className="material-icons nav__icon">shopping_cart_checkout</i></a>
+              <a className="email-link">{t("Cart")}</a>
             </div>
           </a>
           <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
-            <i className="material-icons nav__icon">person</i>
-            <span className="nav__text">{user ? t("Account") : t("Login")}</span>
+          <a className="email-link"><i className="material-icons nav__icon">person</i></a>
+            <a className="email-link">{user ? t("Account") : t("Login")}</a>
           </a>
         </nav> : <></>}
     </>

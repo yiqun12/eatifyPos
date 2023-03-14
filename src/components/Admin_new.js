@@ -68,11 +68,9 @@ function App() {
     const handleClickTitle = (e) => {
         e.preventDefault();
         console.log(e.target.title.value);
-        if (pageTitle === "Title1")
-            setPageTitle("Title2")
-        else
-            setPageTitle("Title1")
-        updateTitle();
+
+        document.title = e.target.title.value;// update title
+
     }
 
     const updateFavicon = () => {
@@ -83,10 +81,6 @@ function App() {
         document.getElementsByTagName('head')[0].appendChild(link);
     }
 
-    const updateTitle = () => {
-        // setPageTitle("My New Title");
-        document.title = pageTitle;
-    }
     /**change app namne and logo */
 
 
@@ -254,7 +248,7 @@ function App() {
 
     const [revenueData, setRevenueData] = useState([
         { date: '3/14/2023', revenue: 30 }
-      ]);
+    ]);
 
 
 
@@ -264,75 +258,75 @@ function App() {
     const fetchPost = async () => {
         console.log("fetchPost");
         await getDocs(collection(db, "success_payment")).then((querySnapshot) => {
-          const newData = querySnapshot.docs.map((doc) => ({
-            ...doc.data(),
-            id: doc.id,
-          }));
-          newData.sort((a, b) =>
-            moment(b.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf() -
-            moment(a.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf()
-          );
-      
-          const newItems = []; // Declare an empty array to hold the new items
-      
-          newData.forEach((item) => {
-            const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
-              .subtract(7, "hours")
-              .format("M/D/YYYY h:mma");
-            const newItem = {
-              id: item.id.substring(0, 4), // use only the first 4 characters of item.id as the value for the id property
-              receiptData: item.receiptData,
-              date: formattedDate,
-              email: item.user_email,
-              dineMode: item.isDinein,
-              status:"pending",
-              total: parseInt(item.amount_received)/100,
-              name: item.charges.data[0].billing_details.name,
-            };
-            newItems.push(newItem); // Push the new item into the array
-          });
-          setOrders(newItems)
-          console.log(newItems); // Log the array to the console or do whatever you want with it
+            const newData = querySnapshot.docs.map((doc) => ({
+                ...doc.data(),
+                id: doc.id,
+            }));
+            newData.sort((a, b) =>
+                moment(b.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf() -
+                moment(a.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf()
+            );
+
+            const newItems = []; // Declare an empty array to hold the new items
+
+            newData.forEach((item) => {
+                const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
+                    .subtract(7, "hours")
+                    .format("M/D/YYYY h:mma");
+                const newItem = {
+                    id: item.id.substring(0, 4), // use only the first 4 characters of item.id as the value for the id property
+                    receiptData: item.receiptData,
+                    date: formattedDate,
+                    email: item.user_email,
+                    dineMode: item.isDinein,
+                    status: "pending",
+                    total: parseInt(item.amount_received) / 100,
+                    name: item.charges.data[0].billing_details.name,
+                };
+                newItems.push(newItem); // Push the new item into the array
+            });
+            setOrders(newItems)
+            console.log(newItems); // Log the array to the console or do whatever you want with it
 
 
-          // Create an object to store daily revenue totals
-const dailyRevenue = {};
+            // Create an object to store daily revenue totals
+            const dailyRevenue = {};
 
-// Loop through each receipt and sum up the total revenue for each date
-newItems.forEach(receipt => {
-  // Extract the date from the receipt
-  const date = receipt.date.split(' ')[0];
-  //console.log(receipt)
-  // Extract the revenue from the receipt (for example, by parsing the receiptData string)
-  const revenue = receipt.total; // replace with actual revenue calculation
-  // Add the revenue to the dailyRevenue object for the appropriate date
-  if (dailyRevenue[date]) {
-    dailyRevenue[date] += revenue;
-  } else {
-    dailyRevenue[date] = revenue;
-  }
-});
-console.log("hello")
-// Convert the dailyRevenue object into an array of objects with date and revenue properties
-const dailyRevenueArray = Object.keys(dailyRevenue).map(date => {
-  return {
-    date: date,
-    revenue: dailyRevenue[date]
-  };
-});
+            // Loop through each receipt and sum up the total revenue for each date
+            newItems.forEach(receipt => {
+                // Extract the date from the receipt
+                const date = receipt.date.split(' ')[0];
+                //console.log(receipt)
+                // Extract the revenue from the receipt (for example, by parsing the receiptData string)
+                const revenue = receipt.total; // replace with actual revenue calculation
+                // Add the revenue to the dailyRevenue object for the appropriate date
+                if (dailyRevenue[date]) {
+                    dailyRevenue[date] += revenue;
+                } else {
+                    dailyRevenue[date] = revenue;
+                }
+            });
+            console.log("hello")
+            // Convert the dailyRevenue object into an array of objects with date and revenue properties
+            const dailyRevenueArray = Object.keys(dailyRevenue).map(date => {
+                return {
+                    date: date,
+                    revenue: dailyRevenue[date]
+                };
+            });
 
-// Example output: [{date: '3/14/2023', revenue: 10}, {date: '3/13/2023', revenue: 10}, {date: '3/4/2023', revenue: 10}]
-console.log(dailyRevenueArray);
-console.log(revenueData);
-setRevenueData(dailyRevenueArray)
+            // Example output: [{date: '3/14/2023', revenue: 10}, {date: '3/13/2023', revenue: 10}, {date: '3/4/2023', revenue: 10}]
+            console.log(dailyRevenueArray);
+            console.log(revenueData);
+            setRevenueData(dailyRevenueArray)
 
         });
-      };
-    
-      
-      
-      
-    
+    };
+
+
+
+
+
     useEffect(() => {
         fetchPost();
     }, [])
@@ -342,19 +336,19 @@ setRevenueData(dailyRevenueArray)
     const [expandedOrderIds, setExpandedOrderIds] = useState([]);
 
     const toggleExpandedOrderId = (orderId) => {
-      if (expandedOrderIds.includes(orderId)) {
-        setExpandedOrderIds(expandedOrderIds.filter(id => id !== orderId));
-      } else {
-        setExpandedOrderIds([...expandedOrderIds, orderId]);
-      }
+        if (expandedOrderIds.includes(orderId)) {
+            setExpandedOrderIds(expandedOrderIds.filter(id => id !== orderId));
+        } else {
+            setExpandedOrderIds([...expandedOrderIds, orderId]);
+        }
     };
-//REVENUE CHART 31 DAYS FROM NOW
+    //REVENUE CHART 31 DAYS FROM NOW
     const today = new Date();
     const oneWeekAgo = new Date(today.getTime() - 31 * 24 * 60 * 60 * 1000); // 7 days ago
-    
+
     const filteredData = revenueData.filter((dataPoint) => {
-      const dataPointDate = new Date(dataPoint.date);
-      return dataPointDate >= oneWeekAgo && dataPointDate <= today;
+        const dataPointDate = new Date(dataPoint.date);
+        return dataPointDate >= oneWeekAgo && dataPointDate <= today;
     });
     const sortedData = filteredData.sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -401,245 +395,237 @@ setRevenueData(dailyRevenueArray)
                     </section>
                 </nav>
                 <main>
-                {selectedItem === 'Item' ? <>
+                    {selectedItem === 'Item' ? <>
 
-                <header className="main-header">
+                        <header className="main-header">
 
-<div className="search-wrap">
-    <form style={{ display: 'flex', justifyContent: 'center', margin: '10px' }} onSubmit={handleSubmit}>
-        <div className="grid grid-cols-2" style={{ width: '100%' }}>
-            <input
-                type="text"
-                name="inputData"
-                placeholder={t("Input Json Data")}
-                className="search-bar"
-                style={{ marginLeft: "5%", height: '50px', width: "150%" }}
-                onChange={(e) => setInputData(e.target.value)}
-                value={inputData}
-            />
-            <Button
-                fullWidth
-                type="submit"
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                style={{ margin: "0", marginLeft: "60%", height: '50px', width: "30%", float: 'right' }}
-            >
-                {t("Submit")}
-            </Button>
-        </div>
-    </form>
+                            <div className="search-wrap">
+                                <form style={{ display: 'flex', justifyContent: 'center', margin: '10px' }} onSubmit={handleSubmit}>
+                                    <div className="grid grid-cols-2" style={{ width: '100%' }}>
+                                        <input
+                                            type="text"
+                                            name="inputData"
+                                            placeholder={t("Input Json Data")}
+                                            className="search-bar"
+                                            style={{ marginLeft: "5%", height: '50px', width: "150%" }}
+                                            onChange={(e) => setInputData(e.target.value)}
+                                            value={inputData}
+                                        />
+                                        <Button
+                                            fullWidth
+                                            type="submit"
+                                            variant="contained"
+                                            sx={{ mt: 3, mb: 2 }}
+                                            style={{ margin: "0", marginLeft: "60%", height: '50px', width: "30%", float: 'right' }}
+                                        >
+                                            {t("Submit")}
+                                        </Button>
+                                    </div>
+                                </form>
 
-</div>
-<div className="main-header__wrap-right">
-    <a className="email-link material-icons">email</a>
-    <a className="notification-bell material-icons">notifications</a>
-    <div className="current-date">
-        <span className="current-date__time">17:30</span>
-        <div className="current-date__day">18 August</div>
-    </div>
-</div>
-
-</header>
-
-<ThemeProvider theme={theme} >
-
-<Container component="main" maxWidth="xs">
-
-    <CssBaseline />
-    <Box
-        sx={{
-            marginTop: 0,
-
-            marginLeft: 2,
-
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-        }}
-    >
-        <Box component="form" noValidate sx={{ mt: 1 }}>
-
-            <Grid container spacing={0}>
-
-                <div style={{ width: "100%" }}>
-
-                    <div class="grid grid-cols-2">
-                        <div class="col-span-1">
-                            <div style={{ width: "200px", height: "200px", padding: "5px", borderRadius: '0.625rem' }} class="image-container">
-                                <img src={updateImage} alt="" />
-                            </div>
-                        </div>
-                        <div class="col-span-1 text-right">
-                            <div className="folder-card"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    addFood_array({ name: updateName, category: updateCategory, image: updateImage, price: updatePrice, subtotal: updateSubtotal })
-                                }}
-                                style={{ float: 'right', width: '200px', height: '200px', padding: '20px', display: 'flex', flexDirection: 'column', marginRight: "0", justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-                                <div className="folder-card__icon" style={{ marginBottom: '10px' }}></div>
-                                <span className="folder-card__title">Add New Food</span>
                             </div>
 
-                        </div>
-                    </div>
-                </div>
+                        </header>
 
-                <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="Name"
-                    label={t("Name")}
-                    name="Name"
-                    autoComplete="Name"
-                    autoFocus
-                    value={updateName}
-                    onChange={(e) => {
-                        setName(e.target.value);
-                        setUpdateName(e.target.value);
-                    }}
-                />
-                <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="Category"
-                    label={t("Category")}
-                    name="Category"
-                    autoComplete="Category"
-                    autoFocus
-                    value={updateCategory}
-                    onChange={(e) => {
-                        setUpdateCategory(e.target.value);
-                        setCategory(e.target.value);
-                    }}
-                />
+                        <ThemeProvider theme={theme} >
 
-                <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="Image"
-                    label={t("Image")}
-                    name="Image"
-                    autoComplete="Image"
-                    autoFocus
-                    value={updateImage}
-                    onChange={(e) => {
-                        setUpdateImage(e.target.value);
-                        setImage(e.target.value);
-                    }}
-                />
-                <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="Price"
-                    label={t("Price")}
-                    name="Price"
-                    autoComplete="Price"
-                    autoFocus
-                    value={updatePrice}
-                    onChange={(e) => {
-                        setUpdatePrice(e.target.value);
-                        setPrice(e.target.value);
-                    }}
-                />
-                <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="Subtotal"
-                    label={t("Subtotal")}
-                    name="Subtotal"
-                    autoComplete="Subtotal"
-                    autoFocus
-                    value={updateSubtotal}
-                    onChange={(e) => {
-                        setUpdateSubtotal(e.target.value);
-                        setSubtotal(e.target.value);
-                    }}
-                />
+                            <Container component="main" maxWidth="xs">
 
-            </Grid>
-            <Grid container>
+                                <CssBaseline />
+                                <Box
+                                    sx={{
+                                        marginTop: 0,
 
-                <Button
-                    onClick={(e) => {
-                        e.preventDefault();
-                        updateFood_array(updateId, { name: updateName, category: updateCategory, image: updateImage, price: updatePrice, subtotal: updateSubtotal })
-                    }}
-                    fullWidth
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2 }}
-                >
-                    {t("Update")}
-                </Button>
+                                        marginLeft: 2,
 
-            </Grid>
-            <Grid container>
-                <Grid item xs>
-                </Grid>
-                <Grid item>
-                </Grid>
-            </Grid>
-        </Box>
-    </Box>
-</Container>
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Box component="form" noValidate sx={{ mt: 1 }}>
 
-</ThemeProvider>
+                                        <Grid container spacing={0}>
 
-<section className="task-list">
-<h2>Food Items</h2>
-<div className="task-wrap" style={{ minHeight: '650px', maxHeight: '650px', overflowY: 'scroll' }}>
-    {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
+                                            <div style={{ width: "100%" }}>
 
+                                                <div class="grid grid-cols-2">
+                                                    <div class="col-span-1">
+                                                        <div style={{ width: "200px", height: "200px", padding: "5px", borderRadius: '0.625rem' }} class="image-container">
+                                                            <img src={updateImage} alt="" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-span-1 text-right">
+                                                        <div className="folder-card"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                addFood_array({ name: updateName, category: updateCategory, image: updateImage, price: updatePrice, subtotal: updateSubtotal })
+                                                            }}
+                                                            style={{ float: 'right', width: '200px', height: '200px', padding: '20px', display: 'flex', flexDirection: 'column', marginRight: "0", justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+                                                            <div className="folder-card__icon" style={{ marginBottom: '10px' }}></div>
+                                                            <span className="folder-card__title">Add New Food</span>
+                                                        </div>
 
-        <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
-            <div style={{ display: "flex", alignItems: "center" }}>
-                <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
-                    <img src={task.image} alt="" />
-                </div>
-                <div style={{ marginLeft: "10px" }}>{task.name}</div>
-            </div>
-            <span style={{ cursor: 'pointer' }}
-                onClick={() => handleUpdateForm(task.id)}
-                className="task-card__tag task-card__tag--marketing">{t("Edit")}</span>
-            <span className="task-card__option">
-                <span style={{ cursor: 'pointer' }}
-                    onClick={() => deleteFood_array(task.id)}
-                    className="task-card__tag task-card__tag--design">{t("Delete")}</span>
-            </span>
-        </div>
-    ))}
-</div>
-</section>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                </> :
+                                            <TextField
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                id="Name"
+                                                label={t("Name")}
+                                                name="Name"
+                                                autoComplete="Name"
+                                                autoFocus
+                                                value={updateName}
+                                                onChange={(e) => {
+                                                    setName(e.target.value);
+                                                    setUpdateName(e.target.value);
+                                                }}
+                                            />
+                                            <TextField
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                id="Category"
+                                                label={t("Category")}
+                                                name="Category"
+                                                autoComplete="Category"
+                                                autoFocus
+                                                value={updateCategory}
+                                                onChange={(e) => {
+                                                    setUpdateCategory(e.target.value);
+                                                    setCategory(e.target.value);
+                                                }}
+                                            />
 
+                                            <TextField
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                id="Image"
+                                                label={t("Image")}
+                                                name="Image"
+                                                autoComplete="Image"
+                                                autoFocus
+                                                value={updateImage}
+                                                onChange={(e) => {
+                                                    setUpdateImage(e.target.value);
+                                                    setImage(e.target.value);
+                                                }}
+                                            />
+                                            <TextField
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                id="Price"
+                                                label={t("Price")}
+                                                name="Price"
+                                                autoComplete="Price"
+                                                autoFocus
+                                                value={updatePrice}
+                                                onChange={(e) => {
+                                                    setUpdatePrice(e.target.value);
+                                                    setPrice(e.target.value);
+                                                }}
+                                            />
+                                            <TextField
+                                                margin="normal"
+                                                required
+                                                fullWidth
+                                                id="Subtotal"
+                                                label={t("Subtotal")}
+                                                name="Subtotal"
+                                                autoComplete="Subtotal"
+                                                autoFocus
+                                                value={updateSubtotal}
+                                                onChange={(e) => {
+                                                    setUpdateSubtotal(e.target.value);
+                                                    setSubtotal(e.target.value);
+                                                }}
+                                            />
 
+                                        </Grid>
+                                        <Grid container>
 
- selectedItem === 'Revenue' ? <> 
-     <b x="20" y="30" fill="#000" style={{'fontSize':'17px'}}>
-     Revenue earned on a daily basis over a period of 31 days
-    </b>
-    <br></br>
-    <BarChart width={600} height={300} data={sortedData}>
-  <CartesianGrid strokeDasharray="3 3" />
-  <XAxis dataKey="date" />
-  <YAxis />
-  <Tooltip />
-  <Legend />
-  <Bar dataKey="revenue" fill="#8884d8" />
-</BarChart>
-</> :
+                                            <Button
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    updateFood_array(updateId, { name: updateName, category: updateCategory, image: updateImage, price: updatePrice, subtotal: updateSubtotal })
+                                                }}
+                                                fullWidth
+                                                variant="contained"
+                                                sx={{ mt: 3, mb: 2 }}
+                                            >
+                                                {t("Update")}
+                                            </Button>
 
+                                        </Grid>
+                                        <Grid container>
+                                            <Grid item xs>
+                                            </Grid>
+                                            <Grid item>
+                                            </Grid>
+                                        </Grid>
+                                    </Box>
+                                </Box>
+                            </Container>
 
+                        </ThemeProvider>
 
+                        <section className="task-list">
+                            <h2>Food Items</h2>
+                            <div className="task-wrap" style={{ minHeight: '650px', maxHeight: '650px', overflowY: 'scroll' }}>
+                                {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
 
 
+                                    <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
+                                        <div style={{ display: "flex", alignItems: "center" }}>
+                                            <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
+                                                <img src={task.image} alt="" />
+                                            </div>
+                                            <div style={{ marginLeft: "10px" }}>{task.name}</div>
+                                        </div>
+                                        <span style={{ cursor: 'pointer' }}
+                                            onClick={() => handleUpdateForm(task.id)}
+                                            className="task-card__tag task-card__tag--marketing">{t("Edit")}</span>
+                                        <span className="task-card__option">
+                                            <span style={{ cursor: 'pointer' }}
+                                                onClick={() => deleteFood_array(task.id)}
+                                                className="task-card__tag task-card__tag--design">{t("Delete")}</span>
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
 
- selectedItem === 'Order' ? <div>order</div> :
+                    </> :
+
+
+
+                        selectedItem === 'Revenue' ? <>
+                            <b x="20" y="30" fill="#000" style={{ 'fontSize': '17px' }}>
+                                Revenue earned on a daily basis over a period of 31 days
+                            </b>
+                            <br></br>
+                            <BarChart width={600} height={300} data={sortedData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="date" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="revenue" fill="#8884d8" />
+                            </BarChart>
+                        </> :
+
+
+
+
+
+
+                            selectedItem === 'Order' ? <div>order</div> :
 
 
 
@@ -647,150 +633,209 @@ setRevenueData(dailyRevenueArray)
 
 
 
- selectedItem === 'History' ? <>
- 
- <table
-      className="shop_table my_account_orders"
-      style={{
-        borderCollapse: "collapse",
-        width: "100%",
-        borderSpacing: "6px", // added CSS
-      }}
+                                selectedItem === 'History' ? <>
+
+                                    <table
+                                        className="shop_table my_account_orders"
+                                        style={{
+                                            borderCollapse: "collapse",
+                                            width: "100%",
+                                            borderSpacing: "6px", // added CSS
+                                        }}
+                                    >
+                                        <thead>
+                                            <tr>
+                                                <th
+                                                    className="order-number"
+                                                    style={{ marginRight: "10px", width: "10%" }}
+                                                >
+                                                    OrderID
+                                                </th>
+                                                <th className="order-name" style={{ width: "20%" }}>
+                                                    Name
+                                                </th>
+                                                <th className="order-email" style={{ width: "20%" }}>
+                                                    Email
+                                                </th>
+                                                <th className="order-date" style={{ width: "15%" }}>
+                                                    Date
+                                                </th>
+                                                <th className="order-status" style={{ width: "10%" }}>
+                                                    Status
+                                                </th>
+                                                <th className="order-total" style={{ width: "10%" }}>
+                                                    Total
+                                                </th>
+                                                <th className="order-dine-mode" style={{ width: "10%" }}>
+                                                    DineMode
+                                                </th>
+                                                <th className="order-details" style={{ width: "5%" }}>
+                                                    Details
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {orders.map((order) => (
+                                                <React.Fragment key={order.id}>
+                                                    <tr
+                                                        className="order"
+                                                        style={{ borderBottom: "1px solid #ddd" }}
+                                                    >
+                                                        <td className="order-number" data-title="OrderID">
+                                                            <a href="*">{order.id}</a>
+                                                        </td>
+                                                        <td
+                                                            className="order-name"
+                                                            data-title="Name"
+                                                            style={{ whiteSpace: "nowrap" }}
+                                                        >
+                                                            {order.name}
+                                                        </td>
+                                                        <td
+                                                            className="order-email"
+                                                            data-title="Email"
+                                                            style={{ whiteSpace: "nowrap" }}
+                                                        >
+                                                            {order.email}
+                                                        </td>
+                                                        <td
+                                                            className="order-date"
+                                                            data-title="Date"
+                                                            style={{ whiteSpace: "nowrap" }}
+                                                        >
+                                                            <time dateTime={order.date} title={order.date} nowrap>
+                                                                {order.date}
+                                                            </time>
+                                                        </td>
+                                                        <td
+                                                            className="order-status"
+                                                            data-title="Status"
+                                                            style={{ whiteSpace: "nowrap" }}
+                                                        >
+                                                            {order.status}
+                                                        </td>
+                                                        <td
+                                                            className="order-total"
+                                                            data-title="Total"
+                                                            style={{ whiteSpace: "nowrap" }}
+                                                        >
+                                                            <span className="amount">{"$" + order.total}</span>
+                                                        </td>
+                                                        <td
+                                                            className="order-dine-mode"
+                                                            data-title="DineMode"
+                                                            style={{ whiteSpace: "nowrap" }}
+                                                        >
+                                                            {order.dineMode}
+                                                        </td>
+                                                        <td
+                                                            className="order-details"
+                                                            style={{ whiteSpace: "nowrap" }}
+                                                            data-title="Details"
+                                                        >
+                                                            <button
+                                                                onClick={() => toggleExpandedOrderId(order.id)}
+                                                                style={{ cursor: "pointer" }}
+                                                            >
+                                                                {expandedOrderIds.includes(order.id)
+                                                                    ? "Hide Details"
+                                                                    : "View Details"}
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {expandedOrderIds.includes(order.id) && (
+                                                        <tr>
+                                                            <td colSpan={8} style={{ padding: "10px" }}>
+
+                                                                <div className="receipt">
+                                                                    {JSON.parse(order.receiptData).map((item, index) => (
+                                                                        <div className="receipt-item" key={item.id}>
+                                                                            <p>{item.name} x {item.quantity} = ${item.subtotal}</p>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </React.Fragment>
+                                            ))}
+                                        </tbody>
+                                    </table>
+
+
+
+                                </> :
+
+
+
+
+
+
+
+
+
+                                    selectedItem === 'Settings' ?
+
+
+
+                                        <>
+
+
+<div style={{ display: "flex", flexDirection: "column" }}>
+  <form onSubmit={handleClickFavicon} style={{ display: "flex", alignItems: "center" }}>
+    <TextField
+      margin="normal"
+      required
+      fullWidth
+      id="faviconURL"
+      label={t("Enter Favicon URL")}
+      name="faviconURL"
+      autoComplete="faviconURL"
+      autoFocus
+      style={{ width: "60%" }}
+    />
+    <Button
+      fullWidth
+      type="submit"
+      variant="contained"
+      sx={{ mt: 3, mb: 2 }}
+      style={{ width: "30%", marginLeft: "10px", height: "56px" }}
     >
-      <thead>
-        <tr>
-          <th
-            className="order-number"
-            style={{ marginRight: "10px", width: "10%" }}
-          >
-            OrderID
-          </th>
-          <th className="order-name" style={{ width: "20%" }}>
-            Name
-          </th>
-          <th className="order-email" style={{ width: "20%" }}>
-            Email
-          </th>
-          <th className="order-date" style={{ width: "15%" }}>
-            Date
-          </th>
-          <th className="order-status" style={{ width: "10%" }}>
-            Status
-          </th>
-          <th className="order-total" style={{ width: "10%" }}>
-            Total
-          </th>
-          <th className="order-dine-mode" style={{ width: "10%" }}>
-            DineMode
-          </th>
-          <th className="order-details" style={{ width: "5%" }}>
-            Details
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {orders.map((order) => (
-          <React.Fragment key={order.id}>
-            <tr
-              className="order"
-              style={{ borderBottom: "1px solid #ddd" }}
-            >
-              <td className="order-number" data-title="OrderID">
-                <a href="*">{order.id}</a>
-              </td>
-              <td
-                className="order-name"
-                data-title="Name"
-                style={{ whiteSpace: "nowrap" }}
-              >
-                {order.name}
-              </td>
-              <td
-                className="order-email"
-                data-title="Email"
-                style={{ whiteSpace: "nowrap" }}
-              >
-                {order.email}
-              </td>
-              <td
-                className="order-date"
-                data-title="Date"
-                style={{ whiteSpace: "nowrap" }}
-              >
-                <time dateTime={order.date} title={order.date} nowrap>
-                  {order.date}
-                </time>
-              </td>
-              <td
-                className="order-status"
-                data-title="Status"
-                style={{ whiteSpace: "nowrap" }}
-              >
-                {order.status}
-              </td>
-              <td
-                className="order-total"
-                data-title="Total"
-                style={{ whiteSpace: "nowrap" }}
-              >
-                <span className="amount">{"$"+order.total}</span>
-              </td>
-              <td
-                className="order-dine-mode"
-                data-title="DineMode"
-                style={{ whiteSpace: "nowrap" }}
-              >
-                {order.dineMode}
-              </td>
-              <td
-                className="order-details"
-                style={{ whiteSpace: "nowrap" }}
-                data-title="Details"
-              >
-                <button
-                  onClick={() => toggleExpandedOrderId(order.id)}
-                  style={{ cursor: "pointer" }}
-                >
-              {expandedOrderIds.includes(order.id)
-                ? "Hide Details"
-                : "View Details"}
-            </button>
-          </td>
-        </tr>
-        {expandedOrderIds.includes(order.id) && (
-          <tr>
-            <td colSpan={8} style={{ padding: "10px" }}>
-
-              <div className="receipt">
-      {JSON.parse(order.receiptData).map((item, index) => (
-        <div className="receipt-item" key={item.id}>
-          <p>{item.name} x {item.quantity} = ${item.subtotal}</p>
-        </div>
-      ))}
-    </div>
-            </td>
-          </tr>
-        )}
-      </React.Fragment>
-    ))}
-  </tbody>
-</table>
+      {t("Change Favicon")}
+    </Button>
+  </form>
+  <form onSubmit={handleClickTitle} style={{ display: "flex", alignItems: "center" }}>
+    <TextField
+      margin="normal"
+      required
+      fullWidth
+      id="title"
+      label={t("Enter Title")}
+      name="title"
+      autoComplete="title"
+      autoFocus
+      style={{ width: "60%" }}
+    />
+    <Button
+      fullWidth
+      type="submit"
+      variant="contained"
+      sx={{ mt: 3, mb: 2 }}
+      style={{ width: "30%", marginLeft: "10px", height: "56px" }}
+    >
+      {t("Change Title")}
+    </Button>
+  </form>
+</div>
 
 
-    
-    </> :
+                                        </> :
 
 
 
 
+                                        null}
 
-
-
-
-
- selectedItem === 'Settings' ? <div>settings</div> :
- null}
-                    
                 </main>
             </section>
             <footer style={{ 'height': "100px", 'color': 'transparent', 'userSelect': 'none' }}>
