@@ -19,6 +19,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Row, Col, Container } from "react-bootstrap"
 import { useRef } from "react";
 import { useUserContext } from "../context/userContext";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } from 'recharts';
 
 
 const theme = createTheme();
@@ -251,6 +252,13 @@ function App() {
     }
 
 
+    const [revenueData, setRevenueData] = useState([
+        { date: '3/14/2023', revenue: 30 }
+      ]);
+
+
+
+
     const moment = require('moment');
 
     const fetchPost = async () => {
@@ -278,13 +286,46 @@ function App() {
               email: item.user_email,
               dineMode: item.isDinein,
               status:"pending",
-              total:"$"+parseInt(item.amount_received)/100,
+              total: parseInt(item.amount_received)/100,
               name: item.charges.data[0].billing_details.name,
             };
             newItems.push(newItem); // Push the new item into the array
           });
           setOrders(newItems)
           console.log(newItems); // Log the array to the console or do whatever you want with it
+
+
+          // Create an object to store daily revenue totals
+const dailyRevenue = {};
+
+// Loop through each receipt and sum up the total revenue for each date
+newItems.forEach(receipt => {
+  // Extract the date from the receipt
+  const date = receipt.date.split(' ')[0];
+  //console.log(receipt)
+  // Extract the revenue from the receipt (for example, by parsing the receiptData string)
+  const revenue = receipt.total; // replace with actual revenue calculation
+  // Add the revenue to the dailyRevenue object for the appropriate date
+  if (dailyRevenue[date]) {
+    dailyRevenue[date] += revenue;
+  } else {
+    dailyRevenue[date] = revenue;
+  }
+});
+console.log("hello")
+// Convert the dailyRevenue object into an array of objects with date and revenue properties
+const dailyRevenueArray = Object.keys(dailyRevenue).map(date => {
+  return {
+    date: date,
+    revenue: dailyRevenue[date]
+  };
+});
+
+// Example output: [{date: '3/14/2023', revenue: 10}, {date: '3/13/2023', revenue: 10}, {date: '3/4/2023', revenue: 10}]
+console.log(dailyRevenueArray);
+console.log(revenueData);
+setRevenueData(dailyRevenueArray)
+
         });
       };
     
@@ -295,6 +336,27 @@ function App() {
     useEffect(() => {
         fetchPost();
     }, [])
+
+
+
+    const [expandedOrderIds, setExpandedOrderIds] = useState([]);
+
+    const toggleExpandedOrderId = (orderId) => {
+      if (expandedOrderIds.includes(orderId)) {
+        setExpandedOrderIds(expandedOrderIds.filter(id => id !== orderId));
+      } else {
+        setExpandedOrderIds([...expandedOrderIds, orderId]);
+      }
+    };
+//REVENUE CHART 31 DAYS FROM NOW
+    const today = new Date();
+    const oneWeekAgo = new Date(today.getTime() - 31 * 24 * 60 * 60 * 1000); // 7 days ago
+    
+    const filteredData = revenueData.filter((dataPoint) => {
+      const dataPointDate = new Date(dataPoint.date);
+      return dataPointDate >= oneWeekAgo && dataPointDate <= today;
+    });
+    const sortedData = filteredData.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return (
         <div style={{ maxWidth: '1240px', display: 'grid', justifySelf: 'center', justifyContent: 'center', margin: 'auto', alignContent: 'center' }}>
@@ -557,7 +619,26 @@ function App() {
 
 
 
- selectedItem === 'Revenue' ? <div>revenue</div> :
+ selectedItem === 'Revenue' ? <> 
+     <b x="20" y="30" fill="#000" style={{'fontSize':'17px'}}>
+     Revenue earned on a daily basis over a period of 31 days
+    </b>
+    <br></br>
+    <BarChart width={600} height={300} data={sortedData}>
+  <CartesianGrid strokeDasharray="3 3" />
+  <XAxis dataKey="date" />
+  <YAxis />
+  <Tooltip />
+  <Legend />
+  <Bar dataKey="revenue" fill="#8884d8" />
+</BarChart>
+</> :
+
+
+
+
+
+
  selectedItem === 'Order' ? <div>order</div> :
 
 
@@ -569,106 +650,132 @@ function App() {
  selectedItem === 'History' ? <>
  
  <table
-  className="shop_table my_account_orders"
-  style={{
-    borderCollapse: "collapse",
-    width: "100%",
-    borderSpacing: "6px", // added CSS
-  }}
->
-  <thead>
-    <tr>
-      <th className="order-number" style={{ marginRight: "10px",width: "10%" }}>
-        OrderID
-      </th>
-      <th className="order-name" style={{ width: "20%" }}>
-        Name
-      </th>
-      <th className="order-email" style={{ width: "20%" }}>
-        Email
-      </th>
-      <th className="order-date" style={{ width: "15%" }}>
-        Date
-      </th>
-      <th className="order-status" style={{ width: "10%" }}>
-        Status
-      </th>
-      <th className="order-total" style={{ width: "10%" }}>
-        Total
-      </th>
-      <th className="order-dine-mode" style={{ width: "10%" }}>
-        DineMode
-      </th>
-      <th className="order-details" style={{ width: "5%" }}>
-        Details
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    {orders.map((order) => (
-      <tr
-        key={order.id}
-        className="order"
-        style={{ borderBottom: "1px solid #ddd" }}
-      >
-        <td className="order-number" data-title="OrderID">
-          <a href="*">{order.id}</a>
-        </td>
-        <td
-          className="order-name"
-          data-title="Name"
-          style={{ whiteSpace: "nowrap" }}
-        >
-          {order.name}
-        </td>
-        <td
-          className="order-email"
-          data-title="Email"
-          style={{ whiteSpace: "nowrap" }}
-        >
-          {order.email}
-        </td>
-        <td
-          className="order-date"
-          data-title="Date"
-          style={{ whiteSpace: "nowrap" }}
-        >
-          <time dateTime={order.date} title={order.date} nowrap>
-            {order.date}
-          </time>
-        </td>
-        <td
-          className="order-status"
-          data-title="Status"
-          style={{ whiteSpace: "nowrap" }}
-        >
-          {order.status}
-        </td>
-        <td
-          className="order-total"
-          data-title="Total"
-          style={{ whiteSpace: "nowrap" }}
-        >
-          <span className="amount">{order.total}</span>
-        </td>
-        <td
-          className="order-dine-mode"
-          data-title="DineMode"
-          style={{ whiteSpace: "nowrap" }}
-        >
-          {order.dineMode}
-        </td>
-        <td
-          className="order-details"
-          style={{ whiteSpace: "nowrap" }}
-          data-title="Details"
-        >
-          <a href="*">View Details</a>
-        </td>
-      </tr>
+      className="shop_table my_account_orders"
+      style={{
+        borderCollapse: "collapse",
+        width: "100%",
+        borderSpacing: "6px", // added CSS
+      }}
+    >
+      <thead>
+        <tr>
+          <th
+            className="order-number"
+            style={{ marginRight: "10px", width: "10%" }}
+          >
+            OrderID
+          </th>
+          <th className="order-name" style={{ width: "20%" }}>
+            Name
+          </th>
+          <th className="order-email" style={{ width: "20%" }}>
+            Email
+          </th>
+          <th className="order-date" style={{ width: "15%" }}>
+            Date
+          </th>
+          <th className="order-status" style={{ width: "10%" }}>
+            Status
+          </th>
+          <th className="order-total" style={{ width: "10%" }}>
+            Total
+          </th>
+          <th className="order-dine-mode" style={{ width: "10%" }}>
+            DineMode
+          </th>
+          <th className="order-details" style={{ width: "5%" }}>
+            Details
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {orders.map((order) => (
+          <React.Fragment key={order.id}>
+            <tr
+              className="order"
+              style={{ borderBottom: "1px solid #ddd" }}
+            >
+              <td className="order-number" data-title="OrderID">
+                <a href="*">{order.id}</a>
+              </td>
+              <td
+                className="order-name"
+                data-title="Name"
+                style={{ whiteSpace: "nowrap" }}
+              >
+                {order.name}
+              </td>
+              <td
+                className="order-email"
+                data-title="Email"
+                style={{ whiteSpace: "nowrap" }}
+              >
+                {order.email}
+              </td>
+              <td
+                className="order-date"
+                data-title="Date"
+                style={{ whiteSpace: "nowrap" }}
+              >
+                <time dateTime={order.date} title={order.date} nowrap>
+                  {order.date}
+                </time>
+              </td>
+              <td
+                className="order-status"
+                data-title="Status"
+                style={{ whiteSpace: "nowrap" }}
+              >
+                {order.status}
+              </td>
+              <td
+                className="order-total"
+                data-title="Total"
+                style={{ whiteSpace: "nowrap" }}
+              >
+                <span className="amount">{"$"+order.total}</span>
+              </td>
+              <td
+                className="order-dine-mode"
+                data-title="DineMode"
+                style={{ whiteSpace: "nowrap" }}
+              >
+                {order.dineMode}
+              </td>
+              <td
+                className="order-details"
+                style={{ whiteSpace: "nowrap" }}
+                data-title="Details"
+              >
+                <button
+                  onClick={() => toggleExpandedOrderId(order.id)}
+                  style={{ cursor: "pointer" }}
+                >
+              {expandedOrderIds.includes(order.id)
+                ? "Hide Details"
+                : "View Details"}
+            </button>
+          </td>
+        </tr>
+        {expandedOrderIds.includes(order.id) && (
+          <tr>
+            <td colSpan={8} style={{ padding: "10px" }}>
+
+              <div className="receipt">
+      {JSON.parse(order.receiptData).map((item, index) => (
+        <div className="receipt-item" key={item.id}>
+          <p>{item.name} x {item.quantity} = ${item.subtotal}</p>
+        </div>
+      ))}
+    </div>
+            </td>
+          </tr>
+        )}
+      </React.Fragment>
     ))}
   </tbody>
 </table>
+
 
     
     </> :
