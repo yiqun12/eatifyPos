@@ -65,6 +65,28 @@ const Item = (props) => {
  console.log(products)
  console.log()
  console.log(JSON.parse(localStorage.getItem('collection_data')).time)
+
+
+    // for translations sake
+    const trans = JSON.parse(localStorage.getItem("translations"))
+    const t = (text) => {
+      // const trans = localStorage.getItem("translations")
+      console.log(trans)
+      console.log(localStorage.getItem("translationsMode"))
+  
+      if (trans != null) {
+        if (localStorage.getItem("translationsMode") != null) {
+        // return the translated text with the right mode
+          if (trans[text] != null) {
+            if (trans[text][localStorage.getItem("translationsMode")] != null)
+              return trans[text][localStorage.getItem("translationsMode")]
+          }
+        }
+      } 
+      // base case to just return the text if no modes/translations are found
+      return text
+    }
+
   return (
     <div className="card2 mb-50" >
       <div className="col d-flex">
@@ -76,17 +98,17 @@ const Item = (props) => {
       <div className="gap">
         <div className="col-2 d-flex mx-auto" />
         
-        <b className="text-black text-2xl">{JSON.parse(localStorage.getItem('collection_data')).isDinein} (PAID)</b>
-        <span className="block text-black text-sm">Name: {JSON.parse(localStorage.getItem('collection_data')).pay_name}
+        <b className="text-black text-2xl">{JSON.parse(localStorage.getItem('collection_data')).isDinein} ({t("PAID")})</b>
+        <span className="block text-black text-sm">{t("Name")}: {JSON.parse(localStorage.getItem('collection_data')).pay_name}
         
         </span>
-        <span className="block text-black text-sm">Order ID: {JSON.parse(localStorage.getItem('collection_data')).document_id}</span>
+        <span className="block text-black text-sm">{t("Order ID")}: {JSON.parse(localStorage.getItem('collection_data')).document_id}</span>
         <span className="block text-black text-sm">{JSON.parse(localStorage.getItem('collection_data')).time}</span>
       </div>
       <div className="main">
         <span id="sub-title">
           <p>
-            <b>Order Summary</b>
+            <b>{t("Order Summary")}</b>
           </p>
         </span>
         {products.map((product, index) => {
@@ -94,10 +116,10 @@ const Item = (props) => {
             <div className="row row-main" key={index}>
               <div className="col-9">
                 <div className="row d-flex">
-                    <b>{index+1}.{product.name}</b>
+                    <b>{index+1}.{t(product.name)}</b>
                 </div>
                 <div className="row d-flex">
-                  <p className="text-muted  mb-0 pb-0">@ ${product.subtotal} each x {product.quantity}</p>
+                  <p className="text-muted  mb-0 pb-0">@ ${product.subtotal} {t("each")} x {product.quantity}</p>
                 </div>
               </div>
               <div className="col-3 d-flex justify-content-end">
@@ -112,7 +134,7 @@ const Item = (props) => {
         <div className="total">
           <div className="row">
             <div className="col">
-              <b> Total:</b>
+              <b> {t("Total")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
               <b>${totalPrice}</b>

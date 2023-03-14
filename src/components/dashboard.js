@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUserContext } from "../context/userContext";
 import {Elements} from '@stripe/react-stripe-js';
 import CardSection from './CardSection';
@@ -6,9 +6,16 @@ import Checkout from './Checkout';
 import PayHistory from './PayHistory';
 import { MyHookProvider } from '../pages/myHook';
 import Link from '@mui/material/Link';
+import { useMyHook } from '../pages/myHook';
 
 
 const Dashboard = (props) => {
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
+
   const user = JSON.parse(localStorage.getItem('user'));
   const { totalPrice } = props;
   const { promise, logoutUser, emailVerification } = useUserContext();
@@ -22,12 +29,32 @@ const Dashboard = (props) => {
   const Goback = () => {
     setNewCardAdded(false);
   }
+
+  const trans = JSON.parse(localStorage.getItem("translations"))
+  const t = (text) => {
+    // const trans = localStorage.getItem("translations")
+    console.log(trans)
+    console.log(localStorage.getItem("translationsMode"))
+
+    if (trans != null) {
+      if (localStorage.getItem("translationsMode") != null) {
+        // return the translated text with the right mode
+        if (trans[text] != null) {
+            if (trans[text][localStorage.getItem("translationsMode")] != null)
+              return trans[text][localStorage.getItem("translationsMode")]
+        }
+      }
+    } 
+    // base case to just return the text if no modes/translations are found
+    return text
+  }
+
   return (
     <div>
       <Elements stripe={promise}>
         <div className="card2 mb-50">
           <div className="card2-title mx-auto">
-            CHECKOUT
+            {t("CHECKOUT")}
           </div>
           
          
@@ -35,7 +62,7 @@ const Dashboard = (props) => {
           <>
 
 <Link style={{cursor: 'pointer'}} onClick={Goback} variant="body2">
-         &lt; go back                                
+         &lt; {t("go back")}                                
             </Link>
             <CardSection  totalPrice={totalPrice}/>
 
@@ -44,7 +71,7 @@ const Dashboard = (props) => {
             :<>
             <Checkout totalPrice={totalPrice}/>
 <Link style={{cursor: 'pointer' }} onClick={handleAddNewCard} variant="body2">
-If a card is not saved in our system, please add a new one here.
+{t("If a card is not saved in our system") + ',' + t("please add a new one here")}.
                                 </Link>
                                             </>
 

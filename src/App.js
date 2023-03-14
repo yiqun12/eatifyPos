@@ -12,7 +12,7 @@ import Home from './pages/Home'
 import ForgotPassword from './pages/ForgotPassword'
 import Reservation from './pages/reservation'
 import Checkout from './pages/Checkout'
-
+import Admin_new from './components/Admin_new'
 import {
   BrowserRouter,
   Routes,
@@ -25,6 +25,9 @@ import { db } from './firebase/index';
 import { MyHookProvider, useMyHook } from './pages/myHook';
 import Receipt from './pages/Receipt'
 import Html2 from './pages/Html2'
+
+// translation purposes -> can switch to using fetchPost() to grab translation file just like food_array
+import { translations } from './data/translations.js'
 
 function App() {
 
@@ -49,12 +52,16 @@ function App() {
               localStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
               console.log(newData)
           })
+
       setLoading(false);    
   }
   useEffect(() => {
     document.title = "EatifyPos"
  }, []);
   useEffect(() => {
+      // added line to grab translation file (can use the same method as food_data to grab translations file)
+      localStorage.setItem("translations", JSON.stringify(translations))
+      // localStorage.setItem("translationsMode", "en")
       fetchPost();
   }, [])
   if (loading) {
@@ -80,7 +87,7 @@ function App() {
       <Routes>
       <Route path='*' exact={true} element={<Home />} />
       <Route exact path="/" element={<Home />} />
-      <Route path="Auth" element={<Auth />} />
+      <Route path="Admin_new" element={<Admin_new />} />
       <Route path="Admin" element={<Admin />} />
       <Route path="Receipt" element={<Receipt />} />
       <Route path="Html2" element={<Html2 />} />

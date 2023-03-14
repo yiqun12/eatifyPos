@@ -1,9 +1,17 @@
 
 //import {data} from '../data/data.js'
 import React, { useState,useEffect } from 'react'
+import { useMyHook } from './myHook';
 
 
 const Card = () => {
+
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
+
   /**click show add */
   const [clicked, setClicked] = useState(false);
   useEffect(() => {
@@ -15,6 +23,7 @@ const Card = () => {
   }, [clicked]);
   /**other */  
   const data  = JSON.parse(localStorage.getItem("Food_arrays"))
+  
 
     console.log("Card printed once")
     function getRandomNumbers(n) {
@@ -73,6 +82,26 @@ const Card = () => {
       var item2 = data[itemNumbers[1]]
       //var item3 = data[itemNumbers[2]]
 
+        // for translations sake
+      const trans = JSON.parse(localStorage.getItem("translations"))
+      const t = (text) => {
+        // const trans = localStorage.getItem("translations")
+        //console.log(trans)
+        //console.log(localStorage.getItem("translationsMode"))
+
+        if (trans != null) {
+          if (localStorage.getItem("translationsMode") != null) {
+            // return the translated text with the right mode
+            if (trans[text] != null) {
+                if (trans[text][localStorage.getItem("translationsMode")] != null)
+                  return trans[text][localStorage.getItem("translationsMode")]
+            }
+          }
+        } 
+        // base case to just return the text if no modes/translations are found
+        return text
+      }
+
   return (
     <div>
 
@@ -81,12 +110,12 @@ const Card = () => {
 
         <div className='rounded-xl relative hover:scale-105 duration-500 cursor-pointer'>
             <div className='absolute w-full h-full bg-black/50 rounded-xl text-white'>
-                <p className=' font-bold text-2xl px-2 pt-4'>{['Guess you would like:', <br />, item1.name]}</p>
+                <p className=' font-bold text-2xl px-2 pt-4'>{[t('Guess you would like:'), <br />, t(item1.name)]}</p>
                 <button className='border border-white bg-white text-black mx-2 rounded-xl px-5 py-1 absolute bottom-4 shadow-md' 
                 onClick={() =>  
                   window.location.href = '/Reservation'
                   //updateLocalStorage(item1.id, item1.name, item1.subtotal, item1.image)
-                  }>Make a reservation</button>
+                  }>{t("Make a reservation")}</button>
             </div>
             <img className='max-h-[160px] md:max-h-[200px] w-full object-cover rounded-xl' src={item1.image} alt="" />
         </div>

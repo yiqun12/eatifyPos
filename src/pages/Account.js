@@ -8,8 +8,15 @@ import Checkout from "../components/Checkout_acc";
 import PayFullhistory from "../components/PayFullhistory";
 import { Elements } from '@stripe/react-stripe-js';
 import { useUserContext } from "../context/userContext";
+import { useMyHook } from './myHook';
 
 const Account = () => {
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
+
   const { promise, logoutUser } = useUserContext();
   console.log(promise)
   const [activeTab, setActiveTab] = useState('');
@@ -28,6 +35,26 @@ const Account = () => {
     localStorage.removeItem('Food_arrays');
   }
   //google login button functions
+
+  const trans = JSON.parse(localStorage.getItem("translations"))
+  const t = (text) => {
+    // const trans = localStorage.getItem("translations")
+    console.log(trans)
+    console.log(localStorage.getItem("translationsMode"))
+
+    if (trans != null) {
+      if (localStorage.getItem("translationsMode") != null) {
+        // return the translated text with the right mode
+        if (trans[text] != null) {
+            if (trans[text][localStorage.getItem("translationsMode")] != null)
+              return trans[text][localStorage.getItem("translationsMode")]
+        }
+      }
+    } 
+    // base case to just return the text if no modes/translations are found
+    return text
+  }
+
   return (
     <>
       <Elements stripe={promise}>
@@ -70,7 +97,7 @@ const Account = () => {
                           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                           <circle cx={12} cy={7} r={4} />
                         </svg>
-                        Profile
+                        {t("Profile")}
                       </a>
 
                       <a
@@ -94,7 +121,7 @@ const Account = () => {
                           <rect x={1} y={4} width={22} height={16} rx={2} ry={2} />
                           <line x1={1} y1={10} x2={23} y2={10} />
                         </svg>
-                        Billing
+                        {t("Billing")}
                       </a>
                       <a
                         href="#History"
@@ -117,7 +144,7 @@ const Account = () => {
   <path d="M18.364 5.636c-3.905-3.905-10.237-3.905-14.142 0s-3.905 10.237 0 14.142 10.237 3.905 14.142 0 3.905-10.237 0-14.142z" />
   <path d="M12 6v6l4 2" />
 </svg>
-                        History
+                        {t("History")}
                       </a>
                     </nav>
                   </div>
@@ -210,7 +237,7 @@ const Account = () => {
                     {activeTab === '#profile' || activeTab === '' ? (
 
                       <div className="tab-pane active" id="profile">
-                        <h6>YOUR PROFILE INFORMATION
+                        <h6>{t("YOUR PROFILE INFORMATION")}
                         </h6>
                         <hr />
                         <form>
@@ -226,7 +253,7 @@ const Account = () => {
 
                           </div>
                           <div className="form-group small text-muted">
-                            We do not share user data with third parties for their marketing or advertising unless you give us or the third party permission to do so.
+                            {t("We do not share user data with third parties for their marketing or advertising unless you give us or the third party permission to do so")}.
 
                           </div>
                           <button
@@ -236,7 +263,7 @@ const Account = () => {
                             }}
                             type="button"
                             className="btn btn-primary">
-                            sign out
+                            {t("sign out")}
                           </button>
                           <hr></hr>
                         </form>
@@ -246,12 +273,12 @@ const Account = () => {
                     {activeTab === '#billing' ? (
 
                       <div className="tab-pane-active" id="billing">
-                        <h6>BILLING SETTINGS</h6>
+                        <h6>{t("BILLING SETTINGS")}</h6>
                         <hr />
                         <form>
                           <div className="form-group">
                             
-                            <label className="d-block mb-0">Payment Method</label>
+                            <label className="d-block mb-0">{t("Payment Method")}</label>
                             <Checkout/>
                             <CardSection />
                           </div>
@@ -262,10 +289,10 @@ const Account = () => {
                     {activeTab === '#History' ? (
 
                       <div className="tab-pane-active" id="History">
-                        <h6>BILLING SETTINGS</h6>
+                        <h6>{t("BILLING SETTINGS")}</h6>
                         <hr />
                         <form>
-                          <label className="d-block">Payment History (click triangle for details)</label>
+                          <label className="d-block">{t("Payment History")} ({t("click triangle for details")})</label>
                           <div className="form-group mb-0" style={{
                             "height": "400px",
                             "overflow-y": " scroll"

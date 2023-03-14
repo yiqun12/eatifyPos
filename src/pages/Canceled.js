@@ -1,7 +1,34 @@
-import React from 'react';
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom';
+import { useMyHook } from './myHook';
 
 const Canceled = () => {
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
+
+  const trans = JSON.parse(localStorage.getItem("translations"))
+  const t = (text) => {
+    // const trans = localStorage.getItem("translations")
+    console.log(trans)
+    console.log(localStorage.getItem("translationsMode"))
+
+    if (trans != null) {
+      if (localStorage.getItem("translationsMode") != null) {
+        // return the translated text with the right mode
+        if (trans[text] != null) {
+            if (trans[text][localStorage.getItem("translationsMode")] != null)
+              return trans[text][localStorage.getItem("translationsMode")]
+        }
+      }
+    } 
+    // base case to just return the text if no modes/translations are found
+    return text
+  }
+
+
   return (
     <div className="sr-root">
       <div className="sr-main">
@@ -9,8 +36,8 @@ const Canceled = () => {
           <div className="sr-header__logo"></div>
         </header>
         <div className="sr-payment-summary completed-view">
-          <h1>Your payment was canceled</h1>
-          <Link to="/">Restart demo</Link>
+          <h1>{t("Your payment was canceled")}</h1>
+          <Link to="/">{t("Restart demo")}</Link>
         </div>
       </div>
       <div className="sr-content">

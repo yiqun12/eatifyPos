@@ -12,6 +12,7 @@ import all from './all_food.png'
 import $ from 'jquery';
 import './fooddropAnimate.css';
 import { useMyHook } from './myHook';
+import { useMemo } from 'react';
 
 const Food = () => {
   /**listen to localtsorage */
@@ -147,6 +148,23 @@ const Food = () => {
     calculateTotalQuant();
   };
 
+  // for translations sake
+  const trans = JSON.parse(localStorage.getItem("translations"))
+  const t = useMemo(() => {
+    const trans = JSON.parse(localStorage.getItem("translations"))
+    const translationsMode = localStorage.getItem("translationsMode")
+  
+    return (text) => {
+      if (trans != null && translationsMode != null) {
+        if (trans[text] != null && trans[text][translationsMode] != null) {
+          return trans[text][translationsMode];
+        }
+      }
+  
+      return text;
+    };
+  }, [localStorage.getItem("translations"), localStorage.getItem("translationsMode")]);
+
   return (
     <div>
 
@@ -156,11 +174,11 @@ const Food = () => {
           <div className='Type'>
             {/* <div className='flex justify-between flex-wrap'> */}
             <div className='scrolling-wrapper-filter' >
-              <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={all} alt="" />All</button>
-              <button onClick={() => filterType('burger')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={burger} alt="" />Burgers</button>
-              <button onClick={() => filterType('pizza')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={pizza} alt="" />Pizza</button>
-              <button onClick={() => filterType('salad')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={salad} alt="" />Salads</button>
-              <button onClick={() => filterType('chicken')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={chicken} alt="" />Chicken</button>
+              <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={all} alt="" />{t("All")}</button>
+              <button onClick={() => filterType('burger')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={burger} alt="" />{t("Burgers")}</button>
+              <button onClick={() => filterType('pizza')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={pizza} alt="" />{t("Pizza")}</button>
+              <button onClick={() => filterType('salad')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={salad} alt="" />{t("Salads")}</button>
+              <button onClick={() => filterType('chicken')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={chicken} alt="" />{t("Chicken")}</button>
             </div>
           </div>
 
@@ -193,7 +211,7 @@ const Food = () => {
                 </div>
                 <div className='flex justify-between px-2 py-4 grid grid-cols-4'>
                   <div className="col-span-3">
-                    <p>{item.name} <span>${item.subtotal}</span></p>
+                    <p>{t(item.name)} <span>${item.subtotal}</span></p>
                   </div>
                   <div className="col-span-1">
                     <div className="container"

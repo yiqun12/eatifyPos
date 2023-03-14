@@ -15,10 +15,18 @@ import { useRef } from "react";
 import { useUserContext } from "../context/userContext";
 import Navbar from './Navbar'
 import { useState, useEffect } from 'react';
+import { useMyHook } from './myHook';
 
 const theme = createTheme();
 
 export default function SignIn() {
+
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
+
   const [isTrue, setIsTrue] = React.useState(false);
   const [errorVisibility, setErrorVisibility] = useState("none");
   const [error, setError] = useState("");
@@ -59,6 +67,27 @@ export default function SignIn() {
     };
   }, []);
   //width > 640 ?
+
+  // for translate
+  const trans = JSON.parse(localStorage.getItem("translations"))
+  const t = (text) => {
+    // const trans = localStorage.getItem("translations")
+    console.log(trans)
+    console.log(localStorage.getItem("translationsMode"))
+
+    if (trans != null) {
+      if (localStorage.getItem("translationsMode") != null) {
+        // return the translated text with the right mode
+        if (trans[text] != null) {
+            if (trans[text][localStorage.getItem("translationsMode")] != null)
+              return trans[text][localStorage.getItem("translationsMode")]
+        }
+      }
+    } 
+    // base case to just return the text if no modes/translations are found
+    return text
+  }
+
   return (
     <div
       style={{
@@ -97,7 +126,7 @@ export default function SignIn() {
 
                           </Avatar>
                           <Typography component="h1" variant="h5" sx={{ m: 1 }}>
-                            Forgot your password?
+                            {t("Forgot your password")}?
 
                           </Typography>
 
@@ -110,7 +139,7 @@ export default function SignIn() {
                                 required
                                 fullWidth
                                 id="email"
-                                label="Enter Email Address"
+                                label={t("Enter Email Address")}
                                 name="email"
                                 autoComplete="email"
                                 autoFocus
@@ -124,7 +153,7 @@ export default function SignIn() {
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2 }}
                               >
-                                Confirm
+                                {t("Confirm")}
                               </Button>
 
                             </Grid>
@@ -133,7 +162,7 @@ export default function SignIn() {
                               </Grid>
                               <Grid item>
                                 <Typography variant="body2">
-                                  {"We would send you a link to reset password"}
+                                  {t("We would send you a link to reset password")}
                                 </Typography>
                               </Grid>
                             </Grid>

@@ -110,6 +110,28 @@ const Item = (props) => {
     localStorage.setItem('isDinein', JSON.stringify(isDinein));
     saveId(Math.random())
   };
+
+    // for translations sake
+    const trans = JSON.parse(localStorage.getItem("translations"))
+    const t = (text) => {
+      // const trans = localStorage.getItem("translations")
+      console.log(trans)
+      console.log(localStorage.getItem("translationsMode"))
+  
+      if (trans != null) {
+        if (localStorage.getItem("translationsMode") != null) {
+          // return the translated text with the right mode
+          if (trans[text] != null) {
+              if (trans[text][localStorage.getItem("translationsMode")] != null)
+                return trans[text][localStorage.getItem("translationsMode")]
+          }
+        }
+      } 
+      // base case to just return the text if no modes/translations are found
+      return text
+    }
+
+    
   
   return (
     <div className="card2 mb-50">
@@ -184,7 +206,7 @@ const Item = (props) => {
       <div className="main">
         <span id="sub-title">
           <p>
-            <b>Payment Summary</b>
+            <b>{t("Payment Summary")}</b>
           </p>
         </span>
         {products.map((product, index) => {
@@ -198,11 +220,11 @@ const Item = (props) => {
               <div className="col-6">
                 <div className="row d-flex">
                   <p>
-                    <b>{product.name}</b>
+                    <b>{t(product.name)}</b>
                   </p>
                 </div>
                 <div className="row d-flex">
-                  <p className="text-muted">@ ${product.subtotal} each x {product.quantity}</p>
+                  <p className="text-muted">@ ${product.subtotal} {t("each")} x {product.quantity}</p>
                 </div>
               </div>
               <div className="col-3 d-flex justify-content-end">
@@ -217,7 +239,7 @@ const Item = (props) => {
         <div className="total">
           <div className="row">
             <div className="col">
-              <b> Total:</b>
+              <b> {t("Total")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
               <b>${totalPrice}</b>
@@ -232,10 +254,30 @@ const Item = (props) => {
 const Checkout = (props) => {
   const { loading } = useUserContext();
   const { totalPrice } = props;
+          // for translations sake
+          const trans = JSON.parse(localStorage.getItem("translations"))
+          const t = (text) => {
+            // const trans = localStorage.getItem("translations")
+            console.log(trans)
+            console.log(localStorage.getItem("translationsMode"))
+        
+            if (trans != null) {
+              if (localStorage.getItem("translationsMode") != null) {
+              // return the translated text with the right mode
+                if (trans[text] != null) {
+                  if (trans[text][localStorage.getItem("translationsMode")] != null)
+                    return trans[text][localStorage.getItem("translationsMode")]
+                }
+              }
+            } 
+            // base case to just return the text if no modes/translations are found
+            return text
+          }
+  
   return (
     <div className="checkout ">
       <div className="checkout-container" >
-        {loading ? <h2>Loading Payment...</h2> : <> <Dashboard totalPrice={totalPrice} /> </>}
+        {loading ? <h2>{t("Loading Payment")}...</h2> : <> <Dashboard totalPrice={totalPrice} /> </>}
       </div>
     </div>
   )
