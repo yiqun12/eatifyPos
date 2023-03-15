@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ABC</title>
+  </head>
+  <body>
+    <h1>ABC</h1>
+    <button id="myButton">Click me!</button>
+    <script>
+      const button = document.getElementById('myButton');
+      button.addEventListener('click', () => {
+        window.parent.postMessage('buttonClicked', '*');
+      });
+    </script>
+  </body>
+</html>

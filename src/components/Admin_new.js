@@ -25,6 +25,17 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } fr
 const theme = createTheme();
 
 function App() {
+    const iframeRef = useRef(null);
+
+    useEffect(() => {
+      window.addEventListener('message', (event) => {
+        if (event.data === 'buttonClicked') {
+          console.log('Button clicked2!');
+        }
+      });
+      iframeRef.current.src = './seat.html';
+    }, []);
+
     const [orders, setOrders] = useState();
     const [Food_array, setFood_array] = useState("");
     const [Food_arrays, setFood_arrays] = useState(JSON.parse(localStorage.getItem("Food_arrays")));
@@ -33,7 +44,7 @@ function App() {
     useEffect(() => {
         setFood_arrays(JSON.parse(localStorage.getItem("Food_arrays")));
     }, [id]);
-    const [selectedItem, setSelectedItem] = useState('Item');
+    const [selectedItem, setSelectedItem] = useState('Order');
 
     function handleItemClick(item) {
         setSelectedItem(item);
@@ -575,9 +586,9 @@ function App() {
 
                         </ThemeProvider>
 
-                        <section className="task-list">
+                        <section className="task-list" style={{marginTop:"-100px"}}>
                             <h2>Food Items</h2>
-                            <div className="task-wrap" style={{ minHeight: '650px', maxHeight: '650px', overflowY: 'scroll' }}>
+                            <div className="task-wrap" style={{ minHeight: '750px', maxHeight: '750px', overflowY: 'scroll' }}>
                                 {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
 
 
@@ -625,7 +636,46 @@ function App() {
 
 
 
-                            selectedItem === 'Order' ? <div>order</div> :
+                            selectedItem === 'Order' ? 
+                            
+                            
+                            <>
+    <div style={{ height: "900px" }}>
+      <iframe ref={iframeRef} style={{ width: '540px', height: '100%', overflow: 'hidden' }}></iframe>
+    </div>
+    
+
+    <section className="task-list" style={{marginTop:"-175px"}}>
+                            <h2>Food Items</h2>
+                            <div className="task-wrap" style={{ minHeight: '750px', maxHeight: '750px', overflowY: 'scroll' }}>
+                                {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
+
+
+                                    <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
+                                        <div style={{ display: "flex", alignItems: "center" }}>
+                                            <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
+                                                <img src={task.image} alt="" />
+                                            </div>
+                                            <div style={{ marginLeft: "10px" }}>{task.name}</div>
+                                        </div>
+                                        <span style={{ cursor: 'pointer' }}
+                                            onClick={() => handleUpdateForm(task.id)}
+                                            className="task-card__tag task-card__tag--marketing">{t("Edit")}</span>
+                                        <span className="task-card__option">
+                                            <span style={{ cursor: 'pointer' }}
+                                                onClick={() => deleteFood_array(task.id)}
+                                                className="task-card__tag task-card__tag--design">{t("Delete")}</span>
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+    
+                            </>
+                            
+                            
+                            
+                            :
 
 
 
@@ -781,52 +831,52 @@ function App() {
                                         <>
 
 
-<div style={{ display: "flex", flexDirection: "column" }}>
-  <form onSubmit={handleClickFavicon} style={{ display: "flex", alignItems: "center" }}>
-    <TextField
-      margin="normal"
-      required
-      fullWidth
-      id="faviconURL"
-      label={t("Enter Favicon URL")}
-      name="faviconURL"
-      autoComplete="faviconURL"
-      autoFocus
-      style={{ width: "60%" }}
-    />
-    <Button
-      fullWidth
-      type="submit"
-      variant="contained"
-      sx={{ mt: 3, mb: 2 }}
-      style={{ width: "30%", marginLeft: "10px", height: "56px" }}
-    >
-      {t("Change Favicon")}
-    </Button>
-  </form>
-  <form onSubmit={handleClickTitle} style={{ display: "flex", alignItems: "center" }}>
-    <TextField
-      margin="normal"
-      required
-      fullWidth
-      id="title"
-      label={t("Enter Title")}
-      name="title"
-      autoComplete="title"
-      autoFocus
-      style={{ width: "60%" }}
-    />
-    <Button
-      fullWidth
-      type="submit"
-      variant="contained"
-      sx={{ mt: 3, mb: 2 }}
-      style={{ width: "30%", marginLeft: "10px", height: "56px" }}
-    >
-      {t("Change Title")}
-    </Button>
-  </form>
-</div>
+                                            <div style={{ display: "flex", flexDirection: "column" }}>
+                                                <form onSubmit={handleClickFavicon} style={{ display: "flex", alignItems: "center" }}>
+                                                    <TextField
+                                                        margin="normal"
+                                                        required
+                                                        fullWidth
+                                                        id="faviconURL"
+                                                        label={t("Enter Favicon URL")}
+                                                        name="faviconURL"
+                                                        autoComplete="faviconURL"
+                                                        autoFocus
+                                                        style={{ width: "60%" }}
+                                                    />
+                                                    <Button
+                                                        fullWidth
+                                                        type="submit"
+                                                        variant="contained"
+                                                        sx={{ mt: 3, mb: 2 }}
+                                                        style={{ width: "30%", marginLeft: "10px", height: "56px" }}
+                                                    >
+                                                        {t("Change Favicon")}
+                                                    </Button>
+                                                </form>
+                                                <form onSubmit={handleClickTitle} style={{ display: "flex", alignItems: "center" }}>
+                                                    <TextField
+                                                        margin="normal"
+                                                        required
+                                                        fullWidth
+                                                        id="title"
+                                                        label={t("Enter Title")}
+                                                        name="title"
+                                                        autoComplete="title"
+                                                        autoFocus
+                                                        style={{ width: "60%" }}
+                                                    />
+                                                    <Button
+                                                        fullWidth
+                                                        type="submit"
+                                                        variant="contained"
+                                                        sx={{ mt: 3, mb: 2 }}
+                                                        style={{ width: "30%", marginLeft: "10px", height: "56px" }}
+                                                    >
+                                                        {t("Change Title")}
+                                                    </Button>
+                                                </form>
+                                            </div>
 
 
                                         </> :
