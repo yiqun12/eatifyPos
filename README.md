@@ -128,7 +128,7 @@ Email for resetting password
 
 ### Reservation_Page
 This page displays how to access our Reservation Page.
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin22.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image22.png" width="80%"></p>
 
 
 
