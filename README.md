@@ -11,6 +11,9 @@ As for diners, our platform offers a hassle-free experience for ordering food fo
 Get started today by accessing our demo at https://eatify-22231.web.app/. We're continually improving and optimizing our platform to ensure commercial viability, so stay tuned for updates.
 <br />
 
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/terminal1.png" width="80%"></p>
+
+
 **Remote control cash draw functionality: by 02/24**
 <br />
 
@@ -27,6 +30,7 @@ Get started today by accessing our demo at https://eatify-22231.web.app/. We're 
 <br />
 
 [![Earlier version](https://github.com/yiqun12/eatifyPos/blob/master/pictures/first_round_video.png)](https://www.youtube.com/shorts/MqSUspurhw4 "Earlier version")
+
 
 ## Technical details && install instruction
 The frontend of EatifyPos is developed using React.js, while the backend is built on Node.js. Firebase is utilized for authentication, database management, hosting, and cloud functions. Online payments are handled by Stripe, and thermal printers are utilized to generate receipts. 
