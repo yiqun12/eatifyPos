@@ -83,7 +83,7 @@ This page displays the translation features in my website
 This page displays the income managment page from stripe:
 Online: 2.9% + 30¢ per successful card charge
 In person by terminal: 2.7% plus 5 cents per transaction
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin6.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin7.png" width="80%"></p>
 
 ### Checkout_Page
 Once a user has saved a card in our system, they can simply click on the checkout button to make a payment.
