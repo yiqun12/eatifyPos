@@ -11,7 +11,7 @@ As for diners, our platform offers a hassle-free experience for ordering food fo
 Get started today by accessing our demo at https://eatify-22231.web.app/. We're continually improving and optimizing our platform to ensure commercial viability, so stay tuned for updates.
 <br />
 
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/terminal1.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/terminal1.jpg" width="80%"></p>
 
 
 **Remote control cash draw functionality: by 02/24**
