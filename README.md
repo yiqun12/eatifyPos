@@ -1,10 +1,14 @@
 ## EatifyPos:
 
-Introducing EatifyPos, the online ordering platform that makes browsing menus, placing orders, and securely paying for your favorite meals hassle-free, whether you're dining in or ordering takeout.
+Introducing EatifyPos - the ultimate online ordering platform for both diners and business owners. Our platform makes browsing menus, placing orders, and securely paying for your favorite meals hassle-free, whether you're dining in or ordering takeout.
 
-For business owners, EatifyPos is the ultimate solution for streamlining your ordering, payment, and kitchen processes, ensuring smoother operations. Our platform is compatible with 95% of mobile devices and designed to be responsive on PC. You can stay updated on any issues with our real-time messaging and email confirmation system that notifies you and your customers every time an order is placed successfully. You can also customize the app's administrative page with your logo, title, and food items. Moreover, our platform provides the flexibility of in-person payment. You can assign seats for your dine-in customers, charge them in person using our stripe terminal, and even remotely control the cash drawer with just one click. The rates for online payments are 2.9% + 30¢ per successful card charge, and for in-person payments by terminal, it's 2.7% plus 5 cents per transaction.
+For business owners, EatifyPos streamlines your ordering, payment, and kitchen processes, ensuring smoother operations. Our platform is responsive on PC and compatible with 95% of mobile devices. With real-time messaging and email confirmation systems, you can stay updated on any issues and faults, and even customize the app's administrative page with your logo, title, and food items.
 
-Our platform offers a hassle-free experience for ordering food for delivery or takeout, with secure payment options powered by Stripe. Merchants receive digital and physical receipts, and you can track your order status in real-time. Saving your preferred orders makes reordering simpler, and you can access our demo at https://eatify-22231.web.app/ to get started. We're continually improving and optimizing our platform to ensure commercial viability.
+We also offer the flexibility of in-person payment, allowing you to design and assign seats for your dine-in customers, charge them in person using our Stripe terminal, and remotely control the cash drawer with just one click. Online payments rates are 2.9% + 30¢ per successful card charge, and in-person payments by stripe terminal, it's 2.7% plus 5 cents per transaction.
+
+As for diners, our platform offers a hassle-free experience for ordering food for delivery or takeout, with secure payment options powered by Stripe. Merchants receive digital and physical receipts, and you can track your order status in real-time. Saving your preferred orders makes reordering simpler.
+
+Get started today by accessing our demo at https://eatify-22231.web.app/. We're continually improving and optimizing our platform to ensure commercial viability, so stay tuned for updates.
 <br />
 
 **Remote control cash draw functionality: by 02/24**
