@@ -11,8 +11,6 @@ As for diners, our platform offers a hassle-free experience for ordering food fo
 Get started today by accessing our demo at https://eatify-22231.web.app/. We're continually improving and optimizing our platform to ensure commercial viability, so stay tuned for updates.
 <br />
 
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/terminal1.jpg" width="80%"></p>
-
 
 **Remote control cash draw functionality: by 02/24**
 <br />
@@ -88,6 +86,7 @@ This page displays the income managment page from stripe:
 Online: 2.9% + 30¢ per successful card charge
 In person by terminal: 2.7% plus 5 cents per transaction
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin7.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/terminal1.jpg" width="80%"></p>
 
 ### Checkout_Page
 Once a user has saved a card in our system, they can simply click on the checkout button to make a payment.
