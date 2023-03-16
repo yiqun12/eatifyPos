@@ -41,10 +41,11 @@ We welcome any contributions to the project. If you would like to contribute, pl
 # Table of contents
 ### App_Overview
   * [Home_Page](#Home_Page)
+  * [Admin_Page](#Admin_Page)
   * [Checkout_Page](#Checkout_Page)
+  * [Translate_features](#Translate_features)
   * [Account_Page](#Account_Page)
   * [Authentication_Page](#Authentication_Page)
-  * [Admin_Page](#Admin_Page)
   * [SignIn_Page](#SignIn_Page)
   * [Reservation_Page](#Reservation_Page)
 
@@ -57,6 +58,28 @@ This indicates how to display all the items on the shopping cart.
 This indicates how to see all the available burgers on the Home Page.
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image20.png" width="80%"></p>
 
+### Admin_Page
+The following showcases all the available features on the Admin Page.
+Food item modification:
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin1.png" width="80%"></p>
+Revenue chart in 31 days basis:
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin2.png" width="80%"></p>
+Assign table by in person order
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin3.png" width="80%"></p>
+Order history
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin4.png" width="80%"></p>
+Other setting
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin5.png" width="80%"></p>
+
+### Translate_features:
+This page displays the translation features in my website
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin6.png" width="80%"></p>
+
+### Income_management:
+This page displays the income managment page from stripe:
+Online: 2.9% + 30¢ per successful card charge
+In person by terminal: 2.7% plus 5 cents per transaction
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin6.png" width="80%"></p>
 
 ### Checkout_Page
 Once a user has saved a card in our system, they can simply click on the checkout button to make a payment.
@@ -103,19 +126,9 @@ Email for resetting password
 <p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image14.5.png" width="80%"></p>
 
 
-### Admin_Page
-The following showcases all the available features on the Admin Page.
-Input products by Json.
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin1.png" width="80%"></p>
-Examples are provided below for updating products and their corresponding pictures:
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin2.png" width="80%"></p>
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin3.png" width="80%"></p>
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin4.png" width="80%"></p>
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin5.png" width="80%"></p>
-
 ### Reservation_Page
 This page displays how to access our Reservation Page.
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin6.png" width="80%"></p>
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin7.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin22.png" width="80%"></p>
+
 
 
