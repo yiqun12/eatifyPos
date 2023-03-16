@@ -106,16 +106,16 @@ Email for resetting password
 ### Admin_Page
 The following showcases all the available features on the Admin Page.
 Input products by Json.
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image16.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin1.png" width="80%"></p>
 Examples are provided below for updating products and their corresponding pictures:
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image15.png" width="80%"></p>
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image18.png" width="80%"></p>
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image19.png" width="80%"></p>
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image17.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin2.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin3.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin4.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin5.png" width="80%"></p>
 
 ### Reservation_Page
 This page displays how to access our Reservation Page.
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image21.png" width="80%"></p>
-<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/image22.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin6.png" width="80%"></p>
+<p align="center"> <img src="https://github.com/yiqun12/eatifyPos/blob/master/pictures/admin7.png" width="80%"></p>
 
 

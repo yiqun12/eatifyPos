@@ -3,7 +3,7 @@ import { useState } from 'react';
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.css';
 import Button from 'react-bootstrap/Button';
-import { useRef, useEffect,useMemo } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import "./modal.css"
 import "./shopping_cart.css"
 import item_1_pic from "./item-1.png"
@@ -74,20 +74,21 @@ const Navbar = () => {
     // Update the products state with the array of products
     setProducts(productArray);
   }, []);
-  
+
 
   const [totalQuant, setTotalQuant] = useState(0);
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
     let height = 100;
-    if(width > 575){
-    if (products && products.length > 0) {
-      if (products.length < 4) {
-        height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
-      } else {
-        height = 3 * 123 + 140; // set height to show only the first 3 items and the shopping cart header
+    if (width > 575) {
+      if (products && products.length > 0) {
+        if (products.length < 4) {
+          height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
+        } else {
+          height = 3 * 123 + 140; // set height to show only the first 3 items and the shopping cart header
+        }
       }
-    }}else{
+    } else {
 
       height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
     }
@@ -110,7 +111,7 @@ const Navbar = () => {
     calculateTotalQuant();
 
     uploadProductsToLocalStorage(products);
-  }, [products,width]);
+  }, [products, width]);
   const handleDeleteClick = (productId) => {
     setProducts((prevProducts) => prevProducts.filter((product) => product.id !== productId));
     saveId(Math.random())
@@ -362,46 +363,46 @@ const Navbar = () => {
   };
 
 
-          // for translations sake
-          const trans = JSON.parse(localStorage.getItem("translations"))
-          const t = useMemo(() => {
-            const trans = JSON.parse(localStorage.getItem("translations"))
-            const translationsMode = localStorage.getItem("translationsMode")
-          
-            return (text) => {
-              //console.log(trans)
-              //console.log(translationsMode)
-          
-              if (trans != null) {
-                if (translationsMode != null) {
-                  if (trans[text] != null) {
-                    if (trans[text][translationsMode] != null) {
-                      return trans[text][translationsMode]
-                    }
-                  }
-                }
-              }
-          
-              return text
+  // for translations sake
+  const trans = JSON.parse(localStorage.getItem("translations"))
+  const t = useMemo(() => {
+    const trans = JSON.parse(localStorage.getItem("translations"))
+    const translationsMode = localStorage.getItem("translationsMode")
+
+    return (text) => {
+      //console.log(trans)
+      //console.log(translationsMode)
+
+      if (trans != null) {
+        if (translationsMode != null) {
+          if (trans[text] != null) {
+            if (trans[text][translationsMode] != null) {
+              return trans[text][translationsMode]
             }
-          }, [localStorage.getItem("translations"), localStorage.getItem("translationsMode")])
-          
-
-          const changeLanguage = (e) => {
-            var languageCode = e.target.value
-            localStorage.setItem("translationsMode", languageCode)
-            saveId(Math.random()) 
-            // if (languageCode == "ch")
-            // console.log(languageCode)
           }
+        }
+      }
 
-          const languageOption = () => {
-            //console.log(localStorage.getItem("translationsMode"))
-            if (localStorage.getItem("translationsMode") == null)
-              return 'en'
-            else
-              return localStorage.getItem("translationsMode")
-          }
+      return text
+    }
+  }, [localStorage.getItem("translations"), localStorage.getItem("translationsMode")])
+
+
+  const changeLanguage = (e) => {
+    var languageCode = e.target.value
+    localStorage.setItem("translationsMode", languageCode)
+    saveId(Math.random())
+    // if (languageCode == "ch")
+    // console.log(languageCode)
+  }
+
+  const languageOption = () => {
+    //console.log(localStorage.getItem("translationsMode"))
+    if (localStorage.getItem("translationsMode") == null)
+      return 'en'
+    else
+      return localStorage.getItem("translationsMode")
+  }
 
   return (
 
@@ -430,68 +431,68 @@ const Navbar = () => {
             </div>
 
           </div>
-          <div style={width > 575 ? { overflowY: "auto" ,  borderBottom: "1px solid #E1E8EE" } : {}}>
+          <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : {}}>
             {products.map((product) => (
 
-            <div key={product.id} className="item">
-              <div className="buttons">
-                <span className="delete-btn"
-                  onClick={() => {
-                    handleDeleteClick(product.id)
-                  }}></span>
-                {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
-              </div>
-              <div className="image">
-                <div class="image-container" >
-                  <img style={{ margin: '0px' }} src={product.image} alt="" />
-                </div>
-              </div>
-              <div className="description">
-                <span style={{ whiteSpace: 'nowrap' }}>{t(product.name)}</span>
-                <span>${product.quantity * product.subtotal}</span>
-              </div>
-
-              {/* <div className="theset"> */}
-              <div className="quantity"
-                style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
-                <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                  <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+              <div key={product.id} className="item">
+                <div className="buttons">
+                  <span className="delete-btn"
                     onClick={() => {
-                      if (product.quantity === 1) {
-                        handleDeleteClick(product.id);
-                      } else {
-                        handleMinusClick(product.id);
-                      }
-                    }}>
-                    <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
-                  </button>
+                      handleDeleteClick(product.id)
+                    }}></span>
+                  {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
                 </div>
-                {/*  <input 
+                <div className="image">
+                  <div class="image-container" >
+                    <img style={{ margin: '0px' }} src={product.image} alt="" />
+                  </div>
+                </div>
+                <div className="description">
+                  <span style={{ whiteSpace: 'nowrap' }}>{t(product.name)}</span>
+                  <span>${product.quantity * product.subtotal}</span>
+                </div>
+
+                {/* <div className="theset"> */}
+                <div className="quantity"
+                  style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
+                  <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                    <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                      onClick={() => {
+                        if (product.quantity === 1) {
+                          handleDeleteClick(product.id);
+                        } else {
+                          handleMinusClick(product.id);
+                        }
+                      }}>
+                      <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
+                    </button>
+                  </div>
+                  {/*  <input 
   type="text" 
   style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }} 
   value={product.quantity} 
   onChange={(e) => handleQuantityChange(product.id, e.target.value)} 
   onBlur={() => handleBlur(product)} 
           />*/}
-                <span
-                  type="text"
-                  style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                >{product.quantity}</span>
-                <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                  <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                    onClick={() => {
-                      handlePlusClick(product.id)
-                      saveId(Math.random());
-                    }}>
-                    <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
-                  </button>
+                  <span
+                    type="text"
+                    style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                  >{product.quantity}</span>
+                  <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                    <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                      onClick={() => {
+                        handlePlusClick(product.id)
+                        saveId(Math.random());
+                      }}>
+                      <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-          ))}
+            ))}
 
-</div>
+          </div>
         </div>
       </div>
       {/**navbar */}
@@ -546,7 +547,7 @@ const Navbar = () => {
 
               <div>
                 <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
-                <a className="email-link"><i className="material-icons nav__icon">person</i></a>
+                  <a className="email-link"><i className="material-icons nav__icon">person</i></a>
                   <a className="email-link">{user ? t("Account") : t("Login")}</a>
                 </a>
               </div>
@@ -571,9 +572,9 @@ const Navbar = () => {
       {isMobile ?
         <nav className="nav___">
           <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
-          <a className="email-link"><i className="material-icons nav__icon">home</i></a>
+            <a className="email-link"><i className="material-icons nav__icon">home</i></a>
             <a className="email-link">{t("Home")}</a>
-            
+
           </a>
           <a
             onMouseEnter={handleMouseEnter}
@@ -596,7 +597,7 @@ const Navbar = () => {
             </div>
           </a>
           <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
-          <a className="email-link"><i className="material-icons nav__icon">person</i></a>
+            <a className="email-link"><i className="material-icons nav__icon">person</i></a>
             <a className="email-link">{user ? t("Account") : t("Login")}</a>
           </a>
         </nav> : <></>}

@@ -13,7 +13,7 @@
 }</style>
 </head>
 
-<body>
+<body onload="loadingFunction()">
     <!-- partial:index.partial.html -->
     <div class="container-fluid text-center">
         <h1><a href="https://www.getseat.org/" target="_blank">Seat</a> Restaurant reservation system</h1>
@@ -31,7 +31,7 @@
                 <div class="col-sm-2 form-group">
                     <label>&nbsp;</label>
                     <br />
-                    <button class="btn btn-primary">Save</button>
+                    <button class="btn btn-primary">Load</button>
                 </div>
             </div>
             <div class="btn-group">
@@ -101,6 +101,12 @@ const wallShadow = 'rgba(0, 0, 0, 0.4) 5px 5px 20px'
 let widthEl = document.getElementById('width')
 let heightEl = document.getElementById('height')
 let canvasEl = document.getElementById('canvas')
+
+function loadingFunction() {
+  resizeCanvas()
+  initCanvas()
+  addDefaultObjects()
+}
 
 function initCanvas() {
   if (canvas) {
@@ -186,6 +192,7 @@ function resizeCanvas() {
 }
 resizeCanvas()
 
+
 widthEl.addEventListener('change', () => {
   resizeCanvas()
   initCanvas()
@@ -234,6 +241,13 @@ function addRect(left, top, width, height) {
     id: id,
     number: number
   })
+  // this on() triggers when the table is selected
+  g.on("selected", function() { 
+        // this.number returns the number, this returns the whole item
+        //console.log("This is table ", this.number);
+        const selectedNumber = this.number;
+        window.parent.postMessage(selectedNumber, "*");
+    })
   canvas.add(g)
   number++
   return g
@@ -269,6 +283,12 @@ function addCircle(left, top, radius) {
     id: id,
     number: number
   })
+  // this on() triggers when the table is selected
+  g.on("selected", function() { 
+        // this.number returns the number, this returns the whole item
+        console.log("This is table ", this.number);
+    })
+  
   canvas.add(g)
   number++
   return g
@@ -304,6 +324,11 @@ function addTriangle(left, top, radius) {
     id: id,
     number: number
   })
+  // this on() triggers when the table is selected
+  g.on("selected", function() { 
+        // this.number returns the number, this returns the whole item
+        console.log("This is table ", this.number);
+    })
   canvas.add(g)
   number++
   return g
@@ -543,7 +568,7 @@ slider.noUiSlider.on('update', function(values, handle) {
 	sliderValue.innerHTML = formatTime(values[handle])
 })
 
-function addDefaultObjects() {//load
+function addDefaultObjects() {
   addChair(15, 105)
   addChair(15, 135)
   addChair(75, 105)

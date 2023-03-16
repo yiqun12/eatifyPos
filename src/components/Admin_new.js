@@ -1,6 +1,6 @@
 import React from 'react';
 import './style.css';
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useMyHook } from '../pages/myHook';
@@ -12,7 +12,8 @@ import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import icons8Drawer from './icons8-drawer-32.png'; // Tell webpack this JS file uses this image
-
+import plusSvg from '../pages/plus.svg';
+import minusSvg from '../pages/minus.svg';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -24,17 +25,9 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } fr
 
 const theme = createTheme();
 
-function App() {
-    const iframeRef = useRef(null);
 
-    useEffect(() => {
-      window.addEventListener('message', (event) => {
-        if (event.data === 'buttonClicked') {
-          console.log('Button clicked2!');
-        }
-      });
-      iframeRef.current.src = './seat.html';
-    }, []);
+function App() {
+
 
     const [orders, setOrders] = useState();
     const [Food_array, setFood_array] = useState("");
@@ -363,6 +356,164 @@ function App() {
     });
     const sortedData = filteredData.sort((a, b) => new Date(a.date) - new Date(b.date));
 
+
+
+
+
+
+    const [src, setSrc] = useState('./seat.html');
+    const [initialSrc, setInitialSrc] = useState('./seat.html');
+    const [isLoading, setIsLoading] = useState(false); // added state variable
+    const iframeRef = useRef(null);
+
+    const messageHandler = useCallback((event) => {
+        if (event.data === 'buttonClicked') {
+            console.log('Button clicked2!');
+        }
+    }, []);
+
+    useEffect(() => {
+        window.addEventListener('message', messageHandler);
+
+        // Remove the event listener when the component is unmounted
+        return () => {
+            window.removeEventListener('message', messageHandler);
+        };
+    }, [messageHandler]);
+
+    useEffect(() => {
+        if (iframeRef.current) {
+            setInitialSrc(iframeRef.current.src);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (iframeRef.current) {
+            setIsLoading(true); // set isLoading to true when the iframe starts loading
+            iframeRef.current.src = src;
+        }
+    }, [src, selectedItem]);
+
+    //listen to table
+    useEffect(() => {
+        const handleIframeMessage = event => {
+            const selectedNumber = event.data;
+            listenNumber(selectedNumber);
+        };
+        window.addEventListener("message", handleIframeMessage);
+        return () => {
+            window.removeEventListener("message", handleIframeMessage);
+        };
+    }, []);
+
+    function listenNumber(number) {
+        console.log("The selected table number is ", number);
+    }
+
+    /**admin shopping cart */
+
+    const [shopItem, setShopItem] = useState(JSON.parse(localStorage.getItem('shopItem')) || []);
+    const [tableItem, setTableItem] = useState([]);
+    
+    let table_json = {}
+    table_json["table1"] = JSON.parse(localStorage.getItem('shopItem'))
+    table_json["table2"] = JSON.parse(localStorage.getItem('shopItem'))
+    console.log(table_json )
+
+
+    const shopAdd = (id) => {
+
+        const foodItem = Food_arrays.find(item => item.id === id);
+        const dictArray = {
+            id: id,
+            name: foodItem.name,
+            category: foodItem.category,
+            image: foodItem.image,
+            price: foodItem.price,
+            subtotal: foodItem.subtotal,
+            quantity: 1
+        };
+        console.log(dictArray);
+        // Check if shopItem exists in localStorage
+        if (!localStorage.getItem('shopItem')) {
+            // If shopItem does not exist, create a new array containing dictArray
+            const newShopItem = [dictArray];
+            // Save the new array to localStorage
+            localStorage.setItem('shopItem', JSON.stringify(newShopItem));
+            setShopItem(newShopItem)
+        } else {
+            // Retrieve the shopItem array from localStorage
+            const shopItem = JSON.parse(localStorage.getItem('shopItem')) || [];
+
+            // Check if the id already exists in the shopItem array
+            const idExists = shopItem.some(item => item.id === dictArray.id);
+
+            if (!idExists) {
+                // If the id does not exist, add the dictArray object to the shopItem array
+                shopItem.push(dictArray);
+                // Save the updated shopItem array back to localStorage
+                localStorage.setItem('shopItem', JSON.stringify(shopItem));
+                setShopItem(shopItem)
+            } else {
+                clickedAdd(id)
+            }
+        }
+
+        saveId(Math.random());
+        //searchItemFromShopItem("cheese")
+        //search
+    }
+    const clickedAdd = (id) => {
+        const cartItems = shopItem
+        // Find the item in the cartItems array with the matching id
+        const item = cartItems.find(item => item.id === id);
+
+        // If the item is found, increase its quantity by 1
+        if (item) {
+            item.quantity += 1;
+        }
+        console.log(cartItems)
+        localStorage.setItem('shopItem', JSON.stringify(shopItem));
+        // Return the updated cartItems array
+        //localStorage.setItem('shopItem', JSON.stringify(cartItems));
+    }
+    const clickedMinus = (id) => {
+        const cartItems = shopItem
+        // Find the item in the cartItems array with the matching id
+        const item = cartItems.find(item => item.id === id);
+
+        // If the item is found and its quantity is greater than 1, decrease its quantity by 1
+        if (item && item.quantity > 1) {
+            item.quantity -= 1;
+        }
+        console.log(cartItems)
+        localStorage.setItem('shopItem', JSON.stringify(shopItem));
+        // Return the updated cartItems array
+        //localStorage.setItem('shopItem', JSON.stringify(cartItems));
+    }
+    const deleteItem = (id) => {
+        const cartItems = shopItem
+        // Find the index of the item in the cartItems array with the matching id
+        const index = cartItems.findIndex(item => item.id === id);
+
+        // If the item is found, remove it from the cartItems array using the splice() method
+        if (index !== -1) {
+            cartItems.splice(index, 1);
+        }
+
+        console.log(cartItems)
+        localStorage.setItem('shopItem', JSON.stringify(shopItem));
+    }
+    const searchItemFromShopItem = (input) => {
+        const shopItem_ = JSON.parse(localStorage.getItem('shopItem')) || [];
+
+        // Filter the items that have "cheese" in their name
+        const cheeseItems = shopItem_.filter(item => item.name.toLowerCase().includes(input));
+
+        // Return the cheeseItems array
+        console.log(cheeseItems)
+    }
+
     return (
         <div style={{ maxWidth: '1240px', display: 'grid', justifySelf: 'center', justifyContent: 'center', margin: 'auto', alignContent: 'center' }}>
             <section className="container2">
@@ -586,7 +737,7 @@ function App() {
 
                         </ThemeProvider>
 
-                        <section className="task-list" style={{marginTop:"-100px"}}>
+                        <section className="task-list" style={{ marginTop: "-100px" }}>
                             <h2>Food Items</h2>
                             <div className="task-wrap" style={{ minHeight: '750px', maxHeight: '750px', overflowY: 'scroll' }}>
                                 {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
@@ -636,46 +787,131 @@ function App() {
 
 
 
-                            selectedItem === 'Order' ? 
-                            
-                            
-                            <>
-    <div style={{ height: "900px" }}>
-      <iframe ref={iframeRef} style={{ width: '540px', height: '100%', overflow: 'hidden' }}></iframe>
-    </div>
-    
-
-    <section className="task-list" style={{marginTop:"-175px"}}>
-                            <h2>Food Items</h2>
-                            <div className="task-wrap" style={{ minHeight: '750px', maxHeight: '750px', overflowY: 'scroll' }}>
-                                {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
+                            selectedItem === 'Order' ?
 
 
-                                    <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
-                                        <div style={{ display: "flex", alignItems: "center" }}>
-                                            <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
-                                                <img src={task.image} alt="" />
-                                            </div>
-                                            <div style={{ marginLeft: "10px" }}>{task.name}</div>
-                                        </div>
-                                        <span style={{ cursor: 'pointer' }}
-                                            onClick={() => handleUpdateForm(task.id)}
-                                            className="task-card__tag task-card__tag--marketing">{t("Edit")}</span>
-                                        <span className="task-card__option">
-                                            <span style={{ cursor: 'pointer' }}
-                                                onClick={() => deleteFood_array(task.id)}
-                                                className="task-card__tag task-card__tag--design">{t("Delete")}</span>
-                                        </span>
+                                <>
+                                    <div>
+                                        {isLoading && <div>Loading spinner...</div>} {/* show the loading spinner while isLoading is true */}
+                                        <iframe key="admin" ref={iframeRef} style={{ width: '540px', height: '800px', overflow: 'hidden' }} loading="lazy" onLoad={() => { setIsLoading(false); }}></iframe>
                                     </div>
-                                ))}
-                            </div>
-                        </section>
-    
-                            </>
-                            
-                            
-                            
-                            :
+
+                                    <section className="task-list" style={{ marginTop: "-175px" }}>
+                                        <div className="task-wrap" style={{ minHeight: '350px', maxHeight: '350px', overflowY: 'scroll' }}>
+                                            <div className={`task-card ${"task.checked" ? "task-card--done" : ""}`}>
+                                                <div style={{ display: "flex", alignItems: "center" }}>
+
+
+
+                                                    <div>
+                                                        {shopItem.map((task) => (
+                                                            <div
+                                                                key={task.id}
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    justifyContent: 'space-between',
+                                                                    alignItems: 'center',
+                                                                    width: '100%',
+                                                                }}
+                                                            >
+<div style={{width:"175px"}}>
+  <div style={{ marginLeft: '10px' }}>{task.name}</div>
+  <div style={{ marginLeft: '10px' }}>
+    <span>${task.subtotal} x {task.quantity} = ${task.quantity * task.subtotal}</span>
+  </div>
+</div>
+<div>
+  <div className="quantity" style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: '5px', height: 'fit-content' }}>
+    <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: 'flex', borderLeft: '1px solid', borderTop: '1px solid', borderBottom: '1px solid', borderRadius: '12rem 0 0 12rem', height: '30px' }}>
+      <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: 'flex' }} onClick={() => {
+        if (task.quantity === 1) {
+          deleteItem(task.id);
+          saveId(Math.random());
+        } else {
+          clickedMinus(task.id);
+          saveId(Math.random());
+        }
+      }}>
+        <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
+      </button>
+    </div>
+    <span type="text" style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: '1px solid', borderBottom: '1px solid', display: 'flex', padding: '0px' }}>{task.quantity}</span>
+    <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: 'flex', borderRight: '1px solid', borderTop: '1px solid', borderBottom: '1px solid', borderRadius: '0 12rem 12rem 0', height: '30px' }}>
+      <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: 'flex' }} onClick={() => {
+        clickedAdd(task.id)
+        saveId(Math.random());
+      }}>
+        <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
+      </button>
+    </div>
+  </div>
+
+</div>
+
+
+
+                                                            </div>
+                                                        ))}
+                                                        <div>
+                                                            <hr />
+                                                            <div>Subtotal: $ {shopItem.reduce((accumulator, task) => {
+    return accumulator + task.quantity * task.subtotal;
+}, 0).toFixed(2)}</div>
+
+<div>Tax: $ {(shopItem.reduce((accumulator, task) => {
+    return accumulator + task.quantity * task.subtotal;
+}, 0) * 0.086).toFixed(2)}</div>
+
+<div>Total: $ {(shopItem.reduce((accumulator, task) => {
+    return accumulator + task.quantity * task.subtotal;
+}, 0) * 1.086).toFixed(2)}</div>
+
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+
+
+
+                                            </div>
+                                        </div>
+                                    </section>
+                                    <section className="task-list" style={{ marginTop: "200px" }}>
+                                        <b>Food Items</b>
+                                        <div className="task-wrap" style={{ minHeight: '400px', maxHeight: '400px', overflowY: 'scroll' }}>
+                                            {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
+                                                <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
+                                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                                        <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
+                                                            <img src={task.image} alt="" />
+                                                        </div>
+                                                        <div style={{ marginLeft: "10px" }}>{task.name}</div>
+                                                        <span
+                                                            style={{ cursor: 'pointer', marginLeft: 'auto' }}
+                                                            onClick={() => {
+                                                                shopAdd(task.id);
+                                                                saveId(Math.random());
+                                                            }}
+                                                            className="task-card__tag task-card__tag--marketing"
+                                                        >
+                                                            {t("Add")}
+                                                        </span>
+
+                                                    </div>
+
+
+
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </section>
+
+                                </>
+
+
+
+                                :
 
 
 
