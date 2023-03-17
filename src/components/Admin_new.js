@@ -109,7 +109,7 @@ function App() {
     */
 
     const [inputData, setInputData] = useState([]);
-
+    const [searchData, setSearchData] = useState([]);
     const handleSubmit = async (event) => {
         //console.log(JSON.stringify(data))
 
@@ -358,8 +358,16 @@ function App() {
 
 
 
-
-
+    if (!localStorage.getItem("tableMode")) {
+        localStorage.setItem("tableMode", "table-NaN");
+    }
+    if (!localStorage.getItem("table-NaN")) {
+        localStorage.setItem("table-NaN", "[]");
+    }
+    if (!localStorage.getItem(localStorage.getItem("tableMode"))) {
+        localStorage.setItem("table-NaN", "[]");
+        localStorage.setItem("tableMode", "table-NaN");
+    }
 
     const [src, setSrc] = useState('./seat.html');
     const [initialSrc, setInitialSrc] = useState('./seat.html');
@@ -405,24 +413,44 @@ function App() {
             window.removeEventListener("message", handleIframeMessage);
         };
     }, []);
-
+    //JSON.parse(localStorage.getItem(localStorage.getItem("tableMode")))
     function listenNumber(number) {
-        console.log("The selected table number is ", number);
+        var tableName = "table-" + parseInt(number);
+        if (tableName == "table-NaN") {
+            return
+        }
+
+        console.log(tableName)
+        if (!localStorage.getItem(tableName)) {
+            // Create the table if it does not exist
+            console.log("creating table ", number);
+            localStorage.setItem(tableName, "[]");
+        } else {
+            // Switch to the existing table
+            var tableMode = localStorage.getItem("tableMode");
+            if (tableMode == null) {
+                // If tableMode does not exist, create it and set the selected table number
+                localStorage.setItem("tableMode", tableName);
+            } else {
+                // If tableMode exists, update it with the selected table number
+                localStorage.setItem("tableMode", tableName);
+            }
+        }
+        localStorage.setItem("tableMode", tableName);
+        saveId(Math.random());
     }
 
     /**admin shopping cart */
 
-    const [shopItem, setShopItem] = useState(JSON.parse(localStorage.getItem('shopItem')) || []);
+    //const [shopItem, setShopItem] = useState(JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))) || []);
     const [tableItem, setTableItem] = useState([]);
-    
-    let table_json = {}
-    table_json["table1"] = JSON.parse(localStorage.getItem('shopItem'))
-    table_json["table2"] = JSON.parse(localStorage.getItem('shopItem'))
-    console.log(table_json )
 
+    //JSON.parse(localStorage.getItem(localStorage.getItem("tableMode")))
 
     const shopAdd = (id) => {
-
+        if (localStorage.getItem("tableMode") == "table-NaN") {
+            return
+        }
         const foodItem = Food_arrays.find(item => item.id === id);
         const dictArray = {
             id: id,
@@ -435,28 +463,23 @@ function App() {
         };
         console.log(dictArray);
         // Check if shopItem exists in localStorage
-        if (!localStorage.getItem('shopItem')) {
-            // If shopItem does not exist, create a new array containing dictArray
-            const newShopItem = [dictArray];
-            // Save the new array to localStorage
-            localStorage.setItem('shopItem', JSON.stringify(newShopItem));
-            setShopItem(newShopItem)
+
+        // Retrieve the shopItem array from localStorage
+
+        const shopItem = JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))) || []
+
+        // Check if the id already exists in the shopItem array
+        const idExists = shopItem.some(item => item.id === dictArray.id);
+
+        if (!idExists) {
+            // If the id does not exist, add the dictArray object to the shopItem array
+            shopItem.push(dictArray);
+            // Save the updated shopItem array back to localStorage
+            localStorage.setItem(localStorage.getItem("tableMode"), JSON.stringify(shopItem))
+            //localStorage.setItem('shopItem', JSON.stringify(shopItem));
+            //setShopItem(shopItem)
         } else {
-            // Retrieve the shopItem array from localStorage
-            const shopItem = JSON.parse(localStorage.getItem('shopItem')) || [];
-
-            // Check if the id already exists in the shopItem array
-            const idExists = shopItem.some(item => item.id === dictArray.id);
-
-            if (!idExists) {
-                // If the id does not exist, add the dictArray object to the shopItem array
-                shopItem.push(dictArray);
-                // Save the updated shopItem array back to localStorage
-                localStorage.setItem('shopItem', JSON.stringify(shopItem));
-                setShopItem(shopItem)
-            } else {
-                clickedAdd(id)
-            }
+            clickedAdd(id)
         }
 
         saveId(Math.random());
@@ -464,7 +487,10 @@ function App() {
         //search
     }
     const clickedAdd = (id) => {
-        const cartItems = shopItem
+        if (localStorage.getItem("tableMode") == "table-NaN") {
+            return
+        }
+        const cartItems = JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))) || []
         // Find the item in the cartItems array with the matching id
         const item = cartItems.find(item => item.id === id);
 
@@ -473,12 +499,15 @@ function App() {
             item.quantity += 1;
         }
         console.log(cartItems)
-        localStorage.setItem('shopItem', JSON.stringify(shopItem));
+        localStorage.setItem(localStorage.getItem("tableMode"), JSON.stringify(cartItems));
         // Return the updated cartItems array
         //localStorage.setItem('shopItem', JSON.stringify(cartItems));
     }
     const clickedMinus = (id) => {
-        const cartItems = shopItem
+        if (localStorage.getItem("tableMode") == "table-NaN") {
+            return
+        }
+        const cartItems = JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))) || []
         // Find the item in the cartItems array with the matching id
         const item = cartItems.find(item => item.id === id);
 
@@ -487,12 +516,12 @@ function App() {
             item.quantity -= 1;
         }
         console.log(cartItems)
-        localStorage.setItem('shopItem', JSON.stringify(shopItem));
+        localStorage.setItem(localStorage.getItem("tableMode"), JSON.stringify(cartItems));
         // Return the updated cartItems array
         //localStorage.setItem('shopItem', JSON.stringify(cartItems));
     }
     const deleteItem = (id) => {
-        const cartItems = shopItem
+        const cartItems = JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))) || []
         // Find the index of the item in the cartItems array with the matching id
         const index = cartItems.findIndex(item => item.id === id);
 
@@ -502,16 +531,17 @@ function App() {
         }
 
         console.log(cartItems)
-        localStorage.setItem('shopItem', JSON.stringify(shopItem));
+        localStorage.setItem(localStorage.getItem("tableMode"), JSON.stringify(cartItems));
     }
     const searchItemFromShopItem = (input) => {
-        const shopItem_ = JSON.parse(localStorage.getItem('shopItem')) || [];
+        const shopItem_ = JSON.parse(localStorage.getItem('Food_arrays')) || [];
 
         // Filter the items that have "cheese" in their name
         const cheeseItems = shopItem_.filter(item => item.name.toLowerCase().includes(input));
 
         // Return the cheeseItems array
         console.log(cheeseItems)
+        saveId(Math.random());
     }
 
     return (
@@ -804,7 +834,27 @@ function App() {
 
 
                                                     <div>
-                                                        {shopItem.map((task) => (
+
+
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "5px" }}>
+                                                            <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '10px' }}>
+                                                                {localStorage.getItem("tableMode") === "table-NaN" ? (
+                                                                    <>Did not select table</>
+                                                                ) : (
+                                                                    <>{localStorage.getItem("tableMode")}</>
+                                                                )}
+                                                            </span>
+                                                            <Button variant="contained">
+                                                                {t("Checkout")} $ {(JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+                                                                    return accumulator + task.quantity * task.subtotal;
+                                                                }, 0) * 1.086).toFixed(2)}
+                                                            </Button>
+                                                        </div>
+                                                        <hr />
+
+                                                        {localStorage.getItem(localStorage.getItem("tableMode")) == "[]" ? <>Void</> : <></>}
+
+                                                        {JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).map((task) => (
                                                             <div
                                                                 key={task.id}
                                                                 style={{
@@ -814,39 +864,39 @@ function App() {
                                                                     width: '100%',
                                                                 }}
                                                             >
-<div style={{width:"175px"}}>
-  <div style={{ marginLeft: '10px' }}>{task.name}</div>
-  <div style={{ marginLeft: '10px' }}>
-    <span>${task.subtotal} x {task.quantity} = ${task.quantity * task.subtotal}</span>
-  </div>
-</div>
-<div>
-  <div className="quantity" style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: '5px', height: 'fit-content' }}>
-    <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: 'flex', borderLeft: '1px solid', borderTop: '1px solid', borderBottom: '1px solid', borderRadius: '12rem 0 0 12rem', height: '30px' }}>
-      <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: 'flex' }} onClick={() => {
-        if (task.quantity === 1) {
-          deleteItem(task.id);
-          saveId(Math.random());
-        } else {
-          clickedMinus(task.id);
-          saveId(Math.random());
-        }
-      }}>
-        <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
-      </button>
-    </div>
-    <span type="text" style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: '1px solid', borderBottom: '1px solid', display: 'flex', padding: '0px' }}>{task.quantity}</span>
-    <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: 'flex', borderRight: '1px solid', borderTop: '1px solid', borderBottom: '1px solid', borderRadius: '0 12rem 12rem 0', height: '30px' }}>
-      <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: 'flex' }} onClick={() => {
-        clickedAdd(task.id)
-        saveId(Math.random());
-      }}>
-        <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
-      </button>
-    </div>
-  </div>
+                                                                <div style={{ width: "175px" }}>
+                                                                    <div style={{ marginLeft: '10px' }}>{task.name}</div>
+                                                                    <div style={{ marginLeft: '10px' }}>
+                                                                        <span>${task.subtotal} x {task.quantity} = ${task.quantity * task.subtotal}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="quantity" style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: '5px', height: 'fit-content' }}>
+                                                                        <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: 'flex', borderLeft: '1px solid', borderTop: '1px solid', borderBottom: '1px solid', borderRadius: '12rem 0 0 12rem', height: '30px' }}>
+                                                                            <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: 'flex' }} onClick={() => {
+                                                                                if (task.quantity === 1) {
+                                                                                    deleteItem(task.id);
+                                                                                    saveId(Math.random());
+                                                                                } else {
+                                                                                    clickedMinus(task.id);
+                                                                                    saveId(Math.random());
+                                                                                }
+                                                                            }}>
+                                                                                <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
+                                                                            </button>
+                                                                        </div>
+                                                                        <span type="text" style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: '1px solid', borderBottom: '1px solid', display: 'flex', padding: '0px' }}>{task.quantity}</span>
+                                                                        <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: 'flex', borderRight: '1px solid', borderTop: '1px solid', borderBottom: '1px solid', borderRadius: '0 12rem 12rem 0', height: '30px' }}>
+                                                                            <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: 'flex' }} onClick={() => {
+                                                                                clickedAdd(task.id)
+                                                                                saveId(Math.random());
+                                                                            }}>
+                                                                                <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
 
-</div>
+                                                                </div>
 
 
 
@@ -854,17 +904,17 @@ function App() {
                                                         ))}
                                                         <div>
                                                             <hr />
-                                                            <div>Subtotal: $ {shopItem.reduce((accumulator, task) => {
-    return accumulator + task.quantity * task.subtotal;
-}, 0).toFixed(2)}</div>
+                                                            <div>Subtotal: $ {JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+                                                                return accumulator + task.quantity * task.subtotal;
+                                                            }, 0).toFixed(2)}</div>
 
-<div>Tax: $ {(shopItem.reduce((accumulator, task) => {
-    return accumulator + task.quantity * task.subtotal;
-}, 0) * 0.086).toFixed(2)}</div>
+                                                            <div>Tax: $ {(JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+                                                                return accumulator + task.quantity * task.subtotal;
+                                                            }, 0) * 0.086).toFixed(2)}</div>
 
-<div>Total: $ {(shopItem.reduce((accumulator, task) => {
-    return accumulator + task.quantity * task.subtotal;
-}, 0) * 1.086).toFixed(2)}</div>
+                                                            <div>Total: $ {(JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+                                                                return accumulator + task.quantity * task.subtotal;
+                                                            }, 0) * 1.086).toFixed(2)}</div>
 
                                                         </div>
                                                     </div>
@@ -878,7 +928,20 @@ function App() {
                                         </div>
                                     </section>
                                     <section className="task-list" style={{ marginTop: "200px" }}>
-                                        <b>Food Items</b>
+
+                                        <input
+                                            type="text"
+                                            name="inputData"
+                                            placeholder={t("Search food items")}
+                                            className="search-bar"
+                                            style={{ marginLeft: "5%", height: '30px', width: "80%" }}
+                                            onChange={(e) => {
+                                                searchItemFromShopItem(e.target.value);
+                                                setSearchData(e.target.value);
+                                            }}
+                                            value={searchData}
+                                        />
+
                                         <div className="task-wrap" style={{ minHeight: '400px', maxHeight: '400px', overflowY: 'scroll' }}>
                                             {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
                                                 <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
