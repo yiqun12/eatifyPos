@@ -21,7 +21,10 @@ import { Row, Col, Container } from "react-bootstrap"
 import { useRef } from "react";
 import { useUserContext } from "../context/userContext";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } from 'recharts';
-
+/**
+         const selectedNumber = this.number;
+        window.parent.postMessage(selectedNumber, "*");
+ */
 
 const theme = createTheme();
 
@@ -58,6 +61,45 @@ function App() {
         } catch (e) {
             console.error("Error adding document: ", e);
         }
+    }
+    const handleAdminCheckout = async () => {
+        if (localStorage.getItem("tableMode") == "table-NaN") {
+            return
+        }
+
+        //console.log(localStorage.getItem(localStorage.getItem("tableMode")))
+        const food_array = JSON.parse(localStorage.getItem(localStorage.getItem("tableMode")));
+          const matched_food_array = food_array.map(({ id, quantity }) => {
+            const matched_food = JSON.parse(localStorage.getItem("Food_arrays")).find(foodItem => foodItem.id === id);
+            return { ...matched_food, quantity };
+          });
+          
+          console.log(matched_food_array);
+          const total_ = JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+            return accumulator + task.quantity * task.subtotal;
+        }, 0).toFixed(2)
+         try {
+            const dateTime = new Date().toISOString();
+            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+            const docRef = await addDoc(collection(db, "success_payment"), {
+                dateTime: date,
+                receiptData: JSON.stringify(matched_food_array),
+                //charges.data[0].billing_details.name = "DineIn"
+                amount:total_*100,
+                amount_received: total_*100,
+                user_email:"Admin@gmail.com",
+                charges:{
+                    data:[
+                        {
+                            billing_details:{name:"DineIn"}
+                        }
+                    ]
+                }
+            });
+            console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        } 
     }
     const handleClickFavicon = (e) => {
         e.preventDefault();
@@ -533,6 +575,7 @@ function App() {
         console.log(cartItems)
         localStorage.setItem(localStorage.getItem("tableMode"), JSON.stringify(cartItems));
     }
+    const [cheeseItems_, setCheeseItems_] = useState(JSON.parse(localStorage.getItem('Food_arrays')) || []);
     const searchItemFromShopItem = (input) => {
         const shopItem_ = JSON.parse(localStorage.getItem('Food_arrays')) || [];
 
@@ -541,8 +584,11 @@ function App() {
 
         // Return the cheeseItems array
         console.log(cheeseItems)
+        setCheeseItems_(cheeseItems)
         saveId(Math.random());
     }
+    
+    let search_food = !searchData? Food_arrays :cheeseItems_;  
 
     return (
         <div style={{ maxWidth: '1240px', display: 'grid', justifySelf: 'center', justifyContent: 'center', margin: 'auto', alignContent: 'center' }}>
@@ -574,9 +620,10 @@ function App() {
                                 </a>
                             </li>
                             <li className="main-nav__item">
-                                <a className="main-nav__link" onClick={() => handleItemClick('History')}>
-                                    History
-                                </a>
+                            <a className="main-nav__link" onClick={() => { handleItemClick('History'); fetchPost(); }}>
+  History
+</a>
+
                             </li>
                             <li className="main-nav__item">
                                 <a className="main-nav__link" onClick={() => handleItemClick('Settings')}>
@@ -844,7 +891,7 @@ function App() {
                                                                     <>{localStorage.getItem("tableMode")}</>
                                                                 )}
                                                             </span>
-                                                            <Button variant="contained">
+                                                            <Button variant="contained" onClick={handleAdminCheckout}>
                                                                 {t("Checkout")} $ {(JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).reduce((accumulator, task) => {
                                                                     return accumulator + task.quantity * task.subtotal;
                                                                 }, 0) * 1.086).toFixed(2)}
@@ -934,7 +981,7 @@ function App() {
                                             name="inputData"
                                             placeholder={t("Search food items")}
                                             className="search-bar"
-                                            style={{ marginLeft: "5%", height: '30px', width: "80%" }}
+                                            style={{ marginLeft: "5px", height: '30px', width: "80%",marginBottom:"5px" }}
                                             onChange={(e) => {
                                                 searchItemFromShopItem(e.target.value);
                                                 setSearchData(e.target.value);
@@ -943,7 +990,7 @@ function App() {
                                         />
 
                                         <div className="task-wrap" style={{ minHeight: '400px', maxHeight: '400px', overflowY: 'scroll' }}>
-                                            {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
+                                            { search_food.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
                                                 <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
                                                     <div style={{ display: "flex", alignItems: "center" }}>
                                                         <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
