@@ -27,7 +27,27 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } fr
  */
 
 const theme = createTheme();
-
+function Iframe({ src, width, height }) {
+    const iframeRef = useRef();
+  
+    useEffect(() => {
+      const fetchHtml = async () => {
+        try {
+          const response = await fetch(src);
+          const html = await response.text();
+          iframeRef.current.contentWindow.document.open();
+          iframeRef.current.contentWindow.document.write(html);
+          iframeRef.current.contentWindow.document.close();
+        } catch (error) {
+          console.error('Error fetching HTML:', error);
+        }
+      };
+  
+      fetchHtml();
+    }, [src]);
+  
+    return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
+  }
 
 function App() {
 
@@ -411,8 +431,8 @@ function App() {
         localStorage.setItem("tableMode", "table-NaN");
     }
 
-    const [src, setSrc] = useState('./seat.html');
-    const [initialSrc, setInitialSrc] = useState('./seat.html');
+    const [src, setSrc] = useState( window.PUBLIC_URL + "/seat.html");
+    const [initialSrc, setInitialSrc] = useState(window.PUBLIC_URL + "/seat.html");
     const [isLoading, setIsLoading] = useState(false); // added state variable
     const iframeRef = useRef(null);
 
@@ -869,9 +889,7 @@ function App() {
 
                                 <>
                                     <div>
-                                        {isLoading && <div>Loading spinner...</div>} {/* show the loading spinner while isLoading is true */}
-                                        <iframe key="admin" ref={iframeRef} style={{ width: '540px', height: '800px', overflow: 'hidden' }} loading="lazy" onLoad={() => { setIsLoading(false); }}></iframe>
-                                    </div>
+                                        <Iframe src={`${process.env.PUBLIC_URL}/seat.html`} width="540" height="450" />;                                    </div>
 
                                     <section className="task-list" style={{ marginTop: "-175px" }}>
                                         <div className="task-wrap" style={{ minHeight: '350px', maxHeight: '350px', overflowY: 'scroll' }}>

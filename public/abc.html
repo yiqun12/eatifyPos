@@ -1,16 +1,18 @@
+<!-- public/abc.html -->
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>ABC</title>
-  </head>
-  <body>
-    <h1>ABC</h1>
-    <button id="myButton">Click me!</button>
-    <script>
-      const button = document.getElementById('myButton');
-      button.addEventListener('click', () => {
-        window.parent.postMessage('buttonClicked', '*');
-      });
-    </script>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABC HTML</title>
+  <script>
+    function showMessage() {
+      alert('Hello from abc.html!');
+    }
+  </script>
+</head>
+<body>
+  <h1>ABC HTML</h1>
+  <button id="abcButton">Click me!</button>
+</body>
 </html>
