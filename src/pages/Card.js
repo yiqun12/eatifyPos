@@ -2,7 +2,7 @@
 //import {data} from '../data/data.js'
 import React, { useState,useEffect } from 'react'
 import { useMyHook } from './myHook';
-
+import tasty from './tasty.png'
 
 const Card = () => {
 
@@ -117,7 +117,7 @@ const Card = () => {
                   //updateLocalStorage(item1.id, item1.name, item1.subtotal, item1.image)
                   }>{t("Make a reservation")}</button>
             </div>
-            <img className='max-h-[160px] md:max-h-[200px] w-full object-cover rounded-xl' src={item1.image} alt="" />
+            <img className='max-h-[160px] md:max-h-[200px] w-full object-cover rounded-xl' src={tasty} alt="" />
         </div>
 
     </div>

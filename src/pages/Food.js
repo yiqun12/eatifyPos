@@ -4,10 +4,24 @@ import { motion, AnimatePresence } from "framer-motion"
 import Button from 'react-bootstrap/Button';
 import { BsPlusCircle } from 'react-icons/bs';
 import './Food.css';
-import chicken from './chicken.png';
-import salad from './salad.png'
-import burger from './burger.png'
-import pizza from './pizza.png'
+import Appetizer from './Appetizer.png';
+import House_Specialties from './House_Specialties.png';
+import Soup from './Soup.png';
+import Fried_Rice from './Fried_Rice.png';
+import Lo_Mein from './Lo_Mein.png';
+import Mei_Fun from './Mei_Fun.png';
+import Chow_Mein from './Chow_Mein.png';
+import Shrimp from './Shrimp.png';
+import Beef from './Beef.png';
+import Chicken from './Chicken.png';
+import Vegetables from './Vegetables.png';
+import Chef_Specialties from './Chef_Specialties.png';
+import Combination_Platters from './Combination_Platters.png';
+import Lunch_Special from './Lunch_Special.png';
+import Side_Order from './Side_Order.png';
+import Tasty_Yogurt from './Tasty_Yogurt.png';
+import Fruity_Yogurt from './Fruity_Yogurt.png';
+import Tasty_Milk_Tea from './Tasty_Milk_Tea.png';
 import all from './all_food.png'
 import $ from 'jquery';
 import './fooddropAnimate.css';
@@ -25,12 +39,27 @@ const Food = () => {
 
   const charSet = [
     {
-      "pizza": pizza,
-      "salad": salad,
-      "burger": burger,
-      "chicken": chicken
+      "Appetizer": Appetizer,
+      "House_Specialties": House_Specialties,
+      "Soup": Soup,
+      "Fried_Rice": Fried_Rice,
+      "Lo_Mein": Lo_Mein,
+      "Mei_Fun": Mei_Fun,
+      "Chow_Mein": Chow_Mein,
+      "Shrimp": Shrimp,
+      "Beef": Beef,
+      "Chicken": Chicken,
+      "Vegetables": Vegetables,
+      "Chef_Specialties": Chef_Specialties,
+      "Combination_Platters": Combination_Platters,
+      "Lunch_Special": Lunch_Special,
+      "Side_Order": Side_Order,
+      "Tasty_Yogurt": Tasty_Yogurt,
+      "Fruity_Yogurt": Fruity_Yogurt,
+      "Tasty_Milk_Tea": Tasty_Milk_Tea
     }
   ];
+  
 
   const [width, setWidth] = useState(window.innerWidth - 64);
 
@@ -174,11 +203,64 @@ const Food = () => {
           <div className='Type'>
             {/* <div className='flex justify-between flex-wrap'> */}
             <div className='scrolling-wrapper-filter' >
-              <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={all} alt="" />{t("All")}</button>
-              <button onClick={() => filterType('burger')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={burger} alt="" />{t("Burgers")}</button>
-              <button onClick={() => filterType('pizza')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={pizza} alt="" />{t("Pizza")}</button>
-              <button onClick={() => filterType('salad')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={salad} alt="" />{t("Salads")}</button>
-              <button onClick={() => filterType('chicken')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={chicken} alt="" />{t("Chicken")}</button>
+              <button onClick={() => setFoods(data)} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={all} alt="" />{t("All")}</button>
+              <button onClick={() => filterType('Appetizer')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Appetizer} alt="" />{t("Appetizer")}</button>
+              <button onClick={() => filterType('House_Specialties')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={House_Specialties} alt="" />{t("House Specialties")}</button>
+              <button onClick={() => filterType('Soup')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Soup} alt="" />{t("Soup")}</button>
+              <button onClick={() => filterType('Fried_Rice')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Fried_Rice} alt="" />{t("Fried Rice")}</button>
+              <button onClick={() => filterType('Lo_Mein')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Lo_Mein} alt="" />{t("Lo Mein")}</button>
+              <button onClick={() => filterType('Mei_Fun')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Mei_Fun} alt="" />{t("Mei Fun")}</button>
+              <button onClick={() => filterType('Chow_Mein')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Chow_Mein} alt="" />{t("Chow Mein")}</button>
+              <button onClick={() => filterType('Shrimp')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Shrimp} alt="" />{t("Shrimp")}</button>
+              <button onClick={() => filterType('Beef')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Beef} alt="" />{t("Beef")}</button>
+              <button onClick={() => filterType('Chicken')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Chicken} alt="" />{t("Chicken")}</button>
+              <button onClick={() => filterType('Vegetables')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Vegetables} alt="" />{t("Vegetables")}</button>
+              <button onClick={() => filterType('Chef_Specialties')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Chef_Specialties} alt="" />{t("Chef's Specialties")}</button>
+              <button onClick={() => filterType('Combination_Platters')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Combination_Platters} alt="" />{t("Combination Platters")}</button>
+              <button onClick={() => filterType('Lunch_Special')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Lunch_Special} alt="" />{t("Lunch Special")}</button>
+              <button onClick={() => filterType('Side_Order')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Side_Order} alt="" />{t("Side Order")}</button>
+              <button onClick={() => filterType('Tasty_Yogurt')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Tasty_Yogurt} alt="" />{t("Tasty Yogurt")}</button>
+              <button onClick={() => filterType('Fruity_Yogurt')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Fruity_Yogurt} alt="" />{t("Fruity Yogurt")}</button>
+              <button onClick={() => filterType('Tasty_Milk_Tea')} 
+              className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
+              style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={Tasty_Milk_Tea} alt="" />{t("Tasty Milk Tea")}</button>
+
             </div>
           </div>
 

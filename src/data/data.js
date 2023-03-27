@@ -1,6 +1,5 @@
 export const data = [
   {
-    id: 'price_1MJTkrFOhUhkkYOhL4UIti6Z',
     name: 'Ceasar Salad',
     category: 'salad',
     image:
@@ -9,7 +8,6 @@ export const data = [
     subtotal: "2",
   },
   {
-    id: 'price_1MJTlDFOhUhkkYOhbkBbKREK',
     name: 'Bacon Cheeseburger',
     category: 'burger',
     image:
