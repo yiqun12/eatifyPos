@@ -28,6 +28,7 @@ import Html2 from './pages/Html2'
 
 // translation purposes -> can switch to using fetchPost() to grab translation file just like food_array
 import { translations } from './data/translations.js'
+import { data } from './data/data.js'
 
 function App() {
 
@@ -37,13 +38,13 @@ function App() {
 
   const fetchPost = async () => {
       //console.log("fetchPost")
-      await getDocs(collection(db, "food_data"))
-          .then((querySnapshot) => {
-              const newData = querySnapshot.docs
-                  .map((doc) => ({ ...doc.data(), id: doc.id }));
-              console.log(JSON.stringify(newData))
-              localStorage.setItem("Food_arrays", JSON.stringify(newData));
-          })
+      // await getDocs(collection(db, "food_data"))
+      //     .then((querySnapshot) => {
+      //         const newData = querySnapshot.docs
+      //             .map((doc) => ({ ...doc.data(), id: doc.id }));
+      //         console.log(JSON.stringify(newData))
+      //         localStorage.setItem("Food_arrays", JSON.stringify(newData));
+      //     })
 
       await getDocs(collection(db, "TitleLogoNameContent"))
           .then((querySnapshot) => {
@@ -60,6 +61,7 @@ function App() {
  }, []);
   useEffect(() => {
       // added line to grab translation file (can use the same method as food_data to grab translations file)
+      localStorage.setItem("Food_arrays", JSON.stringify(data));
       localStorage.setItem("translations", JSON.stringify(translations))
       // localStorage.setItem("translationsMode", "en")
       fetchPost();
