@@ -13,6 +13,43 @@
       margin-left: auto;
     }
   </style>
+    <style>
+
+      .my-table button {
+    color: black;
+    text-transform: uppercase;
+    border: transparent;
+    background-color: transparent;
+  }
+  
+  .my-table #horz-list ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    text-align: center;
+  }
+  
+  .my-table #horz-list ul li {
+    display: inline;
+  }
+  
+  .my-table #horz-list ul li button {
+    text-decoration: none;
+
+    border-right: 1px solid red;
+    margin: 0 0 0 -6px;
+  }
+  
+  .my-table #horz-list ul li:last-child button {
+    border: none;
+  }
+  
+  .my-table #horz-list ul li button:hover {
+    background: red;
+    color: blue;
+  }
+  
+    </style>
   <style>
     .col-sm-2.col-sm-offset-3.form-group {
       display: none;
@@ -23,10 +60,10 @@
 <body onload="loadingFunction(); ">
   <!-- partial:index.partial.html -->
   <div class="container-fluid text-center">
-    <h1>Restaurant Dining Room Layout</h1>
+    <h1>Dining Room Layout</h1>
     <p class="text-muted">View and modify the table status for customer <a href="https://refreshless.com/nouislider/"
         target="_blank"></a> </p>
-    <div class="form-group admin-menu">
+    <div class="form-group admin-menu" style="display: none;">
       <div class="row">
         <div class="col-sm-2 col-sm-offset-3 form-group">
           <label>Width (px)</label>
@@ -36,16 +73,32 @@
           <label>Height (px)</label>
           <input type="number" id="height" class="form-control" value="812" />
         </div>
-        <div class="col-sm-2 form-group" style="display: flex; justify-content: center; align-items: center;">
-          <button class="btn btn-primary" onclick="loadBoard()">Load</button>
-          <button class="btn btn-primary" onclick="saveBoard()">Save</button>
-          <button class="btn btn-danger" onclick="clearBoard()">Clear</button>
-        </div>
-        
       </div>
+      <div class="col-sm-2 form-group" style="display: flex;justify-content: center; align-items: center; width: 100%;">
+        <button class="btn btn-primary" onclick="loadBoard()">Load</button>
+        <button class="btn btn-primary" onclick="saveBoard()">Save</button>
+        <button class="btn btn-danger" onclick="clearBoard()">Clear</button>
+      </div>
+
+      <div class="my-table">
+        <div id="content">
+          <div id="horz-list">
+            <ul>
+              <li><button>+ &#9647;Table</button></li>
+              <li><button>+ &#9711;Table</button></li>
+              <li><button>+ &#9651;Table</button></li>
+              <li><button>+ Chair</button></li>
+              <li><button>+ Bar</button></li>
+              <li><button>+ Wall</button></li>
+            </ul>
+          </div>
+        </div>
+
+            </div>
+
       <div class="btn-group">
         <button class="btn btn-primary rectangle">+ &#9647; Table</button>
-        <button class="btn btn-primary circle" disabled>+ &#9711; Table</button>
+        <button class="btn btn-primary circle">+ &#9711; Table</button>
         <button class="btn btn-primary triangle">+ &#9651; Table</button>
         <button class="btn btn-primary chair">+ Chair</button>
         <button class="btn btn-primary bar">+ Bar</button>
@@ -55,7 +108,7 @@
       </div>
     </div>
 
-    <div class="form-group customer-menu" style="display: none;">
+    <div class="form-group customer-menu">
       <div class="btn-group">
         <button class="btn btn-success submit">Submit reservation</button>
         <button class="btn btn-warning admin-mode">Admin mode</button>
@@ -161,21 +214,21 @@
       initCanvas()
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-      console.log("hello");
+    // document.addEventListener("DOMContentLoaded", function () {
+    //   console.log("hello");
 
-      setTimeout(function () {
-        var loadButton = document.querySelector('.btn-primary[onclick="loadBoard()"]');
+    //   setTimeout(function () {
+    //     var loadButton = document.querySelector('.btn-primary[onclick="loadBoard()"]');
 
-        // Simulate a click on the button
-        loadButton.click();
+    //     // Simulate a click on the button
+    //     loadButton.click();
 
-             var adminModeButton = document.querySelector('.customer-mode');
+    //          var adminModeButton = document.querySelector('.customer-mode');
         
-            // Simulate a click on the button
-            adminModeButton.click(); 
-      }, 1); // 0.5 second delay
-    });
+    //         // Simulate a click on the button
+    //         adminModeButton.click(); 
+    //   }, 1); // 0.5 second delay
+    // });
 
 
     function loadingFunction() {
@@ -379,7 +432,8 @@
         id: id,
         number: tableNumber,
         scaleX: scaleX,
-        scaleY: scaleY
+        scaleY: scaleY,
+        radius: radius
       })
       // this on() triggers when the table is selected
       g.on("selected", function () {
@@ -394,7 +448,7 @@
         type: "circle",
         left: g.left,
         top: g.top,
-        radius: o.radius,
+        radius: g.radius,
         scaleX: g.scaleX,
         scaleY: g.scaleY
       }
@@ -435,7 +489,8 @@
         id: id,
         number: tableNumber,
         scaleX: scaleX,
-        scaleY: scaleY
+        scaleY: scaleY,
+        radius: radius
 
       })
       // this on() triggers when the table is selected
@@ -450,7 +505,7 @@
         type: "triangle",
         left: g.left,
         top: g.top,
-        radius: o.radius,
+        radius: g.radius,
         scaleX: g.scaleX,
         scaleY: g.scaleY
       }

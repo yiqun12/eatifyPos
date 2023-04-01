@@ -886,12 +886,17 @@ function App() {
 
                             selectedItem === 'Order' ?
 
-
                                 <>
-                                    <div>
-                                        <Iframe src={`${process.env.PUBLIC_URL}/seat.html`} width="540" height="450" />;                                    </div>
+                                                            <header className="main-header" style={{height:"100px"}}>
 
-                                    <section className="task-list" style={{ marginTop: "-175px" }}>
+<div className="search-wrap">
+    </div>
+</header>
+                                    <div style={{marginTop:"-100px"}}>
+                                        <Iframe src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" />                                    
+                                        </div>
+
+                                    <section className="task-list" style={{ marginTop: "-100px" }}>
                                         <div className="task-wrap" style={{ minHeight: '350px', maxHeight: '350px', overflowY: 'scroll' }}>
                                             <div className={`task-card ${"task.checked" ? "task-card--done" : ""}`}>
                                                 <div style={{ display: "flex", alignItems: "center" }}>
@@ -992,7 +997,7 @@ function App() {
                                             </div>
                                         </div>
                                     </section>
-                                    <section className="task-list" style={{ marginTop: "200px" }}>
+                                    <section className="task-list" style={{ marginTop: "275px" }}>
 
                                         <input
                                             type="text"

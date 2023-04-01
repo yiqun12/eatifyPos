@@ -501,15 +501,14 @@ const Navbar = () => {
 
         <div className="grid grid-cols-8 flex max-w-[1000px] mx-auto items-center p-4 justify-between sticky top-0 bg-white z-10"
           style={{ "border-bottom": "solid" }} >
-<div className="col-span-2" style={{ display: 'flex', alignItems: 'center' }}>
-  <img
-    src={logo_transparent}
-    alt=""
-    style={{ 'cursor': "pointer", maxHeight: '50px', maxWidth: '200px' }}
-    onClick={event => window.location.href = '/'}
-  />
-  <span onClick={event => window.location.href = '/'} style={{ 'cursor': "pointer", marginLeft: '10px', whiteSpace: 'nowrap', fontSize: '20px', fontFamily: 'cursive' }}>Tasty China</span>
-</div>
+          <div className="col-span-2">
+            <img
+              src={logo_transparent}
+              alt=""
+              style={{ 'cursor': "pointer", maxHeight: '50px', maxWidth: '200px' }}
+              onClick={event => window.location.href = '/'}
+            />
+          </div>
 
           {!isMobile ?
 
@@ -518,18 +517,18 @@ const Navbar = () => {
               <a
                 style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
                 <a className="email-link"><i className="material-icons nav__icon">home</i></a>
-                <a className="email-link"  style={{fontSize: '20px', fontFamily: 'cursive'}}>{t("Home")}</a>
+                <a className="email-link">{t("Home")}</a>
               </a>
               <div>
 
                 <a
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
-                  style={{ 'cursor': "pointer", "user-select": "none",marginTop:"8px" }} onClick={openModal} className="nav__link">
+                  style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
                   <i style={{
                     color: 'transparent'
                   }}
-                    className="material-icons nav__icon" >home</i>
+                    className="material-icons nav__icon">home</i>
                   <span style={{
                     color: 'transparent'
                   }} className="nav__text">
@@ -539,7 +538,7 @@ const Navbar = () => {
                     className="cart" data-totalitems={totalQuant} ref={btnRef} >
                     <a className="email-link"><i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
                       className="material-icons nav__icon">shopping_cart_checkout</i></a>
-                    <a className="email-link"  style={{fontSize: '20px', fontFamily: 'cursive'}}>{t("Cart")}</a>
+                    <a className="email-link">{t("Cart")}</a>
                   </div>
                 </a>
 
@@ -549,7 +548,7 @@ const Navbar = () => {
               <div>
                 <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
                   <a className="email-link"><i className="material-icons nav__icon">person</i></a>
-                  <a className="email-link"  style={{fontSize: '20px', fontFamily: 'cursive'}}>{user ? t("Account") : t("Login")}</a>
+                  <a className="email-link">{user ? t("Account") : t("Login")}</a>
                 </a>
               </div>
             </div> :
