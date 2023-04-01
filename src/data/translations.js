@@ -883,8 +883,8 @@ export const translations = {
         "en": "Szcheun Chicken Feet",
         "ch": "四川麻辣鸡脚"
       },
-      "Hotpot soup base": {
-        "en": "Hotpot soup base",
+      "HOTPOT SOUP BASE": {
+        "en": "HOTPOT SOUP BASE",
         "ch": "火锅汤底"
       },
       "White pepper pork tripe soup base": {
@@ -1119,8 +1119,8 @@ export const translations = {
     "en": "Steamed rice with dried shredded turnip vegetables,and pork tongue",
     "ch": "冲菜猪利飯"
   },
-  "Congee": {
-    "en": "Congee",
+  "CONGEE": {
+    "en": "CONGEE",
     "ch": "粥"
   },
   "Sliced Fish Congee": {
@@ -1139,8 +1139,8 @@ export const translations = {
     "en": "Vegetable and Pork Congee",
     "ch": "菜粒瘦肉粥"
   },
-  "House Special": {
-    "en": "House Special",
+  "HOUSE SPECIAL": {
+    "en": "HOUSE SPECIAL",
     "ch": "招牌菜"
   },
   "Sweet and Sour Chicken": {
@@ -1347,8 +1347,8 @@ export const translations = {
     "en": "Kohlrabi clay pot rice",
     "ch": "菜果煲仔饭"
   },
-  "Sauce": {
-    "en": "Sauce",
+  "SAUCE": {
+    "en": "SAUCE",
     "ch": "酱料"
   },
   "Garlic": {
@@ -1367,8 +1367,8 @@ export const translations = {
     "en": "Taishan Spicy Sauce",
     "ch": "台山辣椒酱"
   },
-  "Stir dishes": {
-    "en": "Stir dishes",
+  "STIR DISH": {
+    "en": "STIR DISH",
     "ch": "小炒系列"
   },
   "Braised Lamb Stew": {
