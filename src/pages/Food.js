@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import Button from 'react-bootstrap/Button';
 import { BsPlusCircle } from 'react-icons/bs';
 import './Food.css';
-import chicken from './chicken.png';
+import chicken from './Chicken.png';
 import salad from './salad.png'
 import burger from './burger.png'
 import pizza from './pizza.png'

@@ -15,40 +15,34 @@
   </style>
     <style>
 
-      .my-table button {
-    color: black;
-    text-transform: uppercase;
-    border: transparent;
-    background-color: transparent;
-  }
-  
-  .my-table #horz-list ul {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-    text-align: center;
-  }
-  
-  .my-table #horz-list ul li {
-    display: inline;
-  }
-  
-  .my-table #horz-list ul li button {
-    text-decoration: none;
+#untitled {
+  font-size: 1.1em;
+  color: grey;
+  font-weight: 400;
+  margin-left: 5px;
+  margin-top: -6px;
+  position: absolute;
+  padding: 0 3px 0;
+}
 
-    border-right: 1px solid red;
-    margin: 0 0 0 -6px;
-  }
-  
-  .my-table #horz-list ul li:last-child button {
-    border: none;
-  }
-  
-  .my-table #horz-list ul li button:hover {
-    background: red;
-    color: blue;
-  }
-  
+#untitled:hover {
+  background-color: #eee;
+}
+
+li {
+  display: inline;
+  position: relative;
+  margin: 0px;
+  top: 22px;
+  font-size: 0.85em;
+  z-index: 2;
+  padding: 3px 5px;
+  border-radius: 0.15em;
+}
+
+li:hover {
+  background-color: #eee;
+}
     </style>
   <style>
     .col-sm-2.col-sm-offset-3.form-group {
@@ -59,6 +53,7 @@
 
 <body onload="loadingFunction(); ">
   <!-- partial:index.partial.html -->
+
   <div class="container-fluid text-center">
     <h1>Dining Room Layout</h1>
     <p class="text-muted">View and modify the table status for customer <a href="https://refreshless.com/nouislider/"
@@ -74,43 +69,38 @@
           <input type="number" id="height" class="form-control" value="812" />
         </div>
       </div>
-      <div class="col-sm-2 form-group" style="display: flex;justify-content: center; align-items: center; width: 100%;">
-        <button class="btn btn-primary" onclick="loadBoard()">Load</button>
-        <button class="btn btn-primary" onclick="saveBoard()">Save</button>
-        <button class="btn btn-danger" onclick="clearBoard()">Clear</button>
+      <div style="text-align: left;">
+        <ul id="mainMenu" style="padding: 0px; margin-left: 5px;">
+          <li><button class="btn btn-primary" onclick="loadBoard()">refresh</button></li>
+          <li><button class="btn btn-primary" onclick="saveBoard()">Save</button></li>
+          <li><button class="btn btn-danger" onclick="clearBoard()">clear</button></li>
+          <li><button class="btn btn-warning customer-mode">finish</button></li>
+        </ul>
+      
+        <ul id="mainMenu" style="font-size:16px;padding: 0px; margin-left: 5px;">
+          <li class="rectangle">+ &#9647; Table</li>
+          <li class="circle">+ &#9711; Table</li>
+          <li class="triangle">+ &#9651; Table</li>
+          <li class="chair">+ Chair</li>
+          <li class="bar">+ Bar</li>
+          <li class="wall">+ Wall</li>
+          <li class="remove">x Remove</li>
+        </ul>
+      </div>
+      
+    
+      <div class="col-sm-2 form-group" style="margin-bottom: 0px;margin-top:-12px;background:#f9fbfd;
+      display: flex;justify-content: center; align-items: center; width: 100%; height: 30px;">
+        
+        
+        
       </div>
 
-      <div class="my-table">
-        <div id="content">
-          <div id="horz-list">
-            <ul>
-              <li><button>+ &#9647;Table</button></li>
-              <li><button>+ &#9711;Table</button></li>
-              <li><button>+ &#9651;Table</button></li>
-              <li><button>+ Chair</button></li>
-              <li><button>+ Bar</button></li>
-              <li><button>+ Wall</button></li>
-            </ul>
-          </div>
-        </div>
 
-            </div>
-
-      <div class="btn-group">
-        <button class="btn btn-primary rectangle">+ &#9647; Table</button>
-        <button class="btn btn-primary circle">+ &#9711; Table</button>
-        <button class="btn btn-primary triangle">+ &#9651; Table</button>
-        <button class="btn btn-primary chair">+ Chair</button>
-        <button class="btn btn-primary bar">+ Bar</button>
-        <button class="btn btn-default wall">+ Wall</button>
-        <button class="btn btn-danger remove">Remove</button>
-        <button class="btn btn-warning customer-mode">Customer mode</button>
-      </div>
     </div>
 
     <div class="form-group customer-menu">
       <div class="btn-group">
-        <button class="btn btn-success submit">Submit reservation</button>
         <button class="btn btn-warning admin-mode">Admin mode</button>
       </div>
       <br />
@@ -517,40 +507,58 @@
 
 
     function addChair(left, top, scaleX = 1, scaleY = 1) {
-      const o = new fabric.Rect({
-        left: left,
-        top: top,
-        width: 30,
-        height: 30,
-        fill: chairFill,
-        stroke: chairStroke,
-        strokeWidth: 2,
-        shadow: chairShadow,
-        originX: 'left',
-        originY: 'top',
-        centeredRotation: true,
-        snapAngle: 45,
-        selectable: true,
-        type: 'chair',
-        id: generateId(),
-        number: chairNumber,
-        scaleX: scaleX,
-        scaleY: scaleY
-      })
-      canvas.add(o)
-      object = {
-        left: o.left,
-        top: o.top,
-        width: o.width,
-        height: o.height,
-        scaleX: o.scaleX,
-        scaleY: o.scaleY
-      }
-      board.chair.push(object)
-      console.log(o)
-      chairNumber++
-      return o
-    }
+  fabric.Image.fromURL('./table1.png', function(o) {
+    o.set({
+      left: left,
+      top: top,
+      width: 130,
+      height: 130,
+      originX: 'left',
+      originY: 'top',
+      centeredRotation: true,
+      snapAngle: 45,
+      selectable: true,
+      type: 'chair',
+      id: generateId(),
+      number: chairNumber,
+      scaleX: scaleX,
+      scaleY: scaleY
+    });
+    
+    // add text object for chair number
+    var text = new fabric.Text((chairNumber).toString(), {
+      fontSize: 50,
+      fontFamily: 'Arial',
+      textAlign: 'center',
+      originX: 'center',
+      originY: 'center',
+      top: o.top + o.height * o.scaleY / 2,
+      left: o.left + o.width * o.scaleX / 2,
+      fill: 'blue', // set fill to white
+      selectable: false
+    });
+    
+    var group = new fabric.Group([o, text], {
+      selectable: true
+    });
+    
+    canvas.add(group);
+    object = {
+      left: o.left,
+      top: o.top,
+      width: o.width,
+      height: o.height,
+      scaleX: o.scaleX,
+      scaleY: o.scaleY
+    };
+    board.chair.push(object);
+    console.log(group);
+    chairNumber++;
+    return group;
+  });
+}
+
+
 
     function addBar(left, top, width, height, scaleX = 1, scaleY = 1) {
       const o = new fabric.Rect({
@@ -895,57 +903,6 @@
       walls.forEach(element => {
         addWall(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY)
       })
-      // addChair(15, 105)
-      // addChair(15, 135)
-      // addChair(75, 105)
-      // addChair(75, 135)
-      // addChair(225, 75)
-      // addChair(255, 75)
-      // addChair(225, 135)
-      // addChair(255, 135)
-      // addChair(225, 195)
-      // addChair(255, 195)
-      // addChair(225, 255)
-      // addChair(255, 255)
-      // addChair(15, 195)
-      // addChair(45, 195)
-      // addChair(15, 255)
-      // addChair(45, 255)
-      // addChair(15, 315)
-      // addChair(45, 315)
-      // addChair(15, 375)
-      // addChair(45, 375)
-      // addChair(225, 315)
-      // addChair(255, 315)
-      // addChair(225, 375)
-      // addChair(255, 375)
-      // addChair(15, 435)
-      // addChair(15, 495)
-      // addChair(15, 555)
-      // addChair(15, 615)
-      // addChair(225, 615)
-      // addChair(255, 615)
-      // addChair(195, 495)
-      // addChair(195, 525)
-      // addChair(255, 495)
-      // addChair(255, 525)
-      // addChair(225, 675)
-      // addChair(255, 675)
-
-      // addRect(30, 90, 60, 90)
-      // addRect(210, 90, 90, 60)
-      // addRect(210, 210, 90, 60)
-      // addRect(0, 210, 90, 60)
-      // addRect(0, 330, 90, 60)
-      // addRect(210, 330, 90, 60)
-      // addRect(0, 450, 60, 60)
-      // addRect(0, 570, 60, 60)
-      // addRect(210, 480, 60, 90)
-      // addRect(210, 630, 90, 60)
-
-      // addBar(120, 0, 180, 60)
-
-      // addWall(120, 510, 60, 60)
     }
     addDefaultObjects()
   </script>
