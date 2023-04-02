@@ -1,1226 +1,1226 @@
 export const data = [{
     "name": "Grilled Shrimp Skewer",
     "category": "GRILLED SEAFOOD",
-    "image": "https://i2.chuimg.com/bd5f5ca265ed44418da58c6010da42a1_2100w_2799h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZe7GJyWo-2cX3yZwKPVRbmCr6xUe5vNIJV2fVStcRlkXuccLZ&s",
     "subtotal": "2.20"
 }, {
     "name": "Cuttlefish Ball Skewer (4pc)",
     "category": "GRILLED SEAFOOD",
-    "image": "http://img.szzhangchu.com/1441113959880_8582685909.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQINQfGRDglqT6PlJevdniiwn4PDGXzx1IPRvVOhTGGa5HhHMc&s",
     "subtotal": "3.50"
 }, {
     "name": "Grilled Oyster (2PC)",
     "category": "GRILLED SEAFOOD",
-    "image": "https://i2.chuimg.com/0e9e146a873311e6b87c0242ac110003_450w_678h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUmV7LHK8FYypKsbG4k7NiU8CGxDmLTQ50ozgRp00KSy1UbugT&s",
     "subtotal": "4.50"
 }, {
     "name": "Grilled Squid",
     "category": "GRILLED SEAFOOD",
-    "image": "https://i3.meishichina.com/atta/recipe/201009/201009081620421.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQItBAfTxjqYggj-XELvYzuJ90fWiJJtDd37k3EQLLn5m5tQqM&s",
     "subtotal": "12.00"
 }, {
     "name": "Grilled Pacific Saury",
     "category": "GRILLED SEAFOOD",
-    "image": "https://i2.chuimg.com/a61fcecc512949a5ad07dea0bbd4c07f_1063w_850h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSePPvVPSdkJ18C4AaZgNitFw35-FLPvZdIwg-dl0YZu2RsqhpW&s",
     "subtotal": "8.25"
 }, {
     "name": "Beef Tenden Balls (4pc)",
     "category": "GRILLED SEAFOOD",
-    "image": "https://i3.meishichina.com/atta/recipe/2017/05/29/2017052914960230288056477378.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCuaHTD_GUArPsyHL8VKgVLD8o5n85aeogktqPj0sWBbAVya1A&s",
     "subtotal": "3.50"
 }, {
     "name": "Fish Tofu Skewer (4pc)",
     "category": "GRILLED SEAFOOD",
-    "image": "http://5b0988e595225.cdn.sohucs.com/images/20190513/adc062b5d00a4826aae67beb2473cc66.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8QcC2soHgBzKC5jsXTwA2OoEx96kHYBofiPWJJg6DfZw1j8M&s",
     "subtotal": "2.20"
 }, {
     "name": "Grill Fishball",
     "category": "GRILLED SEAFOOD",
-    "image": "https://i2.chuimg.com/07941d24d3314c269f9dc8124928c0a6_1620w_1215h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5-ZIL-Rx9408xW89SyXXWJsFq3FX8Mxl7P698hGiMyrkdiXw&s",
     "subtotal": "3.50"
 }, {
     "name": "Taishan black tea",
     "category": "DRINKS",
-    "image": "https://chadian-img.oss-cn-shanghai.aliyuncs.com/product/i15867496070004290.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQglRTOHUbE5CslLZ1hjCTBVlgEb2HXT76Fzg6Acs26qlGHBQI&s",
     "subtotal": "3.00"
 }, {
     "name": "Chrysanthemum tea",
     "category": "DRINKS",
-    "image": "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/chrysanthemum-tea-royalty-free-image-1631787895.jpg?crop=0.670xw:1.00xh;0.147xw,0&resize=480:*",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtaCky5Cj-rgxY1GaOI3gcFcB6zcSTkZxytyTaJ2UYbqetduNw&s",
     "subtotal": "3.00"
 }, {
     "name": "Soy milk",
     "category": "DRINKS",
-    "image": "http://www.sznews.com/news/pic/2019-05/26/9650020e-2624-4393-b8ff-7cc2ce13fcef.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROoKi27JQcqUj_c-GCrMsgRGCd5AHIzLFoLT0VLI3VkU3pZ5U&s",
     "subtotal": "3.00"
 }, {
     "name": "Chinese herbal tea",
     "category": "DRINKS",
-    "image": "https://bkimg.cdn.bcebos.com/smart/4ec2d5628535e5dde711de52578db0efce1b9c16c4a1-bkimg-process,v_1,rw_1,rh_1,pad_1,color_ffffff?x-bce-process=image/format,f_auto",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRScwkJm9lzdjkFtUEPIRyT6j3Lmfzraph_Qnk_1Cbao8lnPQRE&s",
     "subtotal": "3.00"
 }, {
     "name": "Fresh coconut juice",
     "category": "DRINKS",
-    "image": "https://bms.spdl.com/SPDL/UploadFiles/ImgNews/20211209142204_3456.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvJ6TQvbeLoQzivav6i8HHbLKUkUNtpU5S_qFzbPy6vbTTvlyt&s",
     "subtotal": "5.50"
 }, {
     "name": "Plum Juice",
     "category": "DRINKS",
-    "image": "https://yakuyomi.jp/wp-content/uploads/sites/2/2021/08/chuigaku71.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQloOz_NHgiaTMdFe0q9SFXjCNaoupMjU0JIacCdChjB8bF1W8u&s",
     "subtotal": "4.50"
 }, {
     "name": "Herbal Tea",
     "category": "DRINKS",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/5/5b/JDB_drink.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpjEo16IFolppSGBVnKcwGLjxKGyv1v7NhLTeVYjDBB4hQBhz1&s",
     "subtotal": "4.25"
 }, {
     "name": "Iced Tea",
     "category": "DRINKS",
-    "image": "https://cdn.shopify.com/s/files/1/0561/2463/7374/products/3661876.jpg?v=1663947386",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQx-Y3yANUv61PaUrejyTQGycWRBoybE_YdNFs4DeXmczeL9qc&s",
     "subtotal": "4.50"
 }, {
     "name": "Sprite",
     "category": "DRINKS",
-    "image": "https://online.carrefour.com.tw/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dw924f8d13/images/large/0240354_2l.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0wJGMGFecAtJ_QCKEefaASCGQSMK19tC9GprcCVwa0o8basJp&s",
     "subtotal": "3.00"
 }, {
     "name": "Coke",
     "category": "DRINKS",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/15-09-26-RalfR-WLC-0098_-_Coca-Cola_glass_bottle_%28Germany%29.jpg/200px-15-09-26-RalfR-WLC-0098_-_Coca-Cola_glass_bottle_%28Germany%29.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTElEV9ouh9cagBOv2icwRtZl1finBSYMyw0WPzABGqdsSmgMA&s",
     "subtotal": "3.00"
 }, {
     "name": "Diet Coke",
     "category": "DRINKS",
-    "image": "https://static04.hket.com/res/v3/image/content/3055000/3055218/zero_thumb_20210909_B_1024.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT53rsy2VE7clYQ98Yk9Y6Pr9xOs9Cx7zmHEhLDj96LRAHGs3EM&s",
     "subtotal": "3.00"
 }, {
     "name": "Tsing Tao",
     "category": "DRINKS",
-    "image": "http://www.tsingtao.com.cn/TsingTao/images/pcweb/welcome-yes.png",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQaFhwUuMU_zMatPjVW6Z-2_vld7wppUeWb0rMHpf8Da873QI&s",
     "subtotal": "6.00"
 }, {
     "name": "Budlight",
     "category": "DRINKS",
-    "image": "https://static.iyp.tw/38942/products/photooriginal-1621650-YH86u.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvUd9MRLymseFva0ii1Gvna1vb77gjuZ1ixGdnMIDXepgPWzk&s",
     "subtotal": "6.00"
 }, {
     "name": "Heineken",
     "category": "DRINKS",
-    "image": "https://cdn.shopify.com/s/files/1/0071/7950/1668/products/heineken_1000x.jpg?v=1547121713",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMcJJ4vnbzTFqkuuuSXuJ7d-76_-ew65bLgDaB39mGD033J_w&s",
     "subtotal": "6.00"
 }, {
     "name": "Corona",
     "category": "DRINKS",
-    "image": "http://dmd968.com/uploadfiles/pictures/product/20160629145936_4573.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiOMEuB5rlhSDXJvqcJagS6ypkF6o4RvlvSd5RGq0KIwLXgYs&s",
     "subtotal": "6.00"
 }, {
     "name": "Sake (P)",
     "category": "DRINKS",
-    "image": "https://cs-a.ecimg.tw/items/DEBW16A900BB57P/000001_1619690089.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPq9A3P0rz2J9Ufem1VH-jOnPm3QoytUraTeN4PGzSJ1wjDes&s",
     "subtotal": "8.99"
 }, {
     "name": "Red Wine /G",
     "category": "DRINKS",
-    "image": "https://winentaste.com/images/article/tutorial/wine_glass_you_need03.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQY_imeOaY2kAAfxBHGH6vl7MIVtFfrZGInYTar5OxuRNMzOO8&s",
     "subtotal": "6.99"
 }, {
     "name": "White Wine /G",
     "category": "DRINKS",
-    "image": "https://p6.itc.cn/q_70/images03/20211125/4c1178700a3a43f89bfdbe94630ca182.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfwh7PPTFAx3D_NR3d5XCqz7nmYq6HsiHNDiX0cgGddKT08KQ&s",
     "subtotal": "6.99"
 }, {
     "name": "Grilled Chinese Chives",
     "category": "GRILLED VEGETABLE",
-    "image": "https://i2.chuimg.com/160be03916d84151b78e8a58bed3a604_1280w_1024h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4M5xarDDrs-XseAMrv3Ey_e1XR5nLngBH7852J0FMThTM50I&s",
     "subtotal": "3.50"
 }, {
     "name": "Grilled Corn",
     "category": "GRILLED VEGETABLE",
-    "image": "https://img.ltn.com.tw/Upload/food/page/2021/12/10/211210-11613-0-wRvMe.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1zhPV80VLKY-rgvZK6WYe664Fl4wFZoLosHXC1uWIk2l1cglp&s",
     "subtotal": "2.30"
 }, {
     "name": "Grilled Chinese Lettuce",
     "category": "GRILLED VEGETABLE",
-    "image": "https://pic.huitu.com/res/20190131/1131202_20190131225621171020_1.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT86sk97nJ8V_D_Olma5vFv3PegiyUwz3bhOzSBM_AxNp0fV_w&s",
     "subtotal": "3.50"
 }, {
     "name": "Grilled String Beans",
     "category": "GRILLED VEGETABLE",
-    "image": "https://liyingbo.com/img/2021-11-06-roasted-green-beans.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRQuFN1TDuJm7NIRDCnTlYjUIJzQ-ZHOKU65Y0p98AElKMZD8&s",
     "subtotal": "3.00"
 }, {
     "name": "Grilled Bean Curd Skin",
     "category": "GRILLED VEGETABLE",
-    "image": "https://i.ytimg.com/vi/ZVDIQElEqfc/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOP0zVFpEXAo2kR5CLk---CNYMvqg1wp9R_qUNPNnvs0cF6zE&s",
     "subtotal": "3.50"
 }, {
     "name": "Grilled Eggplant (whole)",
     "category": "GRILLED VEGETABLE",
-    "image": "https://i.ytimg.com/vi/Vm0PYp767Jc/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-dslzyMzh1EHYXiJvKS7GZ5LluwuSVKPdhjZdQRHFvXcR4OY&s",
     "subtotal": "8.30"
 }, {
     "name": "Grilled Jalapeno",
     "category": "GRILLED VEGETABLE",
-    "image": "https://i3.meishichina.com/atta/recipe/2019/12/05/2019120515754792600444299837609.JPG?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTXRyd-pl8azdXBwiprLH-CoBZFsZ-LTCdRhiAtvDuYpLx-T8&s",
     "subtotal": "3.00"
 }, {
     "name": "Tinfoil Prawn",
     "category": "TINFOIL",
-    "image": "https://i3.meishichina.com/atta/recipe/2020/05/02/20200502158839853550035612400096.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSq28oKskv8rszSOdM7MS7fiVU-PRorktE7MABCokkivZEDlg&s",
     "subtotal": "22.50"
 }, {
     "name": "Tinfoil Carayfish",
     "category": "TINFOIL",
-    "image": "https://cp1.douguo.com/upload/caiku/9/d/1/750_9d84b3b16d40e2920c1ddd51fb0b6951.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSb8YMOFsOuD-QCgCuHMVZLGP3HUi10N4jOvYiH4NQ3OJWcqQ&s",
     "subtotal": "24.00"
 }, {
     "name": "Tinfoil Egg Tofu",
     "category": "TINFOIL",
-    "image": "https://i2.chuimg.com/ef9de4aa10eb486e943b3b9055cf33d9_1280w_1013h.jpg?imageView2/1/w/640/h/520/q/90/format/jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRd0_t2rAkquS7QEEIGra1oVE1amp7l6QkHLMmDKx_azubwWXU&s",
     "subtotal": "16.50"
 }, {
     "name": "Tinfoil Enoki",
     "category": "TINFOIL",
-    "image": "https://i2.chuimg.com/88ef8217d781452580009fa144166dc3_3403w_2553h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjJ52JlfOnVyZUARRj3nMyGnB44VW8mwbuwk2Z49SfK0WiVhkF&s",
     "subtotal": "16.50"
 }, {
     "name": "Tinfoil Minced Garlic",
     "category": "TINFOIL",
-    "image": "https://cp1.douguo.com/upload/caiku/1/e/3/yuan_1ef1496bb81425b961a47c2daa6d83b3.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRulsRtpzcAfALMVMcSzCc-YPeoIsgqKhxYD-mvONZTOF2-Ot9w&s",
     "subtotal": "16.50"
 }, {
     "name": "Tinfoil Clams",
     "category": "TINFOIL",
-    "image": "https://i2.chuimg.com/b19fa061b32744168c8e8ffc6e732221_800w_533h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRblqzMNBFLr_ZwTgZX7YeEZuGkhmKVAsNo1sOxiPRco7nSaG8&s",
     "subtotal": "24.00"
 }, {
     "name": "Tinfoil Cow louver",
     "category": "TINFOIL",
-    "image": "https://exp-picture.cdn.bcebos.com/a749bb0f94fc508c6423dd4b01775ddd894cfd40.jpg?x-bce-process=image%2Fresize%2Cm_lfit%2Cw_500%2Climit_1%2Fformat%2Cf_auto%2Fquality%2Cq_80",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxIF3mSNkELDlOWg7qjs324RsqgPxXfStMalookmIiGyirI9I&s",
     "subtotal": "24.00"
 }, {
     "name": "Fruit Party",
     "category": "Special Fruit Drinks",
-    "image": "https://cdn.aromebakery.com.hk/public/Product/42_5fbcb31597351.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxUSABHIXli2nCFFtyp6dO20VgjsfM9Ema5z8oreXmE8R3lcA&s",
     "subtotal": "7.25"
 }, {
     "name": "Fresh Watermelon Tea",
     "category": "Special Fruit Drinks",
-    "image": "https://www.teasma.com/uploads/cp/23.png",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNozzjT0zQEUKJQKVMbaopcOiLOXmPS-3stTmM6T1F5SfGvTM&s",
     "subtotal": "6.25"
 }, {
     "name": "Mango Slush",
     "category": "Special Fruit Drinks",
-    "image": "https://tokyo-kitchen.icook.network/uploads/recipe/cover/419222/c655bec127bebd59.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTOXIRE-08gM06GJYzji26AiwMBrOVflpQ1Mq3zw_mMz9xWfBX&s",
     "subtotal": "6.45"
 }, {
     "name": "Fresh Lemon Orange",
     "category": "Special Fruit Drinks",
-    "image": "https://bkimg.cdn.bcebos.com/smart/a9d3fd1f4134970a304e264e0c9cc6c8a786c917f70e-bkimg-process,v_1,rw_1,rh_1,pad_1,color_ffffff?x-bce-process=image/format,f_auto",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6UBto14RZrAE5QidP_21WgkM4q9hHTCD6B74OxMq4Kj4Ki91Z&s",
     "subtotal": "6.45"
 }, {
     "name": "Passion Fruit Orange",
     "category": "Special Fruit Drinks",
-    "image": "https://shoplineimg.com/5e96bb7b3a16190024189df4/610a4c95f0743b001af6da37/800x.jpg?",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNKfWzfEbM2p5yLJhAyXQJddFcCVDCQFoK50LQS5O76UxLXOc6&s",
     "subtotal": "6.95"
 }, {
     "name": "Strawberry Slush",
     "category": "Special Fruit Drinks",
-    "image": "https://tokyo-kitchen.icook.network/uploads/recipe/cover/415808/5fe47a999ae6a4d8.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqyIE7jM5tlqYU1X1T78RsWyxYUhHEJrLONmoLwsvOGwBaBAiy&s",
     "subtotal": "6.45"
 }, {
     "name": "Fresh Pineapple Tea",
     "category": "Special Fruit Drinks",
-    "image": "https://pic.pimg.tw/hideki13/1606124054-3455401077-g_l.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbyUDOSrfNVqu8yPpVJjD8wjsMbu3WfTwJe2WUzxNUWR9yi_F1&s",
     "subtotal": "6.95"
 }, {
     "name": "Passion Fruit Pineapple",
     "category": "Special Fruit Drinks",
-    "image": "https://rs.joo.com.tw/website/uploads/ckfinder/immugoat/images/%E9%B3%B3%E6%A2%A801.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFmlUa85Pl2EnkAYaQBLzE4myFD35KSjp-mk-lYxpU92TKd20&s",
     "subtotal": "7.25"
 }, {
     "name": "Pineapple Slush",
     "category": "Special Fruit Drinks",
-    "image": "https://tokyo-kitchen.icook.network/uploads/step/cover/338403/12d3ce17cf3a23fe.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXtENgJl4iNq1TZYZtJJQrGYhMdf5YAEXYVxEwq-gHUS0LDGk&s",
     "subtotal": "6.45"
 }, {
     "name": "Fresh Passion Fruit Tea",
     "category": "Special Fruit Drinks",
-    "image": "https://cdn.img.foodaily.com/images/new_products/high_images/2022/08/26/AI3n2zwbbghkJyzbsK4rPikAwcUwbWSvbkPk4CGy.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkIblZZLwvBowurtkbYwTk4pQlQi2r3JJ36TCNC7t9w56sDKo&s",
     "subtotal": "6.25"
 }, {
     "name": "Lemon Black Tea",
     "category": "Special Fruit Drinks",
-    "image": "https://s.yimg.com/zp/MerchandiseImages/d157508d92-Gd-1085841.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5nJ6vMVWPinRpp2tfgVkX-yvcbHJiTM6jz4KJBbsIPpz1sBRc&s",
     "subtotal": "5.45"
 }, {
     "name": "Watermelon Slush",
     "category": "Special Fruit Drinks",
-    "image": "https://tokyo-kitchen.icook.network/uploads/recipe/cover/163481/30c07ac2974bb782.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3FHsLp3R22jCzB7SM4DUTaOj2qwW77DGAnJkKloPx_cBvqBk&s",
     "subtotal": "6.45"
 }, {
     "name": "Mango Pomelo Sago",
     "category": "Special Fruit Drinks",
-    "image": "https://tokyo-kitchen.icook.network/uploads/recipe/cover/304702/b324a24f34c14eec.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvU_qL4vnj7_hBI8JwyLc44bCL_6FR4cN3bW6VIaRgwSksW98B&s",
     "subtotal": "8.50"
 }, {
     "name": "Lemon Green Tea",
     "category": "Special Fruit Drinks",
-    "image": "https://online.carrefour.com.tw/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dw34e76bbb/images/large/0280365_650ml.png",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJ01Y6Dhyk_DD0pxYcqNP-tjaIA8aDCFpDGqsU8T9EuvFrNbo&s",
     "subtotal": "5.45"
 }, {
     "name": "Orange Slush",
     "category": "Special Fruit Drinks",
-    "image": "https://cp1.douguo.com/upload/caiku/7/8/2/yuan_7859d3eb858a1b9c143852cc7a7958d2.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpOTuM6DvMAyxIUmdJEVxkwQWiNI7J5UwcjrEk_Mivy_r4tSo&s",
     "subtotal": "6.45"
 }, {
     "name": "Lamb Skewer",
     "category": "BBQ",
-    "image": "https://i2.chuimg.com/4704799486f611e6b87c0242ac110003_500w_750h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQ_5L2yJUoK1vsjjgyv_wVqNJgfujWjoUD-UHAnJfsHL55gWQ&s",
     "subtotal": "3.25"
 }, {
     "name": "Beef Skewer",
     "category": "BBQ",
-    "image": "https://i2.chuimg.com/ffef43561bfe4c2ca3c82e93314d9e1a_2133w_1600h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQqPcswhJ3-vjIAraduYhwHIp8mu2TihTyxknnTWUw6Nw0k5c&s",
     "subtotal": "3.25"
 }, {
     "name": "Chicken Skewer",
     "category": "BBQ",
-    "image": "https://i.ytimg.com/vi/YkgwSS69bKc/hqdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkqx7-jmWdTyjZc_lgOAmv67rpQ-koay_H5D1LnF0ZXim_iK0&s",
     "subtotal": "2.99"
 }, {
     "name": "Chicken Gristle Skewer",
     "category": "BBQ",
-    "image": "https://i2.chuimg.com/3550c64e890d11e6b87c0242ac110003_4288w_2848h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdK5UeNowCQWNP6bza3eNn6NyHUeX95MBasiVxlkng859Nf94&s",
     "subtotal": "2.50"
 }, {
     "name": "Chicken Gizzard Skewer",
     "category": "BBQ",
-    "image": "https://i.ytimg.com/vi/bgbBdR6wLFs/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIbvAeEwH5hTEqzCVqid6KUgpCqiPsrWsha1OssyFeDmG9nwc&s",
     "subtotal": "2.50"
 }, {
     "name": "Chicken Heart Skewer",
     "category": "BBQ",
-    "image": "https://i2.chuimg.com/be86431886f511e6a9a10242ac110002_625w_800h.jpg?imageView2/1/w/640/h/520/q/90/format/jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgd9278-5oNY9hahTd2KEEEo9zGxG3oSqVjfe-Z3CTebTSg9o&s",
     "subtotal": "2.50"
 }, {
     "name": "Chicken Skin Skewer",
     "category": "BBQ",
-    "image": "https://cp1.douguo.com/upload/caiku/7/c/0/yuan_7c988cb569827bec2be060371e252000.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3vmcr_-Z5OZBLCk-3cEqAuAj69MUu3aw9MncrHIKW_7S4xq0O&s",
     "subtotal": "2.50"
 }, {
     "name": "Chicken Wing Skewer (2pc)",
     "category": "BBQ",
-    "image": "https://cp1.douguo.com/upload/caiku/9/1/5/220_91ec00186ce80ee6b67ef8899d7188b5.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQX8NTWDllfYWWi5BdMZJjsRycb2MtJ2zmlwYvPScG-s6ypvlg&s",
     "subtotal": "4.25"
 }, {
     "name": "Chicken Feet Skewer (3PC)",
     "category": "BBQ",
-    "image": "https://i3.meishichina.com/atta/recipe/2013/11/20/20131120114517924123986.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkT1Fp4IOj9xXtyIJ2nx7ntBIDnH7AMM6TRAelT9jfOxMBN-y0&s",
     "subtotal": "7.50"
 }, {
     "name": "Pork Belly Skewer",
     "category": "BBQ",
-    "image": "https://i3.meishichina.com/atta/recipe/2018/12/22/2018122215454939256751149037726.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlwi5fyHkMF39_uzvEuYF0Ue38rtwktG-0j3vgXiHGTXOTo1o&s",
     "subtotal": "3.00"
 }, {
     "name": "Pork Intestine Skewer",
     "category": "BBQ",
-    "image": "https://i3.meishichina.com/atta/recipe/2017/01/06/2017010614837075133999199773.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4a-PpUbhRDX6-lfk8gcC7kVNK1bfyNkzFb0RzriKCJuVt6gM&s",
     "subtotal": "3.50"
 }, {
     "name": "Sausage Skewer",
     "category": "BBQ",
-    "image": "https://st-cn.meishij.net/r/169/156/2789169/s2789169_154471099662765.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmjg-HchQWPmBtjnA5jMfd6-Dyzv_7lGfUo2JcrEwlI-0PK2Yb&s",
     "subtotal": "3.00"
 }, {
     "name": "Pork Ribs Skewer",
     "category": "BBQ",
-    "image": "https://i.ytimg.com/vi/SpuSv6diFfg/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiGJdm6BovgR8mD5UFnePyDZsh0fF0917ZFtWJsdPLJGhzbpE&s",
     "subtotal": "4.25"
 }, {
     "name": "Bacon-Wrapped Enoki",
     "category": "BBQ",
-    "image": "https://cp1.douguo.com/upload/caiku/7/1/e/yuan_71cd4096d2c1c91e43735d683f04173e.png",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs6GKpZKgjh2FhbEc_VecY19N5CmS571h14GW-uha6R_nij1sB&s",
     "subtotal": "4.25"
 }, {
     "name": "Singapore style noodles",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://assets.tmecosys.com/image/upload/t_web767x639/img/recipe/ras/Assets/514A5D23-1CFE-4727-9924-74D219A9241B/Derivates/A57AED3F-F6C3-4A08-9238-1E7631F6E189.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAumNncbmLSXlDh-1DUQrnVwjcPpGqBNCjSFX_Iz4M5vihtQ&s",
     "subtotal": "18.00"
 }, {
     "name": "Beef chow Fun",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Gon_caau_ngau_ho_%2820150222171214%29.JPG/1200px-Gon_caau_ngau_ho_%2820150222171214%29.JPG",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcBx3BaDnHRwE4IZONyNXUAfNr2VYrM9QQjZ9pq-RX93omx-aV&s",
     "subtotal": "18.00"
 }, {
     "name": "Ham Fried Ramen",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://pic.huitu.com/pic/20190411/242421_20190411144724932060_0.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpfCtMnapmXrwdYnKo1xV-t1Z4pJkmMSGww-cJqvjqLzGtC26h&s",
     "subtotal": "18.00"
 }, {
     "name": "Sesame Sauce Noodle",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://i2.chuimg.com/a6cf1f520d7211e7947d0242ac110002_1280w_1024h.jpg?imageView2/1/w/640/h/520/q/90/format/jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzbNdZj-xROU7ILDjVsL0e-92sX1o4iFV9WR7FUJ-kwwV11i9X&s",
     "subtotal": "13.99"
 }, {
     "name": "Fried Little Mantou",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://i3.meishichina.com/atta/recipe/2020/03/11/20200311158392286088196610224823.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBoAThJD2fo11HNLs0B3UlnmsTosqdn358bVftnajiMwWvga3n&s",
     "subtotal": "3.50"
 }, {
     "name": "Grilled Little Mantou",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://cp1.douguo.com/upload/caiku/0/3/1/yuan_03f2e56dc0a52fcfa5bd1369a2814f61.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvE4gXxQ8TdD8IvKAlwcgJsYDOB3TCrCyVzKY08AF7xeuKxF4&s",
     "subtotal": "3.50"
 }, {
     "name": "Dried Scailop Egg White Fried Rice",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://www.homaydo.com/wp-content/uploads/yzdbcf_1600_900.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHuGtVoWdhKKxnconoKtCmeNaH4PF-zB4e6KyYGzO5drjN7LU&s",
     "subtotal": "18.00"
 }, {
     "name": "White Rice",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://i2.chuimg.com/055a81f0882711e6a9a10242ac110002_640w_412h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLibXAx8UuV2HsEVD5cbHLxXVKuUF5vR4Wse6YraFwdrF83ns&s",
     "subtotal": "3.50"
 }, {
     "name": "Taishan Wonton Soup",
     "category": "RICE/NOODLES/BREAD",
-    "image": "http://5b0988e595225.cdn.sohucs.com/images/20190619/3f8b79b9a26c4afd8162d688e7e6522b.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThk2qNI1KvEQ3_351l5QhE9o_DSZSyZg7k_8FYwPjjkdq47Uw2&s",
     "subtotal": "6.80"
 }, {
     "name": "Fried Wonton",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://i2.chuimg.com/bfc2e810878d11e6a9a10242ac110002_800w_600h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFCeNTCtTlrH5_JMKjVR-ZVLIMbC6Ov3TKtZOv6FJzXcO1szI&s",
     "subtotal": "6.80"
 }, {
     "name": "Scailion Pancakes",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://i2.chuimg.com/db467b10876f11e6b87c0242ac110003_2604w_1638h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPMLXwbYRvWQqWXEDG4qIMHW8RqMFZCbr8wE2nTHPl37nB0YwL&s",
     "subtotal": "6.80"
 }, {
     "name": "Fried Chicken Wing (4ea)",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://i.ytimg.com/vi/bpvHaMwHh_U/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPtinnIcw14RVKUJGMAXQinjzX7koG5jFBh8ZV5FJVf_PEzjd1&s",
     "subtotal": "6.80"
 }, {
     "name": "Fried Dumpling (3ea)",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://i2.chuimg.com/f3d378092e654cd59f17dacdec79fe9e_1080w_864h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa9vZOKBf6vcQmSL6yH5Ju8Oufr5Gf1h9TU_lURlpwEa7rJEik&s",
     "subtotal": "6.80"
 }, {
     "name": "Curry Fishball",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://tokyo-kitchen.icook.network/uploads/recipe/cover/373566/22b9aa40e02f63b3.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUKJ6uOFXrlZnqPVLUs9pe30mFcb9u7tsx7403jGZajRDr1gOS&s",
     "subtotal": "6.99"
 }, {
     "name": "Szcheun Chicken Feet",
     "category": "RICE/NOODLES/BREAD",
-    "image": "https://i3.meishichina.com/atta/recipe/2017/12/06/201712061512522950359758002212.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQb4nckEKTka8O6AQQ-JvL3yecGU47bGyv7T0mxTzBCJlUt4qw&s",
     "subtotal": "10.99"
 }, {
     "name": "White pepper pork tripe soup base",
     "category": "HOTPOT SOUP BASE",
-    "image": "https://qna.smzdm.com/202201/07/61d798d713cb09126.jpg_e680.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRcYYdtEUjXYedF6W5wg0y_wToVTg1yLEPPK6lS1x0iaqwxy7C&s",
     "subtotal": "0"
 }, {
     "name": "Taishan style coconut chicken hot pot soup base",
     "category": "HOTPOT SOUP BASE",
-    "image": "http://cbu01.alicdn.com/img/ibank/O1CN019opMhL1V83DmBmcZa_!!2904452607-0-cib.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNIYjYTdUofGawKVpM4GkjspaWTuxkQ7diWrGAXXJaMCZEWtA&s",
     "subtotal": "0"
 }, {
     "name": "Lotus root beef bone soup base",
     "category": "HOTPOT SOUP BASE",
-    "image": "https://img.tvod.tsbtv.tv/material/news/img/640x/2019/04/20190415104649Sdpi.jpg?N2lz",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_uBdAAFPJmCr5beAcazmedZe524DqMhll5mNP8Z4b494WqZM&s",
     "subtotal": "0"
 }, {
     "name": "Taishan style beef bone soup (small)",
     "category": "HOTPOT SOUP BASE",
-    "image": "http://5b0988e595225.cdn.sohucs.com/images/20190331/36641ed259b24279afee22ce8bfefedd.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVfeVszdf4RwvIPyM_xYMGTvvvxVe6HW-hOlXH2pgpV65QC92A&s",
     "subtotal": "0"
 }, {
     "name": "Pork bone soup base",
     "category": "HOTPOT SOUP BASE",
-    "image": "https://cp1.douguo.com/upload/caiku/c/5/c/yuan_c58357ab7c6538c164c1481124fad34c.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6t0oUarGKPPnXEW3TzCBTCdFohroUSLQZ57moLLSIXsQTFQtu&s",
     "subtotal": "0"
 }, {
     "name": "Two favors taichi hot pot soup base",
     "category": "HOTPOT SOUP BASE",
-    "image": "https://www.tsemporium.com/media/catalog/product/cache/1/image/450x/9df78eab33525d08d6e5fb8d27136e95/6/9/6918020002789_a.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJpH5Ar1C_MhtYelUF1jkZoXj96AxiOfjHrEeC4wy3A94sanzS&s",
     "subtotal": "0"
 }, {
     "name": "Original pork bone favor soup base",
     "category": "HOTPOT SOUP BASE",
-    "image": "https://imgservice.suning.cn/uimg1/b2c/image/TwET1EmlRpUUXwQMIm3Q7w.jpg_800w_800h_4e",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6t0oUarGKPPnXEW3TzCBTCdFohroUSLQZ57moLLSIXsQTFQtu&s",
     "subtotal": "0"
 }, {
     "name": "Spicy favor soup base",
     "category": "HOTPOT SOUP BASE",
-    "image": "https://imgservice.suning.cn/uimg1/b2c/image/9SOe8sXor_xpTy0ao-B7JA.jpg_800w_800h_4e",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPdCHqcF_ESyrNe1lq8shZy1bNxJlGfAoXOurXptLqnHcp4jI&s",
     "subtotal": "0"
 }, {
     "name": "Spicy curry favor soup base",
     "category": "HOTPOT SOUP BASE",
-    "image": "https://gw.alicdn.com/imgextra/i3/3321564743/O1CN01BnuN7t1kuLKtVpsfT_!!0-item_pic.jpg_Q75.jpg_.webp",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyRIzcXLIrzpu3-k3aS5fvyAdCyTEYN_IldwlbIbgOtBF3oTHS&s",
     "subtotal": "0"
 }, {
     "name": "Satay favor soup base",
     "category": "HOTPOT SOUP BASE",
-    "image": "https://sduff.com/wp-content/uploads/2021/04/%E5%8F%B0%E6%B9%BE%E7%89%9B%E5%A4%B4%E7%89%8C-%E6%B2%99%E8%8C%B6%E9%94%85-%E7%81%AB%E9%94%85%E9%94%85%E5%BA%95-350g.png",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQH5FezmOTU-iM8YSFMHj3dx1d7QOdFyz5f2yh37aA-hPJv16k6&s",
     "subtotal": "0"
 }, {
     "name": "Mushroom soup base",
     "category": "HOTPOT SOUP BASE",
-    "image": "https://imgservice.suning.cn/uimg1/b2c/image/RsDx4UrOcsMA4Mdy6nyQew.jpg_800w_800h_4e",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3tr2fyLcNivd6HI-0wV0UrtHugYy3XLvPCs71sGe6cvafLZs&s",
     "subtotal": "0"
 }, {
     "name": "Tomato soup base",
     "category": "HOTPOT SOUP BASE",
-    "image": "https://imgservice.suning.cn/uimg1/b2c/image/4k0yaX68PTeE_sBjnPcNvw.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHwJfcNN9Aa9uj7nC-f_1Hssp4vGRYNQLrXNxkiOU56UriaihH&s",
     "subtotal": "0"
 }, {
     "name": "Lamb slices",
     "category": "Meat ingredients",
-    "image": "https://img95.699pic.com/xsj/0l/vv/d5.jpg!/fw/700/watermark/url/L3hzai93YXRlcl9kZXRhaWwyLnBuZw/align/southeast",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPiVld8mu1bismJuJvAKXgLIA7NeYlQCt0ZiOY3PYazdOAYfM&s",
     "subtotal": "9.95"
 }, {
     "name": "Beef slices",
     "category": "Meat ingredients",
-    "image": "https://shoplineimg.com/5f6c574bb3a7bc000817a72f/5f8445e107ec310c56d83ef5/800x.jpg?",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8yfi0weY8PIoWg3tRxIPjuX8TPkZh8jWHNHTEtnmkwVudZeXb&s",
     "subtotal": "9.95"
 }, {
     "name": "Beef balls",
     "category": "Meat ingredients",
-    "image": "https://www.mrspskitchen.net/wp-content/uploads/DSC09503.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMebl6YnEkHQCxMlpEG35u2Oj-24NJmVctMbHEBKLEFEVPqog&s",
     "subtotal": "9.95"
 }, {
     "name": "Pork balls",
     "category": "Meat ingredients",
-    "image": "https://i3.meishichina.com/atta/recipe/2021/06/09/20210609162318362885232010878013.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1iqu2H-reOobhoO_1_VVMAQE98L-aCM18Nl7WY8EEfWdlogdu&s",
     "subtotal": "9.95"
 }, {
     "name": "Fish roe balls",
     "category": "Meat ingredients",
-    "image": "https://i3.meishichina.com/atta/recipe/201107/201107041703445.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqDgwzQA3PcKmDzinCr8VoBgJ2MF1iZl-8GVEEIRBwxCS52cSV&s",
     "subtotal": "9.95"
 }, {
     "name": "Quail eggs",
     "category": "Meat ingredients",
-    "image": "https://www.newsmarket.com.tw/files/2023/01/20200603-080.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgWSFNp1UmCigpD4bKHTNeKDU2ulixe8_ZHdvoxXuf1yNntW0&s",
     "subtotal": "9.95"
 }, {
     "name": "Dumplings (chicken)",
     "category": "Meat ingredients",
-    "image": "https://tokyo-kitchen.icook.network/uploads/recipe/cover/355834/b8ce15624e2ddb11.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRk0Jcp4sO5fHKwmLSGueDnhtv4zbL6QnoVFM35S7wCXp_A2xI&s",
     "subtotal": "9.95"
 }, {
     "name": "Scallop",
     "category": "Meat ingredients",
-    "image": "https://p4.itc.cn/images01/20210429/910d63e27b8e4a54b81bbcbdf20a385a.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWt3v6-qSVqGuM1XZkkIYgVZ7gDTYL0R9derbMkm2lgijbDBJV&s",
     "subtotal": "9.95"
 }, {
     "name": "Shrimps without shell",
     "category": "Meat ingredients",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Garnelen_im_Verkauf_fcm.jpg/250px-Garnelen_im_Verkauf_fcm.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAlYPpz4_XK4RwG9jvIJ8UIi2biO7sziEQBloDQKYnq0Hd9cSu&s",
     "subtotal": "9.95"
 }, {
     "name": "Mussels",
     "category": "Meat ingredients",
-    "image": "https://i2.chuimg.com/c8d965363f3945ebbcef78ae03983df1_4032w_3024h.jpg?imageView2/1/w/640/h/520/q/90/format/jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9Yx9pIPETGYVmY3ighKQcsX1oE1o71PlCKwQsMyFoBJPzeCLq&s",
     "subtotal": "9.95"
 }, {
     "name": "Beef tripes",
     "category": "Meat ingredients",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Niubaiye.jpg/1200px-Niubaiye.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfL9XvchV1sj0OYilc6ShupiVQCAG90DSTaMXSsJOzNKGDSfU&s",
     "subtotal": "9.95"
 }, {
     "name": "Spam slices",
     "category": "Meat ingredients",
-    "image": "https://cs-a.ecimg.tw/items/DBAI8KA900A2YC4/i010001_1621141855.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKTbdbjXO1B6ySd3xTER-oMGeCwcTX8K3owixBqFhu8aV-z_o&s",
     "subtotal": "9.95"
 }, {
     "name": "Wontons",
     "category": "Meat ingredients",
-    "image": "https://www.cpfoods.com.tw/upload/product_list_pic/tw_product_list_22g01_ne3ams2cav.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQk2i6kNL3H1bUpnXG900RKHdlNqNAg0fizSja4WD7SrIGPUA5Y&s",
     "subtotal": "9.95"
 }, {
     "name": "Fish tofu",
     "category": "Meat ingredients",
-    "image": "https://rs.joo.com.tw/website/uploads_product/website_364/P0028100005569_3_26694.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStRk8g_E0QuxnG8QALJTjtkmFE3yvM5NoDtk_QR7VP_cM445Wu&s",
     "subtotal": "9.95"
 }, {
     "name": "Fried fish balls",
     "category": "Meat ingredients",
-    "image": "https://wayfong.com/spree/products/401/large/%E7%82%B8%E9%AD%9A%E4%B8%B8g.jpg?1489089553",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuX1uq0IPBuLRH2YIHvuvjnPQq3CgoeVEG6CoxTbYiKvQHQ6Y&s",
     "subtotal": "9.95"
 }, {
     "name": "Pork coarse sausage",
     "category": "Meat ingredients",
-    "image": "https://blogger.googleusercontent.com/img/a/AVvXsEi57l7_izdbWP-mdf6tIGRb5IxELZOIPl1kb8aew_4yphqJXdp7Wta3CMUNzWoaZ0GMRtPgy0rEzRnejrppsdn-KTwRwceXekgcW72x8hlMqWJo-OxxjizAEFC8-ETtG7ey9E-ubwl3C1vpmS6MHNL6fUesRVblL9HaGjoaZsN3LPynu6xxIpJSKfo3rA=w640-h480",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlcKr6rJoQtrCLBOsqOdZ62YZHABiubv_zD-LjiBRAKqLTKUw&s",
     "subtotal": "9.95"
 }, {
     "name": "Beef tendon balls",
     "category": "Meat ingredients",
-    "image": "http://greatriverfood.com/wp-content/uploads/2018/09/312.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFQ9TdqaKeYGZad3-7YasoYSqRIIYZEUcR5VeG0RjW53XHaLQ&s",
     "subtotal": "9.95"
 }, {
     "name": "Handmade nostoc dace fish balls",
     "category": "Meat ingredients",
-    "image": "https://i.ytimg.com/vi/H2FwXAtx3ww/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQltdMzEFcbd8Vgd-8miSLkYAJrVWIs14T-yNdlcUQVP-sGbDE&s",
     "subtotal": "9.95"
 }, {
     "name": "Sole fish fillets",
     "category": "Meat ingredients",
-    "image": "https://cdn.yamibuy.net//item/5d0ba9602a3014787f0a8a204b8d2c01_750x750.webp",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLd8c6W64UL8arse4ziojpBGtWTTFdZy1ia7BaRTd3XzCuc1A&s",
     "subtotal": "9.95"
 }, {
     "name": "Grass fish fillets",
     "category": "Meat ingredients",
-    "image": "https://cdn.shopify.com/s/files/1/2465/1793/products/799407b3c1c7264ebc76f7d9e8683ac6_437852ff-c493-4d62-8af4-3943579d6a7e_460x@2x.jpg?v=1669195829",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWRajVBaE9AIL1kfHQI7RHYSQm2OwXuWjdf_gj6ErepjAJaCrm&s",
     "subtotal": "16.00"
 }, {
     "name": "Lettuces",
     "category": "Vegetable ingredients",
-    "image": "https://bkimg.cdn.bcebos.com/pic/2cf5e0fe9925bc315c60ef72f8899ab1cb134854da98?x-bce-process=image/resize,m_fill,w_1080,h_720,align_50,limit_0",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTz-k-kVWAruvsY86YZy2FKBVT8TPVOkV7MmRg8s1U3MNKNf8w&s",
     "subtotal": "6.95"
 }, {
     "name": "Napa cabbages",
     "category": "Vegetable ingredients",
-    "image": "https://tokyo-kitchen.icook.network/uploads/category/background/396/9fc3d809ea66e82a.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2KfM9P_aYso1qBIixSfvXwThwNGSuezIkxCbpS9mL8aWEBE9k&s",
     "subtotal": "6.95"
 }, {
     "name": "Soybean sprouts",
     "category": "Vegetable ingredients",
-    "image": "https://img.cook1cook.com/upload/cover/202201/90/145106-1642678574.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTzC6WuoJvHqdWSUO6iU6z93xFlbi2JN-qOp0SWoJgI5I2kRO2&s",
     "subtotal": "6.95"
 }, {
     "name": "A Choy",
     "category": "Vegetable ingredients",
-    "image": "https://tokyo-kitchen.icook.network/uploads/step/cover/1469951/86d573eb7c43ef17.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZQlxPggb-rI283UBBvbWFHLtONOuBUSZV3z2zNWhgvEOB2_Gg&s",
     "subtotal": "6.95"
 }, {
     "name": "Potato slices",
     "category": "Vegetable ingredients",
-    "image": "https://video-static.hk01.com/680bec7f-c57b-4e30-a7a0-383f08b2cc19_20190603_041646",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS29kUzJaSNCxyVwe9hKDaKxQbvhzpisq0J3XIf5qmKJRdPkzM&s",
     "subtotal": "6.95"
 }, {
     "name": "White radish",
     "category": "Vegetable ingredients",
-    "image": "https://www.onlineifresh.com/wp-content/uploads/2015/08/file_14_5.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLS6w6sfXJgYJYhAmCyC6CUu__6RvX2VoN3YG_MZcNmMkAUQ5G&s",
     "subtotal": "6.95"
 }, {
     "name": "Lotus roots",
     "category": "Vegetable ingredients",
-    "image": "http://www.cnfood.cn/Public/upload/202202/20220217085943662.png",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQ6cTX918PsYGyHcGuPDYwaqUGrF5ZZyJsiSWLrfIV2mWZcuU&s",
     "subtotal": "6.95"
 }, {
     "name": "Taro slices",
     "category": "Vegetable ingredients",
-    "image": "https://www.foodnext.net/dispPageBox/getFile/GetImg.aspx?FileLocation=%2FPJ-FOODNEXT%2FFiles%2F&FileName=photo-21075-i.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStcxMaYeN4n46bSFwd1NgTXyFXFkby0LvAZjKu1LeSErun4Bk&s",
     "subtotal": "6.95"
 }, {
     "name": "Corns",
     "category": "Vegetable ingredients",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Batar_kinur.jpg/800px-Batar_kinur.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCY6tXqCD_Jd-pW-am5i1NQYqQhleEfQGcaIt4F0UkvxtAXOgV&s",
     "subtotal": "6.95"
 }, {
     "name": "Noodles",
     "category": "Vegetable ingredients",
-    "image": "https://i.ytimg.com/vi/cmcroP8lRAU/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRq0OSfhh7836iuPpBqBsYHzZjYFyWHtqGKVBcTRPekwWbSaOMu&s",
     "subtotal": "6.95"
 }, {
     "name": "Rice noodles",
     "category": "Vegetable ingredients",
-    "image": "https://assets.tmecosys.com/image/upload/t_web767x639/img/recipe/ras/Assets/4AF26F56-8C7C-4AB5-84F5-4A76A7B9BB46/Derivates/8BE65E93-C6DC-43F3-AA4B-D1C20B39C71C.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFC8wKcdywBp14pkTz9Q9FSkdEeafys_nUNaec74EmyJu-rFwm&s",
     "subtotal": "6.95"
 }, {
     "name": "Udon noodles",
     "category": "Vegetable ingredients",
-    "image": "https://img.cook1cook.com/upload/cover/202102/46/170218-1612960745.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3qvOCRlUrN0LFafzsii0kXLCcRQtEjmE5HvOaNE8t6paUjwY4&s",
     "subtotal": "6.95"
 }, {
     "name": "Tofu puffs",
     "category": "Vegetable ingredients",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/HK_MK_Mongkok_Market_Bean_Curd_a.jpg/1200px-HK_MK_Mongkok_Market_Bean_Curd_a.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxiqTPOA9O2pfeZuPPLSeAS1Sdxj4r4HIGHocsOpVpc-12MVs&s",
     "subtotal": "6.95"
 }, {
     "name": "Tofu",
     "category": "Vegetable ingredients",
-    "image": "https://tokyo-kitchen.icook.network/uploads/recipe/cover/413889/97be757db2c53374.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaqiz2NRvMB9VVVpBX3ownWteMk9XcfK8waNPmAMBjMkBMpVs&s",
     "subtotal": "6.95"
 }, {
     "name": "Soybean rolls",
     "category": "Vegetable ingredients",
-    "image": "https://www.green-n-safe.com/uploads/images/thumbs/0004347_%E6%B6%AE%E6%B6%AE%E9%9F%BF%E9%88%B4%E5%8D%B7.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRw9TjrCMLzYi8K8JJPfZhaJ03oS0QY3IFONmwZgo6apjZUQrWt&s",
     "subtotal": "6.95"
 }, {
     "name": "Broccoli",
     "category": "Vegetable ingredients",
-    "image": "https://worldchance.com.hk/117-large_default/%E8%A5%BF%E8%98%AD%E8%8A%B1.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7gT8g1CjJEgooZIqR9N-rvAQ4AaBs4J4DTVczWF4Bv-EwgCw&s",
     "subtotal": "6.95"
 }, {
     "name": "Spinach",
     "category": "Vegetable ingredients",
-    "image": "https://cdn.hk01.com/di/media/images/cis/5dd787365272b81167ca51ae.jpg/UL6hMM6n8fL4iH8xfSa4ZTf0BwHcnPenhOG6b4Thum8?v=w1920",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNq2_2eRWdemawjBjwpBtywVdKJ_W55xcX1PJ-5o_GnrbmWBTo&s",
     "subtotal": "6.95"
 }, {
     "name": "Enoki mushrooms",
     "category": "Vegetable ingredients",
-    "image": "https://img06.weeecdn.com/item/image/937/076/36F20AB7F2F3A538.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA0wPp55F3ym279ydAkXj3BXMdt7GFnfjBZamg3NjY8Qm3fRA&s",
     "subtotal": "6.95"
 }, {
     "name": "Steamed vegetable Fruit rice",
     "category": "Chinese Kung Fu Steamed Rice",
-    "image": "https://cp1.douguo.com/upload/caiku/0/c/6/yuan_0c786efe960228b852eb8232bd886dd6.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI8jJHDgtOWwgbCbks86oOlvacXMtAOG_SpIhPfZPML8JkPEk&s",
     "subtotal": "0"
 }, {
     "name": "Taishan steamed rice",
     "category": "Chinese Kung Fu Steamed Rice",
-    "image": "https://i.ytimg.com/vi/xU5cRMo81NU/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmmblOTXyzc53VZZSC5aUcpOID2MkS8QOVsscsu4nG_7VxtjK0&s",
     "subtotal": "0"
 }, {
     "name": "Steamed rice with pork patty and salted fish",
     "category": "Chinese Kung Fu Steamed Rice",
-    "image": "https://i.ytimg.com/vi/xnGJzOyXRmE/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIfS7QdMlx1pQ7YqW9Rm63jFGCYvCbOIEzqswc9mjgMATn-GSb&s",
     "subtotal": "0"
 }, {
     "name": "Steamed rice with Chinese pickled and beef",
     "category": "Chinese Kung Fu Steamed Rice",
-    "image": "https://tokyo-kitchen.icook.network/uploads/recipe/cover/293965/55d8df1d7381d8c7.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8qOKdOnDLw-NMCHk3ADJeU26LAAE9DgS5O36BPzWa0D8LPoo&s",
     "subtotal": "0"
 }, {
     "name": "Steamed rice with dried shredded turnip vegetables,and pork tongue",
     "category": "Chinese Kung Fu Steamed Rice",
-    "image": "https://i2.chuimg.com/8c9510aab2104710ba2a64b1afc64d69_3024w_3024h.jpg?imageView2/1/w/640/h/520/q/90/format/jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcTfwnKjb_6K6d9-qIq6XS1oCa_rOen_Zk7oQ9gWLqOoFY6s-V&s",
     "subtotal": "0"
 }, {
     "name": "Sliced Fish Congee",
     "category": "CONGEE",
-    "image": "https://tokyo-kitchen.icook.network/uploads/step/cover/1271491/53572ea263e276e0.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2EJrtbMXdr5QJUCdclwQEZK8rkULUnbtXrQv6jigbWtNwMS04&s",
     "subtotal": "8.00"
 }, {
     "name": "Century Egg and Pork Congee",
     "category": "CONGEE",
-    "image": "https://picx.zhimg.com/v2-643fd0ae08462c32bb0fe26c12d0e71b_720w.jpg?source=172ae18b",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZdDqoaL8mKuiQOSKxbt_dG6lpHPW2ZR8UJwq-4Ti9AYrmwRuJ&s",
     "subtotal": "8.00"
 }, {
     "name": "Scallop and Gingko Congee",
     "category": "CONGEE",
-    "image": "https://www.hungfooktong.com/wp-content/uploads/2019/04/%E9%AE%AE%E7%99%BD%E6%9E%9C%E7%91%A4%E6%9F%B1%E7%B2%A5-1-600x600.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRwcoLkPikkP7X7va0YvMwSbHVHBeZGBOBCixyoilcmkc5Oipk&s",
     "subtotal": "8.00"
 }, {
     "name": "Vegetable and Pork Congee",
     "category": "CONGEE",
-    "image": "https://img.cook1cook.com/upload/cover/0/85/714231498638883085.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNUCMQkhekXlQPvXHbsXemxpgq5OKZ9XGKrx5kPo73AAgTc5E&s",
     "subtotal": "8.00"
 }, {
     "name": "Sweet and Sour Chicken",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/rEGt43rQbU4/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyLQl6oWTyySz0ea36AZrCXndibQ6Q1TCLLeCJSUNhKByD7ZWX&s",
     "subtotal": "14.95"
 }, {
     "name": "Deep-Fried Pork Chop with Onion",
     "category": "HOUSE SPECIAL",
-    "image": "https://lh3.ggpht.com/christinehoau/SL_NFwv48-I/AAAAAAAAB9k/w4K9G9iK51g/%E6%B4%8B%E8%94%A5%E8%B1%AC%E6%89%92%20Braised%20Pork%20Chops%20with%20Onions.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0dIQiegHvs1l9_5IPYZw8H_HJBgkr69xEvZK0SKEr_Nj8THI&s",
     "subtotal": "14.95"
 }, {
     "name": "Curried Chicken",
     "category": "HOUSE SPECIAL",
-    "image": "https://d3l76hx23vw40a.cloudfront.net/recipe/bk205-037a.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8XVJHJvnSDsNtpqWFaCssQzynZJpb98e-a5QllwDqPmLRUFo&s",
     "subtotal": "14.95"
 }, {
     "name": "Salt and Pepper Pork Ribs",
     "category": "HOUSE SPECIAL",
-    "image": "https://tokyo-kitchen.icook.network/uploads/recipe/cover/254761/99d305453cfefe10.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqGIFxUYlihnni6Wce_9kguM1ko-VTlcN52w0pNXQi2d6KGGU&s",
     "subtotal": "23.00"
 }, {
     "name": "Sweet and Sour Pork Ribs",
     "category": "HOUSE SPECIAL",
-    "image": "https://img-global.cpcdn.com/recipes/7511714d116c0907f90117fce6439f2d/1200x630cq70/photo.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRS3m0_k0__9lsrcrDt5-N0m2mLvPOqtPd0I2iPVQY9iboh_3o&s",
     "subtotal": "23.00"
 }, {
     "name": "Pan-Fried shrimps in Maggi Sauce",
     "category": "HOUSE SPECIAL",
-    "image": "http://2.bp.blogspot.com/-7JKZWaPH-k0/VAB0KHfU_MI/AAAAAAAAQQY/RSSmXOvqnos/s1600/%E7%BE%8E%E6%A5%B5%E8%9D%A6%2BPan-fried%2BShrimps%2Bin%2BMaggi%2BSauce01.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbSSexadpfdGvKsk8R3U7xjNZOvNBiznpwAyjoHY6GthrcgfM-&s",
     "subtotal": "17.95"
 }, {
     "name": "Walnut shrimps",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/OiS8QX7_CaA/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQuL9GGyJhfMB3bNsKvh7H-PY7J0RneL-s0RC2Li8GqINfDMkfA&s",
     "subtotal": "17.95"
 }, {
     "name": "House Special chow Mein or Fried Rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://i2.chuimg.com/8e4c7fcac0874cee8e10865d0f99a4f1_4032w_3024h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbv4DYGnJ7BKmr0r91pGNXNNgeMt8wau1y6Jqk7ayCk7gTty0&s",
     "subtotal": "13.95"
 }, {
     "name": "Deep-Fried Chicken Wings",
     "category": "HOUSE SPECIAL",
-    "image": "https://tokyo-kitchen.icook.network/uploads/recipe/cover/391842/ba9520715f900f1d.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQu1an4THwj8nzvrJjy_tjuG87rYpAN7463AAMLDkn6XpNoK1eU&s",
     "subtotal": "13.95"
 }, {
     "name": "Beef w/chinese Broccoli(cauliflower)",
     "category": "HOUSE SPECIAL",
-    "image": "https://i2.chuimg.com/8b63fd6cbdb64be98478f6d20816c961_1280w_1024h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0V8XQBNF4f9LX_44AkVgfDDqkNEnww__qUJvF6OjlKuKDopd3&s",
     "subtotal": "18.00"
 }, {
     "name": "Mongolian Beef",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/1pw-x7wTVxs/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7thkkTy-9VzcQBp0LVtm6hvLTLNLeSoC68ura0VepkSN25wAL&s",
     "subtotal": "25.00"
 }, {
     "name": "Stir-fried chicken W/vegetable",
     "category": "HOUSE SPECIAL",
-    "image": "https://tokyo-kitchen.icook.network/uploads/recipe/cover/201300/d080cfdcc35d6044.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWnZdzVcH64PSPGZLF7Axx3Qs63_n6Lte_Mi4y0pzY2eqOuZY&s",
     "subtotal": "15.95"
 }, {
     "name": "Sweet and Sour Chicken Over Rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=1222103274648280",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXEFprvshrqkRoFBTEzdol4azr2ft3LABQb04T3u0dfCtTt5k&s",
     "subtotal": "12.95"
 }, {
     "name": "Deep-Fried Pork chop with onion Over Rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://lh3.ggpht.com/christinehoau/SL_NFwv48-I/AAAAAAAAB9k/w4K9G9iK51g/%E6%B4%8B%E8%94%A5%E8%B1%AC%E6%89%92%20Braised%20Pork%20Chops%20with%20Onions.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRy0yrm7Equ3VIl4EjczCRYjPJ0tXtiDf1A_etpR6gy4O51qmE&s",
     "subtotal": "12.95"
 }, {
     "name": "Curry Chicken Over Rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/CkAfFT6c1xA/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTI49erXKtDUWQ_Lrt4GpFZRmyseisw7WHsp50DBMTdcnmHQ4w&s",
     "subtotal": "12.95"
 }, {
     "name": "Braised Lamb Stew Over Rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://img.bigfang.tw/2017/09/1504330388-a526fccb7272b8640c824bad22c81a5e.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyoTiVONss28kNWLMmZICEhINd9iAhw12UcN8yTCb72OK4o6Q&s",
     "subtotal": "13.00"
 }, {
     "name": "Braised Beef Stew Over Rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://tokyo-kitchen.icook.network/uploads/recipe/cover/183102/12d7e0ddc63290c8.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfRsFMrWCvxis0sKljbclVgqdvZN5BSWRgfF4vLXZuxawqNFHu&s",
     "subtotal": "13.00"
 }, {
     "name": "Braised Pig Feet Over Rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/rihFkDefCls/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjsuuTnXlmN8LV0TgWe8b2TOvXxG344r7D9eGlx8MY5earxgbY&s",
     "subtotal": "10.95"
 }, {
     "name": "Preserved Pork Stir Fried Cauliflower Over Rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://i2.chuimg.com/152f2f9f2cba48c79b1b63bc905e4528_4096w_3072h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4-DaWh_2c6lFBcrhShq4tSs_CmH8NjB9tQdITB5pFQDS7zNk&s",
     "subtotal": "13.00"
 }, {
     "name": "Clam Taro Chinese Cabbage Pot",
     "category": "HOUSE SPECIAL",
-    "image": "http://www.caipucn.com/d/file/caipu/20161108/5150cb6804dbda50ac6210cd468bcbf4.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYbkZRWXm4a8YPmwnr_EBfQES68k2IYHPIdhBd0tvSqhS7DGc&s",
     "subtotal": "25.00"
 }, {
     "name": "Boiled yaw choy",
     "category": "HOUSE SPECIAL",
-    "image": "https://i2.chuimg.com/bd3e9c48dc7811e6bc9d0242ac110002_1280w_924h.jpg?imageView2/1/w/640/h/520/q/90/format/jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0UzEyoOt5dAx1t_g3so5QtcwXOccUDsHGleIqFUJxDJ7Hrow&s",
     "subtotal": "18.00"
 }, {
     "name": "Boiled lettuce",
     "category": "HOUSE SPECIAL",
-    "image": "https://assets.tmecosys.com/image/upload/t_web767x639/img/recipe/ras/Assets/311111d7f87a2b170adc536ab17de577/Derivates/f4b15c5101c8b9d00f06d90443758e10148d5880.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT86sk97nJ8V_D_Olma5vFv3PegiyUwz3bhOzSBM_AxNp0fV_w&s",
     "subtotal": "18.00"
 }, {
     "name": "Clam w/Black Bean Sauce",
     "category": "HOUSE SPECIAL",
-    "image": "https://resource02.ulifestyle.com.hk/ulcms/content/article/thumbnail/1280x720/uf/1905000/1907031/111.JPG",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlO1P-Gh0lJTO2pDFzn22FrrAMqLRgHLwdwFlspNrGlwy2qf8&s",
     "subtotal": "25.00"
 }, {
     "name": "Dry Fish w/Pork Meat",
     "category": "HOUSE SPECIAL",
-    "image": "https://d3l76hx23vw40a.cloudfront.net/recipe/whk089-020a.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTg19ocU4F6pxL3C__4eG2AmuQceQv49I2K40XyTc7z5CfS5M07&s",
     "subtotal": "22.00"
 }, {
     "name": "Salted Egg Dry Fish w/Pork Meat",
     "category": "HOUSE SPECIAL",
-    "image": "https://cfcdn.she.com/media/she.com/2018/05/575205-39330566440_5e1d741081_z.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIfS7QdMlx1pQ7YqW9Rm63jFGCYvCbOIEzqswc9mjgMATn-GSb&s",
     "subtotal": "25.00"
 }, {
     "name": "Taishan Salted Rice Dumpling",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/PLuQVapPW6o/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnTIGRy46KJIGyT408upowq3jnOx3ZiZyHyMBYYFzn9TKU_9Xj&s",
     "subtotal": "40.00"
 }, {
     "name": "Braised Muscovy Duck w/Yuba",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/NaaLJCn36M8/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReO50Ww9YCSJBFVZm6vI3T37_gLFalXYZAxN0HkW7srh-GsUpT&s",
     "subtotal": "28.00"
 }, {
     "name": "Double Pepper w/Squid",
     "category": "HOUSE SPECIAL",
-    "image": "https://i3.meishichina.com/atta/recipe/2017/02/09/2017020914865712085027024043.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYAhqE5YWt2o3bxVFjWu-Kmxk-qtqlFbV-SgMzWdFD4ACAc84&s",
     "subtotal": "25.00"
 }, {
     "name": "Steamed Pork Belly w/Shrimp Sauce",
     "category": "HOUSE SPECIAL",
-    "image": "https://i2.chuimg.com/b97d3f10288049f7b13b7c2a433a2be3_3024w_3024h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQETBLWOLYRcoPwJ17mFOQKntma7i7CyCQd_Br4x7B1AuWfhNiL&s",
     "subtotal": "18.00"
 }, {
     "name": "Pan Fried Eggs w/Sausage",
     "category": "HOUSE SPECIAL",
-    "image": "https://img-global.cpcdn.com/recipes/9fe2382925948f1a1474e7f3aebdb6cd/680x482cq70/%E8%87%98%E8%85%B8%E7%85%8E%E8%9B%8B-%E9%A3%9F%E8%AD%9C%E6%88%90%E5%93%81%E7%85%A7%E7%89%87.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_wvx4MLFRzAx2RGFMrB9iyTfj6RorzLyHb1p7Pn2dtWydCmxv&s",
     "subtotal": "16.00"
 }, {
     "name": "Spicy fish w/chili oil",
     "category": "HOUSE SPECIAL",
-    "image": "https://bkimg.cdn.bcebos.com/smart/11385343fbf2b211931330b301ca72380cd7902320b1-bkimg-process,v_1,rw_1,rh_1,pad_1,color_ffffff?x-bce-process=image/format,f_auto",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIBdRUxtV3vzRnDw9QtJ-PzNfGWafOdZmEcP_Feww4xaYq0Fx3&s",
     "subtotal": "20.95"
 }, {
     "name": "Spicy Beef w/chili oil",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/UErqu84GF00/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9yrebyVeyXm7lXWxGSgwz2gIIjI8gnf67fOw6-ryRz6mQGGA&s",
     "subtotal": "25.00"
 }, {
     "name": "Pork Belly w/Black Bean Sauce",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/K7Rmn9boUwo/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSopcKD6Ji-YYM5EijInAaUOHRhtUm4BQ8r0qRcQbCtLoVNUiU&s",
     "subtotal": "18.95"
 }, {
     "name": "Steamed vegetable w/pork Belly",
     "category": "HOUSE SPECIAL",
-    "image": "https://i3.meishichina.com/atta/recipe/2012/03/19/20120319153619464268577.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQuNvi0UQnD5HaxG1MAaYhlUZcJd-HJ7WLD5XbROaIWU_7OnM2O&s",
     "subtotal": "18.95"
 }, {
     "name": "Taishan Yellow Eel Clay Pot",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/4XKZkO7nYDk/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRa0IB4tWMieCvk1hlL6R8kGUDAH9XXqtob67cbShqkYRhA3f4&s",
     "subtotal": "0"
 }, {
     "name": "Steamed White Eel w/black bean sauce",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/V3L__QgbYDY/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBXbOR7QXMhar8aIa949ASA9wuMIdUNI7OnZBtdj6l87iy7Cur&s",
     "subtotal": "0"
 }, {
     "name": "Taishan White Eel Clay Pot",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/7LkuHtsDDgY/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSN7EESp_EGCd69n9jIUmw22hPGoqBmty-3C8FtdMak3y1pB4ba&s",
     "subtotal": "0"
 }, {
     "name": "Taishan Chicken Clay Pot",
     "category": "HOUSE SPECIAL",
-    "image": "https://i2.chuimg.com/7e9d2cfe70c84332afa65e7de6097729_1280w_1024h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxlyLXBHQhYyR0frL3G2eZM69AGWE8eNKPQg6AZkfFAJPu_Awo&s",
     "subtotal": "38.00"
 }, {
     "name": "Taishan Roasted Chicken",
     "category": "HOUSE SPECIAL",
-    "image": "http://www.cnts.gov.cn/sijiu/nytc/201104/fd48418dbab1473ba8048c4b21043f38/images/8d71c19737f14ceb941da6c814a98680.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUko-vJUJikG3mY2xCnq4U-9F5b8ysW6XjDA6KAQJ6bUw5tiY&s",
     "subtotal": "29.00"
 }, {
     "name": "Taishan Five Flavor Goose",
     "category": "HOUSE SPECIAL",
-    "image": "http://5b0988e595225.cdn.sohucs.com/images/20190831/c83d2a41993f437798b5552c46a157d4.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYYT8Cd_eorL20kAhyeYhSRKYjPPCwlDqs1YEU00O-aGD0XqI&s",
     "subtotal": "28.00"
 }, {
     "name": "Taishan Beef Bone Soup",
     "category": "HOUSE SPECIAL",
-    "image": "http://n.sinaimg.cn/sinacn20116/340/w600h540/20191107/3051-ihyxcrq3620640.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThXlvwA4yifmGFa0QyZrDQH1K0dD3lgfssyBEqIol9zH5TnDFB&s",
     "subtotal": "22.95"
 }, {
     "name": "Taishan Pork Tripe with Chicken Soup",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/9qBKKAol-kE/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO_ts9rWXhbjFijTfjEpB8-KZ4Zmy7EQ3UANATeWlJZNna7K0&s",
     "subtotal": "30.95"
 }, {
     "name": "Fresh Coconut Chicken Soup",
     "category": "HOUSE SPECIAL",
-    "image": "https://i3.meishichina.com/atta/recipe/2017/09/02/2017090215043516096279981136.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEFU28x2ri_Q7p5en6-frnJUib_mAxOqJU8Rz78IBCY4-MYiiv&s",
     "subtotal": "30.95"
 }, {
     "name": "Clam Taro w/Chinese Cabbage Soup",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/-bF6MX28_xo/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOht965hwjPxxD3aXv8xUCj4-laETgoMh2ekcND7hldD6vT5o&s",
     "subtotal": "25.00"
 }, {
     "name": "Nostoc Dace Fish Ball w/watercress Or Fuzzy melon",
     "category": "HOUSE SPECIAL",
-    "image": "https://img.shoplineapp.com/media/image_clips/6226166fd55c030026495153/original.jpg?1646663279",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvE3Ics9bKY-uD68bzrHpzhMO2rFnssAKnuxX7dtmu8Vnrvb02&s",
     "subtotal": "19.95"
 }, {
     "name": "Taishan Steamed Rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://i.ytimg.com/vi/xU5cRMo81NU/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmmblOTXyzc53VZZSC5aUcpOID2MkS8QOVsscsu4nG_7VxtjK0&s",
     "subtotal": "19.00"
 }, {
     "name": "Steamed Vegetable Fruit Rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://i0.wp.com/istidiningtable.com/wp-content/uploads/2023/02/img_7995.jpg?fit=740%2C987&ssl=1",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI8jJHDgtOWwgbCbks86oOlvacXMtAOG_SpIhPfZPML8JkPEk&s",
     "subtotal": "19.00"
 }, {
     "name": "Dry Fish and Preserved Meat Rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://img.88tph.com/production/20180730/12749218.jpg!/fw/780/clip/780x780a0a0/watermark/url/L3BhdGgvbG9nby5wbmc/align/center",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgmAup1mUM9WNMXpeB_H_n4CnwbF8fp8nWr4RsoMDiB6DtLCtf&s",
     "subtotal": "25.95"
 }, {
     "name": "Dry Fish w/Pork Meat Steamed Rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://pic.pimg.tw/erica0588/1471493184-2872398348_wn.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIfS7QdMlx1pQ7YqW9Rm63jFGCYvCbOIEzqswc9mjgMATn-GSb&s",
     "subtotal": "25.95"
 }, {
     "name": "Yellow Eel clay pot rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://images.squarespace-cdn.com/content/v1/5f34837cae2de46af84c7410/1608329657748-YSALFMFI5AHCL1EGDESF/1997368_The_Clay_Pot_House_TaishanYellowEel.JPG",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTW_5-F7zT3A20qckFox60r4Nx6X1n_J5YyQu9DFDVkD784KAA&s",
     "subtotal": "48.00"
 }, {
     "name": "Kohlrabi clay pot rice",
     "category": "HOUSE SPECIAL",
-    "image": "https://imgcache.dealmoon.com/fsvrugccache.dealmoon.com/ugc/f02/fee/a92/0c4a4e113070949b4f8cc32.jpg_1280_1280_3_6cc4.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVvfh7-tKqXeyIv7z-zGODXsl86DRj8RBujro-Ud2kYUc9e8c&s",
     "subtotal": "28.00"
 }, {
     "name": "Garlic",
     "category": "SAUCE",
-    "image": "https://d1e1vgxjd1htwd.cloudfront.net/-/media/hk-site---homecook/minced-garlic.jpg?h=1000&w=820&hash=8A3D81F5B3165C0442DB72BD5B57F38FA67A406E",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzHYv7CaiSTpWf91Y7p9aSYGtbbtgXvJdi-UgchEfF1V0Ztp4&s",
     "subtotal": "3.00"
 }, {
     "name": "Fermented bean curd",
     "category": "SAUCE",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Fermented_bean_curd_in_bowl_%2820220219181233%29.jpg/220px-Fermented_bean_curd_in_bowl_%2820220219181233%29.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7WnTIg00LJpeAI2wIUIGgZ29ERZbc5JCIl1u45wb2xk0vvAQ&s",
     "subtotal": "3.00"
 }, {
     "name": "Green Pepper Sauce",
     "category": "SAUCE",
-    "image": "https://cp1.douguo.com/upload/caiku/2/6/3/yuan_2634b2d36cbec931280761cb491e5ce3.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCtpcbVYtu3SnQPUDwPo8PTp0Q6SF6Y4pebfUWbai3xp19sl-y&s",
     "subtotal": "3.95"
 }, {
     "name": "Taishan Spicy Sauce",
     "category": "SAUCE",
-    "image": "http://www.chiliboysriracha.com/uploadfile/2019/0515/20190515044134670.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_oR_nkiZjUKVCJudKsrDISOEzmYo_v3LHwdWVi4YmxPRM33lK&s",
     "subtotal": "3.95"
 }, {
     "name": "Braised Lamb Stew",
     "category": "STIR DISH",
-    "image": "https://i2.chuimg.com/ea4e3ff459b04687adab267fc252c6e8_1632w_1224h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqdfQDX61LIU0-7Yho8YheIh0yBvy6VvpnHdlz00rJ9D9cS8je&s",
     "subtotal": "20.00"
 }, {
     "name": "Braised Beef Stew",
     "category": "STIR DISH",
-    "image": "http://1.bp.blogspot.com/_V0CoK16CILc/SwKAJyW9n1I/AAAAAAAAH-U/hqgd4ob5X4o/s800/%E7%99%BD%E9%85%92%E8%8C%84%E6%B1%81%E7%87%B4%E7%89%9B%E8%82%89+Beef+Stew.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThgH7hEDwv8CHSUM8gC6iqx6Va0scoiKFLYMm6VEi1HXXzHT6G&s",
     "subtotal": "19.00"
 }, {
     "name": "Braised pig feet",
     "category": "STIR DISH",
-    "image": "https://i3.meishichina.com/atta/recipe/2018/12/25/201812251545696529981266491.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSdcSp4TtmcwdIBxGqz9W7HJw6pohS50vazzKlvDZDq7FfoB0d&s",
     "subtotal": "13.95"
 }, {
     "name": "Scallop Steamed Vermicelli",
     "category": "STIR DISH",
-    "image": "https://img.cook1cook.com/upload/cover/202005/73/105560-1588607723.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-XKWa8CGk9SQpIBt82PkpRwkySCyZ7SyehfzJ1LEIoaeTZW8&s",
     "subtotal": "19.95"
 }, {
     "name": "Shrimp Steamed Vermicelli",
     "category": "STIR DISH",
-    "image": "https://3.bp.blogspot.com/-qszqaWPk8Z8/WfV2-PiI1WI/AAAAAAAAfOg/o6NPQ5SDFtYPsjvvTtXYMBpvobvhHjPfwCLcBGAs/s1600/Steamed%2BGarlic%2BPrawns%2Bwith%2BVermicelli%2BNoodles03.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuYaP2R2e098MHACJC6I94UWSgRuqfghYdmCws7osgElueTjQ&s",
     "subtotal": "19.95"
 }, {
     "name": "Stir Fried Beef with Ginger",
     "category": "STIR DISH",
-    "image": "https://d3l76hx23vw40a.cloudfront.net/recipe/whk089-019a.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTj1ecACp1GMyCsDJQsY-nCW6VOrwZUGVSvRvmffMMdUME7nD8v&s",
     "subtotal": "25.00"
 }, {
     "name": "Stir Fried Pork Tripe with Ginger",
     "category": "STIR DISH",
-    "image": "https://i.ytimg.com/vi/_x6k6q0lcXw/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6gbuYkSqfGjZus7mJBSJ7h3KjmA-3Iq4kCc2FUvfvCq9H_0c&s",
     "subtotal": "18.00"
 }, {
     "name": "Stir Fried Pork Tongue with Ginger",
     "category": "STIR DISH",
-    "image": "https://i.ytimg.com/vi/YWfHRTv7C24/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVMLAGf3gzCrmSBfUdS6MJCA5YtRb9SDtv7dnglK4zY2-R08Y&s",
     "subtotal": "19.95"
 }, {
     "name": "Pork Tongue w/starter Vegetable",
     "category": "STIR DISH",
-    "image": "https://i2.chuimg.com/8c9510aab2104710ba2a64b1afc64d69_3024w_3024h.jpg?imageView2/1/w/640/h/520/q/90/format/jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVMLAGf3gzCrmSBfUdS6MJCA5YtRb9SDtv7dnglK4zY2-R08Y&s",
     "subtotal": "19.95"
 }, {
     "name": "Stir Fried Pork Uteri w/green Pepper",
     "category": "STIR DISH",
-    "image": "https://cp1.douguo.com/upload/caiku/0/a/f/yuan_0a3b5f0535876e3dfd65d8419eed9d1f.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCmdXIv8znnx1YHUW8ST1CZ9m5o9WBopqraLKg-314LUQYffo&s",
     "subtotal": "22.00"
 }, {
     "name": "Steamed Fish Headw/Black bean Sauce",
     "category": "STIR DISH",
-    "image": "https://cp1.douguo.com/upload/caiku/2/3/b/yuan_236d7a94cce59ef20571519a5a15bedb.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFY2VqQ-dWcBsTox1cwxx7EP4rRTCDos-8IWqA01wQJLeHnUA&s",
     "subtotal": "25.00"
 }, {
     "name": "Sweet and sour Eggs",
     "category": "STIR DISH",
-    "image": "https://cp1.douguo.com/upload/caiku/7/4/e/yuan_74f1fa449a41498afd0b701271fa96ee.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzEYhr4NqPFZgvnQQGnKLlmSeN_2tMHfdz0q_pMQm9EI8Q1v0&s",
     "subtotal": "16.00"
 }, {
     "name": "Sweet and sour Pork intestine",
     "category": "STIR DISH",
-    "image": "https://imagepphcloud.thepaper.cn/pph/image/76/971/187.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsQuMQOH3Cftao914UYpwK5M7AQfNmM24qKbQiTeNzR9vQZis&s",
     "subtotal": "22.00"
 }, {
     "name": "Salt and oil sauteed string beans",
     "category": "STIR DISH",
-    "image": "https://cp1.douguo.com/upload/caiku/5/5/4/600_554603a767b6956fb7a0d5cb43f99c94.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsByNEDd8I5zbgXjid1ru5Ge45D472WJqF-gPTlnYknmNeETYl&s",
     "subtotal": "16.00"
 }, {
     "name": "Stir-fried Napa Cabbage w/gralic",
     "category": "STIR DISH",
-    "image": "https://i2.chuimg.com/8bb569cc879611e6b87c0242ac110003_2144w_1424h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs0vF0yly-vJWY3QgNG668riXYluHLkq8SwrpbsXLYLXTNMqU&s",
     "subtotal": "13.95"
 }, {
     "name": "Preserved Pork Stir Fried Cauliflower",
     "category": "STIR DISH",
-    "image": "https://i3.meishichina.com/atta/recipe/2019/05/15/201905151557866122990266491.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWGgnx7Ff_uD0RnHtDsW3v5_SS2zqxpQvTxTDVTCoLlL003Is&s",
     "subtotal": "18.00"
 }, {
     "name": "Tofu clay pot",
     "category": "STIR DISH",
-    "image": "https://i2.chuimg.com/195d38a2880211e6a9a10242ac110002_600w_400h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0srTYkHdyXcUQqZLvz-HTDizUu7Rlmh-JeRXoEdyuZ2NLMP8&s",
     "subtotal": "16.00"
 }, {
     "name": "Stir-fried A choy w/Diced fish in black Bean Sauce",
     "category": "STIR DISH",
-    "image": "http://static.xinshipu.com/20140114/original/1389685688403.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOOqSI5nD-UTs1MWvdWIRfqcZq1Qn5n_r24l0DM1J7R_pNBheL&s",
     "subtotal": "18.00"
 }, {
     "name": "Stir-fried bean sprouts w/gralic",
     "category": "STIR DISH",
-    "image": "https://cp1.douguo.com/upload/caiku/1/5/4/yuan_15982378a1e24cf54461abaff67026b4.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvUPkh6mgyemVEWqJrOjJgsJJjPOU86gp8b_8IKfXXw0GuLJ3z&s",
     "subtotal": "18.00"
 }, {
     "name": "Pan fried pork dumplings (6)",
     "category": "Night Snack Only",
-    "image": "https://i2.chuimg.com/8ac3b37a11044f0abe7a11ec52d4f9c9_3072w_2304h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_Y_SEEqOvv5-dwadmGCnYkxAKl-dOwN9xoT2y9hrg7rer4mM&s",
     "subtotal": "10.95"
 }, {
     "name": "Spring rolls (5)",
     "category": "Night Snack Only",
-    "image": "https://www.mrspskitchen.net/wp-content/uploads/20170227-_TDP0419.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrTAesNhz0oKp43iiXcVRWEE_R36GRWD33XMjDqlf13cmx522Y&s",
     "subtotal": "9.95"
 }, {
     "name": "Siu mai (4)",
     "category": "Night Snack Only",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Shao_Mei.jpeg/250px-Shao_Mei.jpeg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzs8uuoxLYmu0vJi9qUldng4X-OFmgTLqw0BELEMeImJuAStA&s",
     "subtotal": "7.95"
 }, {
     "name": "Shrimp dumplings (4)",
     "category": "Night Snack Only",
-    "image": "https://bkimg.cdn.bcebos.com/smart/279759ee3d6d55fbb2fb1a0cae68584a20a4462377cc-bkimg-process,v_1,rw_1,rh_1,pad_1,color_ffffff?x-bce-process=image/format,f_auto",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRE9rfOZNCjSrIWP_V7cYCrdXhW6wFICU8fj15Co_hpD3HVsWri&s",
     "subtotal": "9.95"
 }, {
     "name": "Taishan bun (1)",
     "category": "Night Snack Only",
-    "image": "https://i2.chuimg.com/74f550c687d744c09159f7e764e1ffbd_480w_384h.jpg?imageView2/1/w/640/h/520/q/90/format/jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQp8Rh07ZjESxSW0eNz1iIQBRy28NKEFnAJvXWRiMncDmegolU&s",
     "subtotal": "4.95"
 }, {
     "name": "Xiao Long Bao (5)",
     "category": "Night Snack Only",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Xiaolongbao_Shanghai.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDW_M8qRq5GjzjvZobHCRyJcvWfV1P67hpg0k5ade5lQungYs&s",
     "subtotal": "10.95"
 }, {
     "name": "Deep-fried buns (5)",
     "category": "Night Snack Only",
-    "image": "https://i3.meishichina.com/atta/recipe/2021/08/27/202108271630019035988244778292.JPG?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRO98ZPKK0Dqa-jsC8TCOj5Ma4HS5_hYnYeyiTqvANapTNXbHim&s",
     "subtotal": "12.95"
 }, {
     "name": "Pan-Fried Pork buns (4)",
     "category": "Night Snack Only",
-    "image": "https://assets.tmecosys.com/image/upload/t_web767x639/img/recipe/ras/Assets/dc2b9450-28a0-4652-8b2c-3548b218ffc9/Derivates/63cf5870-9de5-4fa5-84b4-6d992a988329.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQclUMzIClC3ZSc_KO37bBMEynDS23MkduHaYRuiJft4wrjGkD3&s",
     "subtotal": "10.95"
 }, {
     "name": "BBQ pork buns (3)",
     "category": "Night Snack Only",
-    "image": "https://i2.chuimg.com/85e831fec2ff4952ae4ea28a1af002d9_680w_455h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyMoc8SEaN1W_IlqZuHYgvpTXt4JtWHbKC8K7uHWOAncm8_5fI&s",
     "subtotal": "8.95"
 }, {
     "name": "Steamed chiu chow dumplings (3)",
     "category": "Night Snack Only",
-    "image": "http://3.bp.blogspot.com/-CIHFikD9YRA/VGijuoKg4BI/AAAAAAAAQ1E/EW4K2aNBToo/s1600/%E6%BD%AE%E5%B7%9E%E7%B2%89%E6%9E%9C%2BTeochew%2BDumplings01.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMcsMK4yrShnj8BN4mJv0jAIJiiDv3gtljliD7bjOsHDgRb8EJ&s",
     "subtotal": "8.95"
 }, {
     "name": "Salted Egg Yolk Custard Buns (3)",
     "category": "Night Snack Only",
-    "image": "https://assets.tmecosys.com/image/upload/t_web767x639/img/recipe/ras/Assets/31795ba5-2c97-44d8-9a80-c6498009aa6a/Derivates/0d69eb17-8011-4eab-86a7-e8b50466612d.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5ViW55ge2FS_kGDzXUfWHmLOFKHORl2JoezuPAyCEuKI_XcDX&s",
     "subtotal": "8.95"
 }, {
     "name": "Custard Buns (3)",
     "category": "Night Snack Only",
-    "image": "https://i.ytimg.com/vi/BL_PjKZno2Y/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqi4NsqhsKKlkktERscu6fjDfbXUkNSBMbbH-D2R9DGyNR3kYA&s",
     "subtotal": "8.95"
 }, {
     "name": "Deef Fried Pork Puff (3)",
     "category": "Night Snack Only",
-    "image": "http://pichk.daydaycook.com/production/ImageMigration/1000x750/recipe_238_287.JPG",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwZ6k9kyXcLn4Cpz21uZ9eNtlPGzmTnSQd_R48dxNC6VzXqpQ&s",
     "subtotal": "8.95"
 }, {
     "name": "Purple Potato Sesame balls (3)",
     "category": "Night Snack Only",
-    "image": "https://i.ytimg.com/vi/9VJDFx012RE/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzd779-8lPtNmNmcJgiFmaNoiSOoSuN_-glDS1mqgt9xwLb6w&s",
     "subtotal": "10.95"
 }, {
     "name": "Wonton soups (10)",
     "category": "Night Snack Only",
-    "image": "https://i.ytimg.com/vi/DUkgYIycIvo/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsUwbhTJw4sXhguhp0kvUaR7LU0AJ7ItIxi9aDVfDE0U7Oh-Y&s",
     "subtotal": "12.95"
 }, {
     "name": "Won ton noodle soups (5)",
     "category": "Night Snack Only",
-    "image": "https://i3.meishichina.com/atta/recipe/2017/08/20/2017082015032080936681478694.jpeg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhAkcxYlvQekVxW5TwEMkG_n069ZOHYyVFn5tz0D7A8C60Cqx5&s",
     "subtotal": "12.95"
 }, {
     "name": "Steamed won ton (10)",
     "category": "Night Snack Only",
-    "image": "https://i3.meishichina.com/atta/recipe/2021/06/12/2021061216234962917503268010238.JPG?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSMf9fYtieZ6g7S_8nTR7u1_mJe8BHKnX7fauKF4vSgoi0OAa7&s",
     "subtotal": "12.95"
 }, {
     "name": "House Special fried Noodle or Rice Noodle or Rice",
     "category": "Night Snack Only",
-    "image": "https://i2.chuimg.com/9bc402e4880246b9935069e1ae41f336_3083w_4831h.jpg?imageView2/1/w/640/h/520/q/90/format/jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjTbs3K0kMdoZjDivoJHd9GmpADSsKs8Ua7SKteuyMCOnJLjc&s",
     "subtotal": "13.95"
 }, {
     "name": "Chicken fried noodle or rice noodle or ice",
     "category": "Night Snack Only",
-    "image": "https://d3l76hx23vw40a.cloudfront.net/recipe/webp/gy33-068a.webp",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSoHG0f9i-siB9Id9Qzut3QWocRdoWQouWUdf6lSvv1hwXPVg&s",
     "subtotal": "13.95"
 }, {
     "name": "Beef fried noodle or rice noodle or rice",
     "category": "Night Snack Only",
-    "image": "https://i.ytimg.com/vi/pfnE_FrVm74/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfZMReihCe_OBBbSgOJAMGQye_VRTCP_hJY6gvzDbU5Jy8NheZ&s",
     "subtotal": "14.95"
 }, {
     "name": "Shrimp fried noodle or rice noodle or rice",
     "category": "Night Snack Only",
-    "image": "https://i2.chuimg.com/88bdb31c3b664914b4587ce90225003a_3437w_2750h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRE0EirEY3J6lm-2tDF6jnpqddyXrcEEgDvKJxKrX1Zq-6QHPc&s",
     "subtotal": "14.95"
 }, {
     "name": "Vegetable fried (noodle or rice noodle or rice)",
     "category": "Night Snack Only",
-    "image": "https://i3.meishichina.com/atta/recipe/2017/03/10/201703101489125763736377703.jpg?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4BOGalPZ9eWXZJI2K7dHa0UODLnwvD8Kxa9m6Z87bzRTWCp5y&s",
     "subtotal": "12.95"
 }, {
     "name": "Pork W/Preserved Egg Paridge",
     "category": "Night Snack Only",
-    "image": "https://pica.zhimg.com/v2-643fd0ae08462c32bb0fe26c12d0e71b_720w.jpg?source=172ae18b",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZdDqoaL8mKuiQOSKxbt_dG6lpHPW2ZR8UJwq-4Ti9AYrmwRuJ&s",
     "subtotal": "12.00"
 }, {
     "name": "Clam Porridge",
     "category": "Night Snack Only",
-    "image": "https://i2.chuimg.com/42734dc0885d11e6a9a10242ac110002_640w_480h.jpg?imageView2/2/w/660/interlace/1/q/90",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1KibeIJNNgQVWvLzvVrHoZwykfM-Smr_ZCvr2EhGMNaeSh2H1&s",
     "subtotal": "18.00"
 }, {
     "name": "Chicken Porridge",
     "category": "Night Snack Only",
-    "image": "http://img.mp.itc.cn/upload/20170116/661123dabf3045e78077efa5596683c5_th.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRR9tg9xM9p0V7zGAnNm85aqVL4DIslpmqPy-K6C48wQj4Tjt2h&s",
     "subtotal": "18.00"
 }, {
     "name": "Beef Porridge",
     "category": "Night Snack Only",
-    "image": "https://i.ytimg.com/vi/5M0jbV_GgEk/maxresdefault.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRC4H4oAtN1zYpR9v1pltppBRUlLFLZdPXdjVRxw0cRV4INprSG&s",
     "subtotal": "18.00"
 }, {
     "name": "Salted pork Bone Porridge",
     "category": "Night Snack Only",
-    "image": "https://i3.meishichina.com/atta/recipe/2017/11/14/201711141510657740947536582301.JPG?x-oss-process=style/p800",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSLafVV9raheL3gjRxH-VajD7f2Cj1TGD-0ZXugYSQOXySuLBv&s",
     "subtotal": "15.00"
 }, {
     "name": "Grass Fish Filets porridge",
     "category": "Night Snack Only",
-    "image": "https://cdn.shopify.com/s/files/1/0406/6164/7509/files/92d87c7b647f4c3e7f8b88382b99722d_600x600.jpg?v=1601128540",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQk3cFMuXU0uQRBbzBrx3ps8nt4QjIa1bSPdswiwwBOLqA7UBb1&s",
     "subtotal": "18.00"
 }]
