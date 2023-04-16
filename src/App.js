@@ -37,28 +37,31 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   const fetchPost = async () => {
-      //console.log("fetchPost")
-      // await getDocs(collection(db, "food_data"))
-      //     .then((querySnapshot) => {
-      //         const newData = querySnapshot.docs
-      //             .map((doc) => ({ ...doc.data(), id: doc.id }));
-      //         console.log(JSON.stringify(newData))
-      //         localStorage.setItem("Food_arrays", JSON.stringify(newData));
-      //     })
+    //console.log("fetchPost")
+    // await getDocs(collection(db, "food_data"))
+    //     .then((querySnapshot) => {
+    //         const newData = querySnapshot.docs
+    //             .map((doc) => ({ ...doc.data(), id: doc.id }));
+    //         console.log(JSON.stringify(newData))
+    //         localStorage.setItem("Food_arrays", JSON.stringify(newData));
+    //     })
 
-      await getDocs(collection(db, "TitleLogoNameContent"))
-          .then((querySnapshot) => {
-              const newData = querySnapshot.docs
-                  .map((doc) => ({ ...doc.data(), id: doc.id }));
-              localStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
-              console.log(newData)
-          })
+    await getDocs(collection(db, "TitleLogoNameContent"))
+        .then((querySnapshot) => {
+            const newData = querySnapshot.docs
+                .map((doc) => ({ ...doc.data(), id: doc.id }));
+            localStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
+            console.log(newData)
+        })
 
-      setLoading(false);    
-  }
+    setLoading(false);    
+}
+
+  
   useEffect(() => {
     document.title = "EatifyPos"
  }, []);
+ 
   useEffect(() => {
       // added line to grab translation file (can use the same method as food_data to grab translations file)
       localStorage.setItem("Food_arrays", JSON.stringify(data));
@@ -66,6 +69,8 @@ function App() {
       // localStorage.setItem("translationsMode", "en")
       fetchPost();
   }, [])
+
+  
   if (loading) {
     return <p>  <div className="pan-loader">
       Loading...

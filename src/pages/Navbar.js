@@ -23,7 +23,6 @@ import logo_transparent from './logo_transparent.png'
 import "./navbar.css";
 import { useMyHook } from './myHook';
 
-
 const Navbar = () => {
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
@@ -112,10 +111,7 @@ const Navbar = () => {
 
     uploadProductsToLocalStorage(products);
   }, [products, width]);
-  const handleDeleteClick = (productId) => {
-    setProducts((prevProducts) => prevProducts.filter((product) => product.id !== productId));
-    saveId(Math.random())
-  }
+
   const handleAddProductClick = () => {
     setProducts((prevProducts) => [...prevProducts, {
       id: prevProducts.length + 1,
@@ -124,6 +120,7 @@ const Navbar = () => {
       image: item_1_pic
     }]);
   }
+
   const handlePlusClick = (productId) => {
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
@@ -241,6 +238,22 @@ const Navbar = () => {
     uploadProductsToLocalStorage(products);
 
   };
+
+  const handleDeleteClick = (productId) => {
+    setProducts((prevProducts) =>
+    prevProducts.filter((product) => {
+      if (product.id !== productId) {
+        return true;
+      } else {
+        saveId(product.id);
+        return false;
+      }
+    })
+  );
+    uploadProductsToLocalStorage(products);
+    
+  }
+
   // modal. 
   const modalRef = useRef(null);
   const btnRef = useRef(null);
@@ -467,13 +480,6 @@ const Navbar = () => {
                       <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
                     </button>
                   </div>
-                  {/*  <input 
-  type="text" 
-  style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }} 
-  value={product.quantity} 
-  onChange={(e) => handleQuantityChange(product.id, e.target.value)} 
-  onBlur={() => handleBlur(product)} 
-          />*/}
                   <span
                     type="text"
                     style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}

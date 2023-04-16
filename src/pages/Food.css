@@ -8,3 +8,108 @@
     width:0
   }
   
+
+   .quantity {
+       animation: reveal 1s forwards;
+     }
+    
+     @keyframes reveal {
+       0% {
+         clip-path: inset(0 0 0 100%);
+       }
+       100% {
+         clip-path: inset(0 0 0 0);
+       }
+     }
+  
+
+/* NumberAnimation.css */
+
+.button-container {
+  display: inline-flex;
+  margin-left: 10px;
+}
+
+button {
+  margin-right: 5px;
+}
+
+
+.container {
+  position: relative;
+  height: 25px;
+  width: 25px;
+  border: 1px solid #000;
+  overflow: hidden;
+}
+
+.number-animation {
+  display: flex;
+  align-items: center;
+}
+
+
+.number {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 1;
+}
+
+.increment-current {
+  bottom: 0;
+  animation: moveToCenterFromBottom 1s linear forwards;
+}
+
+.increment-prev {
+  top: 50%;
+  animation: moveToTopFromCenterAndDisappear 1s linear forwards;
+}
+
+.decrement-current {
+  top: 0;
+  animation: moveToCenterFromTop 1s linear forwards;
+}
+
+.decrement-prev {
+  top: 50%;
+  animation: moveToBottomFromCenterAndDisappear 1s linear forwards;
+}
+
+@keyframes moveToCenterFromBottom {
+  0% {
+    transform: translate(-50%, 100%);
+  }
+  100% {
+    transform: translate(-50%, 0); /* Updated value */
+  }
+}
+
+@keyframes moveToTopFromCenterAndDisappear {
+  0% {
+    transform: translate(-50%, -50%);
+  }
+  100% {
+    transform: translate(-50%, -100%);
+    opacity: 0;
+  }
+}
+
+@keyframes moveToCenterFromTop {
+  0% {
+    transform: translate(-50%, -100%);
+  }
+  100% {
+    transform: translate(-50%, 0%); /* Updated value */
+  }
+}
+
+@keyframes moveToBottomFromCenterAndDisappear {
+  0% {
+    transform: translate(-50%, -50%);
+  }
+  100% {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+}
