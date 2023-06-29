@@ -136,7 +136,7 @@ function CardSection(props) {
                 const dateTime = new Date().toISOString();
                 const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
                 //console.log(form.get('payment-method'))
-                const user = JSON.parse(localStorage.getItem('user'));
+                const user = JSON.parse(sessionStorage.getItem('user'));
                 const data = {
                   payment_method: result.setupIntent.payment_method,
                   currency,

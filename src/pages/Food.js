@@ -58,7 +58,7 @@ const Food = () => {
     setTimeout(() => {
       cart.removeClass('shake');
     }, 0);
-    /**drop */
+    /**
     const left = Math.floor(Math.random() * width);
     const emoji = charSet[0][category]
     const add = `<img class="emoji" style="left: ${left}px;" src="${emoji}"/>`;
@@ -70,7 +70,7 @@ const Food = () => {
       function () {
         $(this).remove();
       }
-    );
+    );drop */
   };
   /**drop food */
 
@@ -134,7 +134,8 @@ const Food = () => {
       product.quantity++;
     } else {
       // If the product doesn't exist, add it to the array
-      products.push({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1 });
+      products.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1 });
+
     }
 
     // Update the array in local storage
@@ -173,7 +174,7 @@ const Food = () => {
           {/* Filter Type */}
           <div className='Type'>
             {/* <div className='flex justify-between flex-wrap'> */}
-            <div className='scrolling-wrapper-filter' >
+            <div className='scrolling-wrapper-filter mt-4' >
               <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={all} alt="" />{t("All")}</button>
               <button onClick={() => filterType('burger')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={burger} alt="" />{t("Burgers")}</button>
               <button onClick={() => filterType('pizza')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}><img style={{ width: "40px", height: "40px", margin: "auto" }} src={pizza} alt="" />{t("Pizza")}</button>
@@ -205,23 +206,26 @@ const Food = () => {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.1 }}
                 key={item.id}
-                className="border shadow-lg rounded-lg duration-500 cursor-pointer">
+                className="border rounded-lg duration-500 cursor-pointer">
                 <div class="h-min overflow-hidden rounded-md">
                   <img class="w-full h-[150px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[200px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
                 </div>
                 <div className='flex justify-between px-2 py-4 grid grid-cols-4'>
-                  <div className="col-span-3">
-                    <p>{t(item.name)} <span>${item.subtotal}</span></p>
-                  </div>
-                  <div className="col-span-1">
-                    <div className="container"
-                      style={{
+<div className="col-span-4">
+  <p className=' mb-2'>{t(item.name)}</p>
+</div>
+<div className="col-span-2">
+  <p>
+    <span>
+      ${item.subtotal}
+    </span>
+    </p>
+</div>
+                  <div className="col-span-2 flex justify-end">
 
-                        padding: '0', width: '38px', height: '38px'
-                      }}>
                       <Button
                         variant="light"
-                        style={{ width: '38px', height: '38px', padding: '0', margin: '0', ...divStyle }}
+                        style={{ width: '28px', height: '28px', padding: '0', margin: '0', ...divStyle }}
                         onClick={() => {
                           updateLocalStorage(item.id, item.name, item.subtotal, item.image);
                           handleDropFood(item.category);
@@ -229,7 +233,6 @@ const Food = () => {
                         }}                                    >
                         <BsPlusCircle style={{ margin: 'auto' }} />
                       </Button>
-                    </div>
                   </div>
 
                 </div>

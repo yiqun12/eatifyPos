@@ -31,7 +31,7 @@ export default function SignIn() {
   const [error, setError] = useState("");
 
   const emailRef = useRef();
-  const { signInUser, forgotPassword } = useUserContext();
+  const { signInUser, signInWithGuestLink,forgotPassword } = useUserContext();
   const { signInWithGoogle, signInWithGuest } = useUserContext();
   const user = JSON.parse(localStorage.getItem('user'));
   const user_not_verified = JSON.parse(localStorage.getItem('user_not_verified'));
@@ -177,7 +177,7 @@ export default function SignIn() {
                               <Button
                                 fullWidth
                                 variant="contained"
-                                sx={{ mb: 2 }} role="button" onClick={signInWithGuest} >
+                                sx={{ mb: 2 }} role="button" onClick={signInWithGuestLink} >
                                 {t("One Time Sign in")}</Button>
                                 <Grid container>
                               <Grid item xs>

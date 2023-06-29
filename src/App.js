@@ -24,7 +24,8 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from './firebase/index';
 import { MyHookProvider, useMyHook } from './pages/myHook';
 import Receipt from './pages/Receipt'
-import Html2 from './pages/Html2'
+import Html2 from './components/Html2'
+import Html from './components/Html'
 
 // translation purposes -> can switch to using fetchPost() to grab translation file just like food_array
 import { translations } from './data/translations.js'
@@ -41,7 +42,7 @@ function App() {
           .then((querySnapshot) => {
               const newData = querySnapshot.docs
                   .map((doc) => ({ ...doc.data(), id: doc.id }));
-              console.log(JSON.stringify(newData))
+              //console.log(JSON.stringify(newData))
               localStorage.setItem("Food_arrays", JSON.stringify(newData));
           })
 
@@ -50,7 +51,7 @@ function App() {
               const newData = querySnapshot.docs
                   .map((doc) => ({ ...doc.data(), id: doc.id }));
               localStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
-              console.log(newData)
+              //console.log(newData)
           })
 
       setLoading(false);    
@@ -90,7 +91,8 @@ function App() {
       <Route path="Admin_new" element={<Admin_new />} />
       <Route path="Admin" element={<Admin />} />
       <Route path="Receipt" element={<Receipt />} />
-      <Route path="Html2" element={<Html2 />} />
+      <Route path="Html" element={<Html />} />
+      <Route path="guest/:id" element={<Html2 />} />
       <Route path="Reservation" element={<Reservation />} />
       { user ?  <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route> }
       <Route path="Dashboard" element={<Dashboard />} />

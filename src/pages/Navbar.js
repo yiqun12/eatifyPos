@@ -22,6 +22,7 @@ import logo_transparent from './logo_transparent.png'
 //import { flexbox } from '@mui/system';
 import "./navbar.css";
 import { useMyHook } from './myHook';
+import teapotImage from './teapot.png';
 
 
 const Navbar = () => {
@@ -570,16 +571,16 @@ const Navbar = () => {
 
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       {isMobile ?
-        <nav className="nav___">
-          <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
+        <nav className="nav___ ">
+          <a style={{ "width":"25%",'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
             <a className="email-link"><i className="material-icons nav__icon">home</i></a>
-            <a className="email-link">{t("Home")}</a>
+            <a className="email-link">{t("Order")}</a>
 
           </a>
           <a
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
+            style={{ "width":"25%",'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
             <i style={{
               color: 'transparent'
             }}
@@ -596,10 +597,17 @@ const Navbar = () => {
               <a className="email-link">{t("Cart")}</a>
             </div>
           </a>
-          <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
+          <a style={{ "width":"25%",'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
             <a className="email-link"><i className="material-icons nav__icon">person</i></a>
-            <a className="email-link">{user ? t("Account") : t("Login")}</a>
+            <a className="email-link">{user ? t("Ask to serve") : t("Login")}</a>
           </a>
+          <a style={{ "width":"25%",'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
+            <a className="email-link">
+            <img style={{"width":"25px","height":"25px","margin-bottom":"5px"}}src={teapotImage} alt="teapot" />
+              </a>
+            <a className="email-link">{user ? t("Add Water") : t("Login")}</a>
+          </a>
+
         </nav> : <></>}
     </>
   )

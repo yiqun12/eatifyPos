@@ -9,7 +9,6 @@ import Hero from './Hero'
 const Account = () => {
   return (
     <>
-      <Card />
       <Food />
       {/* <Category /> */}
     </>

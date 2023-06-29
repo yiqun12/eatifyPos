@@ -72,7 +72,9 @@ export const UserContextProvider = ({ children }) => {
         updateProfile(auth.currentUser, {
           displayName: name,
         });
+        emailVerification()//sometimes it conflict with logout
         logoutUser()
+        
       })
       .catch((err) => {
         alert(err.message);
@@ -140,6 +142,22 @@ export const UserContextProvider = ({ children }) => {
     }
   };
 
+  const signInWithGuestLink = async (id) => {
+    setLoading(true);
+    setError("");
+    try {
+      await signInAnonymously(auth)
+      console.log(id)
+      return;
+    } catch (err) {
+      //console.log(err.message);
+      setError(err.message);
+      return err.message;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // const signInWithGuest = () => {
   //   setLoading(true);
   //   setError("");
@@ -191,7 +209,8 @@ export const UserContextProvider = ({ children }) => {
     forgotPassword,
     signInWithGoogle,
     promise,
-    signInWithGuest
+    signInWithGuest,
+    signInWithGuestLink
     // isEmailVerified
   };
 

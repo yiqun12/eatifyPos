@@ -14,7 +14,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 function Checkout(props) {
   // Format amount for diplay in the UI
 
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
   const { totalPrice } = props;
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
