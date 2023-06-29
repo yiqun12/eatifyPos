@@ -92,9 +92,9 @@ export const UserContextProvider = ({ children }) => {
   
       if (!auth.currentUser.emailVerified) {
         logoutUser();
-        localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
         setError("Email not verified");
-        localStorage.setItem('user_not_verified', JSON.stringify('user_not_verified'));
+        sessionStorage.setItem('user_not_verified', JSON.stringify('user_not_verified'));
         throw new Error("Email not verified, go verify your email at your email address provided");
       } else {
         updateProfile(auth.currentUser, {

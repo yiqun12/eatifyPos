@@ -33,7 +33,7 @@ import { translations } from './data/translations.js'
 function App() {
 
   const { user} = useUserContext();
-  localStorage.setItem('user', JSON.stringify(user));
+  sessionStorage.setItem('user', JSON.stringify(user));
   const [loading, setLoading] = useState(true);
 
   const fetchPost = async () => {
@@ -43,14 +43,14 @@ function App() {
               const newData = querySnapshot.docs
                   .map((doc) => ({ ...doc.data(), id: doc.id }));
               //console.log(JSON.stringify(newData))
-              localStorage.setItem("Food_arrays", JSON.stringify(newData));
+              sessionStorage.setItem("Food_arrays", JSON.stringify(newData));
           })
 
       await getDocs(collection(db, "TitleLogoNameContent"))
           .then((querySnapshot) => {
               const newData = querySnapshot.docs
                   .map((doc) => ({ ...doc.data(), id: doc.id }));
-              localStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
+                  sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
               //console.log(newData)
           })
 
@@ -61,8 +61,8 @@ function App() {
  }, []);
   useEffect(() => {
       // added line to grab translation file (can use the same method as food_data to grab translations file)
-      localStorage.setItem("translations", JSON.stringify(translations))
-      // localStorage.setItem("translationsMode", "en")
+      sessionStorage.setItem("translations", JSON.stringify(translations))
+      // sessionStorage.setItem("translationsMode", "en")
       fetchPost();
   }, [])
   if (loading) {

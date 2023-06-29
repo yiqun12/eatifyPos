@@ -22,7 +22,7 @@ const Card = () => {
     return () => clearTimeout(timeoutId);
   }, [clicked]);
   /**other */  
-  const data  = JSON.parse(localStorage.getItem("Food_arrays"))
+  const data  = JSON.parse(sessionStorage.getItem("Food_arrays"))
   
 
     console.log("Card printed once")
@@ -50,13 +50,13 @@ const Card = () => {
         console.log(id, name, subtotal, image);
       
         // Check if the array exists in local storage
-        if (localStorage.getItem("products") === null) {
+        if (sessionStorage.getItem("products") === null) {
           // If it doesn't exist, set the value to an empty array
-          localStorage.setItem("products", JSON.stringify([]));
+          sessionStorage.setItem("products", JSON.stringify([]));
         }
       
         // Retrieve the array from local storage
-        let products = JSON.parse(localStorage.getItem("products"));
+        let products = JSON.parse(sessionStorage.getItem("products"));
       
         // Find the product with the matching id
         let product = products.find((product) => product.id === id);
@@ -73,7 +73,7 @@ const Card = () => {
         }
       
         // Update the array in local storage
-        localStorage.setItem("products", JSON.stringify(products));
+        sessionStorage.setItem("products", JSON.stringify(products));
       };
       /////////////////////////////////////////////////////////////////////
 
@@ -83,18 +83,18 @@ const Card = () => {
       //var item3 = data[itemNumbers[2]]
 
         // for translations sake
-      const trans = JSON.parse(localStorage.getItem("translations"))
+      const trans = JSON.parse(sessionStorage.getItem("translations"))
       const t = (text) => {
-        // const trans = localStorage.getItem("translations")
+        // const trans = sessionStorage.getItem("translations")
         //console.log(trans)
-        //console.log(localStorage.getItem("translationsMode"))
+        //console.log(sessionStorage.getItem("translationsMode"))
 
         if (trans != null) {
-          if (localStorage.getItem("translationsMode") != null) {
+          if (sessionStorage.getItem("translationsMode") != null) {
             // return the translated text with the right mode
             if (trans[text] != null) {
-                if (trans[text][localStorage.getItem("translationsMode")] != null)
-                  return trans[text][localStorage.getItem("translationsMode")]
+                if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+                  return trans[text][sessionStorage.getItem("translationsMode")]
             }
           }
         } 

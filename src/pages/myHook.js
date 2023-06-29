@@ -7,13 +7,13 @@ const MyContext = React.createContext();
 const useMyHookEffect = (initId) => {
   const [id, setId] = useState(initId);
   const saveId = (id) => {
-    window.localStorage.setItem('id', id);
+    window.sessionStorage.setItem('id', id);
     setId(id);
   };
   
   useEffect(() => {
-    //Now you can get the id from the localStorage
-    const myId = window.localStorage.getItem('id');
+    //Now you can get the id from the sessionStorage
+    const myId = window.sessionStorage.getItem('id');
     setId(myId);
   }, []);
 

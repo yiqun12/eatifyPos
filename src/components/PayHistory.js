@@ -60,21 +60,21 @@ async function handleCardAction(payment, docId) {
   const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
   const promise = loadStripe(STRIPE_PUBLISHABLE_KEY);
   
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
   /**
    * Get all payments for the logged in customer
    */
   const dateTime = new Date().toISOString();
   const date = dateTime.slice(0,10) + '-' + dateTime.slice(11,13) + '-' + dateTime.slice(14,16) + '-' + dateTime.slice(17,19) + '-' + dateTime.slice(20,22);        
   const { id, saveId } = useMyHook(null);
-  let products = JSON.parse(localStorage.getItem("products"));
+  let products = JSON.parse(sessionStorage.getItem("products"));
 
   useEffect(() => {
-    products = JSON.parse(localStorage.getItem("products"));
+    products = JSON.parse(sessionStorage.getItem("products"));
   }, [id]);
   
   //fetch data from local stroage products.
-  //console.log(localStorage.getItem("products"))
+  //console.log(sessionStorage.getItem("products"))
   const [totalPrice, setTotalPrice] = useState(products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0));
   useEffect(() => {
     //maybe add a line here...
@@ -132,8 +132,8 @@ async function handleCardAction(payment, docId) {
           isDinein:payment.isDinein
         };
         //console.log(JSON.stringify(collection_data)); // output the JSON object to the console
-        localStorage.setItem('collection_data', JSON.stringify(collection_data));
-        localStorage.removeItem("products");
+        sessionStorage.setItem('collection_data', JSON.stringify(collection_data));
+        sessionStorage.removeItem("products");
         window.location.href = '/Receipt'
         
         } else if (payment.status === 'requires_action') {
@@ -168,18 +168,18 @@ async function handleCardAction(payment, docId) {
   }, []); // empty dependency array to run once on mount
   //console.log(elements.getElement(CardElement))
 
-  const trans = JSON.parse(localStorage.getItem("translations"))
+  const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = (text) => {
-    // const trans = localStorage.getItem("translations")
+    // const trans = sessionStorage.getItem("translations")
     console.log(trans)
-    console.log(localStorage.getItem("translationsMode"))
+    console.log(sessionStorage.getItem("translationsMode"))
 
     if (trans != null) {
-      if (localStorage.getItem("translationsMode") != null) {
+      if (sessionStorage.getItem("translationsMode") != null) {
         // return the translated text with the right mode
         if (trans[text] != null) {
-            if (trans[text][localStorage.getItem("translationsMode")] != null)
-              return trans[text][localStorage.getItem("translationsMode")]
+            if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+              return trans[text][sessionStorage.getItem("translationsMode")]
         }
       }
     } 

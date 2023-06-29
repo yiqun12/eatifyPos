@@ -102,18 +102,18 @@ const handleMouseLeave = () => {
 
 
             // for translation
-            const trans = JSON.parse(localStorage.getItem("translations"))
+            const trans = JSON.parse(sessionStorage.getItem("translations"))
             const t = (text) => {
-              // const trans = localStorage.getItem("translations")
+              // const trans = sessionStorage.getItem("translations")
               console.log(trans)
-              console.log(localStorage.getItem("translationsMode"))
+              console.log(sessionStorage.getItem("translationsMode"))
           
               if (trans != null) {
-                if (localStorage.getItem("translationsMode") != null) {
+                if (sessionStorage.getItem("translationsMode") != null) {
                   // return the translated text with the right mode
                   if (trans[text] != null) {
-                      if (trans[text][localStorage.getItem("translationsMode")] != null)
-                        return trans[text][localStorage.getItem("translationsMode")]
+                      if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+                        return trans[text][sessionStorage.getItem("translationsMode")]
                   }
                 }
               } 
@@ -134,7 +134,7 @@ const handleMouseLeave = () => {
           const paymentMethodValue = form.get('payment-method');
           const paymentMethodId = document.querySelector(`option[value="${paymentMethodValue}"]`).id;
           const new_paymentMethodId = paymentMethodId.substring(5);
-          const user = JSON.parse(localStorage.getItem('user'));
+          const user = JSON.parse(sessionStorage.getItem('user'));
           console.log("deleted click")
           console.log(new_paymentMethodId);
           await firebase
@@ -173,13 +173,13 @@ const handleMouseLeave = () => {
           const dateTime = new Date().toISOString();
           const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
           console.log(form.get('payment-method'))
-          const user = JSON.parse(localStorage.getItem('user'));
+          const user = JSON.parse(sessionStorage.getItem('user'));
           const data = {
             payment_method: form.get('payment-method'),
             currency,
             amount: amount,
             status: 'new',
-            receipt: localStorage.getItem("products"),
+            receipt: sessionStorage.getItem("products"),
             dateTime: date,
             user_email: user.email,
           };
@@ -237,18 +237,18 @@ const handleMouseLeave = () => {
   //console.log(selectedOption)
 
           // for translation
-          const trans = JSON.parse(localStorage.getItem("translations"))
+          const trans = JSON.parse(sessionStorage.getItem("translations"))
           const t = (text) => {
-            // const trans = localStorage.getItem("translations")
+            // const trans = sessionStorage.getItem("translations")
             console.log(trans)
-            console.log(localStorage.getItem("translationsMode"))
+            console.log(sessionStorage.getItem("translationsMode"))
         
             if (trans != null) {
-              if (localStorage.getItem("translationsMode") != null) {
+              if (sessionStorage.getItem("translationsMode") != null) {
                 // return the translated text with the right mode
                 if (trans[text] != null) {
-                    if (trans[text][localStorage.getItem("translationsMode")] != null)
-                      return trans[text][localStorage.getItem("translationsMode")]
+                    if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+                      return trans[text][sessionStorage.getItem("translationsMode")]
                 }
               }
             } 

@@ -58,7 +58,7 @@ const Navbar = () => {
   };
 
   const { logoutUser } = useUserContext();
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
 
   const location = useLocation();
   const [totalPrice, setTotalPrice] = useState(0);
@@ -141,12 +141,12 @@ const Navbar = () => {
 
   const uploadProductsToLocalStorage = (products) => {
     // Set the products array in local storage
-    localStorage.setItem("products", JSON.stringify(products));
+    sessionStorage.setItem("products", JSON.stringify(products));
   };
   //display every item.
   const displayAllProductInfo = () => {
     // Retrieve the array from local storage
-    let products = JSON.parse(localStorage.getItem("products"));
+    let products = JSON.parse(sessionStorage.getItem("products"));
     //console.log("displayProductFunction")
     //console.log(products)
     // Create an empty array to store the products
@@ -171,7 +171,7 @@ const Navbar = () => {
   //display one item by id.
   const displayProductInfo = (id) => {
     // Retrieve the array from local storage
-    let products = JSON.parse(localStorage.getItem("products"));
+    let products = JSON.parse(sessionStorage.getItem("products"));
 
     // Find the product with the matching id
     let product = products.find((product) => product.id === id);
@@ -258,7 +258,7 @@ const Navbar = () => {
 
   const closeModal = () => {
     //console.log(products)
-    localStorage.setItem('products', JSON.stringify(products));
+    sessionStorage.setItem('products', JSON.stringify(products));
     modalRef.current.style.display = 'none';
 
   };
@@ -277,7 +277,7 @@ const Navbar = () => {
     window.onclick = (event) => {
       if (event.target === modal) {
 
-        localStorage.setItem('products', JSON.stringify(products));
+        sessionStorage.setItem('products', JSON.stringify(products));
         modal.style.display = "none";
       }
     }
@@ -285,8 +285,8 @@ const Navbar = () => {
   //This will ensure that the useEffect hook is re-run every time the products value changes, and the latest value will be saved to local storage.
   //google login button functions
   const [loginData, setLoginData] = useState(
-    localStorage.getItem('loginData')
-      ? JSON.parse(localStorage.getItem('loginData'))
+    sessionStorage.getItem('loginData')
+      ? JSON.parse(sessionStorage.getItem('loginData'))
       : null
   );
   const url = "http://localhost:8080"
@@ -304,10 +304,10 @@ const Navbar = () => {
     const data = await res.json();
     setLoginData(data);
     console.log(data)
-    localStorage.setItem('loginData', JSON.stringify(data));
-    localStorage.setItem('picture', JSON.stringify(data.picture));
+    sessionStorage.setItem('loginData', JSON.stringify(data));
+    sessionStorage.setItem('picture', JSON.stringify(data.picture));
     sessionStorage.setItem('token', googleData.tokenId);
-    localStorage.setItem('loginID', JSON.stringify(data.id))
+    sessionStorage.setItem('loginID', JSON.stringify(data.id))
     // console.log(document.cookie);
     window.location.reload(false);
   };
@@ -318,13 +318,13 @@ const Navbar = () => {
       //document.cookie=document.cookie+";max-age=0";
       console.log("clean cookie");
     });
-    localStorage.removeItem('loginData');//remove localstorage data user name.
-    localStorage.removeItem('loginID');
-    localStorage.removeItem('picture');
-    localStorage.removeItem('name');
-    localStorage.removeItem('email');
+    sessionStorage.removeItem('loginData');//remove sessionStorage data user name.
+    sessionStorage.removeItem('loginID');
+    sessionStorage.removeItem('picture');
+    sessionStorage.removeItem('name');
+    sessionStorage.removeItem('email');
     sessionStorage.removeItem('token');
-    setLoginData(null);//empty the localstorage data
+    setLoginData(null);//empty the sessionStorage data
     window.location.reload(false);
   };
   const handleFailure = (response) => {
@@ -332,9 +332,9 @@ const Navbar = () => {
   }
 
   const HandleCheckout = async () => {
-    localStorage.setItem('products', JSON.stringify(products));
+    sessionStorage.setItem('products', JSON.stringify(products));
     // Get the products from local storage
-    const lineItem = JSON.parse(localStorage.getItem('products'));
+    const lineItem = JSON.parse(sessionStorage.getItem('products'));
 
     // Create the line items array
     const lineItems = lineItem.map((product) => {
@@ -359,16 +359,16 @@ const Navbar = () => {
   //const { promise } = useUserContext();
 
   const HandleCheckout_local_stripe = async () => {
-    localStorage.setItem('products', JSON.stringify(products));
+    sessionStorage.setItem('products', JSON.stringify(products));
     window.location.href = '/Checkout'
   };
 
 
   // for translations sake
-  const trans = JSON.parse(localStorage.getItem("translations"))
+  const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = useMemo(() => {
-    const trans = JSON.parse(localStorage.getItem("translations"))
-    const translationsMode = localStorage.getItem("translationsMode")
+    const trans = JSON.parse(sessionStorage.getItem("translations"))
+    const translationsMode = sessionStorage.getItem("translationsMode")
 
     return (text) => {
       //console.log(trans)
@@ -386,23 +386,23 @@ const Navbar = () => {
 
       return text
     }
-  }, [localStorage.getItem("translations"), localStorage.getItem("translationsMode")])
+  }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")])
 
 
   const changeLanguage = (e) => {
     var languageCode = e.target.value
-    localStorage.setItem("translationsMode", languageCode)
+    sessionStorage.setItem("translationsMode", languageCode)
     saveId(Math.random())
     // if (languageCode == "ch")
     // console.log(languageCode)
   }
 
   const languageOption = () => {
-    //console.log(localStorage.getItem("translationsMode"))
-    if (localStorage.getItem("translationsMode") == null)
+    //console.log(sessionStorage.getItem("translationsMode"))
+    if (sessionStorage.getItem("translationsMode") == null)
       return 'en'
     else
-      return localStorage.getItem("translationsMode")
+      return sessionStorage.getItem("translationsMode")
   }
 
   return (

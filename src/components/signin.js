@@ -28,18 +28,18 @@ const Signin = () => {
       });
   };
 
-  const trans = JSON.parse(localStorage.getItem("translations"))
+  const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = (text) => {
-    // const trans = localStorage.getItem("translations")
+    // const trans = sessionStorage.getItem("translations")
     console.log(trans)
-    console.log(localStorage.getItem("translationsMode"))
+    console.log(sessionStorage.getItem("translationsMode"))
 
     if (trans != null) {
-      if (localStorage.getItem("translationsMode") != null) {
+      if (sessionStorage.getItem("translationsMode") != null) {
         // return the translated text with the right mode
         if (trans[text] != null) {
-            if (trans[text][localStorage.getItem("translationsMode")] != null)
-              return trans[text][localStorage.getItem("translationsMode")]
+            if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+              return trans[text][sessionStorage.getItem("translationsMode")]
         }
       }
     } 

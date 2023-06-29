@@ -33,13 +33,13 @@ export default function SignIn() {
   const emailRef = useRef();
   const { signInUser, signInWithGuestLink,forgotPassword } = useUserContext();
   const { signInWithGoogle, signInWithGuest } = useUserContext();
-  const user = JSON.parse(localStorage.getItem('user'));
-  const user_not_verified = JSON.parse(localStorage.getItem('user_not_verified'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
+  const user_not_verified = JSON.parse(sessionStorage.getItem('user_not_verified'));
   if (user) {
     window.location.href = "/";
   }
   window.addEventListener('pagehide', () => {
-    localStorage.removeItem('user_not_verified');
+    sessionStorage.removeItem('user_not_verified');
   });
 
   const onSubmit = async (e) => {
@@ -74,18 +74,18 @@ export default function SignIn() {
   }, []);
 
         // for translations sake
-        const trans = JSON.parse(localStorage.getItem("translations"))
+        const trans = JSON.parse(sessionStorage.getItem("translations"))
         const t = (text) => {
-          // const trans = localStorage.getItem("translations")
+          // const trans = sessionStorage.getItem("translations")
           console.log(trans)
-          console.log(localStorage.getItem("translationsMode"))
+          console.log(sessionStorage.getItem("translationsMode"))
       
           if (trans != null) {
-            if (localStorage.getItem("translationsMode") != null) {
+            if (sessionStorage.getItem("translationsMode") != null) {
             // return the translated text with the right mode
               if (trans[text] != null) {
-                if (trans[text][localStorage.getItem("translationsMode")] != null)
-                  return trans[text][localStorage.getItem("translationsMode")]
+                if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+                  return trans[text][sessionStorage.getItem("translationsMode")]
               }
             }
           } 

@@ -68,7 +68,7 @@ async function handleCardAction(payment, docId) {
   const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
   const promise = loadStripe(STRIPE_PUBLISHABLE_KEY);
   
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
   /**
    * Get all payments for the logged in customer
    */
@@ -163,18 +163,18 @@ async function handleCardAction(payment, docId) {
     });
   }, []); // empty dependency array to run once on mount
 
-  const trans = JSON.parse(localStorage.getItem("translations"))
+  const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = (text) => {
-    // const trans = localStorage.getItem("translations")
+    // const trans = sessionStorage.getItem("translations")
     console.log(trans)
-    console.log(localStorage.getItem("translationsMode"))
+    console.log(sessionStorage.getItem("translationsMode"))
 
     if (trans != null) {
-      if (localStorage.getItem("translationsMode") != null) {
+      if (sessionStorage.getItem("translationsMode") != null) {
         // return the translated text with the right mode
         if (trans[text] != null) {
-            if (trans[text][localStorage.getItem("translationsMode")] != null)
-              return trans[text][localStorage.getItem("translationsMode")]
+            if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+              return trans[text][sessionStorage.getItem("translationsMode")]
         }
       }
     } 

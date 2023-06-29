@@ -16,7 +16,7 @@ const Dashboard = (props) => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
 
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
   const { totalPrice } = props;
   const { promise, logoutUser, emailVerification } = useUserContext();
   var verificationStatus = user.emailVerified ? "Verified" : "Not Verified";
@@ -30,18 +30,18 @@ const Dashboard = (props) => {
     setNewCardAdded(false);
   }
 
-  const trans = JSON.parse(localStorage.getItem("translations"))
+  const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = (text) => {
-    // const trans = localStorage.getItem("translations")
+    // const trans = sessionStorage.getItem("translations")
     console.log(trans)
-    console.log(localStorage.getItem("translationsMode"))
+    console.log(sessionStorage.getItem("translationsMode"))
 
     if (trans != null) {
-      if (localStorage.getItem("translationsMode") != null) {
+      if (sessionStorage.getItem("translationsMode") != null) {
         // return the translated text with the right mode
         if (trans[text] != null) {
-            if (trans[text][localStorage.getItem("translationsMode")] != null)
-              return trans[text][localStorage.getItem("translationsMode")]
+            if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+              return trans[text][sessionStorage.getItem("translationsMode")]
         }
       }
     } 

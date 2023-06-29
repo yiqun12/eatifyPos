@@ -20,9 +20,9 @@ import './SwitchToggle.css';
 const App = () => {
   /**re-render everytime button clicked from shopping cart */
   const { id, saveId } = useMyHook(null);
-  let products = JSON.parse(localStorage.getItem("products"));
+  let products = JSON.parse(sessionStorage.getItem("products"));
   useEffect(() => {
-    products = JSON.parse(localStorage.getItem("products"));
+    products = JSON.parse(sessionStorage.getItem("products"));
   }, [id]);
   /**check if its mobile/browser */
   const [width, setWidth] = useState(window.innerWidth);
@@ -48,7 +48,7 @@ const App = () => {
   const isTooSmall= cardidth <= 270;
 
   //fetch data from local stroage products.
-  //console.log(localStorage.getItem("products"))
+  //console.log(sessionStorage.getItem("products"))
   const [totalPrice, setTotalPrice] = useState(products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0));
   useEffect(() => {
     //maybe add a line here...
@@ -94,7 +94,7 @@ const App = () => {
 const Item = (props) => {
   //const { id, saveId } = useMyHook(null);
   //const [totalPrice, setTotalPrice] = useState(0);
-  let products = JSON.parse(localStorage.getItem("products"));
+  let products = JSON.parse(sessionStorage.getItem("products"));
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
   }, [id]);
@@ -102,28 +102,28 @@ const Item = (props) => {
   const { totalPrice } = props;
   //console.log(props.products)
   const [isDinein, setIsDinein] = useState(true);
-  localStorage.setItem('isDinein', JSON.stringify(isDinein));
+  sessionStorage.setItem('isDinein', JSON.stringify(isDinein));
   console.log(isDinein)
   const handleToggle = () => {
     setIsDinein(!isDinein);
     console.log(isDinein)
-    localStorage.setItem('isDinein', JSON.stringify(isDinein));
+    sessionStorage.setItem('isDinein', JSON.stringify(isDinein));
     saveId(Math.random())
   };
 
     // for translations sake
-    const trans = JSON.parse(localStorage.getItem("translations"))
+    const trans = JSON.parse(sessionStorage.getItem("translations"))
     const t = (text) => {
-      // const trans = localStorage.getItem("translations")
+      // const trans = sessionStorage.getItem("translations")
       console.log(trans)
-      console.log(localStorage.getItem("translationsMode"))
+      console.log(sessionStorage.getItem("translationsMode"))
   
       if (trans != null) {
-        if (localStorage.getItem("translationsMode") != null) {
+        if (sessionStorage.getItem("translationsMode") != null) {
           // return the translated text with the right mode
           if (trans[text] != null) {
-              if (trans[text][localStorage.getItem("translationsMode")] != null)
-                return trans[text][localStorage.getItem("translationsMode")]
+              if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+                return trans[text][sessionStorage.getItem("translationsMode")]
           }
         }
       } 
@@ -255,18 +255,18 @@ const Checkout = (props) => {
   const { loading } = useUserContext();
   const { totalPrice } = props;
           // for translations sake
-          const trans = JSON.parse(localStorage.getItem("translations"))
+          const trans = JSON.parse(sessionStorage.getItem("translations"))
           const t = (text) => {
-            // const trans = localStorage.getItem("translations")
+            // const trans = sessionStorage.getItem("translations")
             console.log(trans)
-            console.log(localStorage.getItem("translationsMode"))
+            console.log(sessionStorage.getItem("translationsMode"))
         
             if (trans != null) {
-              if (localStorage.getItem("translationsMode") != null) {
+              if (sessionStorage.getItem("translationsMode") != null) {
               // return the translated text with the right mode
                 if (trans[text] != null) {
-                  if (trans[text][localStorage.getItem("translationsMode")] != null)
-                    return trans[text][localStorage.getItem("translationsMode")]
+                  if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+                    return trans[text][sessionStorage.getItem("translationsMode")]
                 }
               }
             } 

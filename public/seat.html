@@ -186,7 +186,7 @@
       console.log(board)
 
       // this is where you save the board to an external js
-      window.localStorage.setItem("restaurant_seat_arrangement", JSON.stringify(board));
+      window.sessionStorage.setItem("restaurant_seat_arrangement", JSON.stringify(board));
       // external_board = board
     }
 
@@ -197,7 +197,7 @@
 
       // this is where you read external (previously saved board data and load it in)
 
-      let arrangement = JSON.parse(window.localStorage.getItem("restaurant_seat_arrangement"))
+      let arrangement = JSON.parse(window.sessionStorage.getItem("restaurant_seat_arrangement"))
 
       addDefaultObjects(arrangement)
     }

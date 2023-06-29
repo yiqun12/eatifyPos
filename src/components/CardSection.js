@@ -126,8 +126,8 @@ function CardSection(props) {
                   .querySelectorAll('button')
                   .forEach((button) => (button.disabled = false));
               } else if (result.setupIntent != null) {
-                //console.log(localStorage.getItem("isDinein"))
-                //console.log(localStorage.getItem("isDinein")== "true"?"DineIN":"TakeOut")
+                //console.log(sessionStorage.getItem("isDinein"))
+                //console.log(sessionStorage.getItem("isDinein")== "true"?"DineIN":"TakeOut")
                 document
                   .querySelectorAll('button')
                   .forEach((button) => (button.disabled = true));
@@ -142,26 +142,26 @@ function CardSection(props) {
                   currency,
                   amount: amount,
                   status: 'new',
-                  receipt: localStorage.getItem("products"),
+                  receipt: sessionStorage.getItem("products"),
                   dateTime: date,
                   user_email: user.email,
-                  isDinein: localStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut"
+                  isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut"
                 };
                 //console.log(data)
 
                 // for translation
-                const trans = JSON.parse(localStorage.getItem("translations"))
+                const trans = JSON.parse(sessionStorage.getItem("translations"))
                 const t = (text) => {
-                  // const trans = localStorage.getItem("translations")
+                  // const trans = sessionStorage.getItem("translations")
                   console.log(trans)
-                  console.log(localStorage.getItem("translationsMode"))
+                  console.log(sessionStorage.getItem("translationsMode"))
 
                   if (trans != null) {
-                    if (localStorage.getItem("translationsMode") != null) {
+                    if (sessionStorage.getItem("translationsMode") != null) {
                       // return the translated text with the right mode
                       if (trans[text] != null) {
-                        if (trans[text][localStorage.getItem("translationsMode")] != null)
-                          return trans[text][localStorage.getItem("translationsMode")]
+                        if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+                          return trans[text][sessionStorage.getItem("translationsMode")]
                       }
                     }
                   }
@@ -224,18 +224,18 @@ function CardSection(props) {
   }, [customerData.current, stripe, elements, isChecked.current]);
 
   // for translation
-  const trans = JSON.parse(localStorage.getItem("translations"))
+  const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = (text) => {
-    // const trans = localStorage.getItem("translations")
+    // const trans = sessionStorage.getItem("translations")
     console.log(trans)
-    console.log(localStorage.getItem("translationsMode"))
+    console.log(sessionStorage.getItem("translationsMode"))
 
     if (trans != null) {
-      if (localStorage.getItem("translationsMode") != null) {
+      if (sessionStorage.getItem("translationsMode") != null) {
         // return the translated text with the right mode
         if (trans[text] != null) {
-          if (trans[text][localStorage.getItem("translationsMode")] != null)
-            return trans[text][localStorage.getItem("translationsMode")]
+          if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+            return trans[text][sessionStorage.getItem("translationsMode")]
         }
       }
     }

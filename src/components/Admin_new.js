@@ -54,11 +54,11 @@ function App() {
 
     const [orders, setOrders] = useState();
     const [Food_array, setFood_array] = useState("");
-    const [Food_arrays, setFood_arrays] = useState(JSON.parse(localStorage.getItem("Food_arrays")));
+    const [Food_arrays, setFood_arrays] = useState(JSON.parse(sessionStorage.getItem("Food_arrays")));
     /**listen to localtsorage */
     const { id, saveId } = useMyHook(null);
     useEffect(() => {
-        setFood_arrays(JSON.parse(localStorage.getItem("Food_arrays")));
+        setFood_arrays(JSON.parse(sessionStorage.getItem("Food_arrays")));
     }, [id]);
     const [selectedItem, setSelectedItem] = useState('Order');
 
@@ -83,19 +83,19 @@ function App() {
         }
     }
     const handleAdminCheckout = async () => {
-        if (localStorage.getItem("tableMode") == "table-NaN") {
+        if (sessionStorage.getItem("tableMode") == "table-NaN") {
             return
         }
 
-        //console.log(localStorage.getItem(localStorage.getItem("tableMode")))
-        const food_array = JSON.parse(localStorage.getItem(localStorage.getItem("tableMode")));
+        //console.log(sessionStorage.getItem(sessionStorage.getItem("tableMode")))
+        const food_array = JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode")));
           const matched_food_array = food_array.map(({ id, quantity }) => {
-            const matched_food = JSON.parse(localStorage.getItem("Food_arrays")).find(foodItem => foodItem.id === id);
+            const matched_food = JSON.parse(sessionStorage.getItem("Food_arrays")).find(foodItem => foodItem.id === id);
             return { ...matched_food, quantity };
           });
           
           console.log(matched_food_array);
-          const total_ = JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+          const total_ = JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
             return accumulator + task.quantity * task.subtotal;
         }, 0).toFixed(2)
          try {
@@ -189,7 +189,7 @@ function App() {
                 const newData = querySnapshot.docs
                     .map((doc) => ({ ...doc.data(), id: doc.id }));
                 console.log(JSON.stringify(newData))
-                localStorage.setItem("Food_arrays", JSON.stringify(newData));
+                sessionStorage.setItem("Food_arrays", JSON.stringify(newData));
             })
         saveId(Math.random())
     }
@@ -239,7 +239,7 @@ function App() {
                     const newData = querySnapshot.docs
                         .map((doc) => ({ ...doc.data(), id: doc.id }));
                     console.log(JSON.stringify(newData))
-                    localStorage.setItem("Food_arrays", JSON.stringify(newData));
+                    sessionStorage.setItem("Food_arrays", JSON.stringify(newData));
                 })
             saveId(Math.random())
         } catch (e) {
@@ -258,7 +258,7 @@ function App() {
                     const newData = querySnapshot.docs
                         .map((doc) => ({ ...doc.data(), id: doc.id }));
                     console.log(JSON.stringify(newData))
-                    localStorage.setItem("Food_arrays", JSON.stringify(newData));
+                    sessionStorage.setItem("Food_arrays", JSON.stringify(newData));
                 })
             saveId(Math.random())
         } catch (e) {
@@ -276,7 +276,7 @@ function App() {
                     const newData = querySnapshot.docs
                         .map((doc) => ({ ...doc.data(), id: doc.id }));
                     console.log(JSON.stringify(newData))
-                    localStorage.setItem("Food_arrays", JSON.stringify(newData));
+                    sessionStorage.setItem("Food_arrays", JSON.stringify(newData));
                 })
             saveId(Math.random())
         } catch (e) {
@@ -292,18 +292,18 @@ function App() {
     // align-items: stretch;
 
     // for translate
-    const trans = JSON.parse(localStorage.getItem("translations"))
+    const trans = JSON.parse(sessionStorage.getItem("translations"))
     const t = (text) => {
-        // const trans = localStorage.getItem("translations")
+        // const trans = sessionStorage.getItem("translations")
         //console.log(trans)
-        //console.log(localStorage.getItem("translationsMode"))
+        //console.log(sessionStorage.getItem("translationsMode"))
 
         if (trans != null) {
-            if (localStorage.getItem("translationsMode") != null) {
+            if (sessionStorage.getItem("translationsMode") != null) {
                 // return the translated text with the right mode
                 if (trans[text] != null) {
-                    if (trans[text][localStorage.getItem("translationsMode")] != null)
-                        return trans[text][localStorage.getItem("translationsMode")]
+                    if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+                        return trans[text][sessionStorage.getItem("translationsMode")]
                 }
             }
         }
@@ -420,15 +420,15 @@ function App() {
 
 
 
-    if (!localStorage.getItem("tableMode")) {
-        localStorage.setItem("tableMode", "table-NaN");
+    if (!sessionStorage.getItem("tableMode")) {
+        sessionStorage.setItem("tableMode", "table-NaN");
     }
-    if (!localStorage.getItem("table-NaN")) {
-        localStorage.setItem("table-NaN", "[]");
+    if (!sessionStorage.getItem("table-NaN")) {
+        sessionStorage.setItem("table-NaN", "[]");
     }
-    if (!localStorage.getItem(localStorage.getItem("tableMode"))) {
-        localStorage.setItem("table-NaN", "[]");
-        localStorage.setItem("tableMode", "table-NaN");
+    if (!sessionStorage.getItem(sessionStorage.getItem("tableMode"))) {
+        sessionStorage.setItem("table-NaN", "[]");
+        sessionStorage.setItem("tableMode", "table-NaN");
     }
 
     const [src, setSrc] = useState( window.PUBLIC_URL + "/seat.html");
@@ -475,7 +475,7 @@ function App() {
             window.removeEventListener("message", handleIframeMessage);
         };
     }, []);
-    //JSON.parse(localStorage.getItem(localStorage.getItem("tableMode")))
+    //JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode")))
     function listenNumber(number) {
         var tableName = "table-" + parseInt(number);
         if (tableName == "table-NaN") {
@@ -483,34 +483,34 @@ function App() {
         }
 
         console.log(tableName)
-        if (!localStorage.getItem(tableName)) {
+        if (!sessionStorage.getItem(tableName)) {
             // Create the table if it does not exist
             console.log("creating table ", number);
-            localStorage.setItem(tableName, "[]");
+            sessionStorage.setItem(tableName, "[]");
         } else {
             // Switch to the existing table
-            var tableMode = localStorage.getItem("tableMode");
+            var tableMode = sessionStorage.getItem("tableMode");
             if (tableMode == null) {
                 // If tableMode does not exist, create it and set the selected table number
-                localStorage.setItem("tableMode", tableName);
+                sessionStorage.setItem("tableMode", tableName);
             } else {
                 // If tableMode exists, update it with the selected table number
-                localStorage.setItem("tableMode", tableName);
+                sessionStorage.setItem("tableMode", tableName);
             }
         }
-        localStorage.setItem("tableMode", tableName);
+        sessionStorage.setItem("tableMode", tableName);
         saveId(Math.random());
     }
 
     /**admin shopping cart */
 
-    //const [shopItem, setShopItem] = useState(JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))) || []);
+    //const [shopItem, setShopItem] = useState(JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))) || []);
     const [tableItem, setTableItem] = useState([]);
 
-    //JSON.parse(localStorage.getItem(localStorage.getItem("tableMode")))
+    //JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode")))
 
     const shopAdd = (id) => {
-        if (localStorage.getItem("tableMode") == "table-NaN") {
+        if (sessionStorage.getItem("tableMode") == "table-NaN") {
             return
         }
         const foodItem = Food_arrays.find(item => item.id === id);
@@ -524,11 +524,11 @@ function App() {
             quantity: 1
         };
         console.log(dictArray);
-        // Check if shopItem exists in localStorage
+        // Check if shopItem exists in sessionStorage
 
-        // Retrieve the shopItem array from localStorage
+        // Retrieve the shopItem array from sessionStorage
 
-        const shopItem = JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))) || []
+        const shopItem = JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))) || []
 
         // Check if the id already exists in the shopItem array
         const idExists = shopItem.some(item => item.id === dictArray.id);
@@ -536,9 +536,9 @@ function App() {
         if (!idExists) {
             // If the id does not exist, add the dictArray object to the shopItem array
             shopItem.push(dictArray);
-            // Save the updated shopItem array back to localStorage
-            localStorage.setItem(localStorage.getItem("tableMode"), JSON.stringify(shopItem))
-            //localStorage.setItem('shopItem', JSON.stringify(shopItem));
+            // Save the updated shopItem array back to sessionStorage
+            sessionStorage.setItem(sessionStorage.getItem("tableMode"), JSON.stringify(shopItem))
+            //sessionStorage.setItem('shopItem', JSON.stringify(shopItem));
             //setShopItem(shopItem)
         } else {
             clickedAdd(id)
@@ -549,10 +549,10 @@ function App() {
         //search
     }
     const clickedAdd = (id) => {
-        if (localStorage.getItem("tableMode") == "table-NaN") {
+        if (sessionStorage.getItem("tableMode") == "table-NaN") {
             return
         }
-        const cartItems = JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))) || []
+        const cartItems = JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))) || []
         // Find the item in the cartItems array with the matching id
         const item = cartItems.find(item => item.id === id);
 
@@ -561,15 +561,15 @@ function App() {
             item.quantity += 1;
         }
         console.log(cartItems)
-        localStorage.setItem(localStorage.getItem("tableMode"), JSON.stringify(cartItems));
+        sessionStorage.setItem(sessionStorage.getItem("tableMode"), JSON.stringify(cartItems));
         // Return the updated cartItems array
-        //localStorage.setItem('shopItem', JSON.stringify(cartItems));
+        //sessionStorage.setItem('shopItem', JSON.stringify(cartItems));
     }
     const clickedMinus = (id) => {
-        if (localStorage.getItem("tableMode") == "table-NaN") {
+        if (sessionStorage.getItem("tableMode") == "table-NaN") {
             return
         }
-        const cartItems = JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))) || []
+        const cartItems = JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))) || []
         // Find the item in the cartItems array with the matching id
         const item = cartItems.find(item => item.id === id);
 
@@ -578,12 +578,12 @@ function App() {
             item.quantity -= 1;
         }
         console.log(cartItems)
-        localStorage.setItem(localStorage.getItem("tableMode"), JSON.stringify(cartItems));
+        sessionStorage.setItem(sessionStorage.getItem("tableMode"), JSON.stringify(cartItems));
         // Return the updated cartItems array
-        //localStorage.setItem('shopItem', JSON.stringify(cartItems));
+        //sessionStorage.setItem('shopItem', JSON.stringify(cartItems));
     }
     const deleteItem = (id) => {
-        const cartItems = JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))) || []
+        const cartItems = JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))) || []
         // Find the index of the item in the cartItems array with the matching id
         const index = cartItems.findIndex(item => item.id === id);
 
@@ -593,11 +593,11 @@ function App() {
         }
 
         console.log(cartItems)
-        localStorage.setItem(localStorage.getItem("tableMode"), JSON.stringify(cartItems));
+        sessionStorage.setItem(sessionStorage.getItem("tableMode"), JSON.stringify(cartItems));
     }
-    const [cheeseItems_, setCheeseItems_] = useState(JSON.parse(localStorage.getItem('Food_arrays')) || []);
+    const [cheeseItems_, setCheeseItems_] = useState(JSON.parse(sessionStorage.getItem('Food_arrays')) || []);
     const searchItemFromShopItem = (input) => {
-        const shopItem_ = JSON.parse(localStorage.getItem('Food_arrays')) || [];
+        const shopItem_ = JSON.parse(sessionStorage.getItem('Food_arrays')) || [];
 
         // Filter the items that have "cheese" in their name
         const cheeseItems = shopItem_.filter(item => item.name.toLowerCase().includes(input));
@@ -908,23 +908,23 @@ function App() {
 
                                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "5px" }}>
                                                             <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '10px' }}>
-                                                                {localStorage.getItem("tableMode") === "table-NaN" ? (
+                                                                {sessionStorage.getItem("tableMode") === "table-NaN" ? (
                                                                     <>Did not select table</>
                                                                 ) : (
-                                                                    <>{localStorage.getItem("tableMode")}</>
+                                                                    <>{sessionStorage.getItem("tableMode")}</>
                                                                 )}
                                                             </span>
                                                             <Button variant="contained" onClick={handleAdminCheckout}>
-                                                                {t("Checkout")} $ {(JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+                                                                {t("Checkout")} $ {(JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
                                                                     return accumulator + task.quantity * task.subtotal;
                                                                 }, 0) * 1.086).toFixed(2)}
                                                             </Button>
                                                         </div>
                                                         <hr />
 
-                                                        {localStorage.getItem(localStorage.getItem("tableMode")) == "[]" ? <>Void</> : <></>}
+                                                        {sessionStorage.getItem(sessionStorage.getItem("tableMode")) == "[]" ? <>Void</> : <></>}
 
-                                                        {JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).map((task) => (
+                                                        {JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).map((task) => (
                                                             <div
                                                                 key={task.id}
                                                                 style={{
@@ -974,15 +974,15 @@ function App() {
                                                         ))}
                                                         <div>
                                                             <hr />
-                                                            <div>Subtotal: $ {JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+                                                            <div>Subtotal: $ {JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
                                                                 return accumulator + task.quantity * task.subtotal;
                                                             }, 0).toFixed(2)}</div>
 
-                                                            <div>Tax: $ {(JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+                                                            <div>Tax: $ {(JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
                                                                 return accumulator + task.quantity * task.subtotal;
                                                             }, 0) * 0.086).toFixed(2)}</div>
 
-                                                            <div>Total: $ {(JSON.parse(localStorage.getItem(localStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+                                                            <div>Total: $ {(JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
                                                                 return accumulator + task.quantity * task.subtotal;
                                                             }, 0) * 1.086).toFixed(2)}</div>
 

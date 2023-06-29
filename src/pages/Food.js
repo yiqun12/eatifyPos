@@ -75,16 +75,16 @@ const Food = () => {
   /**drop food */
 
   const [cartTotal, setCartTotal] = useState(
-    parseInt(localStorage.getItem('cartTotal')) || 0
+    parseInt(sessionStorage.getItem('cartTotal')) || 0
   );
 
   useEffect(() => {
-    localStorage.setItem('cartTotal', cartTotal);
+    sessionStorage.setItem('cartTotal', cartTotal);
   }, [cartTotal]);
 
   /**drop food */
 
-  const data = JSON.parse(localStorage.getItem("Food_arrays"))
+  const data = JSON.parse(sessionStorage.getItem("Food_arrays"))
 
   const [foods, setFoods] = useState(data);
 
@@ -115,13 +115,13 @@ const Food = () => {
     console.log(id, name, subtotal, image);
 
     // Check if the array exists in local storage
-    if (localStorage.getItem("products") === null) {
+    if (sessionStorage.getItem("products") === null) {
       // If it doesn't exist, set the value to an empty array
-      localStorage.setItem("products", JSON.stringify([]));
+      sessionStorage.setItem("products", JSON.stringify([]));
     }
 
     // Retrieve the array from local storage
-    let products = JSON.parse(localStorage.getItem("products"));
+    let products = JSON.parse(sessionStorage.getItem("products"));
 
     // Find the product with the matching id
     let product = products.find((product) => product.id === id);
@@ -139,7 +139,7 @@ const Food = () => {
     }
 
     // Update the array in local storage
-    localStorage.setItem("products", JSON.stringify(products));
+    sessionStorage.setItem("products", JSON.stringify(products));
 
     const calculateTotalQuant = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity), 0);
@@ -150,10 +150,10 @@ const Food = () => {
   };
 
   // for translations sake
-  const trans = JSON.parse(localStorage.getItem("translations"))
+  const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = useMemo(() => {
-    const trans = JSON.parse(localStorage.getItem("translations"))
-    const translationsMode = localStorage.getItem("translationsMode")
+    const trans = JSON.parse(sessionStorage.getItem("translations"))
+    const translationsMode = sessionStorage.getItem("translationsMode")
   
     return (text) => {
       if (trans != null && translationsMode != null) {
@@ -164,7 +164,7 @@ const Food = () => {
   
       return text;
     };
-  }, [localStorage.getItem("translations"), localStorage.getItem("translationsMode")]);
+  }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
 
   return (
     <div>

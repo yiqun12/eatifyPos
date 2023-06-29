@@ -14,9 +14,9 @@ const App = () => {
   //const sessionId = location.search.replace('?session_id=', '');
   /**re-render everytime button clicked from shopping cart */
   const { id, saveId } = useMyHook(null);
-  let products = JSON.parse(JSON.parse(localStorage.getItem('collection_data')).receipt_data)
+  let products = JSON.parse(JSON.parse(sessionStorage.getItem('collection_data')).receipt_data)
   useEffect(() => {
-    products = JSON.parse(JSON.parse(localStorage.getItem('collection_data')).receipt_data)
+    products = JSON.parse(JSON.parse(sessionStorage.getItem('collection_data')).receipt_data)
   }, [id]);
 
   //fetch data from local stroage products.
@@ -53,7 +53,7 @@ const App = () => {
 const Item = (props) => {
   //const { id, saveId } = useMyHook(null);
   //const [totalPrice, setTotalPrice] = useState(0);
-  let products = JSON.parse(JSON.parse(localStorage.getItem('collection_data')).receipt_data)
+  let products = JSON.parse(JSON.parse(sessionStorage.getItem('collection_data')).receipt_data)
 
   const { totalPrice } = props;
   console.log(props.products)
@@ -64,22 +64,22 @@ const Item = (props) => {
   };
  console.log(products)
  console.log()
- console.log(JSON.parse(localStorage.getItem('collection_data')).time)
+ console.log(JSON.parse(sessionStorage.getItem('collection_data')).time)
 
 
     // for translations sake
-    const trans = JSON.parse(localStorage.getItem("translations"))
+    const trans = JSON.parse(sessionStorage.getItem("translations"))
     const t = (text) => {
-      // const trans = localStorage.getItem("translations")
+      // const trans = sessionStorage.getItem("translations")
       console.log(trans)
-      console.log(localStorage.getItem("translationsMode"))
+      console.log(sessionStorage.getItem("translationsMode"))
   
       if (trans != null) {
-        if (localStorage.getItem("translationsMode") != null) {
+        if (sessionStorage.getItem("translationsMode") != null) {
         // return the translated text with the right mode
           if (trans[text] != null) {
-            if (trans[text][localStorage.getItem("translationsMode")] != null)
-              return trans[text][localStorage.getItem("translationsMode")]
+            if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+              return trans[text][sessionStorage.getItem("translationsMode")]
           }
         }
       } 
@@ -98,12 +98,12 @@ const Item = (props) => {
       <div className="gap">
         <div className="col-2 d-flex mx-auto" />
         
-        <b className="text-black text-2xl">{JSON.parse(localStorage.getItem('collection_data')).isDinein} ({t("PAID")})</b>
-        <span className="block text-black text-sm">{t("Name")}: {JSON.parse(localStorage.getItem('collection_data')).pay_name}
+        <b className="text-black text-2xl">{JSON.parse(sessionStorage.getItem('collection_data')).isDinein} ({t("PAID")})</b>
+        <span className="block text-black text-sm">{t("Name")}: {JSON.parse(sessionStorage.getItem('collection_data')).pay_name}
         
         </span>
-        <span className="block text-black text-sm">{t("Order ID")}: {JSON.parse(localStorage.getItem('collection_data')).document_id}</span>
-        <span className="block text-black text-sm">{JSON.parse(localStorage.getItem('collection_data')).time}</span>
+        <span className="block text-black text-sm">{t("Order ID")}: {JSON.parse(sessionStorage.getItem('collection_data')).document_id}</span>
+        <span className="block text-black text-sm">{JSON.parse(sessionStorage.getItem('collection_data')).time}</span>
       </div>
       <div className="main">
         <span id="sub-title">
