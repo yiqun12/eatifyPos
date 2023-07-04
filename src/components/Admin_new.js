@@ -21,6 +21,8 @@ import { Row, Col, Container } from "react-bootstrap"
 import { useRef } from "react";
 import { useUserContext } from "../context/userContext";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } from 'recharts';
+import { data_ } from '../data/data.js'
+
 /**
          const selectedNumber = this.number;
         window.parent.postMessage(selectedNumber, "*");
@@ -29,7 +31,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } fr
 const theme = createTheme();
 function Iframe({ src, width, height }) {
     const iframeRef = useRef();
-  
+
+
     useEffect(() => {
       const fetchHtml = async () => {
         try {
@@ -50,7 +53,6 @@ function Iframe({ src, width, height }) {
   }
 
 function App() {
-
 
     const [orders, setOrders] = useState();
     const [Food_array, setFood_array] = useState("");
@@ -172,13 +174,12 @@ function App() {
 
     const [inputData, setInputData] = useState([]);
     const [searchData, setSearchData] = useState([]);
+    
     const handleSubmit = async (event) => {
-        //console.log(JSON.stringify(data))
-
         event.preventDefault();
         setInputData(event.target.inputData.value);
         console.log(inputData)
-        let temp = JSON.parse(inputData)
+        let temp = data_
         console.log(temp)//convert string to json.
         for (let i = 0; i < temp.length; i++) {
             console.log(temp[i])
@@ -200,7 +201,7 @@ function App() {
                 name: name,
                 category: category,
                 image: image,
-                price: price,
+                price: "$",
                 subtotal: subtotal,
             });
             console.log("Document written with ID: ", docRef.id);
