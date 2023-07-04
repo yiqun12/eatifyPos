@@ -242,7 +242,7 @@ const Item = (props) => {
               <b> {t("Total")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${totalPrice}</b>
+              <b>${Math.round(100*totalPrice)/100}</b>
             </div>
           </div>{" "}
         </div>

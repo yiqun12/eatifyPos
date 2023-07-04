@@ -426,7 +426,7 @@ const Navbar = () => {
                 class="w-80 mx-auto border-0 rounded-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
                 onClick={HandleCheckout_local_stripe}>
                 <span class="text-left"> <FontAwesomeIcon icon={faCreditCard} /> {t("Checkout")} </span>
-                <span class="text-right"> ${totalPrice}</span>
+                <span class="text-right"> ${Math.round(100 * totalPrice) / 100}</span>
               </button>
 
             </div>
@@ -434,7 +434,6 @@ const Navbar = () => {
           </div>
           <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : {}}>
             {products.map((product) => (
-
               <div key={product.id} className="item">
                 <div className="buttons">
                   <span className="delete-btn"
@@ -572,7 +571,7 @@ const Navbar = () => {
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       {isMobile ?
         <nav className="nav___ ">
-          <a style={{ "width":"25%",'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
+          <a style={{ "width": "25%", 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
             <a className="email-link"><i className="material-icons nav__icon">home</i></a>
             <a className="email-link">{t("Order")}</a>
 
@@ -580,7 +579,7 @@ const Navbar = () => {
           <a
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            style={{ "width":"25%",'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
+            style={{ "width": "25%", 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
             <i style={{
               color: 'transparent'
             }}
@@ -597,14 +596,14 @@ const Navbar = () => {
               <a className="email-link">{t("Cart")}</a>
             </div>
           </a>
-          <a style={{ "width":"25%",'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
+          <a style={{ "width": "25%", 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
             <a className="email-link"><i className="material-icons nav__icon">person</i></a>
             <a className="email-link">{user ? t("Ask to serve") : t("Login")}</a>
           </a>
-          <a style={{ "width":"25%",'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
+          <a style={{ "width": "25%", 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
             <a className="email-link">
-            <img style={{"width":"25px","height":"25px","margin-bottom":"5px"}}src={teapotImage} alt="teapot" />
-              </a>
+              <img style={{ "width": "25px", "height": "25px", "margin-bottom": "5px" }} src={teapotImage} alt="teapot" />
+            </a>
             <a className="email-link">{user ? t("Add Water") : t("Login")}</a>
           </a>
 
