@@ -78,16 +78,16 @@
 
 /* Product Image */
 .image {
-  width: 35%;
+  /* width: 35%; */
   margin-right:5px
 }
 
 /* Product Description */
-.description {
+/* .description {
   padding-top: 10px;
   margin-right: 60px;
   width: 115px;
-}
+} */
 
 .description span {
   display: block;
@@ -156,9 +156,10 @@
 
 /* Product Quantity */
 .quantity {
-  position: absolute;
+  /* position: absolute;
   margin-top: 30px;
-  margin-left: 240px;
+  margin-left: 240px; */
+  padding-top: 0px;
 }
 
 }
