@@ -509,24 +509,26 @@ const Navbar = () => {
 
         <div className="grid grid-cols-8 flex max-w-[1000px] mx-auto items-center p-4 justify-between sticky top-0 bg-white z-10"
           style={{ "border-bottom": "solid" }} >
-          <div className="col-span-2">
-            <img
-              src={logo_transparent}
-              alt=""
-              style={{ 'cursor': "pointer", maxHeight: '50px', maxWidth: '200px' }}
-              onClick={event => window.location.href = '/'}
-            />
-          </div>
+<div className="col-span-2" style={{ cursor: "pointer",  display: 'flex', alignItems: 'center' }} onClick={event => window.location.href = '/'}>
+    <img
+        src={logo_transparent}
+        alt=""
+        style={{ 
+
+            maxHeight: '50px', 
+            maxWidth: '200px',
+            marginRight: '10px' // added some margin to the right of the image
+        }}
+        
+    />
+    <span>{t("Home")}</span>
+</div>
+
 
           {!isMobile ?
 
 
             <div className="col-span-4 grid grid-cols-3 ">
-              <a
-                style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
-                <a className="email-link"><i className="material-icons nav__icon">home</i></a>
-                <a className="email-link">{t("Home")}</a>
-              </a>
               <div>
 
                 <a
@@ -579,11 +581,7 @@ const Navbar = () => {
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       {isMobile ?
         <nav className="nav___ ">
-          <a style={{ "width": "25%", 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/'} className="nav__link">
-            <a className="email-link"><i className="material-icons nav__icon">home</i></a>
-            <a className="email-link">{t("Order")}</a>
 
-          </a>
           <a
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -606,15 +604,8 @@ const Navbar = () => {
           </a>
           <a style={{ "width": "25%", 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
             <a className="email-link"><i className="material-icons nav__icon">person</i></a>
-            <a className="email-link">{user ? t("Ask to serve") : t("Login")}</a>
+            <a className="email-link">{user ? t("Person") : t("Login")}</a>
           </a>
-          <a style={{ "width": "25%", 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
-            <a className="email-link">
-              <img style={{ "width": "25px", "height": "25px", "margin-bottom": "5px" }} src={teapotImage} alt="teapot" />
-            </a>
-            <a className="email-link">{user ? t("Add Water") : t("Login")}</a>
-          </a>
-
         </nav> : <></>}
     </>
   )
