@@ -442,8 +442,14 @@ const Navbar = () => {
 
           </div>
           <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : {}}>
+
+            {/* generates each food entry */}
             {products.map((product) => (
+              // the parent div
+              // can make the parent div flexbox
               <div key={product.id} className="item">
+
+                {/* the delete button */}
                 <div className="buttons">
                   <span className="delete-btn"
                     onClick={() => {
@@ -451,19 +457,32 @@ const Navbar = () => {
                     }}></span>
                   {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
                 </div>
+
+                {/* the image */}
                 <div className="image">
                   <div class="image-container" >
                     <img style={{ margin: '0px' }} src={product.image} alt="" />
                   </div>
                 </div>
-                <div className="description">
-                  <span style={{ whiteSpace: 'nowrap' }}>{t(product.name)}</span>
-                  <span>$ {Math.round(100*(product.quantity * product.subtotal))/100 }</span>
+
+                {/* the name + quantity parent div*/}
+                <div style={{display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available"}}>
+                {/* the name */}
+                <div className="description" style={{width: "-webkit-fill-available"}}>
+                  <span style={{ width: "-webkit-fill-available" }}>{t(product.name)}</span>
                 </div>
 
+
                 {/* <div className="theset"> */}
+                {/* start of quantity (quantity = quantity text + buttons div) */}
                 <div className="quantity"
-                  style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: "20px", height: "fit-content" }}>
+                  style={{     marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
+                  <span>${Math.round(100 * product.quantity * product.subtotal) / 100}</span>
+                  
+                  {/* the add minus box set up */}
+                  <div style={{display:"flex"}}>
+                  
+                  {/* the start of minus button set up */}
                   <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
                     <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                       onClick={() => {
@@ -476,26 +495,34 @@ const Navbar = () => {
                       <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
                     </button>
                   </div>
-                  {/*  <input 
-  type="text" 
-  style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }} 
-  value={product.quantity} 
-  onChange={(e) => handleQuantityChange(product.id, e.target.value)} 
-  onBlur={() => handleBlur(product)} 
-          />*/}
+                  {/* the end of minus button set up */}
+                  
+                  { /* start of the quantity number */}
                   <span
                     type="text"
                     style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
                   >{product.quantity}</span>
+                  { /* end of the quantity number */}
+                
+                { /* start of the add button */}
                   <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
                     <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                       onClick={() => {
                         handlePlusClick(product.id)
+                        saveId(Math.random());
                       }}>
                       <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
                     </button>
                   </div>
+                  { /* end of the add button */}
+                  </div>
+                  { /* end of the add minus setup*/}
                 </div>
+
+                {/* end of quantity */}
+              </div>
+              
+              {/* end of name + quantity parent div*/}
               </div>
 
             ))}
