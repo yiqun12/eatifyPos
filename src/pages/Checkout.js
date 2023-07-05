@@ -229,7 +229,7 @@ const Item = (props) => {
               </div>
               <div className="col-3 d-flex justify-content-end">
                 <p>
-                  <b>${product.subtotal * product.quantity}</b>
+                  <b>$ {Math.round(100*(product.quantity * product.subtotal))/100 } </b>
                 </p>
               </div>
             </div>

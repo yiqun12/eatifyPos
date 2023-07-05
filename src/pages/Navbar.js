@@ -117,9 +117,12 @@ const Navbar = () => {
   }, [products, width]);
   
   const handleDeleteClick = (productId) => {
-    setProducts((prevProducts) => prevProducts.filter((product) => product.id !== productId));
-    saveId(Math.random())
+    setProducts((prevProducts) => {
+      saveId(Math.random());  // generate a new id here
+      return prevProducts.filter((product) => product.id !== productId);
+    });
   }
+  
   const handleAddProductClick = () => {
     setProducts((prevProducts) => [...prevProducts, {
       id: prevProducts.length + 1,
@@ -132,16 +135,36 @@ const Navbar = () => {
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId) {
+          saveId(Math.random());
           return {
             ...product,
             quantity: Math.min(product.quantity + 1, 99),
           };
         }
+        saveId(Math.random());
         return product;
       });
     });
   };
+  const handleMinusClick = (productId) => {
+    setProducts((prevProducts) => {
+      return prevProducts.map((product) => {
+        if (product.id === productId) {
+          // Constrain the quantity of the product to be at least 0
+          let newQuantity = Math.max(product.quantity - 1, 1);
+          saveId(Math.random());
+          return {
+            ...product,
+            quantity: newQuantity,
+          };
+        }
+        saveId(Math.random());
+        return product;
+      });
+    });
+    uploadProductsToLocalStorage(products);
 
+  };
   const uploadProductsToLocalStorage = (products) => {
     // Set the products array in local storage
     sessionStorage.setItem("products", JSON.stringify(products));
@@ -227,24 +250,7 @@ const Navbar = () => {
     }
   };
 
-  const handleMinusClick = (productId) => {
-    setProducts((prevProducts) => {
-      return prevProducts.map((product) => {
-        if (product.id === productId) {
-          // Constrain the quantity of the product to be at least 0
-          let newQuantity = Math.max(product.quantity - 1, 1);
-          saveId(Math.random());
-          return {
-            ...product,
-            quantity: newQuantity,
-          };
-        }
-        return product;
-      });
-    });
-    uploadProductsToLocalStorage(products);
 
-  };
   // modal. 
   const modalRef = useRef(null);
   const btnRef = useRef(null);
@@ -452,7 +458,7 @@ const Navbar = () => {
                 </div>
                 <div className="description">
                   <span style={{ whiteSpace: 'nowrap' }}>{t(product.name)}</span>
-                  <span>${product.quantity * product.subtotal}</span>
+                  <span>$ {Math.round(100*(product.quantity * product.subtotal))/100 }</span>
                 </div>
 
                 {/* <div className="theset"> */}
@@ -485,7 +491,6 @@ const Navbar = () => {
                     <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                       onClick={() => {
                         handlePlusClick(product.id)
-                        saveId(Math.random());
                       }}>
                       <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
                     </button>
