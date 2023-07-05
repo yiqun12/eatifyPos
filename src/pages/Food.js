@@ -13,13 +13,74 @@ import $ from 'jquery';
 import './fooddropAnimate.css';
 import { useMyHook } from './myHook';
 import { useMemo } from 'react';
+import plusSvg from './plus.svg';
+import minusSvg from './minus.svg';
+
 
 const Food = () => {
+  const [numbers, setNumbers] = useState([0, 0, 0]);
+
+  const incrementNumber = (index) => {
+    setNumbers((prevNumbers) =>
+      prevNumbers.map((num, i) => (i === index ? num + 1 : num))
+    );
+  };
+
+  const decrementNumber = (index) => {
+    setNumbers((prevNumbers) =>
+      prevNumbers.map((num, i) => (i === index ? num - 1 : num))
+    );
+  };
+  const [animationClass, setAnimationClass] = useState('');
+
+  useEffect(() => {
+    setAnimationClass('quantity');
+  }, []);
+
+  useEffect(() => {
+    // Call the displayAllProductInfo function to retrieve the array of products from local storage
+    let productArray = displayAllProductInfo();
+    // Update the products state with the array of products
+    setProducts(productArray);
+  }, []);
+
+  const [products, setProducts] = useState([
+  ]);
+
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
+
+  useEffect(() => {
+    saveId(Math.random());
+  }, [products]);
+
+    const displayAllProductInfo = () => {
+    // Retrieve the array from local storage
+    let products = JSON.parse(sessionStorage.getItem("products"));
+    //console.log("displayProductFunction")
+    //console.log(products)
+    // Create an empty array to store the products
+    let productArray = [];
+
+    // Loop through the array of products
+    for (let i = 0; products != null && i < products.length; i++) {
+      let product = products[i];
+      // Push the product object to the array
+      productArray.push({
+        id: product.id,
+        name: product.name,
+        quantity: product.quantity,
+        subtotal: product.subtotal,
+        image: product.image,
+      });
+    }
+
+    // Return the array of product objects
+    return productArray;
+  };
 
   /**dorp food */
 
@@ -112,7 +173,55 @@ const Food = () => {
   const divStyle = {
     color: 'black',
   };
+  const SearchQuantity = (id) => {
+    // Retrieve the array from local storage
+    let products = JSON.parse(sessionStorage.getItem("products"));
+    // Check if the products array exists
+    if (products && products.length > 0) {
+      // Find the product with the given id
+      const product = products.find((item) => item.id === id);
 
+      // If the product is found and has a quantity greater than 0, return the quantity
+      if (product && product.quantity && product.quantity > 0) {
+        //console.log("hello " + product.quantity)
+        return product.quantity;
+      }
+    }
+    //console.log("hello 0")
+    // If the product is not found or the quantity is less than or equal to 0, return 0
+    return 0;
+  };
+  const handleDeleteClick = (id) => {
+    let products = JSON.parse(sessionStorage.getItem("products"));
+    console.log(products);
+
+    if (products && products.length > 0) {
+      // Find the index of the product with the given id
+      const productIndex = products.findIndex((item) => item.id === id);
+
+      // If the product is found, decrement its quantity
+      if (productIndex !== -1) {
+        products[productIndex].quantity -= 1;
+
+        // If the quantity becomes 0, remove the product from the array
+        if (products[productIndex].quantity <= 0) {
+          products.splice(productIndex, 1);
+        }
+
+        // Save the updated array in local storage
+        sessionStorage.setItem("products", JSON.stringify(products));
+      }
+
+    }
+    const calculateTotalQuant = () => {
+      const total = products.reduce((acc, product) => acc + (product.quantity), 0);
+      console.log(total)
+      $('#cart').attr("data-totalitems", total);
+    }
+    calculateTotalQuant();
+
+    saveId(Math.random());
+  };
   const updateLocalStorage = (id, name, subtotal, image) => {
     console.log(id, name, subtotal, image);
 
@@ -171,6 +280,7 @@ const Food = () => {
   const foodTypes = [...new Set(JSON.parse(sessionStorage.getItem("Food_arrays")).map(item => item.category))];
 
   return (
+    
     <div>
 
       <div className='max-w-[1000px] m-auto px-4 '>
@@ -233,16 +343,117 @@ const Food = () => {
 </div>
                   <div className="col-span-2 flex justify-end">
 
-                      <Button
-                        variant="light"
-                        style={{ width: '28px', height: '28px', padding: '0', margin: '0', ...divStyle }}
-                        onClick={() => {
-                          updateLocalStorage(item.id, item.name, item.subtotal, item.image);
-                          handleDropFood(item.category);
-                          saveId(Math.random());
-                        }}                                    >
-                        <BsPlusCircle style={{ margin: 'auto' }} />
-                      </Button>
+                  {SearchQuantity(item.id) == 0 ?
+                          <>
+                            <div className="quantity"
+                              style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop:"-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
+
+                              <div
+                                style={{
+                                  padding: '4px',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  display: "flex",
+                                  border: "1px solid", // Adjust the border
+                                  borderRadius: "50%", // Set borderRadius to 50% for a circle
+                                  width: "30px", // Make sure width and height are equal
+                                  height: "30px",
+
+                                }}
+                              >
+                                <button
+                                  className="minus-btn"
+                                  type="button"
+                                  name="button"
+                                  style={{
+                                    marginTop: '0px',
+                                    width: '20px',
+                                    height: '20px',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    display: "flex",
+                                  }}
+                                  onClick={() => {
+                                    updateLocalStorage(item.id, item.name, item.subtotal, item.image);
+                                    saveId(Math.random());
+                                  }}
+                                >
+                                  <img
+                                    style={{
+                                      margin: '0px',
+                                      width: '10px',
+                                      height: '10px',
+                                    }}
+                                    src={plusSvg}
+                                    alt=""
+                                  />
+                                </button>
+                              </div>
+                            </div>
+                          </>
+                          :
+                          <>
+<div
+      className={animationClass}
+      style={{
+        margin: '0px',
+        display: 'flex',
+        whiteSpace: 'nowrap',
+        width: '80px',
+        marginTop: '-18px',
+        paddingTop: '20px',
+        height: 'fit-content',
+      }}
+    >
+                            <div className="quantity"
+                              style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop:"-18px", paddingTop: "20px", height: "fit-content" }}>
+                              <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                                <button
+
+                                  className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                                  onClick={() => {
+
+                                    handleDeleteClick(item.id);
+                                    //saveId(Math.random());
+                                  }}
+
+                                >
+                                  <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
+                                </button>
+                              </div>
+                              <span
+                              
+                                type="text"
+                                style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                              >
+                                
+                                <span >
+                                {SearchQuantity(item.id)}
+                                </span>
+                              
+                              </span>
+
+                              
+                              <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                                <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                                  onClick={() => {
+                                    updateLocalStorage(item.id, item.name, item.subtotal, item.image);
+                                    saveId(Math.random());
+                                  }}
+                                >
+                                  <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
+                                </button>
+                              </div>
+                            </div>
+                            
+    </div>
+
+
+
+                            
+                            </>
+
+                        }
                   </div>
 
                 </div>

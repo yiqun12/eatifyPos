@@ -26,11 +26,13 @@ import teapotImage from './teapot.png';
 
 
 const Navbar = () => {
+    
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
+
 
   /**check if its mobile/browser */
   const [width, setWidth] = useState(window.innerWidth);
@@ -113,6 +115,7 @@ const Navbar = () => {
 
     uploadProductsToLocalStorage(products);
   }, [products, width]);
+  
   const handleDeleteClick = (productId) => {
     setProducts((prevProducts) => prevProducts.filter((product) => product.id !== productId));
     saveId(Math.random())
