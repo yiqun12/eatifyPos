@@ -187,6 +187,7 @@ function App() {
         }
         await getDocs(collection(db, "food_data"))
             .then((querySnapshot) => {
+                console.log("read card")
                 const newData = querySnapshot.docs
                     .map((doc) => ({ ...doc.data(), id: doc.id }));
                 console.log(JSON.stringify(newData))
@@ -323,7 +324,7 @@ function App() {
     const moment = require('moment');
 
     const fetchPost = async () => {
-        console.log("fetchPost");
+        console.log("fetchPost2");
         await getDocs(collection(db, "success_payment")).then((querySnapshot) => {
             const newData = querySnapshot.docs.map((doc) => ({
                 ...doc.data(),

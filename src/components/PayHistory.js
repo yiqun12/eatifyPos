@@ -98,8 +98,10 @@ async function handleCardAction(payment, docId) {
   .orderBy('dateTime', 'desc')
   .limit(1)
   .onSnapshot((snapshot) => {
+    
       snapshot.forEach((doc) => {
         const payment = doc.data();
+        console.log('read card')
 
         let liElement = document.getElementById(`payment-${doc.id}`);
         if (!liElement) {

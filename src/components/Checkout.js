@@ -11,9 +11,19 @@ import { useMyHook } from '../pages/myHook';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { PaymentRequestButtonElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import CardSection from './CardSection';
+import Link from '@mui/material/Link';
 
 function Checkout(props) {
 
+  const [newCardAdded, setNewCardAdded] = useState(false);
+
+  const handleAddNewCard = () => {
+    setNewCardAdded(true);
+  }
+  const Goback = () => {
+    setNewCardAdded(false);
+  }
   const user = JSON.parse(sessionStorage.getItem('user'));
   const { totalPrice } = props;
   /**listen to localtsorage */
@@ -104,6 +114,7 @@ useEffect(() => {
       .doc(user.uid)
       .collection('payment_methods')
       .onSnapshot((snapshot) => {
+        console.log('read card')
         if (snapshot.empty) {
          // console.log('No payment methods found for the customer');
         
@@ -113,15 +124,20 @@ useEffect(() => {
           optionElement.id = "404null"
           optionElement.value = "null"
           if(document.getElementById('404null')){
+            console.log("does not have card")
           }else{
             document.querySelector('select[name=payment-method]').appendChild(optionElement);
             document.querySelector('#add-new-card').open = true;
             document.querySelector('[name=delete]').setAttribute('disabled', true);
             document.querySelector('[name=pay]').setAttribute('disabled', true);
+
           }
-
-
+          handleAddNewCard();
+          saveId(Math.random());
         } else {
+          Goback();
+          saveId(Math.random());
+          console.log("has card")
          // console.log('payment methods found for the customer');
           if(document.getElementById('404null')){
             const optionElementToDelete = document.querySelector(`option[id="${'404null'}"]`);
@@ -289,6 +305,22 @@ useEffect(() => {
 
   return (
     <div>
+          {newCardAdded ?
+          <>
+
+<Link className='text-black select-none text-2xl' style={{cursor: 'pointer'}} onClick={Goback} variant="body2">
+         &lt; {t("choose your card")}                                
+            </Link>
+            <div style={{color:"white"}}>.</div>
+            <CardSection  totalPrice={totalPrice}/>
+            {paymentRequest && <PaymentRequestButtonElement options={{paymentRequest}} />}
+          </>
+            
+            :
+            <div>
+                        <Link className='text-black select-none text-2xl' style={{cursor: 'pointer' }} onClick={handleAddNewCard} variant="body2">
+{ t("Please click here to add your new credit card")} &gt;
+                                </Link>
     <div id="card2-header">
       <div id="add-new-card">
       <form id="payment-form">
@@ -335,7 +367,7 @@ useEffect(() => {
       {paymentRequest && <PaymentRequestButtonElement options={{paymentRequest}} />}
 
     </div>
-    </div>
+    </div>    </div>     }
     </div>
   );
 };

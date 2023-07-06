@@ -63,6 +63,7 @@ function CardSection(props) {
       .collection('stripe_customers')
       .doc(user.uid)
       .onSnapshot((snapshot) => {
+        console.log('read card')
         if (snapshot.data()) {
           customerData.current = snapshot.data();
           //console.log(snapshot.data())

@@ -36,7 +36,7 @@ const App = () => {
   }
   useEffect(() => {
     const card2Header = document.getElementById('card2-header');
-    setCardidth(card2Header.offsetWidth);
+    //setCardidth(card2Header.offsetWidth);
     window.addEventListener('resize', handleWindowSizeChange);
     return () => {
       window.removeEventListener('resize', handleWindowSizeChange);

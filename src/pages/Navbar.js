@@ -14,6 +14,7 @@ import { useUserContext } from "../context/userContext";
 import 'bootstrap/dist/css/bootstrap.css';
 import './group_list.css';
 import './cartcheckout.css';
+import './float.css';
 import $ from 'jquery';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
@@ -417,6 +418,32 @@ const Navbar = () => {
   return (
 
     <>
+
+<a  class="float" target="_blank">
+<a
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                  style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
+                  <i style={{
+                    color: 'transparent'
+                  }}
+                    className="material-icons nav__icon">home</i>
+                  <span style={{
+                    color: 'transparent'
+                  }} className="nav__text">
+                    1</span>                  <span style={{
+                    color: 'transparent'
+                  }} className="nav__text">
+                    1</span>
+                  <div id="cart"
+                    style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
+                    className="cart" data-totalitems={totalQuant} ref={btnRef} >
+                    <a className="email-link"><i style={{ "fontSize":"35px", 'color': isHover ? '#0a58ca' : '#444444' }}
+                      className="material-icons nav__icon">shopping_cart_checkout</i></a>
+                  </div>
+                </a>
+</a>
+
       <div ref={modalRef} className="modal">
 
 
@@ -461,7 +488,7 @@ const Navbar = () => {
                 {/* the image */}
                 <div className="image">
                   <div class="image-container" >
-                    <img style={{ margin: '0px' }} src={product.image} alt="" />
+                    <img style={{ marginLeft: '-7px' }} src={product.image} alt="" />
                   </div>
                 </div>
 
@@ -552,88 +579,32 @@ const Navbar = () => {
 </div>
 
 
-          {!isMobile ?
 
+            <div className="col-span-2 grid grid-cols-3 ">
 
-            <div className="col-span-4 grid grid-cols-3 ">
-              <div>
-
-                <a
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
-                  style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
-                  <i style={{
-                    color: 'transparent'
-                  }}
-                    className="material-icons nav__icon">home</i>
-                  <span style={{
-                    color: 'transparent'
-                  }} className="nav__text">
-                    1</span>
-                  <div id="cart"
-                    style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
-                    className="cart" data-totalitems={totalQuant} ref={btnRef} >
-                    <a className="email-link"><i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
-                      className="material-icons nav__icon">shopping_cart_checkout</i></a>
-                    <a className="email-link">{t("Cart")}</a>
-                  </div>
-                </a>
-
-
-              </div>
-
-              <div>
-                <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
-                  <a className="email-link"><i className="material-icons nav__icon">person</i></a>
-                  <a className="email-link">{user ? t("Account") : t("Login")}</a>
-                </a>
-              </div>
-            </div> :
-
-            <div className="col-span-4 grid grid-cols-3 ">
-
-            </div>
-          }
-          <div className="col-span-2">
+            </div> 
+            <div className="col-span-3" style={{"margin":"auto"}}>
             <select class="selectpicker" data-width="fit" onChange={changeLanguage}>
               {/**如果选择中文，框显示成lang，如果是eng,框显示语言 */}
               <option value='en' data-content='<span class="flag-icon flag-icon-us"></span> English' selected={languageOption() == 'en' ? true : false}>English</option>
               <option value='ch' data-content='<span class="flag-icon flag-icon-mx"></span> Chinese' selected={languageOption() == 'ch' ? true : false}>中文</option>
             </select>
           </div>
+            <div className="col-span-1 grid grid-cols-3 ">
+              <div>
+                <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
+                  <a className="email-link"><i className="material-icons nav__icon">person</i></a>
+                  <a className="email-link">{user ? t("Account") : t("Login")}</a>
+                </a>
+              </div>
+            </div> 
+
         </div>
       </div>
 
 
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-      {isMobile ?
-        <nav className="nav___ ">
 
-          <a
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            style={{ "width": "25%", 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
-            <i style={{
-              color: 'transparent'
-            }}
-              className="material-icons nav__icon">home</i>
-            <span style={{
-              color: 'transparent'
-            }} className="nav__text">
-              1</span>
-            <div id="cart"
-              style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
-              className="cart" data-totalitems={totalQuant} ref={btnRef} >
-              <a className="email-link"><i style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
-                className="material-icons nav__icon">shopping_cart_checkout</i></a>
-              <a className="email-link">{t("Cart")}</a>
-            </div>
-          </a>
-          <a style={{ "width": "25%", 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
-            <a className="email-link"><i className="material-icons nav__icon">person</i></a>
-            <a className="email-link">{user ? t("Person") : t("Login")}</a>
-          </a>
-        </nav> : <></>}
     </>
   )
 }

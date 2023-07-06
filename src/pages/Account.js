@@ -279,8 +279,7 @@ const Account = () => {
                           <div className="form-group">
                             
                             <label className="d-block mb-0">{t("Payment Method")}</label>
-                            <Checkout/>
-                            <CardSection />
+
                           </div>
                         </form>
                       </div>

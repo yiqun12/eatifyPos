@@ -412,7 +412,7 @@ const Food = () => {
 
                                   className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                                   onClick={() => {
-
+                                    handleDropFood();
                                     handleDeleteClick(item.id);
                                     //saveId(Math.random());
                                   }}
@@ -437,6 +437,7 @@ const Food = () => {
                               <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
                                 <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                                   onClick={() => {
+                                    handleDropFood();
                                     updateLocalStorage(item.id, item.name, item.subtotal, item.image);
                                     saveId(Math.random());
                                   }}

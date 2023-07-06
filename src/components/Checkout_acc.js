@@ -43,6 +43,7 @@ const handleMouseLeave = () => {
       .doc(user.uid)
       .collection('payment_methods')
       .onSnapshot((snapshot) => {
+        console.log('read card')
         if (snapshot.empty) {
          // console.log('No payment methods found for the customer');
         

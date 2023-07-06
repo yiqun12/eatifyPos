@@ -82,6 +82,7 @@ async function handleCardAction(payment, docId) {
     .collection('payments')
     .orderBy("dateTime", "desc")
     .onSnapshot((snapshot) => {
+      console.log('read card')
       let count = snapshot.size;
 
       snapshot.forEach((doc) => {

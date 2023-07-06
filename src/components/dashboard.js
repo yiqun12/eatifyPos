@@ -52,29 +52,12 @@ const Dashboard = (props) => {
     <div>
       <Elements stripe={promise}>
         <div className="card2 mb-50">
-          <div className="card2-title mx-auto">
+          <div className="text-black select-none text-2xl">
             {t("CHECKOUT")}
           </div>
-          
-         
-          {newCardAdded ?
-          <>
-
-<Link style={{cursor: 'pointer'}} onClick={Goback} variant="body2">
-         &lt; {t("go back")}                                
-            </Link>
-            <CardSection  totalPrice={totalPrice}/>
-
-          </>
-            
-            :<>
+  
             <Checkout totalPrice={totalPrice}/>
-<Link style={{cursor: 'pointer' }} onClick={handleAddNewCard} variant="body2">
-{t("If a card is not saved in our system") + ',' + t("please add a new one here")}.
-                                </Link>
-                                            </>
-
-          }
+          
           <PayHistory />
         </div>
       </Elements>

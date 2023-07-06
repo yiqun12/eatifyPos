@@ -50,28 +50,13 @@ function CardSection(props) {
   }, [id]);
 
 
-  const { user } = useUserContext();
+  const user = JSON.parse(sessionStorage.getItem('user'));
   const isChecked = useRef(user.email != "Anonymous@eatifyPos.com");
   const stripe = useStripe();
   const elements = useElements();
   //console.log(user.uid)
   const customerData = useRef();
 
-  useEffect(() => {
-    const unsubscribe = firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .onSnapshot((snapshot) => {
-        if (snapshot.data()) {
-          customerData.current = snapshot.data();
-          //console.log(snapshot.data())
-
-        }
-      });
-
-    return () => unsubscribe();
-  }, []);
 
   useEffect(() => {
     setTimeout(() => {
@@ -82,6 +67,18 @@ function CardSection(props) {
           if (!event.target.reportValidity()) {
             return;
           }
+          firebase
+      .firestore()
+      .collection('stripe_customers')
+      .doc(user.uid)
+      .onSnapshot((snapshot) => {
+        console.log('read card')
+        if (snapshot.data()) {
+          customerData.current = snapshot.data();
+          console.log(snapshot.data())
+
+        }
+      });
           //console.log(customerData.current == null)
           //console.log(!elements)
           //console.log(!stripe)
@@ -248,7 +245,7 @@ function CardSection(props) {
       <div id="add-new-card">
         <form id="payment-method-form">
           <div id="card-element" >
-          <div className="row-1 m-0" style={{  marginTop: "5px", borderTopLeftRadius: '5px', borderTopRightRadius: '5px' }}>
+          <div className="row-1 m-0" style={{  marginTop: "15px !important", borderTopLeftRadius: '5px', borderTopRightRadius: '5px' }}>
             <div className="row row-2" style={{
               'paddingLeft': 0,
               'paddingRight': 0,
@@ -305,7 +302,7 @@ function CardSection(props) {
 
 
           <div id="prompt-message" role="alert"></div>
-
+          <div style={{color:"white",fontSize:"5px"}}>.</div>
           <MDBCheckbox
             name='flexCheck'
             value=''
@@ -314,8 +311,8 @@ function CardSection(props) {
             defaultChecked={isChecked.current}
             onChange={handleCheckboxChange}
           />
-
-          <button style={{ width: "100%" }} class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">{t("Pay")} ${totalPrice}</button>
+<div style={{color:"white",fontSize:"5px"}}>.</div>
+          <button style={{ width: "100%" }} class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">{t("Pay")} $ {Math.round(100 * totalPrice) / 100}</button>
         </form>
 
       </div>

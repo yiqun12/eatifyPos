@@ -35,9 +35,10 @@ function App() {
   const { user} = useUserContext();
   sessionStorage.setItem('user', JSON.stringify(user));
   const [loading, setLoading] = useState(true);
-
+  console.log(user)
   const fetchPost = async () => {
-      //console.log("fetchPost")
+    
+      console.log("fetchPost1")
       await getDocs(collection(db, "food_data"))
           .then((querySnapshot) => {
               const newData = querySnapshot.docs
@@ -52,19 +53,25 @@ function App() {
                   .map((doc) => ({ ...doc.data(), id: doc.id }));
                   sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
               //console.log(newData)
-          })
+              window.location.href = './';
 
-      setLoading(false);    
+          })
   }
   useEffect(() => {
     document.title = "EatifyPos"
  }, []);
-  useEffect(() => {
-      // added line to grab translation file (can use the same method as food_data to grab translations file)
-      sessionStorage.setItem("translations", JSON.stringify(translations))
-      // sessionStorage.setItem("translationsMode", "en")
-      fetchPost();
-  }, [])
+
+ useEffect(() => {
+  // Added line to grab translation file (can use the same method as food_data to grab translations file)
+  sessionStorage.setItem("translations", JSON.stringify(translations))
+
+  if (!sessionStorage.getItem("Food_arrays") || !sessionStorage.getItem("TitleLogoNameContent")) {
+    fetchPost();
+  }else{
+    setLoading(false); 
+  }
+}, []);
+
   if (loading) {
     return <p>  <div className="pan-loader">
       Loading...
