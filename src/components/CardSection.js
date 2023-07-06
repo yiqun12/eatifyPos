@@ -38,7 +38,7 @@ function CardSection(props) {
 
 
   function handleCheckboxChange() {
-    console.log(!isChecked.current)
+    //console.log(!isChecked.current)
     isChecked.current = !isChecked.current
   }
 
@@ -82,9 +82,9 @@ function CardSection(props) {
           if (!event.target.reportValidity()) {
             return;
           }
-          console.log(customerData.current == null)
-          console.log(!elements)
-          console.log(!stripe)
+          //console.log(customerData.current == null)
+          //console.log(!elements)
+          //console.log(!stripe)
           document
             .querySelectorAll('button')
             .forEach((button) => (button.disabled = true));
@@ -104,9 +104,9 @@ function CardSection(props) {
             // Proceed with adding payment method
             const form = new FormData(event.target);
             const cardholderName = form.get('First Name')+" "+form.get('Last Name')
-            console.log('user found in stripe');
+            //console.log('user found in stripe');
 
-            console.log(customerData.current);
+           // console.log(customerData.current);
             const { setupIntent, error } = stripe.confirmCardSetup(
               customerData.current.setup_secret,
               {
@@ -118,9 +118,9 @@ function CardSection(props) {
                 },
               }
             ).then(function (result) {
-              console.log(result.error);
+             // console.log(result.error);
               if (result.error != null) {
-                console.log('error');
+              //  console.log('error');
                 document.querySelector('#prompt-message').textContent = result.error.message;
                 document
                   .querySelectorAll('button')
@@ -153,8 +153,8 @@ function CardSection(props) {
                 const trans = JSON.parse(sessionStorage.getItem("translations"))
                 const t = (text) => {
                   // const trans = sessionStorage.getItem("translations")
-                  console.log(trans)
-                  console.log(sessionStorage.getItem("translationsMode"))
+                //  console.log(trans)
+                //  console.log(sessionStorage.getItem("translationsMode"))
 
                   if (trans != null) {
                     if (sessionStorage.getItem("translationsMode") != null) {

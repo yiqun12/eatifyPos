@@ -58,7 +58,7 @@ const App = () => {
       //console.log(products)
       setTotalPrice(total);
     }
-    console.log(totalPrice)
+    //console.log(totalPrice)
     calculateTotalPrice();
   }, [products]);
 
@@ -103,10 +103,10 @@ const Item = (props) => {
   //console.log(props.products)
   const [isDinein, setIsDinein] = useState(true);
   sessionStorage.setItem('isDinein', JSON.stringify(isDinein));
-  console.log(isDinein)
+  //console.log(isDinein)
   const handleToggle = () => {
     setIsDinein(!isDinein);
-    console.log(isDinein)
+    //console.log(isDinein)
     sessionStorage.setItem('isDinein', JSON.stringify(isDinein));
     saveId(Math.random())
   };
@@ -115,8 +115,8 @@ const Item = (props) => {
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const t = (text) => {
       // const trans = sessionStorage.getItem("translations")
-      console.log(trans)
-      console.log(sessionStorage.getItem("translationsMode"))
+    //  console.log(trans)
+     // console.log(sessionStorage.getItem("translationsMode"))
   
       if (trans != null) {
         if (sessionStorage.getItem("translationsMode") != null) {
@@ -258,8 +258,8 @@ const Checkout = (props) => {
           const trans = JSON.parse(sessionStorage.getItem("translations"))
           const t = (text) => {
             // const trans = sessionStorage.getItem("translations")
-            console.log(trans)
-            console.log(sessionStorage.getItem("translationsMode"))
+        //    console.log(trans)
+        //    console.log(sessionStorage.getItem("translationsMode"))
         
             if (trans != null) {
               if (sessionStorage.getItem("translationsMode") != null) {

@@ -28,8 +28,8 @@ const Success = () => {
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const t = (text) => {
       // const trans = sessionStorage.getItem("translations")
-      console.log(trans)
-      console.log(sessionStorage.getItem("translationsMode"))
+     // console.log(trans)
+      //console.log(sessionStorage.getItem("translationsMode"))
   
       if (trans != null) {
         if (sessionStorage.getItem("translationsMode") != null) {

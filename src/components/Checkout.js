@@ -6,14 +6,13 @@ import React from 'react';
 import firebase from 'firebase/compat/app';
 import { useUserContext } from "../context/userContext";
 import { useEffect } from 'react';
-import { useState } from 'react';
+import { useState,useRef } from 'react';
 import { useMyHook } from '../pages/myHook';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { PaymentRequestButtonElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 function Checkout(props) {
-
-  // Format amount for diplay in the UI
 
   const user = JSON.parse(sessionStorage.getItem('user'));
   const { totalPrice } = props;
@@ -22,7 +21,6 @@ function Checkout(props) {
   useEffect(() => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
-//ishvoer:
 
 const [isHover, setIsHover] = useState(false);
 
@@ -33,6 +31,68 @@ const handleMouseEnter = () => {
 const handleMouseLeave = () => {
   setIsHover(false);
 };
+const stripe = useStripe();
+const elements = useElements();
+const [paymentRequest, setPaymentRequest] = useState(null);
+useEffect(() => {
+  if (!stripe || !elements) {
+    return;
+  }
+
+  const pr = stripe.paymentRequest({
+    country: 'US',
+    currency: 'usd',
+    total: {
+      label: 'Demo total',
+      amount: 1999,
+    },
+    requestPayerName: true,
+    requestPayerEmail: true,
+  });
+
+  // Check the availability of the Payment Request API.
+  pr.canMakePayment().then(result => {
+    if (result) {
+      setPaymentRequest(pr);
+    }
+    
+  });
+  pr.on('paymentmethod', async (e) => {
+    const {paymentMethod} = e; // Extract the paymentMethod object from the event
+  
+    const paymentMethodId = paymentMethod.id; // Extract the id from the paymentMethod object
+  
+   // console.log('Payment Method ID:', paymentMethodId);
+
+    // Remember to handle the promise returned by fetch and implement error handling
+    const amount = Number(totalPrice);
+    const currency = 'usd';
+  //  console.log(currency)
+   // console.log(amount)
+    const dateTime = new Date().toISOString();
+    const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const data = {
+      payment_method: paymentMethodId,
+      currency,
+      amount: amount,
+      status: 'new',
+      receipt: sessionStorage.getItem("products"),
+      dateTime: date,
+      user_email: user.email,
+      isDinein:sessionStorage.getItem("isDinein")== "true"?"DineIn":"TakeOut"
+    };
+    // reconfirm the payment
+    await firebase
+      .firestore()
+      .collection('stripe_customers')
+      .doc(user.uid)
+      .collection('payments')
+      .add(data);
+
+    e.complete('success'); // Notify the browser that the payment is successful
+  });
+}, [stripe, elements]);
 
   function startDataListeners() {
     /**
@@ -45,7 +105,7 @@ const handleMouseLeave = () => {
       .collection('payment_methods')
       .onSnapshot((snapshot) => {
         if (snapshot.empty) {
-          console.log('No payment methods found for the customer');
+         // console.log('No payment methods found for the customer');
         
           //<option disabled="disabled" default="true"></option>
           let optionElement = document.createElement('option');
@@ -62,7 +122,7 @@ const handleMouseLeave = () => {
 
 
         } else {
-          console.log('payment methods found for the customer');
+         // console.log('payment methods found for the customer');
           if(document.getElementById('404null')){
             const optionElementToDelete = document.querySelector(`option[id="${'404null'}"]`);
             optionElementToDelete.remove();
@@ -78,15 +138,11 @@ const handleMouseLeave = () => {
 
           const optionId = `card-${doc.id}`;
           let optionElement = document.getElementById(optionId);
-
-         // console.log(document.getElementById(optionId))
-          // Add a new option if one doesn't exist yet.
           if (!optionElement) {
             optionElement = document.createElement('option');
-            //console.log("hello")
             optionElement.id = optionId;
             document.querySelector('select[name=payment-method]').appendChild(optionElement);
-            console.log(optionElement.id)
+           // console.log(optionElement.id)
           }
 
           optionElement.value = paymentMethod.id;
@@ -105,8 +161,8 @@ const handleMouseLeave = () => {
       const trans = JSON.parse(sessionStorage.getItem("translations"))
       const t = (text) => {
         // const trans = sessionStorage.getItem("translations")
-        console.log(trans)
-        console.log(sessionStorage.getItem("translationsMode"))
+       // console.log(trans)
+       // console.log(sessionStorage.getItem("translationsMode"))
     
         if (trans != null) {
           if (sessionStorage.getItem("translationsMode") != null) {
@@ -135,8 +191,8 @@ const handleMouseLeave = () => {
           const paymentMethodId = document.querySelector(`option[value="${paymentMethodValue}"]`).id;
           const new_paymentMethodId = paymentMethodId.substring(5);
           const user = JSON.parse(sessionStorage.getItem('user'));
-          console.log("deleted click")
-          console.log(new_paymentMethodId);
+         // console.log("deleted click")
+         // console.log(new_paymentMethodId);
           await firebase
             .firestore()
             .collection('stripe_customers')
@@ -169,11 +225,11 @@ const handleMouseLeave = () => {
           const form = new FormData(event.target);
           const amount = Number(totalPrice);
           const currency = 'usd';
-          console.log(currency)
-          console.log(amount)
+          //console.log(currency)
+          //console.log(amount)
           const dateTime = new Date().toISOString();
           const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-          console.log(form.get('payment-method'))
+          //console.log(form.get('payment-method'))
           const user = JSON.parse(sessionStorage.getItem('user'));
           const data = {
             payment_method: form.get('payment-method'),
@@ -185,42 +241,15 @@ const handleMouseLeave = () => {
             user_email: user.email,
             isDinein:sessionStorage.getItem("isDinein")== "true"?"DineIn":"TakeOut"
           };
-          //console.log(data)
-
+          // reconfirm the payment
           await firebase
             .firestore()
             .collection('stripe_customers')
             .doc(user.uid)
             .collection('payments')
             .add(data);
-
-
         }
-
       });
-  }
-
-  function zeroDecimalCurrency(amount, currency) {
-    let numberFormat = new Intl.NumberFormat(['en-US'], {
-      style: 'currency',
-      currency: currency,
-      currencyDisplay: 'symbol',
-    });
-    const parts = numberFormat.formatToParts(amount);
-    let zeroDecimalCurrency = true;
-    for (let part of parts) {
-      if (part.type === 'decimal') {
-        zeroDecimalCurrency = false;
-      }
-    }
-    return zeroDecimalCurrency;
-  }
-
-  // Format amount for Stripe
-  function formatAmountForStripe(amount, currency) {
-    return zeroDecimalCurrency(amount, currency)
-      ? amount
-      : Math.round(amount * 100);
   }
 
   useEffect(() => {
@@ -294,8 +323,17 @@ const handleMouseLeave = () => {
           </label>
         </div>
         <div id="delete-message" role="alert"></div>
-        <button type="submit" name="pay" style={{ width: "100%" }} class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">{t("Pay")} ${Math.round(100*totalPrice)/100}</button>
+        <button 
+  type="submit" 
+  name="pay"  
+  class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" 
+  style={{ width: "100%" }}
+>
+  {t("Pay by card")}
+</button>
       </form>
+      {paymentRequest && <PaymentRequestButtonElement options={{paymentRequest}} />}
+
     </div>
     </div>
     </div>

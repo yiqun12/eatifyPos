@@ -96,7 +96,7 @@ const Navbar = () => {
       height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
     }
 
-    console.log("product changed")
+    //console.log("product changed")
     // Update the height of the shopping cart element
     document.querySelector('.shopping-cart').style.height = `${height}px`;
     //maybe add a line here...
@@ -107,7 +107,7 @@ const Navbar = () => {
     calculateTotalPrice();
     const calculateTotalQuant = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity), 0);
-      console.log(total)
+    //  console.log(total)
       $('#cart').attr("data-totalitems", total);
       setTotalQuant(total);
     }
@@ -203,11 +203,11 @@ const Navbar = () => {
     let product = products.find((product) => product.id === id);
 
     // Display the product info
-    console.log(`Product ID: ${product.id}`);
-    console.log(`Product Name: ${product.name}`);
-    console.log(`Product Subtotal: ${product.subtotal}`);
-    console.log(`Product Image: ${product.image}`);
-    console.log(`Product Times Clicked: ${product.timesClicked}`);
+   // console.log(`Product ID: ${product.id}`);
+   // console.log(`Product Name: ${product.name}`);
+   // console.log(`Product Subtotal: ${product.subtotal}`);
+  //  console.log(`Product Image: ${product.image}`);
+   // console.log(`Product Times Clicked: ${product.timesClicked}`);
   };
 
   const handleLikeClick = (productId) => {
@@ -258,7 +258,7 @@ const Navbar = () => {
   const openModal = () => {
     // Call the displayAllProductInfo function to retrieve the array of products from local storage
     let productArray = displayAllProductInfo();
-    console.log(productArray)
+    //console.log(productArray)
     // Update the products state with the array of products
     setProducts(productArray);
     modalRef.current.style.display = 'block';
@@ -312,7 +312,7 @@ const Navbar = () => {
     });
     const data = await res.json();
     setLoginData(data);
-    console.log(data)
+    //console.log(data)
     sessionStorage.setItem('loginData', JSON.stringify(data));
     sessionStorage.setItem('picture', JSON.stringify(data.picture));
     sessionStorage.setItem('token', googleData.tokenId);
@@ -325,7 +325,7 @@ const Navbar = () => {
       // delete cookies front end :)
       //document.cookie=document.cookie+";max-age=0";
       //document.cookie=document.cookie+";max-age=0";
-      console.log("clean cookie");
+      //console.log("clean cookie");
     });
     sessionStorage.removeItem('loginData');//remove sessionStorage data user name.
     sessionStorage.removeItem('loginID');
@@ -337,7 +337,7 @@ const Navbar = () => {
     window.location.reload(false);
   };
   const handleFailure = (response) => {
-    console.log("Fail to login", response)
+    //console.log("Fail to login", response)
   }
 
   const HandleCheckout = async () => {
@@ -432,7 +432,7 @@ const Navbar = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button
                 style={{ width: "80%", border: "0px", margin: "auto" }}
-                class="w-80 mx-auto border-0 rounded-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
+                class="w-900 mx-auto border-0 rounded-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
                 onClick={HandleCheckout_local_stripe}>
                 <span class="text-left"> <FontAwesomeIcon icon={faCreditCard} /> {t("Checkout")} </span>
                 <span class="text-right"> ${Math.round(100 * totalPrice) / 100}</span>

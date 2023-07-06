@@ -51,17 +51,17 @@ const ReservationForm = () => {
           month < 10 ? '0' + month : month;
     
           const dateTomorrow = `${year}-${formattedMonth}-${formattedDate}`;
-          console.log(dateTomorrow)
+          //console.log(dateTomorrow)
 
       }, []);
-      console.log(isMobile )
+      //console.log(isMobile )
 
     // for translations sake
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const t = (text) => {
       // const trans = sessionStorage.getItem("translations")
-      console.log(trans)
-      console.log(sessionStorage.getItem("translationsMode"))
+     // console.log(trans)
+     // console.log(sessionStorage.getItem("translationsMode"))
   
       if (trans != null) {
         if (sessionStorage.getItem("translationsMode") != null) {

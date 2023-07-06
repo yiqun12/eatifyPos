@@ -92,7 +92,7 @@ async function handleCardAction(payment, docId) {
           liElement = document.createElement('li');
           liElement.id = `payment-${doc.id}`;
         }
-        console.log(payment.dateTime)
+      //  console.log(payment.dateTime)
         let content = '';
 
         if (
@@ -118,7 +118,7 @@ async function handleCardAction(payment, docId) {
               for(var i=0;i<newItems.length;i++){
                   formattedString += `${newItems[i].quantity} x ${t(newItems[i].name)}($${newItems[i].subtotal}) = $${newItems[i].item_Total}<br>`;
               }
-              console.log(doc.id)
+             // console.log(doc.id)
               //console.log(payment.receiptData)
               //应该显示这次交易id 时间不够 下次再加。
       content = `<div style="display: inline-block;">
@@ -166,8 +166,8 @@ async function handleCardAction(payment, docId) {
   const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = (text) => {
     // const trans = sessionStorage.getItem("translations")
-    console.log(trans)
-    console.log(sessionStorage.getItem("translationsMode"))
+    //console.log(trans)
+   //console.log(sessionStorage.getItem("translationsMode"))
 
     if (trans != null) {
       if (sessionStorage.getItem("translationsMode") != null) {

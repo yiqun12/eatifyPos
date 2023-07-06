@@ -25,7 +25,7 @@ const Card = () => {
   const data  = JSON.parse(sessionStorage.getItem("Food_arrays"))
   
 
-    console.log("Card printed once")
+   // console.log("Card printed once")
     function getRandomNumbers(n) {
         var numbers = Array.from({length: n}, (_, i) => i);
         var randomNumbers = [];
@@ -47,7 +47,7 @@ const Card = () => {
 
     // from Food.js to update the food cart
     const updateLocalStorage = (id, name, subtotal, image) => {
-        console.log(id, name, subtotal, image);
+      //  console.log(id, name, subtotal, image);
       
         // Check if the array exists in local storage
         if (sessionStorage.getItem("products") === null) {

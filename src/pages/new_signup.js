@@ -39,7 +39,7 @@ export default function SignUp() {
     const email = data.get('email');
     const name = data.get('NickName');
     const password = data.get('password');
-    console.log((email && password && name))
+  //  console.log((email && password && name))
     if (email && password && name) {
       const response = await registerUser(email, password, name);
       console(response)
@@ -66,8 +66,8 @@ export default function SignUp() {
       const trans = JSON.parse(sessionStorage.getItem("translations"))
       const t = (text) => {
         // const trans = sessionStorage.getItem("translations")
-        console.log(trans)
-        console.log(sessionStorage.getItem("translationsMode"))
+     //   console.log(trans)
+      //  console.log(sessionStorage.getItem("translationsMode"))
     
         if (trans != null) {
           if (sessionStorage.getItem("translationsMode") != null) {

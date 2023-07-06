@@ -147,7 +147,7 @@ export const UserContextProvider = ({ children }) => {
     setError("");
     try {
       await signInAnonymously(auth)
-      console.log(id)
+      //console.log(id)
       return;
     } catch (err) {
       //console.log(err.message);

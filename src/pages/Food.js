@@ -193,7 +193,7 @@ const Food = () => {
   };
   const handleDeleteClick = (id) => {
     let products = JSON.parse(sessionStorage.getItem("products"));
-    console.log(products);
+    //console.log(products);
 
     if (products && products.length > 0) {
       // Find the index of the product with the given id
@@ -215,7 +215,7 @@ const Food = () => {
     }
     const calculateTotalQuant = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity), 0);
-      console.log(total)
+     // console.log(total)
       $('#cart').attr("data-totalitems", total);
     }
     calculateTotalQuant();
@@ -223,7 +223,7 @@ const Food = () => {
     saveId(Math.random());
   };
   const updateLocalStorage = (id, name, subtotal, image) => {
-    console.log(id, name, subtotal, image);
+  //  console.log(id, name, subtotal, image);
 
     // Check if the array exists in local storage
     if (sessionStorage.getItem("products") === null) {
@@ -254,7 +254,7 @@ const Food = () => {
 
     const calculateTotalQuant = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity), 0);
-      console.log(total)
+     // console.log(total)
       $('#cart').attr("data-totalitems", total);
     }
     calculateTotalQuant();

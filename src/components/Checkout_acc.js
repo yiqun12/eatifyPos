@@ -44,7 +44,7 @@ const handleMouseLeave = () => {
       .collection('payment_methods')
       .onSnapshot((snapshot) => {
         if (snapshot.empty) {
-          console.log('No payment methods found for the customer');
+         // console.log('No payment methods found for the customer');
         
           //<option disabled="disabled" default="true"></option>
           let optionElement = document.createElement('option');
@@ -61,7 +61,7 @@ const handleMouseLeave = () => {
 
 
         } else {
-          console.log('payment methods found for the customer');
+          //console.log('payment methods found for the customer');
           if(document.getElementById('404null')){
             const optionElementToDelete = document.querySelector(`option[id="${'404null'}"]`);
             optionElementToDelete.remove();
@@ -85,7 +85,7 @@ const handleMouseLeave = () => {
             //console.log("hello")
             optionElement.id = optionId;
             document.querySelector('select[name=payment-method]').appendChild(optionElement);
-            console.log(optionElement.id)
+           // console.log(optionElement.id)
           }
 
           optionElement.value = paymentMethod.id;
@@ -105,8 +105,8 @@ const handleMouseLeave = () => {
             const trans = JSON.parse(sessionStorage.getItem("translations"))
             const t = (text) => {
               // const trans = sessionStorage.getItem("translations")
-              console.log(trans)
-              console.log(sessionStorage.getItem("translationsMode"))
+             // console.log(trans)
+             // console.log(sessionStorage.getItem("translationsMode"))
           
               if (trans != null) {
                 if (sessionStorage.getItem("translationsMode") != null) {
@@ -135,8 +135,8 @@ const handleMouseLeave = () => {
           const paymentMethodId = document.querySelector(`option[value="${paymentMethodValue}"]`).id;
           const new_paymentMethodId = paymentMethodId.substring(5);
           const user = JSON.parse(sessionStorage.getItem('user'));
-          console.log("deleted click")
-          console.log(new_paymentMethodId);
+         // console.log("deleted click")
+        // console.log(new_paymentMethodId);
           await firebase
             .firestore()
             .collection('stripe_customers')
@@ -168,11 +168,11 @@ const handleMouseLeave = () => {
           const form = new FormData(event.target);
           const amount = Number(totalPrice);
           const currency = 'usd';
-          console.log(currency)
-          console.log(amount)
+        //  console.log(currency)
+        //  console.log(amount)
           const dateTime = new Date().toISOString();
           const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-          console.log(form.get('payment-method'))
+       //   console.log(form.get('payment-method'))
           const user = JSON.parse(sessionStorage.getItem('user'));
           const data = {
             payment_method: form.get('payment-method'),
@@ -240,8 +240,8 @@ const handleMouseLeave = () => {
           const trans = JSON.parse(sessionStorage.getItem("translations"))
           const t = (text) => {
             // const trans = sessionStorage.getItem("translations")
-            console.log(trans)
-            console.log(sessionStorage.getItem("translationsMode"))
+          //  console.log(trans)
+          //  console.log(sessionStorage.getItem("translationsMode"))
         
             if (trans != null) {
               if (sessionStorage.getItem("translationsMode") != null) {

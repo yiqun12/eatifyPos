@@ -30,7 +30,7 @@ const App = () => {
       //console.log(products)
       setTotalPrice(total);
     }
-    console.log(totalPrice)
+    //console.log(totalPrice)
     calculateTotalPrice();
   }, [products]);
 
@@ -56,23 +56,23 @@ const Item = (props) => {
   let products = JSON.parse(JSON.parse(sessionStorage.getItem('collection_data')).receipt_data)
 
   const { totalPrice } = props;
-  console.log(props.products)
+  //console.log(props.products)
   const [isModeOne, setIsModeOne] = useState(true);
 
   const handleToggle = () => {
     setIsModeOne(!isModeOne);
   };
- console.log(products)
- console.log()
- console.log(JSON.parse(sessionStorage.getItem('collection_data')).time)
+// console.log(products)
+ //console.log()
+ //console.log(JSON.parse(sessionStorage.getItem('collection_data')).time)
 
 
     // for translations sake
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const t = (text) => {
       // const trans = sessionStorage.getItem("translations")
-      console.log(trans)
-      console.log(sessionStorage.getItem("translationsMode"))
+      //console.log(trans)
+     // console.log(sessionStorage.getItem("translationsMode"))
   
       if (trans != null) {
         if (sessionStorage.getItem("translationsMode") != null) {
