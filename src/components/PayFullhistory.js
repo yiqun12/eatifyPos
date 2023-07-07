@@ -101,10 +101,12 @@ async function handleCardAction(payment, docId) {
           payment.status === 'requires_confirmation'
         ) {
           
-          content = `${count} (${t("Pending")})🚨 ${t("Creating Payment for")} ${formatAmount(
+          content = `${count} (${t("Pending")})🚨 ${t("Creating Payment for")} 
+          $ ${Math.round(100*(formatAmount(
             payment.amount*100,
             payment.currency
-          )}`;
+          )))/100 }
+          `;
         } else if (payment.status === 'succeeded') {
             
           const card = payment.charges.data[0].payment_method_details.card;
@@ -117,7 +119,7 @@ async function handleCardAction(payment, docId) {
               });
               var formattedString = "";
               for(var i=0;i<newItems.length;i++){
-                  formattedString += `${newItems[i].quantity} x ${t(newItems[i].name)}($${newItems[i].subtotal}) = $${newItems[i].item_Total}<br>`;
+                  formattedString += `${newItems[i].quantity} x ${t(newItems[i].name)}($${newItems[i].subtotal}) = $${Math.round(100*(newItems[i].item_Total))/100 }<br>`;
               }
              // console.log(doc.id)
               //console.log(payment.receiptData)
@@ -130,7 +132,7 @@ async function handleCardAction(payment, docId) {
         <div style="border: 1px solid; padding: 10px; background-color: white;">
         <p style="padding: 0; margin: 0;">${t("Card Owner")}: ${payment.charges.data[0].billing_details.name} </p>
         <p style="padding: 0; margin: 0px 0px 0px 5px;">${formattedString}</p>
-        <p style="padding: 0; margin: 0;">${formattedDate}</p>
+        <p style="padding: 0; margin: 0;"> ${formattedDate}</p>
         </div>
       </details>`;//${payment.dateTime} ${payment.receiptData} ${payment.charges.data[0].billing_details.name} 
         } else if (payment.status === 'requires_action') {

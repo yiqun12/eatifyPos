@@ -17,3 +17,17 @@
     background-color: #005fb2;  
     border-color: #005fb2;
 }
+/* in styles.css */
+.input-style {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+  
+  .input-style::placeholder {
+    font-weight: 250;
+    font-size: 15px;
+    font-family: "Helvetica Neue", Helvetica, sans-serif;
+    color: "#aab7c4";
+  }

@@ -26,6 +26,7 @@ import { MyHookProvider, useMyHook } from './pages/myHook';
 import Receipt from './pages/Receipt'
 import Html2 from './components/Html2'
 import Html from './components/Html'
+import { Navigate } from 'react-router-dom';
 
 // translation purposes -> can switch to using fetchPost() to grab translation file just like food_array
 import { translations } from './data/translations.js'
@@ -33,9 +34,11 @@ import { translations } from './data/translations.js'
 function App() {
 
   const { user} = useUserContext();
-  sessionStorage.setItem('user', JSON.stringify(user));
+
   const [loading, setLoading] = useState(true);
-  console.log(user)
+  console.log("userload",user)
+  console.log("userSession",JSON.parse(sessionStorage.getItem('user')))
+
   const fetchPost = async () => {
     
       console.log("fetchPost1")
@@ -93,23 +96,30 @@ function App() {
 
       <Navbar/>
       <Routes>
+        
+      <Route path="QRcode" element={ 
+        JSON.parse(sessionStorage.getItem('user'))!=null &&
+        JSON.parse(sessionStorage.getItem('user')).uid === "27PaU92zV9aTxfj7LdoaZgR0heq1" ? 
+        <Html /> : 
+        <LogIn />} />
+
+      <Route path="Admin" element={
+        JSON.parse(sessionStorage.getItem('user'))!=null && 
+        JSON.parse(sessionStorage.getItem('user')).uid === "27PaU92zV9aTxfj7LdoaZgR0heq1" ? 
+        <Admin_new /> : 
+        <LogIn />} />
       <Route path='*' exact={true} element={<Home />} />
       <Route exact path="/" element={<Home />} />
-      <Route path="Admin_new" element={<Admin_new />} />
-      <Route path="Admin" element={<Admin />} />
       <Route path="Receipt" element={<Receipt />} />
-      <Route path="Html" element={<Html />} />
       <Route path="guest/:id" element={<Html2 />} />
       <Route path="Reservation" element={<Reservation />} />
-      { user ?  <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route> }
+      { JSON.parse(sessionStorage.getItem('user')) ?  <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route> }
       <Route path="Dashboard" element={<Dashboard />} />
-      { user ?  <Route path="Account" element={<Account />}></Route> : <Route path="Account" element={<LogIn />}></Route> }
-      <Route path="success.html" element={<Success />}></Route>
-      <Route path="canceled.html" element={<Canceled />}></Route>
+      { JSON.parse(sessionStorage.getItem('user')) ?  <Route path="Account" element={<Account />}></Route> : <Route path="Account" element={<LogIn />}></Route> }
       <Route path="SignUp" element={<SignUp />}></Route>
-      { user ? <Route path="LogIn" element={<Account />}></Route>: <Route path="LogIn" element={<LogIn />}></Route>}
-      { user ? <Route path="ForgotPassword" element={<Account />}></Route>: <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
-      
+      { JSON.parse(sessionStorage.getItem('user')) ? <Route path="LogIn" element={<Account />}></Route>: <Route path="LogIn" element={<LogIn />}></Route>}
+      { JSON.parse(sessionStorage.getItem('user')) ? <Route path="ForgotPassword" element={<Account />}></Route>: <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
+
       </Routes>
       <footer style={{'height':"100px",'color':'transparent', 'userSelect': 'none'}}>
   void

@@ -54,8 +54,10 @@ export const UserContextProvider = ({ children }) => {
         }
         setUser(filteredProperties);
         currentUser = firebaseUser;
+        sessionStorage.setItem('user', JSON.stringify(filteredProperties));
       } else {
         setUser(null);
+        sessionStorage.setItem('user', JSON.stringify(null));
       }
       setError("");
       setLoading(false);

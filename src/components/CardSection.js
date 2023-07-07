@@ -33,7 +33,6 @@ const CARD_ELEMENT_OPTIONS = {
 };
 
 
-
 function CardSection(props) {
 
 
@@ -224,8 +223,8 @@ function CardSection(props) {
   const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = (text) => {
     // const trans = sessionStorage.getItem("translations")
-    console.log(trans)
-    console.log(sessionStorage.getItem("translationsMode"))
+    //console.log(trans)
+    //console.log(sessionStorage.getItem("translationsMode"))
 
     if (trans != null) {
       if (sessionStorage.getItem("translationsMode") != null) {
@@ -265,10 +264,11 @@ function CardSection(props) {
                 'paddingRight': 0
               }}>
                 <div class="w-1/2 px-2">
-                  <input class="w-full bg-transparent border-none focus:outline-none" type="text" name="First Name" required placeholder="First Name" />
+                <input className="input-style" type="text" name="First Name" required placeholder="First Name" />
+
                 </div>
                 <div class="w-1/2 px-2 flex justify-end">
-                  <input class="w-full bg-transparent border-none focus:outline-none" type="text" name="Last Name" required placeholder="Last Name" />
+                <input className="input-style" type="text" name="Last Name" required placeholder="Last Name" />
                 </div>
               </div>
             </div>

@@ -47,11 +47,31 @@ const Dashboard = (props) => {
     // base case to just return the text if no modes/translations are found
     return text
   }
+  /**check if its mobile/browser */
+  const [width, setWidth] = useState(window.innerWidth);
+  /**check if its too small */
+  const [cardidth, setCardidth] = useState(0);
+
+  function handleWindowSizeChange() {
+    const card2Header = document.getElementById('card2-header');
+    setCardidth(card2Header.offsetWidth);
+    setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+    const card2Header = document.getElementById('card2-header');
+    //setCardidth(card2Header.offsetWidth);
+    window.addEventListener('resize', handleWindowSizeChange);
+    return () => {
+      window.removeEventListener('resize', handleWindowSizeChange);
+    }
+  }, []);
+
+  const isMobile = width <= 768;
 
   return (
     <div>
       <Elements stripe={promise}>
-        <div className="card2 mb-50">
+        <div className="card2 mb-50" style={isMobile?{"box-shadow":'rgba(0, 0, 0, 0.19) 0px 1px 3px 1px'}:{}}>
           <div className="text-black select-none text-2xl">
             {t("CHECKOUT")}
           </div>

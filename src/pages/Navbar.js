@@ -432,9 +432,11 @@ const Navbar = () => {
                     color: 'transparent'
                   }} className="nav__text">
                     1</span>                  <span style={{
+                    fontSize:'17px',
                     color: 'transparent'
-                  }} className="nav__text">
+                  }} className="nav__text ">
                     1</span>
+                    
                   <div id="cart"
                     style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
                     className="cart" data-totalitems={totalQuant} ref={btnRef} >
@@ -594,7 +596,7 @@ const Navbar = () => {
               <div>
                 <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
                   <a className="email-link"><i className="material-icons nav__icon">person</i></a>
-                  <a className="email-link">{user ? t("Account") : t("Login")}</a>
+                  <a className="email-link" >{user ? t("Account") : t("Login")}</a>
                 </a>
               </div>
             </div> 

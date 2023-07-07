@@ -124,7 +124,7 @@ const Item = (props) => {
               </div>
               <div className="col-3 d-flex justify-content-end">
                 <p>
-                  <b>${product.subtotal * product.quantity}</b>
+                  <b>${Math.round(100 * product.subtotal * product.quantity)/100}</b>
                 </p>
               </div>
             </div>
@@ -137,7 +137,7 @@ const Item = (props) => {
               <b> {t("Total")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${totalPrice}</b>
+              <b>${Math.round(100 * totalPrice)/100}</b>
             </div>
           </div>{" "}
         </div>

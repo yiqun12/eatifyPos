@@ -131,10 +131,30 @@ const Item = (props) => {
       return text
     }
 
-    
+  /**check if its mobile/browser */
+  const [width, setWidth] = useState(window.innerWidth);
+  /**check if its too small */
+  const [cardidth, setCardidth] = useState(0);
+
+  function handleWindowSizeChange() {
+    const card2Header = document.getElementById('card2-header');
+    setCardidth(card2Header.offsetWidth);
+    setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+    const card2Header = document.getElementById('card2-header');
+    //setCardidth(card2Header.offsetWidth);
+    window.addEventListener('resize', handleWindowSizeChange);
+    return () => {
+      window.removeEventListener('resize', handleWindowSizeChange);
+    }
+  }, []);
+
+  const isMobile = width <= 768;
+  
   
   return (
-    <div className="card2 mb-50">
+    <div className="card2 mb-50" style={isMobile?{"box-shadow":'rgba(0, 0, 0, 0.19) 0px 1px 3px 1px'}:{}}>
       <div className="col d-flex">
         {/** 
         <span className="text-muted" id="orderno">
@@ -242,7 +262,7 @@ const Item = (props) => {
               <b> {t("Total")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${Math.round(100*totalPrice)/100}</b>
+              <b>$ {Math.round(100*totalPrice)/100}</b>
             </div>
           </div>{" "}
         </div>

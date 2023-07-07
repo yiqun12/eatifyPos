@@ -287,8 +287,8 @@ useEffect(() => {
         const trans = JSON.parse(sessionStorage.getItem("translations"))
         const t = (text) => {
           // const trans = sessionStorage.getItem("translations")
-          console.log(trans)
-          console.log(sessionStorage.getItem("translationsMode"))
+         // console.log(trans)
+         // console.log(sessionStorage.getItem("translationsMode"))
       
           if (trans != null) {
             if (sessionStorage.getItem("translationsMode") != null) {
@@ -311,7 +311,7 @@ useEffect(() => {
 <Link className='text-black select-none text-2xl' style={{cursor: 'pointer'}} onClick={Goback} variant="body2">
          &lt; {t("choose your card")}                                
             </Link>
-            <div style={{color:"white"}}>.</div>
+            <div style={{color:"white" ,fontSize:"5px"}}>.</div>
             <CardSection  totalPrice={totalPrice}/>
             {paymentRequest && <PaymentRequestButtonElement options={{paymentRequest}} />}
           </>
@@ -325,7 +325,7 @@ useEffect(() => {
       <div id="add-new-card">
       <form id="payment-form">
         <div>
-          <label style={{ width: '100%' }}>
+          <label style={{width: '100%'}}>
 
             <div className="row row-1">
               <div className="col-2">

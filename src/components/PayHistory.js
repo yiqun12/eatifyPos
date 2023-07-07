@@ -116,7 +116,7 @@ async function handleCardAction(payment, docId) {
           payment.status === 'requires_confirmation'
         ) {
           
-          content = `(` + t('Pending') + `)🚨 ` + t("Creating Payment for") + ` $${totalPrice}`;
+          content = `(` + t('Pending') + `)🚨 ` + t("Creating Payment for") + ` $ ${Math.round(100*(totalPrice))/100 }`;
           
         } else if (payment.status === 'succeeded') {
           const card = payment.charges.data[0].payment_method_details.card;
