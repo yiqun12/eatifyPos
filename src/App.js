@@ -49,7 +49,7 @@ function App() {
               //console.log(JSON.stringify(newData))
               sessionStorage.setItem("Food_arrays", JSON.stringify(newData));
           })
-
+      
       await getDocs(collection(db, "TitleLogoNameContent"))
           .then((querySnapshot) => {
               const newData = querySnapshot.docs

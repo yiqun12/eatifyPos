@@ -53,8 +53,8 @@ useEffect(() => {
     country: 'US',
     currency: 'usd',
     total: {
-      label: 'Demo total',
-      amount: 1999,
+      label: 'Total:',
+      amount: Math.round(totalPrice*100),
     },
     requestPayerName: true,
     requestPayerEmail: true,
@@ -137,7 +137,6 @@ useEffect(() => {
         } else {
           Goback();
           saveId(Math.random());
-          console.log("has card")
          // console.log('payment methods found for the customer');
           if(document.getElementById('404null')){
             const optionElementToDelete = document.querySelector(`option[id="${'404null'}"]`);
@@ -171,6 +170,7 @@ useEffect(() => {
           // get the select element
           //console.log("exist card:",optionElement.text)
         });
+
       });
 
       // for translation
@@ -305,22 +305,13 @@ useEffect(() => {
 
   return (
     <div>
-          {newCardAdded ?
-          <>
-
-<Link className='text-black select-none text-2xl' style={{cursor: 'pointer'}} onClick={Goback} variant="body2">
-         &lt; {t("choose your card")}                                
-            </Link>
+          <div>
             <div style={{color:"white" ,fontSize:"5px"}}>.</div>
             <CardSection  totalPrice={totalPrice}/>
             {paymentRequest && <PaymentRequestButtonElement options={{paymentRequest}} />}
-          </>
+          </div>
             
-            :
             <div>
-                        <Link className='text-black select-none text-2xl' style={{cursor: 'pointer' }} onClick={handleAddNewCard} variant="body2">
-{ t("Please click here to add your new credit card")} &gt;
-                                </Link>
     <div id="card2-header">
       <div id="add-new-card">
       <form id="payment-form">
@@ -348,7 +339,10 @@ useEffect(() => {
              type="submit" style={{ 'color': isHover ? '#0a58ca' : '#444444' }}             
 
             name="delete"><FontAwesomeIcon icon={faTrash} /></button>
-                
+                {
+
+
+                }
               </div>
             </div>
             
@@ -361,13 +355,14 @@ useEffect(() => {
   class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" 
   style={{ width: "100%" }}
 >
-  {t("Pay by card")}
+  {t("Pay with Saved Card")}
 </button>
       </form>
       {paymentRequest && <PaymentRequestButtonElement options={{paymentRequest}} />}
 
     </div>
-    </div>    </div>     }
+    </div>    
+    </div>     
     </div>
   );
 };

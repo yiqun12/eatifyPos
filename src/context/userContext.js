@@ -29,7 +29,9 @@ let customerData = {};
  * Set up Stripe Elements
  */
 
-const promise = loadStripe(STRIPE_PUBLISHABLE_KEY);
+const promise = loadStripe(STRIPE_PUBLISHABLE_KEY, {
+  stripeAccount: 'acct_1NR75OE0QS2AMUUQ'
+});
 
 export const UserContext = createContext({});
 
@@ -191,6 +193,8 @@ export const UserContextProvider = ({ children }) => {
 
   const logoutUser = () => {
     firebase.auth().signOut(auth);
+    setUser(null);
+    sessionStorage.setItem('user', JSON.stringify(null));
   };
 
   const forgotPassword = (email) => {

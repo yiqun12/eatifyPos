@@ -257,14 +257,62 @@ const Item = (props) => {
         })}
         <hr />
         <div className="total">
+        <div className="row">
+            <div className="col">
+              <b> {t("Subtotal")}:</b>
+            </div>
+            <div className="col d-flex justify-content-end">
+              <b>$ {Math.round(100*totalPrice)/100}</b>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col">
+              <b> {t("Tax")} 	&#40;6%&#41;:</b>
+            </div>
+            <div className="col d-flex justify-content-end">
+              <b>$ {Math.round(100*totalPrice*0.06)/100}</b>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col">
+              <b> {t("Tips")}:</b>
+            </div>
+
+            <div className="flex justify-between">
+            <div className="icon-only">
+      <button className="btn_ btn-icon-only">
+        15%
+      </button>
+    </div>
+    <div className="icon-only">
+      <button className="btn_ btn-icon-only">
+        18%
+      </button>
+    </div>
+       <div className="icon-only">
+      <button className="btn_ btn-icon-only">
+        20%
+      </button>
+    </div>
+    <div className="icon-only">
+      <button className="btn_ btn-icon-only">
+        other
+      </button>
+    </div>
+ </div>
+ 
+ <div className="col d-flex justify-content-end">
+              <b>$ {Math.round(100*totalPrice*0.15)/100}</b>
+            </div>
+          </div>
           <div className="row">
             <div className="col">
               <b> {t("Total")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>$ {Math.round(100*totalPrice)/100}</b>
+              <b>$ {Math.round(100*totalPrice*1.06)/100}</b>
             </div>
-          </div>{" "}
+          </div>
         </div>
       </div>
     </div>

@@ -66,8 +66,10 @@ async function handleCardAction(payment, docId) {
   }
   
   const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
-  const promise = loadStripe(STRIPE_PUBLISHABLE_KEY);
-  
+  const promise = loadStripe(STRIPE_PUBLISHABLE_KEY, {
+    stripeAccount: 'acct_1NR75OE0QS2AMUUQ'
+  });
+    
   const user = JSON.parse(sessionStorage.getItem('user'));
   /**
    * Get all payments for the logged in customer

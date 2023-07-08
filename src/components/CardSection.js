@@ -66,6 +66,9 @@ function CardSection(props) {
           if (!event.target.reportValidity()) {
             return;
           }
+          document
+          .querySelectorAll('button')
+          .forEach((button) => (button.disabled = true));
           firebase
       .firestore()
       .collection('stripe_customers')
@@ -74,16 +77,14 @@ function CardSection(props) {
         console.log('read card')
         if (snapshot.data()) {
           customerData.current = snapshot.data();
-          console.log(snapshot.data())
+          //console.log(snapshot.data())
 
         }
       });
           //console.log(customerData.current == null)
           //console.log(!elements)
           //console.log(!stripe)
-          document
-            .querySelectorAll('button')
-            .forEach((button) => (button.disabled = true));
+
           //  console.log(customerData.current)
           if (!stripe || !elements || customerData.current == null) {
             //document.querySelector('#prompt-message').textContent = "Too frequent operations";
@@ -312,7 +313,10 @@ function CardSection(props) {
             onChange={handleCheckboxChange}
           />
 <div style={{color:"white",fontSize:"5px"}}>.</div>
-          <button style={{ width: "100%" }} class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">{t("Pay")} $ {Math.round(100 * totalPrice) / 100}</button>
+          <button 
+          style={{ width: "100%" }} 
+          class="text-white bg-orange-700 hover:bg-orange-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            {t("Add New Card & Pay")}</button>
         </form>
 
       </div>
