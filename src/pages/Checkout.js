@@ -279,26 +279,18 @@ const Item = (props) => {
             </div>
 
             <div className="flex justify-between">
-            <div className="icon-only">
-      <button className="btn_ btn-icon-only">
+      <button className="btn border border-solid border-black">
         15%
       </button>
-    </div>
-    <div className="icon-only">
-      <button className="btn_ btn-icon-only">
+      <button className="btn">
         18%
       </button>
-    </div>
-       <div className="icon-only">
-      <button className="btn_ btn-icon-only">
+      <button className="btn">
         20%
       </button>
-    </div>
-    <div className="icon-only">
-      <button className="btn_ btn-icon-only">
+      <button className="btn">
         other
       </button>
-    </div>
  </div>
  
  <div className="col d-flex justify-content-end">
