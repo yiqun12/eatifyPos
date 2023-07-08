@@ -71,7 +71,7 @@ const Dashboard = (props) => {
   return (
     <div>
       <Elements stripe={promise}>
-        <div className="card2 mb-50" style={isMobile?{"box-shadow":'rgba(0, 0, 0, 0.19) 0px 1px 3px 1px'}:{}}>
+        <div className="card2 mb-50" style={isMobile?{"box-shadow":'rgba(0, 0, 0, 0.08) 0 -20px 20px -10px'}:{"box-shadow":'rgba(0, 0, 0, 0.08)-20px 0 20px -10px'}}>
           <div className="text-black select-none text-2xl">
             {t("CHECKOUT")}   ${Math.round(100 * totalPrice) / 100} 
           </div>

@@ -579,26 +579,19 @@ const Navbar = () => {
     />
     <span>{t("Home")}</span>
 </div>
-
-
-
-            <div className="col-span-2 grid grid-cols-3 ">
-
-            </div> 
-            <div className="col-span-3" style={{"margin":"auto"}}>
+            <div className={isMobile ? "col-span-4 ml-auto" : "col-span-5 ml-auto"}>
             <select class="selectpicker" data-width="fit" onChange={changeLanguage}>
               {/**如果选择中文，框显示成lang，如果是eng,框显示语言 */}
               <option value='en' data-content='<span class="flag-icon flag-icon-us"></span> English' selected={languageOption() == 'en' ? true : false}>English</option>
               <option value='ch' data-content='<span class="flag-icon flag-icon-mx"></span> Chinese' selected={languageOption() == 'ch' ? true : false}>中文</option>
             </select>
           </div>
-            <div className="col-span-1 grid grid-cols-3 ">
-              <div>
-                <a style={{ 'cursor': "pointer", "user-select": "none" }} onClick={event => window.location.href = '/account'} className="nav__link">
-                  <a className="email-link"><i className="material-icons nav__icon">person</i></a>
-                  <a className="email-link" >{user ? t("Account") : t("Login")}</a>
+            <div className={isMobile ? "col-span-2 ml-auto" : "col-span-1 ml-auto" }style={{'min-width': '100px'}}>
+                <a className="nav__link">
+                  <a onClick={event => window.location.href = '/account'}  className="email-link" style={{'cursor': "pointer"}}>
+                    <button className='btn' style={{'top':'-10px',fontSize:"16px"}}> {user ? t("Account") : t("Login")}</button> 
+                  </a>
                 </a>
-              </div>
             </div> 
 
         </div>

@@ -154,7 +154,7 @@ const Item = (props) => {
   
   
   return (
-    <div className="card2 mb-50" style={isMobile?{"box-shadow":'rgba(0, 0, 0, 0.19) 0px 1px 3px 1px'}:{}}>
+    <div className="card2 mb-50" style={!isMobile?{"box-shadow":'rgba(0, 0, 0, 0) 0px 0px 0px 0px'}:{"box-shadow":'rgba(0, 0, 0, 0) 0px 20px 20px -10px'}}>
       <div className="col d-flex">
         {/** 
         <span className="text-muted" id="orderno">
