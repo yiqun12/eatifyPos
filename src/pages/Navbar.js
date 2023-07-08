@@ -22,12 +22,15 @@ import logo_transparent from './logo_transparent.png'
 import "./navbar.css";
 import { useMyHook } from './myHook';
 import teapotImage from './teapot.png';
-import {ReactComponent as DeleteSvg} from './delete-icn.svg';
-import {ReactComponent as PlusSvg}  from './plus.svg';
-import {ReactComponent as MinusSvg} from './minus.svg';
+import { ReactComponent as DeleteSvg } from './delete-icn.svg';
+import { ReactComponent as PlusSvg } from './plus.svg';
+import { ReactComponent as MinusSvg } from './minus.svg';
+import logo_fork from './logo_fork.png'
+import Hero from './Hero'
+import cuiyuan from './cuiyuan.png'
 
 const Navbar = () => {
-    
+
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -108,7 +111,7 @@ const Navbar = () => {
     calculateTotalPrice();
     const calculateTotalQuant = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity), 0);
-    //  console.log(total)
+      //  console.log(total)
       $('#cart').attr("data-totalitems", total);
       setTotalQuant(total);
     }
@@ -116,14 +119,14 @@ const Navbar = () => {
 
     uploadProductsToLocalStorage(products);
   }, [products, width]);
-  
+
   const handleDeleteClick = (productId) => {
     setProducts((prevProducts) => {
       saveId(Math.random());  // generate a new id here
       return prevProducts.filter((product) => product.id !== productId);
     });
   }
-  
+
   const handleAddProductClick = () => {
     setProducts((prevProducts) => [...prevProducts, {
       id: prevProducts.length + 1,
@@ -204,11 +207,11 @@ const Navbar = () => {
     let product = products.find((product) => product.id === id);
 
     // Display the product info
-   // console.log(`Product ID: ${product.id}`);
-   // console.log(`Product Name: ${product.name}`);
-   // console.log(`Product Subtotal: ${product.subtotal}`);
-  //  console.log(`Product Image: ${product.image}`);
-   // console.log(`Product Times Clicked: ${product.timesClicked}`);
+    // console.log(`Product ID: ${product.id}`);
+    // console.log(`Product Name: ${product.name}`);
+    // console.log(`Product Subtotal: ${product.subtotal}`);
+    //  console.log(`Product Image: ${product.image}`);
+    // console.log(`Product Times Clicked: ${product.timesClicked}`);
   };
 
   const handleLikeClick = (productId) => {
@@ -415,36 +418,38 @@ const Navbar = () => {
       return sessionStorage.getItem("translationsMode")
   }
 
+
+
   return (
 
     <>
 
-<a  class="float" target="_blank">
-<a
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
-                  style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
-                  <i style={{
-                    color: 'transparent'
-                  }}
-                    className="material-icons nav__icon">home</i>
-                  <span style={{
-                    color: 'transparent'
-                  }} className="nav__text">
-                    1</span>                  <span style={{
-                    fontSize:'17px',
-                    color: 'transparent'
-                  }} className="nav__text ">
-                    1</span>
-                    
-                  <div id="cart"
-                    style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
-                    className="cart" data-totalitems={totalQuant} ref={btnRef} >
-                    <a className="email-link"><i style={{ "fontSize":"35px", 'color': isHover ? '#0a58ca' : '#444444' }}
-                      className="material-icons nav__icon">shopping_cart_checkout</i></a>
-                  </div>
-                </a>
-</a>
+      <a class="float" target="_blank">
+        <a
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
+          <i style={{
+            color: 'transparent'
+          }}
+            className="material-icons nav__icon">home</i>
+          <span style={{
+            color: 'transparent'
+          }} className="nav__text">
+            1</span>                  <span style={{
+              fontSize: '17px',
+              color: 'transparent'
+            }} className="nav__text ">
+            1</span>
+
+          <div id="cart"
+            style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
+            className="cart" data-totalitems={totalQuant} ref={btnRef} >
+            <a className="email-link"><i style={{ "fontSize": "35px", 'color': isHover ? '#0a58ca' : '#444444' }}
+              className="material-icons nav__icon">shopping_cart_checkout</i></a>
+          </div>
+        </a>
+      </a>
 
       <div ref={modalRef} className="modal">
 
@@ -459,15 +464,29 @@ const Navbar = () => {
             <DeleteSvg className="delete-btn" style={{ 'postion': 'absolute', float: 'right', cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></DeleteSvg>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <button
-                style={{ width: "80%", border: "0px", margin: "auto" }}
-                class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
-                onClick={HandleCheckout_local_stripe}>
-                <span class="text-left"> 
-                
-                {t("Checkout")} </span>
-                <span class="text-right"> ${Math.round(100 * totalPrice) / 100}</span>
-              </button>
+              {totalPrice === 0 ?
+                <div>
+                  <div style={{ marginTop: "15px" }}>
+                    <span> &nbsp;
+                      Your cart is currently empty.
+                    </span>
+                  </div>
+                </div>
+                :
+                <>
+                  <button
+                    style={{ width: "80%", border: "0px", margin: "auto" }}
+                    class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
+                    onClick={HandleCheckout_local_stripe}>
+
+                    <span class="text-left">
+                      <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                      {t("Checkout")} </span>
+                    <span class="text-right"> ${Math.round(100 * totalPrice) / 100}</span>
+                  </button>
+                </>
+              }
+
 
             </div>
 
@@ -482,7 +501,7 @@ const Navbar = () => {
 
                 {/* the delete button */}
                 <div className="buttons">
-                  <DeleteSvg className="delete-btn" 
+                  <DeleteSvg className="delete-btn"
                     onClick={() => {
                       handleDeleteClick(product.id)
                     }}></DeleteSvg>
@@ -497,63 +516,63 @@ const Navbar = () => {
                 </div>
 
                 {/* the name + quantity parent div*/}
-                <div style={{display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available"}}>
-                {/* the name */}
-                <div className="description" style={{width: "-webkit-fill-available"}}>
-                  <span style={{ fontWeight: "bold" ,color:"black", width: "-webkit-fill-available" }}>{t(product.name)}</span>
+                <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available" }}>
+                  {/* the name */}
+                  <div className="description" style={{ width: "-webkit-fill-available" }}>
+                    <span style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>{t(product.name)}</span>
+                  </div>
+
+
+                  {/* <div className="theset"> */}
+                  {/* start of quantity (quantity = quantity text + buttons div) */}
+                  <div className="quantity"
+                    style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
+                    <span>${Math.round(100 * product.quantity * product.subtotal) / 100}</span>
+
+                    {/* the add minus box set up */}
+                    <div style={{ display: "flex" }}>
+
+                      {/* the start of minus button set up */}
+                      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                        <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                          onClick={() => {
+                            if (product.quantity === 1) {
+                              handleDeleteClick(product.id);
+                            } else {
+                              handleMinusClick(product.id);
+                            }
+                          }}>
+                          <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                        </button>
+                      </div>
+                      {/* the end of minus button set up */}
+
+                      { /* start of the quantity number */}
+                      <span
+                        type="text"
+                        style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                      >{product.quantity}</span>
+                      { /* end of the quantity number */}
+
+                      { /* start of the add button */}
+                      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                        <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                          onClick={() => {
+                            handlePlusClick(product.id)
+                            saveId(Math.random());
+                          }}>
+                          <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                        </button>
+                      </div>
+                      { /* end of the add button */}
+                    </div>
+                    { /* end of the add minus setup*/}
+                  </div>
+
+                  {/* end of quantity */}
                 </div>
 
-
-                {/* <div className="theset"> */}
-                {/* start of quantity (quantity = quantity text + buttons div) */}
-                <div className="quantity"
-                  style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
-                  <span>${Math.round(100 * product.quantity * product.subtotal) / 100}</span>
-                  
-                  {/* the add minus box set up */}
-                  <div style={{display:"flex"}}>
-                  
-                  {/* the start of minus button set up */}
-                  <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                    <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                      onClick={() => {
-                        if (product.quantity === 1) {
-                          handleDeleteClick(product.id);
-                        } else {
-                          handleMinusClick(product.id);
-                        }
-                      }}>
-                      <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                    </button>
-                  </div>
-                  {/* the end of minus button set up */}
-                  
-                  { /* start of the quantity number */}
-                  <span
-                    type="text"
-                    style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                  >{product.quantity}</span>
-                  { /* end of the quantity number */}
-                
-                { /* start of the add button */}
-                  <div className="black_hover" style={{padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                    <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                      onClick={() => {
-                        handlePlusClick(product.id)
-                        saveId(Math.random());
-                      }}>
-                      <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                    </button>
-                  </div>
-                  { /* end of the add button */}
-                  </div>
-                  { /* end of the add minus setup*/}
-                </div>
-
-                {/* end of quantity */}
-              </div>
-              
-              {/* end of name + quantity parent div*/}
+                {/* end of name + quantity parent div*/}
               </div>
 
             ))}
@@ -563,43 +582,47 @@ const Navbar = () => {
       </div>
       {/**navbar */}
 
-      <div className={!isMobile ? "justify-between sticky top-0 bg-white z-10" : "justify-between bg-white z-10"}>
+      <div className={!isMobile ? "max-w-[1000px] mx-auto justify-between sticky top-0 bg-white z-10" : "justify-between bg-white z-10"} style={{ "border-bottom": "solid" }}>
+     
+        <div className="grid grid-cols-8 flex  items-center p-4 pb-0 pt-0 justify-between top-0 bg-white z-10">
+          <div className="col-span-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
+          <img
+          onClick={event => window.location.href = '/'}
+    src={cuiyuan}
+    alt=""
+    style={{ 
+        maxHeight: '60px',
+        maxWidth: '60px',
+        borderRadius: '50%',  // this makes the image round
+        objectFit: 'cover',   // this makes the image co0ver the entire dimensions
+        marginRight: '10px',   // added some margin to the right of the image
+        marginTop:"5px"
+    }}
+/>
+<span onClick={event => window.location.href = '/'} style={{marginTop:"10px"}}>
+Park Asia
+</span>
 
-        <div className="grid grid-cols-8 flex max-w-[1000px] mx-auto items-center p-4 justify-between sticky top-0 bg-white z-10"
-          style={{ "border-bottom": "solid" }} >
-<div className="col-span-2" style={{ cursor: "pointer",  display: 'flex', alignItems: 'center' }} onClick={event => window.location.href = '/'}>
-    <img
-        src={logo_transparent}
-        alt=""
-        style={{ 
 
-            maxHeight: '50px', 
-            maxWidth: '200px',
-            marginRight: '10px' // added some margin to the right of the image
-        }}
-        
-    />
-    <span>{t("Home")}</span>
-</div>
-            <div className={isMobile ? "col-span-4 ml-auto" : "col-span-5 ml-auto"}>
+          </div>
+          <div style={{}} className={isMobile ? "col-span-2 ml-auto" : "col-span-3 ml-auto"}>
             <select class="selectpicker" data-width="fit" onChange={changeLanguage}>
               {/**如果选择中文，框显示成lang，如果是eng,框显示语言 */}
               <option value='en' data-content='<span class="flag-icon flag-icon-us"></span> English' selected={languageOption() == 'en' ? true : false}>English</option>
               <option value='ch' data-content='<span class="flag-icon flag-icon-mx"></span> Chinese' selected={languageOption() == 'ch' ? true : false}>中文</option>
             </select>
           </div>
-            <div className={isMobile ? "col-span-2 ml-auto" : "col-span-1 ml-auto" }style={{'min-width': '100px'}}>
-                <a className="nav__link">
-                  <a onClick={event => window.location.href = '/account'}  className="email-link" style={{'cursor': "pointer"}}>
-                    <button className='btn' style={{'top':'-10px',fontSize:"16px"}}> {user ? t("Account") : t("Login")}</button> 
-                  </a>
-                </a>
-            </div> 
-
+          <div className={isMobile ? "col-span-2 ml-auto" : "col-span-1 ml-auto"} style={{ 'min-width': '100px' }}>
+            <a className="nav__link">
+              <a onClick={event => window.location.href = '/account'} className="email-link" style={{ 'cursor': "pointer" }}>
+                <button style={{ 'top': '-10px', fontSize: "16px" }}> {user ? t("Account") : t("Login")}</button>
+              </a>
+            </a>
+          </div>
+          
         </div>
+
       </div>
-
-
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 
     </>

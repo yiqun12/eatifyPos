@@ -311,7 +311,6 @@ useEffect(() => {
 
             <div style={{color:"white" ,fontSize:"5px"}}>.</div>
             <CardSection  totalPrice={totalPrice}/>
-            {paymentRequest && <PaymentRequestButtonElement options={{paymentRequest}} />}
           </div>
             
             <div>

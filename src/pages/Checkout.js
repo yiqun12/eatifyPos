@@ -171,8 +171,7 @@ const Item = (props) => {
         }}>
           <div className="toggle-group" style={{
             "paddingLeft": "0", "paddingRight": "0",
-            margin: "auto", "marginLeft": "0", "marginRight": "0",
-          }} >
+            margin: "auto", "marginLeft": "0", "marginRight": "0",}} >
 
 
             <div className="row">
@@ -217,7 +216,7 @@ const Item = (props) => {
 
                 </div>
               </div>
-            </div>{" "}
+            </div>
 
           </div>
         </div>

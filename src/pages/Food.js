@@ -288,15 +288,14 @@ const Food = () => {
           {/* Filter Type */}
           <div className='Type'>
             {/* <div className='flex justify-between flex-wrap'> */}
-            <div className='scrolling-wrapper-filter mt-4' >
+            <div className='scrolling-wrapper-filter mt-2' >
               <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>{t("All")}</button>
               {foodTypes.map((foodType) => (
       <button 
         key={foodType} 
         onClick={() => filterType(foodType)} 
         className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
-        style={{ display: "inline-block" }}
-      >
+        style={{ display: "inline-block" }}>
         {t(foodType.charAt(0).toUpperCase() + foodType.slice(1))}
       </button>
     ))}
