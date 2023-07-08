@@ -14,8 +14,8 @@ import './fooddropAnimate.css';
 import { useMyHook } from './myHook';
 import { useMemo } from 'react';
 import plusSvg from './plus.svg';
-import minusSvg from './minus.svg';
-
+import {ReactComponent as PlusSvg}  from './plus.svg';
+import {ReactComponent as MinusSvg} from './minus.svg';
 
 const Food = () => {
   const [numbers, setNumbers] = useState([0, 0, 0]);
@@ -115,11 +115,11 @@ const Food = () => {
     setCartTotal(newCartTotal);//update cart bubble
 
     setTimeout(() => {
-      $('#cart').addClass('shake');
-    }, 400);
+      $('#cart').addClass('rotate');
+    }, 200);
 
     setTimeout(() => {
-      cart.removeClass('shake');
+      cart.removeClass('rotate');
     }, 0);
     /**
     const left = Math.floor(Math.random() * width);
@@ -349,6 +349,7 @@ const Food = () => {
                               style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop:"-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
 
                               <div
+                              className="black_hover"
                                 style={{
                                   padding: '4px',
                                   alignItems: 'center',
@@ -374,17 +375,17 @@ const Food = () => {
                                     display: "flex",
                                   }}
                                   onClick={() => {
+                                    handleDropFood();
                                     updateLocalStorage(item.id, item.name, item.subtotal, item.image);
                                     saveId(Math.random());
                                   }}
                                 >
-                                  <img
+                                  <PlusSvg
                                     style={{
                                       margin: '0px',
                                       width: '10px',
                                       height: '10px',
                                     }}
-                                    src={plusSvg}
                                     alt=""
                                   />
                                 </button>
@@ -406,19 +407,19 @@ const Food = () => {
       }}
     >
                             <div className="quantity"
+                            
                               style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop:"-18px", paddingTop: "20px", height: "fit-content" }}>
-                              <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                              <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
                                 <button
 
                                   className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                                   onClick={() => {
-                                    handleDropFood();
                                     handleDeleteClick(item.id);
                                     //saveId(Math.random());
                                   }}
 
                                 >
-                                  <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
+                                  <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
                                 </button>
                               </div>
                               <span
@@ -434,7 +435,7 @@ const Food = () => {
                               </span>
 
                               
-                              <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                              <div className="black_hover"style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
                                 <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                                   onClick={() => {
                                     handleDropFood();
@@ -442,7 +443,7 @@ const Food = () => {
                                     saveId(Math.random());
                                   }}
                                 >
-                                  <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
+                                  <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
                                 </button>
                               </div>
                             </div>

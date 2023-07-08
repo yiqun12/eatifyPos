@@ -32,13 +32,8 @@ import { Navigate } from 'react-router-dom';
 import { translations } from './data/translations.js'
 
 function App() {
-
   const { user} = useUserContext();
-
   const [loading, setLoading] = useState(true);
-  console.log("userload",user)
-  console.log("userSession",JSON.parse(sessionStorage.getItem('user')))
-
   const fetchPost = async () => {
     
       console.log("fetchPost1")

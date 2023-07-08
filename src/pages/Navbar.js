@@ -7,8 +7,6 @@ import { useRef, useEffect, useMemo } from 'react';
 import "./modal.css"
 import "./shopping_cart.css"
 import item_1_pic from "./item-1.png"
-import plusSvg from './plus.svg';
-import minusSvg from './minus.svg';
 import { useLocation } from 'react-router-dom';
 import { useUserContext } from "../context/userContext";
 import 'bootstrap/dist/css/bootstrap.css';
@@ -24,7 +22,9 @@ import logo_transparent from './logo_transparent.png'
 import "./navbar.css";
 import { useMyHook } from './myHook';
 import teapotImage from './teapot.png';
-
+import {ReactComponent as DeleteSvg} from './delete-icn.svg';
+import {ReactComponent as PlusSvg}  from './plus.svg';
+import {ReactComponent as MinusSvg} from './minus.svg';
 
 const Navbar = () => {
     
@@ -456,21 +456,23 @@ const Navbar = () => {
           <div className="title" style={{ height: '80px' }}>
 
 
-            <span className="delete-btn" style={{ 'postion': 'absolute', float: 'right', cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></span>
+            <DeleteSvg className="delete-btn" style={{ 'postion': 'absolute', float: 'right', cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></DeleteSvg>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button
                 style={{ width: "80%", border: "0px", margin: "auto" }}
-                class="w-900 mx-auto border-0 rounded-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
+                class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
                 onClick={HandleCheckout_local_stripe}>
-                <span class="text-left"> <FontAwesomeIcon icon={faCreditCard} /> {t("Checkout")} </span>
+                <span class="text-left"> 
+                
+                {t("Checkout")} </span>
                 <span class="text-right"> ${Math.round(100 * totalPrice) / 100}</span>
               </button>
 
             </div>
 
           </div>
-          <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : {}}>
+          <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
 
             {/* generates each food entry */}
             {products.map((product) => (
@@ -480,10 +482,10 @@ const Navbar = () => {
 
                 {/* the delete button */}
                 <div className="buttons">
-                  <span className="delete-btn"
+                  <DeleteSvg className="delete-btn" 
                     onClick={() => {
                       handleDeleteClick(product.id)
-                    }}></span>
+                    }}></DeleteSvg>
                   {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
                 </div>
 
@@ -498,22 +500,22 @@ const Navbar = () => {
                 <div style={{display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available"}}>
                 {/* the name */}
                 <div className="description" style={{width: "-webkit-fill-available"}}>
-                  <span style={{ width: "-webkit-fill-available" }}>{t(product.name)}</span>
+                  <span style={{ fontWeight: "bold" ,color:"black", width: "-webkit-fill-available" }}>{t(product.name)}</span>
                 </div>
 
 
                 {/* <div className="theset"> */}
                 {/* start of quantity (quantity = quantity text + buttons div) */}
                 <div className="quantity"
-                  style={{     marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
+                  style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
                   <span>${Math.round(100 * product.quantity * product.subtotal) / 100}</span>
                   
                   {/* the add minus box set up */}
                   <div style={{display:"flex"}}>
                   
                   {/* the start of minus button set up */}
-                  <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                    <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                  <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                    <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                       onClick={() => {
                         if (product.quantity === 1) {
                           handleDeleteClick(product.id);
@@ -521,7 +523,7 @@ const Navbar = () => {
                           handleMinusClick(product.id);
                         }
                       }}>
-                      <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
+                      <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
                     </button>
                   </div>
                   {/* the end of minus button set up */}
@@ -534,13 +536,13 @@ const Navbar = () => {
                   { /* end of the quantity number */}
                 
                 { /* start of the add button */}
-                  <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                    <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                  <div className="black_hover" style={{padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                    <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                       onClick={() => {
                         handlePlusClick(product.id)
                         saveId(Math.random());
                       }}>
-                      <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
+                      <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
                     </button>
                   </div>
                   { /* end of the add button */}
