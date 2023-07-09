@@ -17,6 +17,7 @@ import { faUtensils } from '@fortawesome/free-solid-svg-icons'
 import { faShoppingBag } from '@fortawesome/free-solid-svg-icons'
 import './SwitchToggle.css';
 
+
 const App = () => {
   /**re-render everytime button clicked from shopping cart */
   const { id, saveId } = useMyHook(null);
@@ -62,6 +63,38 @@ const App = () => {
     calculateTotalPrice();
   }, [products]);
 
+
+  // tips calculation: in the parent App since needs to be carried in Item() and Checkout() 
+
+    // Add state for tip selection and calculation
+    const [selectedTip, setSelectedTip] = useState({type: "percent", value: "18%"});
+    const [tips, setTips] = useState(null);
+
+    // Calculate the tip amount
+    const calculateTip = () => {
+      if (selectedTip.type === "percent") {
+        const percentage = parseInt(selectedTip.value, 10) / 100;
+        setTips(Math.round(100 * totalPrice * percentage) / 100);
+        return Math.round(100 * totalPrice * percentage) / 100;
+
+      } else {
+
+        // for the "other" tip section, removes the $ if present
+        let result = selectedTip.value;
+        console.log("before $ remove: " + result)
+        
+        if (result.includes("$")) {
+          result = result.replace(/\$/g, ""); // Remove dollar sign if it is present
+        }
+        
+        setTips(Math.round(100 * result) / 100);
+        console.log("result " + result);
+        console.log("tips:" + tips);
+        return result; // assuming value is in USD for fixed type
+      }
+    };
+  
+
   return (
 
     <div className='max-w-[1000px] mx-auto p-4 '>
@@ -69,16 +102,20 @@ const App = () => {
         <div className="row">
         {isMobile?
                 <div className="col" style={{paddingLeft:0,paddingRight:0}}>
-                <Item products={products} totalPrice={totalPrice} />
-                <Checkout totalPrice={totalPrice} />
+                <Item products={products} totalPrice={totalPrice} selectedTip={selectedTip} tips={tips} setSelectedTip={setSelectedTip} calculateTip={calculateTip} />
+                <Checkout totalPrice={totalPrice} tips={tips} calculateTip={calculateTip} />
+                {/* <Item products={products} totalPrice={totalPrice} /> */}
+                {/* <Checkout totalPrice={totalPrice} /> */}
               </div>
       :  
       <>
       <div className="col" >
-      <Item products={products} totalPrice={totalPrice} />
+      <Item products={products} totalPrice={totalPrice} selectedTip={selectedTip} tips={tips} setSelectedTip={setSelectedTip} calculateTip={calculateTip} />
+      {/* <Item products={products} totalPrice={totalPrice} /> */}
     </div>
     <div className="col no-gutters" style={{ height: "100%" }} >
-      <Checkout totalPrice={totalPrice} />
+      <Checkout totalPrice={totalPrice} tips={tips} calculateTip={calculateTip} />
+      {/* <Checkout totalPrice={totalPrice} /> */}
     </div>
     </>
       }
@@ -100,6 +137,8 @@ const Item = (props) => {
   }, [id]);
 
   const { totalPrice } = props;
+  const tax_rate = 0.06;
+
   //console.log(props.products)
   const [isDinein, setIsDinein] = useState(true);
   sessionStorage.setItem('isDinein', JSON.stringify(isDinein));
@@ -151,7 +190,32 @@ const Item = (props) => {
   }, []);
 
   const isMobile = width <= 768;
-  
+
+
+  // for handling tips (default at 18%)
+  const {selectedTip, setSelectedTip, calculateTip, tips } = props;
+  const [showInput, setShowInput] = useState(false);
+  // const [selectedTip, setSelectedTip] = useState(null);
+
+  const handleOtherButtonClick = () => {
+    setShowInput(true);
+    setSelectedTip({ type: "other", value: "0" });
+  };
+
+  const handlePercentButtonClick = (percent) => {
+    setShowInput(false);
+    setSelectedTip({ type: "percent", value: percent });
+  };
+
+  const Button = ({ children, type }) => (
+    <button
+      className={`btn ${selectedTip?.value === children ? 'border border-solid border-black' : ''}`}
+      onClick={() => type === 'other' ? handleOtherButtonClick() : handlePercentButtonClick(children)}
+    >
+      {children}
+    </button>
+  );
+
   
   return (
     <div className="card2 mb-50" style={!isMobile?{"box-shadow":'rgba(0, 0, 0, 0.08) -20px 1 20px -10px'}:{"box-shadow":'rgba(0, 0, 0, 0) 0px 20px 20px -10px'}}>
@@ -269,7 +333,7 @@ const Item = (props) => {
               <b> {t("Tax")} 	&#40;6%&#41;:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>$ {Math.round(100*totalPrice*0.06)/100}</b>
+              <b>$ {Math.round(100*totalPrice*tax_rate)/100}</b>
             </div>
           </div>
           <div className="row">
@@ -277,8 +341,50 @@ const Item = (props) => {
               <b> {t("Tips")}:</b>
             </div>
 
+        {/* for the buttons arrangement */}
             <div className="flex justify-between">
-      <button className="btn border border-solid border-black">
+          
+
+      <Button type="percent" value="15%">15%</Button>
+      <Button type="percent" value="18%">18%</Button>
+      <Button type="percent" value="20%">20%</Button>
+
+        {!showInput && <Button type="other">Other</Button>}
+      {showInput && <input 
+        type="tel"
+        min="0"
+        className={`btn ${selectedTip?.type === "other" ? 'border border-solid border-black' : ''}`}
+        placeholder="Other"
+        value={(parseFloat(selectedTip?.value || 0)).toFixed(2)}
+        onChange={e => {
+          let inputValue = e.target.value;
+          let centValue = (parseFloat(inputValue.replace('.', '')) || 0);
+          centValue = centValue / 100;
+          setSelectedTip({type: "other", value: centValue.toString()});
+        }}
+        style={{textAlign: 'center', width: '20%'}}
+      />}
+        {/* <Button type="other" value="5">Other</Button>
+        <input 
+          type="number"
+          min="0"
+          className={`btn ${selectedTip.type === "other" ? 'border border-solid border-black' : ''}`}
+          placeholder="Other" 
+          onChange={e => {
+            // setOtherValue(e.target.value);
+            setSelectedTip({type: "other", value: e.target.value});
+          }}
+          onClick={e => {
+            // setOtherValue(e.target.value);
+            setSelectedTip({type: "other", value: e.target.value});
+          }}
+          style={{textAlign: 'center'}}
+        /> */}
+
+
+         {/* For demonstration, added a fixed value button */}
+
+      {/* <button className="btn border border-solid border-black">
         15%
       </button>
       <button className="btn">
@@ -289,11 +395,12 @@ const Item = (props) => {
       </button>
       <button className="btn">
         other
-      </button>
- </div>
+      </button> */}
+            </div>
  
  <div className="col d-flex justify-content-end">
-              <b>$ {Math.round(100*totalPrice*0.15)/100}</b>
+              <b>$ {calculateTip()}</b>
+              {/* <b>$ {Math.round(100*totalPrice*0.15)/100}</b> */}
             </div>
           </div>
           <div className="row">
@@ -301,7 +408,7 @@ const Item = (props) => {
               <b> {t("Total")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>$ {Math.round(100*totalPrice*1.06)/100}</b>
+              <b>$ {Math.round(100*(totalPrice*(1+tax_rate) + tips))/100}</b>
             </div>
           </div>
         </div>
@@ -312,7 +419,10 @@ const Item = (props) => {
 
 const Checkout = (props) => {
   const { loading } = useUserContext();
-  const { totalPrice } = props;
+  // const { totalPrice } = props;
+  const { totalPrice, tips } = props;
+  const tax_rate = 0.06;
+
           // for translations sake
           const trans = JSON.parse(sessionStorage.getItem("translations"))
           const t = (text) => {
@@ -336,7 +446,7 @@ const Checkout = (props) => {
   return (
     <div className="checkout ">
       <div className="checkout-container" >
-        {loading ? <h2>{t("Loading Payment")}...</h2> : <> <Dashboard totalPrice={totalPrice} /> </>}
+        {loading ? <h2>{t("Loading Payment")}...</h2> : <> <Dashboard totalPrice={Math.round(100*(totalPrice*(1+tax_rate) + tips))/100} /> </>}
       </div>
     </div>
   )
