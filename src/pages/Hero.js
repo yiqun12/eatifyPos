@@ -1,13 +1,8 @@
 import React from 'react'
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { useState } from 'react';
-import { useRef, useEffect } from 'react';
-import { MyHookProvider, useMyHook } from './myHook';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUtensils } from '@fortawesome/free-solid-svg-icons'
-import { faShoppingBag } from '@fortawesome/free-solid-svg-icons'
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import logo_fork from './cuiyuan.png'
+import { useEffect } from 'react';
+import { useMyHook } from './myHook';
 
 const Hero = () => {
       /**listen to localtsorage */
@@ -15,26 +10,27 @@ const Hero = () => {
   useEffect(() => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
-  
-    const [isDinein, setIsDinein] = useState(true);
+  const initialDineInState = sessionStorage.getItem('isDinein') 
+  ? JSON.parse(sessionStorage.getItem('isDinein')) 
+  : true;
+
+    const [isDinein, setIsDinein] = useState(initialDineInState);
     sessionStorage.setItem('isDinein', JSON.stringify(isDinein));
-    //console.log(isDinein)
+    
     const handleToggle = () => {
       setIsDinein(!isDinein);
-      //console.log(isDinein)
       sessionStorage.setItem('isDinein', JSON.stringify(isDinein));
       saveId(Math.random())
     };
-    const [plan, setPlan] = useState('TakeOut');
+
+    const [plan, setPlan] = useState(isDinein?'DineIn':'TakeOut');
     const handleSwitchChange = (event) => {
       setPlan(event.target.value);
+      handleToggle()
     };
     return (
-<div style={{ display: 'flex', alignItems: 'center' }} className='max-w-[1000px] m-auto px-4 '>
-
-
-<div className="switches-container" style={{"marginTop":"20px","marginBottom":"10px", "border":"1px solid black"}}>
-
+<div style={{ display: 'flex'}} className='max-w-[1000px] ml-auto'>
+<div className="switches-container" style={{"marginBottom":"10px", "boxShadow":"0px 0px 10px rgba(0, 0, 0, 0.3)"}}>
             <input
                 type="radio"
                 id="switchTakeOut"

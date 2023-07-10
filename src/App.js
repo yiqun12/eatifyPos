@@ -94,13 +94,13 @@ function App() {
         
       <Route path="QRcode" element={ 
         JSON.parse(sessionStorage.getItem('user'))!=null &&
-        JSON.parse(sessionStorage.getItem('user')).uid === "27PaU92zV9aTxfj7LdoaZgR0heq1" ? 
+        JSON.parse(sessionStorage.getItem('user')).uid === "Ic8IhkldnTgPrQPn6ZWtiSKMQ9a2" ? 
         <Html /> : 
         <LogIn />} />
 
       <Route path="Admin" element={
         JSON.parse(sessionStorage.getItem('user'))!=null && 
-        JSON.parse(sessionStorage.getItem('user')).uid === "27PaU92zV9aTxfj7LdoaZgR0heq1" ? 
+        JSON.parse(sessionStorage.getItem('user')).uid === "Ic8IhkldnTgPrQPn6ZWtiSKMQ9a2" ? 
         <Admin_new /> : 
         <LogIn />} />
       <Route path='*' exact={true} element={<Home />} />

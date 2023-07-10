@@ -486,10 +486,7 @@ const Navbar = () => {
                   </button>
                 </>
               }
-
-
             </div>
-
           </div>
           <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
 
@@ -584,10 +581,8 @@ const Navbar = () => {
 
       <div className={!isMobile ? "max-w-[1000px] mx-auto justify-between sticky top-0 bg-white z-10" : "justify-between bg-white z-10"} style={{ "border-bottom": "solid" }}>
      
-        <div className="grid grid-cols-8 flex  items-center p-4 pb-0 pt-0 justify-between top-0 bg-white z-10">
-          <div className="col-span-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
-          <img
-          onClick={event => window.location.href = '/'}
+          <div className="col-span-4 pl-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
+          <img onClick={event => window.location.href = '/'}
     src={cuiyuan}
     alt=""
     style={{ 
@@ -597,27 +592,17 @@ const Navbar = () => {
         objectFit: 'cover',   // this makes the image co0ver the entire dimensions
         marginRight: '10px',   // added some margin to the right of the image
         marginTop:"5px"
-    }}
-/>
-<span onClick={event => window.location.href = '/'} style={{marginTop:"10px"}}>
+    }}/>
+<span onClick={event => window.location.href = '/'} style={{marginTop:"0px"}}>
 Park Asia
 </span>
-
-
-          </div>
-          <div style={{}} className={isMobile ? "col-span-2 ml-auto" : "col-span-3 ml-auto"}>
+          <div className='flex ml-auto pr-4'>
             <select class="selectpicker" data-width="fit" onChange={changeLanguage}>
               {/**如果选择中文，框显示成lang，如果是eng,框显示语言 */}
               <option value='en' data-content='<span class="flag-icon flag-icon-us"></span> English' selected={languageOption() == 'en' ? true : false}>English</option>
               <option value='ch' data-content='<span class="flag-icon flag-icon-mx"></span> Chinese' selected={languageOption() == 'ch' ? true : false}>中文</option>
             </select>
-          </div>
-          <div className={isMobile ? "col-span-2 ml-auto" : "col-span-1 ml-auto"} style={{ 'min-width': '100px' }}>
-            <a className="nav__link">
-              <a onClick={event => window.location.href = '/account'} className="email-link" style={{ 'cursor': "pointer" }}>
-                <button style={{ 'top': '-10px', fontSize: "16px" }}> {user ? t("Account") : t("Login")}</button>
-              </a>
-            </a>
+            <button className="ml-3" onClick={event => window.location.href = '/account'} style={{  'cursor': "pointer", 'top': '-10px', fontSize: "16px" }}> {user ? t("Account") : t("Login")}</button>
           </div>
           
         </div>

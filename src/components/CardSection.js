@@ -50,7 +50,7 @@ function CardSection(props) {
 
 
   const user = JSON.parse(sessionStorage.getItem('user'));
-  const isChecked = useRef(user.email != "Anonymous@eatifyPos.com");
+  const isChecked = useRef(user.email != "Anonymous@eatifyDash.com");
   const stripe = useStripe();
   const elements = useElements();
   //console.log(user.uid)

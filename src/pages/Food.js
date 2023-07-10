@@ -111,9 +111,6 @@ const Food = () => {
     //console.log("hello")
     /**shake */
     const cart = $('#cart');
-    const newCartTotal = cartTotal + 1;
-    setCartTotal(newCartTotal);//update cart bubble
-
     setTimeout(() => {
       $('#cart').addClass('rotate');
     }, 200);
@@ -135,16 +132,6 @@ const Food = () => {
       }
     );drop */
   };
-  /**drop food */
-
-  const [cartTotal, setCartTotal] = useState(
-    parseInt(sessionStorage.getItem('cartTotal')) || 0
-  );
-
-  useEffect(() => {
-    sessionStorage.setItem('cartTotal', cartTotal);
-  }, [cartTotal]);
-
   /**drop food */
 
   const data = JSON.parse(sessionStorage.getItem("Food_arrays"))
@@ -288,7 +275,7 @@ const Food = () => {
           {/* Filter Type */}
           <div className='Type'>
             {/* <div className='flex justify-between flex-wrap'> */}
-            <div className='scrolling-wrapper-filter mt-2' >
+            <div className='scrolling-wrapper-filter mt-2'>
               <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>{t("All")}</button>
               {foodTypes.map((foodType) => (
       <button 
@@ -327,11 +314,11 @@ const Food = () => {
                 key={item.id}
                 className="border rounded-lg duration-500 cursor-pointer">
                 <div class="h-min overflow-hidden rounded-md">
-                  <img class="w-full h-[150px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[200px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
+                  <img class="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
                 </div>
-                <div className='flex justify-between px-2 py-4 grid grid-cols-4'>
+                <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4'>
 <div className="col-span-4">
-  <p className=' mb-2'>{t(item.name)}</p>
+  <p className=' mb-1'>{t(item.name)}</p>
 </div>
 <div className="col-span-2">
   <p>

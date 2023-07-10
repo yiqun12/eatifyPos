@@ -12,9 +12,8 @@ import { useUserContext } from "../context/userContext";
 import { useRef, useEffect } from 'react';
 //import './html.css';
 import { MyHookProvider, useMyHook } from './myHook';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUtensils } from '@fortawesome/free-solid-svg-icons'
-import { faShoppingBag } from '@fortawesome/free-solid-svg-icons'
+import Hero from './Hero';
+
 import './SwitchToggle.css';
 
 
@@ -67,7 +66,7 @@ const App = () => {
   // tips calculation: in the parent App since needs to be carried in Item() and Checkout() 
 
     // Add state for tip selection and calculation
-    const [selectedTip, setSelectedTip] = useState({type: "percent", value: "18%"});
+    const [selectedTip, setSelectedTip] = useState({type: "percent", value: "15%"});
     const [tips, setTips] = useState(null);
 
     // Calculate the tip amount
@@ -139,17 +138,6 @@ const Item = (props) => {
   const { totalPrice } = props;
   const tax_rate = 0.06;
 
-  //console.log(props.products)
-  const [isDinein, setIsDinein] = useState(true);
-  sessionStorage.setItem('isDinein', JSON.stringify(isDinein));
-  //console.log(isDinein)
-  const handleToggle = () => {
-    setIsDinein(!isDinein);
-    //console.log(isDinein)
-    sessionStorage.setItem('isDinein', JSON.stringify(isDinein));
-    saveId(Math.random())
-  };
-
     // for translations sake
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const t = (text) => {
@@ -218,80 +206,15 @@ const Item = (props) => {
 
   
   return (
-    <div className="card2 mb-50" style={!isMobile?{"box-shadow":'rgba(0, 0, 0, 0.08) -20px 1 20px -10px'}:{"box-shadow":'rgba(0, 0, 0, 0) 0px 20px 20px -10px'}}>
-      <div className="col d-flex">
-        {/** 
-        <span className="text-muted" id="orderno">
-          order #546924
-        </span>*/}
-      </div>
-      <div className="gap">
-        <div className="col-2 d-flex mx-auto" />
-
-        <div className="title" style={{
-          "paddingLeft": "0", "paddingRight": "0",
-          margin: "auto", "marginLeft": "0", "marginRight": "0",
-          "paddingBottom": "40px"
-        }}>
-          <div className="toggle-group" style={{
-            "paddingLeft": "0", "paddingRight": "0",
-            margin: "auto", "marginLeft": "0", "marginRight": "0",}} >
-
-
-            <div className="row">
-              <div className="col flex items-start">
-                {isDinein ? (
-                  <span className="text-black select-none text-2xl">DINE</span>
-                ) : (
-                  <span className="text-black select-none text-2xl">TAKE</span>
-                )}
-              </div>
-              <div className="col d-flex justify-content-end">
-                <input
-                  style={{ "display": " none" }}
-                  type="checkbox"
-                  name="on-off-switch"
-                  id="on-off-switch"
-                  tabIndex="1"
-                  checked={isDinein}
-                  onChange={handleToggle}
-                />
-                <label style={{
-                  "paddingLeft": "0",
-                  margin: "auto", "marginLeft": "0",
-                  "width": "63px",
-                  "height": "30px"
-                }} htmlFor="on-off-switch">
-
-                </label>
-                <div className="onoffswitch pull-right" aria-hidden="true">
-                  <div className="onoffswitch-label">
-
-                    <div className="onoffswitch-inner"></div>
-                    <div className="onoffswitch-switch">
-                      {isDinein ? (
-                        <FontAwesomeIcon icon={faUtensils} />
-                      ) : (
-                        <FontAwesomeIcon icon={faShoppingBag} />
-                      )}
-                    </div>
-
-                  </div>
-
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
+    <div className="card2 mb-50" style={!isMobile?{"box-shadow":'rgba(0, 0, 0, 0.08) -20px 1 20px -10px'}:{"box-shadow":'rgba(0, 0, 0, 0.08) 20px -10px -20px -10px'}}>
 
       <div className="main">
-        <span id="sub-title">
-          <p>
+        <span className='flex' id="sub-title">
             <b>{t("Payment Summary")}</b>
-          </p>
+            <Hero style={{"marginBottom":"5px"}}>
+            </Hero>
         </span>
+
         {products.map((product, index) => {
           return (
             <div className="row row-main" key={index}>

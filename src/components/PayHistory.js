@@ -9,7 +9,8 @@ import { MyHookProvider, useMyHook } from '../pages/myHook';
 import { useState ,useEffect} from 'react';
 
 
-function PayHistory() {
+function PayHistory(props) {
+  const { totalPrice, tips } = props;
 
 // Format amount for diplay in the UI
 function formatAmount(amount, currency) {
@@ -58,9 +59,10 @@ async function handleCardAction(payment, docId) {
   }
   
   const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
-  const promise = loadStripe(STRIPE_PUBLISHABLE_KEY, {
-    stripeAccount: 'acct_1NR75OE0QS2AMUUQ'
-  });  
+const promise = loadStripe(STRIPE_PUBLISHABLE_KEY, {
+  stripeAccount: 'acct_1NR75OE0QS2AMUUQ'
+});
+
   const user = JSON.parse(sessionStorage.getItem('user'));
   /**
    * Get all payments for the logged in customer
@@ -74,20 +76,6 @@ async function handleCardAction(payment, docId) {
     products = JSON.parse(sessionStorage.getItem("products"));
   }, [id]);
   
-  //fetch data from local stroage products.
-  //console.log(sessionStorage.getItem("products"))
-  const [totalPrice, setTotalPrice] = useState(products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0));
-  useEffect(() => {
-    //maybe add a line here...
-    const calculateTotalPrice = () => {
-      const total = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
-      //console.log(total)
-      //console.log(products)
-      setTotalPrice(total);
-    }
-   // console.log(totalPrice)
-    calculateTotalPrice();
-  }, [products]);
   useEffect(() => {
 
   firebase
@@ -132,7 +120,11 @@ async function handleCardAction(payment, docId) {
           document_id : doc.id,
           time: payment.dateTime,
           pay_name: payment.charges.data[0].billing_details.name,
-          isDinein:payment.isDinein
+          isDinein:payment.metadata.isDine,
+          tax:payment.metadata.tax,
+          tips:payment.metadata.tips,
+          subtotal:payment.metadata.subtotal,
+          total:payment.metadata.total,
         };
         //console.log(JSON.stringify(collection_data)); // output the JSON object to the console
         sessionStorage.setItem('collection_data', JSON.stringify(collection_data));
@@ -143,7 +135,7 @@ async function handleCardAction(payment, docId) {
           document
             .querySelectorAll('button')
             .forEach((button) => (button.disabled = false));
-          content = `🚨 ` + t("Payment for") + `${formatAmount(
+          content = `🚨 ` + t("Payment for ") + `${formatAmount(
             payment.amount,
             payment.currency
           )} ${payment.status}`;

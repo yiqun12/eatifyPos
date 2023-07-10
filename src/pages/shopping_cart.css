@@ -148,7 +148,7 @@
 }
 
 .black_hover:hover {
-  background-color: #f7eeee;
+  background-color: rgba(221, 228, 236, 0.301);
 }
 /* Responsive */
 @media (max-width: 575px) {

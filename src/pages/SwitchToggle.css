@@ -155,7 +155,7 @@
     background: var(--switches-bg-color);
     line-height: 1.5rem;
     border-radius: 1.5rem;
-    margin-right: auto; 
+    margin-left: auto; 
   }
   
   /* input (radio) for toggling. hidden - use labels for clicking on */
@@ -173,7 +173,6 @@
     text-align: center;
     cursor: pointer;
     color: var(--switches-label-color);
-    
   }
   
   /* switch highlighters wrapper (sliding left / right) 

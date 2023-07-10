@@ -71,14 +71,12 @@ const Dashboard = (props) => {
   return (
     <div>
       <Elements stripe={promise}>
-        <div className="card2 mb-50" style={isMobile?{"box-shadow":'rgba(0, 0, 0, 0.08) 0 -20px 20px -10px'}:{"box-shadow":'rgba(0, 0, 0, 0.02)-20px 1 20px -10px'}}>
+        <div className="card2 mb-50" style={isMobile?{ "borderTop":"1px solid","box-shadow":'rgba(0, 0, 0, 0) 0 -20px 20px -10px'}:{"box-shadow":'rgba(0, 0, 0, 0.02)-20px 1 20px -10px'}}>
           <div className="text-black select-none text-2xl">
             {t("CHECKOUT")}   ${Math.round(100 * totalPrice) / 100} 
           </div>
-  
             <Checkout totalPrice={totalPrice}/>
-          
-          <PayHistory />
+          <PayHistory totalPrice={totalPrice} />
         </div>
       </Elements>
     </div>

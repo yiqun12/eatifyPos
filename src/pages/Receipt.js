@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 //import './html.css';
 import { useMyHook } from './myHook';
 import './SwitchToggle.css';
+import moment from 'moment';
 
 const App = () => {
 
@@ -103,13 +104,12 @@ const Item = (props) => {
         
         </span>
         <span className="block text-black text-sm">{t("Order ID")}: {JSON.parse(sessionStorage.getItem('collection_data')).document_id}</span>
-        <span className="block text-black text-sm">{JSON.parse(sessionStorage.getItem('collection_data')).time}</span>
+        <span className="block text-black text-sm">{  moment(JSON.parse(sessionStorage.getItem('collection_data')).time, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-8).format("MMMM D, YYYY h:mm a")}</span>
       </div>
       <div className="main">
         <span id="sub-title">
-          <p>
-            <b>{t("Order Summary")}</b>
-          </p>
+          <br>
+          </br>
         </span>
         {products.map((product, index) => {
           return (
@@ -134,18 +134,41 @@ const Item = (props) => {
         <div className="total">
           <div className="row">
             <div className="col">
+              <b> {t("Subtotal")}:</b>
+            </div>
+            <div className="col d-flex justify-content-end">
+              <b>${JSON.parse(sessionStorage.getItem('collection_data')).subtotal}</b>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col">
+              <b> {t("Tax")}:</b>
+            </div>
+            <div className="col d-flex justify-content-end">
+              <b>${JSON.parse(sessionStorage.getItem('collection_data')).tax}</b>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col">
+              <b> {t("Tips")}:</b>
+            </div>
+            <div className="col d-flex justify-content-end">
+              <b>${JSON.parse(sessionStorage.getItem('collection_data')).tips}</b>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col">
               <b> {t("Total")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${Math.round(100 * totalPrice)/100}</b>
+              <b>${JSON.parse(sessionStorage.getItem('collection_data')).total}</b>
             </div>
-          </div>{" "}
+          </div>
         </div>
       </div>
     </div>
   )
 };
-
 
 
 export default App

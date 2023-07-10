@@ -18,7 +18,20 @@ function PayFullhistory() {
   useEffect(() => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
+  /**check if its mobile/browser */
+  const [width, setWidth] = useState(window.innerWidth);
 
+  function handleWindowSizeChange() {
+    setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowSizeChange);
+    return () => {
+      window.removeEventListener('resize', handleWindowSizeChange);
+    }
+  }, []);
+
+  const isMobile = width <= 768;
 // Format amount for diplay in the UI
 function formatAmount(amount, currency) {
     amount = zeroDecimalCurrency(amount, currency)
@@ -113,7 +126,7 @@ async function handleCardAction(payment, docId) {
             
           const card = payment.charges.data[0].payment_method_details.card;
           const dateTime = payment.dateTime;
-          const formattedDate = moment(dateTime, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-13).format("MMMM D, YYYY h:mm a");
+          const formattedDate = moment(dateTime, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-8).format("MMMM D, YYYY h:mm a");
             // Format receipt data
             let products_ = JSON.parse(payment.receiptData)
             const newItems = products_.map(item => {
@@ -121,22 +134,39 @@ async function handleCardAction(payment, docId) {
               });
               var formattedString = "";
               for(var i=0;i<newItems.length;i++){
-                  formattedString += `${newItems[i].quantity} x ${t(newItems[i].name)}($${newItems[i].subtotal}) = $${Math.round(100*(newItems[i].item_Total))/100 }<br>`;
-              }
+                 if (isMobile){
+                  formattedString += `
+                  <span style="padding: 0; margin: 0px 0px 0px 0px; font-weight: bold;">${t(newItems[i].name)}</span>
+                  <br/>
+                  <span style="padding: 0; margin: 0px 0px 0px 0px; font-weight: normal;">@ ${newItems[i].subtotal} each x ${newItems[i].quantity} = $${Math.round(100*(newItems[i].item_Total))/100 }<span>
+                  <br/>
+                  `;
+                 }else{
+                  formattedString += `
+                  <span style="padding: 0; margin: 0px 0px 0px 0px; font-weight: bold;">${t(newItems[i].name)}</span>
+                  <span style="padding: 0; margin: 0px 0px 0px 0px; font-weight: normal;">@ ${newItems[i].subtotal} each x ${newItems[i].quantity} = $${Math.round(100*(newItems[i].item_Total))/100 }<span>
+                  <br/>
+                  `;
+                 }
+
+                }
              // console.log(doc.id)
               //console.log(payment.receiptData)
               //应该显示这次交易id 时间不够 下次再加。
-      content = `<div style="display: inline-block;">
+      content = `
+      
+      <div style="display: inline-block;">
       <details>
         <summary>
-        ${count}  ✅${formatAmount(payment.amount, payment.currency)} ${card.brand} •••• ${card.last4}. <i class="fas fa-arrow-circle-down"></i>
+        ✅ ${card.brand} •••• ${card.last4} ${formatAmount(payment.amount, payment.currency)} <i class="fas fa-arrow-circle-down"></i>
         </summary>
         <div style="border: 1px solid; padding: 10px; background-color: white;">
-        <p style="padding: 0; margin: 0;">${t("Card Owner")}: ${payment.charges.data[0].billing_details.name} </p>
-        <p style="padding: 0; margin: 0px 0px 0px 5px;">${formattedString}</p>
-        <p style="padding: 0; margin: 0;"> ${formattedDate}</p>
-        </div>
-      </details>`;//${payment.dateTime} ${payment.receiptData} ${payment.charges.data[0].billing_details.name} 
+        <p style="padding: 0; margin: 0px 0px 0px; font-weight: bold;">${payment.charges.data[0].billing_details.name} </p>
+        <p style="padding: 0; margin: 0px 0px 0px; font-weight: bold;">${formattedDate}</p>
+        ${formattedString}
+      </details>
+      </div>
+      `;//${payment.dateTime} ${payment.receiptData} ${payment.charges.data[0].billing_details.name} 
         } else if (payment.status === 'requires_action') {
           content = `${count} 🚨 ${t("Payment for")} ${formatAmount(
             payment.amount,
