@@ -29,6 +29,7 @@ import logo_fork from './logo_fork.png'
 import Hero from './Hero'
 import cuiyuan from './cuiyuan.png'
 
+
 const Navbar = () => {
 
   /**listen to localtsorage */
@@ -455,7 +456,7 @@ const Navbar = () => {
 
 
         {/* popup content */}
-        <div className="shopping-cart">
+        <div className="shopping-cart" >
 
           {/* shoppig cart */}
           <div className="title" style={{ height: '80px' }}>

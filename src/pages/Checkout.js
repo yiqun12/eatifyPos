@@ -197,7 +197,8 @@ const Item = (props) => {
 
   const Button = ({ children, type }) => (
     <button
-      className={`btn ${selectedTip?.value === children ? 'border border-solid border-black' : ''}`}
+      // className={`btn ${selectedTip?.value === children ? 'border border-solid border-black' : ''}`}
+      className={`tips btn-outline-none shadow-none ${selectedTip?.value === children ? 'border border-solid border-black' : ''}`}
       onClick={() => type === 'other' ? handleOtherButtonClick() : handlePercentButtonClick(children)}
     >
       {children}
@@ -276,7 +277,7 @@ const Item = (props) => {
       {showInput && <input 
         type="tel"
         min="0"
-        className={`btn ${selectedTip?.type === "other" ? 'border border-solid border-black' : ''}`}
+        className={`tips ${selectedTip?.type === "other" ? 'border border-solid border-black' : ''}`}
         placeholder="Other"
         value={(parseFloat(selectedTip?.value || 0)).toFixed(2)}
         onChange={e => {
