@@ -316,12 +316,23 @@ const Food = () => {
                 <div class="h-min overflow-hidden rounded-md">
                   <img class="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
                 </div>
-                <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4'>
+                <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full myCustomHeight'>
+
+{/* parent div of title + quantity and button parent div */}
+<div className="col-span-4" style={{display: "flex", flexDirection: "column", justifyContent: "space-between"}}>
 <div className="col-span-4">
   <p className=' mb-1'>{t(item.name)}</p>
 </div>
-<div className="col-span-2">
-  <p>
+
+{/* parent div of the quantity and buttons */}
+<div style={{    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom:"10px"}}>
+<div className="col-span-2" style={{display: "flex",
+    justifyContent: "center",
+    alignItems: "center"}}>
+  <p style={{marginBottom: "0"}}>
     <span>
       ${item.subtotal}
     </span>
@@ -443,6 +454,12 @@ const Food = () => {
 
                         }
                   </div>
+
+</div>
+{/* ^ end of parent div of quantity and button */}
+
+</div>
+{/* ^ end of parent div of title + quantity and buttons */}
 
                 </div>
 

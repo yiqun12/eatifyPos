@@ -172,8 +172,9 @@
     height: auto;
     max-height: 100%;
     overflow-y: auto;
-    padding-bottom: 20px; /* Add padding to create space around the content */
+    padding-bottom: 25px; /* Add padding to create space around the content */
     box-sizing: border-box; /* Include padding in the total width and height calculations */
+    min-height: 150px;
   }
 
 /* Product Quantity */
