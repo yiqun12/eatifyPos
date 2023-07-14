@@ -281,7 +281,146 @@ const Food = () => {
           {/* Filter Type */}
           <div className='Type' >
             {/* <div className='flex justify-between flex-wrap'> */}
-            <div className='flex' >
+
+            {/* web mode */}
+            {!isMobile && (
+  <div className='flex'>
+    <div
+      className='flex'
+      style={{
+        width: '70%',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+      }}
+    >
+      <div style={{ marginLeft: "15px" }}>{isMobile ? "2278 Westborough Blvd" : ""}</div>
+
+      <div className='container_search'>
+        <div className='searchInputWrapper'>
+          <input
+            className='searchInput'
+            style={{ margin: '5px', maxWidth: '90%' }}
+            type='text'
+            placeholder='Search your food'
+            value={input}
+            onChange={handleInputChange}
+          />
+          <i className='searchInputIcon fa fa-search'></i>
+        </div>
+      </div>
+    </div>
+
+    <div
+      style={{ marginLeft: '20px', width: '30%', textAlign: 'right' }}
+    >
+      <div style={{ marginTop: '6px' }}>
+        <span style={{ marginRight: '10px' }}>A1</span>
+        <span
+          style={{
+            backgroundColor: 'green',
+            borderRadius: '10px',
+            padding: '3px',
+            paddingTop: '2px',
+            paddingBottom: '2px',
+            color: 'white',
+          }}
+        >
+          Open
+        </span>
+      </div>
+      <div>Until 9:00pm</div>
+    </div>
+  </div>
+)}
+
+{/* mobile mode */}
+
+{/* <div style={{ marginLeft: "15px" }}>{isMobile ? "2278 Westborough Blvd" : ""}</div>
+
+<div className='container_search'>
+        <div className='searchInputWrapper'>
+          <input
+            className='searchInput'
+            style={{ margin: '5px', maxWidth: '90%' }}
+            type='text'
+            placeholder='Search your food'
+            value={input}
+            onChange={handleInputChange}
+          />
+          <i className='searchInputIcon fa fa-search'></i>
+        </div>
+      </div>
+
+      <div style={{ marginTop: '6px' }}>
+        <span style={{ marginRight: '10px' }}>A1</span>
+        <span
+          style={{
+            backgroundColor: 'green',
+            borderRadius: '10px',
+            padding: '3px',
+            paddingTop: '2px',
+            paddingBottom: '2px',
+            color: 'white',
+          }}
+        >
+          Open
+        </span>
+      </div>
+
+      <div>Until 9:00pm</div> */}
+
+{/* mobile mode */}
+{isMobile && (
+  <div className='flex'>
+    {/* parent div of top and bottom div */}
+    <div style={{display: "flex",
+    flexDirection: "column",
+    width: "100%"}}>
+      {/* top parent div */}
+      <div style={{    display: "flex",
+    width: "100%",
+    justifyContent: "space-between"}}>
+      <div>{"2278 Westborough Blvd"}</div>
+
+      <div style={{ marginLeft: "20px", width: "30%", textAlign: "right" }}>
+                <div>
+                  <span style={{marginRight:"10px"}}>
+                    A1
+                  </span>
+                  <span
+                  style={{ backgroundColor: "green", borderRadius: "10px", padding: "3px", paddingTop: "2px", paddingBottom: "2px", color: "white" }}
+                >Open</span></div>
+              </div>
+
+      </div>
+
+      {/* bottom parent div */}
+      <div style={{    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between"}}>
+        {/* bottom search bar */}
+      <div className='container_search'>
+        <div className='searchInputWrapper'>
+          <input
+            className='searchInput'
+            style={{ margin: '5px', maxWidth: '90%' }}
+            type='text'
+            placeholder='Search your food'
+            value={input}
+            onChange={handleInputChange}
+          />
+          <i className='searchInputIcon fa fa-search'></i>
+        </div>
+      </div>
+      <div style={{    display: "flex",
+    alignSelf: "center"}}>Until 9:00pm</div>
+      </div>
+
+    </div>
+  </div>
+)}
+
+            {/* <div className='flex' >
               <div className='flex' style={{ "width": "70%", flexDirection: "column", justifyContent: "space-between" }}>
                 <div style={{ marginLeft: "15px" }}>{isMobile ? "2278 Westborough Blvd" : ""}</div>
 
@@ -310,7 +449,9 @@ const Food = () => {
                 >Open</span></div>
                 <div>Until 9:00pm</div>
               </div>
-            </div>
+            </div> */}
+
+            {/* end of the top */}
             <div className={isMobile?'scrolling-wrapper-filter mt-2':"mb-2 scrolling-wrapper-filter mt-2"} style={{borderBottom: "1px solid black"}}>
               <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>{t("All")}</button>
 
