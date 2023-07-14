@@ -211,7 +211,7 @@ const Item = (props) => {
 
       <div className="main">
         <span className='flex' id="sub-title">
-            <b>{t("Payment Summary")}</b>
+            <b>{t("Summary")}</b>
             <Hero style={{"marginBottom":"5px"}}>
             </Hero>
         </span>

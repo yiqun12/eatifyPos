@@ -34,23 +34,23 @@ function Iframe({ src, width, height }) {
 
 
     useEffect(() => {
-      const fetchHtml = async () => {
-        try {
-          const response = await fetch(src);
-          const html = await response.text();
-          iframeRef.current.contentWindow.document.open();
-          iframeRef.current.contentWindow.document.write(html);
-          iframeRef.current.contentWindow.document.close();
-        } catch (error) {
-          console.error('Error fetching HTML:', error);
-        }
-      };
-  
-      fetchHtml();
+        const fetchHtml = async () => {
+            try {
+                const response = await fetch(src);
+                const html = await response.text();
+                iframeRef.current.contentWindow.document.open();
+                iframeRef.current.contentWindow.document.write(html);
+                iframeRef.current.contentWindow.document.close();
+            } catch (error) {
+                console.error('Error fetching HTML:', error);
+            }
+        };
+
+        fetchHtml();
     }, [src]);
-  
+
     return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
-  }
+}
 
 function App() {
 
@@ -91,29 +91,29 @@ function App() {
 
         //console.log(sessionStorage.getItem(sessionStorage.getItem("tableMode")))
         const food_array = JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode")));
-          const matched_food_array = food_array.map(({ id, quantity }) => {
+        const matched_food_array = food_array.map(({ id, quantity }) => {
             const matched_food = JSON.parse(sessionStorage.getItem("Food_arrays")).find(foodItem => foodItem.id === id);
             return { ...matched_food, quantity };
-          });
-          
-          console.log(matched_food_array);
-          const total_ = JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+        });
+
+        console.log(matched_food_array);
+        const total_ = JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
             return accumulator + task.quantity * task.subtotal;
         }, 0).toFixed(2)
-         try {
+        try {
             const dateTime = new Date().toISOString();
             const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
             const docRef = await addDoc(collection(db, "success_payment"), {
                 dateTime: date,
                 receiptData: JSON.stringify(matched_food_array),
                 //charges.data[0].billing_details.name = "DineIn"
-                amount:total_*100,
-                amount_received: total_*100,
-                user_email:"Admin@gmail.com",
-                charges:{
-                    data:[
+                amount: total_ * 100,
+                amount_received: total_ * 100,
+                user_email: "Admin@gmail.com",
+                charges: {
+                    data: [
                         {
-                            billing_details:{name:"DineIn"}
+                            billing_details: { name: "DineIn" }
                         }
                     ]
                 }
@@ -121,7 +121,7 @@ function App() {
             console.log("Document written with ID: ", docRef.id);
         } catch (e) {
             console.error("Error adding document: ", e);
-        } 
+        }
     }
     const handleClickFavicon = (e) => {
         e.preventDefault();
@@ -174,7 +174,7 @@ function App() {
 
     const [inputData, setInputData] = useState([]);
     const [searchData, setSearchData] = useState([]);
-    
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         setInputData(event.target.inputData.value);
@@ -433,7 +433,7 @@ function App() {
         sessionStorage.setItem("tableMode", "table-NaN");
     }
 
-    const [src, setSrc] = useState( window.PUBLIC_URL + "/seat.html");
+    const [src, setSrc] = useState(window.PUBLIC_URL + "/seat.html");
     const [initialSrc, setInitialSrc] = useState(window.PUBLIC_URL + "/seat.html");
     const [isLoading, setIsLoading] = useState(false); // added state variable
     const iframeRef = useRef(null);
@@ -609,8 +609,8 @@ function App() {
         setCheeseItems_(cheeseItems)
         saveId(Math.random());
     }
-    
-    let search_food = !searchData? Food_arrays :cheeseItems_;  
+
+    let search_food = !searchData ? Food_arrays : cheeseItems_;
 
     return (
         <div style={{ maxWidth: '1240px', display: 'grid', justifySelf: 'center', justifyContent: 'center', margin: 'auto', alignContent: 'center' }}>
@@ -642,9 +642,9 @@ function App() {
                                 </a>
                             </li>
                             <li className="main-nav__item">
-                            <a className="main-nav__link" onClick={() => { handleItemClick('History'); fetchPost(); }}>
-  History
-</a>
+                                <a className="main-nav__link" onClick={() => { handleItemClick('History'); fetchPost(); }}>
+                                    History
+                                </a>
 
                             </li>
                             <li className="main-nav__item">
@@ -889,14 +889,14 @@ function App() {
                             selectedItem === 'Order' ?
 
                                 <>
-                                                            <header className="main-header" style={{height:"100px"}}>
+                                    <header className="main-header" style={{ height: "100px" }}>
 
-<div className="search-wrap">
-    </div>
-</header>
-                                    <div style={{marginTop:"-100px"}}>
-                                        <Iframe src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" />                                    
+                                        <div className="search-wrap">
                                         </div>
+                                    </header>
+                                    <div style={{ marginTop: "-100px" }}>
+                                        <Iframe src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" />
+                                    </div>
 
                                     <section className="task-list" style={{ marginTop: "-100px" }}>
                                         <div className="task-wrap" style={{ minHeight: '350px', maxHeight: '350px', overflowY: 'scroll' }}>
@@ -1006,7 +1006,7 @@ function App() {
                                             name="inputData"
                                             placeholder={t("Search food items")}
                                             className="search-bar"
-                                            style={{ marginLeft: "5px", height: '30px', width: "80%",marginBottom:"5px" }}
+                                            style={{ marginLeft: "5px", height: '30px', width: "80%", marginBottom: "5px" }}
                                             onChange={(e) => {
                                                 searchItemFromShopItem(e.target.value);
                                                 setSearchData(e.target.value);
@@ -1015,7 +1015,7 @@ function App() {
                                         />
 
                                         <div className="task-wrap" style={{ minHeight: '400px', maxHeight: '400px', overflowY: 'scroll' }}>
-                                            { search_food.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
+                                            {search_food.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
                                                 <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
                                                     <div style={{ display: "flex", alignItems: "center" }}>
                                                         <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
@@ -1267,3 +1267,40 @@ function App() {
     );
 }
 export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

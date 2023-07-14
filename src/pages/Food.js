@@ -14,10 +14,11 @@ import './fooddropAnimate.css';
 import { useMyHook } from './myHook';
 import { useMemo } from 'react';
 import plusSvg from './plus.svg';
-import {ReactComponent as PlusSvg}  from './plus.svg';
-import {ReactComponent as MinusSvg} from './minus.svg';
+import { ReactComponent as PlusSvg } from './plus.svg';
+import { ReactComponent as MinusSvg } from './minus.svg';
 
 const Food = () => {
+
   const [numbers, setNumbers] = useState([0, 0, 0]);
 
   const incrementNumber = (index) => {
@@ -57,7 +58,7 @@ const Food = () => {
     saveId(Math.random());
   }, [products]);
 
-    const displayAllProductInfo = () => {
+  const displayAllProductInfo = () => {
     // Retrieve the array from local storage
     let products = JSON.parse(sessionStorage.getItem("products"));
     //console.log("displayProductFunction")
@@ -106,7 +107,7 @@ const Food = () => {
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
+  const isMobile = width <= 768;
   const handleDropFood = (category) => {
     //console.log("hello")
     /**shake */
@@ -145,14 +146,19 @@ const Food = () => {
       })
     )
   }
-  const filterPrice = (price) => {
+  const filtername = (name) => {
     setFoods(
       data.filter((item) => {
-        return item.price === price;
+        return item.name.toLowerCase().includes(name.toLowerCase());
       })
     )
   }
+  const [input, setInput] = useState("");
 
+  const handleInputChange = (event) => {
+    setInput(event.target.value);
+    filtername(event.target.value);
+  }
   // timesClicked is an object that stores the number of times a item is clicked
   //const timesClicked = new Map();
 
@@ -202,7 +208,7 @@ const Food = () => {
     }
     const calculateTotalQuant = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity), 0);
-     // console.log(total)
+      // console.log(total)
       $('#cart').attr("data-totalitems", total);
     }
     calculateTotalQuant();
@@ -210,7 +216,7 @@ const Food = () => {
     saveId(Math.random());
   };
   const updateLocalStorage = (id, name, subtotal, image) => {
-  //  console.log(id, name, subtotal, image);
+    //  console.log(id, name, subtotal, image);
 
     // Check if the array exists in local storage
     if (sessionStorage.getItem("products") === null) {
@@ -241,7 +247,7 @@ const Food = () => {
 
     const calculateTotalQuant = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity), 0);
-     // console.log(total)
+      // console.log(total)
       $('#cart').attr("data-totalitems", total);
     }
     calculateTotalQuant();
@@ -252,14 +258,14 @@ const Food = () => {
   const t = useMemo(() => {
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const translationsMode = sessionStorage.getItem("translationsMode")
-  
+
     return (text) => {
       if (trans != null && translationsMode != null) {
         if (trans[text] != null && trans[text][translationsMode] != null) {
           return trans[text][translationsMode];
         }
       }
-  
+
       return text;
     };
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
@@ -267,25 +273,57 @@ const Food = () => {
   const foodTypes = [...new Set(JSON.parse(sessionStorage.getItem("Food_arrays")).map(item => item.category))];
 
   return (
-    
-    <div>
 
+    <div>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
       <div className='max-w-[1000px] m-auto px-4 '>
         <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
           {/* Filter Type */}
-          <div className='Type'>
+          <div className='Type' >
             {/* <div className='flex justify-between flex-wrap'> */}
-            <div className='scrolling-wrapper-filter mt-2'>
+            <div className='flex' >
+              <div className='flex' style={{ "width": "70%", flexDirection: "column", justifyContent: "space-between" }}>
+                <div style={{ marginLeft: "15px" }}>{isMobile ? "2278 Westborough Blvd" : ""}</div>
+
+                <div className="container_search" >
+                  <div className="searchInputWrapper">
+                    <input
+                      className="searchInput"
+                      style={{ margin: "5px", maxWidth: '90%' }}
+                      type="text"
+                      placeholder='Search your food'
+                      value={input}
+                      onChange={handleInputChange}
+                    />
+                    <i className="searchInputIcon fa fa-search"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginLeft: "20px", width: "30%", textAlign: "right" }}>
+                <div style={{ marginTop: "6px" }}>
+                  <span style={{marginRight:"10px"}}>
+                    A1
+                  </span>
+                  <span
+                  style={{ backgroundColor: "green", borderRadius: "10px", padding: "3px", paddingTop: "2px", paddingBottom: "2px", color: "white" }}
+                >Open</span></div>
+                <div>Until 9:00pm</div>
+              </div>
+            </div>
+            <div className={isMobile?'scrolling-wrapper-filter mt-2':"mb-2 scrolling-wrapper-filter mt-2"} style={{borderBottom: "1px solid black"}}>
               <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>{t("All")}</button>
+
               {foodTypes.map((foodType) => (
-      <button 
-        key={foodType} 
-        onClick={() => filterType(foodType)} 
-        className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' 
-        style={{ display: "inline-block" }}>
-        {t(foodType.charAt(0).toUpperCase() + foodType.slice(1))}
-      </button>
-    ))}
+
+                <button
+                  key={foodType}
+                  onClick={() => filterType(foodType)}
+                  className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1'
+                  style={{ display: "inline-block" }}>
+                  {t(foodType.charAt(0).toUpperCase() + foodType.slice(1))}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -303,7 +341,7 @@ const Food = () => {
 
         {/* diplay food */}
         <AnimatePresence>
-          <div className='grid grid-cols-2 lg:grid-cols-4 gap-6 pt-4'>
+          <div className='grid grid-cols-2 lg:grid-cols-4 gap-6 pt-3'>
             {foods.map((item, index) => (
               <motion.div
                 layout
@@ -317,131 +355,131 @@ const Food = () => {
                   <img class="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
                 </div>
                 <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4'>
-<div className="col-span-4">
-  <p className=' mb-1'>{t(item.name)}</p>
-</div>
-<div className="col-span-2">
-  <p>
-    <span>
-      ${item.subtotal}
-    </span>
-    </p>
-</div>
+                  <div className="col-span-4">
+                    <p className=' mb-1'>{t(item.name)}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p>
+                      <span>
+                        ${item.subtotal}
+                      </span>
+                    </p>
+                  </div>
                   <div className="col-span-2 flex justify-end">
 
-                  {SearchQuantity(item.id) == 0 ?
-                          <>
-                            <div className="quantity"
-                              style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop:"-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
+                    {SearchQuantity(item.id) == 0 ?
+                      <>
+                        <div className="quantity"
+                          style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
 
-                              <div
-                              className="black_hover"
+                          <div
+                            className="black_hover"
+                            style={{
+                              padding: '4px',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              display: "flex",
+                              border: "1px solid", // Adjust the border
+                              borderRadius: "50%", // Set borderRadius to 50% for a circle
+                              width: "30px", // Make sure width and height are equal
+                              height: "30px",
+
+                            }}
+                          >
+                            <button
+                              className="minus-btn"
+                              type="button"
+                              name="button"
+                              style={{
+                                marginTop: '0px',
+                                width: '20px',
+                                height: '20px',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                display: "flex",
+                              }}
+                              onClick={() => {
+                                handleDropFood();
+                                updateLocalStorage(item.id, item.name, item.subtotal, item.image);
+                                saveId(Math.random());
+                              }}
+                            >
+                              <PlusSvg
                                 style={{
-                                  padding: '4px',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  display: "flex",
-                                  border: "1px solid", // Adjust the border
-                                  borderRadius: "50%", // Set borderRadius to 50% for a circle
-                                  width: "30px", // Make sure width and height are equal
-                                  height: "30px",
-
+                                  margin: '0px',
+                                  width: '10px',
+                                  height: '10px',
                                 }}
+                                alt=""
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                      :
+                      <>
+                        <div
+                          className={animationClass}
+                          style={{
+                            margin: '0px',
+                            display: 'flex',
+                            whiteSpace: 'nowrap',
+                            width: '80px',
+                            marginTop: '-18px',
+                            paddingTop: '20px',
+                            height: 'fit-content',
+                          }}
+                        >
+                          <div className="quantity"
+
+                            style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-18px", paddingTop: "20px", height: "fit-content" }}>
+                            <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                              <button
+
+                                className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                                onClick={() => {
+                                  handleDeleteClick(item.id);
+                                  //saveId(Math.random());
+                                }}
+
                               >
-                                <button
-                                  className="minus-btn"
-                                  type="button"
-                                  name="button"
-                                  style={{
-                                    marginTop: '0px',
-                                    width: '20px',
-                                    height: '20px',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    display: "flex",
-                                  }}
-                                  onClick={() => {
-                                    handleDropFood();
-                                    updateLocalStorage(item.id, item.name, item.subtotal, item.image);
-                                    saveId(Math.random());
-                                  }}
-                                >
-                                  <PlusSvg
-                                    style={{
-                                      margin: '0px',
-                                      width: '10px',
-                                      height: '10px',
-                                    }}
-                                    alt=""
-                                  />
-                                </button>
-                              </div>
+                                <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                              </button>
                             </div>
-                          </>
-                          :
-                          <>
-<div
-      className={animationClass}
-      style={{
-        margin: '0px',
-        display: 'flex',
-        whiteSpace: 'nowrap',
-        width: '80px',
-        marginTop: '-18px',
-        paddingTop: '20px',
-        height: 'fit-content',
-      }}
-    >
-                            <div className="quantity"
-                            
-                              style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop:"-18px", paddingTop: "20px", height: "fit-content" }}>
-                              <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                                <button
+                            <span
 
-                                  className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                                  onClick={() => {
-                                    handleDeleteClick(item.id);
-                                    //saveId(Math.random());
-                                  }}
+                              type="text"
+                              style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                            >
 
-                                >
-                                  <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                                </button>
-                              </div>
-                              <span
-                              
-                                type="text"
-                                style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                              >
-                                
-                                <span >
+                              <span >
                                 {SearchQuantity(item.id)}
-                                </span>
-                              
                               </span>
 
-                              
-                              <div className="black_hover"style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                                <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                                  onClick={() => {
-                                    handleDropFood();
-                                    updateLocalStorage(item.id, item.name, item.subtotal, item.image);
-                                    saveId(Math.random());
-                                  }}
-                                >
-                                  <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                                </button>
-                              </div>
+                            </span>
+
+
+                            <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                              <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                                onClick={() => {
+                                  handleDropFood();
+                                  updateLocalStorage(item.id, item.name, item.subtotal, item.image);
+                                  saveId(Math.random());
+                                }}
+                              >
+                                <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                              </button>
                             </div>
-                            
-    </div>
+                          </div>
+
+                        </div>
 
 
 
-                            
-                            </>
 
-                        }
+                      </>
+
+                    }
                   </div>
 
                 </div>

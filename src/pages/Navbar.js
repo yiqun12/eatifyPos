@@ -420,7 +420,6 @@ const Navbar = () => {
   }
 
 
-
   return (
 
     <>
@@ -465,12 +464,15 @@ const Navbar = () => {
             <DeleteSvg className="delete-btn" style={{ 'postion': 'absolute', float: 'right', cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></DeleteSvg>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              {totalPrice === 0 ?
+              {totalPrice === 0 ? 
                 <div>
                   <div style={{ marginTop: "15px" }}>
-                    <span> &nbsp;
-                      Your cart is currently empty.
-                    </span>
+                  <span> 
+  <i style={{ fontSize: "35px" }} className="material-icons nav__icon">shopping_cart_checkout</i>
+  <span >&nbsp;Your cart is currently empty.</span>
+</span>
+
+
                   </div>
                 </div>
                 :
@@ -580,11 +582,11 @@ const Navbar = () => {
       </div>
       {/**navbar */}
 
-      <div className={!isMobile ? "max-w-[1000px] mx-auto justify-between sticky top-0 bg-white z-10" : "justify-between bg-white z-10"} style={{ "border-bottom": "solid" }}>
+      <div className={!isMobile ? "max-w-[1000px] mx-auto justify-between sticky top-0 bg-white z-10" : "sticky top-0 z-10 justify-between bg-white"}>
      
           <div className="col-span-4 pl-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
           <img onClick={event => window.location.href = '/'}
-    src={cuiyuan}
+    src={"https://media.discordapp.net/attachments/759102082849833000/1129086110027481159/cuiyuan.png?width=496&height=487"}
     alt=""
     style={{ 
         maxHeight: '60px',
@@ -594,9 +596,14 @@ const Navbar = () => {
         marginRight: '10px',   // added some margin to the right of the image
         marginTop:"5px"
     }}/>
-<span onClick={event => window.location.href = '/'} style={{marginTop:"0px"}}>
-Park Asia
-</span>
+<div className='flex' style={{flexDirection: "column"}}> 
+  <span onClick={event => window.location.href = '/'} style={{marginTop:"0px"}}>
+   {JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Name}
+  </span>
+{isMobile?<></>:<div  onClick={event => window.location.href = '/'}>{JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address}</div>}
+  
+</div>
+
           <div className='flex ml-auto pr-4'>
             <select class="selectpicker" data-width="fit" onChange={changeLanguage}>
               {/**如果选择中文，框显示成lang，如果是eng,框显示语言 */}

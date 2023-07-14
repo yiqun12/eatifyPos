@@ -8,3 +8,48 @@
     width:0
   }
   
+
+  
+.container_search {
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.07);
+  border-radius: 2rem;
+  padding: 1px;
+  margin-top: 5px;
+  padding-bottom: 2px;
+}
+
+
+.searchInputWrapper {
+  position: relative;
+}
+
+.searchInput {
+  flex: 1;
+  margin: 10px;
+  padding: 0 1rem; 
+  border-radius: 3rem;
+  padding-right: 30px; /* Adjust this value to move the text away from the icon */
+  border: none;
+  transition: transform 0.1s ease-in-out;
+}
+
+::placeholder {
+  color: #a1a1a1;
+}
+
+/* hide the placeholder text on focus */
+:focus::placeholder {
+  text-indent: -999px
+}
+
+
+.searchInputIcon {
+  position: absolute;
+  right: 0.8rem;
+  top: 0.5rem;
+  color: #a1a1a1;
+  transition: all 0.1s ease-in-out;
+}
+
