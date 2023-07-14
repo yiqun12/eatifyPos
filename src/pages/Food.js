@@ -354,19 +354,6 @@ const Food = () => {
                 <div class="h-min overflow-hidden rounded-md">
                   <img class="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
                 </div>
-<<<<<<< HEAD
-                <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4'>
-                  <div className="col-span-4">
-                    <p className=' mb-1'>{t(item.name)}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <p>
-                      <span>
-                        ${item.subtotal}
-                      </span>
-                    </p>
-                  </div>
-=======
                 <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full myCustomHeight'>
 
 {/* parent div of title + quantity and button parent div */}
@@ -389,7 +376,6 @@ const Food = () => {
     </span>
     </p>
 </div>
->>>>>>> 75bda7121cf771325695d422b7541dabe1945f02
                   <div className="col-span-2 flex justify-end">
 
                     {SearchQuantity(item.id) == 0 ?

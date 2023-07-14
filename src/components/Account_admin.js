@@ -1331,17 +1331,11 @@ const Account = () => {
     >
         <Box component="form" noValidate sx={{ mt: 1 }}>
 
-            <Grid container>
+            <Grid container >
 
-                <div style={{width:"100%"}}>
-
-                            <div style={{ width:"50%",height:"125px",padding: "0px", borderRadius: '0.625rem' }} class="image-container">
-                                <img src={updateImage} alt="" />
-                            </div>
-                            
-                </div>
-
+                <div className='flex' style={{width:"100%"}}>
                 <TextField
+                    style={{ marginRight:"5%", width:"45%"}}
                     margin="normal"
                     required
                     fullWidth
@@ -1356,6 +1350,12 @@ const Account = () => {
                         setUpdateName(e.target.value);
                     }}
                 />
+                            <div style={{ width:"50%",height:"125px",padding: "0px", borderRadius: '0.625rem' }} class="image-container">
+                                <img src={updateImage} alt="" />
+                            </div>
+              
+                </div>
+
                 <TextField
                     margin="normal"
                     required

@@ -95,7 +95,6 @@ useEffect(() => {
         <Admin_new /> : 
         <LogIn />} />
 
-<Route path="Account_admin" element=/>
 
 
       <Route path='*' exact={true} element={<Home />} />
@@ -105,21 +104,23 @@ useEffect(() => {
       <Route path="Reservation" element={<Reservation />} />
       { JSON.parse(sessionStorage.getItem('user')) ?  <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route> }
       <Route path="Dashboard" element={<Dashboard />} />
-      { JSON.parse(sessionStorage.getItem('user')) ?  <Route path="Account" element={
+      { JSON.parse(sessionStorage.getItem('user')) ?  <Route path="Account" element=
+      {
+        JSON.parse(sessionStorage.getItem('user'))!=null && 
         JSON.parse(sessionStorage.getItem('user')).uid === "Ic8IhkldnTgPrQPn6ZWtiSKMQ9a2" ? 
         <Account_admin /> : 
-        <Account />} ></Route> : <Route path="Account" element={<LogIn />}></Route> }
+        <Account />}
+      ></Route> : <Route path="Account" element={<LogIn />}></Route> }
       <Route path="SignUp" element={<SignUp />}></Route>
       
       { JSON.parse(sessionStorage.getItem('user')) ? 
       <Route path="LogIn" element={
         JSON.parse(sessionStorage.getItem('user')).uid === "Ic8IhkldnTgPrQPn6ZWtiSKMQ9a2" ? 
         <Account_admin /> : 
-        <Account />} ></Route>: 
+        <Account />}></Route>: 
       <Route path="LogIn" element={<LogIn />}></Route>
       }
-
-
+      
       { JSON.parse(sessionStorage.getItem('user')) ? <Route path="ForgotPassword" element={<Account />}></Route>: <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
 
       </Routes>
