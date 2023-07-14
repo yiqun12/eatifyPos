@@ -8,6 +8,7 @@
     width:0
   }
   
+<<<<<<< HEAD
 
   
 .container_search {
@@ -53,3 +54,15 @@
   transition: all 0.1s ease-in-out;
 }
 
+=======
+  
+  .myCustomHeight {
+    height: calc(100% - 100px); /* Default height */
+  }
+  
+  @media screen and (min-width: 768px) {
+    .myCustomHeight {
+      height: calc(100% - 125px); /* Height for medium devices and up */
+    }
+  }
+>>>>>>> 75bda7121cf771325695d422b7541dabe1945f02
