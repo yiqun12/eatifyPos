@@ -16,7 +16,6 @@ import Link from '@mui/material/Link';
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 
 function Checkout(props) {
-  const [name, setName] = useState('Jenny Rosen');
 
   const [newCardAdded, setNewCardAdded] = useState(false);
 
@@ -46,40 +45,7 @@ function Checkout(props) {
   const stripe = useStripe();
   const elements = useElements();
   const [paymentRequest, setPaymentRequest] = useState(null);
-  const handleAli = async (e) => {
-    e.preventDefault();
 
-    if (!stripe || !elements) {
-      return;
-    }
-
-    const amount = Number(totalPrice);
-    const currency = 'usd';
-    //  console.log(currency)
-    // console.log(amount)
-    const dateTime = new Date().toISOString();
-    const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    const data = {
-      payment_method: 'alipay',
-      currency,
-      amount: amount,
-      status: 'new',
-      receipt: sessionStorage.getItem("products"),
-      dateTime: date,
-      user_email: user.email,
-      isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut"
-    };
-    // reconfirm the payment
-    await firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('payments')
-      .add(data);
-    // e.complete('success'); // Notify the browser that the payment is successful
-
-  };
   
   const handleWechat = async (e) => {
     e.preventDefault();
@@ -439,17 +405,7 @@ function Checkout(props) {
               </button>
 
             </form>
-            <form id="payment-form" onSubmit={handleAli}>
-        <label htmlFor="name">Name</label>
-        <input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
 
-        <button type="submit">Pay</button>
-      </form>
 
 
           </div>
