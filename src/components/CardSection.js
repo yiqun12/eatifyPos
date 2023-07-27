@@ -1,46 +1,32 @@
-//import React from 'react';
-import { CardElement } from '@stripe/react-stripe-js';
-import { useStripe, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import React, { useRef, useEffect } from 'react';
-import { useState } from 'react';
+/**
+* Use the CSS tab above to style your Element's container.
+*/
+import React from 'react';
 
 import firebase from 'firebase/compat/app';
 import { useUserContext } from "../context/userContext";
-//import { useEffect } from 'react';
-import e from 'cors';
-import './blueButton.css';
+import { useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useMyHook } from '../pages/myHook';
-import { AddressElement } from '@stripe/react-stripe-js';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { PaymentRequestButtonElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import CardSection from './CardSection';
+import Link from '@mui/material/Link';
+import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import { MDBCheckbox } from 'mdb-react-ui-kit';
 
-const CARD_ELEMENT_OPTIONS = {
-  style: {
-    base: {
-      color: "#32325d",
-      fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-      fontSmoothing: "antialiased",
-      fontSize: "15px",
-      "::placeholder": {
-        color: "#aab7c4",
-      }
-    },
-    invalid: {
-      color: "#fa755a",
-      iconColor: "#fa755a",
-    },
-  },
-};
+function Checkout(props) {
 
+  const [newCardAdded, setNewCardAdded] = useState(false);
 
-function CardSection(props) {
-
-
-  function handleCheckboxChange() {
-    //console.log(!isChecked.current)
-    isChecked.current = !isChecked.current
+  const handleAddNewCard = () => {
+    setNewCardAdded(true);
   }
-
+  const Goback = () => {
+    setNewCardAdded(false);
+  }
+  const user = JSON.parse(sessionStorage.getItem('user'));
   const { totalPrice } = props;
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
@@ -48,184 +34,24 @@ function CardSection(props) {
     //console.log('Component B - ID changed:', id);
   }, [id]);
 
+  const [isHover, setIsHover] = useState(false);
 
-  const user = JSON.parse(sessionStorage.getItem('user'));
-  const isChecked = useRef(user.email != "Anonymous@eatifyDash.com");
+  const handleMouseEnter = () => {
+    setIsHover(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHover(false);
+  };
   const stripe = useStripe();
   const elements = useElements();
-  //console.log(user.uid)
-  const customerData = useRef();
-
-
-  useEffect(() => {
-    setTimeout(() => {
-      document
-        .querySelector('#payment-method-form')
-        .addEventListener('submit', async (event) => {
-          event.preventDefault();
-          if (!event.target.reportValidity()) {
-            return;
-          }
-          document
-          .querySelectorAll('button')
-          .forEach((button) => (button.disabled = true));
-          firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .onSnapshot((snapshot) => {
-        console.log('read card')
-        if (snapshot.data()) {
-          customerData.current = snapshot.data();
-          //console.log(snapshot.data())
-
-        }
-      });
-          //console.log(customerData.current == null)
-          //console.log(!elements)
-          //console.log(!stripe)
-
-          //  console.log(customerData.current)
-          if (!stripe || !elements || customerData.current == null) {
-            //document.querySelector('#prompt-message').textContent = "Too frequent operations";
-            // Stripe.js has not yet loaded.
-            // Make sure to disable form submission until Stripe.js has loaded.
-            document
-              .querySelectorAll('button')
-              .forEach((button) => (button.disabled = false));
-
-            return;
-          } else {
-
-            // Payment method has not yet been added
-            // Proceed with adding payment method
-            const form = new FormData(event.target);
-            const cardholderName = form.get('First Name')+" "+form.get('Last Name')
-            //console.log('user found in stripe');
-
-           // console.log(customerData.current);
-            const { setupIntent, error } = stripe.confirmCardSetup(
-              customerData.current.setup_secret,
-              {
-                payment_method: {
-                  card: elements.getElement(CardElement),
-                  billing_details: {
-                    name: cardholderName,
-                  },
-                },
-              }
-            ).then(function (result) {
-             // console.log(result.error);
-              if (result.error != null) {
-              //  console.log('error');
-                document.querySelector('#prompt-message').textContent = result.error.message;
-                document
-                  .querySelectorAll('button')
-                  .forEach((button) => (button.disabled = false));
-              } else if (result.setupIntent != null) {
-                //console.log(sessionStorage.getItem("isDinein"))
-                //console.log(sessionStorage.getItem("isDinein")== "true"?"DineIN":"TakeOut")
-                document
-                  .querySelectorAll('button')
-                  .forEach((button) => (button.disabled = true));
-                const amount = Number(totalPrice);
-                const currency = 'usd';
-                const dateTime = new Date().toISOString();
-                const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-                //console.log(form.get('payment-method'))
-                const user = JSON.parse(sessionStorage.getItem('user'));
-                const data = {
-                  payment_method: result.setupIntent.payment_method,
-                  currency,
-                  amount: amount,
-                  status: 'new',
-                  receipt: sessionStorage.getItem("products"),
-                  dateTime: date,
-                  user_email: user.email,
-                  isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut"
-                };
-                //console.log(data)
-
-                // for translation
-                const trans = JSON.parse(sessionStorage.getItem("translations"))
-                const t = (text) => {
-                  // const trans = sessionStorage.getItem("translations")
-                //  console.log(trans)
-                //  console.log(sessionStorage.getItem("translationsMode"))
-
-                  if (trans != null) {
-                    if (sessionStorage.getItem("translationsMode") != null) {
-                      // return the translated text with the right mode
-                      if (trans[text] != null) {
-                        if (trans[text][sessionStorage.getItem("translationsMode")] != null)
-                          return trans[text][sessionStorage.getItem("translationsMode")]
-                      }
-                    }
-                  }
-                  // base case to just return the text if no modes/translations are found
-                  return text
-                }
-
-                firebase
-                  .firestore()
-                  .collection('stripe_customers')
-                  .doc(user.uid)
-                  .collection('payments')
-                  .add(data).then(() => {
-                    saveId(Math.random())
-                    if (isChecked.current) {
-                      firebase
-                        .firestore()
-                        .collection('stripe_customers')
-                        .doc(user.uid)
-                        .collection('payment_methods')
-                        .add({ id: result.setupIntent.payment_method })
-                        .then(() => {
-                          //console.log(res)
-                          // Payment method was successfully added
-                          //console.log(result.setupIntent.payment_method)
-
-                          // set the prompt message
-                          const promptMessage = document.querySelector('#prompt-message');
-                          promptMessage.textContent = t("Card added") + "!";
-
-                          // hide the error message after 2 seconds
-                          setTimeout(() => {
-                            promptMessage.textContent = "";
-                          }, 6000);
-                          // reset the form inputs
-                          const form = document.querySelector('#payment-method-form');
-                          form.reset();
-                          // clear the card details input field
-                          if (elements) {
-                            const cardElement = elements.getElement(CardElement);
-                            cardElement.clear();
-                          }
-                          saveId(Math.random())
-                          //customerData.current = null //cleanup
-                        })
-                    }
-                  })
-                  .catch((error) => {
-                    console.log("Error writing payment to Firestore: ", error);
-                  });
-
-
-
-              }
-            });
-          }
-        });
-    }, 1);
-
-  }, [customerData.current, stripe, elements, isChecked.current]);
 
   // for translation
   const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = (text) => {
     // const trans = sessionStorage.getItem("translations")
-    //console.log(trans)
-    //console.log(sessionStorage.getItem("translationsMode"))
+    // console.log(trans)
+    // console.log(sessionStorage.getItem("translationsMode"))
 
     if (trans != null) {
       if (sessionStorage.getItem("translationsMode") != null) {
@@ -240,11 +66,109 @@ function CardSection(props) {
     return text
   }
 
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  
+  const handleFirstNameChange = (e) => {
+    setFirstName(e.target.value);
+  };
+  
+  const handleLastNameChange = (e) => {
+    setLastName(e.target.value);
+  };
+  
+  const [cardElement, setCardElement] = useState(null);
+  const [error, setError] = useState(null);
+  const [saveCard, setSaveCard] = useState(false);
+
+const handleSaveCardChange = (e) => {
+  setSaveCard(e.target.checked);
+};
+
+  useEffect(() => {
+    if (!stripe || !elements) {
+      return;
+    }
+  
+    const card = elements.create('card');
+    card.mount('#card-element');
+    setCardElement(card);
+  
+    return () => {
+      card.unmount();
+    };
+  }, [stripe, elements]);
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    if (!stripe || !cardElement) {
+      return;
+    }
+    const cardholderName = `${firstName} ${lastName}`;
+
+    const { error, paymentMethod } = await stripe.createPaymentMethod({
+      type: 'card',
+      card: cardElement,
+      billing_details: {
+        name: cardholderName,
+      },
+    });
+  
+    if (error) {
+      setError(error.message);
+      return;
+    }
+  
+    // Payment method created successfully, proceed with further processing
+    const paymentMethodId = paymentMethod.id;
+    const amount = Math.round(totalPrice * 100)/100;
+    const currency = 'usd';
+    const dateTime = new Date().toISOString();
+    const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const data = {
+      payment_method: paymentMethodId,
+      currency,
+      amount,
+      status: 'new',
+      receipt: sessionStorage.getItem('products'),
+      dateTime: date,
+      user_email: user.email,
+      isDinein: sessionStorage.getItem('isDinein') === 'true' ? 'DineIn' : 'TakeOut',
+      saveCard: saveCard, // Include the saveCard value in the data
+    };
+  
+
+  
+    await firebase
+      .firestore()
+      .collection('stripe_customers')
+      .doc(user.uid)
+      .collection('payments')
+      .add(data);
+    if (saveCard) {
+        await firebase
+          .firestore()
+          .collection('stripe_customers')
+          .doc(user.uid)
+          .collection('payment_methods')
+          .add({ id: paymentMethodId });
+      }
+    // Payment completed successfully
+    // Add your logic here for handling the successful payment
+  
+    setError(null);
+  };
+  
+  
+  
   return (
+    <div>
     <div id="card2-header">
       <div id="add-new-card">
-        <form id="payment-method-form">
-          <div id="card-element" >
+      <form onSubmit={handleSubmit}>
+          <div id="" >
           <div className="row-1 m-0" style={{  marginTop: "15px !important", borderTopLeftRadius: '5px', borderTopRightRadius: '5px' }}>
             <div className="row row-2" style={{
               'paddingLeft': 0,
@@ -264,13 +188,33 @@ function CardSection(props) {
                 'paddingLeft': 0,
                 'paddingRight': 0
               }}>
-                <div class="w-1/2 px-2">
-                <input className="input-style" type="text" name="First Name" required placeholder="First Name" />
+<div className="w-1/2 px-2">
+  <label>
+    <input 
+      className="input-style"
+      type="text"
+      name="First Name"
+      required 
+      placeholder="First Name"
+      value={firstName} 
+      onChange={handleFirstNameChange} 
+    />
+  </label>
+</div>
+<div className="w-1/2 px-2 flex justify-end">
+  <label>
+    <input 
+      className="input-style"
+      type="text"
+      name="Last Name"
+      required 
+      placeholder="Last Name"
+      value={lastName}
+      onChange={handleLastNameChange}
+    />
+  </label>
+</div>
 
-                </div>
-                <div class="w-1/2 px-2 flex justify-end">
-                <input className="input-style" type="text" name="Last Name" required placeholder="Last Name" />
-                </div>
               </div>
             </div>
           </div>
@@ -292,8 +236,8 @@ function CardSection(props) {
                 <span style={{
                   'paddingLeft': 0,
                   'paddingRight': 0
-                }}>                  <CardElement
-                    id="card-element" options={CARD_ELEMENT_OPTIONS} />
+                }}>    
+                <div id="card-element"></div>             
                 </span>
               </div>
             </div>
@@ -301,17 +245,16 @@ function CardSection(props) {
             {/*The following US states and territories are not currently supported by Stripe and will not be accepted for validation:"AMERICAN SAMOA", "MICRONESIA", "GUAM", "MARSHALL ISLANDS", "NORTHERN MARIANA ISLANDS", "PALAU", "UNITED STATES MINOR OUTLYING ISLANDS", "VIRGIN ISLANDS"*/}
           </div>
 
-
-          <div id="prompt-message" role="alert"></div>
+          {error && <div id="prompt-message" role="alert">{error}</div>}
           <div style={{color:"white",fontSize:"5px"}}>.</div>
           <MDBCheckbox
-            name='flexCheck'
-            value=''
-            id='flexCheckChecked'
-            label={t('Save Card')}
-            defaultChecked={isChecked.current}
-            onChange={handleCheckboxChange}
-          />
+  name='flexCheck'
+  value={saveCard}
+  id='flexCheckChecked'
+  checked={saveCard}
+  label={t('Save Card')}
+  onChange={handleSaveCardChange}
+/>
 <div style={{color:"white",fontSize:"5px"}}>.</div>
           <button 
           style={{ width: "100%" }} 
@@ -321,10 +264,11 @@ function CardSection(props) {
 
       </div>
     </div>
+    
+    </div>
   );
 };
 
-export default CardSection;
+export default Checkout;
 
 
-// */

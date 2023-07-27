@@ -32,51 +32,6 @@ function PayFullhistory() {
   }, []);
 
   const isMobile = width <= 768;
-// Format amount for diplay in the UI
-function formatAmount(amount, currency) {
-    amount = zeroDecimalCurrency(amount, currency)
-      ? amount
-      : (amount / 100).toFixed(2);
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency,
-    }).format(amount);
-  }
-  function zeroDecimalCurrency(amount, currency) {
-    let numberFormat = new Intl.NumberFormat(['en-US'], {
-      style: 'currency',
-      currency: currency,
-      currencyDisplay: 'symbol',
-    });
-    const parts = numberFormat.formatToParts(amount);
-    let zeroDecimalCurrency = true;
-    for (let part of parts) {
-      if (part.type === 'decimal') {
-        zeroDecimalCurrency = false;
-      }
-    }
-    return zeroDecimalCurrency;
-  }
-  // Handle card actions like 3D Secure
-async function handleCardAction(payment, docId) {
-    const { error, paymentIntent } = await promise.handleCardAction(
-      payment.client_secret
-    );
-    if (error) {
-      alert(error.message);
-      payment = error.payment_intent;
-    } else if (paymentIntent) {
-      payment = paymentIntent;
-    }
-    await firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('payments')
-      .doc(docId)
-      .set(payment, { merge: true });
-  
-  }
   
   const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
   const promise = loadStripe(STRIPE_PUBLISHABLE_KEY, {
@@ -90,7 +45,7 @@ async function handleCardAction(payment, docId) {
   const dateTime = new Date().toISOString();
   const date = dateTime.slice(0,10) + '-' + dateTime.slice(11,13) + '-' + dateTime.slice(14,16) + '-' + dateTime.slice(17,19) + '-' + dateTime.slice(20,22);        
   useEffect(() => {
-  firebase
+    firebase
     .firestore()
     .collection('stripe_customers')
     .doc(user.uid)
@@ -98,104 +53,15 @@ async function handleCardAction(payment, docId) {
     .orderBy("dateTime", "desc")
     .onSnapshot((snapshot) => {
       console.log('read card')
-      let count = snapshot.size;
-
+    
       snapshot.forEach((doc) => {
         const payment = doc.data();
-
-        let liElement = document.getElementById(`payment-${doc.id}`);
-        if (!liElement) {
-          liElement = document.createElement('li');
-          liElement.id = `payment-${doc.id}`;
+        if(payment.status === 'succeeded') {
+          console.log(payment)
         }
-      //  console.log(payment.dateTime)
-        let content = '';
-
-        if (
-          payment.status === 'new' & !payment.error ||
-          payment.status === 'requires_confirmation'
-        ) {
-          
-          content = `${count} (${t("Pending")})🚨 ${t("Creating Payment for")} 
-          $ ${Math.round(100*(formatAmount(
-            payment.amount*100,
-            payment.currency
-          )))/100 }
-          `;
-        } else if (payment.status === 'succeeded') {
-            
-          const card = payment.charges.data[0].payment_method_details.card;
-          const dateTime = payment.dateTime;
-          const formattedDate = moment(dateTime, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-8).format("MMMM D, YYYY h:mm a");
-            // Format receipt data
-            let products_ = JSON.parse(payment.receiptData)
-            const newItems = products_.map(item => {
-                return {name: item.name, quantity: item.quantity, subtotal: item.subtotal,item_Total: item.subtotal * item.quantity}
-              });
-              var formattedString = "";
-              for(var i=0;i<newItems.length;i++){
-                 if (isMobile){
-                  formattedString += `
-                  <span style="padding: 0; margin: 0px 0px 0px 0px; font-weight: bold;">${t(newItems[i].name)}</span>
-                  <br/>
-                  <span style="padding: 0; margin: 0px 0px 0px 0px; font-weight: normal;">@ ${newItems[i].subtotal} each x ${newItems[i].quantity} = $${Math.round(100*(newItems[i].item_Total))/100 }<span>
-                  <br/>
-                  `;
-                 }else{
-                  formattedString += `
-                  <span style="padding: 0; margin: 0px 0px 0px 0px; font-weight: bold;">${t(newItems[i].name)}</span>
-                  <span style="padding: 0; margin: 0px 0px 0px 0px; font-weight: normal;">@ ${newItems[i].subtotal} each x ${newItems[i].quantity} = $${Math.round(100*(newItems[i].item_Total))/100 }<span>
-                  <br/>
-                  `;
-                 }
-
-                }
-             // console.log(doc.id)
-              //console.log(payment.receiptData)
-              //应该显示这次交易id 时间不够 下次再加。
-      content = `
-      
-      <div style="display: inline-block;">
-      <details>
-        <summary>
-        ✅ ${card.brand} •••• ${card.last4} ${formatAmount(payment.amount, payment.currency)} <i class="fas fa-arrow-circle-down"></i>
-        </summary>
-        <div style="border: 1px solid; padding: 10px; background-color: white;">
-        <p style="padding: 0; margin: 0px 0px 0px; font-weight: bold;">${payment.charges.data[0].billing_details.name} </p>
-        <p style="padding: 0; margin: 0px 0px 0px; font-weight: bold;">${formattedDate}</p>
-        ${formattedString}
-      </details>
-      </div>
-      `;//${payment.dateTime} ${payment.receiptData} ${payment.charges.data[0].billing_details.name} 
-        } else if (payment.status === 'requires_action') {
-          content = `${count} 🚨 ${t("Payment for")} ${formatAmount(
-            payment.amount,
-            payment.currency
-          )} ${payment.status} ${t("requires action")}`;
-          handleCardAction(payment, doc.id);
-        } else if(payment.error) {
-          content = `<div style="display: inline-block;">
-          <details>
-            <summary>
-            ${count} ⚠️ ${t("Failed Payment")}. <i class="fas fa-arrow-circle-down"></i>
-            </summary>
-            <div style="border: 1px solid; padding: 10px; background-color: white;">
-            <p>${payment.error} </p>
-            </div>
-          </details>
-      </div>`;
-        }else {
-          content = `${count} ⚠️ ` + t("Payment for") + ` ${formatAmount(
-            payment.amount,
-            payment.currency
-          )} ${payment.status}`;
-        }
-        const sanitizedContent = DOMPurify.sanitize(content);//DOMPurify to sanitize the content, it can remove any malicious code and make it safe to use with innerHTML.
-        liElement.innerHTML = sanitizedContent;
-        document.querySelector('#payments-list').appendChild(liElement);
-        count--;
       });
     });
+    
   }, []); // empty dependency array to run once on mount
 
   const trans = JSON.parse(sessionStorage.getItem("translations"))
@@ -219,7 +85,43 @@ async function handleCardAction(payment, docId) {
   //console.log(elements.getElement(CardElement))
   return (
     <div>
-  <ul style = {{"text-align": "left"}}id="payments-list"></ul>
+                        <table
+                          className="shop_table my_account_orders"
+                          style={{
+                            borderCollapse: "collapse",
+                            width: "100%",
+                            borderSpacing: "6px", // added CSS
+                          }}
+                        >
+                          <thead>
+                            <tr>
+                              <th className="order-number" style={isMobile ? {} : { width: "10%" }}>Order</th>
+                              <th className="order-name" style={isMobile ? {} : { width: "30%" }}>Name</th>
+                              <th className="order-status" style={isMobile ? {} : { width: "10%" }}>Status</th>
+                              <th className="order-total" style={isMobile ? {} : { width: "10%" }}>Total</th>
+                              <th className="order-dine-mode" style={isMobile ? {} : { width: "10%" }}>Service</th>
+                              <th className="order-date" style={isMobile ? {} : { width: "15%" }}>Time</th>
+                              <th className="order-details" style={isMobile ? {} : { width: "15%" }}>Detail</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+
+                                  <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
+                                    <td className="order-number" data-title="OrderID"><a >0</a></td>
+                                    <td className="order-name" data-title="Name" style={{ whiteSpace: "nowrap" }}>1</td>
+                                    <td className="order-status" data-title="Status" style={{ whiteSpace: "nowrap" }}>2</td>
+                                    <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="amount">3</span></td>
+                                    <td className="order-dine-mode" data-title="Service" style={{ whiteSpace: "nowrap" }}>4</td>
+                                    <td className="order-date" data-title="Time" style={{ whiteSpace: "nowrap" }}>
+                                      <time nowrap>
+                                        5
+                                      </time>
+                                    </td>
+                                    <td className="order-details" style={{ whiteSpace: "nowrap" }} data-title="Details">
+                                    </td>
+                                  </tr>
+                          </tbody>
+                          </table>
     </div>
   );
 };
