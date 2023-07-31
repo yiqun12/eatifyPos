@@ -13,7 +13,7 @@
 .container_search {
   display: flex;
   flex-direction: column;
-  box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.07);
+  border: 1px solid #e1e4e8; /* adjust as needed */
   border-radius: 2rem;
   padding: 1px;
   margin-top: 5px;

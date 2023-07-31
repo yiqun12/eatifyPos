@@ -14,6 +14,19 @@ import { PaymentRequestButtonElement, useStripe, useElements } from '@stripe/rea
 import CardSection from './CardSection';
 import Link from '@mui/material/Link';
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
+import multipleCard from './mutiple_card.png';
+
+import applepay from './applepay.png';
+
+import amex from './amex.png';
+
+
+import visa from './visa.png';
+
+
+import discover from './discover.png';
+
+
 
 function Checkout(props) {
 
@@ -367,7 +380,7 @@ function Checkout(props) {
                       )}
                     </div>
                     <div className="col-7">
-                      <select style={{ 'background-color': "#f5f7f9", color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
+                      <select style={{ color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
                         <option hidden data-type="mastercard">{t("Select Account")}</option>
                       </select>
                     </div>
@@ -384,24 +397,38 @@ function Checkout(props) {
               </div>
               <div id="delete-message" role="alert"></div>
               <button
-                type="submit"
-                name="pay"
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                style={{ width: "100%" }}
-              ><FontAwesomeIcon icon={faCreditCard} />
-                &nbsp; {t("Pay by Saved Card")}
-              </button>
+  type="submit"
+  name="pay"
+  class="flex items-center justify-center text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-yellow-500 dark:hover:bg-yellow-600 dark:focus:ring-yellow-700"
+  style={{ width: "100%" }}
+>
+  <img src={multipleCard} alt="Multiple Card" style={{ filter: 'invert(1)', width: '20px', height: '20px', marginRight: '8px' }} />
+  {t("Pay with Saved Card")}
+</button>
+
             </form>
             {paymentRequest && <PaymentRequestButtonElement options={{ paymentRequest }} />}
 
             <form id="payment-form" onSubmit={handleWechat}>
-              <button
+            <button
                 type="submit"
                 name="pay"
                 class="text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
                 style={{ width: "100%" }}
               >
-                &nbsp; {t("Pay by WeChat Pay")}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="25"
+    width="25"
+    viewBox="0 0 1024 1024"
+    style={{ display: "inline", verticalAlign: "middle" }}
+  >
+    <g fill="#FFF" fill-rule="evenodd">
+    <path d="M395.846 603.585c-3.921 1.98-7.936 2.925-12.81 2.925-10.9 0-19.791-5.85-24.764-14.625l-2.006-3.864-78.106-167.913c-0.956-1.98-0.956-3.865-0.956-5.845 0-7.83 5.928-13.68 13.863-13.68 2.965 0 5.928 0.944 8.893 2.924l91.965 64.43c6.884 3.864 14.82 6.79 23.708 6.79 4.972 0 9.85-0.945 14.822-2.926L861.71 282.479c-77.149-89.804-204.684-148.384-349.135-148.384-235.371 0-427.242 157.158-427.242 351.294 0 105.368 57.361 201.017 147.323 265.447 6.88 4.905 11.852 13.68 11.852 22.45 0 2.925-0.957 5.85-2.006 8.775-6.881 26.318-18.831 69.334-18.831 71.223-0.958 2.92-2.013 6.79-2.013 10.75 0 7.83 5.929 13.68 13.865 13.68 2.963 0 5.928-0.944 7.935-2.925l92.922-53.674c6.885-3.87 14.82-6.794 22.756-6.794 3.916 0 8.889 0.944 12.81 1.98 43.496 12.644 91.012 19.53 139.48 19.53 235.372 0 427.24-157.158 427.24-351.294 0-58.58-17.78-114.143-48.467-163.003l-491.39 280.07-2.963 1.98z" fill="#FFFFFF" />
+
+    </g>
+  </svg>
+     {t("WeChat Pay")}
               </button>
 
             </form>

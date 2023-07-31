@@ -1,0 +1,10 @@
+[debug] [2023-07-31T21:51:08.408Z] ----------------------------------------------------------------------
+[debug] [2023-07-31T21:51:08.410Z] Command:       /home/yix223/.nvm/versions/node/v16.18.0/bin/node /home/yix223/.nvm/versions/node/v16.18.0/bin/firebase deploy --only functions --debug
+[debug] [2023-07-31T21:51:08.410Z] CLI Version:   10.0.0
+[debug] [2023-07-31T21:51:08.410Z] Platform:      linux
+[debug] [2023-07-31T21:51:08.411Z] Node Version:  v16.18.0
+[debug] [2023-07-31T21:51:08.411Z] Time:          Mon Jul 31 2023 17:51:08 GMT-0400 (Eastern Daylight Time)
+[debug] [2023-07-31T21:51:08.411Z] ----------------------------------------------------------------------
+[debug] 
+[error] 
+[error] Error: Cannot understand what targets to deploy/serve. No targets in firebase.json match '--only functions'.

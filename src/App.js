@@ -85,13 +85,13 @@ useEffect(() => {
         
       <Route path="QRcode" element={ 
         JSON.parse(sessionStorage.getItem('user'))!=null &&
-        JSON.parse(sessionStorage.getItem('user')).uid === "6hPLyZjyhjZ6WH1GeMJhxNQfl7z2" ? 
+        JSON.parse(sessionStorage.getItem('user')).uid === "eiCziN8rFjgqW7rxlusTihssPxi2" ? 
         <Html /> : 
         <LogIn />} />
 
       <Route path="Admin" element={
         JSON.parse(sessionStorage.getItem('user'))!=null && 
-        JSON.parse(sessionStorage.getItem('user')).uid === "6hPLyZjyhjZ6WH1GeMJhxNQfl7z2" ? 
+        JSON.parse(sessionStorage.getItem('user')).uid === "eiCziN8rFjgqW7rxlusTihssPxi2" ? 
         <Admin_new /> : 
         <LogIn />} />
 
@@ -107,7 +107,7 @@ useEffect(() => {
       { JSON.parse(sessionStorage.getItem('user')) ?  <Route path="Account" element=
       {
         JSON.parse(sessionStorage.getItem('user'))!=null && 
-        JSON.parse(sessionStorage.getItem('user')).uid === "6hPLyZjyhjZ6WH1GeMJhxNQfl7z2" ? 
+        JSON.parse(sessionStorage.getItem('user')).uid === "eiCziN8rFjgqW7rxlusTihssPxi2" ? 
         <Account_admin /> : 
         <Account />}
       ></Route> : <Route path="Account" element={<LogIn />}></Route> }
@@ -115,7 +115,7 @@ useEffect(() => {
       
       { JSON.parse(sessionStorage.getItem('user')) ? 
       <Route path="LogIn" element={
-        JSON.parse(sessionStorage.getItem('user')).uid === "6hPLyZjyhjZ6WH1GeMJhxNQfl7z2" ? 
+        JSON.parse(sessionStorage.getItem('user')).uid === "eiCziN8rFjgqW7rxlusTihssPxi2" ? 
         <Account_admin /> : 
         <Account />}></Route>: 
       <Route path="LogIn" element={<LogIn />}></Route>

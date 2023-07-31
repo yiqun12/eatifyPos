@@ -30,7 +30,7 @@ const Hero = () => {
     };
     return (
 <div style={{ display: 'flex'}} className='max-w-[1000px] ml-auto'>
-<div className="switches-container" style={{"marginBottom":"10px", "boxShadow":"0px 0px 10px rgba(0, 0, 0, 0.3)"}}>
+<div className="switches-container" style={{"marginBottom":"10px", "boxShadow":"0px 0px 4px rgba(0, 0, 0, 0.3)"}}>
             <input
                 type="radio"
                 id="switchTakeOut"

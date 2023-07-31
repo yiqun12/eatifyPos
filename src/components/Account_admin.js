@@ -379,34 +379,8 @@ const Account = () => {
   const [revenueData, setRevenueData] = useState([
     { date: '1/1/1900', revenue: 1 }
   ]);
-  const [inputName, setInputName] = useState("");
 
 
-  const autoFill = () => {
-    const sampleData = {
-      name: inputName,
-      category: inputName,
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRj1Sw9a8ELg0JzttUaXnY5ZVEuxH_bG_PmqmygfLbpFHxD3H-W&s",
-      price: "100",
-      subtotal: "200"
-    }
-    console.log(inputName)
-    
-    setUpdateName(sampleData.name);
-    setName(sampleData.name);
-  
-    setUpdateCategory(sampleData.category);
-    setCategory(sampleData.category);
-  
-    setUpdateImage(sampleData.image);
-    setImage(sampleData.image);
-  
-    setUpdatePrice(sampleData.price);
-    setPrice(sampleData.price);
-  
-    setUpdateSubtotal(sampleData.subtotal);
-    setSubtotal(sampleData.subtotal);
-  };
 
 
   const moment = require('moment');
@@ -430,14 +404,14 @@ const Account = () => {
           .subtract(4, "hours")
           .format("M/D/YYYY h:mma");
         const newItem = {
-          id: item.id.substring(0, 3), // use only the first 4 characters of item.id as the value for the id property
+          id: item.id, // use only the first 4 characters of item.id as the value for the id property
           receiptData: item.receiptData,
           date: formattedDate,
           email: item.user_email,
           dineMode: item.metadata.isDine,
           status: "Paid",
-          total: parseInt(item.amount_received) / 100,
-          name: item.charges.data[0].billing_details.name,
+          total: parseFloat(item.metadata.total),
+          name: "Table A",
           metadata: item.metadata
         };
         newItems.push(newItem); // Push the new item into the array
@@ -1000,7 +974,6 @@ const Account = () => {
                             {t("sign out")}
                           </button>
                         </h6>
-                        <form>
                           <div className="form-group">
                             <label htmlFor="bio">{(user) ? user.email : ""}</label>
                           </div>
@@ -1008,20 +981,7 @@ const Account = () => {
                           <h6>{t("Payment Method: ")}</h6>
                           <Checkout />
                           <h6>{t("Order History: ")}</h6>
-                          <form>
-                            <div className="form-group mb-0 " style={{
-                              "height": "400px",
-                              "overflow-y": " scroll"
-                            }}>
-                              <div className="border border-gray-500 bg-gray-200 p-3 text-center font-size-sm"
-                                style={{
-                                  backgroundColor: "rgba(221, 228, 236, 0.301)"
-                                }}>
                                 <PayFullhistory />
-                              </div>
-                            </div>
-                          </form>
-                        </form>
                       </div>
                     ) : null}
 
@@ -1257,8 +1217,8 @@ const Account = () => {
                                 <React.Fragment key={order.id}>
 
                                   <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
-                                    <td className="order-number" data-title="OrderID"><a >{order.id}</a></td>
-                                    <td className="order-name" data-title="Name" style={{ whiteSpace: "nowrap" }}>{(order.name.replace(/(\w)\w*\s/g, '$1. '))}</td>
+                                    <td className="order-number" data-title="OrderID"><a >{order.id.substring(0, 5)}</a></td>
+                                    <td className="order-name" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.name}</td>
                                     <td className="order-status" data-title="Status" style={{ whiteSpace: "nowrap" }}>{order.status}</td>
                                     <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="amount">{"$" + order.total}</span></td>
                                     <td className="order-dine-mode" data-title="Service" style={{ whiteSpace: "nowrap" }}>{order.dineMode}</td>
@@ -1277,7 +1237,6 @@ const Account = () => {
                                     <tr>
                                       <td colSpan={8} style={{ padding: "10px" }}>
                                         <div className="receipt">
-                                          <p>{order.name}</p>
                                           <p>{order.email}</p>
                                           <p>{order.date}</p>
                                           {JSON.parse(order.receiptData).map((item, index) => (
@@ -1305,222 +1264,209 @@ const Account = () => {
                       <div className="tab-pane-active" id="Menu_Setting">
                         <h6>{t("MENU SETTING")}</h6>
                         <hr />
-                        {isMobile ?
+                        {isMobile?
+                        
+                        <>
+                                                <div>Pick an item</div>
+                        <section className="task-list" >
+  <div className="task-wrap" style={{ minHeight: '200px', maxHeight: '200px', overflowY: 'scroll',marginBottom:"10px" }}>
+      {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
 
-                          <>
-                            <div>Pick an item</div>
-                            <section className="task-list" >
-                              <div className="task-wrap" style={{ minHeight: '200px', maxHeight: '200px', overflowY: 'scroll', marginBottom: "10px" }}>
-                                {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
 
+          <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
+                      <img src={task.image} alt="" />
+                  </div>
+                  <div style={{ marginLeft: "10px" }}>{task.name}</div>
+              </div>
+              <span style={{ cursor: 'pointer' }}
+                  onClick={() => handleUpdateForm(task.id)}
+                  className="task-card__tag task-card__tag--marketing">{t("Edit")}</span>
+              <span className="task-card__option">
+                  <span style={{ cursor: 'pointer' }}
+                      onClick={() => deleteFood_array(task.id)}
+                      className="task-card__tag task-card__tag--design">{t("Delete")}</span>
+              </span>
+          </div>
+      ))}
+  </div>
+</section>
+                        </>
+                        
+                        :<></>}
 
-                                  <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                      <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
-                                        <img src={task.image} alt="" />
-                                      </div>
-                                      <div style={{ marginLeft: "10px" }}>{task.name}</div>
-                                    </div>
-                                    <span style={{ cursor: 'pointer' }}
-                                      onClick={() => handleUpdateForm(task.id)}
-                                      className="task-card__tag task-card__tag--marketing">{t("Edit")}</span>
-                                    <span className="task-card__option">
-                                      <span style={{ cursor: 'pointer' }}
-                                        onClick={() => deleteFood_array(task.id)}
-                                        className="task-card__tag task-card__tag--design">{t("Delete")}</span>
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            </section>
-                          </>
-
-                          : <></>}
-
-                        <div>Modify Your Item</div>
+<div>Modify Your Item</div>
                         <div className='flex'>
+                        
+<div style={isMobile?{}:{width:"55%"}}>
+<ThemeProvider theme={theme} >
+<Container component="main" style={{padding:"0px"}}>
+    <CssBaseline />
+    <Box
+        sx={{
+            marginTop: 0,
 
-                          <div style={isMobile ? {} : { width: "55%" }}>
-                            <ThemeProvider theme={theme} >
-                              <Container component="main" style={{ padding: "0px" }}>
-                                <CssBaseline />
-                                <Box
-                                  sx={{
-                                    marginTop: 0,
+            marginLeft: 0,
 
-                                    marginLeft: 0,
-
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                  }}
-                                >
-                                  <Box component="form" noValidate sx={{ mt: 1 }}>
-
-                                    <Grid container >
-
-                                      <div className='flex' style={{ width: "100%" }}>
-                                        <div style={{ width: "45%", marginRight: "5%" }}>
-                                          <div>
-                                          <Button
-  fullWidth
-  variant="contained"
-  sx={{ mt: 0, mb: 0, padding: "15px" }}
-  onClick={autoFill}
->
-  {t("Auto fill")}
-</Button>
-                                          </div>
-
-                                          <TextField
-        margin="normal"
-        required
-        fullWidth
-        id="Name"
-        label={t("Name")}
-        name="Name"
-        autoComplete="Name"
-        autoFocus
-        value={inputName}
-        onChange={(e) => {
-          setInputName(e.target.value);
-          setName(e.target.value);
-          setUpdateName(e.target.value);
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
         }}
-      />
-                                        </div>
-                                        <div style={{ width: "50%", height: "125px", padding: "0px", borderRadius: '0.625rem' }} class="image-container">
-                                          <img src={updateImage} alt="" />
-                                        </div>
+    >
+        <Box component="form" noValidate sx={{ mt: 1 }}>
 
-                                      </div>
+            <Grid container >
 
-                                      <TextField
-                                        margin="normal"
-                                        required
-                                        fullWidth
-                                        id="Category"
-                                        label={t("Category")}
-                                        name="Category"
-                                        autoComplete="Category"
-                                        autoFocus
-                                        value={updateCategory}
-                                        onChange={(e) => {
-                                          setUpdateCategory(e.target.value);
-                                          setCategory(e.target.value);
-                                        }}
-                                      />
+                <div className='flex' style={{width:"100%"}}>
+                <TextField
+                    style={{ marginRight:"5%", width:"45%"}}
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="Name"
+                    label={t("Name")}
+                    name="Name"
+                    autoComplete="Name"
+                    autoFocus
+                    value={updateName}
+                    onChange={(e) => {
+                        setName(e.target.value);
+                        setUpdateName(e.target.value);
+                    }}
+                />
+                            <div style={{ width:"50%",height:"125px",padding: "0px", borderRadius: '0.625rem' }} class="image-container">
+                                <img src={updateImage} alt="" />
+                            </div>
+              
+                </div>
 
-                                      <TextField
-                                        margin="normal"
-                                        required
-                                        fullWidth
-                                        id="Image"
-                                        label={t("Image")}
-                                        name="Image"
-                                        autoComplete="Image"
-                                        autoFocus
-                                        value={updateImage}
-                                        onChange={(e) => {
-                                          setUpdateImage(e.target.value);
-                                          setImage(e.target.value);
-                                        }}
-                                      />
-                                      <TextField
-                                        margin="normal"
-                                        required
-                                        fullWidth
-                                        id="Price"
-                                        label={t("Price")}
-                                        name="Price"
-                                        autoComplete="Price"
-                                        autoFocus
-                                        value={updatePrice}
-                                        onChange={(e) => {
-                                          setUpdatePrice(e.target.value);
-                                          setPrice(e.target.value);
-                                        }}
-                                      />
-                                      <TextField
-                                        margin="normal"
-                                        required
-                                        fullWidth
-                                        id="Subtotal"
-                                        label={t("Subtotal")}
-                                        name="Subtotal"
-                                        autoComplete="Subtotal"
-                                        autoFocus
-                                        value={updateSubtotal}
-                                        onChange={(e) => {
-                                          setUpdateSubtotal(e.target.value);
-                                          setSubtotal(e.target.value);
-                                        }}
-                                      />
+                <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="Category"
+                    label={t("Category")}
+                    name="Category"
+                    autoComplete="Category"
+                    autoFocus
+                    value={updateCategory}
+                    onChange={(e) => {
+                        setUpdateCategory(e.target.value);
+                        setCategory(e.target.value);
+                    }}
+                />
 
-                                    </Grid>
-                                    <Grid container>
+                <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="Image"
+                    label={t("Image")}
+                    name="Image"
+                    autoComplete="Image"
+                    autoFocus
+                    value={updateImage}
+                    onChange={(e) => {
+                        setUpdateImage(e.target.value);
+                        setImage(e.target.value);
+                    }}
+                />
+                <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="Price"
+                    label={t("Price")}
+                    name="Price"
+                    autoComplete="Price"
+                    autoFocus
+                    value={updatePrice}
+                    onChange={(e) => {
+                        setUpdatePrice(e.target.value);
+                        setPrice(e.target.value);
+                    }}
+                />
+                <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="Subtotal"
+                    label={t("Subtotal")}
+                    name="Subtotal"
+                    autoComplete="Subtotal"
+                    autoFocus
+                    value={updateSubtotal}
+                    onChange={(e) => {
+                        setUpdateSubtotal(e.target.value);
+                        setSubtotal(e.target.value);
+                    }}
+                />
 
-                                      <Button
-                                        onClick={(e) => {
-                                          e.preventDefault();
-                                          updateFood_array(updateId, { name: updateName, category: updateCategory, image: updateImage, price: updatePrice, subtotal: updateSubtotal })
-                                        }}
-                                        fullWidth
-                                        variant="contained"
-                                        sx={{ mt: 1, mb: 1, padding: "15px" }}
-                                      >
-                                        {t("Update Food")}
-                                      </Button>
-                                      <Button
-                                        onClick={(e) => {
-                                          e.preventDefault();
-                                          addFood_array({ name: updateName, category: updateCategory, image: updateImage, price: updatePrice, subtotal: updateSubtotal })
-                                        }}
-                                        fullWidth
-                                        variant="contained"
-                                        sx={{ mt: 1, mb: 1, padding: "15px" }}
-                                      >
-                                        {t("Add New Food")}
-                                      </Button>
+            </Grid>
+            <Grid container>
 
-                                    </Grid>
+                <Button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        updateFood_array(updateId, { name: updateName, category: updateCategory, image: updateImage, price: updatePrice, subtotal: updateSubtotal })
+                    }}
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 1, mb: 1 }}
+                >
+                    {t("Update Food")}
+                </Button>
+                <Button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  addFood_array({ name: updateName, category: updateCategory, image: updateImage, price: updatePrice, subtotal: updateSubtotal })
+                              }}
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 1, mb: 1 }}
+                >
+                    {t("Add New Food")}
+                </Button>
 
-                                  </Box>
-                                </Box>
-                              </Container>
+            </Grid>
 
-                            </ThemeProvider>
-                          </div>
-                          {
-                            isMobile ?
+        </Box>
+    </Box>
+</Container>
 
-                              <></>
-                              :
-                              <section className="task-list" style={{ width: "45%" }} >
-                                <div className="task-wrap" style={{ minHeight: '750px', maxHeight: '750px', overflowY: 'scroll' }}>
-                                  {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
+</ThemeProvider>
+</div>
+{
+  isMobile?
+  
+ <></> 
+  :
+  <section className="task-list" style={{width:"45%"}} >
+  <div className="task-wrap" style={{ minHeight: '750px', maxHeight: '750px', overflowY: 'scroll' }}>
+      {Food_arrays.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
 
 
-                                    <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
-                                      <div style={{ display: "flex", alignItems: "center" }}>
-                                        <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
-                                          <img src={task.image} alt="" />
-                                        </div>
-                                        <div style={{ marginLeft: "10px" }}>{task.name}</div>
-                                      </div>
-                                      <span style={{ cursor: 'pointer' }}
-                                        onClick={() => handleUpdateForm(task.id)}
-                                        className="task-card__tag task-card__tag--marketing">{t("Edit")}</span>
-                                      <span className="task-card__option">
-                                        <span style={{ cursor: 'pointer' }}
-                                          onClick={() => deleteFood_array(task.id)}
-                                          className="task-card__tag task-card__tag--design">{t("Delete")}</span>
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </section>
-                          }
+          <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
+                      <img src={task.image} alt="" />
+                  </div>
+                  <div style={{ marginLeft: "10px" }}>{task.name}</div>
+              </div>
+              <span style={{ cursor: 'pointer' }}
+                  onClick={() => handleUpdateForm(task.id)}
+                  className="task-card__tag task-card__tag--marketing">{t("Edit")}</span>
+              <span className="task-card__option">
+                  <span style={{ cursor: 'pointer' }}
+                      onClick={() => deleteFood_array(task.id)}
+                      className="task-card__tag task-card__tag--design">{t("Delete")}</span>
+              </span>
+          </div>
+      ))}
+  </div>
+</section>
+}
 
                         </div>
                       </div>

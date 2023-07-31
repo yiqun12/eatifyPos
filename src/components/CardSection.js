@@ -165,11 +165,12 @@ const handleSaveCardChange = (e) => {
   
   return (
     <div>
+      
     <div id="card2-header">
       <div id="add-new-card">
       <form onSubmit={handleSubmit}>
           <div id="" >
-          <div className="row-1 m-0" style={{  marginTop: "15px !important", borderTopLeftRadius: '5px', borderTopRightRadius: '5px' }}>
+          <div className="row-1 m-0" style={{ "border-radius": '0px',  marginTop: "15px !important", borderTopLeftRadius: '5px', borderTopRightRadius: '5px' }}>
             <div className="row row-2" style={{
               'paddingLeft': 0,
               'paddingRight': 0,
@@ -259,7 +260,8 @@ const handleSaveCardChange = (e) => {
           <button 
           style={{ width: "100%" }} 
           class="text-white bg-orange-700 hover:bg-orange-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-            {t("Add New Card & Pay")}</button>
+                          <FontAwesomeIcon icon={faCreditCard} />
+                          &nbsp; {t("Pay with New Card")}</button>
         </form>
 
       </div>

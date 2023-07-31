@@ -81,14 +81,11 @@ form .row{
     overflow: hidden;
 }
 form .row-1{
-    border: 1px solid rgba(0, 0, 0, 0.137);
     padding: 0.5rem;
     outline: none;
     width: 100%;
     min-width: unset;
     border-radius: 5px;
-    background-color: rgba(221, 228, 236, 0.301);
-    border-color: rgba(221, 228, 236, 0.459);
     margin: 2vh 0;
     overflow: hidden;
 }

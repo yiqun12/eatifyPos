@@ -15,7 +15,13 @@ import { MyHookProvider, useMyHook } from './myHook';
 import Hero from './Hero';
 
 import './SwitchToggle.css';
+import applepay from '../components/applepay.png';
+import amex from '../components/amex.png';
+import visa from '../components/visa.png';
+import discover from '../components/discover.png';
+import wechatpay from '../components/wechatpay.png';
 
+import alipay from '../components/alipay.png';
 
 const App = () => {
   /**re-render everytime button clicked from shopping cart */
@@ -261,7 +267,7 @@ const Item = (props) => {
             </div>
           </div>
           <div className="row">
-            <div className="col">
+            <div className="col" style={{marginBottom:"5px"}}>
               <b> {t("Tips")}:</b>
             </div>
 
@@ -334,6 +340,16 @@ const Item = (props) => {
             <div className="col d-flex justify-content-end">
               <b>$ {Math.round(100*(totalPrice*(1+tax_rate) + tips))/100}</b>
             </div>
+            <div style={{ display: 'flex',marginTop:"10px" }}>
+<img style={{height: '35px', width: 'auto'}} src={discover} alt="Discover" />
+
+  <img style={{height: '35px', width: 'auto',marginLeft:"15px"}} src={visa} alt="Visa" />
+</div>
+<div style={{ display: 'flex',marginTop:"5px"  }}>
+<img style={{height: '35px', width: 'auto', marginLeft:"10px"}} src={applepay} alt="Apple Pay" />
+<img style={{height: '30px', width: 'auto', marginLeft:"10px"}} src={wechatpay} alt="wechatpay" />
+<img style={{height: '30px', width: 'auto', marginLeft:"15px"}} src={alipay} alt="alipay" />
+</div>
           </div>
         </div>
       </div>
