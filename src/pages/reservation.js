@@ -161,7 +161,7 @@ const ReservationForm = () => {
           required
         />
       </div>
-      <div className="elem-group">
+      <div className="elem-group select-dropdown">
         <label style={label_style} htmlFor="room-selection">{t("Select Room Preference")}</label>
         <select
         style={input_style}

@@ -127,6 +127,7 @@ const handleSaveCardChange = (e) => {
     const dateTime = new Date().toISOString();
     const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
     const user = JSON.parse(sessionStorage.getItem('user'));
+    console.log(amount)
     const data = {
       payment_method: paymentMethodId,
       currency,
@@ -258,7 +259,7 @@ const handleSaveCardChange = (e) => {
 />
 <div style={{color:"white",fontSize:"5px"}}>.</div>
           <button 
-          style={{ width: "100%" }} 
+          style={{ 	"borderRadius": "0.2rem", width: "100%" }} 
           class="text-white bg-orange-700 hover:bg-orange-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                           <FontAwesomeIcon icon={faCreditCard} />
                           &nbsp; {t("Pay with New Card")}</button>

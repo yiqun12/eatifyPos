@@ -70,11 +70,14 @@ function PayFullhistory() {
         console.log('read card');
         
         const newPayments = [];
+        let payment;
         snapshot.forEach((doc) => {
-          const payment = doc.data();
+          payment = doc.data();
+
           if(payment.status === 'succeeded') {
             console.log(doc.id)
-            payment[id]=doc.id
+            payment.id=doc.id
+            console.log(payment)
             newPayments.push(payment);
           }
         });

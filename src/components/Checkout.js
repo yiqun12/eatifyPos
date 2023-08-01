@@ -132,7 +132,7 @@ function Checkout(props) {
       const amount = Number(totalPrice);
       const currency = 'usd';
       //  console.log(currency)
-      // console.log(amount)
+      console.log(amount)
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const user = JSON.parse(sessionStorage.getItem('user'));
@@ -379,8 +379,8 @@ function Checkout(props) {
                         <img className="img-fluid" src="https://img.icons8.com/color/48/000000/visa.png" />
                       )}
                     </div>
-                    <div className="col-7">
-                      <select style={{ color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
+                    <div className="col-7 select-dropdown">
+                      <select style={{ backgroundcolor: "white",color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
                         <option hidden data-type="mastercard">{t("Select Account")}</option>
                       </select>
                     </div>
@@ -400,7 +400,7 @@ function Checkout(props) {
   type="submit"
   name="pay"
   class="flex items-center justify-center text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-yellow-500 dark:hover:bg-yellow-600 dark:focus:ring-yellow-700"
-  style={{ width: "100%" }}
+  style={{ 	"borderRadius": "0.2rem", width: "100%" }}
 >
   <img src={multipleCard} alt="Multiple Card" style={{ filter: 'invert(1)', width: '20px', height: '20px', marginRight: '8px' }} />
   {t("Pay with Saved Card")}
@@ -414,7 +414,7 @@ function Checkout(props) {
                 type="submit"
                 name="pay"
                 class="text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-                style={{ width: "100%" }}
+                style={{	"borderRadius": "0.2rem", marginTop:"10px", width: "100%" }}
               >
   <svg
     xmlns="http://www.w3.org/2000/svg"

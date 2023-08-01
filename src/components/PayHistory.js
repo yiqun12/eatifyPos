@@ -350,7 +350,7 @@ async function handleWechatPay(payment, docId) {
                 type="submit"
                 name="pay"
                 class="text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700"
-                style={{ width: "100%" }}
+                style={{	"borderRadius": "0.2rem",  width: "100%" }}
               >
 <svg
   xmlns="http://www.w3.org/2000/svg"

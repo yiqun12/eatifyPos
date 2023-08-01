@@ -275,8 +275,8 @@ const handleMouseLeave = () => {
 
               </div>
 
-              <div className="col-7">
-                <select style={{ 'background-color': "#f5f7f9", color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
+              <div className="col-7 select-dropdown">
+                <select style={{ backgroundcolor: "white",color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
                   <option hidden data-type="mastercard">{t("Select Account")}</option>
                 </select>
               </div>

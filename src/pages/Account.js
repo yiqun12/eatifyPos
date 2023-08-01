@@ -97,28 +97,14 @@ const Account = () => {
                             {t("sign out")}
                           </button>
                         </h6>
-                        <form>
-                          <div className="form-group">
+                        <div className="form-group">
                             <label htmlFor="bio">{(user) ? user.email : ""}</label>
                           </div>
                           <hr />
                           <h6>{t("Payment Method: ")}</h6>
                           <Checkout />
                           <h6>{t("Order History: ")}</h6>
-                          <form>
-                            <div className="form-group mb-0 " style={{
-                              "height": "400px",
-                              "overflow-y": " scroll"
-                            }}>
-                              <div className="border border-gray-500 bg-gray-200 p-3 text-center font-size-sm"
-                                style={{
-                                  backgroundColor: "rgba(221, 228, 236, 0.301)"
-                                }}>
                                 <PayFullhistory />
-                              </div>
-                            </div>
-                          </form>
-                        </form>
                       </div>
                     ) : null}
                   </div>
