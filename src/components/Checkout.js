@@ -127,10 +127,7 @@ function Checkout(props) {
     });//google/apple pay
     pr.on('paymentmethod', async (e) => {
       const { paymentMethod } = e; // Extract the paymentMethod object from the event
-      document
-      .querySelectorAll('button')
-      .forEach((button) => (button.disabled = true));
-      
+
       const paymentMethodId = paymentMethod.id; // Extract the id from the paymentMethod object
 
       // console.log('Payment Method ID:', paymentMethodId);
@@ -926,7 +923,7 @@ function PayHistory(props) {
           //console.log(JSON.stringify(collection_data)); // output the JSON object to the console
           sessionStorage.setItem('collection_data', JSON.stringify(collection_data));
           sessionStorage.removeItem("products");
-          window.location.href = '/Receipt'
+          window.location.href = '/Receipt?'+doc.id;
           
           } else if (payment.status === 'requires_action') {
             content = `🚨 ` + t("Payment status: ") + `${payment.status}`;
@@ -1049,7 +1046,7 @@ function PayHistory(props) {
             sessionStorage.setItem('collection_data', JSON.stringify(collection_data));
             sessionStorage.removeItem("products");
   
-            window.location.href = '/Receipt'
+            window.location.href = '/Receipt?'+docId
           }
 
         });

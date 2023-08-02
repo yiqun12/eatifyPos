@@ -345,7 +345,7 @@ const Item = (props) => {
   <img style={{height: '35px', width: 'auto',marginLeft:"15px"}} src={visa} alt="Visa" />
 </div>
 <div style={{ display: 'flex',marginTop:"5px"  }}>
-<img style={{height: '35px', width: 'auto', marginLeft:"10px"}} src={applepay} alt="Apple Pay" />
+<img style={{height: '35px', width: 'auto'}} src={applepay} alt="Apple Pay" />
 <img style={{height: '30px', width: 'auto', marginLeft:"10px"}} src={wechatpay} alt="wechatpay" />
 <img style={{height: '30px', width: 'auto', marginLeft:"15px"}} src={alipay} alt="alipay" />
 </div>
