@@ -9,31 +9,9 @@ import { useEffect } from 'react';
 import { useMyHook } from './myHook';
 import './SwitchToggle.css';
 import moment from 'moment';
+import firebase from 'firebase/compat/app';
 
 const App = () => {
-
-  //const sessionId = location.search.replace('?session_id=', '');
-  /**re-render everytime button clicked from shopping cart */
-  const { id, saveId } = useMyHook(null);
-  let products = JSON.parse(JSON.parse(sessionStorage.getItem('collection_data')).receipt_data)
-  useEffect(() => {
-    products = JSON.parse(JSON.parse(sessionStorage.getItem('collection_data')).receipt_data)
-  }, [id]);
-
-  //fetch data from local stroage products.
-  const [totalPrice, setTotalPrice] = useState(products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0));
-
-  useEffect(() => {
-    //maybe add a line here...
-    const calculateTotalPrice = () => {
-      const total = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
-      //console.log(total)
-      //console.log(products)
-      setTotalPrice(total);
-    }
-    //console.log(totalPrice)
-    calculateTotalPrice();
-  }, [products]);
 
   return (
 
@@ -41,52 +19,77 @@ const App = () => {
       <div className="app-container" style={{ height: "100%" }}>
         <div className="row">
           <div className="col">
-            <Item products={products} totalPrice={totalPrice} />
+            <Item />
           </div>
         </div>
       </div>
     </div>
   );
 };
-/**                    <img src={product.image} style ={{    width: '100px',
-  height: '100px',
-  'object-fit': 'cover'}}/> */
-const Item = (props) => {
-  //const { id, saveId } = useMyHook(null);
-  //const [totalPrice, setTotalPrice] = useState(0);
-  let products = JSON.parse(JSON.parse(sessionStorage.getItem('collection_data')).receipt_data)
 
-  const { totalPrice } = props;
-  //console.log(props.products)
-  const [isModeOne, setIsModeOne] = useState(true);
+const Item = () => {
+  const [payment_data, setPaymentData] = useState(null);
+  const [products, setProducts] = useState([]);
+  const receiptToken = window.location.href.split('?')[1];
 
-  const handleToggle = () => {
-    setIsModeOne(!isModeOne);
-  };
-// console.log(products)
- //console.log()
- //console.log(JSON.parse(sessionStorage.getItem('collection_data')).time)
-
-
-    // for translations sake
-    const trans = JSON.parse(sessionStorage.getItem("translations"))
-    const t = (text) => {
-      // const trans = sessionStorage.getItem("translations")
-      //console.log(trans)
-     // console.log(sessionStorage.getItem("translationsMode"))
-  
-      if (trans != null) {
-        if (sessionStorage.getItem("translationsMode") != null) {
-        // return the translated text with the right mode
-          if (trans[text] != null) {
-            if (trans[text][sessionStorage.getItem("translationsMode")] != null)
-              return trans[text][sessionStorage.getItem("translationsMode")]
+  useEffect(() => {
+    if (receiptToken && receiptToken.length === 20) {
+      const unsubscribe = firebase
+        .firestore()
+        .collection("success_payment")
+        .doc(receiptToken)
+        .onSnapshot((doc) => {
+          if (doc.exists) {
+            const payment = doc.data();
+            const paymentData = {
+              receipt_data: payment.receiptData,
+              document_id: doc.id,
+              time: payment.dateTime,
+              email: payment.user_email,
+              status: payment.status === "succeeded" ? "Paid Online" : "Unpaid Online",
+              isDinein: payment.metadata.isDine,
+              tax: payment.metadata.tax,
+              tips: payment.metadata.tips,
+              subtotal: payment.metadata.subtotal,
+              total: payment.metadata.total,
+            };
+            console.log("Document data:", paymentData);
+            setPaymentData(paymentData);
+            setProducts(JSON.parse(paymentData.receipt_data));
+          } else {
+            console.log("No such document!");
           }
-        }
-      } 
-      // base case to just return the text if no modes/translations are found
-      return text
+        }, (error) => {
+          console.log("Error getting document:", error);
+        });
+  
+      return () => unsubscribe(); // Clean up the listener when the component is unmounted
+    } else {
+      console.log("null");
     }
+  }, [receiptToken]); // useEffect will run when receiptToken changes
+
+   // for translations sake
+   const trans = JSON.parse(sessionStorage.getItem("translations"))
+   const t = (text) => {
+     // const trans = sessionStorage.getItem("translations")
+     //console.log(trans)
+    // console.log(sessionStorage.getItem("translationsMode"))
+ 
+     if (trans != null) {
+       if (sessionStorage.getItem("translationsMode") != null) {
+       // return the translated text with the right mode
+         if (trans[text] != null) {
+           if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+             return trans[text][sessionStorage.getItem("translationsMode")]
+         }
+       }
+     } 
+     // base case to just return the text if no modes/translations are found
+     return text
+   }
+
+  if (!payment_data) return <div>Loading...</div>; // Render a loading state if payment_data is not fetched
 
   return (
     <div className="card2 mb-50" >
@@ -99,12 +102,12 @@ const Item = (props) => {
       <div className="gap">
         <div className="col-2 d-flex mx-auto" />
         
-        <b className="text-black text-2xl">{JSON.parse(sessionStorage.getItem('collection_data')).isDinein} ({JSON.parse(sessionStorage.getItem('collection_data')).status})</b>
-        <span className="block text-black text-sm">{t("Name")}: {JSON.parse(sessionStorage.getItem('collection_data')).user_email}
+        <b className="text-black text-2xl">{payment_data.isDinein} ({payment_data.status})</b>
         
-        </span>
-        <span className="block text-black text-sm">{t("Order ID")}: {JSON.parse(sessionStorage.getItem('collection_data')).document_id}</span>
-        <span className="block text-black text-sm">{  moment(JSON.parse(sessionStorage.getItem('collection_data')).time, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-8).format("MMMM D, YYYY h:mm a")}</span>
+        <span className="block text-black text-sm">{  moment(payment_data.time, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-8).format("MMMM D, YYYY h:mm a")}</span>
+        <span className="block text-black text-sm">{t("Email")}: {payment_data.email}</span>
+        <span className="block text-black text-sm">{t("Order ID")}: {payment_data.document_id}</span>
+
       </div>
       <div className="main">
         <span id="sub-title">
@@ -137,7 +140,7 @@ const Item = (props) => {
               <b> {t("Subtotal")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${JSON.parse(sessionStorage.getItem('collection_data')).subtotal}</b>
+              <b>${payment_data.subtotal}</b>
             </div>
           </div>
           <div className="row">
@@ -145,7 +148,7 @@ const Item = (props) => {
               <b> {t("Tax")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${JSON.parse(sessionStorage.getItem('collection_data')).tax}</b>
+              <b>${payment_data.tax}</b>
             </div>
           </div>
           <div className="row">
@@ -153,7 +156,7 @@ const Item = (props) => {
               <b> {t("Tips")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${JSON.parse(sessionStorage.getItem('collection_data')).tips}</b>
+              <b>${payment_data.tips}</b>
             </div>
           </div>
           <div className="row">
@@ -161,7 +164,7 @@ const Item = (props) => {
               <b> {t("Total")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${JSON.parse(sessionStorage.getItem('collection_data')).total}</b>
+              <b>${payment_data.total}</b>
             </div>
           </div>
         </div>
