@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUserContext } from "../context/userContext";
 import {Elements} from '@stripe/react-stripe-js';
-import CardSection from './CardSection';
 import Checkout from './Checkout';
-import PayHistory from './PayHistory';
 import { MyHookProvider } from '../pages/myHook';
 import Link from '@mui/material/Link';
 import { useMyHook } from '../pages/myHook';
@@ -76,7 +74,7 @@ const Dashboard = (props) => {
             {t("CHECKOUT")}   ${Math.round(100 * totalPrice) / 100} 
           </div>
             <Checkout totalPrice={totalPrice}/>
-          <PayHistory totalPrice={totalPrice} />
+          
         </div>
       </Elements>
     </div>

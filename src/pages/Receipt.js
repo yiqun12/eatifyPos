@@ -99,8 +99,8 @@ const Item = (props) => {
       <div className="gap">
         <div className="col-2 d-flex mx-auto" />
         
-        <b className="text-black text-2xl">{JSON.parse(sessionStorage.getItem('collection_data')).isDinein} ({t("PAID")})</b>
-        <span className="block text-black text-sm">{t("Name")}: {JSON.parse(sessionStorage.getItem('collection_data')).pay_name}
+        <b className="text-black text-2xl">{JSON.parse(sessionStorage.getItem('collection_data')).isDinein} ({JSON.parse(sessionStorage.getItem('collection_data')).status})</b>
+        <span className="block text-black text-sm">{t("Name")}: {JSON.parse(sessionStorage.getItem('collection_data')).user_email}
         
         </span>
         <span className="block text-black text-sm">{t("Order ID")}: {JSON.parse(sessionStorage.getItem('collection_data')).document_id}</span>

@@ -92,7 +92,7 @@ function PayFullhistory() {
             date: formattedDate,
             email: item.user_email,
             dineMode: item.metadata.isDine,
-            status: "Paid",
+            status: item.status==="succeeded"?"Paid Online":"Unpaid Online",
             total: parseFloat(item.metadata.total),
             name: "Table A",
             metadata: item.metadata

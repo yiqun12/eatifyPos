@@ -2,7 +2,6 @@
 import React from 'react'
 import { useState } from 'react';
 import './checkout.css';
-import CardSection from "../components/CardSection";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import 'bootstrap/dist/css/bootstrap.css';
