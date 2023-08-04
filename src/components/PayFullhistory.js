@@ -74,7 +74,7 @@ function PayFullhistory() {
         snapshot.forEach((doc) => {
           payment = doc.data();
 
-          if(payment.status === 'succeeded') {
+          if(payment.status === 'succeeded'||payment.status === 'instore_pay') {
             console.log(doc.id)
             payment.id=doc.id
             console.log(payment)
@@ -92,7 +92,7 @@ function PayFullhistory() {
             date: formattedDate,
             email: item.user_email,
             dineMode: item.metadata.isDine,
-            status: item.status==="succeeded"?"Paid Online":"Unpaid Online",
+            status: item.status==="succeeded"?"Paid Online":"Handle Instore",
             total: parseFloat(item.metadata.total),
             name: "Table A",
             metadata: item.metadata

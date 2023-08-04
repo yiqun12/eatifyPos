@@ -52,5 +52,25 @@
     border-right: 5px solid transparent;
     border-top: 5px solid white;
   }
-  .select-dropdown option{
+  .phone-field {
+    margin: 10px;
+    font-size: 20px;
+  }
+  
+  .phone-input {
+    width: 13px;
+    text-align: center;
+    font-size: 16px !important;
+    height: 1.75em;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    border-bottom: 2px solid #ddd;
+    margin-right: 2px;
+    margin-left: 2px;
+  }
+  
+  [placeholder]:focus::-webkit-input-placeholder {
+    transition: opacity 0.5s 0.0s ease;
+    opacity: 0;
   }

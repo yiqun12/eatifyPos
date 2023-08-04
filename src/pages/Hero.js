@@ -10,11 +10,17 @@ const Hero = () => {
   useEffect(() => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
-  const initialDineInState = sessionStorage.getItem('isDinein') 
+
+  let initialDineInState = sessionStorage.getItem('isDinein') 
   ? JSON.parse(sessionStorage.getItem('isDinein')) 
   : true;
 
-    const [isDinein, setIsDinein] = useState(initialDineInState);
+
+    const [isDinein, setIsDinein] = useState(
+      
+      initialDineInState
+      
+      );
     sessionStorage.setItem('isDinein', JSON.stringify(isDinein));
     
     const handleToggle = () => {

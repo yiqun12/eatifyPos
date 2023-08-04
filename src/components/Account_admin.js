@@ -435,7 +435,7 @@ const Account = () => {
           date: formattedDate,
           email: item.user_email,
           dineMode: item.metadata.isDine,
-          status: item.status==="succeeded"?"Paid Online":"Unpaid Online",
+          status: item.status==="succeeded"?"Paid Online":"Handle Instore",
           total: parseFloat(item.metadata.total),
           name: "table A",
           metadata: item.metadata

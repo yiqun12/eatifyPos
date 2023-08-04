@@ -29,8 +29,26 @@ import { Navigate } from 'react-router-dom';
 import { translations } from './data/translations.js'
 
 function App() {
-  const { user} = useUserContext();
   const [loading, setLoading] = useState(true);
+  const params = new URLSearchParams(window.location.search);
+  const tableValue = params.get('table')?params.get('table').toUpperCase():"";
+  
+  
+  if(tableValue===""){
+    if(sessionStorage.getItem('table')){//存在过
+      sessionStorage.setItem('isDinein',true)
+    }else{//不存在
+      sessionStorage.setItem('table',tableValue)
+      sessionStorage.setItem('isDinein',false)
+
+    }
+  }else{
+    sessionStorage.setItem('table',tableValue)
+    sessionStorage.setItem('isDinein',true)
+  }
+  console.log(tableValue)
+
+
   const fetchPost = async () => {
     
       console.log("fetchPost1")

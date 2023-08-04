@@ -43,6 +43,7 @@ export const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  firebase.auth().languageCode = 'it';
 
   useState(() => {
     setLoading(true);
@@ -66,6 +67,7 @@ export const UserContextProvider = ({ children }) => {
     });
     return unsubscribe;
   }, []);
+  
 // logout untill full filled.
   const registerUser = async (email, password, name) => {
     setLoading(true);

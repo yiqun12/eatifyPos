@@ -314,9 +314,18 @@ const Food = () => {
       style={{ marginLeft: '20px', width: '30%', textAlign: 'right' }}
     >
       <div style={{ marginTop: '6px' }}>
-        <span style={{ marginRight: '10px' }}>A1</span>
-        <span
+      {sessionStorage.getItem('table')!=null && sessionStorage.getItem('table')!=""?
+                <b >
+                <b style={{backgroundColor: "red", borderRadius: "3px",padding: "3px",color: "white",}}>
+                      {sessionStorage.getItem('table')}
+                </b>
+                </b>:
+                <></>
+
+}
+        <b
           style={{
+            marginLeft:"10px",
             backgroundColor: 'green',
             borderRadius: '10px',
             padding: '3px',
@@ -325,8 +334,8 @@ const Food = () => {
             color: 'white',
           }}
         >
-          Open
-        </span>
+          OPEN
+        </b>
       </div>
       <div>Until 9:00pm</div>
     </div>
@@ -384,12 +393,21 @@ const Food = () => {
 
       <div style={{ marginLeft: "20px", width: "30%", textAlign: "right" }}>
                 <div>
-                  <span style={{marginRight:"10px"}}>
-                    A1
-                  </span>
-                  <span
-                  style={{ backgroundColor: "green", borderRadius: "10px", padding: "3px", paddingTop: "2px", paddingBottom: "2px", color: "white" }}
-                >Open</span></div>
+{sessionStorage.getItem('table')!=null && sessionStorage.getItem('table')!=""?
+                <b >
+                <b style={{backgroundColor: "red", borderRadius: "3px",padding: "3px",color: "white",}}>
+                      {sessionStorage.getItem('table')}
+                </b>
+                </b>:
+                <></>
+
+}
+
+
+                  <b
+                  style={{ marginLeft:"10px",backgroundColor: "green", borderRadius: "10px", padding: "3px", paddingTop: "2px", paddingBottom: "2px", color: "white" }}
+                >OPEN</b>
+                </div>
               </div>
 
       </div>

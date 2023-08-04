@@ -216,11 +216,27 @@ const Item = (props) => {
 
       <div className="main">
         <span className='flex' id="sub-title">
-            <b>{t("Summary")}</b>
+          <div className='flex'>
+
+          {sessionStorage.getItem('table')!=null && sessionStorage.getItem('table')!=""?
+                <b >
+                <b style={{backgroundColor: "red", borderRadius: "3px",padding: "3px",color: "white",}}>
+                      {sessionStorage.getItem('table')} 
+                </b>
+                &nbsp; 
+                </b>:
+                <></>
+
+}
+            <b> {t("Summary")}
+            
+            </b>
+          </div>
+
             <Hero style={{"marginBottom":"5px"}}>
             </Hero>
-        </span>
 
+        </span>
         {products.map((product, index) => {
           return (
             <div className="row row-main" key={index}>

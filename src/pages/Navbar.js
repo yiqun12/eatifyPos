@@ -602,15 +602,18 @@ const Navbar = () => {
   </span>
 {isMobile?<></>:<div  onClick={event => window.location.href = '/'}>{JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address}</div>}
   
+  
 </div>
 
           <div className='flex ml-auto pr-4'>
+            
             <select class="selectpicker" data-width="fit" onChange={changeLanguage}>
               {/**如果选择中文，框显示成lang，如果是eng,框显示语言 */}
               <option value='en' data-content='<span class="flag-icon flag-icon-us"></span> English' selected={languageOption() == 'en' ? true : false}>English</option>
               <option value='ch' data-content='<span class="flag-icon flag-icon-mx"></span> Chinese' selected={languageOption() == 'ch' ? true : false}>中文</option>
             </select>
             <button className="ml-3" onClick={event => window.location.href = '/account'} style={{  'cursor': "pointer", 'top': '-10px', fontSize: "16px" }}> {user ? t("Account") : t("Login")}</button>
+          
           </div>
           
         </div>
