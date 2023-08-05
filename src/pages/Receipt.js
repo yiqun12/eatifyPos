@@ -48,7 +48,7 @@ const Item = () => {
               time: payment.dateTime,
               email: payment.user_email,
               status: payment.status === "succeeded" ? "Paid Online" : "Handle Instore",
-              isDinein: payment.metadata.isDine,
+              isDinein: payment.metadata.isDine === "TakeOut"?"TakeOut":"Table: "+payment.tableNum,
               tax: payment.metadata.tax,
               tips: payment.metadata.tips,
               subtotal: payment.metadata.subtotal,
@@ -105,15 +105,13 @@ const Item = () => {
         <div className="col-2 d-flex mx-auto" />
         
         <b className="text-black text-2xl">{payment_data.isDinein} ({payment_data.status})</b>
-        <span className="block text-black text-sm">{t("Order ID")}: {payment_data.document_id}</span>
+        <b className="block text-black text-sm">{t("Order ID")}: {payment_data.document_id.substring(0, 3)}</b>
 
         {payment_data.status === "Handle Instore" && (
   <>
         <span className="block text-black text-sm">{t("Phone#")}: {payment_data.phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}</span>
   </>
 )}
-        <span className="block text-black text-sm">{t("Email")}: {payment_data.email}</span>
-
         <span className="block text-black text-sm">{  moment(payment_data.time, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-8).format("MMMM D, YYYY h:mm a")}</span>
 
 

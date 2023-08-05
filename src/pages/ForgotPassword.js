@@ -34,7 +34,7 @@ export default function SignIn() {
   const emailRef = useRef();
   const { signInUser, forgotPassword } = useUserContext();
   const { signInWithGoogle, } = useUserContext();
-  const user = JSON.parse(sessionStorage.getItem('user'));
+  const { user, user_loading} = useUserContext();
   const user_not_verified = JSON.parse(sessionStorage.getItem('user_not_verified'));
   if (user) {
     window.location.href = "/";
@@ -93,7 +93,7 @@ export default function SignIn() {
       style={{
       }}
     >
-      {user ?
+      {user_loading ?
         <div>
           Loading...
         </div>

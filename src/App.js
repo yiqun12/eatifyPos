@@ -33,7 +33,8 @@ function App() {
   const params = new URLSearchParams(window.location.search);
   const tableValue = params.get('table')?params.get('table').toUpperCase():"";
   
-  
+  const { user, user_loading} = useUserContext();
+  console.log(user_loading)
   if(tableValue===""){
     if(sessionStorage.getItem('table')){//存在过
       sessionStorage.setItem('isDinein',true)
@@ -85,7 +86,7 @@ useEffect(() => {
     
   document.title = JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Name
 }, []);
-  if (loading) {
+  if (loading &&user_loading) {
     return <p>  <div className="pan-loader">
       Loading...
   </div></p>;
@@ -102,14 +103,14 @@ useEffect(() => {
       <Routes>
         
       <Route path="QRcode" element={ 
-        JSON.parse(sessionStorage.getItem('user'))!=null &&
-        JSON.parse(sessionStorage.getItem('user')).uid === "eiCziN8rFjgqW7rxlusTihssPxi2" ? 
+        user!=null &&
+        user.uid === process.env.REACT_APP_ADMIN_UID ? 
         <Html /> : 
         <LogIn />} />
 
       <Route path="Admin" element={
-        JSON.parse(sessionStorage.getItem('user'))!=null && 
-        JSON.parse(sessionStorage.getItem('user')).uid === "eiCziN8rFjgqW7rxlusTihssPxi2" ? 
+        user!=null && 
+        user.uid === process.env.REACT_APP_ADMIN_UID ? 
         <Admin_new /> : 
         <LogIn />} />
 
@@ -120,26 +121,26 @@ useEffect(() => {
       <Route path="Receipt" element={<Receipt />} />
       <Route path="guest/:id" element={<Html2 />} />
       <Route path="Reservation" element={<Reservation />} />
-      { JSON.parse(sessionStorage.getItem('user')) ?  <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route> }
+      { user ?  <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route> }
       <Route path="Dashboard" element={<Dashboard />} />
-      { JSON.parse(sessionStorage.getItem('user')) ?  <Route path="Account" element=
+      { user ?  <Route path="Account" element=
       {
-        JSON.parse(sessionStorage.getItem('user'))!=null && 
-        JSON.parse(sessionStorage.getItem('user')).uid === "eiCziN8rFjgqW7rxlusTihssPxi2" ? 
+        user!=null && 
+        user.uid === process.env.REACT_APP_ADMIN_UID? 
         <Account_admin /> : 
         <Account />}
       ></Route> : <Route path="Account" element={<LogIn />}></Route> }
       <Route path="SignUp" element={<SignUp />}></Route>
       
-      { JSON.parse(sessionStorage.getItem('user')) ? 
+      { user ? 
       <Route path="LogIn" element={
-        JSON.parse(sessionStorage.getItem('user')).uid === "eiCziN8rFjgqW7rxlusTihssPxi2" ? 
+        user.uid === process.env.REACT_APP_ADMIN_UID ? 
         <Account_admin /> : 
         <Account />}></Route>: 
       <Route path="LogIn" element={<LogIn />}></Route>
       }
       
-      { JSON.parse(sessionStorage.getItem('user')) ? <Route path="ForgotPassword" element={<Account />}></Route>: <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
+      {user ? <Route path="ForgotPassword" element={<Account />}></Route>: <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
 
       </Routes>
       <footer style={{'height':"100px",'color':'transparent', 'userSelect': 'none'}}>

@@ -25,7 +25,6 @@ export default function SignIn() {
   useEffect(() => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
-
   const [isTrue, setIsTrue] = React.useState(false);
   const [errorVisibility, setErrorVisibility] = useState("none");
   const [error, setError] = useState("");
@@ -33,10 +32,10 @@ export default function SignIn() {
   const emailRef = useRef();
   const { signInUser, signInWithGuestLink,forgotPassword } = useUserContext();
   const { signInWithGoogle, signInWithGuest } = useUserContext();
-  const user = JSON.parse(sessionStorage.getItem('user'));
+  const { user, user_loading} = useUserContext();
   const user_not_verified = JSON.parse(sessionStorage.getItem('user_not_verified'));
   if (user) {
-    window.location.href = "/";
+    //window.location.href = "/";
   }
   window.addEventListener('pagehide', () => {
     sessionStorage.removeItem('user_not_verified');
@@ -98,7 +97,7 @@ export default function SignIn() {
       style={{
       }}
     >
-      {user ?
+      {user_loading ?
         <div>
           Loading...
         </div>
@@ -177,7 +176,7 @@ export default function SignIn() {
                               <Button
                                 fullWidth
                                 variant="contained"
-                                sx={{ mb: 2 }} role="button" onClick={signInWithGuestLink} >
+                                sx={{ mb: 2 }} role="button" onClick={signInWithGuest} >
                                 {t("One Time Sign in")}</Button>
                                 <Grid container>
                               <Grid item xs>

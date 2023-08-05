@@ -13,7 +13,7 @@ const Dashboard = (props) => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
 
-  const user = JSON.parse(sessionStorage.getItem('user'));
+  const { user } = useUserContext();
   const { totalPrice } = props;
   const { promise, logoutUser, emailVerification } = useUserContext();
   var verificationStatus = user.emailVerified ? "Verified" : "Not Verified";

@@ -25,7 +25,8 @@ const Account = () => {
     e.preventDefault();
     setActiveTab(tabHref);
   }
-  const user = JSON.parse(sessionStorage.getItem('user'));
+  
+  const { user, user_loading} = useUserContext();
 
   useEffect(() => {
     setActiveTab(window.location.hash);
@@ -70,7 +71,13 @@ const Account = () => {
 
   const isMobile = width <= 768;
   return (
+    
     <>
+          {user_loading ?
+        <div>
+          Loading...
+        </div>
+        :
       <Elements stripe={promise}>
         <div className='max-w-[1000px] mx-auto p-4'>
           <div className="container">
@@ -114,6 +121,7 @@ const Account = () => {
           </div>
         </div>
       </Elements>
+      }
     </>
   )
 }

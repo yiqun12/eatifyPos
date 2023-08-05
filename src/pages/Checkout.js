@@ -28,6 +28,7 @@ const App = () => {
   let products = JSON.parse(sessionStorage.getItem("products"));
   useEffect(() => {
     products = JSON.parse(sessionStorage.getItem("products"));
+    
   }, [id]);
   /**check if its mobile/browser */
   const [width, setWidth] = useState(window.innerWidth);
@@ -55,6 +56,7 @@ const App = () => {
   //fetch data from local stroage products.
   //console.log(sessionStorage.getItem("products"))
   const [totalPrice, setTotalPrice] = useState(products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0));
+
   useEffect(() => {
     //maybe add a line here...
     const calculateTotalPrice = () => {

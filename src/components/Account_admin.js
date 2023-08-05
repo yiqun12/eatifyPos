@@ -79,7 +79,7 @@ const Account = () => {
     e.preventDefault();
     setActiveTab(tabHref);
   }
-  const user = JSON.parse(sessionStorage.getItem('user'));
+  const { user, user_loading } = useUserContext();
 
   useEffect(() => {
     setActiveTab(window.location.hash);
@@ -391,19 +391,19 @@ const Account = () => {
       subtotal: "200"
     }
     console.log(inputName)
-    
+
     setUpdateName(sampleData.name);
     setName(sampleData.name);
-  
+
     setUpdateCategory(sampleData.category);
     setCategory(sampleData.category);
-  
+
     setUpdateImage(sampleData.image);
     setImage(sampleData.image);
-  
+
     setUpdatePrice(sampleData.price);
     setPrice(sampleData.price);
-  
+
     setUpdateSubtotal(sampleData.subtotal);
     setSubtotal(sampleData.subtotal);
   };
@@ -435,9 +435,9 @@ const Account = () => {
           date: formattedDate,
           email: item.user_email,
           dineMode: item.metadata.isDine,
-          status: item.status==="succeeded"?"Paid Online":"Handle Instore",
+          status: item.status === "succeeded" ? "Paid Online" : "Handle Instore",
           total: parseFloat(item.metadata.total),
-          name: "table A",
+          tableNum: item.tableNum,
           metadata: item.metadata
         };
         newItems.push(newItem); // Push the new item into the array
@@ -981,7 +981,11 @@ const Account = () => {
                     </ul>
                   </div>
                   <div id="card_element" className="card-body tab-content" ref={elementRef}>
-
+                  {user_loading ?
+        <div>
+          Loading...
+        </div>
+        :<>
                     {activeTab === '#profile' || activeTab === '' ? (
 
                       <div className="tab-pane active" id="profile">
@@ -1001,13 +1005,13 @@ const Account = () => {
                           </button>
                         </h6>
                         <div className="form-group">
-                            <label htmlFor="bio">{(user) ? user.email : ""}</label>
-                          </div>
-                          <hr />
-                          <h6>{t("Payment Method: ")}</h6>
-                          <Checkout />
-                          <h6>{t("Order History: ")}</h6>
-                                <PayFullhistory />
+                          <label htmlFor="bio">{(user) ? user.email : ""}</label>
+                        </div>
+                        <hr />
+                        <h6>{t("Payment Method: ")}</h6>
+                        <Checkout />
+                        <h6>{t("Order History: ")}</h6>
+                        <PayFullhistory />
                       </div>
                     ) : null}
 
@@ -1227,8 +1231,8 @@ const Account = () => {
                           <thead>
                             <tr>
                               <th className="order-number" style={isMobile ? {} : { width: "10%" }}>Order</th>
-                              <th className="order-name" style={isMobile ? {} : { width: "30%" }}>Name</th>
-                              <th className="order-status" style={isMobile ? {} : { width: "10%" }}>Status</th>
+                              <th className="order-name" style={isMobile ? {} : { width: "10%" }}>Table</th>
+                              <th className="order-status" style={isMobile ? {} : { width: "30%" }}>Status</th>
                               <th className="order-total" style={isMobile ? {} : { width: "10%" }}>Total</th>
                               <th className="order-dine-mode" style={isMobile ? {} : { width: "10%" }}>Service</th>
                               <th className="order-date" style={isMobile ? {} : { width: "15%" }}>Time</th>
@@ -1244,7 +1248,7 @@ const Account = () => {
 
                                   <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
                                     <td className="order-number" data-title="OrderID"><a >{order.id}</a></td>
-                                    <td className="order-name" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.name}</td>
+                                    <td className="order-name" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum}</td>
                                     <td className="order-status" data-title="Status" style={{ whiteSpace: "nowrap" }}>{order.status}</td>
                                     <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="amount">{"$" + order.total}</span></td>
                                     <td className="order-dine-mode" data-title="Service" style={{ whiteSpace: "nowrap" }}>{order.dineMode}</td>
@@ -1348,32 +1352,32 @@ const Account = () => {
                                       <div className='flex' style={{ width: "100%" }}>
                                         <div style={{ width: "45%", marginRight: "5%" }}>
                                           <div>
-                                          <Button
-  fullWidth
-  variant="contained"
-  sx={{ mt: 0, mb: 0, padding: "15px" }}
-  onClick={autoFill}
->
-  {t("Auto fill")}
-</Button>
+                                            <Button
+                                              fullWidth
+                                              variant="contained"
+                                              sx={{ mt: 0, mb: 0, padding: "15px" }}
+                                              onClick={autoFill}
+                                            >
+                                              {t("Auto fill")}
+                                            </Button>
                                           </div>
 
                                           <TextField
-        margin="normal"
-        required
-        fullWidth
-        id="Name"
-        label={t("Name")}
-        name="Name"
-        autoComplete="Name"
-        autoFocus
-        value={inputName}
-        onChange={(e) => {
-          setInputName(e.target.value);
-          setName(e.target.value);
-          setUpdateName(e.target.value);
-        }}
-      />
+                                            margin="normal"
+                                            required
+                                            fullWidth
+                                            id="Name"
+                                            label={t("Name")}
+                                            name="Name"
+                                            autoComplete="Name"
+                                            autoFocus
+                                            value={inputName}
+                                            onChange={(e) => {
+                                              setInputName(e.target.value);
+                                              setName(e.target.value);
+                                              setUpdateName(e.target.value);
+                                            }}
+                                          />
                                         </div>
                                         <div style={{ width: "50%", height: "125px", padding: "0px", borderRadius: '0.625rem' }} class="image-container">
                                           <img src={updateImage} alt="" />
@@ -1611,7 +1615,7 @@ const Account = () => {
                       </div>
 
                     ) : null}
-
+</>}
                   </div>
                 </div>
               </div>

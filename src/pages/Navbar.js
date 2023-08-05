@@ -65,7 +65,7 @@ const Navbar = () => {
   };
 
   const { logoutUser } = useUserContext();
-  const user = JSON.parse(sessionStorage.getItem('user'));
+  const { user, user_loading } = useUserContext();
 
   const location = useLocation();
   const [totalPrice, setTotalPrice] = useState(0);
@@ -464,13 +464,13 @@ const Navbar = () => {
             <DeleteSvg className="delete-btn" style={{ 'postion': 'absolute', float: 'right', cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></DeleteSvg>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              {totalPrice === 0 ? 
+              {totalPrice === 0 ?
                 <div>
                   <div style={{ marginTop: "15px" }}>
-                  <span> 
-  <i style={{ fontSize: "35px" }} className="material-icons nav__icon">shopping_cart_checkout</i>
-  <span >&nbsp;Your cart is currently empty.</span>
-</span>
+                    <span>
+                      <i style={{ fontSize: "35px" }} className="material-icons nav__icon">shopping_cart_checkout</i>
+                      <span >&nbsp;Your cart is currently empty.</span>
+                    </span>
 
 
                   </div>
@@ -583,39 +583,42 @@ const Navbar = () => {
       {/**navbar */}
 
       <div className={!isMobile ? "max-w-[1000px] mx-auto justify-between sticky top-0 bg-white z-10" : "sticky top-0 z-10 justify-between bg-white"}>
-     
-          <div className="col-span-4 pl-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
+
+        <div className="col-span-4 pl-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
           <img onClick={event => window.location.href = '/'}
-    src={"https://media.discordapp.net/attachments/759102082849833000/1129086110027481159/cuiyuan.png?width=496&height=487"}
-    alt=""
-    style={{ 
-        maxHeight: '60px',
-        maxWidth: '60px',
-        borderRadius: '50%',  // this makes the image round
-        objectFit: 'cover',   // this makes the image co0ver the entire dimensions
-        marginRight: '10px',   // added some margin to the right of the image
-        marginTop:"5px"
-    }}/>
-<div className='flex' style={{flexDirection: "column"}}> 
-  <span onClick={event => window.location.href = '/'} style={{marginTop:"0px"}}>
-   {JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Name}
-  </span>
-{isMobile?<></>:<div  onClick={event => window.location.href = '/'}>{JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address}</div>}
-  
-  
-</div>
+            src={"https://media.discordapp.net/attachments/759102082849833000/1129086110027481159/cuiyuan.png?width=496&height=487"}
+            alt=""
+            style={{
+              maxHeight: '60px',
+              maxWidth: '60px',
+              borderRadius: '50%',  // this makes the image round
+              objectFit: 'cover',   // this makes the image co0ver the entire dimensions
+              marginRight: '10px',   // added some margin to the right of the image
+              marginTop: "5px"
+            }} />
+          <div className='flex' style={{ flexDirection: "column" }}>
+            <span onClick={event => window.location.href = '/'} style={{ marginTop: "0px" }}>
+              {JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Name}
+            </span>
+            {isMobile ? <></> : <div onClick={event => window.location.href = '/'}>{JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address}</div>}
+
+
+          </div>
 
           <div className='flex ml-auto pr-4'>
-            
+
             <select class="selectpicker" data-width="fit" onChange={changeLanguage}>
               {/**如果选择中文，框显示成lang，如果是eng,框显示语言 */}
               <option value='en' data-content='<span class="flag-icon flag-icon-us"></span> English' selected={languageOption() == 'en' ? true : false}>English</option>
               <option value='ch' data-content='<span class="flag-icon flag-icon-mx"></span> Chinese' selected={languageOption() == 'ch' ? true : false}>中文</option>
             </select>
-            <button className="ml-3" onClick={event => window.location.href = '/account'} style={{  'cursor': "pointer", 'top': '-10px', fontSize: "16px" }}> {user ? t("Account") : t("Login")}</button>
-          
+            {!user_loading?
+            <button className="ml-3" onClick={event => window.location.href = '/account'} style={{ 'cursor': "pointer", 'top': '-10px', fontSize: "16px" }}> {user ? t("Account") : t("Login")}</button>
+            :
+            <>
+            </>}
           </div>
-          
+
         </div>
 
       </div>

@@ -28,8 +28,7 @@ export default function SignUp() {
     //console.log('Component B - ID changed:', id);
   }, [id]);
 
-  //const { user } = useUserContext();
-  const user = JSON.parse(sessionStorage.getItem('user'));
+  const { user, user_loading} = useUserContext();
   const [errorVisibility, setErrorVisibility] = useState("none");
 
   const { registerUser } = useUserContext();
@@ -88,7 +87,7 @@ export default function SignUp() {
 
       }}
     >
-      {user ?
+      {user_loading ?
         <div>
           Loading...
         </div>

@@ -57,10 +57,10 @@ export const UserContextProvider = ({ children }) => {
         }
         setUser(filteredProperties);
         currentUser = firebaseUser;
-        sessionStorage.setItem('user', JSON.stringify(filteredProperties));
+        //sessionStorage.setItem('user', JSON.stringify(filteredProperties));
       } else {
         setUser(null);
-        sessionStorage.setItem('user', JSON.stringify(null));
+        //sessionStorage.setItem('user', JSON.stringify(null));
       }
       setError("");
       setLoading(false);
@@ -98,7 +98,7 @@ export const UserContextProvider = ({ children }) => {
   
       if (!auth.currentUser.emailVerified) {
         logoutUser();
-        sessionStorage.removeItem("user");
+        //sessionStorage.removeItem("user");
         setError("Email not verified");
         sessionStorage.setItem('user_not_verified', JSON.stringify('user_not_verified'));
         throw new Error("Email not verified, go verify your email at your email address provided");
@@ -196,7 +196,7 @@ export const UserContextProvider = ({ children }) => {
   const logoutUser = () => {
     firebase.auth().signOut(auth);
     setUser(null);
-    sessionStorage.setItem('user', JSON.stringify(null));
+    //sessionStorage.setItem('user', JSON.stringify(null));
   };
 
   const forgotPassword = (email) => {
@@ -209,7 +209,7 @@ export const UserContextProvider = ({ children }) => {
 
   const contextValue = {
     user,
-    loading,
+    user_loading:loading,
     error,
     signInUser,
     registerUser,

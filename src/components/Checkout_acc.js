@@ -14,7 +14,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 function Checkout(props) {
   // Format amount for diplay in the UI
 
-  const user = JSON.parse(sessionStorage.getItem('user'));
+  const { user, user_loading} = useUserContext();
   const { totalPrice } = props;
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
@@ -135,7 +135,6 @@ const handleMouseLeave = () => {
           const paymentMethodValue = form.get('payment-method');
           const paymentMethodId = document.querySelector(`option[value="${paymentMethodValue}"]`).id;
           const new_paymentMethodId = paymentMethodId.substring(5);
-          const user = JSON.parse(sessionStorage.getItem('user'));
          // console.log("deleted click")
         // console.log(new_paymentMethodId);
           await firebase
@@ -174,7 +173,6 @@ const handleMouseLeave = () => {
           const dateTime = new Date().toISOString();
           const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
        //   console.log(form.get('payment-method'))
-          const user = JSON.parse(sessionStorage.getItem('user'));
           const data = {
             payment_method: form.get('payment-method'),
             currency,

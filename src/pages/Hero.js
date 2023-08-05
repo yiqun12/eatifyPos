@@ -36,7 +36,9 @@ const Hero = () => {
     };
     return (
 <div style={{ display: 'flex'}} className='max-w-[1000px] ml-auto'>
-<div className="switches-container" style={{"marginBottom":"10px", "boxShadow":"0px 0px 4px rgba(0, 0, 0, 0.3)"}}>
+<div className="switches-container" style={{"marginBottom":"10px", "boxShadow":"0px 0px 4px rgba(0, 0, 0, 0.3)"}}           
+  onClick={() => { if (sessionStorage.getItem('table')===null || sessionStorage.getItem('table')==="") alert("You need to scan the qr code from the table"); }} 
+>
             <input
                 type="radio"
                 id="switchTakeOut"
@@ -44,6 +46,7 @@ const Hero = () => {
                 value="TakeOut"
                 checked={plan === 'TakeOut'}
                 onChange={handleSwitchChange}
+                disabled={sessionStorage.getItem('table')===null || sessionStorage.getItem('table')===""}
             />
             <input
                 type="radio"
@@ -52,6 +55,7 @@ const Hero = () => {
                 value="DineIn"
                 checked={plan === 'DineIn'}
                 onChange={handleSwitchChange}
+                disabled={sessionStorage.getItem('table')===null || sessionStorage.getItem('table')===""}
             />
             <label htmlFor="switchTakeOut" style={{"fontSize":"14px"}}>TakeOut</label>
             <label htmlFor="switchDineIn" style={{"fontSize":"143x"}}>DineIn</label>

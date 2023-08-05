@@ -20,6 +20,7 @@ import multipleCard from './mutiple_card.png';
 import { MDBCheckbox } from 'mdb-react-ui-kit';
 
 function Checkout(props) {
+  
   const [receiptToken, setReceiptToken] = useState("");
 
   useEffect(() => {
@@ -34,7 +35,8 @@ function Checkout(props) {
   const Goback = () => {
     setNewCardAdded(false);
   }
-  const user = JSON.parse(sessionStorage.getItem('user'));
+  
+  const { user, user_loading} = useUserContext();
   const { totalPrice } = props;
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
@@ -74,7 +76,6 @@ function Checkout(props) {
     console.log(amount)
     const dateTime = new Date().toISOString();
     const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-    const user = JSON.parse(sessionStorage.getItem('user'));
     const data = {
       payment_method: 'wechat_pay',
       currency,
@@ -83,7 +84,8 @@ function Checkout(props) {
       receipt: sessionStorage.getItem("products"),
       dateTime: date,
       user_email: user.email,
-      isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut"
+      isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
+      tableNum:sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
     };
     // send to db
     await firebase
@@ -140,7 +142,6 @@ function Checkout(props) {
       console.log(amount)
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const user = JSON.parse(sessionStorage.getItem('user'));
       const data = {
         payment_method: paymentMethodId,
         currency,
@@ -149,7 +150,8 @@ function Checkout(props) {
         receipt: sessionStorage.getItem("products"),
         dateTime: date,
         user_email: user.email,
-        isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut"
+        isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
+        tableNum:sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
       };
       // send to db
       await firebase
@@ -271,7 +273,6 @@ function Checkout(props) {
           const paymentMethodValue = form.get('payment-method');
           const paymentMethodId = document.querySelector(`option[value="${paymentMethodValue}"]`).id;
           const new_paymentMethodId = paymentMethodId.substring(5);
-          const user = JSON.parse(sessionStorage.getItem('user'));
           // console.log("deleted click")
           // console.log(new_paymentMethodId);
           await firebase
@@ -311,7 +312,6 @@ function Checkout(props) {
           const dateTime = new Date().toISOString();
           const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
           //console.log(form.get('payment-method'))
-          const user = JSON.parse(sessionStorage.getItem('user'));
           const data = {
             payment_method: form.get('payment-method'),
             currency,
@@ -320,7 +320,8 @@ function Checkout(props) {
             receipt: sessionStorage.getItem("products"),
             dateTime: date,
             user_email: user.email,
-            isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut"
+            isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
+            tableNum:sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
           };
           //send to db
           await firebase
@@ -471,7 +472,7 @@ function CardSection(props) {
   const Goback = () => {
     setNewCardAdded(false);
   }
-  const user = JSON.parse(sessionStorage.getItem('user'));
+  const { user, user_loading} = useUserContext();
   const { totalPrice } = props;
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
@@ -577,7 +578,6 @@ function CardSection(props) {
     const currency = 'usd';
     const dateTime = new Date().toISOString();
     const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-    const user = JSON.parse(sessionStorage.getItem('user'));
     console.log(amount)
     const data = {
       payment_method: paymentMethodId,
@@ -589,10 +589,12 @@ function CardSection(props) {
       user_email: user.email,
       isDinein: sessionStorage.getItem('isDinein') === 'true' ? 'DineIn' : 'TakeOut',
       saveCard: saveCard, // Include the saveCard value in the data
+      tableNum:sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
+
     };
 
 
-
+//send to db 2
     await firebase
       .firestore()
       .collection('stripe_customers')
@@ -744,7 +746,7 @@ function useMobileAndTabletCheck() {
 }
 
 function PayHistory(props) {
-  
+  const { user, user_loading} = useUserContext();
   const { totalPrice, tips } = props;
 
   let stripe; // Declare stripe variable outside of your function
@@ -775,7 +777,6 @@ function PayHistory(props) {
     // console.log(amount)
     const dateTime = new Date().toISOString();
     const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-    const user = JSON.parse(sessionStorage.getItem('user'));
     const data = {
       payment_method: 'alipay',
       currency,
@@ -784,7 +785,8 @@ function PayHistory(props) {
       receipt: sessionStorage.getItem("products"),
       dateTime: date,
       user_email: user.email,
-      isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut"
+      isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
+      tableNum:sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
     };
     // send to db
     await firebase
@@ -818,7 +820,7 @@ function PayHistory(props) {
     } else if (paymentIntent) {
       payment = paymentIntent;
       payment['receiptData'] = sessionStorage.getItem('products');
-      payment['user_email'] = JSON.parse(sessionStorage.getItem('user')).email;
+      payment['user_email'] = user.email;
     }
 
     await firebase
@@ -866,7 +868,7 @@ function PayHistory(props) {
     } else if (paymentIntent) {
       payment = paymentIntent;
       payment['receiptData'] = sessionStorage.getItem('products');
-      payment['user_email'] = JSON.parse(sessionStorage.getItem('user')).email;
+      payment['user_email'] = user.email;
     }
     //send to db
     await firebase
@@ -878,7 +880,6 @@ function PayHistory(props) {
       .set(payment, { merge: true });
   }
 
-  const user = JSON.parse(sessionStorage.getItem('user'));
   /**
    * Get all payments for the logged in customer
    */
@@ -1011,7 +1012,7 @@ function PayHistory(props) {
       if (paymentIntent) {
         payment = paymentIntent;
         payment['receiptData'] = sessionStorage.getItem('products');
-        payment['user_email'] = JSON.parse(sessionStorage.getItem('user')).email;
+        payment['user_email'] = user.email;
       }
 
       const docId = sessionStorage.getItem('docid');
@@ -1133,8 +1134,8 @@ function PayHistory(props) {
         console.log(amount)
         const dateTime = new Date().toISOString();
         const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-        const user = JSON.parse(sessionStorage.getItem('user'));
 
+      
         const data = {
           payment_method: 'instore_pay',
           currency,
@@ -1144,7 +1145,8 @@ function PayHistory(props) {
           receipt: sessionStorage.getItem("products"),
           dateTime: date,
           user_email: user.email,
-          isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut"
+          isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
+          tableNum:sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
         };
 //send to db
 firebase
@@ -1196,7 +1198,7 @@ firebase
           style={{ "borderRadius": "0.2rem", width: "100%" }}
         >
               <div>
-      {isMobileOrTablet ? <button onClick={() => {
+      {isMobileOrTablet && !(sessionStorage.getItem('table')===null || sessionStorage.getItem('table')==="") ? <button onClick={() => {
   checkgeolocation();
 }}>
 
@@ -1213,19 +1215,110 @@ firebase
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <p>Enter your phone number to use 'Pay Later':</p>
             <div className="phone-field">
-      {Array.from({ length: 10 }).map((_, index) => (
-        <input
-          ref={(el) => (inputs.current[index] = el)}
-          className="phone-input"
-          name="phone-input"
-          type="tel"
-          size="1"
-          maxLength="1"
-          placeholder="5"
-          autoFocus={index === 0}
-          onKeyUp={(e) => handleKeyUp(e, index)}
-        />
-      ))}
+            &#40;	
+            <input
+  ref={(el) => (inputs.current[0] = el)}
+  className="phone-input"
+  name="phone-input"
+  type="tel"
+  size="1"
+  maxLength="1"
+  placeholder="4"
+  autoFocus
+  onKeyUp={(e) => handleKeyUp(e, 0)}
+/>
+<input
+  ref={(el) => (inputs.current[1] = el)}
+  className="phone-input"
+  name="phone-input"
+  type="tel"
+  size="1"
+  maxLength="1"
+  placeholder="1"
+  onKeyUp={(e) => handleKeyUp(e, 1)}
+/>
+<input
+  ref={(el) => (inputs.current[2] = el)}
+  className="phone-input"
+  name="phone-input"
+  type="tel"
+  size="1"
+  maxLength="1"
+  placeholder="5"
+  onKeyUp={(e) => handleKeyUp(e, 2)}
+/>
+&#41; &nbsp;
+<input
+  ref={(el) => (inputs.current[3] = el)}
+  className="phone-input"
+  name="phone-input"
+  type="tel"
+  size="1"
+  maxLength="1"
+  placeholder="5"
+  onKeyUp={(e) => handleKeyUp(e, 3)}
+/>
+<input
+  ref={(el) => (inputs.current[4] = el)}
+  className="phone-input"
+  name="phone-input"
+  type="tel"
+  size="1"
+  maxLength="1"
+  placeholder="5"
+  onKeyUp={(e) => handleKeyUp(e, 4)}
+/>
+<input
+  ref={(el) => (inputs.current[5] = el)}
+  className="phone-input"
+  name="phone-input"
+  type="tel"
+  size="1"
+  maxLength="1"
+  placeholder="5"
+  onKeyUp={(e) => handleKeyUp(e, 5)}
+/>
+&nbsp;&#8722;&nbsp;
+<input
+  ref={(el) => (inputs.current[6] = el)}
+  className="phone-input"
+  name="phone-input"
+  type="tel"
+  size="1"
+  maxLength="1"
+  placeholder="1"
+  onKeyUp={(e) => handleKeyUp(e, 6)}
+/>
+<input
+  ref={(el) => (inputs.current[7] = el)}
+  className="phone-input"
+  name="phone-input"
+  type="tel"
+  size="1"
+  maxLength="1"
+  placeholder="2"
+  onKeyUp={(e) => handleKeyUp(e, 7)}
+/>
+<input
+  ref={(el) => (inputs.current[8] = el)}
+  className="phone-input"
+  name="phone-input"
+  type="tel"
+  size="1"
+  maxLength="1"
+  placeholder="3"
+  onKeyUp={(e) => handleKeyUp(e, 8)}
+/>
+<input
+  ref={(el) => (inputs.current[9] = el)}
+  className="phone-input"
+  name="phone-input"
+  type="tel"
+  size="1"
+  maxLength="1"
+  placeholder="4"
+  onKeyUp={(e) => handleKeyUp(e, 9)}
+/>
  </div>
     </div>
     {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}

@@ -51,7 +51,7 @@ function CardSection(props) {
   }, [id]);
 
 
-  const { user } = useUserContext();
+  const { user, user_loading} = useUserContext();
   const stripe = useStripe();
   const elements = useElements();
   //console.log(user.uid)
