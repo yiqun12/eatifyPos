@@ -187,7 +187,7 @@ function PayFullhistory() {
                       <p>Total: $ {order.metadata.total}</p>
                       <p>{order.date}</p>
                       <p 
-onClick={() => { window.location.href = `/Receipt?${order.id}`; }} 
+onClick={() => { window.location.href = `/orders?order=${order.id}`; }} 
 style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
 >
 link to the receipt

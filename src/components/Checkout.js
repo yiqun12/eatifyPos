@@ -38,6 +38,8 @@ function Checkout(props) {
   
   const { user, user_loading} = useUserContext();
   const { totalPrice } = props;
+  
+
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -525,6 +527,15 @@ function CardSection(props) {
 
   const [cardElement, setCardElement] = useState(null);
   const [error, setError] = useState(null);
+  useEffect(() => {
+    if (error) {
+              document
+                .querySelectorAll('button')
+                .forEach((button) => (button.disabled = false));
+    }
+  }, [error]);
+
+
   const [saveCard, setSaveCard] = useState(false);
 
   const handleSaveCardChange = (e) => {
@@ -923,7 +934,7 @@ function PayHistory(props) {
 
           } else if (payment.status === 'succeeded') {
             sessionStorage.removeItem("products");
-            window.location.href = '/Receipt?' + doc.id;
+            window.location.href = '/orders?order=' + doc.id;
 
           } else if (payment.status === 'requires_action') {
             content = `🚨 ` + t("Payment status: ") + `${payment.status}`;
@@ -1033,7 +1044,7 @@ function PayHistory(props) {
         if (payment.status === "succeeded") {
           sessionStorage.removeItem("products");
 
-          window.location.href = '/Receipt?' + docId
+          window.location.href = '/orders?order=' + docId
         }
 
       });
@@ -1158,7 +1169,7 @@ firebase
   props.setReceiptToken(docRef.id)
   console.log("Document ID is:", docRef.id);
   sessionStorage.removeItem("products");
-  window.location.href = '/Receipt?' + docRef.id;
+  window.location.href = '/orders?order=' + docRef.id;
 })
 .catch((error) => {
   props.setReceiptToken("")

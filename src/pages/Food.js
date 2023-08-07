@@ -293,7 +293,9 @@ const Food = () => {
         justifyContent: 'space-between',
       }}
     >
-      <div style={{ marginLeft: "15px" }}>{isMobile ? "2278 Westborough Blvd" : ""}</div>
+      <b className='m-1'>SEARCH & CATEGORY:</b>
+
+      <div style={{ marginLeft: "15px" }}>{isMobile ? JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address : ""}</div>
 
       <div className='container_search'>
         <div className='searchInputWrapper'>
@@ -342,43 +344,6 @@ const Food = () => {
   </div>
 )}
 
-{/* mobile mode */}
-
-{/* <div style={{ marginLeft: "15px" }}>{isMobile ? "2278 Westborough Blvd" : ""}</div>
-
-<div className='container_search'>
-        <div className='searchInputWrapper'>
-          <input
-            className='searchInput'
-            style={{ margin: '5px', maxWidth: '90%' }}
-            type='text'
-            placeholder='Search your food'
-            value={input}
-            onChange={handleInputChange}
-          />
-          <i className='searchInputIcon fa fa-search'></i>
-        </div>
-      </div>
-
-      <div style={{ marginTop: '6px' }}>
-        <span style={{ marginRight: '10px' }}>A1</span>
-        <span
-          style={{
-            backgroundColor: 'green',
-            borderRadius: '10px',
-            padding: '3px',
-            paddingTop: '2px',
-            paddingBottom: '2px',
-            color: 'white',
-          }}
-        >
-          Open
-        </span>
-      </div>
-
-      <div>Until 9:00pm</div> */}
-
-{/* mobile mode */}
 {isMobile && (
   <div className='flex'>
     {/* parent div of top and bottom div */}
@@ -389,7 +354,7 @@ const Food = () => {
       <div style={{    display: "flex",
     width: "100%",
     justifyContent: "space-between"}}>
-      <div>{"2278 Westborough Blvd"}</div>
+      <div>{JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address}</div>
 
       <div style={{ marginLeft: "20px", width: "30%", textAlign: "right" }}>
                 <div>
@@ -404,19 +369,33 @@ const Food = () => {
 }
 
 
-                  <b
-                  style={{ marginLeft:"10px",backgroundColor: "green", borderRadius: "10px", padding: "3px", paddingTop: "2px", paddingBottom: "2px", color: "white" }}
-                >OPEN</b>
+
                 </div>
               </div>
 
       </div>
 
       {/* bottom parent div */}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+    <b className='m-1 mt-2'>SEARCH & CATEGORY:</b>
+    <b style={{marginLeft: "auto"}}>
+    <b 
+        style={{ 
+            backgroundColor: "green", 
+            borderRadius: "10px", 
+            padding: "3px",  // Simplified the padding
+            color: "white" 
+        }}
+    >
+        OPEN
+    </b>
+    </b>
+</div>
       <div style={{    display: "flex",
     flexDirection: "row",
     justifyContent: "space-between"}}>
         {/* bottom search bar */}
+        
       <div className='container_search'>
         <div className='searchInputWrapper'>
           <input
@@ -438,63 +417,25 @@ const Food = () => {
   </div>
 )}
 
-            {/* <div className='flex' >
-              <div className='flex' style={{ "width": "70%", flexDirection: "column", justifyContent: "space-between" }}>
-                <div style={{ marginLeft: "15px" }}>{isMobile ? "2278 Westborough Blvd" : ""}</div>
-
-                <div className="container_search" >
-                  <div className="searchInputWrapper">
-                    <input
-                      className="searchInput"
-                      style={{ margin: "5px", maxWidth: '90%' }}
-                      type="text"
-                      placeholder='Search your food'
-                      value={input}
-                      onChange={handleInputChange}
-                    />
-                    <i className="searchInputIcon fa fa-search"></i>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ marginLeft: "20px", width: "30%", textAlign: "right" }}>
-                <div style={{ marginTop: "6px" }}>
-                  <span style={{marginRight:"10px"}}>
-                    A1
-                  </span>
-                  <span
-                  style={{ backgroundColor: "green", borderRadius: "10px", padding: "3px", paddingTop: "2px", paddingBottom: "2px", color: "white" }}
-                >Open</span></div>
-                <div>Until 9:00pm</div>
-              </div>
-            </div> */}
-
             {/* end of the top */}
-            <div className={isMobile?'scrolling-wrapper-filter mt-2':"mb-2 scrolling-wrapper-filter mt-2"} style={{borderBottom: "1px solid black"}}>
-              <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>{t("All")}</button>
+            <div className={isMobile?'scrolling-wrapper-filter mt-2':"mb-2 mt-2 scrolling-wrapper-filter"} style={{borderBottom: "1px solid black"}}>
+              
+              <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-2 py-2' style={{ display: "inline-block" }}><b>{t("All")}</b></button>
 
               {foodTypes.map((foodType) => (
 
                 <button
                   key={foodType}
                   onClick={() => filterType(foodType)}
-                  className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1'
+                  className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-2 py-2'
                   style={{ display: "inline-block" }}>
+                    <b>
                   {t(foodType.charAt(0).toUpperCase() + foodType.slice(1))}
+                  </b>
                 </button>
               ))}
             </div>
           </div>
-
-          {/* Filter Price
-                                        <div className='Price'>
-                        <div className='scrolling-wrapper-filter'>
-                            <button onClick={() => filterPrice('$')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>$1-$10</button>
-                            <button onClick={() => filterPrice('$$')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>$11-$20</button>
-                            <button onClick={() => filterPrice('$$$')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>$21-$30</button>
-                            <button onClick={() => filterPrice('$$$$')} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-5 py-1' style={{ display: "inline-block" }}>$31-$40</button>
-                        </div>
-                    </div> */}
 
         </div>
 
@@ -513,7 +454,7 @@ const Food = () => {
                 <div class="h-min overflow-hidden rounded-md">
                   <img class="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
                 </div>
-                <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full myCustomHeight'>
+                <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full'>
 
 {/* parent div of title + quantity and button parent div */}
 <div className="col-span-4" style={{display: "flex", flexDirection: "column", justifyContent: "space-between"}}>

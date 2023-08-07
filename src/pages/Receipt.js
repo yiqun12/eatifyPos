@@ -30,8 +30,10 @@ const App = () => {
 const Item = () => {
   const [payment_data, setPaymentData] = useState(null);
   const [products, setProducts] = useState([]);
-  const receiptToken = window.location.href.split('?')[1];
-
+  //const receiptToken = window.location.href.split('?')[1];
+  const urlParams = new URLSearchParams(window.location.search);
+  const receiptToken = urlParams.get('order');  // '12345'
+  
   useEffect(() => {
     if (receiptToken && receiptToken.length === 20) {
       const unsubscribe = firebase

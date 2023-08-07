@@ -37,7 +37,7 @@ export default function SignIn() {
   const { user, user_loading} = useUserContext();
   const user_not_verified = JSON.parse(sessionStorage.getItem('user_not_verified'));
   if (user) {
-    window.location.href = "/";
+    //window.location.href = "/";
   }
   window.addEventListener('beforeunload', () => {
     sessionStorage.removeItem('user_not_verified');

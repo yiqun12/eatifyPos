@@ -586,7 +586,7 @@ const Navbar = () => {
 
         <div className="col-span-4 pl-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
           <img onClick={event => window.location.href = '/'}
-            src={"https://media.discordapp.net/attachments/759102082849833000/1129086110027481159/cuiyuan.png?width=496&height=487"}
+            src={JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Logo}
             alt=""
             style={{
               maxHeight: '60px',

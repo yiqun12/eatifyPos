@@ -99,35 +99,49 @@ const App = () => {
         return result; // assuming value is in USD for fixed type
       }
     };
-  
+    const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (totalPrice === 0) {
+      setIsLoading(true);
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000);  // wait for 2 seconds before redirecting
+    }
+  }, [totalPrice]);
 
   return (
 
     <div className='max-w-[1000px] mx-auto p-4 '>
-      <div className="app-container" style={{ height: "100%"}}>
-        <div className="row">
-        {isMobile?
-                <div className="col" style={{paddingLeft:0,paddingRight:0}}>
-                <Item products={products} totalPrice={totalPrice} selectedTip={selectedTip} tips={tips} setSelectedTip={setSelectedTip} calculateTip={calculateTip} />
-                <Checkout totalPrice={totalPrice} tips={tips} calculateTip={calculateTip} />
-                {/* <Item products={products} totalPrice={totalPrice} /> */}
-                {/* <Checkout totalPrice={totalPrice} /> */}
-              </div>
-      :  
-      <>
-      <div className="col" >
-      <Item products={products} totalPrice={totalPrice} selectedTip={selectedTip} tips={tips} setSelectedTip={setSelectedTip} calculateTip={calculateTip} />
-      {/* <Item products={products} totalPrice={totalPrice} /> */}
-    </div>
-    <div className="col no-gutters" style={{ height: "100%" }} >
-      <Checkout totalPrice={totalPrice} tips={tips} calculateTip={calculateTip} />
-      {/* <Checkout totalPrice={totalPrice} /> */}
-    </div>
-    </>
-      }
+      {isLoading?
+    <>Cart is empty... Redirecting back to home page</>:
+    
+    <div className="app-container" style={{ height: "100%"}}>
+    <div className="row">
+    {isMobile?
+            <div className="col" style={{paddingLeft:0,paddingRight:0}}>
+            <Item products={products} totalPrice={totalPrice} selectedTip={selectedTip} tips={tips} setSelectedTip={setSelectedTip} calculateTip={calculateTip} />
+            <Checkout totalPrice={totalPrice} tips={tips} calculateTip={calculateTip} />
+            {/* <Item products={products} totalPrice={totalPrice} /> */}
+            {/* <Checkout totalPrice={totalPrice} /> */}
+          </div>
+  :  
+  <>
+  <div className="col" >
+  <Item products={products} totalPrice={totalPrice} selectedTip={selectedTip} tips={tips} setSelectedTip={setSelectedTip} calculateTip={calculateTip} />
+  {/* <Item products={products} totalPrice={totalPrice} /> */}
+</div>
+<div className="col no-gutters" style={{ height: "100%" }} >
+  <Checkout totalPrice={totalPrice} tips={tips} calculateTip={calculateTip} />
+  {/* <Checkout totalPrice={totalPrice} /> */}
+</div>
+</>
+  }
 
-        </div>
-      </div>
+    </div>
+  </div> 
+    }
+
     </div>
   );
 };
