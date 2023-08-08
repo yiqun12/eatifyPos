@@ -1,7 +1,7 @@
 import Dashboard from "./components/dashboard";
 import { useUserContext } from "./context/userContext";
-import SignUp from './pages/new_signup';
-import LogIn from './pages/new_login';
+import SignUp from './pages/customer_signup';
+import LogIn from './pages/customer_login';
 import Navbar from './pages/Navbar'
 import Account from './pages/Account';
 import Home from './pages/Home'
@@ -115,8 +115,6 @@ function App() {
                   user.uid === process.env.REACT_APP_ADMIN_UID ?
                   <Admin_new /> :
                   <LogIn />} />
-
-
 
 
               <Route path="orders" element={<Receipt />} />

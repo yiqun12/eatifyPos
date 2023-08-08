@@ -128,6 +128,36 @@ export const UserContextProvider = ({ children }) => {
       .finally(() => setLoading(false));
   };
 
+  // list of admin emails (replace this with your actual admin emails)
+const adminEmails = ["yix223@lehigh.edu"];
+
+const signInWithAdminGoogle = () => {
+  setLoading(true);
+  setError("");
+
+  signInWithPopup(auth, new GoogleAuthProvider())
+    .then((res) => {
+      // Extract user from the result
+      const user = res.user;
+
+      if (adminEmails.includes(user.email)) {
+        // If user email is in the list of admin emails, the user is an admin
+        console.log("User is an admin");
+        // Handle admin logic here
+      } else {
+        // If not an admin, ask for store name
+        const storeName = prompt("Enter your store name:");
+        if (storeName) {
+          // Save store name and set user as admin
+          // ... your logic here
+        }
+      }
+    })
+    .catch((err) => setError(err.code))
+    .finally(() => setLoading(false));
+};
+
+
   const signInWithGuest = () => {
     setLoading(true);
     setError("");
@@ -218,7 +248,8 @@ export const UserContextProvider = ({ children }) => {
     signInWithGoogle,
     promise,
     signInWithGuest,
-    signInWithGuestLink
+    signInWithGuestLink,
+    signInWithAdminGoogle,
     // isEmailVerified
   };
 

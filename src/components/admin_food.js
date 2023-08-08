@@ -149,9 +149,8 @@ const Food = () => {
     };
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
   //const foodTypes = ['burger', 'pizza', 'salad', 'chicken'];
-  const foodTypes = [...new Set(JSON.parse(sessionStorage.getItem("Food_arrays")).map(item => item.category))];
 //      <b style={{fontSize:"20px",color: 'red'}}>ATTENTION: YOU ARE IN ADMIN MODE!</b>
-
+  const [foodTypes, setFoodTypes] = useState([...new Set(JSON.parse(localStorage.getItem("Food_arrays")||"[]").map(item => item.category))]);
   const [isModalOpen, setModalOpen] = useState(false);
 
   const handleEditShopInfoModalOpen = () => {
@@ -226,38 +225,18 @@ const Food = () => {
   const deleteFood_array = async (id) => {
     console.log(id)
     let updatedArr = deleteById(JSON.parse(localStorage.getItem("food_arrays") || "[]"),id)
-    setData(updatedArr); // Update state
-    setFoods(updatedArr)
-    localStorage.setItem("food_arrays",JSON.stringify(updatedArr))
-    saveId(Math.random());
+    reload(updatedArr)
 }
 
 const [newItem, setNewItem] = useState({
-  ENG: "",
+  name: "",
   CHI: "",
-  price: "",
+  subtotal: "",
   category: "",
   Priority: ""
 });
 
-const [arr, setArr] = useState([
-  {
-    "name": "57. Chicken with Broccoli",
-    "subtotal": "11.95",
-    "category": "Chicken2",
-    "price": "$",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0Ri77UdjzjJUUQPY91xVe64rMlMq9F3_xtpJjEVDlQ6OjJXQf&s",
-    "id": "0ckPtNNUqeabhX239Jvn"
-  },
-  {
-    "category": "Beef",
-    "name": "54. Hunan Beef",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoa2jPZ1Nk1Hhvd4elpPtOJzJE-cf4g1dTWbM41MRybWfpi20&s",
-    "price": "$",
-    "subtotal": "12.95",
-    "id": "0gdZu2xWpM46mYrC3jVG"
-  }
-]);
+const [arr, setArr] = useState(JSON.parse(localStorage.getItem("food_arrays") || "[]"));
 
 const handleInputChange = (event) => {
   const { name, value } = event.target;
@@ -288,21 +267,37 @@ const handleAddNewItem = () => {
 
   // Add the new item to the array
   let updatedArr = [...arr, newItemWithPlaceholders] 
+  reload(updatedArr)
+  // Clear the input fields
+  setNewItem({
+    name: "",
+    CHI: "",
+    subtotal: "",
+    category: "",
+    Priority: ""
+  });
+};
+
+const updateItem = (id, updatedFields) => {
+  const newItems = arr.map((item) => 
+    item.id === id 
+    ? {...item, ...updatedFields} 
+    : item
+  );
+
+  reload(newItems);
+};
+
+
+console.log(arr)
+function reload(updatedArr){
   setArr(updatedArr);
   setData(updatedArr); // Update state
   setFoods(updatedArr)
   localStorage.setItem("food_arrays",JSON.stringify(updatedArr))
   saveId(Math.random());
-  // Clear the input fields
-  setNewItem({
-    ENG: "",
-    CHI: "",
-    price: "",
-    category: "",
-    Priority: ""
-  });
-};
-console.log(arr)
+  setFoodTypes([...new Set(updatedArr.map(item => item.category))])
+}
 //Instruction:
 //Click on the image to change:
 //
@@ -570,7 +565,7 @@ console.log(arr)
       <div className="h-min overflow-hidden rounded-md">
         <img
           className="w-full h-[100px] hover:scale-150 scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg"
-          src={""}
+          src={"data:image/png;base64,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"}
         />
       </div>
       <div className="flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full">
@@ -586,7 +581,7 @@ console.log(arr)
             ENGLISH:
             <input
               type="text"
-              name="ENG"
+              name="name"
               placeholder={"Crusine Name"}
               value={newItem.name}
               onChange={handleInputChange}
@@ -605,7 +600,7 @@ console.log(arr)
             <input
               style={{ width: "50%" }}
               type="text"
-              name="price"
+              name="subtotal"
               placeholder={"$0"}
               value={newItem.subtotal}
               onChange={handleInputChange}
@@ -647,47 +642,8 @@ console.log(arr)
       </div>
               </motion.div>
             {foods.map((item, index) => (
-              <motion.div
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.1 }}
-                key={item.id}
-                className="border rounded-lg duration-500 cursor-pointer">
-                <div class="h-min overflow-hidden rounded-md">
-                  <img class="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
-                </div>
-                <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full'>
+        <Item key={index} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} saveId={saveId} />
 
-{/* parent div of title + quantity and button parent div */}
-<div className="col-span-4" style={{display: "flex", flexDirection: "column", justifyContent: "space-between"}}>
-<div className="">
-  <p className=' mb-1'>ENGLISH: 
-  <input type="text" name="ENG" placeholder={item.name} />
-  </p>
-  <p className=' mb-1'>CHINESE: </p>
-  <input type="text" name="2ndLANG" placeholder={item.CHI} />
-  <p className='mb-1'>Price: <input style={{width:"50%"}}type="text" name="price" placeholder={item.subtotal} /></p>
-  <p className='mb-1'>Category: <input style={{width:"50%"}}type="text" name="category" placeholder={item.category} /></p>
-  <p className='mb-1'>Priority: <input style={{width:"50%"}}type="text" name="Priority" placeholder={"0"} /></p>
-  <div className='flex' >
-  <span style={{ cursor: 'pointer' }}
-            className="task-card__tag task-card__tag--marketing">{t("Update")}</span>
-                                            <span                                 onClick={() => {
-                                  deleteFood_array(item.id)
-                                  saveId(Math.random());
-                                }}
-                                            style={{ marginLeft:"auto", cursor: 'pointer' }}
-                                                className="task-card__tag task-card__tag--design">{t("Delete")}
-                                                </span>
-                                                </div>
-</div>
-</div>
-               
-
-                </div>
-              </motion.div>
             ))}
           </div>
         </AnimatePresence>
@@ -695,5 +651,119 @@ console.log(arr)
     </div>
   )
 }
+
+
+
+const Item = ({ item, updateItem, deleteFood_array, saveId }) => {
+  const [inputData, setInputData] = useState(null);
+  // for translations sake
+  const trans = JSON.parse(sessionStorage.getItem("translations"))
+  const t = useMemo(() => {
+    const trans = JSON.parse(sessionStorage.getItem("translations"))
+    const translationsMode = sessionStorage.getItem("translationsMode")
+
+    return (text) => {
+      if (trans != null && translationsMode != null) {
+        if (trans[text] != null && trans[text][translationsMode] != null) {
+          return trans[text][translationsMode];
+        }
+      }
+
+      return text;
+    };
+  }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.1 }}
+      key={item.id}
+      className="border rounded-lg duration-500 cursor-pointer">
+      <div className="h-min overflow-hidden rounded-md">
+        <img className="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg" src={item.image} />
+      </div>
+      <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full'>
+        <div className="col-span-4" style={{display: "flex", flexDirection: "column", justifyContent: "space-between"}}>
+          <div className="">
+            <p className=' mb-1'>
+              ENGLISH: 
+              <input 
+                type="text" 
+                name="name" 
+                placeholder={item.name} 
+                value={inputData?.name || ""} 
+                onChange={(e) => setInputData({ ...inputData, name: e.target.value })}
+              />
+            </p>
+            <p className=' mb-1'>CHINESE: </p>
+            <input 
+              type="text" 
+              name="CHI" 
+              placeholder={item.CHI} 
+              value={inputData?.CHI || ""} 
+              onChange={(e) => setInputData({ ...inputData, CHI: e.target.value })}
+            />
+            <p className='mb-1'>Price: 
+              <input 
+                style={{width:"50%"}} 
+                type="text" 
+                name="subtotal" 
+                placeholder={item.subtotal} 
+                value={inputData?.subtotal || ""} 
+                onChange={(e) => setInputData({ ...inputData, subtotal: e.target.value })}
+              />
+            </p>
+            <p className='mb-1'>Category: 
+              <input 
+                style={{width:"50%"}} 
+                type="text" 
+                name="category" 
+                placeholder={item.category} 
+                value={inputData?.category || ""} 
+                onChange={(e) => setInputData({ ...inputData, category: e.target.value })}
+              />
+            </p>
+            <p className='mb-1'>Priority: 
+              <input 
+                style={{width:"50%"}} 
+                type="text" 
+                name="Priority" 
+                placeholder={item.Priority} 
+                value={inputData?.Priority || ""} 
+                onChange={(e) => setInputData({ ...inputData, Priority: e.target.value })}
+              />
+            </p>
+            <div className='flex' >
+              <span 
+                style={{ cursor: 'pointer' }}
+                className="task-card__tag task-card__tag--marketing"
+                onClick={() => {
+                  updateItem(item.id, inputData);
+                  setInputData(null); // reset input data
+                }}
+              >
+                {t("Update")}
+              </span>
+              <span                                 
+                onClick={() => {
+                  deleteFood_array(item.id);
+                  saveId(Math.random());
+                }}
+                style={{ marginLeft:"auto", cursor: 'pointer' }}
+                className="task-card__tag task-card__tag--design"
+              >
+                {t("Delete")}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 
 export default Food

@@ -1,0 +1,67 @@
+import Button from '@mui/material/Button';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import './button.css';
+import * as React from 'react';
+import { useUserContext } from "../context/userContext";
+import { useState, useEffect } from 'react';
+import { useMyHook } from './myHook';
+
+export default function SignIn() {
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+  useEffect(() => {
+    //console.log('Component B - ID changed:', id);
+  }, [id]);
+
+  const { signInWithAdminGoogle, signInWithGuest } = useUserContext();
+  const { user, user_loading} = useUserContext();
+
+  window.addEventListener('pagehide', () => {
+    sessionStorage.removeItem('user_not_verified');
+  });
+
+        // for translations sake
+        const trans = JSON.parse(sessionStorage.getItem("translations"))
+        const t = (text) => {
+      
+          if (trans != null) {
+            if (sessionStorage.getItem("translationsMode") != null) {
+            // return the translated text with the right mode
+              if (trans[text] != null) {
+                if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+                  return trans[text][sessionStorage.getItem("translationsMode")]
+              }
+            }
+          } 
+          return text
+        }
+
+  return (
+    <div
+      style={{
+      }}
+    >
+      {user && user_loading ?
+        <div>
+          Loading...
+        </div>
+        :
+        <>
+                              <Button onClick={signInWithAdminGoogle}
+                                fullWidth
+                                variant="contained"
+                                sx={{ mb: 2 }} role="button" >
+                                {t("Google Sign in")}</Button>
+                              <Button
+                                fullWidth
+                                variant="contained"
+                                sx={{ mb: 2 }} role="button" onClick={signInWithGuest} >
+                                {t("One Time Sign in")}</Button>
+
+        </>
+      }
+    </div>
+  );
+}
+
+
