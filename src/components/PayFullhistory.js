@@ -128,7 +128,7 @@ function PayFullhistory() {
   return (
     <div>
     {isLoading &&user_loading ? (
-      <div>Loading...</div>
+      <div>{t("Loading...")}</div>
     ) : (
       <table
       className="shop_table my_account_orders"
@@ -140,13 +140,13 @@ function PayFullhistory() {
     >
       <thead>
         <tr>
-          <th className="order-number" style={isMobile ? {} : { width: "10%" }}>Order</th>
-          <th className="order-name" style={isMobile ? {} : { width: "10%" }}>Table</th>
-          <th className="order-status" style={isMobile ? {} : { width: "30%" }}>Status</th>
-          <th className="order-total" style={isMobile ? {} : { width: "10%" }}>Total</th>
-          <th className="order-dine-mode" style={isMobile ? {} : { width: "10%" }}>Service</th>
-          <th className="order-date" style={isMobile ? {} : { width: "15%" }}>Date&Time</th>
-          <th className="order-details" style={isMobile ? {} : { width: "15%" }}>Details</th>
+          <th className="order-number" style={isMobile ? {} : { width: "10%" }}>{t("Order")}</th>
+          <th className="order-name" style={isMobile ? {} : { width: "10%" }}>{t("Table")}</th>
+          <th className="order-status" style={isMobile ? {} : { width: "30%" }}>{t("Status")}</th>
+          <th className="order-total" style={isMobile ? {} : { width: "10%" }}>{t("Total")}</th>
+          <th className="order-dine-mode" style={isMobile ? {} : { width: "10%" }}>{t("Service")}</th>
+          <th className="order-date" style={isMobile ? {} : { width: "15%" }}>{t("Date&Time")}</th>
+          <th className="order-details" style={isMobile ? {} : { width: "15%" }}>{t("Details")}</th>
         </tr>
       </thead>
       <tbody>
@@ -168,7 +168,7 @@ function PayFullhistory() {
                 </td>
                 <td className="order-details" style={{ whiteSpace: "nowrap" }} data-title="Details">
                   <button onClick={() => toggleExpandedOrderId(order.id)} style={{ cursor: "pointer" }}>
-                    {expandedOrderIds.includes(order.id) ? "Hide Detail" : "Show More"}
+                    {expandedOrderIds.includes(order.id) ? t("Hide Detail") : t("Show More")}
                   </button>
                 </td>
               </tr>
@@ -178,19 +178,19 @@ function PayFullhistory() {
                     <div className="receipt">
                       {JSON.parse(order.receiptData).map((item, index) => (
                         <div className="receipt-item" key={item.id}>
-                          <p>{item.name} x {item.quantity} @ $ {item.subtotal} each = $ {Math.round(item.quantity * item.subtotal * 100) / 100}</p>
+                          <p>{item.name} x {item.quantity} @ $ {item.subtotal} {t("each")} = $ {Math.round(item.quantity * item.subtotal * 100) / 100}</p>
                         </div>
                       ))}
-                      <p>Subtotal: $ {order.metadata.subtotal}</p>
-                      <p>Tax: $ {order.metadata.tax}</p>
-                      <p>Tips: $ {order.metadata.tips}</p>
-                      <p>Total: $ {order.metadata.total}</p>
+                      <p>{t("Subtotal")}: $ {order.metadata.subtotal}</p>
+                      <p>{t("Tax")}: $ {order.metadata.tax}</p>
+                      <p>{t("Tips")}: $ {order.metadata.tips}</p>
+                      <p>{t("Total")}: $ {order.metadata.total}</p>
                       <p>{order.date}</p>
                       <p 
 onClick={() => { window.location.href = `/orders?order=${order.id}`; }} 
 style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
 >
-link to the receipt
+{t("link to the receipt")}
 </p>
                     </div>
                   </td>

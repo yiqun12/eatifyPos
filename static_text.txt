@@ -1,0 +1,110 @@
+SEARCH & CATEGORY
+Account
+OPEN
+CLOSED
+Search your food
+Checkout
+Until
+Business Hours
+Day
+Hours
+Monday
+Tuesday
+Wednesday
+Thursday
+Friday
+Saturday
+Sunday
+Closed
+Close
+PROFILE
+sign out
+Payment Method
+Select Account
+Order History
+Order
+Table
+Status
+Total
+Service
+Date&Time
+Details
+Sign in
+Email Address
+Password
+SIGN IN
+GOOGLE SIGN IN
+ONE TIME SIGN IN
+Forgot password
+Don't have an account? Sign Up
+Login
+Forgot your password
+Enter Email Address
+CONFIRM
+We would send you a link to reset password
+Sign up
+Nick name
+Email Address
+Password
+We would send you a link to verify your email
+SIGN UP
+Already have an account? Sign in
+TakeOut
+DineIn
+Summary
+each
+Subtotal
+Tax
+Tips
+Other
+Total
+CHECKOUT
+Card holder name
+First Name
+Last Name
+Card details
+Card number
+Save Card
+Pay with New Card
+Select Account
+Pay with Saved Card
+WeChat Pay
+AliPay
+Open
+Close
+Mark as Closed
+Add Time Range
+Delete
+Submit
+Profile
+Revenue CHhart
+History
+Menu Setting
+Other Setting
+Revenue earned on a daily basis over a period of 5 days
+REVENUE CHART
+revenue
+HISTORY SETTINGS
+Revenue
+Tips
+Select a date
+Tips
+Tax
+Subtotal
+MENU SETTING
+Modify Your Item
+AUTO FILL
+Name
+Category
+Image
+Price
+Subtotal
+UPDATE FOOD
+ADD NEW FOOD
+Edit
+Delete
+OTHER SETTING
+
+
+
+

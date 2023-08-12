@@ -429,7 +429,7 @@ const handleFileChangeAndUpload = async (event) => {
       <div className='max-w-[1000px] m-auto px-4 '>
         {isMobile ? TitleLogoNameContent.Address : ""}
         <div className='flex mb-1' >
-          <b style={{ fontSize: "20px", color: "#985bff", marginTop: "5px" }}>READ THE INSTRUCTION</b>
+          <b style={{ fontSize: "20px", color: "#985bff", marginTop: "5px" }}>{t("READ THE INSTRUCTION")}</b>
         </div>
 
         <div className='flex'>
@@ -437,7 +437,7 @@ const handleFileChangeAndUpload = async (event) => {
             onClick={handleEditShopInfoModalOpen}
             className="block text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg gray-sm px-3.5 py-2 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
             type="button">
-            Edit Shop Info
+            {t("Edit Shop Info")}
           </button>
           <button
             className="block text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
@@ -474,7 +474,7 @@ const handleFileChangeAndUpload = async (event) => {
               <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
                 <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    Edit Shop Info
+                  {t("Edit Shop Info")}
                   </h3>
                   <button
                     onClick={handleEditShopInfoModalClose}
@@ -483,7 +483,7 @@ const handleFileChangeAndUpload = async (event) => {
                     <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                       <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                     </svg>
-                    <span className="sr-only">Close modal</span>
+                    <span className="sr-only">{t("Close modal")}</span>
                   </button>
                 </div>
                 <div className='px-4'>
@@ -500,7 +500,7 @@ const handleFileChangeAndUpload = async (event) => {
                       marginTop: "5px"
                     }} />
                   <FormGroup>
-                    <FormControlLabel control={<Switch defaultChecked />} label="Support payment" />
+                    <FormControlLabel control={<Switch defaultChecked />} label={t("Support payment")} />
                   </FormGroup>
                   <form onSubmit={handleClickLogo} style={{ display: "flex", alignItems: "center" }}>
                     <TextField
@@ -595,7 +595,7 @@ const handleFileChangeAndUpload = async (event) => {
                   justifyContent: 'space-between',
                 }}
               >
-                <b className='m-1'>SEARCH:</b>
+                <b className='m-1'>{t("SEARCH:")}</b>
 
                 <div className='container_search'>
                   <div className='searchInputWrapper'>
@@ -603,7 +603,7 @@ const handleFileChangeAndUpload = async (event) => {
                       className='searchInput'
                       style={{ margin: '5px', maxWidth: '90%' }}
                       type='text'
-                      placeholder='Search your food'
+                      placeholder={t('Search your food')}
                       value={input}
                       onChange={handleSearchChange}
                     />
@@ -627,7 +627,7 @@ const handleFileChangeAndUpload = async (event) => {
 
                 {/* bottom parent div */}
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <b className='m-1 mt-2'>SEARCH</b>
+                  <b className='m-1 mt-2'>{t("SEARCH")}</b>
                 </div>
                 <div style={{
                   display: "flex",
@@ -642,7 +642,7 @@ const handleFileChangeAndUpload = async (event) => {
                         className='searchInput'
                         style={{ margin: '5px', maxWidth: '90%' }}
                         type='text'
-                        placeholder='Search your food'
+                        placeholder={t('Search your food')}
                         value={input}
                         onChange={handleSearchChange}
                       />
@@ -720,11 +720,11 @@ const handleFileChangeAndUpload = async (event) => {
                 }}
               >
                 <p className="mb-1">
-                  ENGLISH:
+                  {t("ENGLISH")}:
                   <input
                     type="text"
                     name="name"
-                    placeholder={"Crusine Name"}
+                    placeholder={t("Crusine Name")}
                     value={newItem.name}
                     onChange={handleInputChange}
                   />
@@ -746,8 +746,8 @@ const handleFileChangeAndUpload = async (event) => {
 
                   }}
 
-                >Auto Fill Chinese</span>
-                <p className="mb-1">CHINESE:</p>
+                >{t("Auto Fill Chinese")}</span>
+                <p className="mb-1">{t("CHINESE")}:</p>
                 <input
                   type="text"
                   name="CHI"
@@ -771,10 +771,10 @@ const handleFileChangeAndUpload = async (event) => {
                       console.error("Translation error:", error);
                     }
                   }}
-                >Auto Fill English</span>
+                >{t("Auto Fill English")}</span>
 
                 <p className="mb-1">
-                  Price:{" "}
+                  {t("Price")}:{" "}
                   <input
                     style={{ width: "50%" }}
                     type="text"
@@ -785,7 +785,7 @@ const handleFileChangeAndUpload = async (event) => {
                   />
                 </p>
                 <p className="mb-1">
-                  Category:{" "}
+                  {t("Category")}:{" "}
                   <input
                     style={{ width: "50%" }}
                     type="text"
@@ -796,7 +796,7 @@ const handleFileChangeAndUpload = async (event) => {
                   />
                 </p>
                 <p className="mb-1">
-                  Priority:{" "}
+                  {t("Priority")}:{" "}
                   <input
                     style={{ width: "50%" }}
                     type="text"
@@ -813,7 +813,7 @@ const handleFileChangeAndUpload = async (event) => {
                     className="task-card__tag task-card__tag--marketing"
                     onClick={handleAddNewItem}
                   >
-                    Add New
+                    {t("Add New")}
                   </span>
                 </div>
               </div>
@@ -934,7 +934,7 @@ const handleFileChangeAndUpload = async (event) => {
                 <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
                   <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    Here are the images we've selected for you           
+                    {t("Here are the images we've selected for you")}           
                     </h3>
                     <button
                       onClick={handleModalGeneratePicClose}
@@ -943,7 +943,7 @@ const handleFileChangeAndUpload = async (event) => {
                       <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                       </svg>
-                      <span className="sr-only">Close modal</span>
+                      <span className="sr-only">{t("Close modal")}</span>
                     </button>
                 </div>
         <div className='p-4 grid grid-cols-2 lg:grid-cols-4 gap-6 pt-3'>
@@ -1040,7 +1040,7 @@ const handleFileChangeAndUpload = async (event) => {
       <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full'>
         <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <p className=' mb-1'>
-            ENGLISH:
+            {t("ENGLISH")}:
             <input
               type="text"
               name="name"
@@ -1071,8 +1071,8 @@ const handleFileChangeAndUpload = async (event) => {
                 console.error("Translation error:", error);
               }
             }}
-          >Auto Fill Chinese</span>
-          <p className=' mb-1'>CHINESE: </p>
+          >{t("Auto Fill Chinese")}</span>
+          <p className=' mb-1'>{t("CHINESE")}: </p>
           <input
             type="text"
             name="CHI"
@@ -1102,8 +1102,8 @@ const handleFileChangeAndUpload = async (event) => {
               }
 
             }}
-          >Auto Fill English</span>
-          <p className='mb-1'>Price:
+          >{t("Auto Fill English")}</span>
+          <p className='mb-1'>{t("Price")}:
             <input
               style={{ width: "50%" }}
               type="text"
@@ -1113,7 +1113,7 @@ const handleFileChangeAndUpload = async (event) => {
               onChange={(e) => setInputData({ ...inputData, subtotal: e.target.value })}
             />
           </p>
-          <p className='mb-1'>Category:
+          <p className='mb-1'>{t("Category")}:
             <input
               style={{ width: "50%" }}
               type="text"
@@ -1123,7 +1123,7 @@ const handleFileChangeAndUpload = async (event) => {
               onChange={(e) => setInputData({ ...inputData, category: e.target.value })}
             />
           </p>
-          <p className='mb-1'>Priority:
+          <p className='mb-1'>{t("Priority")}:
             <input
               style={{ width: "50%" }}
               type="text"
