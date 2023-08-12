@@ -1,4 +1,4 @@
-export const static_translations = {"PROFILE": {
+export const static_translations = {  "PROFILE": {
     "en": "PROFILE",
     "ch": "轮廓"
   },
@@ -677,6 +677,14 @@ export const static_translations = {"PROFILE": {
   "You are too far from our store": {
     "en": "You are too far from our store",
     "ch": "你离我们店太远了"
+  },
+  "Historical data": {
+    "en": "Historical data",
+    "ch": "历史数据"
+  },
+  "HISTORICAL DATA": {
+    "en": "HISTORICAL DATA",
+    "ch": "历史数据"
   },
   "Closed" : {
     "en": "Closed",
