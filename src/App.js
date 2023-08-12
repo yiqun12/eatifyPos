@@ -121,7 +121,7 @@ function App() {
 
 
               <Route path="orders" element={<Receipt />} />
-              <Route path="guest/:id" element={<Html2 />} />
+              <Route path="Scanner" element={<Html2 />} />
               <Route path="Reservation" element={<Reservation />} />
               {user ? <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route>}
               <Route path="Dashboard" element={<Dashboard />} />
