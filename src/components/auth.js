@@ -43,7 +43,7 @@ const Auth = () => {
       {!index ? <Signin /> : <Signup />}
       <button onClick={signInWithGoogle}> {t("Continue with Google")} </button>
       <p onClick={toggleIndex}>
-        {!index ? t("New user") +"? " + t("Click here") : t("Already have an acount") + "?"}
+        {!index ? t("New user") +"? " + t("Click here") : t("Already have an account") + "?"}
       </p>
     </div>
   );

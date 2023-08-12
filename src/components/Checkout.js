@@ -669,7 +669,7 @@ function CardSection(props) {
                           type="text"
                           name="First Name"
                           required
-                          placeholder="First Name"
+                          placeholder={t("First Name")}
                           value={firstName}
                           onChange={handleFirstNameChange}
                         />
@@ -682,7 +682,7 @@ function CardSection(props) {
                           type="text"
                           name="Last Name"
                           required
-                          placeholder="Last Name"
+                          placeholder={t("Last Name")}
                           value={lastName}
                           onChange={handleLastNameChange}
                         />
@@ -1224,7 +1224,7 @@ firebase
         distanceStatus === 'near' ? (
           <div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <p>Enter your phone number to use 'Pay Later':</p>
+            <p>{t("Enter your phone number to use 'Pay Later'")}:</p>
             <div className="phone-field">
             &#40;	
             <input
@@ -1345,7 +1345,7 @@ firebase
           </div>
         ) : (
           <div>
-            <p>You are too far from our store</p>
+            <p>{t("You are too far from our store")}</p>
           </div>
         )
       ) : (

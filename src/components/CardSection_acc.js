@@ -212,10 +212,10 @@ function CardSection(props) {
                 'paddingRight': 0
               }}>
                 <div class="w-1/2 px-2">
-                  <input class="w-full bg-transparent border-none focus:outline-none" type="text" name="First Name" required placeholder="First Name" />
+                  <input class="w-full bg-transparent border-none focus:outline-none" type="text" name="First Name" required placeholder={t("First Name")} />
                 </div>
                 <div class="w-1/2 px-2 flex justify-end">
-                  <input class="w-full bg-transparent border-none focus:outline-none" type="text" name="Last Name" required placeholder="Last Name" />
+                  <input class="w-full bg-transparent border-none focus:outline-none" type="text" name="Last Name" required placeholder={t("Last Name")} />
                 </div>
               </div>
             </div>

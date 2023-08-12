@@ -21,6 +21,7 @@ import discover from '../components/discover.png';
 import wechatpay from '../components/wechatpay.png';
 
 import alipay from '../components/alipay.png';
+import { useMemo } from 'react';
 
 const App = () => {
   /**re-render everytime button clicked from shopping cart */
@@ -110,11 +111,28 @@ const App = () => {
     }
   }, [totalPrice]);
 
+  // for translations sake
+  const trans = JSON.parse(sessionStorage.getItem("translations"))
+  const t = useMemo(() => {
+    const trans = JSON.parse(sessionStorage.getItem("translations"))
+    const translationsMode = sessionStorage.getItem("translationsMode")
+
+    return (text) => {
+      if (trans != null && translationsMode != null) {
+        if (trans[text] != null && trans[text][translationsMode] != null) {
+          return trans[text][translationsMode];
+        }
+      }
+
+      return text;
+    };
+  }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
+
   return (
 
     <div className='max-w-[1000px] mx-auto p-4 '>
       {isLoading?
-    <>Cart is empty... Redirecting back to home page</>:
+    <>{t("Cart is empty... Redirecting back to home page")}</>:
     
     <div className="app-container" style={{ height: "100%"}}>
     <div className="row">
@@ -310,12 +328,12 @@ const Item = (props) => {
       <Button type="percent" value="18%">18%</Button>
       <Button type="percent" value="20%">20%</Button>
 
-        {!showInput && <Button type="other">Other</Button>}
+        {!showInput && <Button type="other">{t("Other")}</Button>}
       {showInput && <input 
         type="tel"
         min="0"
         className={`tips ${selectedTip?.type === "other" ? 'border border-solid border-black' : ''}`}
-        placeholder="Other"
+        placeholder={t("Other")}
         value={(parseFloat(selectedTip?.value || 0)).toFixed(2)}
         onChange={e => {
           let inputValue = e.target.value;

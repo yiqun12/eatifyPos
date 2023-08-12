@@ -1,0 +1,234 @@
+PROFILE
+person
+sign out
+Payment Method: 
+Order History: 
+Google Sign in
+Loading...
+Google Sign in
+One Time Sign in
+Until
+Business Hours
+Day
+Hours
+Close
+Restart demo
+Your payment was canceled
+Guess you would like:
+Make a reservation
+Mark as Open
+Mark as Closed
+Add Time Range
+Delete
+Monday
+Tuesday
+Wednesday
+Thursday
+Friday
+Saturday
+Sunday
+Submit
+Cart is empty... Redirecting back to home page
+Summary
+each
+Subtotal
+Tax
+Tips
+Other
+Total
+Loading Payment
+Sign in
+Email Address
+Password
+SIGN IN
+Google Sign in
+One Time Sign in
+Forgot password
+Don't have an account? Sign Up
+Sign up
+Please verify your email
+Nick name
+Email Address
+Password
+We would send you a link to verify your email
+SIGN UP
+Already have an account? Sign in
+SEARCH & CATEGORY:
+Search your food
+OPEN
+CLOSED
+All
+Forgot your password
+Enter Email Address
+Confirm
+We would send you a link to reset password
+You need to scan the qr code from the table
+TakeOut
+DineIn
+home
+shopping_cart_checkout
+Your cart is currently empty.
+Checkout
+Account
+Login
+Order ID
+Phone#
+each
+Subtotal
+Tips
+Tax
+Total
+Your Name
+Enter your name
+Your E-mail
+Enter your email
+Your Phone
+Enter your phone
+Adults
+Children
+Check-in Date
+Select Room Preference
+Choose a Room
+Room
+Anything Else
+Tell us anything else that might be important
+Book The Rooms
+
+
+
+
+
+
+
+
+Profile
+Revenue Chart
+History
+Menu Setting
+Other Setting
+PROFILE
+Payment Method: 
+Order History: 
+REVENUE CHART
+Revenue earned on a daily basis over a period of 5 days
+HISTORY SETTINGS
+Revenue
+Tips
+Select a date
+Today's Orders
+Display Today's Orders
+All Orders
+Display All Orders
+Order
+Table
+Status
+Total
+Service
+Time
+Detail
+OrderID
+Name
+Status
+Total
+Service
+Time
+Details
+Hide Details
+View Details
+MENU SETTING
+Pick an item
+Modify Your Item
+Auto fill
+Name
+Category
+Image
+Price
+Subtotal
+Update Food
+Add New Food
+OTHER SETTING
+READ THE INSTRUCTION
+Edit Shop Info
+Scan Menu
+Sync Menu
+Save Changes
+Close modal
+Support payment
+Update Logo
+Update Name
+Update Address
+SEARCH:
+Search your food
+SEARCH
+All
+ENGLISH
+Crusine Name
+Auto Fill Chinese
+CHINESE
+Auto Fill English
+Price
+Category
+Priority
+Add New
+Here are the images we've selected for you
+Close modal
+New pictures for 
+Update
+Delete
+Continue with Google
+New user
+Click here
+Already have an account
+successfully added
+Card holder name
+Card details
+First Name
+Last Name
+Save Card
+Pay
+successfully deleted
+Select Account
+CHECKOUT
+Order
+Table
+Status
+Total
+Service
+Date&Time
+Details
+Hide Detail
+Show More
+each
+link to the receipt
+Pay with Saved Card
+WeChat Pay
+Pay with New Card
+Creating Payment
+Payment status: 
+Payment failed: 
+AliPay
+Enter your phone number to use 'Pay Later'
+Confirm Order
+You are too far from our store
+
+Profile
+Revenue Chart
+Historical data
+Other Setting
+PROFILE
+sign out
+HISTORICAL DATA
+Select a date
+Today's Orders
+Display Today's Orders
+All Orders
+Display All Orders
+
+
+
+Checkout.js
+
+
+
+
+

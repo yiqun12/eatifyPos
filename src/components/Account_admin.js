@@ -446,7 +446,7 @@ const Account = () => {
                   <div id="card_element" className="card-body tab-content" ref={elementRef}>
                     {user_loading ?
                       <div>
-                        Loading...
+                        {t("Loading...")}
                       </div>
                       : <>
                         {activeTab === '#profile' || activeTab === '' ? (
@@ -483,7 +483,7 @@ const Account = () => {
                             <h6>{t("REVENUE CHART")}</h6>
                             <hr />
                             <b x="20" y="30" fill="#000" style={{ 'fontSize': '17px' }}>
-                              Revenue earned on a daily basis over a period of 5 days
+                              {t("Revenue earned on a daily basis over a period of 5 days")}
                             </b>
                             <br></br>
                             <div style={{ marginLeft: '-25px' }}>
@@ -513,7 +513,7 @@ const Account = () => {
                             <div className={isMobile ? "flex" : 'flex'}>
                               <div style={isMobile ? { width: "50%" } : { width: "50%" }}>
                                 <h6 x="20" y="30" fill="#000" style={{ 'fontSize': '17px' }}>
-                                  Revenue : $
+                                  {t("Revenue")} : $
 
                                   {
                                     Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
@@ -530,7 +530,7 @@ const Account = () => {
                                   }
                                 </h6>
                                 <h6 x="20" y="30" fill="#000" style={{ 'fontSize': '17px' }}>
-                                  Tips : $
+                                  {t("Tips")} : $
 
                                   {
                                     Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
@@ -546,7 +546,7 @@ const Account = () => {
 
                                   }
                                 </h6>
-                                <b style={{ marginBottom: "25px" }}>Select a date</b>
+                                <b style={{ marginBottom: "25px" }}>{t("Select a date")}</b>
                                 <br />
                                 <input
                                   type="date"
@@ -558,12 +558,12 @@ const Account = () => {
                                 />
 
                                 <div>
-                                  <button className="btn btn-info mb-2" onClick={() => setSelectedDate(new Date(dateNow))}>{isMobile ? "Today's Orders" : "Display Today's Orders"}</button>
+                                  <button className="btn btn-info mb-2" onClick={() => setSelectedDate(new Date(dateNow))}>{isMobile ? t("Today's Orders") : t("Display Today's Orders")}</button>
 
                                 </div>
 
                                 <div>
-                                  <button className="btn btn-primary" onClick={() => setSelectedDate(null)}>{isMobile ? "All Orders" : "Display All Orders"}</button>
+                                  <button className="btn btn-primary" onClick={() => setSelectedDate(null)}>{isMobile ? t("All Orders") : t("Display All Orders")}</button>
 
                                 </div>
 
@@ -585,7 +585,7 @@ const Account = () => {
                                     cx={80} // Move the pie to the left by adjusting the cx value
                                     data={[
                                       {
-                                        name: 'Tips', value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                        name: t('Tips'), value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -597,7 +597,7 @@ const Account = () => {
                                         ).tips * 100) / 100
                                       },
                                       {
-                                        name: 'Tax', value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                        name: t('Tax'), value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -609,7 +609,7 @@ const Account = () => {
                                         ).tax * 100) / 100
                                       },
                                       {
-                                        name: 'Subtotal', value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                        name: t('Subtotal'), value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -629,7 +629,7 @@ const Account = () => {
                                     {
                                       [
                                         {
-                                          name: 'Tips', value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                          name: t('Tips'), value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -641,7 +641,7 @@ const Account = () => {
                                           ).tips * 100) / 100
                                         },
                                         {
-                                          name: 'Tax', value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                          name: t('Tax'), value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -653,7 +653,7 @@ const Account = () => {
                                           ).tax * 100) / 100
                                         },
                                         {
-                                          name: 'Subtotal', value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                          name: t('Subtotal'), value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -693,13 +693,13 @@ const Account = () => {
                             >
                               <thead>
                                 <tr>
-                                  <th className="order-number" style={isMobile ? {} : { width: "10%" }}>Order</th>
-                                  <th className="order-name" style={isMobile ? {} : { width: "10%" }}>Table</th>
-                                  <th className="order-status" style={isMobile ? {} : { width: "30%" }}>Status</th>
-                                  <th className="order-total" style={isMobile ? {} : { width: "10%" }}>Total</th>
-                                  <th className="order-dine-mode" style={isMobile ? {} : { width: "10%" }}>Service</th>
-                                  <th className="order-date" style={isMobile ? {} : { width: "15%" }}>Time</th>
-                                  <th className="order-details" style={isMobile ? {} : { width: "15%" }}>Detail</th>
+                                  <th className="order-number" style={isMobile ? {} : { width: "10%" }}>{t("Order")}</th>
+                                  <th className="order-name" style={isMobile ? {} : { width: "10%" }}>{t("Table")}</th>
+                                  <th className="order-status" style={isMobile ? {} : { width: "30%" }}>{t("Status")}</th>
+                                  <th className="order-total" style={isMobile ? {} : { width: "10%" }}>{t("Total")}</th>
+                                  <th className="order-dine-mode" style={isMobile ? {} : { width: "10%" }}>{t("Service")}</th>
+                                  <th className="order-date" style={isMobile ? {} : { width: "15%" }}>{t("Time")}</th>
+                                  <th className="order-details" style={isMobile ? {} : { width: "15%" }}>{t("Detail")}</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -722,7 +722,7 @@ const Account = () => {
                                         </td>
                                         <td className="order-details" style={{ whiteSpace: "nowrap" }} data-title="Details">
                                           <button onClick={() => toggleExpandedOrderId(order.id)} style={{ cursor: "pointer" }}>
-                                            {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
+                                            {expandedOrderIds.includes(order.id) ? t("Hide Details") : t("View Details")}
                                           </button>
                                         </td>
                                       </tr>
@@ -735,13 +735,13 @@ const Account = () => {
                                               <p>{order.date}</p>
                                               {JSON.parse(order.receiptData).map((item, index) => (
                                                 <div className="receipt-item" key={item.id}>
-                                                  <p>{item.name} x {item.quantity} @ $ {item.subtotal} each = $ {Math.round(item.quantity * item.subtotal * 100) / 100}</p>
+                                                  <p>{item.name} x {item.quantity} @ $ {item.subtotal} {t("each")} = $ {Math.round(item.quantity * item.subtotal * 100) / 100}</p>
                                                 </div>
                                               ))}
-                                              <p>Subtotal: $ {order.metadata.subtotal}</p>
-                                              <p>Tax: $ {order.metadata.tax}</p>
-                                              <p>Tips: $ {order.metadata.tips}</p>
-                                              <p>Total: $ {order.metadata.total}</p>
+                                              <p>{t("Subtotal")}: $ {order.metadata.subtotal}</p>
+                                              <p>{t("Tax")}: $ {order.metadata.tax}</p>
+                                              <p>{t("Tips")}: $ {order.metadata.tips}</p>
+                                              <p>{t("Total")}: $ {order.metadata.total}</p>
                                             </div>
                                           </td>
                                         </tr>

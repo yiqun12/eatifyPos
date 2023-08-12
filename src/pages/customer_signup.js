@@ -89,7 +89,7 @@ export default function SignUp() {
     >
       {user_loading ?
         <div>
-          Loading...
+          {t("Loading...")}
         </div>
         :
 

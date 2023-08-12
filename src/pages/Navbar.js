@@ -450,7 +450,7 @@ const Navbar = () => {
         </a>
       </a>
 
-      <div ref={modalRef} className="modal">
+      <div ref={modalRef} className="foodcart-modal modal">
 
 
         {/* popup content */}
@@ -468,7 +468,7 @@ const Navbar = () => {
                   <div style={{ marginTop: "15px" }}>
                     <span>
                       <i style={{ fontSize: "35px" }} className="material-icons nav__icon">shopping_cart_checkout</i>
-                      <span >&nbsp;Your cart is currently empty.</span>
+                      <span >&nbsp;{t("Your cart is currently empty.")}</span>
                     </span>
 
 

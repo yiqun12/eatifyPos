@@ -17,6 +17,9 @@ import plusSvg from './plus.svg';
 import { ReactComponent as PlusSvg } from './plus.svg';
 import { ReactComponent as MinusSvg } from './minus.svg';
 
+
+import BusinessHoursTable from './BusinessHoursTable.js' 
+
 const Food = () => {
 
   const [numbers, setNumbers] = useState([0, 0, 0]);
@@ -272,6 +275,134 @@ const Food = () => {
   //const foodTypes = ['burger', 'pizza', 'salad', 'chicken'];
   const foodTypes = [...new Set(JSON.parse(sessionStorage.getItem("Food_arrays")).map(item => item.category))];
 
+   // for businessHours
+   const businessHours = JSON.parse(sessionStorage.getItem("businessHours"))
+   // getting today's date
+   const tempDate = new Date();
+   const currentWeekday = tempDate.getDay();
+ 
+   function parseTime(timeStr) {
+     if (timeStr == "xxxx") {
+       return {closed: true}
+     }
+   
+     // console.log("timeString")
+     const [hourStr, minuteStr] = timeStr.match(/\d{2}/g);
+     // console.log(hourStr + " " + minuteStr)
+     return {
+       hours: parseInt(hourStr),
+       minutes: parseInt(minuteStr),
+       closed: false
+     };
+   }
+   
+ // grabs a timeStr and convert to 12 hr format such as "10:30AM"
+ function convertTo12HourFormat(timeStr) {
+ 
+   // console.log("timeStr in 12 hr: " + JSON.stringify(timeStr))
+   const timeObj = parseTime(timeStr)
+   if (timeObj.closed) {
+       return 'Closed';
+   }
+ 
+   let hours = timeObj.hours;
+   let minutes = timeObj.minutes;
+ 
+   // Determine if it's AM or PM
+   let period = 'AM';
+   if (hours >= 12 && hours != 24) {
+       period = 'PM';
+ 
+       // Convert from 24 hour time to 12 hour time
+       if (hours > 12) {
+           hours = hours - 12;
+       }
+   } else if (hours === 0) {
+       // Adjust for 00:xx time
+       hours = 12;
+   } else if (hours == 24) {
+       hours = 0;
+   }
+ 
+   // Return the formatted time string
+   return `${hours}:${minutes < 10 ? '0' + minutes : minutes} ${period}`;
+ }
+   
+ 
+ // currentDayData is basically businessHours
+ function isWithinTimeRange(currentDayData) {
+   const offset = JSON.parse(sessionStorage.getItem("timezoneOffsets"));
+   const offsetHours = parseInt(offset["hours"]);
+   const offsetMinutes = parseInt(offset["minutes"]);
+ 
+   const now = new Date();
+   now.setHours(now.getHours() - offsetHours);
+   now.setMinutes(now.getMinutes() - offsetMinutes);
+   // console.log(now.toUTCString())
+   
+   const currentUTCDay = now.getUTCDay(); // Get the current day of the week in UTC (0-6)
+ 
+   // console.log("currentUTCDay: ", currentUTCDay)
+   // console.log(currentDayData[currentUTCDay])
+   const { timeRanges, timezone } = currentDayData[currentUTCDay];
+ 
+   var result = false;
+   // const timeRanges = data[day].timeRanges;
+   for (const range of timeRanges) {
+       const openTime = range.openTime;
+       const closeTime = range.closeTime;
+     // loop through all the time ranges for the day to see if we are within range
+     const openTimeParsed = parseTime(openTime);
+     const closeTimeParsed = parseTime(closeTime);
+ 
+     // if the opening Hours is "xxxx", it is closed for today
+     if (openTimeParsed.closed == true) {
+       result = false;
+       break;
+     }
+ 
+     const openDate = new Date(now);
+     openDate.setUTCHours(openTimeParsed.hours);
+     openDate.setUTCMinutes(openTimeParsed.minutes);
+     // console.log(openDate.toUTCString())
+ 
+     const closeDate = new Date(now);
+     closeDate.setUTCHours(closeTimeParsed.hours);
+     closeDate.setUTCMinutes(closeTimeParsed.minutes);
+     // console.log(openDate.toUTCString())
+ 
+     if (closeDate <= openDate) {
+       // Add 1 day to the closeDate in UTC
+       closeDate.setUTCDate(closeDate.getUTCDate() + 1);
+     } 
+ 
+     result = (now >= openDate && now <= closeDate);
+     if (result == true) {
+       break;
+     }
+   }
+   return result;
+ }
+ 
+   const [isOpen, setIsOpen] = useState(false);
+ 
+   useEffect(() => {
+     // Function to update the store status
+     function updateStoreStatus() {
+       setIsOpen(isWithinTimeRange(businessHours));
+     }
+ 
+     // Call the updateStoreStatus function initially to set the store status
+     updateStoreStatus();
+ 
+     // Update the store status every minute (you can adjust the interval if needed)
+     const intervalId = setInterval(updateStoreStatus, 60000);
+ 
+     // Clean up the interval on component unmount
+     return () => clearInterval(intervalId);
+   }, []); 
+ 
+
   return (
 
     <div>
@@ -293,7 +424,7 @@ const Food = () => {
         justifyContent: 'space-between',
       }}
     >
-      <div className='m-1'>SEARCH & CATEGORY:</div>
+      <div className='m-1'>{t("SEARCH & CATEGORY:")}</div>
 
       <div style={{ marginLeft: "15px" }}>{isMobile ? JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address : ""}</div>
 
@@ -303,7 +434,7 @@ const Food = () => {
             className='searchInput'
             style={{ margin: '5px', maxWidth: '90%' }}
             type='text'
-            placeholder='Search your food'
+            placeholder={t('Search your food')}
             value={input}
             onChange={handleInputChange}
           />
@@ -331,7 +462,7 @@ const Food = () => {
             fontSize:"18px",
             fontWeight:"normal",
             marginLeft:"10px",
-            backgroundColor: "#97c23a",//green
+            backgroundColor: isOpen ? "#97c23a" : 'red',//green
             borderRadius: '10px',
             padding: '3px',
             paddingTop: '2px',
@@ -339,10 +470,10 @@ const Food = () => {
             color: 'white',
           }}
         >
-          OPEN
+          {isOpen ? t('OPEN') : t('CLOSED')}
         </b>
       </div>
-      <div>Until 9:00pm</div>
+      <BusinessHoursTable storeStatus={isOpen} ></BusinessHoursTable>
     </div>
   </div>
 )}
@@ -380,19 +511,19 @@ const Food = () => {
 
       {/* bottom parent div */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
-    <div className='m-1 mt-2'>SEARCH & CATEGORY:</div>
+    <div className='m-1 mt-2'>{t("SEARCH & CATEGORY:")}</div>
     <b style={{marginLeft: "auto"}}>
     <b 
         style={{ 
           fontSize:"18px",
           fontWeight:"normal",
-            backgroundColor: "#97c23a", //green
+            backgroundColor: isOpen ? "#97c23a" : 'red', //green
             borderRadius: "10px", 
             padding: "3px",  // Simplified the padding
             color: "white" 
         }}
     >
-        OPEN
+        {isOpen ? t('OPEN') : t('CLOSED')}
     </b>
     </b>
 </div>
@@ -407,7 +538,7 @@ const Food = () => {
             className='searchInput'
             style={{ margin: '5px', maxWidth: '90%' }}
             type='text'
-            placeholder='Search your food'
+            placeholder={t('Search your food')}
             value={input}
             onChange={handleInputChange}
           />
@@ -415,7 +546,7 @@ const Food = () => {
         </div>
       </div>
       <div style={{    display: "flex",
-    alignSelf: "center"}}>Until 9:00pm</div>
+    alignSelf: "center"}}><BusinessHoursTable storeStatus={isOpen} ></BusinessHoursTable></div>
       </div>
 
     </div>
