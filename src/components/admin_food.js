@@ -429,7 +429,7 @@ const handleFileChangeAndUpload = async (event) => {
       <div className='max-w-[1000px] m-auto px-4 '>
         {isMobile ? TitleLogoNameContent.Address : ""}
         <div className='flex mb-1' >
-          <b style={{ fontSize: "20px", color: 'blue', marginTop: "5px" }}>READ THE INSTRUCTION</b>
+          <b style={{ fontSize: "20px", color: "#985bff", marginTop: "5px" }}>READ THE INSTRUCTION</b>//blue
         </div>
 
         <div className='flex'>
@@ -730,7 +730,7 @@ const handleFileChangeAndUpload = async (event) => {
                   />
                 </p>
                 <span
-                  style={{ cursor: "pointer", backgroundColor: "blue", marginTop: "2px", marginBottom: "5px" }}
+                  style={{ cursor: "pointer", backgroundColor: "#985bff", marginTop: "2px", marginBottom: "5px" }}//blue
                   className="task-card__tag task-card__tag--marketing"
                   onClick={async () => {  //Auto Fill Chinese
                     let translatedText = "Cuisine Name";
@@ -756,7 +756,7 @@ const handleFileChangeAndUpload = async (event) => {
                   onChange={handleInputChange}
                 />
                 <span
-                  style={{ cursor: "pointer", backgroundColor: "blue", marginTop: "2px", marginBottom: "5px" }}
+                  style={{ cursor: "pointer", backgroundColor: "#985bff", marginTop: "2px", marginBottom: "5px" }}//blue
                   className="task-card__tag task-card__tag--marketing"
 
                   onClick={async () => {  // Auto Fill English
