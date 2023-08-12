@@ -1051,7 +1051,7 @@ const handleFileChangeAndUpload = async (event) => {
 
           </p>
           <span
-            style={{ cursor: "pointer", backgroundColor: "blue", marginTop: "2px", marginBottom: "5px" }}
+            style={{ cursor: "pointer", backgroundColor: "#985bff", marginTop: "2px", marginBottom: "5px" }}
             className="task-card__tag task-card__tag--marketing"
             onClick={async () => {  // Auto Fill English
               let translatedText = "";
@@ -1081,7 +1081,7 @@ const handleFileChangeAndUpload = async (event) => {
             onChange={(e) => setInputData({ ...inputData, CHI: e.target.value })}
           />
           <span
-            style={{ cursor: "pointer", backgroundColor: "blue", marginTop: "2px", marginBottom: "5px" }}
+            style={{ cursor: "pointer", backgroundColor: "#985bff", marginTop: "2px", marginBottom: "5px" }}
             className="task-card__tag task-card__tag--marketing"
 
             onClick={async () => {  // Auto Fill English
