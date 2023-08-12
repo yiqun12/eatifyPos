@@ -60,6 +60,9 @@ function App() {
           .map((doc) => ({ ...doc.data()}));
         //console.log(newData[0].key)
         sessionStorage.setItem("Food_arrays", (newData[0].key));
+        if (!sessionStorage.getItem("Food_arrays") || sessionStorage.getItem("Food_arrays") === "") {
+          sessionStorage.setItem("Food_arrays", "[]");
+      }
       })
 
     await getDocs(collection(db, "TitleLogoNameContent"))

@@ -452,7 +452,7 @@ const Food = () => {
                 key={item.id}
                 className="border rounded-lg duration-500 cursor-pointer">
                 <div class="h-min overflow-hidden rounded-md">
-                  <img class="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
+                  <img loading="lazy" class="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
                 </div>
                 <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full'>
 
