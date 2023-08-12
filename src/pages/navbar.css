@@ -30,9 +30,3 @@
   .nav__icon {
     font-size: 18px;
   }
-
-  @media (max-width: 768px) {
-    .nav__link:hover {
-      background-color: #eeeeee;
-    }
-  }

@@ -293,7 +293,7 @@ const Food = () => {
         justifyContent: 'space-between',
       }}
     >
-      <b className='m-1'>SEARCH & CATEGORY:</b>
+      <div className='m-1'>SEARCH & CATEGORY:</div>
 
       <div style={{ marginLeft: "15px" }}>{isMobile ? JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address : ""}</div>
 
@@ -377,7 +377,7 @@ const Food = () => {
 
       {/* bottom parent div */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
-    <b className='m-1 mt-2'>SEARCH & CATEGORY:</b>
+    <div className='m-1 mt-2'>SEARCH & CATEGORY:</div>
     <b style={{marginLeft: "auto"}}>
     <b 
         style={{ 
@@ -418,7 +418,7 @@ const Food = () => {
 )}
 
             {/* end of the top */}
-            <div className={isMobile?'scrolling-wrapper-filter mt-2':"mb-2 mt-2 scrolling-wrapper-filter"} style={{borderBottom: "1px solid black"}}>
+            <div className={isMobile?'scrolling-wrapper-filter mt-2':"mt-2 scrolling-wrapper-filter"}>
               
               <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-2 py-2' style={{ display: "inline-block" }}><b>{t("All")}</b></button>
 
@@ -441,7 +441,7 @@ const Food = () => {
 
         {/* diplay food */}
         <AnimatePresence>
-          <div className='grid grid-cols-2 lg:grid-cols-4 gap-6 pt-3'>
+          <div className='grid grid-cols-2 lg:grid-cols-4 gap-6'>
             {foods.map((item, index) => (
               <motion.div
                 layout

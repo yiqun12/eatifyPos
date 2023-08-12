@@ -73,7 +73,6 @@ form a{
     font-weight: bold;
 }
 form a:hover{
-    color:grey;
     text-decoration: none;
 }
 form .row{

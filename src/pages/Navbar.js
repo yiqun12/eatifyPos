@@ -426,8 +426,7 @@ const Navbar = () => {
 
       <a class="float" target="_blank">
         <a
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+
           style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
           <i style={{
             color: 'transparent'
@@ -443,9 +442,9 @@ const Navbar = () => {
             1</span>
 
           <div id="cart"
-            style={{ 'color': isHover ? '#0a58ca' : '#444444' }}
+            style={{ 'color' : '#444444' }}
             className="cart" data-totalitems={totalQuant} ref={btnRef} >
-            <a className="email-link"><i style={{ "fontSize": "35px", 'color': isHover ? '#0a58ca' : '#444444' }}
+            <a className="email-link"><i style={{ "fontSize": "35px", 'color': '#444444' }}
               className="material-icons nav__icon">shopping_cart_checkout</i></a>
           </div>
         </a>
