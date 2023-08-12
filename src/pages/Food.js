@@ -252,13 +252,13 @@ const Food = () => {
     }
     calculateTotalQuant();
   };
-  const [translationsMode, settranslationsMode] = useState(sessionStorage.getItem("translationsMode"));
+  const [translationsMode_, settranslationsMode_] = useState("en");
   // for translations sake
   const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = useMemo(() => {
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const translationsMode = sessionStorage.getItem("translationsMode")
-    settranslationsMode(sessionStorage.getItem("translationsMode"))
+    settranslationsMode_(sessionStorage.getItem("translationsMode"))
     return (text) => {
       if (trans != null && translationsMode != null) {
         if (trans[text] != null && trans[text][translationsMode] != null) {
@@ -464,7 +464,7 @@ const Food = () => {
 {/* parent div of title + quantity and button parent div */}
 <div className="col-span-4" style={{display: "flex", flexDirection: "column", justifyContent: "space-between"}}>
 <div className="col-span-4">
-  <p className=' mb-1'>{translationsMode==="en"?item.name:item.CHI}</p>
+  <p className=' mb-1'>{translationsMode_==="en"?item.name:item.CHI}</p>
 </div>
 
 {/* parent div of the quantity and buttons */}

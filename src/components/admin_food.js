@@ -429,7 +429,7 @@ const handleFileChangeAndUpload = async (event) => {
       <div className='max-w-[1000px] m-auto px-4 '>
         {isMobile ? TitleLogoNameContent.Address : ""}
         <div className='flex mb-1' >
-          <b style={{ fontSize: "20px", color: "#985bff", marginTop: "5px" }}>READ THE INSTRUCTION</b>//blue
+          <b style={{ fontSize: "20px", color: "#985bff", marginTop: "5px" }}>READ THE INSTRUCTION</b>
         </div>
 
         <div className='flex'>
