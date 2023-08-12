@@ -252,13 +252,13 @@ const Food = () => {
     }
     calculateTotalQuant();
   };
-
+  const [translationsMode, settranslationsMode] = useState(sessionStorage.getItem("translationsMode"));
   // for translations sake
   const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = useMemo(() => {
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const translationsMode = sessionStorage.getItem("translationsMode")
-
+    settranslationsMode(sessionStorage.getItem("translationsMode"))
     return (text) => {
       if (trans != null && translationsMode != null) {
         if (trans[text] != null && trans[text][translationsMode] != null) {
@@ -318,17 +318,20 @@ const Food = () => {
       <div style={{ marginTop: '6px' }}>
       {sessionStorage.getItem('table')!=null && sessionStorage.getItem('table')!=""?
                 <b >
-                <b style={{backgroundColor: "red", borderRadius: "3px",padding: "3px",color: "white",}}>
+                <b style={{backgroundColor: "#ff6161", borderRadius: "3px",padding: "3px",color: "white",}}>//red
                       {sessionStorage.getItem('table')}
                 </b>
                 </b>:
                 <></>
 
 }
+
         <b
           style={{
+            fontSize:"18px",
+            fontWeight:"normal",
             marginLeft:"10px",
-            backgroundColor: 'green',
+            backgroundColor: "#97c23a",//green
             borderRadius: '10px',
             padding: '3px',
             paddingTop: '2px',
@@ -360,7 +363,7 @@ const Food = () => {
                 <div>
 {sessionStorage.getItem('table')!=null && sessionStorage.getItem('table')!=""?
                 <b >
-                <b style={{backgroundColor: "red", borderRadius: "3px",padding: "3px",color: "white",}}>
+                <b style={{backgroundColor: "#ff6161", borderRadius: "3px",padding: "3px",color: "white",}}>//red
                       {sessionStorage.getItem('table')}
                 </b>
                 </b>:
@@ -381,7 +384,9 @@ const Food = () => {
     <b style={{marginLeft: "auto"}}>
     <b 
         style={{ 
-            backgroundColor: "green", 
+          fontSize:"18px",
+          fontWeight:"normal",
+            backgroundColor: "#97c23a", //green
             borderRadius: "10px", 
             padding: "3px",  // Simplified the padding
             color: "white" 
@@ -418,20 +423,20 @@ const Food = () => {
 )}
 
             {/* end of the top */}
-            <div className={isMobile?'scrolling-wrapper-filter mt-2':"mt-2 scrolling-wrapper-filter"}>
+            <div className="mt-2 scrolling-wrapper-filter">
               
-              <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-2 py-2' style={{ display: "inline-block" }}><b>{t("All")}</b></button>
+              <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-zinc-900	 hover:text-white border rounded-xl px-2 py-2' style={{ display: "inline-block" }}><div>{t("All")}</div></button>
 
               {foodTypes.map((foodType) => (
 
                 <button
                   key={foodType}
                   onClick={() => filterType(foodType)}
-                  className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-2 py-2'
+                  className='m-1 border-black-600 text-black-600 hover:bg-zinc-900 hover:text-white border rounded-xl px-2 py-2'
                   style={{ display: "inline-block" }}>
-                    <b>
+                    <div>
                   {t(foodType.charAt(0).toUpperCase() + foodType.slice(1))}
-                  </b>
+                  </div>
                 </button>
               ))}
             </div>
@@ -441,7 +446,7 @@ const Food = () => {
 
         {/* diplay food */}
         <AnimatePresence>
-          <div className='grid grid-cols-2 lg:grid-cols-4 gap-6'>
+          <div className={isMobile?'grid grid-cols-2 lg:grid-cols-4 gap-x-3 pt-3':'grid grid-cols-2 lg:grid-cols-4 gap-6'}>
             {foods.map((item, index) => (
               <motion.div
                 layout
@@ -450,7 +455,7 @@ const Food = () => {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.1 }}
                 key={item.id}
-                className="border rounded-lg duration-500 cursor-pointer">
+                className=" rounded-lg duration-500 cursor-pointer">
                 <div class="h-min overflow-hidden rounded-md">
                   <img loading="lazy" class="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
                 </div>
@@ -459,7 +464,7 @@ const Food = () => {
 {/* parent div of title + quantity and button parent div */}
 <div className="col-span-4" style={{display: "flex", flexDirection: "column", justifyContent: "space-between"}}>
 <div className="col-span-4">
-  <p className=' mb-1'>{t(item.name)}</p>
+  <p className=' mb-1'>{translationsMode==="en"?item.name:item.CHI}</p>
 </div>
 
 {/* parent div of the quantity and buttons */}
