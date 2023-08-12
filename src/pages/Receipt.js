@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import './checkout.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import './group_list.css';
@@ -73,25 +73,22 @@ const Item = () => {
     }
   }, [receiptToken]); // useEffect will run when receiptToken changes
 
-   // for translations sake
-   const trans = JSON.parse(sessionStorage.getItem("translations"))
-   const t = (text) => {
-     // const trans = sessionStorage.getItem("translations")
-     //console.log(trans)
-    // console.log(sessionStorage.getItem("translationsMode"))
- 
-     if (trans != null) {
-       if (sessionStorage.getItem("translationsMode") != null) {
-       // return the translated text with the right mode
-         if (trans[text] != null) {
-           if (trans[text][sessionStorage.getItem("translationsMode")] != null)
-             return trans[text][sessionStorage.getItem("translationsMode")]
-         }
-       }
-     } 
-     // base case to just return the text if no modes/translations are found
-     return text
-   }
+    // for translations sake
+    const trans = JSON.parse(sessionStorage.getItem("translations"))
+    const t = useMemo(() => {
+      const trans = JSON.parse(sessionStorage.getItem("translations"))
+      const translationsMode = sessionStorage.getItem("translationsMode")
+  
+      return (text) => {
+        if (trans != null && translationsMode != null) {
+          if (trans[text] != null && trans[text][translationsMode] != null) {
+            return trans[text][translationsMode];
+          }
+        }
+  
+        return text;
+      };
+    }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
 
   if (!payment_data) return <div>Loading...</div>; // Render a loading state if payment_data is not fetched
 

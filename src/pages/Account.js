@@ -92,7 +92,7 @@ const Account = () => {
                         <h6>{t("PROFILE")}</h6>
                         <hr />
                         <h6 className="flex items-center">
-                          <i className="material-icons">person</i>
+                          <i className="material-icons">{t("person")}</i>
                           {user ? user.displayName : ""}
                           <button style={{ "margin-left": "auto" }}
                             onClick={() => {

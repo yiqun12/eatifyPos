@@ -43,7 +43,7 @@ export default function SignIn() {
     >
       {user && user_loading ?
         <div>
-          Loading...
+          {t("Loading...")}
         </div>
         :
         <>

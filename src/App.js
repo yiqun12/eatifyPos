@@ -29,6 +29,15 @@ import Admin_food from './components/admin_food'
 // translation purposes -> can switch to using fetchPost() to grab translation file just like food_array
 import { translations } from './data/translations.js'
 
+// import businessHours
+import { businessHours } from "./data/businessHours";
+
+// import timezone offsets
+import { timeZones } from "./data/timeZones"
+
+// import the time change page for testing
+import ChangeTimeForm from "./pages/ChangeTimeForm"
+
 function App() {
   const [loading, setLoading] = useState(true);
   const params = new URLSearchParams(window.location.search);
@@ -80,6 +89,20 @@ function App() {
   useEffect(() => {
     // Added line to grab translation file (can use the same method as food_data to grab translations file)
     sessionStorage.setItem("translations", JSON.stringify(translations))
+
+      // Added line to grab translation file (can use the same method as food_data to grab translations file)
+  // keep a counter so the local file does not refreshes multiple times
+  // (would not need this in a scenario where server stores file or where local file is changed)
+  const businessHoursData = JSON.stringify(businessHours)
+  if (!sessionStorage.getItem("businessHours")) {
+    sessionStorage.setItem("businessHours", businessHoursData)
+  }
+  // Added line to grab timezone offset file from UTC
+  const timeZoneOffsetData = JSON.stringify(timeZones)
+  // console.log(timeZones["ET"])
+  // sessionStorage.setItem("timezoneOffsets", timeZoneOffsetData[businessHoursData["timezone"]])
+  // console.log(timeZones[(businessHours[1])["timezone"]])
+  sessionStorage.setItem("timezoneOffsets", JSON.stringify(timeZones[(businessHours[1])["timezone"]]))
 
     if (!sessionStorage.getItem("Food_arrays") || !sessionStorage.getItem("TitleLogoNameContent")) {
       fetchPost();
@@ -154,7 +177,13 @@ function App() {
               
               <Route path="SignUp" element={<SignUp />}></Route>
 
+      {/*testing from tony change Time menu */}
+      <Route exact path="/change_time" element={<ChangeTimeForm />} />
 
+      {/* testing from tony */}
+      <Route exact path="/testing_admin" element={<Account_admin />} />
+
+      <Route exact path="/test_admin_new" element={<Admin_new />} />
 
               {user ? <Route path="ForgotPassword" element={<Account />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
               <Route path='*' exact={true} element={<Home />} />
