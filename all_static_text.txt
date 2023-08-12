@@ -211,6 +211,18 @@ Enter your phone number to use 'Pay Later'
 Confirm Order
 You are too far from our store
 
+Profile
+Revenue Chart
+Historical data
+Other Setting
+PROFILE
+sign out
+HISTORICAL DATA
+Select a date
+Today's Orders
+Display Today's Orders
+All Orders
+Display All Orders
 
 
 
