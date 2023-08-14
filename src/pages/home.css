@@ -351,7 +351,7 @@ footer .flex_content_ a:hover {
   box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
   border: 2px solid transparent;
   transition: all 0.3s ease-in-out;
-  z-index: 5;
+  z-index: 7;
 }
 .card_demo h3.card-title_ {
   font-weight: 700;
