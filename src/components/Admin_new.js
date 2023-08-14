@@ -70,7 +70,7 @@ function App() {
         console.log(selectedItem)
     }
     /**change app namne and logo */
-    const [faviconUrl, setFaviconUrl] = useState('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
+   // const [faviconUrl, setFaviconUrl] = useState('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
     const [pageTitle, setPageTitle] = useState("Title1");
     const handleOpenCashDraw = async () => {
         try {
@@ -123,15 +123,15 @@ function App() {
             console.error("Error adding document: ", e);
         }
     }
-    const handleClickFavicon = (e) => {
-        e.preventDefault();
-        console.log(e.target.faviconURL.value);
-        if (faviconUrl === 'https://upload.wikimedia.org/wikipedia/en/thumb/6/65/LehighMountainHawks.svg/1200px-LehighMountainHawks.svg.png')
-            setFaviconUrl('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
-        else
-            setFaviconUrl('https://upload.wikimedia.org/wikipedia/en/thumb/6/65/LehighMountainHawks.svg/1200px-LehighMountainHawks.svg.png')
-        updateFavicon();
-    }
+    // const handleClickFavicon = (e) => {
+    //     e.preventDefault();
+    //     console.log(e.target.faviconURL.value);
+    //     if (faviconUrl === 'https://upload.wikimedia.org/wikipedia/en/thumb/6/65/LehighMountainHawks.svg/1200px-LehighMountainHawks.svg.png')
+    //         setFaviconUrl('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
+    //     else
+    //         setFaviconUrl('https://upload.wikimedia.org/wikipedia/en/thumb/6/65/LehighMountainHawks.svg/1200px-LehighMountainHawks.svg.png')
+    //     updateFavicon();
+    // }
 
     const handleClickTitle = (e) => {
         e.preventDefault();
@@ -141,13 +141,13 @@ function App() {
 
     }
 
-    const updateFavicon = () => {
-        const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-        link.type = 'image/x-icon';
-        link.rel = 'shortcut icon';
-        link.href = `${faviconUrl}?t=${Date.now()}`;
-        document.getElementsByTagName('head')[0].appendChild(link);
-    }
+    // const updateFavicon = () => {
+    //     const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    //     link.type = 'image/x-icon';
+    //     link.rel = 'shortcut icon';
+    //     link.href = `${faviconUrl}?t=${Date.now()}`;
+    //     document.getElementsByTagName('head')[0].appendChild(link);
+    // }
 
     /**change app namne and logo */
 
@@ -1203,7 +1203,7 @@ function App() {
 
 
                                             <div style={{ display: "flex", flexDirection: "column" }}>
-                                                <form onSubmit={handleClickFavicon} style={{ display: "flex", alignItems: "center" }}>
+                                                <form style={{ display: "flex", alignItems: "center" }}>
                                                     <TextField
                                                         margin="normal"
                                                         required

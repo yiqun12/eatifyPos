@@ -8,6 +8,7 @@ import { useUserContext } from "../context/userContext";
 import { useMyHook } from '../pages/myHook';
 import Checkout from "./Checkout_acc";
 import './style.css';
+import './stripeButton.css';
 import { useCallback } from 'react';
 import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
@@ -15,6 +16,9 @@ import { useRef } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } from 'recharts';
 import { data_ } from '../data/data.js'
 import { PieChart, Pie, Cell } from 'recharts';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 const Account = () => {
   const [width2, setWidth2] = useState(0);
@@ -232,7 +236,7 @@ const Account = () => {
   return (
     <>
       <Elements stripe={promise}>
-        <div className='max-w-[1000px] mx-auto p-0 pt-4'>
+        <div className='max-w-[1000px] mx-auto p-0'>
           <div className="container">
             <div className="row gutters-sm">
               <div className="col-md-3 d-none d-md-block">
@@ -284,7 +288,7 @@ const Account = () => {
                           <rect x={1} y={4} width={22} height={16} rx={2} ry={2} />
                           <line x1={1} y1={10} x2={23} y2={10} />
                         </svg>
-                        {t("Revenue Chart")}
+                        {t("Business Overview")}
                       </a>
                       <a
                         href="#History"
@@ -344,7 +348,7 @@ const Account = () => {
                       className="nav nav-tabs card-header-tabs nav-gap-x-1"
                       role="tablist"
                     >
-                      <li className="nav-item">
+                      <li style={{ width: "25%" }} className="nav-item">
                         <a
                           href="#profile"
                           data-toggle="tab"
@@ -368,7 +372,7 @@ const Account = () => {
                           </svg>
                         </a>
                       </li>
-                      <li className="nav-item">
+                      <li style={{ width: "25%" }} className="nav-item">
                         <a
                           href="#Revenue_chart"
                           data-toggle="tab"
@@ -392,7 +396,7 @@ const Account = () => {
                           </svg>
                         </a>
                       </li>
-                      <li className="nav-item">
+                      <li style={{ width: "25%" }} className="nav-item">
                         <a
                           href="#History"
                           data-toggle="tab"
@@ -416,7 +420,7 @@ const Account = () => {
                           </svg>
                         </a>
                       </li>
-                      <li className="nav-item">
+                      <li style={{ width: "25%" }} className="nav-item">
                         <a
                           href="#Favicon_Setting"
                           data-toggle="tab"
@@ -446,7 +450,7 @@ const Account = () => {
                   <div id="card_element" className="card-body tab-content" ref={elementRef}>
                     {user_loading ?
                       <div>
-                        {t("Loading...")}
+                        Loading...
                       </div>
                       : <>
                         {activeTab === '#profile' || activeTab === '' ? (
@@ -480,10 +484,29 @@ const Account = () => {
 
                         {activeTab === '#Revenue_Chart' ? (
                           <div className="tab-pane-active" id="Revenue_Chart">
-                            <h6>{t("REVENUE CHART")}</h6>
+                            <h6>{t("BUSINESS OVERVIEW")}</h6>
                             <hr />
+                            <div className='flex' >
+                              <div style={{width:"60%"}}>
+                            <a href="#" class="stripe-connect"><span>Connect with</span></a>
+                            <div>
+                              <FormGroup>
+                                <FormControlLabel control={<Switch defaultChecked />} label={t("Support payment")} />
+                              </FormGroup>                            
+                            </div>
+                            </div>
+                            <div className="flex justify-end"style={{margin: "auto",width:"40%"}}>
+                            <button
+            className="block text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+            style={{  display: "inline-block" }}>
+            {t("Edit Your Shop")}
+          </button>
+                            </div>
+                            </div>
+                            <hr />
+
                             <b x="20" y="30" fill="#000" style={{ 'fontSize': '17px' }}>
-                              {t("Revenue earned on a daily basis over a period of 5 days")}
+                              Revenue earned on a daily basis over a period of 5 days
                             </b>
                             <br></br>
                             <div style={{ marginLeft: '-25px' }}>
@@ -508,12 +531,10 @@ const Account = () => {
                             <h6>{t("HISTORICAL DATA")}</h6>
                             <hr />
 
-
-
                             <div className={isMobile ? "flex" : 'flex'}>
                               <div style={isMobile ? { width: "50%" } : { width: "50%" }}>
                                 <h6 x="20" y="30" fill="#000" style={{ 'fontSize': '17px' }}>
-                                  {t("Revenue")} : $
+                                  Revenue : $
 
                                   {
                                     Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
@@ -530,7 +551,7 @@ const Account = () => {
                                   }
                                 </h6>
                                 <h6 x="20" y="30" fill="#000" style={{ 'fontSize': '17px' }}>
-                                  {t("Tips")} : $
+                                  Tips : $
 
                                   {
                                     Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
@@ -546,7 +567,7 @@ const Account = () => {
 
                                   }
                                 </h6>
-                                <b style={{ marginBottom: "25px" }}>{t("Select a date")}</b>
+                                <b style={{ marginBottom: "25px" }}>Select a date</b>
                                 <br />
                                 <input
                                   type="date"
@@ -558,12 +579,12 @@ const Account = () => {
                                 />
 
                                 <div>
-                                  <button className="btn btn-info mb-2" onClick={() => setSelectedDate(new Date(dateNow))}>{isMobile ? t("Today's Orders") : t("Display Today's Orders")}</button>
+                                  <button className="btn btn-info mb-2" onClick={() => setSelectedDate(new Date(dateNow))}>{isMobile ? "Today's Orders" : "Display Today's Orders"}</button>
 
                                 </div>
 
                                 <div>
-                                  <button className="btn btn-primary" onClick={() => setSelectedDate(null)}>{isMobile ? t("All Orders") : t("Display All Orders")}</button>
+                                  <button className="btn btn-primary" onClick={() => setSelectedDate(null)}>{isMobile ? "All Orders" : "Display All Orders"}</button>
 
                                 </div>
 
@@ -585,7 +606,7 @@ const Account = () => {
                                     cx={80} // Move the pie to the left by adjusting the cx value
                                     data={[
                                       {
-                                        name: t('Tips'), value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                        name: 'Tips', value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -597,7 +618,7 @@ const Account = () => {
                                         ).tips * 100) / 100
                                       },
                                       {
-                                        name: t('Tax'), value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                        name: 'Tax', value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -609,7 +630,7 @@ const Account = () => {
                                         ).tax * 100) / 100
                                       },
                                       {
-                                        name: t('Subtotal'), value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                        name: 'Subtotal', value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -629,7 +650,7 @@ const Account = () => {
                                     {
                                       [
                                         {
-                                          name: t('Tips'), value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                          name: 'Tips', value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -641,7 +662,7 @@ const Account = () => {
                                           ).tips * 100) / 100
                                         },
                                         {
-                                          name: t('Tax'), value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                          name: 'Tax', value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -653,7 +674,7 @@ const Account = () => {
                                           ).tax * 100) / 100
                                         },
                                         {
-                                          name: t('Subtotal'), value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                          name: 'Subtotal', value: Math.round(orders.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -693,13 +714,13 @@ const Account = () => {
                             >
                               <thead>
                                 <tr>
-                                  <th className="order-number" style={isMobile ? {} : { width: "10%" }}>{t("Order")}</th>
-                                  <th className="order-name" style={isMobile ? {} : { width: "10%" }}>{t("Table")}</th>
-                                  <th className="order-status" style={isMobile ? {} : { width: "30%" }}>{t("Status")}</th>
-                                  <th className="order-total" style={isMobile ? {} : { width: "10%" }}>{t("Total")}</th>
-                                  <th className="order-dine-mode" style={isMobile ? {} : { width: "10%" }}>{t("Service")}</th>
-                                  <th className="order-date" style={isMobile ? {} : { width: "15%" }}>{t("Time")}</th>
-                                  <th className="order-details" style={isMobile ? {} : { width: "15%" }}>{t("Detail")}</th>
+                                  <th className="order-number" style={isMobile ? {} : { width: "10%" }}>Order</th>
+                                  <th className="order-name" style={isMobile ? {} : { width: "10%" }}>Table</th>
+                                  <th className="order-status" style={isMobile ? {} : { width: "30%" }}>Status</th>
+                                  <th className="order-total" style={isMobile ? {} : { width: "10%" }}>Total</th>
+                                  <th className="order-dine-mode" style={isMobile ? {} : { width: "10%" }}>Service</th>
+                                  <th className="order-date" style={isMobile ? {} : { width: "15%" }}>Time</th>
+                                  <th className="order-details" style={isMobile ? {} : { width: "15%" }}>Detail</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -711,7 +732,7 @@ const Account = () => {
 
                                       <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
                                         <td className="order-number" data-title="OrderID"><a >{order.id}</a></td>
-                                        <td className="order-name" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum}</td>
+                                        <td className="order-name" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum === "" ? "Takeout" : order.tableNum}</td>
                                         <td className="order-status" data-title="Status" style={{ whiteSpace: "nowrap" }}>{order.status}</td>
                                         <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="amount">{"$" + order.total}</span></td>
                                         <td className="order-dine-mode" data-title="Service" style={{ whiteSpace: "nowrap" }}>{order.dineMode}</td>
@@ -722,7 +743,7 @@ const Account = () => {
                                         </td>
                                         <td className="order-details" style={{ whiteSpace: "nowrap" }} data-title="Details">
                                           <button onClick={() => toggleExpandedOrderId(order.id)} style={{ cursor: "pointer" }}>
-                                            {expandedOrderIds.includes(order.id) ? t("Hide Details") : t("View Details")}
+                                            {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
                                           </button>
                                         </td>
                                       </tr>
@@ -735,13 +756,13 @@ const Account = () => {
                                               <p>{order.date}</p>
                                               {JSON.parse(order.receiptData).map((item, index) => (
                                                 <div className="receipt-item" key={item.id}>
-                                                  <p>{item.name} x {item.quantity} @ $ {item.subtotal} {t("each")} = $ {Math.round(item.quantity * item.subtotal * 100) / 100}</p>
+                                                  <p>{item.name} x {item.quantity} @ $ {item.subtotal} each = $ {Math.round(item.quantity * item.subtotal * 100) / 100}</p>
                                                 </div>
                                               ))}
-                                              <p>{t("Subtotal")}: $ {order.metadata.subtotal}</p>
-                                              <p>{t("Tax")}: $ {order.metadata.tax}</p>
-                                              <p>{t("Tips")}: $ {order.metadata.tips}</p>
-                                              <p>{t("Total")}: $ {order.metadata.total}</p>
+                                              <p>Subtotal: $ {order.metadata.subtotal}</p>
+                                              <p>Tax: $ {order.metadata.tax}</p>
+                                              <p>Tips: $ {order.metadata.tips}</p>
+                                              <p>Total: $ {order.metadata.total}</p>
                                             </div>
                                           </td>
                                         </tr>

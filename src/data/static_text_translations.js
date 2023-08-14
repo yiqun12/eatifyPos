@@ -1,6 +1,6 @@
 export const static_translations = {  "PROFILE": {
     "en": "PROFILE",
-    "ch": "轮廓"
+    "ch": "个人信息"
   },
   "person": {
     "en": "person",
@@ -340,7 +340,7 @@ export const static_translations = {  "PROFILE": {
   },
   "Profile": {
     "en": "Profile",
-    "ch": "轮廓"
+    "ch": "个人信息"
   },
   "Revenue Chart": {
     "en": "Revenue Chart",

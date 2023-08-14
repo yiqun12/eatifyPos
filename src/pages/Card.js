@@ -106,7 +106,7 @@ const Card = () => {
     <div>
 
 
-    <div className='max-w-[1000px] mx-auto p-4 py-12 grid md:grid-cols-1 gap-6'>
+    <div className='max-w-[1000px] mx-auto p-2 py-12 grid md:grid-cols-1 gap-6'>
 
         <div className='rounded-xl relative hover:scale-105 duration-500 cursor-pointer'>
             <div className='absolute w-full h-full bg-black/50 rounded-xl text-white'>

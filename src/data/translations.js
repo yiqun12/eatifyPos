@@ -1197,7 +1197,7 @@ export const translations = {
   },
   "PROFILE": {
     "en": "PROFILE",
-    "ch": "轮廓"
+    "ch": "个人信息"
   },
   "person": {
     "en": "person",
@@ -1537,7 +1537,7 @@ export const translations = {
   },
   "Profile": {
     "en": "Profile",
-    "ch": "轮廓"
+    "ch": "个人信息"
   },
   "Revenue Chart": {
     "en": "Revenue Chart",
@@ -1601,7 +1601,7 @@ export const translations = {
   },
   "Status": {
     "en": "Status",
-    "ch": "地位"
+    "ch": "支付情况"
   },
   "Service": {
     "en": "Service",

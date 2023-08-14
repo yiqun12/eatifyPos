@@ -1,80 +1,87 @@
 {
-  "name": "react-firebase-auth",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5",
-    "@fortawesome/fontawesome-svg-core": "^6.3.0",
-    "@fortawesome/free-solid-svg-icons": "^6.3.0",
-    "@fortawesome/react-fontawesome": "^0.2.0",
-    "@mui/icons-material": "^5.11.0",
-    "@react-icons/all-files": "^4.1.0",
-    "@stripe/react-stripe-js": "^1.16.1",
-    "@stripe/stripe-js": "^1.46.0",
-    "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^11.2.7",
-    "@testing-library/user-event": "^12.8.3",
-    "axios": "^1.4.0",
-    "bootstrap": "^5.2.3",
-    "chart.js": "^3.7.0",
-    "colorthief": "^2.3.2",
-    "cors": "^2.8.5",
-    "dompurify": "^2.4.3",
-    "fabric": "^5.3.0",
-    "firebase": "^9.1.3",
-    "firebaseui": "^6.0.2",
-    "flowbite": "^1.6.3",
-    "flowbite-react": "^0.3.8",
-    "font-awesome": "^4.7.0",
-    "framer-motion": "^7.6.15",
-    "fs": "^0.0.1-security",
-    "i": "^0.3.7",
-    "mdb-react-ui-kit": "^5.1.0",
-    "mobiscroll": "^3.0.0-beta6",
-    "moment": "^2.29.4",
-    "qrcode.react": "^3.1.0",
-    "react": "^18.2.0",
-    "react-bootstrap": "^2.7.0",
-    "react-datepicker": "^4.10.0",
-    "react-device-detect": "^2.2.3",
-    "react-dom": "^18.2.0",
-    "react-icons": "^4.7.1",
-    "react-image-crop": "^10.1.5",
-    "react-resize-detector": "^9.1.0",
-    "react-responsive-carousel": "^3.2.23",
-    "react-router-dom": "^6.5.0",
-    "react-scripts": "^5.0.1",
-    "react-swipeable-views-react-18-fix": "^0.14.1",
-    "react-use-gesture": "^9.1.3",
-    "recharts": "^2.4.3",
-    "semantic-ui-react": "^2.1.4",
-    "stripe": "^11.5.0",
-    "use-local-storage-state": "^18.1.2",
-    "web-vitals": "^1.1.2"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+    "name": "react-firebase-auth",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+        "@emotion/react": "^11.10.5",
+        "@emotion/styled": "^11.10.5",
+        "@fortawesome/fontawesome-svg-core": "^6.3.0",
+        "@fortawesome/free-solid-svg-icons": "^6.3.0",
+        "@fortawesome/react-fontawesome": "^0.2.0",
+        "@mui/icons-material": "^5.11.0",
+        "@react-icons/all-files": "^4.1.0",
+        "@stripe/react-stripe-js": "^1.16.1",
+        "@stripe/stripe-js": "^1.46.0",
+        "@testing-library/jest-dom": "^5.14.1",
+        "@testing-library/react": "^11.2.7",
+        "@testing-library/user-event": "^12.8.3",
+        "axios": "^1.4.0",
+        "bootstrap": "^5.2.3",
+        "chart.js": "^3.7.0",
+        "colorthief": "^2.3.2",
+        "cors": "^2.8.5",
+        "dompurify": "^2.4.3",
+        "fabric": "^5.3.0",
+        "firebase": "^9.1.3",
+        "firebaseui": "^6.0.2",
+        "flowbite": "^1.6.3",
+        "flowbite-react": "^0.3.8",
+        "font-awesome": "^4.7.0",
+        "framer-motion": "^7.6.15",
+        "fs": "^0.0.1-security",
+        "i": "^0.3.7",
+        "mdb-react-ui-kit": "^5.1.0",
+        "mobiscroll": "^3.0.0-beta6",
+        "moment": "^2.29.4",
+        "qrcode.react": "^3.1.0",
+        "react": "^18.2.0",
+        "react-bootstrap": "^2.7.0",
+        "react-datepicker": "^4.10.0",
+        "react-device-detect": "^2.2.3",
+        "react-dom": "^18.2.0",
+        "react-error-overlay": "^6.0.11",
+        "react-icons": "^4.7.1",
+        "react-image-crop": "^10.1.5",
+        "react-resize-detector": "^9.1.0",
+        "react-responsive-carousel": "^3.2.23",
+        "react-router-dom": "^6.5.0",
+        "react-scripts": "^5.0.1",
+        "react-swipeable-views-react-18-fix": "^0.14.1",
+        "react-swiper": "^0.1.5",
+        "react-use-gesture": "^9.1.3",
+        "recharts": "^2.4.3",
+        "semantic-ui-react": "^2.1.4",
+        "stripe": "^11.5.0",
+        "swiper": "^10.1.0",
+        "use-local-storage-state": "^18.1.2",
+        "web-vitals": "^1.1.2"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "env-cmd": "^10.1.0"
+    }
 }

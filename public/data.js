@@ -1,4 +1,4 @@
 var data = {
-    title: "Welcome to my website",
-    favicon: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png'
+    title: "EatifyDash",
+    favicon: 'https://cdn.discordapp.com/attachments/1140150068108873809/1140196259681030264/logo_eatifydash2-removebg-preview.png'
 };

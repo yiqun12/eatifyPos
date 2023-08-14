@@ -4,16 +4,10 @@ import { motion, AnimatePresence } from "framer-motion"
 import Button from 'react-bootstrap/Button';
 import { BsPlusCircle } from 'react-icons/bs';
 import './Food.css';
-import chicken from './Chicken.png';
-import salad from './salad.png'
-import burger from './burger.png'
-import pizza from './pizza.png'
-import all from './all_food.png'
 import $ from 'jquery';
 import './fooddropAnimate.css';
 import { useMyHook } from './myHook';
 import { useMemo } from 'react';
-import plusSvg from './plus.svg';
 import { ReactComponent as PlusSvg } from './plus.svg';
 import { ReactComponent as MinusSvg } from './minus.svg';
 
@@ -88,16 +82,6 @@ const Food = () => {
 
   /**dorp food */
 
-
-
-  const charSet = [
-    {
-      "pizza": pizza,
-      "salad": salad,
-      "burger": burger,
-      "chicken": chicken
-    }
-  ];
 
   const [width, setWidth] = useState(window.innerWidth - 64);
 
@@ -261,7 +245,7 @@ const Food = () => {
   const t = useMemo(() => {
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const translationsMode = sessionStorage.getItem("translationsMode")
-    settranslationsMode_(sessionStorage.getItem("translationsMode"))
+   settranslationsMode_(sessionStorage.getItem("translationsMode"))
     return (text) => {
       if (trans != null && translationsMode != null) {
         if (trans[text] != null && trans[text][translationsMode] != null) {
@@ -424,7 +408,7 @@ const Food = () => {
         justifyContent: 'space-between',
       }}
     >
-      <div className='m-1'>{t("SEARCH & CATEGORY:")}</div>
+      <div className=''>{JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Name} {t("@ ")}{JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address}</div>
 
       <div style={{ marginLeft: "15px" }}>{isMobile ? JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address : ""}</div>
 
@@ -473,7 +457,9 @@ const Food = () => {
           {isOpen ? t('OPEN') : t('CLOSED')}
         </b>
       </div>
-      <BusinessHoursTable storeStatus={isOpen} ></BusinessHoursTable>
+      <div style={{paddingTop:"10px","cursor":"pointer"}}>
+      <BusinessHoursTable  storeStatus={isOpen} ></BusinessHoursTable>
+      </div>
     </div>
   </div>
 )}
@@ -488,7 +474,7 @@ const Food = () => {
       <div style={{    display: "flex",
     width: "100%",
     justifyContent: "space-between"}}>
-      <div>{JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address}</div>
+      <div>{JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Name}</div>
 
       <div style={{ marginLeft: "20px", width: "30%", textAlign: "right" }}>
                 <div>
@@ -511,7 +497,7 @@ const Food = () => {
 
       {/* bottom parent div */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
-    <div className='m-1 mt-2'>{t("SEARCH & CATEGORY:")}</div>
+    <div className='mt-2'>{JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address}</div>
     <b style={{marginLeft: "auto"}}>
     <b 
         style={{ 
@@ -556,14 +542,14 @@ const Food = () => {
             {/* end of the top */}
             <div className="mt-2 scrolling-wrapper-filter">
               
-              <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-zinc-900	 hover:text-white border rounded-xl px-2 py-2' style={{ display: "inline-block" }}><div>{t("All")}</div></button>
+              <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-gray-100	 hover:text-black border rounded-xl px-2 py-2' style={{ display: "inline-block" }}><div>{t("All")}</div></button>
 
               {foodTypes.map((foodType) => (
 
                 <button
                   key={foodType}
                   onClick={() => filterType(foodType)}
-                  className='m-1 border-black-600 text-black-600 hover:bg-zinc-900 hover:text-white border rounded-xl px-2 py-2'
+                  className='m-1 border-black-600 text-black-600 hover:bg-gray-100 hover:text-black border rounded-xl px-2 py-2'
                   style={{ display: "inline-block" }}>
                     <div>
                   {t(foodType.charAt(0).toUpperCase() + foodType.slice(1))}
@@ -577,7 +563,7 @@ const Food = () => {
 
         {/* diplay food */}
         <AnimatePresence>
-          <div className={isMobile?'grid grid-cols-2 lg:grid-cols-4 gap-x-3 pt-3':'grid grid-cols-2 lg:grid-cols-4 gap-6'}>
+          <div className={isMobile?'grid grid-cols-1 gap-3 pt-2':'grid lg:grid-cols-2 gap-3'}>
             {foods.map((item, index) => (
               <motion.div
                 layout
@@ -587,15 +573,19 @@ const Food = () => {
                 transition={{ duration: 0.1 }}
                 key={item.id}
                 className=" rounded-lg duration-500 cursor-pointer">
-                <div class="h-min overflow-hidden rounded-md">
-                  <img loading="lazy" class="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
+                  <div className='flex'>
+                    <div style={{width:"40%"}}>
+                    <div class="h-min overflow-hidden rounded-md">
+                  <img loading="lazy" class="w-full h-[80px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[95px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
                 </div>
-                <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full'>
+                    </div>
+<div  style={{width:"60%"}}>
+<div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full'>
 
 {/* parent div of title + quantity and button parent div */}
 <div className="col-span-4" style={{display: "flex", flexDirection: "column", justifyContent: "space-between"}}>
 <div className="col-span-4">
-  <p className=' mb-1'>{translationsMode_==="en"?item.name:item.CHI}</p>
+  <p className=' mb-1'>{translationsMode_==="ch"?item.CHI:item.name}</p>
 </div>
 
 {/* parent div of the quantity and buttons */}
@@ -718,12 +708,7 @@ const Food = () => {
                               </button>
                             </div>
                           </div>
-
                         </div>
-
-
-
-
                       </>
 
                     }
@@ -731,14 +716,14 @@ const Food = () => {
 
 </div>
 {/* ^ end of parent div of quantity and button */}
-
 </div>
 {/* ^ end of parent div of title + quantity and buttons */}
-
                 </div>
-
                 {/* This is Tony added code */}
-                {/* <Button variant="light" style={divStyle} onClick={() => printDescription(item.name)}> <AiFillPlusCircle/> </Button> */}
+</div>
+                  </div>
+
+             
 
               </motion.div>
             ))}

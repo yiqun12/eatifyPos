@@ -32,8 +32,10 @@ import { translations } from './data/translations.js'
 // import businessHours
 import { businessHours } from "./data/businessHours";
 
-// import timezone offsets
+/// import timezone offsets
 import { timeZones } from "./data/timeZones"
+import Food from './pages/Food'
+import Footer_ from './pages/Footer'
 
 // import the time change page for testing
 import ChangeTimeForm from "./pages/ChangeTimeForm"
@@ -110,10 +112,7 @@ function App() {
       setLoading(false);
     }
   }, []);
-  useEffect(() => {
 
-    document.title = JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Name
-  }, []);
   if (loading && user_loading) {
     return <p>  <div className="pan-loader">
       Loading...
@@ -186,13 +185,14 @@ function App() {
       <Route exact path="/test_admin_new" element={<Admin_new />} />
 
               {user ? <Route path="ForgotPassword" element={<Account />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
+              <Route exact path="/ParkAsia" element={<Food />} />
               <Route path='*' exact={true} element={<Home />} />
               <Route exact path="/" element={<Home />} />
             </Routes>
-            <footer style={{ 'height': "100px", 'color': 'transparent', 'userSelect': 'none' }}>
-              void
-            </footer>
 
+<Footer_>
+  
+</Footer_>
           </MyHookProvider>
         </BrowserRouter>
       </div>

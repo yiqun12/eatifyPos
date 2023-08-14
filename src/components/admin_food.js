@@ -8,9 +8,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
+
 import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
 import axios from 'axios';
 import firebase from 'firebase/compat/app';
@@ -499,9 +497,7 @@ const handleFileChangeAndUpload = async (event) => {
                       marginRight: '10px',   // added some margin to the right of the image
                       marginTop: "5px"
                     }} />
-                  <FormGroup>
-                    <FormControlLabel control={<Switch defaultChecked />} label={t("Support payment")} />
-                  </FormGroup>
+
                   <form onSubmit={handleClickLogo} style={{ display: "flex", alignItems: "center" }}>
                     <TextField
                       margin="normal"

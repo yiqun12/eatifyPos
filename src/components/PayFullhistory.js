@@ -157,7 +157,7 @@ function PayFullhistory() {
 
               <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
                 <td className="order-number" data-title="OrderID"><a >{order.id.substring(0, 3)}</a></td>
-                <td className="order-name" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum}</td>
+                <td className="order-name" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum===""?"Takeout":order.tableNum}</td>
                 <td className="order-status" data-title="Status" style={{ whiteSpace: "nowrap" }}>{order.status}</td>
                 <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="amount">{"$" + order.total}</span></td>
                 <td className="order-dine-mode" data-title="Service" style={{ whiteSpace: "nowrap" }}>{order.dineMode}</td>

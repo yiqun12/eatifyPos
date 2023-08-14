@@ -224,11 +224,11 @@ function grabDayTime(dayTimeObject) {
       </Button> } */}
 
 {storeStatus ? 
-  <div onClick={handleShow} className="responsive-text" style={{ color: 'blue', textDecoration: 'underline' }}>
+  <div onClick={handleShow} className="responsive-text" style={{ cursor:"pointer",color: 'gray', textDecoration: 'underline', textUnderlineOffset: '0.5em' }}  >
     {`${t("Until")} ` + (grabDayTime(getNextCloseTimeRange()))}
   </div> 
   : 
-  <div onClick={handleShow} className="responsive-text" style={{ color: 'blue', textDecoration: 'underline' }}>
+  <div onClick={handleShow} className="responsive-text" style={{ cursor:"pointer",color: 'gray', textDecoration: 'underline', textUnderlineOffset: '0.5em' }} >
     {`${t("Until")} ` + (grabDayTime(getNextOpenTimeRange()))}
     {/* See Time */}
   </div>

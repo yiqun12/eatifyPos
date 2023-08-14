@@ -130,7 +130,7 @@ const App = () => {
 
   return (
 
-    <div className='max-w-[1000px] mx-auto p-4 '>
+    <div className='max-w-[1000px] mx-auto p-2 '>
       {isLoading?
     <>{t("Cart is empty... Redirecting back to home page")}</>:
     

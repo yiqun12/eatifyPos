@@ -580,28 +580,27 @@ const Navbar = () => {
         </div>
       </div>
       {/**navbar */}
-
+      <div className={"mx-auto sticky top-0 bg-white z-10"}>
       <div className={!isMobile ? "max-w-[1000px] mx-auto justify-between sticky top-0 bg-white z-10" : "sticky top-0 z-10 justify-between bg-white"}>
 
         <div className="col-span-4 pl-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
           <img onClick={event => window.location.href = '/'}
-            src={JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Logo}
+            src="https://cdn.discordapp.com/attachments/1140150068108873809/1140196259681030264/logo_eatifydash2-removebg-preview.png"
             alt=""
             style={{
-              maxHeight: '60px',
-              maxWidth: '60px',
+              maxHeight: '50px',
+              maxWidth: '50px',
               borderRadius: '50%',  // this makes the image round
               objectFit: 'cover',   // this makes the image co0ver the entire dimensions
               marginRight: '10px',   // added some margin to the right of the image
-              marginTop: "5px"
             }} />
-          <div className='flex' style={{ flexDirection: "column" }}>
+          <div className='flex' style={{ marginTop:"15px",flexDirection: "column" }}>
             <span onClick={event => window.location.href = '/'} style={{ marginTop: "0px" }}>
-              {JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Name}
+            {t("EatifyDash")} 
+            <p>
+            {t("Quick, Safe, and Secure")}
+            </p>
             </span>
-            {isMobile ? <></> : <div onClick={event => window.location.href = '/'}>{JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0].Address}</div>}
-
-
           </div>
 
           <div className='flex ml-auto pr-4'>
@@ -622,7 +621,7 @@ const Navbar = () => {
 
       </div>
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-
+      </div>
     </>
   )
 }
