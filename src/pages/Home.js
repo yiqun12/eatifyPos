@@ -37,19 +37,29 @@ const Account = () => {
         </section>
         <section class="flex_content_ padding_2x_">
           <article>
-            <h2 class="medium_">Let's make your Interior better.</h2>
-            <p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration
-              in some form, by injected humour, or randomised words which don't look even slightly believable. If you are
-              going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the
-              middle of text. </p>
+            <h2 class="medium_">Change, Starting with Scan-to-Order</h2>
+            <p>
+            Eatifydash is a digital solution platform 
+              that empowers restaurants with AI-driven 
+              digital tools for scan-to-order convenience.
+              By leveraging advanced AI technologies from 
+              Google, we allow you to set up your 
+               bilingual image-integrated
+               scan-to-order tools in less than 5 minutes.
+               With multilingual support and instant bilingual 
+               receipt printing, Eatifydash effectively 
+               mitigates language barriers. We provide the most popular payment options:
+              WeChat Pay, Ali Pay, Visa, Mastercard, Amex, Apple Pay, and Google Pay. 
+               We help you bypass 20% commision fees from  Uber and DoorDash.
+ </p>
             <aside class="fixed_flex_">
               <span>
-                <h4 class="title small_">200+</h4>
-                <p>New Furnitures</p>
+              <h4 class="title small_">Free</h4>
+                <p>Starter Plan</p>
               </span>
               <span>
                 <h4 class="title small_">100+</h4>
-                <p>Recycled Products</p>
+                <p>Average Daily Sale</p>
               </span>
             </aside>
           </article>
@@ -64,34 +74,34 @@ const Account = () => {
 
 
           <div class={isPhone ? "container mb-5 mt-5" : "container mb-5 mt-5 flex"}>
-            <div class="card card-pricing text-center px-3 mb-4" style={isPhone ? {} : { width: "40%", marginLeft: "5%" }}>
+            <div class="popular shadow card card-pricing text-center px-3 mb-4" style={isPhone ? {} : { width: "40%", marginLeft: "5%" }}>
               <span class="h6 mx-auto px-4 py-1 rounded-bottom bg-primary text-white shadow-sm" style={{ width: "90%" }}>Starter</span>
               <div class="bg-transparent card-header pt-4 border-0">
-                <h1 class="h1 font-weight-normal text-primary text-center mb-0" data-pricing-value="15">$<span class="price">3</span><span class="h6 text-muted ml-2">/ per month</span></h1>
               </div>
               <div class="card-body pt-0">
                 <ul class="list-unstyled mb-4">
-                  <li>Up to 5 users</li>
-                  <li>Basic support on Github</li>
-                  <li>Monthly updates</li>
-                  <li>Free cancelation</li>
+                  <li>Billingual Menu Generation</li>
+                  <li>Custom QR Code Creation</li>
+                  <li>Cloud Data Sync</li>
+                  <li>Cloud Printer</li>
+                  <li>Remote Engineer Support</li>
                 </ul>
-                <button type="button" class="btn btn-outline-secondary mb-3">Order now</button>
+                <button type="button" class="btn btn-outline-primary mb-3">Order now</button>
               </div>
             </div>
-            <div class="popular shadow card card-pricing text-center px-3 mb-4" style={isPhone ? {} : { width: "40%", marginLeft: "10%" }}>
+            <div class="card card-pricing text-center px-3 mb-4" style={isPhone ? {} : { width: "40%", marginLeft: "10%" }}>
               <span class="h6 mx-auto px-4 py-1 rounded-bottom bg-primary text-white shadow-sm" style={{ width: "90%" }}>Professional</span>
               <div class="bg-transparent card-header pt-4 border-0">
-                <h1 class="h1 font-weight-normal text-primary text-center mb-0" data-pricing-value="30">$<span class="price">6</span><span class="h6 text-muted ml-2">/ per month</span></h1>
               </div>
               <div class="card-body pt-0">
                 <ul class="list-unstyled mb-4">
-                  <li>Up to 5 users</li>
-                  <li>Basic support on Github</li>
-                  <li>Monthly updates</li>
-                  <li>Free cancelation</li>
+                <li>Must Enroll in Starter Plan</li>
+                  <li>We Provide Payment Support</li>
+                  <li>+ ML based Fraud Protection</li>
+                  <li>+ 24/7/365 Customer Care</li>
+                  <li>(Bank Rate + 1% + $0.20)</li>
                 </ul>
-                <a href="https://www.totoprayogo.com" target="_blank" class="btn btn-primary mb-3">Order Now</a>
+                <a href="https://www.totoprayogo.com" target="_blank" class="btn btn-secondary mb-3">Order Now</a>
               </div>
             </div>
           </div>
@@ -273,8 +283,23 @@ const Account = () => {
             Eatifydash is power by...
           </h2>
 </div>
-<img src={"https://media.discordapp.net/attachments/759102082849833000/1140546486325739600/image.png?width=818&height=335"}></img>
 
+          <div class="mb-30" style={{ marginLeft: "5%", marginRight: "5%" }}>
+            <div class="card_demo">
+
+              <div className='flex'>
+                <img class="" style={{
+                  width: "200px",
+                }} src={"https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Stripe_Logo%2C_revised_2016.svg/2560px-Stripe_Logo%2C_revised_2016.svg.png"} />
+                 <img class="" style={{
+                  width: "200px", 
+                }} src={"https://static.wixstatic.com/media/0e0b22_c59900cb36a946aeb236abc7ae86559f~mv2.png/v1/fill/w_234,h_79,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/google-logo-9834.png"} />
+
+              </div>
+
+            </div>
+
+          </div>
 
         </div>
 
@@ -291,8 +316,7 @@ const Account = () => {
           </div>
           <h3>Yiqun Xu</h3>
           <div>Co-founder @ New York</div>
-          <div>Market Strategist & Developer</div>
-          <div>Lehigh University Alumni</div>
+          <div>UC Davis Alumni</div>
         </div>
       </div>
 
@@ -305,7 +329,6 @@ const Account = () => {
           </div>
           <h3>Yutao Li</h3>
           <div>Co-founder @ San Francisco </div>
-          <div>Market Strategist & Developer</div>
           <div>UC Davis Alumni</div>
         </div>
       </div>
