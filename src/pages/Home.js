@@ -273,41 +273,45 @@ const Account = () => {
             Eatifydash is power by...
           </h2>
 </div>
+<img src={"https://media.discordapp.net/attachments/759102082849833000/1140546486325739600/image.png?width=818&height=335"}></img>
 
-          <div class="mb-30" style={{ marginLeft: "5%", marginRight: "5%" }}>
-            <div class="card_demo">
-
-              <div className='flex'>
-                <img class="" style={{
-                  width: "200px",
-                }} src={"https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Stripe_Logo%2C_revised_2016.svg/2560px-Stripe_Logo%2C_revised_2016.svg.png"} />
-                 <img class="" style={{
-                  width: "200px", 
-                }} src={"https://static.wixstatic.com/media/0e0b22_c59900cb36a946aeb236abc7ae86559f~mv2.png/v1/fill/w_234,h_79,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/google-logo-9834.png"} />
-
-              </div>
-
-            </div>
-
-          </div>
 
         </div>
 
 
       </div>
+          <div className={'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 '}>
 
-      <div class="col-md-4 col-sm-6">
+      <div class="">
         <div class="speaker">
           <div class="speaker-info">
             <div class="speaker-photo">
-              <img src={"https://randomuser.me/api/portraits/women/58.jpg"} />
+              <img src={"https://cdn.discordapp.com/attachments/759102082849833000/1140539212408573962/F8A37758-99C2-4718-B1D1-22E9653B78BA.jpg"} />
             </div>
           </div>
-          <h3>Michele Doe</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+          <h3>Yiqun Xu</h3>
+          <div>Co-founder @ New York</div>
+          <div>Market Strategist & Developer</div>
+          <div>Lehigh University Alumni</div>
         </div>
       </div>
 
+      <div class="">
+        <div class="speaker">
+          <div class="speaker-info">
+            <div class="speaker-photo">
+              <img src={"https://cdn.discordapp.com/attachments/759102082849833000/1140521446972608573/goodLinkedInImage_-_Copy.jpg"} />
+            </div>
+          </div>
+          <h3>Yutao Li</h3>
+          <div>Co-founder @ San Francisco </div>
+          <div>Market Strategist & Developer</div>
+          <div>UC Davis Alumni</div>
+        </div>
+      </div>
+
+
+      </div>
 
 
 
