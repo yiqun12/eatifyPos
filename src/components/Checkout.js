@@ -18,9 +18,11 @@ import Link from '@mui/material/Link';
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import multipleCard from './mutiple_card.png';
 import { MDBCheckbox } from 'mdb-react-ui-kit';
+import { useParams } from 'react-router-dom';
 
 function Checkout(props) {
-  
+  const { store } = useParams();
+  console.log(store)
   const [receiptToken, setReceiptToken] = useState("");
 
   useEffect(() => {
@@ -79,6 +81,7 @@ function Checkout(props) {
     const dateTime = new Date().toISOString();
     const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
     const data = {
+      store,
       payment_method: 'wechat_pay',
       currency,
       amount: amount,
@@ -145,6 +148,7 @@ function Checkout(props) {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const data = {
+        store,
         payment_method: paymentMethodId,
         currency,
         amount: amount,
@@ -315,6 +319,7 @@ function Checkout(props) {
           const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
           //console.log(form.get('payment-method'))
           const data = {
+            store,
             payment_method: form.get('payment-method'),
             currency,
             amount: amount,
@@ -465,7 +470,8 @@ function Checkout(props) {
   );
 };
 function CardSection(props) {
-
+  const { store } = useParams();
+  console.log(store)
   const [newCardAdded, setNewCardAdded] = useState(false);
 
   const handleAddNewCard = () => {
@@ -591,6 +597,7 @@ function CardSection(props) {
     const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
     console.log(amount)
     const data = {
+      store,
       payment_method: paymentMethodId,
       currency,
       amount,
@@ -757,6 +764,8 @@ function useMobileAndTabletCheck() {
 }
 
 function PayHistory(props) {
+  const { store } = useParams();
+  console.log(store)
   const { user, user_loading} = useUserContext();
   const { totalPrice, tips } = props;
 
@@ -789,6 +798,7 @@ function PayHistory(props) {
     const dateTime = new Date().toISOString();
     const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
     const data = {
+      store,
       payment_method: 'alipay',
       currency,
       amount: amount,
@@ -850,8 +860,8 @@ function PayHistory(props) {
     sessionStorage.setItem('docid', docId)
     const { error, paymentIntent } = await stripe.confirmAlipayPayment(
       payment.client_secret, {
-      return_url: `${window.location.origin}/checkout?return=true`,
-    })
+        return_url: `${window.location.origin}/store/${store}/checkout?return=true`,
+      })
 
     if (error) {
       alert(error.message);
@@ -1148,6 +1158,7 @@ function PayHistory(props) {
 
       
         const data = {
+          store,
           payment_method: 'instore_pay',
           currency,
           amount: amount,

@@ -530,9 +530,9 @@ export const static_translations = {  "PROFILE": {
     "en": "ENGLISH",
     "ch": "英语"
   },
-  "Crusine Name": {
-    "en": "Crusine Name",
-    "ch": "船名"
+  "Cuisine Name": {
+    "en": "Cuisine Name",
+    "ch": "菜名"
   },
   "Auto Fill Chinese": {
     "en": "Auto Fill Chinese",
@@ -540,19 +540,113 @@ export const static_translations = {  "PROFILE": {
   },
   "CHINESE": {
     "en": "CHINESE",
-    "ch": "中国人"
+    "ch": "中文"
+  },  "Professional": {
+    "en": "Professional",
+    "ch": "专业计划"
+},"Bilingual Menu Generation": {
+  "en": "Bilingual Menu Generation",
+  "ch": "双语菜单生成"
+},
+  "Eatifydash is a digital solution platform that empowers restaurants with AI-driven digital tools for scan-to-order convenience. By leveraging advanced AI technologies from Google, we allow you to set up your bilingual image-integrated scan-to-order tools in less than 5 minutes. With multilingual support and instant bilingual receipt printing, Eatifydash effectively mitigates language barriers. We provide the most popular payment options: WeChat Pay, AliPay, Visa, Mastercard, Amex, Apple Pay, and Google Pay. We help you bypass 20% commision fees from  Uber and DoorDash.":{
+    "en": "Eatifydash is a digital solution platform that empowers restaurants with AI-driven digital tools for scan-to-order convenience. By leveraging advanced AI technologies from Google, we allow you to set up your bilingual image-integrated scan-to-order tools in less than 5 minutes. With multilingual support and instant bilingual receipt printing, Eatifydash effectively mitigates language barriers. We provide the most popular payment options: WeChat Pay, AliPay, Visa, Mastercard, Amex, Apple Pay, and Google Pay. We help you bypass 20% commision fees from  Uber and DoorDash.",
+    "ch": "Eatifydash是一个数字化解决方案平台,借助AI驱动的数字工具为餐厅提供扫码点餐的便利。我们利用Google的先进人工智能技术,使您能够在不到5分钟内设置您的双语图像集成扫码点餐工具。凭借多语言支持和即时双语收据打印,Eatifydash有效地减少了语言障碍。我们提供最受欢迎的支付方式:微信支付,支付宝,Visa,Mastercard,Amex,Apple Pay和Google Pay。我们帮助您避免Uber和DoorDash的20%佣金费用。"
   },
+  "Change, Starting with Scan-to-Order": {
+    "en": "Change, Starting with Scan-to-Order",
+    "ch": "变革，从扫码点餐开始"
+  },
+  "Set it up in less than 5 minutes": {
+    "en": "Set it up in less than 5 minutes",
+    "ch": "现在设置你的菜单"
+  },
+  "Free Starter": {
+    "en": "Free Starter",
+    "ch": "免费试用"
+  },
+  "Bilingual Menu Generation": {
+    "en": "Bilingual Menu Generation",
+    "ch": "双语菜单生成"
+},
+"Custom QR Code Creation": {
+  "en": "Custom QR Code Creation",
+  "ch": "自定义二维码创建"
+},
+"Cloud Data Sync": {
+  "en": "Cloud Data Sync",
+  "ch": "云数据同步"
+},
+"Cloud Printer": {
+  "en": "Cloud Printer",
+  "ch": "云打印机"
+},
+"Remote Engineer Support": {
+  "en": "Remote Engineer Support",
+  "ch": "远程工程师支持"
+},
+"Must Enroll in Starter Plan": {
+  "en": "Must Enroll in Starter Plan",
+  "ch": "必须注册初级计划"
+},
+"We Provide Payment Support": {
+  "en": "We Provide Payment Support",
+  "ch": "我们提供支付支持"
+},
+"+ ML based Fraud Protection": {
+  "en": "+ ML based Fraud Protection",
+  "ch": "+ 基于机器学习的欺诈保护"
+},
+"+ 24/7/365 Customer Care": {
+  "en": "+ 24/7/365 Customer Care",
+  "ch": "+ 24/7/365 客户服务"
+},
+"(Bank Rate + 1% + $0.20 per Order)": {
+  "en": "(Bank Rate + 1% + $0.20 per Order)",
+  "ch": "(银行费率 + 1% + 每单$0.20)"
+},
+"QR Code Ordering": {
+  "en": "QR Code Ordering",
+  "ch": "二维码点餐"
+},
+"Cloud Printing": {
+  "en": "Cloud Printing",
+  "ch": "云打印"
+},
+"Multiple Payment Options": {
+  "en": "Multiple Payment Options",
+  "ch": "多种支付选项"
+},
+"24/7 Customer Service": {
+  "en": "24/7 Customer Service",
+  "ch": "24/7 客户服务"
+},
+"Free Updates": {
+  "en": "Free Updates",
+  "ch": "免费更新"
+},
+"Free Trial": {
+  "en": "Free Trial",
+  "ch": "免费试用"
+},
+"ML Anti-Fraud": {
+  "en": "ML Anti-Fraud",
+  "ch": "机器学习反欺诈"
+},
+"AI menu creation": {
+  "en": "AI menu creation",
+  "ch": "人工智能菜单创建"
+},
   "Auto Fill English": {
     "en": "Auto Fill English",
     "ch": "自动填写英文"
   },
   "Priority": {
     "en": "Priority",
-    "ch": "优先事项"
+    "ch": "优先等级"
   },
   "Add New": {
     "en": "Add New",
-    "ch": "添新"
+    "ch": "添加新菜"
   },
   "Here are the images we've selected for you": {
     "en": "Here are the images we've selected for you",
@@ -566,6 +660,10 @@ export const static_translations = {  "PROFILE": {
     "en": "Update",
     "ch": "更新"
   },
+  "Available @ NY & SF": {
+    "en": "Available @ NY & SF",
+    "ch": "在NY和SF均可用"
+},
   "Continue with Google": {
     "en": "Continue with Google",
     "ch": "继续使用谷歌"

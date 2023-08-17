@@ -11,102 +11,11 @@ import { useMemo } from 'react';
 import { ReactComponent as PlusSvg } from './plus.svg';
 import { ReactComponent as MinusSvg } from './minus.svg';
 import { FiSearch } from 'react-icons/fi';
-import { collection, getDocs } from "firebase/firestore";
-import { db } from '../firebase/index';
-import { useParams } from 'react-router-dom';
-import { query, where, limit } from "firebase/firestore";
+
 
 import BusinessHoursTable from './BusinessHoursTable.js'
 
 const Food = () => {
-  const [loading, setLoading] = useState(true);
-  const params = new URLSearchParams(window.location.search);
-  const { store } = useParams();
-  const storeValue = store ? store.toLowerCase() : "";
-  console.log("hello")
-  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
-
-  //console.log(user_loading)
-  if (tableValue === "") {
-    if (sessionStorage.getItem('table')) {//存在过
-      sessionStorage.setItem('isDinein', true)
-    } else {//不存在
-      sessionStorage.setItem('table', tableValue)
-      sessionStorage.setItem('isDinein', false)
-
-    }
-  } else {
-    sessionStorage.setItem('table', tableValue)
-    sessionStorage.setItem('isDinein', true)
-  }
-  //console.log(tableValue)
-  
-  //const data = 
-
-  const [data, setData] = useState([]);
-  const [storeInfo, setStoreInfo] = useState({});
-  const [foodTypes, setFoodTypes] = useState([]);
-  const [foodTypesCHI, setFoodTypesCHI] = useState([]);
-
-  const fetchPost = async (name) => {
-      // Define the query
-      const q = query(
-        collection(db, "TitleLogoNameContent"),
-        where("Name", "==", name), // Replace "nameField" with the name of the field in your Firestore document
-        limit(1)
-      );
-    
-      try {
-        // Execute the query
-        const querySnapshot = await getDocs(q);
-    
-        // Check if a document was found
-        if (!querySnapshot.empty) {
-          const docData = querySnapshot.docs[0].data();
-    
-          // Save the fetched data to sessionStorage
-          sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(docData));
-    
-          // Assuming you want to store the key from the fetched data as "Food_arrays"
-          sessionStorage.setItem("Food_arrays", docData.key);
-          setData(JSON.parse(docData.key))
-          setFoods(JSON.parse(docData.key))
-          setStoreInfo(docData)
-          setFoodTypes([...new Set(JSON.parse(docData.key).map(item => item.category))])
-          setFoodTypesCHI([...new Set(JSON.parse(docData.key).map(item => item.categoryCHI))])
-          console.log(JSON.parse(docData.key))
-          console.log([...new Set(JSON.parse(docData.key).map(item => item.category))])
-  //const foodTypes = [...new Set(JSON.parse(sessionStorage.getItem("Food_arrays")).map(item => item.category))];
-
-          // Check if the stored item is empty or non-existent, and handle it
-          if (!sessionStorage.getItem("Food_arrays") || sessionStorage.getItem("Food_arrays") === "") {
-            sessionStorage.setItem("Food_arrays", "[]");
-          }
-         // window.location.reload();
-        } else {
-          sessionStorage.setItem("TitleLogoNameContent", "{}");
-          sessionStorage.setItem("Food_arrays", "[]");
-         // window.location.reload();
-         setData([])
-         setFoods([])
-
-          console.log("No document found with the given name.");
-        }
-      } catch (error) {
-        sessionStorage.setItem("TitleLogoNameContent", "{}");
-        sessionStorage.setItem("Food_arrays", "[]");
-        // window.location.reload();
-        setData([])
-        setFoods([])
-
-        console.error("Error fetching the document:", error);
-      }
-    }
-
-    useEffect(() => {
-      fetchPost(storeValue);
-      //console.log("hello")
-  }, []); // <-- Empty dependency array
 
   const [numbers, setNumbers] = useState([0, 0, 0]);
 
@@ -198,12 +107,25 @@ const Food = () => {
     setTimeout(() => {
       cart.removeClass('rotate');
     }, 0);
+    /**
+    const left = Math.floor(Math.random() * width);
+    const emoji = charSet[0][category]
+    const add = `<img class="emoji" style="left: ${left}px;" src="${emoji}"/>`;
+    $(add).appendTo(".container").animate(
+      {
+        top: $(document).height()
+      },
+      3500,
+      function () {
+        $(this).remove();
+      }
+    );drop */
   };
   /**drop food */
 
-  //const data = JSON.parse(sessionStorage.getItem("Food_arrays"))
+  const data = JSON.parse(localStorage.getItem("food_arrays"))
 
-  const [foods, setFoods] = useState([]);
+  const [foods, setFoods] = useState(data);
 
   const filterType = (category) => {
     setFoods(
@@ -336,7 +258,7 @@ const Food = () => {
     };
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
   //const foodTypes = ['burger', 'pizza', 'salad', 'chicken'];
-  //const foodTypes = [...new Set(JSON.parse(sessionStorage.getItem("Food_arrays")).map(item => item.category))];
+  const foodTypes = translationsMode_==='ch'?[...new Set(JSON.parse(localStorage.getItem("food_arrays")).map(item => item.categoryCHI))]:[...new Set(JSON.parse(localStorage.getItem("food_arrays")).map(item => item.category))];
 
   // for businessHours
   const businessHours = JSON.parse(sessionStorage.getItem("businessHours"))
@@ -464,11 +386,6 @@ const Food = () => {
     // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
-  if (false ) {
-    return <p>  <div className="pan-loader">
-      Loading...
-    </div></p>;
-  } else {
 
 
   return (
@@ -492,9 +409,9 @@ const Food = () => {
                     justifyContent: 'space-between',
                   }}
                 >
-                  <div className=''>{storeInfo.Name} {t("@ ")}{storeInfo.Address}</div>
+                  <div className=''>{"Store Name"} {t("@ ")}{"Test Address"}</div>
 
-                  <div style={{ marginLeft: "15px" }}>{isMobile ? storeInfo.Address : ""}</div>
+                  <div style={{ marginLeft: "15px" }}>{isMobile ? "Test Address" : ""}</div>
 
 
                   <div className="flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full sm:w-[400px] items-center">
@@ -510,10 +427,10 @@ const Food = () => {
                   style={{ marginLeft: '20px', width: '30%', textAlign: 'right' }}
                 >
                   <div style={{ marginTop: '6px' }}>
-                    {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
+                    {"TableNum" != null && "TableNum" != "" ?
                       <b >
-                        <b style={{ backgroundColor: "#ff6161", borderRadius: "3px", padding: "3px", color: "white", }}>//red
-                          {sessionStorage.getItem('table')}
+                        <b style={{ backgroundColor: "#ff6161", borderRadius: "3px", padding: "3px", color: "white", }}>
+                          {"TableNum"}
                         </b>
                       </b> :
                       <></>
@@ -557,14 +474,14 @@ const Food = () => {
                     width: "100%",
                     justifyContent: "space-between"
                   }}>
-                    <div>{storeInfo.Name}</div>
+                    <div>{"Store Name"}</div>
 
                     <div style={{ marginLeft: "20px", width: "30%", textAlign: "right" }}>
                       <div>
-                        {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
+                        {"TableNum" != null && "TableNum"!= "" ?
                           <b >
-                            <b style={{ backgroundColor: "#ff6161", borderRadius: "3px", padding: "3px", color: "white", }}>//red
-                              {sessionStorage.getItem('table')}
+                            <b style={{ backgroundColor: "#ff6161", borderRadius: "3px", padding: "3px", color: "white", }}>
+                              {"TableNum"}
                             </b>
                           </b> :
                           <></>
@@ -580,7 +497,7 @@ const Food = () => {
 
                   {/* bottom parent div */}
                   <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className='mt-2'>{storeInfo.Address}</div>
+                    <div className='mt-2'>{"Test Address"}</div>
                     <b style={{ marginLeft: "auto" }}>
                       <b
                         style={{
@@ -627,7 +544,7 @@ const Food = () => {
 
               <button onClick={() => setFoods(data)} className='m-1 border-black-600 text-black-600 hover:bg-gray-100	 hover:text-black border rounded-xl px-2 py-2' style={{ display: "inline-block" }}><div>{t("All")}</div></button>
 
-              {translationsMode_==='ch'?foodTypesCHI:foodTypes.map((foodType) => (
+              {foodTypes.map((foodType) => (
 
                 <button
                   key={foodType}
@@ -635,7 +552,8 @@ const Food = () => {
                   className='m-1 border-black-600 text-black-600 hover:bg-gray-100 hover:text-black border rounded-xl px-2 py-2'
                   style={{ display: "inline-block" }}>
                   <div>
-                    {foodType && foodType.length>1?t(foodType.charAt(0).toUpperCase() + foodType.slice(1)):""}
+
+                    {foodType.charAt(0).toUpperCase() + foodType.slice(1)}
                   </div>
                 </button>
               ))}
@@ -819,7 +737,6 @@ const Food = () => {
       </div>
     </div>
   )
-}
 }
 
 export default Food

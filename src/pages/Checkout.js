@@ -29,7 +29,7 @@ const App = () => {
   let products = JSON.parse(sessionStorage.getItem("products"));
   useEffect(() => {
     products = JSON.parse(sessionStorage.getItem("products"));
-    
+    console.log( JSON.parse(sessionStorage.getItem("products")))
   }, [id]);
   /**check if its mobile/browser */
   const [width, setWidth] = useState(window.innerWidth);
@@ -105,9 +105,8 @@ const App = () => {
   useEffect(() => {
     if (totalPrice === 0) {
       setIsLoading(true);
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 2000);  // wait for 2 seconds before redirecting
+    }else{
+      setIsLoading(false);
     }
   }, [totalPrice]);
 

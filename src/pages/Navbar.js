@@ -107,6 +107,7 @@ const Navbar = () => {
     //maybe add a line here...
     const calculateTotalPrice = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
+      console.log(total)
       setTotalPrice(total);
     }
     calculateTotalPrice();
@@ -598,7 +599,7 @@ const Navbar = () => {
             <span onClick={event => window.location.href = '/'} style={{ marginTop: "0px" }}>
             {t("EatifyDash")} 
             <p>
-            {t("Quick, Safe, and Secure")}
+            {t("Quick, Safe & Secure")}
             </p>
             </span>
           </div>

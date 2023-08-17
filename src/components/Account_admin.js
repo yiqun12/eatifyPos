@@ -19,6 +19,8 @@ import { PieChart, Pie, Cell } from 'recharts';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
 
 const Account = () => {
   const [width2, setWidth2] = useState(0);
@@ -232,9 +234,136 @@ const Account = () => {
       </text>
     );
   };
+  //modal
+  const [TitleLogoNameContent, setTitleLogoNameContent] = useState(JSON.parse(sessionStorage.getItem("TitleLogoNameContent" || "[]"))[0]);
+  useEffect(() => {
+    setTitleLogoNameContent(JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0])
+  }, [id]);
 
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const handleEditShopInfoModalOpen = () => {
+    setModalOpen(true);
+  };
+
+  const handleEditShopInfoModalClose = () => {
+    setModalOpen(false);
+  };
+
+  const handleClickName = async (e) => {
+    e.preventDefault();
+    console.log(e.target.name.value);
+    const querySnapshot = await getDocs(collection(db, "TitleLogoNameContent"));
+    const docSnapshot = querySnapshot.docs[0];
+    const docRef = doc(db, 'TitleLogoNameContent', docSnapshot.id);
+    updateDoc(docRef, { Name: e.target.name.value })
+      .then(() => {
+        const newData = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        console.log(newData)
+        newData[0].Name = e.target.name.value
+        sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
+        saveId(Math.random());
+      })
+      .catch((error) => {
+        console.error("Error updating document: ", error);
+      });
+
+  }
+  const handleClickAddress = async (e) => {
+    e.preventDefault();
+    console.log(e.target.address.value);
+    const querySnapshot = await getDocs(collection(db, "TitleLogoNameContent"));
+    const docSnapshot = querySnapshot.docs[0];
+    const docRef = doc(db, 'TitleLogoNameContent', docSnapshot.id);
+    updateDoc(docRef, { Address: e.target.address.value })
+      .then(() => {
+        const newData = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        console.log(newData)
+        newData[0].Address = e.target.address.value
+        sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
+        saveId(Math.random());
+      })
+      .catch((error) => {
+        console.error("Error updating document: ", error);
+      });
+
+
+  }
   return (
     <>
+    {isModalOpen && (
+          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center mt-20">
+            <div className="relative w-full max-w-2xl max-h-full">
+              <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {t("Edit Shop Info")}
+                  </h3>
+                  <button
+                    onClick={handleEditShopInfoModalClose}
+                    type="button"
+                    className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                    <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span className="sr-only">{t("Close modal")}</span>
+                  </button>
+                </div>
+                <div className='px-4'>
+
+                  <form onSubmit={handleClickName} style={{ display: "flex", alignItems: "center" }}>
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="name"
+                      label={TitleLogoNameContent.Name}
+                      name="name"
+                      autoComplete="name"
+                      autoFocus
+                      style={{ width: "50%" }}
+                    />
+                    <Button
+                      fullWidth
+                      type="submit"
+                      variant="contained"
+                      sx={{ mt: 3, mb: 2 }}
+                      style={{ width: "50%", marginLeft: "5%", height: "56px" }}
+                    >
+                      {t("Update Name")}
+                    </Button>
+                  </form>
+
+                  <form onSubmit={handleClickAddress} style={{ display: "flex", alignItems: "center" }}>
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="address"
+                      label={TitleLogoNameContent.Address}
+                      name="address"
+                      autoComplete="address"
+                      autoFocus
+                      style={{ width: "50%" }}
+                    />
+                    <Button
+                      fullWidth
+                      type="submit"
+                      variant="contained"
+                      sx={{ mt: 3, mb: 2 }}
+                      style={{ width: "50%", marginLeft: "5%", height: "56px" }}
+                    >
+                      {t("Update Address")}
+                    </Button>
+                  </form>
+
+                </div>
+                <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       <Elements stripe={promise}>
         <div className='max-w-[1000px] mx-auto p-0'>
           <div className="container">
@@ -497,6 +626,7 @@ const Account = () => {
                             </div>
                             <div className="flex justify-end"style={{margin: "auto",width:"40%"}}>
                             <button
+                                        onClick={handleEditShopInfoModalOpen}
             className="block text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
             style={{  display: "inline-block" }}>
             {t("Edit Your Shop")}

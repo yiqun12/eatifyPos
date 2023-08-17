@@ -14,7 +14,7 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/functions';
 import './admin_food.css';
 import Scanner from './ScanMenu';
-import Checklist from '../pages/Checklist'
+//import Checklist from '../pages/Checklist'
 
 const Food = () => {
 
@@ -68,8 +68,6 @@ const Food = () => {
     return productArray;
   };
 
-  /**dorp food */
-
 
   const [width, setWidth] = useState(window.innerWidth - 64);
 
@@ -85,8 +83,17 @@ const Food = () => {
   const isMobile = width <= 768;
   const [data, setData] = useState(JSON.parse(localStorage.getItem("food_arrays") || "[]"));
   useEffect(() => {
+    console.log('Component B - ID changed:', id);
+    //setData(JSON.parse(sessionData)); // Update state
+    //setFoods(JSON.parse(localStorage.getItem("food_arrays") || "[]"))
+    //setArr(JSON.parse(sessionData));
+    //setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
   }, [id]);
 
+  useEffect(() => {
+    saveId(Math.random());
+  }, []);
+  
   useEffect(() => {
     // Get data from localStorage when component mounts
     const storedData = JSON.parse(localStorage.getItem("food_arrays") || "[]");
@@ -150,10 +157,9 @@ const Food = () => {
   // timesClicked is an object that stores the number of times a item is clicked
   //const timesClicked = new Map();
 
+  const [translationsMode_, settranslationsMode_] = useState("en");
 
   // for translations sake
-    const [translationsMode_, settranslationsMode_] = useState("en");
-
   const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = useMemo(() => {
     const trans = JSON.parse(sessionStorage.getItem("translations"))
@@ -363,7 +369,7 @@ const Food = () => {
       return ('Failed to translate text');
     }
   };
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(true);
   const handleEditShopInfoModalOpen = () => {
     setModalOpen(true);
   };
@@ -399,7 +405,7 @@ const Food = () => {
                     <span className="sr-only">{t("Close modal")}</span>
                   </button>
                 </div>
-                <Checklist/>
+                <Checklist useMyHook={useMyHook}/>
               </div>
             </div>
           </div>
@@ -408,28 +414,21 @@ const Food = () => {
       <div className='max-w-[1000px] m-auto px-4 '>
         <Scanner />
         {!isMobile ? <></> :
-          <div className='flex justify-between mt-2' >
+          <div className='flex mt-2' >
               <button
               onClick={handleEditShopInfoModalOpen}
 
-              className="block text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-yellow-600 dark:hover:bg-yellow-600 dark:focus:ring-yellow-800"
+              className="mr-2 block text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-yellow-600 dark:hover:bg-yellow-600 dark:focus:ring-yellow-800"
               >
               {t("Self Checklist")}
             </button>
-            <button
-              onClick={() => {
-                syncData();
-                saveId(Math.random());
 
-              }}
-              className="block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-            >
-              {t("Sync Menu")}
-            </button>
             <button
               className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              onClick={() => window.location.href = "/DemoFood"}
+
             >
-              {t("Save Changes")}
+              {t("See Your Store")}
             </button>
           </div>
         }
@@ -466,20 +465,12 @@ const Food = () => {
               
               {t("Self Checklist")}
             </button>
-              <button
-                onClick={() => {
-                  syncData();
-                  saveId(Math.random());
 
-                }}
-                className="mr-3 block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-              >
-                {t("Sync Menu")}
-              </button>
               <button
                 className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              >
-                {t("Save Changes")}
+                onClick={() => window.location.href = "/DemoFood"}
+                >
+                {t("See Your Store")}
               </button>
             </div>
           }
@@ -561,7 +552,7 @@ const Food = () => {
                   }}
                 >
                   <p className="mb-1">
-                    {t("ENGLISH")}:
+                    {t("ENGLISH NAME")}:
                     <input
                       type="text"
                       name="name"
@@ -571,7 +562,7 @@ const Food = () => {
                     />
                   </p>
                   <span
-                    style={{ cursor: "pointer", backgroundColor: "#ffc05e", marginTop: "2px", marginBottom: "5px" }}//blue
+                    style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}//blue
                     className="task-card__tag task-card__tag--marketing"
                     onClick={async () => {  //Auto Fill Chinese
                       let translatedText = "Cuisine Name";
@@ -588,7 +579,7 @@ const Food = () => {
                     }}
 
                   >{t("Auto Fill Chinese")}</span>
-                  <p className="mb-1">{t("CHINESE")}:</p>
+                  <p className="mb-1">{t("CHINESE NAME")}:</p>
                   <input
                     type="text"
                     name="CHI"
@@ -597,7 +588,7 @@ const Food = () => {
                     onChange={handleInputChange}
                   />
                   <span
-                    style={{ cursor: "pointer", backgroundColor: "#ffc05e", marginTop: "2px", marginBottom: "5px" }}//blue
+                    style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}//blue
                     className="task-card__tag task-card__tag--marketing"
 
                     onClick={async () => {  // Auto Fill English
@@ -615,7 +606,7 @@ const Food = () => {
                   >{t("Auto Fill English")}</span>
 
                   <p className="mb-1">
-                    {t("Price")}:{" "}
+                    {t("PRICE")}:{" "}
                     <input
                       style={{ width: "50%" }}
                       type="text"
@@ -626,7 +617,7 @@ const Food = () => {
                     />
                   </p>
                   <p className="mb-1">
-                    {t("Category")}:{" "}
+                    {t("CATEGORY")}:{" "}
                     <input
                       style={{ width: "50%" }}
                       type="text"
@@ -636,8 +627,26 @@ const Food = () => {
                       onChange={handleInputChange}
                     />
                   </p>
+                  <span
+                    style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}//blue
+                    className="task-card__tag task-card__tag--marketing"
+                    onClick={async () => {  //Auto Fill Chinese
+                      let translatedText = "Classic";
+                      if (newItem.category) {
+                        translatedText = newItem.category;
+                      }
+                      try {
+                        const chineseTranslation = await translateToChinese(translatedText);
+                        setNewItem({ ...newItem, categoryCHI: chineseTranslation });
+                      } catch (error) {
+                        console.error("Translation error:", error);
+                      }
+
+                    }}
+
+                  >{t("Auto Fill Chinese")}</span>
                   <p className="mb-1">
-                    {t("Category in Chinese")}:{" "}
+                    {t("CATEGORY IN CHINESE")}:{" "}
                     <input
                       style={{ width: "50%" }}
                       type="text"
@@ -647,8 +656,25 @@ const Food = () => {
                       onChange={handleInputChange}
                     />
                   </p>
+                  <span
+                    style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}//blue
+                    className="task-card__tag task-card__tag--marketing"
+
+                    onClick={async () => {  // Auto Fill English
+                      let translatedText = "经典";
+                      if (newItem.categoryCHI) {
+                        translatedText = newItem.categoryCHI;
+                      }
+                      try {
+                        const EnglishTranslation = await translateToEnglish(translatedText);
+                        setNewItem({ ...newItem, category: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
+                      } catch (error) {
+                        console.error("Translation error:", error);
+                      }
+                    }}
+                  >{t("Auto Fill English")}</span>
                   <p className="mb-1">
-                    {t("Priority")}:{" "}
+                    {t("PRIORITY")}:{" "}
                     <input
                       style={{ width: "50%" }}
                       type="text"
@@ -893,7 +919,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
         <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full'>
           <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <p className=' mb-1'>
-              {t("ENGLISH")}:
+              {t("ENGLISH NAME")}:
               <input
                 type="text"
                 name="name"
@@ -903,7 +929,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
               />
             </p>
             <span
-              style={{ cursor: "pointer", backgroundColor: "#ffc05e", marginTop: "2px", marginBottom: "5px" }}
+              style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}
               className="task-card__tag task-card__tag--marketing"
               onClick={async () => {  // Auto Fill English
                 let translatedText = "";
@@ -924,7 +950,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                 }
               }}
             >{t("Auto Fill Chinese")}</span>
-            <p className=' mb-1'>{t("CHINESE")}: </p>
+            <p className=' mb-1'>{t("CHINESE NAME")}: </p>
             <input
               type="text"
               name="CHI"
@@ -933,7 +959,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
               onChange={(e) => setInputData({ ...inputData, CHI: e.target.value })}
             />
             <span
-              style={{ cursor: "pointer", backgroundColor: "#ffc05e", marginTop: "2px", marginBottom: "5px" }}
+              style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}
               className="task-card__tag task-card__tag--marketing"
 
               onClick={async () => {  // Auto Fill English
@@ -955,7 +981,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
 
               }}
             >{t("Auto Fill English")}</span>
-            <p className='mb-1'>{t("Price")}:
+            <p className='mb-1'>{t("PRICE")}:
               <input
                 style={{ width: "50%" }}
                 type="text"
@@ -965,7 +991,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                 onChange={(e) => setInputData({ ...inputData, subtotal: e.target.value })}
               />
             </p>
-            <p className='mb-1'>{t("Category")}:
+            <p className='mb-1'>{t("CATEGORY")}:
               <input
                 style={{ width: "50%" }}
                 type="text"
@@ -975,7 +1001,29 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                 onChange={(e) => setInputData({ ...inputData, category: e.target.value })}
               />
             </p>
-            <p className='mb-1'>{t("Category in Chinese")}:
+            <span
+              style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}
+              className="task-card__tag task-card__tag--marketing"
+              onClick={async () => {  // Auto Fill English
+                let translatedText = "";
+                if (inputData?.category) {
+                  //console(inputData?.name)
+                  translatedText = inputData.category;
+                } else {
+                  //console(item.name)
+                  translatedText = item.category;
+                }
+                try {
+                  const ChineseTranslation = await translateToChinese(translatedText);
+                  setInputData({ ...inputData, categoryCHI: ChineseTranslation });
+                  updateItem(item.id, { ...inputData, categoryCHI: ChineseTranslation })
+
+                } catch (error) {
+                  console.error("Translation error:", error);
+                }
+              }}
+            >{t("Auto Fill Chinese")}</span>
+            <p className='mb-1'>{t("CATEGORY IN CHINESE")}:
               <input
                 style={{ width: "50%" }}
                 type="text"
@@ -985,7 +1033,30 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                 onChange={(e) => setInputData({ ...inputData, categoryCHI: e.target.value })}
               />
             </p>
-            <p className='mb-1'>{t("Priority")}:
+            <span
+              style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}
+              className="task-card__tag task-card__tag--marketing"
+
+              onClick={async () => {  // Auto Fill English
+                let translatedText = "";
+                if (inputData?.categoryCHI) {
+
+                  translatedText = inputData.categoryCHI;
+                } else {
+                  translatedText = item.categoryCHI;
+                }
+                try {
+                  const EnglishTranslation = await translateToEnglish(translatedText);
+                  setInputData({ ...inputData, category: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
+                  updateItem(item.id, { ...inputData, category: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') })
+
+                } catch (error) {
+                  console.error("Translation error:", error);
+                }
+
+              }}
+            >{t("Auto Fill English")}</span>
+            <p className='mb-1'>{t("PRIORITY")}:
               <input
                 style={{ width: "50%" }}
                 type="text"
@@ -1027,7 +1098,168 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
 };
 
 
+const Checklist = () => {
+  /**listen to localtsorage */
+  const { id, saveId } = useMyHook(null);
+
+
+  useEffect(() => {
+    saveId(Math.random());
+  }, []);
+  const [translationsMode_, settranslationsMode_] = useState("en");
+
+  // for translations sake
+  const trans = JSON.parse(sessionStorage.getItem("translations"))
+  const t = useMemo(() => {
+    const trans = JSON.parse(sessionStorage.getItem("translations"))
+    const translationsMode = sessionStorage.getItem("translationsMode")
+    settranslationsMode_(sessionStorage.getItem("translationsMode"))
+
+    return (text) => {
+      if (trans != null && translationsMode != null) {
+        if (trans[text] != null && trans[text][translationsMode] != null) {
+          return trans[text][translationsMode];
+        }
+      }
+
+      return text;
+    };
+  }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
+  
+  return (
+    <>
+<section style={{
+  "maxWidth": "100%",
+  "boxSizing": "border-box"
+}}>
+  <ul className='p-3 pt-0'>
+  <h1 className='title_checklist'>{t("Create Your Store")}</h1>
+
+    <li class="activity">
+      <label style={{  "cursor": "pointer",
+  "display": "block"}}>
+        <input style={{  "visibility": "hidden",
+  "display": "none"}}class="item" type="checkbox"/>
+        <div class="check-container">
+          <div class="check">
+            <span class="svg-check"></span>
+          </div>
+          <div class="shade"></div>
+          <div class="instruction"><strong>{t("UPLOAD YOUR RESTAURANT MENU")}</strong></div>
+        </div>
+      </label>
+    </li>
+
+    <li class="activity">
+      <label style={{  "cursor": "pointer",
+  "display": "block"}}>
+        <input style={{  "visibility": "hidden",
+  "display": "none"}} class="item" type="checkbox"/>
+        <div class="check-container">
+          <div class="check">
+            <span class="svg-check"></span>
+          </div>
+          <div class="shade"></div>
+          <div class="instruction"><strong>{t("DOUBLE CHECK OUR GENERATED E-MENU")}</strong></div>
+        </div>
+      </label>
+    </li>  
+    <li class="activity">
+    
+    <label style={{  "cursor": "pointer",
+  "display": "block"}}>
+        <input style={{  "visibility": "hidden",
+  "display": "none"}} class="item" type="checkbox"/>
+        <div class="check-container">
+          <div class="check">
+            <span class="svg-check"></span>
+          </div>
+          <div class="shade"></div>
+          <div class="instruction"><strong>{t("SEE YOUR STORE")}</strong></div>
+        </div>
+      </label>
+    </li>      
+    <li class="activity">
+      <label style={{  "cursor": "pointer",
+  "display": "block"}}>
+        <input style={{  "visibility": "hidden",
+  "display": "none"}} class="item" type="checkbox"/>
+        <div class="check-container">
+          <div class="check">
+            <span class="svg-check"></span>
+          </div>
+          <div class="shade"></div>
+          <div class="instruction"><strong>{t("REGISTER A MERCHANT ACCOUNT")}</strong></div>
+        </div>
+      </label>
+    </li> 
+    <li class="activity">
+      <label style={{  "cursor": "pointer",
+  "display": "block"}}>
+        <input style={{  "visibility": "hidden",
+  "display": "none"}}class="item" type="checkbox"/>
+        <div class="check-container">
+          <div class="check">
+            <span class="svg-check"></span>
+          </div>          
+          <div class="shade"></div>
+          <div class="instruction"><strong>{t("UPLOAD DATA TO OUR CLOUD STORAGE")}</strong></div>
+        </div>
+      </label>
+    </li>
+    <li class="activity">
+      <label style={{  "cursor": "pointer",
+  "display": "block"}}>
+        <input style={{  "visibility": "hidden",
+  "display": "none"}} class="item" type="checkbox"/>
+        <div class="check-container">
+          <div class="check">
+            <span class="svg-check"></span>
+          </div>
+          <div class="shade"></div>
+          <div class="instruction"><strong>{t("PRINT YOUR QR CODE AND PASTE IN THE DINING TABLE")}</strong></div>
+        </div>
+      </label>
+    </li>      
+    <li class="activity">
+      <label style={{  "cursor": "pointer",
+  "display": "block"}}>
+        <input style={{  "visibility": "hidden",
+  "display": "none"}} class="item" type="checkbox"/>
+        <div class="check-container">
+          <div class="check">
+            <span class="svg-check"></span>
+          </div>
+          <div class="shade"></div>
+          <div class="instruction"><strong>{t("CONNECT PRINTER TO OUR SOFTWARE")}</strong></div>
+        </div>
+      </label>
+    </li>      
+    <li class="activity">
+      <label style={{  "cursor": "pointer",
+  "display": "block"}}>
+        <input style={{  "visibility": "hidden",
+  "display": "none"}} class="item" type="checkbox"/>
+        <div class="check-container">
+          <div class="check">
+            <span class="svg-check"></span>
+          </div>
+          <div class="shade"></div>
+          <div class="instruction"><strong>{t("SET UP PAYMENT(OPTIONAL)")}</strong></div>
+        </div>
+      </label>
+    </li>       
+  </ul>
+</section>
+</>
+
+  );
+};
+
+
 export default Food
+
+
 
 
 

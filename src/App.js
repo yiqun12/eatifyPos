@@ -17,14 +17,14 @@ import {
 } from "react-router-dom";
 import './loading.css';
 import React, { useState, useEffect } from 'react'
-import { collection, getDocs } from "firebase/firestore";
-import { db } from './firebase/index';
+
 import { MyHookProvider, useMyHook } from './pages/myHook';
 import Receipt from './pages/Receipt'
-import Html2 from './components/Html2'
 import Html from './components/Html'
 import { Navigate } from 'react-router-dom';
 import Admin_food from './components/admin_food'
+import DemoCreateStore from './components/demoCreateStore'
+
 
 // translation purposes -> can switch to using fetchPost() to grab translation file just like food_array
 import { translations } from './data/translations.js'
@@ -35,58 +35,15 @@ import { businessHours } from "./data/businessHours";
 /// import timezone offsets
 import { timeZones } from "./data/timeZones"
 import Food from './pages/Food'
-import Footer_ from './pages/Footer'
-
+import Checklist from './pages/Checklist'
+import DemoFood from './pages/demoFood'
 // import the time change page for testing
 import ChangeTimeForm from "./pages/ChangeTimeForm"
 
 function App() {
-  const [loading, setLoading] = useState(true);
-  const params = new URLSearchParams(window.location.search);
-  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
-
   const { user, user_loading } = useUserContext();
-  console.log(user_loading)
-  if (tableValue === "") {
-    if (sessionStorage.getItem('table')) {//存在过
-      sessionStorage.setItem('isDinein', true)
-    } else {//不存在
-      sessionStorage.setItem('table', tableValue)
-      sessionStorage.setItem('isDinein', false)
 
-    }
-  } else {
-    sessionStorage.setItem('table', tableValue)
-    sessionStorage.setItem('isDinein', true)
-  }
-  console.log(tableValue)
-
-
-  const fetchPost = async () => {
-
-    console.log("fetchPost1")
-      await getDocs(collection(db, "food"))
-      .then((querySnapshot) => {
-        const newData = querySnapshot.docs
-          .map((doc) => ({ ...doc.data()}));
-        //console.log(newData[0].key)
-        sessionStorage.setItem("Food_arrays", (newData[0].key));
-        if (!sessionStorage.getItem("Food_arrays") || sessionStorage.getItem("Food_arrays") === "") {
-          sessionStorage.setItem("Food_arrays", "[]");
-      }
-      })
-
-    await getDocs(collection(db, "TitleLogoNameContent"))
-      .then((querySnapshot) => {
-        const newData = querySnapshot.docs
-          .map((doc) => ({ ...doc.data(), id: doc.id }));
-        sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
-        //console.log(newData)
-        //这里有些debt...应该是soft loading 而不是hard load
-        window.location.reload()
-      })
-  }
-
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Added line to grab translation file (can use the same method as food_data to grab translations file)
@@ -106,14 +63,10 @@ function App() {
   // console.log(timeZones[(businessHours[1])["timezone"]])
   sessionStorage.setItem("timezoneOffsets", JSON.stringify(timeZones[(businessHours[1])["timezone"]]))
 
-    if (!sessionStorage.getItem("Food_arrays") || !sessionStorage.getItem("TitleLogoNameContent")) {
-      fetchPost();
-    } else {
-      setLoading(false);
-    }
+
   }, []);
 
-  if (loading && user_loading) {
+  if (user_loading) {
     return <p>  <div className="pan-loader">
       Loading...
     </div></p>;
@@ -143,9 +96,8 @@ function App() {
 
 
               <Route path="orders" element={<Receipt />} />
-              <Route path="Scanner" element={<Html2 />} />
               <Route path="Reservation" element={<Reservation />} />
-              {user ? <Route path="Checkout" element={<Checkout />}></Route> : <Route path="Checkout" element={<LogIn />}></Route>}
+              {user ? <Route path="/store/:store/checkout" element={<Checkout />}></Route> : <Route path="/store/:store/checkout" element={<LogIn />}></Route>}
               <Route path="Dashboard" element={<Dashboard />} />
               {user ?
                 <Route path="Account" element=
@@ -164,15 +116,7 @@ function App() {
                 <Route path="LogIn" element={<LogIn />}></Route>
               }
 
-              {user ?
-                <Route path="Admin_food" element=
-                  {
-                    user != null &&
-                      user.uid === process.env.REACT_APP_ADMIN_UID ?
-                      <Admin_food /> :
-                      <Home />}
-                ></Route> : <Route path="Admin_food" element={<Home />}></Route>
-              }
+                 <Route path="DemoCreateStore" element={<DemoCreateStore />}></Route>
               
               <Route path="SignUp" element={<SignUp />}></Route>
 
@@ -185,14 +129,15 @@ function App() {
       <Route exact path="/test_admin_new" element={<Admin_new />} />
 
               {user ? <Route path="ForgotPassword" element={<Account />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
-              <Route exact path="/ParkAsia" element={<Food />} />
+              <Route exact path="/store/:store" element={<Food />} />
+              <Route exact path="/DemoFood" element={<DemoFood />} />
+
               <Route path='*' exact={true} element={<Home />} />
               <Route exact path="/" element={<Home />} />
+              <Route exact path="/Checklist" element={<Checklist />} />
+
             </Routes>
 
-<Footer_>
-  
-</Footer_>
           </MyHookProvider>
         </BrowserRouter>
       </div>
