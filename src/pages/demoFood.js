@@ -11,7 +11,12 @@ import { useMemo } from 'react';
 import { ReactComponent as PlusSvg } from './plus.svg';
 import { ReactComponent as MinusSvg } from './minus.svg';
 import { FiSearch } from 'react-icons/fi';
-
+import TextField from '@mui/material/TextField';
+import Button_ from '@mui/material/Button'
+import { getFirestore, collection, query, where, getDocs, addDoc } from "firebase/firestore";
+import { db } from '../firebase/index';
+import { useUserContext } from "../context/userContext";
+import {  doc, updateDoc, arrayUnion } from "firebase/firestore";
 
 import BusinessHoursTable from './BusinessHoursTable.js'
 
@@ -55,7 +60,59 @@ const Food = () => {
   useEffect(() => {
     saveId(Math.random());
   }, [products]);
+  const [DemoStorename, setDemoStore] = useState('demo');
 
+  const handleDemoStoreNameChange = (event) => {
+    setDemoStore(event.target.value);
+  };
+  const { user, user_loading } = useUserContext();
+
+  const handleDemoStoreNameSubmit = async (event) => {
+      
+      event.preventDefault();
+      console.log('Form submitted with name:', DemoStorename);
+      const storeName = DemoStorename
+      const address = "no address"
+      const Open_time = "null"
+      const data = localStorage.getItem("food_arrays")
+  // First, check for duplicates
+  const storeCollection = collection(db, "TitleLogoNameContent");
+  const q = query(storeCollection, where("Name", "==", storeName));
+  const snapshot = await getDocs(q);
+  
+  if (!snapshot.empty) {
+    // If a document with the same storeName is found
+    alert("Store name duplicated!");
+    return;
+  }
+  
+  // If no duplicates are found, add the new document
+  const newDoc = {
+    Name: storeName,
+    Address: address,
+    Open_time: Open_time,
+    key: data
+  };
+  
+  try {
+    await addDoc(storeCollection, newDoc);
+    const userDoc = doc(db, "stripe_customers", user.uid);  // Assuming your collection name is "users"
+    try {
+      await updateDoc(userDoc, {
+        storelist: arrayUnion(storeName)
+      });
+      window.location.href = "/store?store="+storeName;
+    } catch (error) {
+      console.error("Error updating storelist: ", error);
+    }
+    console.log("Document added successfully!");
+  } catch (error) {
+    console.error("Error adding document: ", error);
+  }
+     // console.log(data)
+    };
+    
+    console.log(user.uid)
   const displayAllProductInfo = () => {
     // Retrieve the array from local storage
     let products = JSON.parse(sessionStorage.getItem("products"));
@@ -399,146 +456,30 @@ const Food = () => {
             {/* <div className='flex justify-between flex-wrap'> */}
 
             {/* web mode */}
-            {!isMobile && (
-              <div className='flex'>
-                <div
-                  className='flex'
-                  style={{
-                    width: '70%',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <div className=''>{"Store Name"} {t("@ ")}{"Test Address"}</div>
-
-                  <div style={{ marginLeft: "15px" }}>{isMobile ? "Test Address" : ""}</div>
-
-
-                  <div className="flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full sm:w-[400px] items-center">
-                      <input type="search" className='flex bg-transparent p-2 w-full focus:outline-none text-black'
-                        placeholder={t('Search your food')}
-
-                        onChange={handleInputChange} />
-                      <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
-                    </div>
-                </div>
-
-                <div
-                  style={{ marginLeft: '20px', width: '30%', textAlign: 'right' }}
-                >
-                  <div style={{ marginTop: '6px' }}>
-                    {"TableNum" != null && "TableNum" != "" ?
-                      <b >
-                        <b style={{ backgroundColor: "#ff6161", borderRadius: "3px", padding: "3px", color: "white", }}>
-                          {"TableNum"}
-                        </b>
-                      </b> :
-                      <></>
-
-                    }
-
-                    <b
-                      style={{
-                        fontSize: "18px",
-                        fontWeight: "normal",
-                        marginLeft: "10px",
-                        backgroundColor: isOpen ? "#97c23a" : 'red',//green
-                        borderRadius: '10px',
-                        padding: '3px',
-                        paddingTop: '2px',
-                        paddingBottom: '2px',
-                        color: 'white',
-                      }}
-                    >
-                      {isOpen ? t('OPEN') : t('CLOSED')}
-                    </b>
-                  </div>
-                  <div style={{ paddingTop: "10px", "cursor": "pointer" }}>
-                    <BusinessHoursTable storeStatus={isOpen} ></BusinessHoursTable>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {isMobile && (
-              <div className='flex'>
-                {/* parent div of top and bottom div */}
-                <div style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: "100%"
-                }}>
-                  {/* top parent div */}
-                  <div style={{
-                    display: "flex",
-                    width: "100%",
-                    justifyContent: "space-between"
-                  }}>
-                    <div>{"Store Name"}</div>
-
-                    <div style={{ marginLeft: "20px", width: "30%", textAlign: "right" }}>
-                      <div>
-                        {"TableNum" != null && "TableNum"!= "" ?
-                          <b >
-                            <b style={{ backgroundColor: "#ff6161", borderRadius: "3px", padding: "3px", color: "white", }}>
-                              {"TableNum"}
-                            </b>
-                          </b> :
-                          <></>
-
-                        }
-
-
-
-                      </div>
-                    </div>
-
-                  </div>
-
-                  {/* bottom parent div */}
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className='mt-2'>{"Test Address"}</div>
-                    <b style={{ marginLeft: "auto" }}>
-                      <b
-                        style={{
-                          fontSize: "18px",
-                          fontWeight: "normal",
-                          backgroundColor: isOpen ? "#97c23a" : 'red', //green
-                          borderRadius: "10px",
-                          padding: "3px",  // Simplified the padding
-                          color: "white"
-                        }}
-                      >
-                        {isOpen ? t('OPEN') : t('CLOSED')}
-                      </b>
-                    </b>
-                  </div>
-                  <div style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between"
-                  }}>
-                    {/* bottom search bar */}
-
-                     <div style={{width:"65%"}}>
-                    <div className="flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full sm:w-[400px] items-center">
-                      <input type="search" className='flex bg-transparent p-2 w-full focus:outline-none text-black'
-                        placeholder={t('Search your food')}
-
-                        onChange={handleInputChange} />
-                      <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
-                    </div>
-                    </div>
-                    <div style={{
-                      display: "flex",
-                      alignSelf: "center"
-                    }}><BusinessHoursTable storeStatus={isOpen} ></BusinessHoursTable></div>
-                  </div>
-
-                </div>
-              </div>
-            )}
-
+            <form onSubmit={handleDemoStoreNameSubmit} style={{ display: "flex", alignItems: "center" }}>
+            <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="name"
+                label="Name"  // I've used "Name" directly as you didn't provide the value of TitleLogoNameContent.Name
+                name="name"
+                autoComplete="name"
+                autoFocus
+                value={DemoStorename}
+                onChange={handleDemoStoreNameChange}
+                style={{ width: "50%" }}
+            />
+            <Button_
+                fullWidth
+                type="submit"
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+                style={{ width: "50%", marginLeft: "5%", height: "56px" }}
+            >
+                Make it a real store
+            </Button_>
+        </form>
             {/* end of the top */}
             <div className="mt-2 scrolling-wrapper-filter">
 
@@ -553,7 +494,7 @@ const Food = () => {
                   style={{ display: "inline-block" }}>
                   <div>
 
-                    {foodType.charAt(0).toUpperCase() + foodType.slice(1)}
+                  {foodType && foodType.length>1?t(foodType.charAt(0).toUpperCase() + foodType.slice(1)):""}
                   </div>
                 </button>
               ))}

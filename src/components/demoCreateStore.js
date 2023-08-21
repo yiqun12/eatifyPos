@@ -15,6 +15,8 @@ import 'firebase/compat/functions';
 import './admin_food.css';
 import Scanner from './ScanMenu';
 //import Checklist from '../pages/Checklist'
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
 
 const Food = () => {
 
@@ -378,6 +380,8 @@ const Food = () => {
     setModalOpen(false);
   };
 
+
+
   /**scanner */
 
   //Instruction:
@@ -430,6 +434,7 @@ const Food = () => {
             >
               {t("See Your Store")}
             </button>
+
           </div>
         }
         <div className='flex mt-2'>
@@ -446,11 +451,14 @@ const Food = () => {
               }}
             >
 
+
               <div className="flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full sm:w-[400px] items-center">
                 <input type="search" className='flex bg-transparent p-2 w-full focus:outline-none text-black'
                   placeholder={t('Search your food')}
 
                   onChange={handleSearchChange} />
+
+                  
                 <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
               </div>
             </div>
@@ -472,6 +480,7 @@ const Food = () => {
                 >
                 {t("See Your Store")}
               </button>
+
             </div>
           }
         </div>

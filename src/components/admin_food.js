@@ -15,12 +15,22 @@ import 'firebase/compat/functions';
 import './admin_food.css';
 import Scanner from './ScanMenu';
 import Checklist from '../pages/Checklist'
+import { query, where, limit } from "firebase/firestore";
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
 
 const Food = () => {
+  const params = new URLSearchParams(window.location.search);
 
 
-  if (!localStorage.getItem("food_arrays") || localStorage.getItem("food_arrays") === "") {
-    localStorage.setItem("food_arrays", "[]");
+  const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
+  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
+  console.log(store)
+  const [data, setData] = useState(JSON.parse(localStorage.getItem(store) || "[]"));
+
+  const [foods, setFoods] = useState(data);
+  if (!localStorage.getItem(store) || localStorage.getItem(store) === "") {
+    localStorage.setItem(store, "[]");
   }
 
 
@@ -42,13 +52,11 @@ const Food = () => {
   useEffect(() => {
     saveId(Math.random());
   }, [products]);
-  const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
-  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
-  console.log(store)
+
 
   const displayAllProductInfo = () => {
     // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem("products"));
+    let products = JSON.parse(sessionStorage.getItem(store));
     //console.log("displayProductFunction")
     //console.log(products)
     // Create an empty array to store the products
@@ -86,20 +94,46 @@ const Food = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
   const isMobile = width <= 768;
-  const [data, setData] = useState(JSON.parse(localStorage.getItem("food_arrays") || "[]"));
   useEffect(() => {
   }, [id]);
 
   useEffect(() => {
     // Get data from localStorage when component mounts
-    const storedData = JSON.parse(localStorage.getItem("food_arrays") || "[]");
+    const storedData = JSON.parse(localStorage.getItem(store) || "[]");
     setData(storedData);
   }, [id]);
 
-  const syncData = () => {
-    const sessionData = sessionStorage.getItem("Food_arrays");
+  const syncData = async() => {
+    
+    let sessionData;
+
+      // Define the query
+      const q = query(
+        collection(db, "TitleLogoNameContent"),
+        where("Name", "==", store), // Replace "nameField" with the name of the field in your Firestore document
+        limit(1)
+      );
+    
+      try {
+        // Execute the query
+        const querySnapshot = await getDocs(q);
+    
+        // Check if a document was found
+        if (!querySnapshot.empty) {
+          sessionData = querySnapshot.docs[0].data().key
+          const { key, ...rest } = querySnapshot.docs[0].data();
+
+          localStorage.setItem("TitleLogoNameContent",JSON.stringify(rest))
+        } else {
+          console.log("No document found with the given name.");
+        }
+      } catch (error) {
+        console.error("Error fetching the document:", error);
+      }
+
+
     if (sessionData) {
-      localStorage.setItem("food_arrays", sessionData);
+      localStorage.setItem(store, sessionData);
       setData(JSON.parse(sessionData)); // Update state
       setFoods(JSON.parse(sessionData))
       saveId(Math.random());
@@ -115,7 +149,6 @@ const Food = () => {
 
   }
 
-  const [foods, setFoods] = useState(data);
 
   const filterType = (category) => {
     setFoods(
@@ -175,8 +208,7 @@ const Food = () => {
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
   //const foodTypes = ['burger', 'pizza', 'salad', 'chicken'];
   //      <b style={{fontSize:"20px",color: 'red'}}>ATTENTION: YOU ARE IN ADMIN MODE!</b>
-  const [foodTypes, setFoodTypes] = useState([...new Set(JSON.parse(localStorage.getItem("food_arrays") || "[]").map(item => item.category))]);
-  //console.log(JSON.parse(localStorage.getItem("food_arrays")))
+  const [foodTypes, setFoodTypes] = useState([...new Set(JSON.parse(localStorage.getItem(store) || "[]").map(item => item.category))]);
 
 
   function deleteById(arr, id) {
@@ -184,7 +216,7 @@ const Food = () => {
   }
   const deleteFood_array = async (id) => {
     console.log(id)
-    let updatedArr = deleteById(JSON.parse(localStorage.getItem("food_arrays") || "[]"), id)
+    let updatedArr = deleteById(JSON.parse(localStorage.getItem(store) || "[]"), id)
 
     reload(updatedArr)
     if (categoryState === null) {
@@ -206,8 +238,12 @@ const Food = () => {
     Priority: "",
     categoryCHI:""
   });
-
-  const [arr, setArr] = useState(JSON.parse(localStorage.getItem("food_arrays") || "[]"));
+  //modal
+  const [TitleLogoNameContent, setTitleLogoNameContent] = useState(JSON.parse(localStorage.getItem("TitleLogoNameContent" || "[]")));
+  useEffect(() => {
+    setTitleLogoNameContent(JSON.parse(localStorage.getItem("TitleLogoNameContent")))
+  }, [id]);
+  const [arr, setArr] = useState(JSON.parse(localStorage.getItem(store) || "[]"));
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -291,7 +327,7 @@ const Food = () => {
     setArr(updatedArr);
     setData(updatedArr); // Update state
     setFoods(updatedArr)
-    localStorage.setItem("food_arrays", JSON.stringify(updatedArr))
+    localStorage.setItem(store, JSON.stringify(updatedArr))
     saveId(Math.random());
     setFoodTypes([...new Set(updatedArr.map(item => item.category))])
   }
@@ -375,6 +411,46 @@ const Food = () => {
     setModalOpen(false);
   };
 
+  const handleClickName = async (e) => {
+    e.preventDefault();
+    console.log(e.target.name.value);
+    const querySnapshot = await getDocs(collection(db, "TitleLogoNameContent"));
+    const docSnapshot = querySnapshot.docs[0];
+    const docRef = doc(db, 'TitleLogoNameContent', docSnapshot.id);
+    updateDoc(docRef, { Name: e.target.name.value })
+      .then(() => {
+        const newData = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        console.log(newData)
+        newData[0].Name = e.target.name.value
+        localStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
+        saveId(Math.random());
+      })
+      .catch((error) => {
+        console.error("Error updating document: ", error);
+      });
+
+  }
+  const handleClickAddress = async (e) => {
+    e.preventDefault();
+    console.log(e.target.address.value);
+    const querySnapshot = await getDocs(collection(db, "TitleLogoNameContent"));
+    const docSnapshot = querySnapshot.docs[0];
+    const docRef = doc(db, 'TitleLogoNameContent', docSnapshot.id);
+    updateDoc(docRef, { Address: e.target.address.value })
+      .then(() => {
+        const newData = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        console.log(newData)
+        newData[0].Address = e.target.address.value
+        localStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
+        saveId(Math.random());
+      })
+      .catch((error) => {
+        console.error("Error updating document: ", error);
+      });
+
+
+  }
+
   /**scanner */
 
   //Instruction:
@@ -386,39 +462,89 @@ const Food = () => {
     <div>
     {isModalOpen && (
           <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center mt-20">
-            <div className="relative w-full max-w-2xl max-h-full">
-              <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <div className="relative w-full max-w-2xl max-h-full">
+            <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
               <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {t("CHECKLIST")}
-                  </h3>
-                  <button
-                    onClick={handleEditShopInfoModalClose}
-                    type="button"
-                    className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                    <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                    </svg>
-                    <span className="sr-only">{t("Close modal")}</span>
-                  </button>
-                </div>
-                <Checklist/>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                {t("Edit Shop Info")}
+                </h3>
+                <button
+                  onClick={handleEditShopInfoModalClose}
+                  type="button"
+                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                  <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                  </svg>
+                  <span className="sr-only">{t("Close modal")}</span>
+                </button>
+              </div>
+              <div className='px-4'>
+
+                <form onSubmit={handleClickName} style={{ display: "flex", alignItems: "center" }}>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="name"
+                    label={TitleLogoNameContent.Name}
+                    name="name"
+                    autoComplete="name"
+                    autoFocus
+                    style={{ width: "50%" }}
+                  />
+                  <Button
+                    fullWidth
+                    type="submit"
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2 }}
+                    style={{ width: "50%", marginLeft: "5%", height: "56px" }}
+                  >
+                    {t("Update Name")}
+                  </Button>
+                </form>
+
+                <form onSubmit={handleClickAddress} style={{ display: "flex", alignItems: "center" }}>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="address"
+                    label={TitleLogoNameContent.Address}
+                    name="address"
+                    autoComplete="address"
+                    autoFocus
+                    style={{ width: "50%" }}
+                  />
+                  <Button
+                    fullWidth
+                    type="submit"
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2 }}
+                    style={{ width: "50%", marginLeft: "5%", height: "56px" }}
+                  >
+                    {t("Update Address")}
+                  </Button>
+                </form>
+
+              </div>
+              <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
               </div>
             </div>
           </div>
+        </div>
         )}
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
       <div className='max-w-[1000px] m-auto px-4 '>
         <Scanner />
         {!isMobile ? <></> :
           <div className='flex justify-between mt-2' >
-              <button
-              onClick={handleEditShopInfoModalOpen}
-
-              className="block text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-yellow-600 dark:hover:bg-yellow-600 dark:focus:ring-yellow-800"
-              >
-              {t("Self Checklist")}
-            </button>
+                            <button
+                                        onClick={handleEditShopInfoModalOpen}
+            className="block  text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+            style={{  display: "inline-block" }}>
+            {t("Edit Shop Info")}
+          </button>
+            
             <button
               onClick={() => {
                 syncData();
@@ -462,13 +588,12 @@ const Food = () => {
           </div>
           {isMobile ? <></> :
             <div className='flex' style={{ marginLeft: "auto" }}>
-<button
-  className="mr-3 block text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-yellow-600 dark:hover:bg-yellow-600 dark:focus:ring-yellow-800"
-  onClick={handleEditShopInfoModalOpen}
->
-              
-              {t("Self Checklist")}
-            </button>
+                            <button
+                                        onClick={handleEditShopInfoModalOpen}
+            className="block mr-5 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+            style={{  display: "inline-block" }}>
+            {t("Edit Shop Info")}
+          </button>
               <button
                 onClick={() => {
                   syncData();

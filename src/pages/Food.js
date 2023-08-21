@@ -19,10 +19,17 @@ import { query, where, limit } from "firebase/firestore";
 import BusinessHoursTable from './BusinessHoursTable.js'
 
 const Food = () => {
+  //const params = new URLSearchParams(window.location.search);
+
+  //const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
+  //console.log(store)
+
   const [loading, setLoading] = useState(true);
   const params = new URLSearchParams(window.location.search);
   
   const  storeValue  = params.get('store') ? params.get('store').toLowerCase() : "";
+  const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
+
   console.log(storeValue)
   const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
 
@@ -149,7 +156,7 @@ const Food = () => {
 
   const displayAllProductInfo = () => {
     // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem("products"));
+    let products = JSON.parse(sessionStorage.getItem(store));
     //console.log("displayProductFunction")
     //console.log(products)
     // Create an empty array to store the products
@@ -234,7 +241,7 @@ const Food = () => {
   };
   const SearchQuantity = (id) => {
     // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem("products"));
+    let products = JSON.parse(sessionStorage.getItem(store));
     // Check if the products array exists
     if (products && products.length > 0) {
       // Find the product with the given id
@@ -251,7 +258,7 @@ const Food = () => {
     return 0;
   };
   const handleDeleteClick = (id) => {
-    let products = JSON.parse(sessionStorage.getItem("products"));
+    let products = JSON.parse(sessionStorage.getItem(store));
     //console.log(products);
 
     if (products && products.length > 0) {
@@ -268,7 +275,7 @@ const Food = () => {
         }
 
         // Save the updated array in local storage
-        sessionStorage.setItem("products", JSON.stringify(products));
+        sessionStorage.setItem(store, JSON.stringify(products));
       }
 
     }
@@ -285,13 +292,13 @@ const Food = () => {
     //  console.log(id, name, subtotal, image);
 
     // Check if the array exists in local storage
-    if (sessionStorage.getItem("products") === null) {
+    if (sessionStorage.getItem(store) === null) {
       // If it doesn't exist, set the value to an empty array
-      sessionStorage.setItem("products", JSON.stringify([]));
+      sessionStorage.setItem(store, JSON.stringify([]));
     }
 
     // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem("products"));
+    let products = JSON.parse(sessionStorage.getItem(store));
 
     // Find the product with the matching id
     let product = products.find((product) => product.id === id);
@@ -309,7 +316,7 @@ const Food = () => {
     }
 
     // Update the array in local storage
-    sessionStorage.setItem("products", JSON.stringify(products));
+    sessionStorage.setItem(store, JSON.stringify(products));
 
     const calculateTotalQuant = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity), 0);

@@ -31,7 +31,11 @@ import cuiyuan from './cuiyuan.png'
 
 
 const Navbar = () => {
-
+  const params = new URLSearchParams(window.location.search);
+  
+  const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
+  //const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
+  console.log(store)
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -173,12 +177,12 @@ const Navbar = () => {
   };
   const uploadProductsToLocalStorage = (products) => {
     // Set the products array in local storage
-    sessionStorage.setItem("products", JSON.stringify(products));
+    sessionStorage.setItem(store, JSON.stringify(products));
   };
   //display every item.
   const displayAllProductInfo = () => {
     // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem("products"));
+    let products = JSON.parse(sessionStorage.getItem(store));
     //console.log("displayProductFunction")
     //console.log(products)
     // Create an empty array to store the products
@@ -203,7 +207,7 @@ const Navbar = () => {
   //display one item by id.
   const displayProductInfo = (id) => {
     // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem("products"));
+    let products = JSON.parse(sessionStorage.getItem(store));
 
     // Find the product with the matching id
     let product = products.find((product) => product.id === id);
@@ -273,7 +277,7 @@ const Navbar = () => {
 
   const closeModal = () => {
     //console.log(products)
-    sessionStorage.setItem('products', JSON.stringify(products));
+    sessionStorage.setItem(store, JSON.stringify(products));
     modalRef.current.style.display = 'none';
 
   };
@@ -292,7 +296,7 @@ const Navbar = () => {
     window.onclick = (event) => {
       if (event.target === modal) {
 
-        sessionStorage.setItem('products', JSON.stringify(products));
+        sessionStorage.setItem(store, JSON.stringify(products));
         modal.style.display = "none";
       }
     }
@@ -353,7 +357,7 @@ const Navbar = () => {
   console.log(storeValue)
   console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
-    sessionStorage.setItem('products', JSON.stringify(products));
+    sessionStorage.setItem(store, JSON.stringify(products));
     window.location.href = '/Checkout'+"?store="+storeValue+"&"+"table="+tableValue
   };
 

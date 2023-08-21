@@ -161,38 +161,6 @@ const handleMouseLeave = () => {
                       promptMessage.textContent = "";
                     }, 6000);
         }
-        if (event.submitter.name === 'pay') {
-          document
-            .querySelectorAll('button')
-            .forEach((button) => (button.disabled = true));
-          const form = new FormData(event.target);
-          const amount = Number(totalPrice);
-          const currency = 'usd';
-        //  console.log(currency)
-        //  console.log(amount)
-          const dateTime = new Date().toISOString();
-          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-       //   console.log(form.get('payment-method'))
-          const data = {
-            payment_method: form.get('payment-method'),
-            currency,
-            amount: amount,
-            status: 'new',
-            receipt: sessionStorage.getItem("products"),
-            dateTime: date,
-            user_email: user.email,
-          };
-          //console.log(data)
-
-          await firebase
-            .firestore()
-            .collection('stripe_customers')
-            .doc(user.uid)
-            .collection('payments')
-            .add(data);
-
-
-        }
 
       });
   }

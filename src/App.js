@@ -98,6 +98,8 @@ function App() {
               <Route path="orders" element={<Receipt />} />
               <Route path="Reservation" element={<Reservation />} />
               {user ? <Route path="/checkout" element={<Checkout />}></Route> : <Route path="/checkout" element={<LogIn />}></Route>}
+              {user ? <Route path="/DemoFood" element={<DemoFood />}></Route> : <Route path="/DemoFood" element={<LogIn />}></Route>}
+
               <Route path="Dashboard" element={<Dashboard />} />
               {user ?
                 <Route path="Account" element=
@@ -105,7 +107,7 @@ function App() {
                     user != null &&
                       user.uid === process.env.REACT_APP_ADMIN_UID ?
                       <Account_admin /> :
-                      <Account />}
+                      <Account_admin />}
                 ></Route> : <Route path="Account" element={<LogIn />}></Route>
               }
               {user ?
@@ -131,6 +133,7 @@ function App() {
               {user ? <Route path="ForgotPassword" element={<Account />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
               <Route exact path="/store" element={<Food />} />
               <Route exact path="/DemoFood" element={<DemoFood />} />
+              <Route exact path="/AdminFood" element={<Admin_food />} />
 
               <Route path='*' exact={true} element={<Home />} />
               <Route exact path="/" element={<Home />} />

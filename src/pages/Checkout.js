@@ -24,12 +24,18 @@ import alipay from '../components/alipay.png';
 import { useMemo } from 'react';
 
 const App = () => {
+  const params = new URLSearchParams(window.location.search);
+
+  const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
+  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
+  console.log(store)
+
   /**re-render everytime button clicked from shopping cart */
   const { id, saveId } = useMyHook(null);
-  let products = JSON.parse(sessionStorage.getItem("products"));
+  let products = JSON.parse(sessionStorage.getItem(store));
   useEffect(() => {
-    products = JSON.parse(sessionStorage.getItem("products"));
-    console.log( JSON.parse(sessionStorage.getItem("products")))
+    products = JSON.parse(sessionStorage.getItem(store));
+    console.log( JSON.parse(sessionStorage.getItem(store)))
   }, [id]);
   /**check if its mobile/browser */
   const [width, setWidth] = useState(window.innerWidth);
@@ -55,8 +61,8 @@ const App = () => {
   const isTooSmall= cardidth <= 270;
 
   //fetch data from local stroage products.
-  //console.log(sessionStorage.getItem("products"))
   const [totalPrice, setTotalPrice] = useState(products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0));
+
 
   useEffect(() => {
     //maybe add a line here...
@@ -166,9 +172,13 @@ const App = () => {
   height: '100px',
   'object-fit': 'cover'}}/> */
 const Item = (props) => {
-  //const { id, saveId } = useMyHook(null);
-  //const [totalPrice, setTotalPrice] = useState(0);
-  let products = JSON.parse(sessionStorage.getItem("products"));
+  const params = new URLSearchParams(window.location.search);
+
+  const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
+  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
+  console.log(store)
+  
+  let products = JSON.parse(sessionStorage.getItem(store));
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
   }, [id]);

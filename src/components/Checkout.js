@@ -89,7 +89,7 @@ function Checkout(props) {
       currency,
       amount: amount,
       status: 'new',
-      receipt: sessionStorage.getItem("products"),
+      receipt: sessionStorage.getItem(store),
       dateTime: date,
       user_email: user.email,
       isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
@@ -156,7 +156,7 @@ function Checkout(props) {
         currency,
         amount: amount,
         status: 'new',
-        receipt: sessionStorage.getItem("products"),
+        receipt: sessionStorage.getItem(store),
         dateTime: date,
         user_email: user.email,
         isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
@@ -327,7 +327,7 @@ function Checkout(props) {
             currency,
             amount: amount,
             status: 'new',
-            receipt: sessionStorage.getItem("products"),
+            receipt: sessionStorage.getItem(store),
             dateTime: date,
             user_email: user.email,
             isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
@@ -609,7 +609,7 @@ function CardSection(props) {
       currency,
       amount,
       status: 'new',
-      receipt: sessionStorage.getItem("products"),
+      receipt: sessionStorage.getItem(store),
       dateTime: date,
       user_email: user.email,
       isDinein: sessionStorage.getItem('isDinein') === 'true' ? 'DineIn' : 'TakeOut',
@@ -814,7 +814,7 @@ function PayHistory(props) {
       currency,
       amount: amount,
       status: 'new',
-      receipt: sessionStorage.getItem("products"),
+      receipt: sessionStorage.getItem(store),
       dateTime: date,
       user_email: user.email,
       isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
@@ -851,7 +851,7 @@ function PayHistory(props) {
       payment = error.payment_intent;
     } else if (paymentIntent) {
       payment = paymentIntent;
-      payment['receiptData'] = sessionStorage.getItem("products");
+      payment['receiptData'] = sessionStorage.getItem(store);
       payment['user_email'] = user.email;
     }
 
@@ -900,7 +900,7 @@ function PayHistory(props) {
       payment = error.payment_intent;
     } else if (paymentIntent) {
       payment = paymentIntent;
-      payment['receiptData'] = sessionStorage.getItem("products");
+      payment['receiptData'] = sessionStorage.getItem(store);
       payment['user_email'] = user.email;
     }
     //send to db
@@ -919,10 +919,10 @@ function PayHistory(props) {
   const dateTime = new Date().toISOString();
   const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
   const { id, saveId } = useMyHook(null);
-  let products = JSON.parse(sessionStorage.getItem("products"));
+  let products = JSON.parse(sessionStorage.getItem(store));
 
   useEffect(() => {
-    products = JSON.parse(sessionStorage.getItem("products"));
+    products = JSON.parse(sessionStorage.getItem(store));
   }, [id]);
 
   useEffect(() => {
@@ -955,7 +955,7 @@ function PayHistory(props) {
             content = `🚨 ` + t("Creating Payment");
 
           } else if (payment.status === 'succeeded') {
-            sessionStorage.removeItem("products");
+            sessionStorage.removeItem(store);
             window.location.href = '/orders?order=' + doc.id;
 
           } else if (payment.status === 'requires_action') {
@@ -1044,7 +1044,7 @@ function PayHistory(props) {
       }
       if (paymentIntent) {
         payment = paymentIntent;
-        payment['receiptData'] = sessionStorage.getItem("products");
+        payment['receiptData'] = sessionStorage.getItem(store);
         payment['user_email'] = user.email;
       }
 
@@ -1064,7 +1064,7 @@ function PayHistory(props) {
         const payment = docSnapshot.data();
         //const card = payment.charges.data[0].payment_method_details.card;
         if (payment.status === "succeeded") {
-          sessionStorage.removeItem("products");
+          sessionStorage.removeItem(store);
 
           window.location.href = '/orders?order=' + docId
         }
@@ -1176,7 +1176,7 @@ function PayHistory(props) {
           amount: amount,
           status: 'new',
           phoneNumber,
-          receipt: sessionStorage.getItem("products"),
+          receipt: sessionStorage.getItem(store),
           dateTime: date,
           user_email: user.email,
           isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
@@ -1191,7 +1191,7 @@ firebase
 .add(data).then((docRef) => {
   props.setReceiptToken(docRef.id)
   console.log("Document ID is:", docRef.id);
-  sessionStorage.removeItem("products");
+  sessionStorage.removeItem(store);
   window.location.href = '/orders?order=' + docRef.id;
 })
 .catch((error) => {

@@ -234,9 +234,9 @@ const Account = () => {
     );
   };
   //modal
-  const [TitleLogoNameContent, setTitleLogoNameContent] = useState(JSON.parse(sessionStorage.getItem("TitleLogoNameContent" || "[]"))[0]);
+  const [TitleLogoNameContent, setTitleLogoNameContent] = useState(JSON.parse(sessionStorage.getItem("TitleLogoNameContent" || "[]")));
   useEffect(() => {
-    setTitleLogoNameContent(JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))[0])
+    setTitleLogoNameContent(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")))
   }, [id]);
 
   const [isModalOpen, setModalOpen] = useState(false);
@@ -625,8 +625,8 @@ const Account = () => {
                             </div>
                             <div className="flex justify-end"style={{margin: "auto",width:"40%"}}>
                             <button
-                                        onClick={handleEditShopInfoModalOpen}
-            className="block text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+onClick={() => { window.location.href = "./"; }}            
+className="block text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
             style={{  display: "inline-block" }}>
             {t("Edit Your Shop")}
           </button>

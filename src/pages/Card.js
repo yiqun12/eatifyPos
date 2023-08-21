@@ -5,7 +5,11 @@ import { useMyHook } from './myHook';
 
 
 const Card = () => {
+  const params = new URLSearchParams(window.location.search);
 
+  const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
+  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
+  console.log(store)
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -50,13 +54,13 @@ const Card = () => {
       //  console.log(id, name, subtotal, image);
       
         // Check if the array exists in local storage
-        if (sessionStorage.getItem("products") === null) {
+        if (sessionStorage.getItem(store) === null) {
           // If it doesn't exist, set the value to an empty array
-          sessionStorage.setItem("products", JSON.stringify([]));
+          sessionStorage.setItem(store, JSON.stringify([]));
         }
       
         // Retrieve the array from local storage
-        let products = JSON.parse(sessionStorage.getItem("products"));
+        let products = JSON.parse(sessionStorage.getItem(store));
       
         // Find the product with the matching id
         let product = products.find((product) => product.id === id);
@@ -73,7 +77,7 @@ const Card = () => {
         }
       
         // Update the array in local storage
-        sessionStorage.setItem("products", JSON.stringify(products));
+        sessionStorage.setItem(store, JSON.stringify(products));
       };
       /////////////////////////////////////////////////////////////////////
 
