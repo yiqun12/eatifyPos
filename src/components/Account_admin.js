@@ -75,7 +75,6 @@ const Account = () => {
     setActiveTab(window.location.hash);
   }, []);
   function removeFromLocalStorage() {
-    sessionStorage.removeItem('products');
     sessionStorage.removeItem('Food_arrays');
   }
   //google login button functions

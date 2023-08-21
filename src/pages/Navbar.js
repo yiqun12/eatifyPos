@@ -346,38 +346,16 @@ const Navbar = () => {
     //console.log("Fail to login", response)
   }
 
-  const HandleCheckout = async () => {
-    sessionStorage.setItem('products', JSON.stringify(products));
-    // Get the products from local storage
-    const lineItem = JSON.parse(sessionStorage.getItem('products'));
-
-    // Create the line items array
-    const lineItems = lineItem.map((product) => {
-      return { price: product.id, quantity: product.quantity };
-    });
-    try {
-      const response = await fetch('http://localhost:4242/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ line_items: lineItems }),
-      });
-      const data = await response.json();
-
-      // Redirect the user to the Checkout session URL
-      window.location.href = data.sessionUrl;
-    } catch (error) {
-      console.error(error);
-    }
-  };
   //const { promise } = useUserContext();
-
+  const queryParams = new URLSearchParams(location.search);
+  const storeValue = queryParams.get('store'); // should give "parkasia"
+  const tableValue = queryParams.get('table'); // should give "A3"
+  console.log(storeValue)
+  console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
     sessionStorage.setItem('products', JSON.stringify(products));
-    window.location.href = '/Checkout'
+    window.location.href = '/Checkout'+"?store="+storeValue+"&"+"table="+tableValue
   };
-
 
   // for translations sake
   const trans = JSON.parse(sessionStorage.getItem("translations"))

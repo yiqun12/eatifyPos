@@ -6,6 +6,3 @@ body::-webkit-scrollbar {
   display: none;
 }
 /*no error layout iframe none*/
-body iframe {
-  display: none;
-}

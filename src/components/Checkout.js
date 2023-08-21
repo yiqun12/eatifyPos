@@ -21,7 +21,10 @@ import { MDBCheckbox } from 'mdb-react-ui-kit';
 import { useParams } from 'react-router-dom';
 
 function Checkout(props) {
-  const { store } = useParams();
+  const params = new URLSearchParams(window.location.search);
+  
+  const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
+  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
   console.log(store)
   const [receiptToken, setReceiptToken] = useState("");
 
@@ -470,7 +473,11 @@ function Checkout(props) {
   );
 };
 function CardSection(props) {
-  const { store } = useParams();
+  const params = new URLSearchParams(window.location.search);
+  
+  const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
+  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
+  
   console.log(store)
   const [newCardAdded, setNewCardAdded] = useState(false);
 
@@ -602,7 +609,7 @@ function CardSection(props) {
       currency,
       amount,
       status: 'new',
-      receipt: sessionStorage.getItem('products'),
+      receipt: sessionStorage.getItem("products"),
       dateTime: date,
       user_email: user.email,
       isDinein: sessionStorage.getItem('isDinein') === 'true' ? 'DineIn' : 'TakeOut',
@@ -764,7 +771,11 @@ function useMobileAndTabletCheck() {
 }
 
 function PayHistory(props) {
-  const { store } = useParams();
+  const params = new URLSearchParams(window.location.search);
+  
+  const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
+  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
+
   console.log(store)
   const { user, user_loading} = useUserContext();
   const { totalPrice, tips } = props;
@@ -840,7 +851,7 @@ function PayHistory(props) {
       payment = error.payment_intent;
     } else if (paymentIntent) {
       payment = paymentIntent;
-      payment['receiptData'] = sessionStorage.getItem('products');
+      payment['receiptData'] = sessionStorage.getItem("products");
       payment['user_email'] = user.email;
     }
 
@@ -860,7 +871,8 @@ function PayHistory(props) {
     sessionStorage.setItem('docid', docId)
     const { error, paymentIntent } = await stripe.confirmAlipayPayment(
       payment.client_secret, {
-        return_url: `${window.location.origin}/store/${store}/checkout?return=true`,
+        //http://localhost:3000/store?store=parkasia&table=A3&return=true
+        return_url: `${window.location.origin}/Checkout?store=parkasia&table=A3&return=true`,
       })
 
     if (error) {
@@ -873,7 +885,7 @@ function PayHistory(props) {
       console.log("Stripe has not been initialized yet.")
       return;
     }
-
+    console.log(payment)
     const { error, paymentIntent } = await stripe.confirmWechatPayPayment(
       payment.client_secret, {
       payment_method_options: {
@@ -888,7 +900,7 @@ function PayHistory(props) {
       payment = error.payment_intent;
     } else if (paymentIntent) {
       payment = paymentIntent;
-      payment['receiptData'] = sessionStorage.getItem('products');
+      payment['receiptData'] = sessionStorage.getItem("products");
       payment['user_email'] = user.email;
     }
     //send to db
@@ -1032,7 +1044,7 @@ function PayHistory(props) {
       }
       if (paymentIntent) {
         payment = paymentIntent;
-        payment['receiptData'] = sessionStorage.getItem('products');
+        payment['receiptData'] = sessionStorage.getItem("products");
         payment['user_email'] = user.email;
       }
 

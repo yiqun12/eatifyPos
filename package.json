@@ -84,6 +84,7 @@
         ]
     },
     "devDependencies": {
-        "env-cmd": "^10.1.0"
+        "env-cmd": "^10.1.0",
+        "webpack-cli": "^5.1.4"
     }
 }

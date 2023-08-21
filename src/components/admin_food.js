@@ -42,6 +42,9 @@ const Food = () => {
   useEffect(() => {
     saveId(Math.random());
   }, [products]);
+  const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
+  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
+  console.log(store)
 
   const displayAllProductInfo = () => {
     // Retrieve the array from local storage

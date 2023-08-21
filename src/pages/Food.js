@@ -21,9 +21,9 @@ import BusinessHoursTable from './BusinessHoursTable.js'
 const Food = () => {
   const [loading, setLoading] = useState(true);
   const params = new URLSearchParams(window.location.search);
-  const { store } = useParams();
-  const storeValue = store ? store.toLowerCase() : "";
-  console.log("hello")
+  
+  const  storeValue  = params.get('store') ? params.get('store').toLowerCase() : "";
+  console.log(storeValue)
   const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
 
   //console.log(user_loading)
@@ -507,12 +507,12 @@ const Food = () => {
                 </div>
 
                 <div
-                  style={{ marginLeft: '20px', width: '30%', textAlign: 'right' }}
+                  style={{ marginLeft: '20px', width: '30%', marginBottom:"5px",textAlign: 'right' }}
                 >
                   <div style={{ marginTop: '6px' }}>
                     {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
                       <b >
-                        <b style={{ backgroundColor: "#ff6161", borderRadius: "3px", padding: "3px", color: "white", }}>//red
+                        <b style={{ backgroundColor: "#ff6161", borderRadius: "3px", padding: "3px", color: "white", }}>
                           {sessionStorage.getItem('table')}
                         </b>
                       </b> :
@@ -522,7 +522,7 @@ const Food = () => {
 
                     <b
                       style={{
-                        fontSize: "18px",
+                        fontSize: "14px",
                         fontWeight: "normal",
                         marginLeft: "10px",
                         backgroundColor: isOpen ? "#97c23a" : 'red',//green
@@ -559,20 +559,16 @@ const Food = () => {
                   }}>
                     <div>{storeInfo.Name}</div>
 
-                    <div style={{ marginLeft: "20px", width: "30%", textAlign: "right" }}>
+                    <div style={{ marginLeft: "20px",marginBottom:"5px", width: "30%", textAlign: "right" }}>
                       <div>
                         {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
                           <b >
-                            <b style={{ backgroundColor: "#ff6161", borderRadius: "3px", padding: "3px", color: "white", }}>//red
+                            <b style={{ backgroundColor: "#ff6161", borderRadius: "3px", padding: "3px", color: "white", }}>
                               {sessionStorage.getItem('table')}
                             </b>
                           </b> :
                           <></>
-
                         }
-
-
-
                       </div>
                     </div>
 
@@ -584,7 +580,7 @@ const Food = () => {
                     <b style={{ marginLeft: "auto" }}>
                       <b
                         style={{
-                          fontSize: "18px",
+                          fontSize: "14px",
                           fontWeight: "normal",
                           backgroundColor: isOpen ? "#97c23a" : 'red', //green
                           borderRadius: "10px",

@@ -97,7 +97,7 @@ function App() {
 
               <Route path="orders" element={<Receipt />} />
               <Route path="Reservation" element={<Reservation />} />
-              {user ? <Route path="/store/:store/checkout" element={<Checkout />}></Route> : <Route path="/store/:store/checkout" element={<LogIn />}></Route>}
+              {user ? <Route path="/checkout" element={<Checkout />}></Route> : <Route path="/checkout" element={<LogIn />}></Route>}
               <Route path="Dashboard" element={<Dashboard />} />
               {user ?
                 <Route path="Account" element=
@@ -129,7 +129,7 @@ function App() {
       <Route exact path="/test_admin_new" element={<Admin_new />} />
 
               {user ? <Route path="ForgotPassword" element={<Account />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
-              <Route exact path="/store/:store" element={<Food />} />
+              <Route exact path="/store" element={<Food />} />
               <Route exact path="/DemoFood" element={<DemoFood />} />
 
               <Route path='*' exact={true} element={<Home />} />
