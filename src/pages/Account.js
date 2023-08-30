@@ -18,7 +18,7 @@ const Account = () => {
   }, [id]);
 
   const { promise, logoutUser } = useUserContext();
-  //console.log(promise)
+
   const [activeTab, setActiveTab] = useState('');
 
   const handleTabClick = (e, tabHref) => {
@@ -77,7 +77,6 @@ const Account = () => {
           Loading...
         </div>
         :
-      <Elements stripe={promise}>
         <div className='max-w-[1000px] mx-auto p-4'>
           <div className="container">
            <div className="row gutters-sm flex justify-center items-center">
@@ -119,7 +118,6 @@ const Account = () => {
             </div>
           </div>
         </div>
-      </Elements>
       }
     </>
   )

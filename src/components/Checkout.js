@@ -785,7 +785,7 @@ function PayHistory(props) {
   const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
 
   loadStripe(STRIPE_PUBLISHABLE_KEY, {
-    stripeAccount: 'acct_1NR75OE0QS2AMUUQ'
+    stripeAccount: JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).stripe_store_acct
   }).then(stripeInstance => {
     stripe = stripeInstance; // Save stripe instance for use in your function
   }).catch(console.error);
@@ -872,7 +872,7 @@ function PayHistory(props) {
     const { error, paymentIntent } = await stripe.confirmAlipayPayment(
       payment.client_secret, {
         //http://localhost:3000/store?store=parkasia&table=A3&return=true
-        return_url: `${window.location.origin}/Checkout?store=parkasia&table=A3&return=true`,
+        return_url: `${window.location.origin}/Checkout?store=parkasia&return=true`,
       })
 
     if (error) {

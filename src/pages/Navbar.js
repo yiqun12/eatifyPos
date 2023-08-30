@@ -29,6 +29,7 @@ import logo_fork from './logo_fork.png'
 import Hero from './Hero'
 import cuiyuan from './cuiyuan.png'
 
+import cartImage from './shopcart.png';
 
 const Navbar = () => {
   const params = new URLSearchParams(window.location.search);
@@ -350,7 +351,6 @@ const Navbar = () => {
     //console.log("Fail to login", response)
   }
 
-  //const { promise } = useUserContext();
   const queryParams = new URLSearchParams(location.search);
   const storeValue = queryParams.get('store'); // should give "parkasia"
   const tableValue = queryParams.get('table'); // should give "A3"
@@ -358,7 +358,7 @@ const Navbar = () => {
   console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
     sessionStorage.setItem(store, JSON.stringify(products));
-    window.location.href = '/Checkout'+"?store="+storeValue+"&"+"table="+tableValue
+    window.location.href = '/Checkout'+"?store="+storeValue+"&"+"table="+sessionStorage.getItem("table")
   };
 
   // for translations sake
@@ -407,28 +407,17 @@ const Navbar = () => {
 
     <>
 
-      <a class="float" target="_blank">
+      <a class="float" >
         <a
 
-          style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal} className="nav__link">
-          <i style={{
-            color: 'transparent'
-          }}
-            className="material-icons nav__icon">home</i>
-          <span style={{
-            color: 'transparent'
-          }} className="nav__text">
-            1</span>                  <span style={{
-              fontSize: '17px',
-              color: 'transparent'
-            }} className="nav__text ">
-            1</span>
+          style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
 
           <div id="cart"
-            style={{ 'color' : '#444444' }}
+            style={{ width:"60px",height:"60px",'color' : '#444444' }}
             className="cart" data-totalitems={totalQuant} ref={btnRef} >
-            <a className="email-link"><i style={{ "fontSize": "35px", 'color': '#444444' }}
-              className="material-icons nav__icon">shopping_cart_checkout</i></a>
+              
+            <img src={cartImage} alt="Shopping Cart" />
+
           </div>
         </a>
       </a>
@@ -568,7 +557,7 @@ const Navbar = () => {
 
         <div className="col-span-4 pl-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
           <img onClick={event => window.location.href = '/'}
-            src="https://cdn.discordapp.com/attachments/1140150068108873809/1140196259681030264/logo_eatifydash2-removebg-preview.png"
+            src="https://cdn.discordapp.com/attachments/1140150068108873809/1144246943929868349/image.png"
             alt=""
             style={{
               maxHeight: '50px',
@@ -576,14 +565,14 @@ const Navbar = () => {
               borderRadius: '50%',  // this makes the image round
               objectFit: 'cover',   // this makes the image co0ver the entire dimensions
               marginRight: '10px',   // added some margin to the right of the image
+              marginLeft:"5px"
             }} />
-          <div className='flex' style={{ marginTop:"15px",flexDirection: "column" }}>
-            <span onClick={event => window.location.href = '/'} style={{ marginTop: "0px" }}>
-            {t("EatifyDash")} 
-            <p>
-            {t("Quick, Safe & Secure")}
-            </p>
-            </span>
+          <div className='flex' style={{ flexDirection: "column" }}>
+          <h1 className='text-orange-500' style={{ fontStyle: 'italic'
+}} onClick={event => window.location.href = '/'}>
+            {t("Yumcha")} 
+            </h1>
+
           </div>
 
           <div className='flex ml-auto pr-4'>

@@ -258,22 +258,27 @@ const Item = (props) => {
     <div className="card2 mb-50" style={!isMobile?{"box-shadow":'rgba(0, 0, 0, 0.08) -20px 1 20px -10px'}:{"box-shadow":'rgba(0, 0, 0, 0.08) 20px -10px -20px -10px'}}>
 
       <div className="main">
+      <div className='mb-2'>
+        
+        <a href={`./store?store=${store}`} style={{ color: "blue" }}>
+    &lt; Back to store
+</a>
+</div>
         <span className='flex' id="sub-title">
           <div className='flex'>
 
           {sessionStorage.getItem('table')!=null && sessionStorage.getItem('table')!=""?
                 <b >
                 <b style={{backgroundColor: "red", borderRadius: "3px",padding: "3px",color: "white",}}>
-                      {sessionStorage.getItem('table')} 
+                Table:  {sessionStorage.getItem('table')} 
                 </b>
                 &nbsp; 
                 </b>:
-                <></>
-
-}
             <b> {t("Summary")}
             
             </b>
+}
+
           </div>
 
             <Hero style={{"marginBottom":"5px"}}>

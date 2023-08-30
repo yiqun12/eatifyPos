@@ -114,7 +114,7 @@ function App() {
                 <Route path="LogIn" element={
                   user.uid === process.env.REACT_APP_ADMIN_UID ?
                     <Account_admin /> :
-                    <Account />}></Route> :
+                    <Account_admin />}></Route> :
                 <Route path="LogIn" element={<LogIn />}></Route>
               }
 
@@ -130,7 +130,7 @@ function App() {
 
       <Route exact path="/test_admin_new" element={<Admin_new />} />
 
-              {user ? <Route path="ForgotPassword" element={<Account />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
+              {user ? <Route path="ForgotPassword" element={<Account_admin />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
               <Route exact path="/store" element={<Food />} />
               <Route exact path="/DemoFood" element={<DemoFood />} />
               <Route exact path="/AdminFood" element={<Admin_food />} />

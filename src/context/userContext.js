@@ -21,17 +21,14 @@ import { auth } from "../firebase";
 
 //import {useStripe, useElements, CardElement} from '@stripe/react-stripe-js';
 
-const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
 
 let currentUser = {};
 let customerData = {};
 /**
  * Set up Stripe Elements
  */
+const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
 
-const promise = loadStripe(STRIPE_PUBLISHABLE_KEY, {
-  stripeAccount: 'acct_1NR75OE0QS2AMUUQ'
-});
 
 export const UserContext = createContext({});
 
@@ -49,11 +46,11 @@ export const UserContextProvider = ({ children }) => {
     setLoading(true);
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        const {uid, displayName, email} = firebaseUser;
+        const {uid, displayName, email,storelist} = firebaseUser;
         const filteredProperties = Object.assign({}, {uid}, {displayName}, {email});
         if(filteredProperties.uid!=null&&filteredProperties.displayName==null&&email==null){
           filteredProperties.displayName = "Anonymous"
-          filteredProperties.email = "Anonymous@eatifyDash.com"
+          filteredProperties.email = "Anonymous@Yumcha.App"
         }
         setUser(filteredProperties);
         currentUser = firebaseUser;
@@ -246,7 +243,6 @@ const signInWithAdminGoogle = () => {
     logoutUser,
     forgotPassword,
     signInWithGoogle,
-    promise,
     signInWithGuest,
     signInWithGuestLink,
     signInWithAdminGoogle,

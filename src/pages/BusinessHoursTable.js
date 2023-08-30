@@ -1,4 +1,4 @@
-import {React, useEffect, useState} from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import Table from 'react-bootstrap/Table';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
@@ -212,6 +212,21 @@ function grabDayTime(dayTimeObject) {
       return text;
     };
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
+  function getCurrentDayTimeRanges() {
+    const currentDayIndex = getCurrentDayIndex();
+    const ranges = businessHoursData[currentDayIndex].timeRanges;
+    return ranges.map((range, index) => {
+        if (range.openTime === "xxxx") {
+            return t("Closed");
+        }
+        return (
+            <Fragment key={index}>
+                {convertTo12HourFormat(range.openTime)} - {convertTo12HourFormat(range.closeTime)}
+                {index !== ranges.length - 1 && <br />}  {/* Insert a line break unless it's the last item */}
+            </Fragment>
+        );
+    });
+}
 
   return (
     <>
@@ -223,16 +238,9 @@ function grabDayTime(dayTimeObject) {
       Closed
       </Button> } */}
 
-{storeStatus ? 
-  <div onClick={handleShow} className="responsive-text" style={{ cursor:"pointer",color: 'gray', textDecoration: 'underline', textUnderlineOffset: '0.5em' }}  >
-    {`${t("Until")} ` + (grabDayTime(getNextCloseTimeRange()))}
-  </div> 
-  : 
-  <div onClick={handleShow} className="responsive-text" style={{ cursor:"pointer",color: 'gray', textDecoration: 'underline', textUnderlineOffset: '0.5em' }} >
-    {`${t("Until")} ` + (grabDayTime(getNextOpenTimeRange()))}
-    {/* See Time */}
-  </div>
-}
+<div onClick={handleShow} className="responsive-text" style={{ cursor:"pointer",color: 'gray', textUnderlineOffset: '0.5em' }}>
+    {getCurrentDayTimeRanges()}
+</div>
     {/* <Button variant="primary" onClick={handleShow}>
       Business Hours
       </Button> */}

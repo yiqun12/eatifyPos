@@ -10,6 +10,7 @@ import { useMyHook } from './myHook';
 import './SwitchToggle.css';
 import moment from 'moment';
 import firebase from 'firebase/compat/app';
+import { useUserContext } from "../context/userContext";
 
 const App = () => {
 
@@ -33,12 +34,15 @@ const Item = () => {
   //const receiptToken = window.location.href.split('?')[1];
   const urlParams = new URLSearchParams(window.location.search);
   const receiptToken = urlParams.get('order');  // '12345'
-  
+  const { user, user_loading} = useUserContext();
+
   useEffect(() => {
     if (receiptToken && receiptToken.length === 20) {
       const unsubscribe = firebase
         .firestore()
-        .collection("success_payment")
+        .collection("stripe_customers")
+        .doc(user.uid)
+        .collection("payments")
         .doc(receiptToken)
         .onSnapshot((doc) => {
           if (doc.exists) {
@@ -55,7 +59,9 @@ const Item = () => {
               tips: payment.metadata.tips,
               subtotal: payment.metadata.subtotal,
               total: payment.metadata.total,
-              phoneNumber:payment.phoneNumber ? payment.phoneNumber : ''
+              phoneNumber:payment.phoneNumber ? payment.phoneNumber : '',
+              store:payment.store,
+              tableNum:payment.tableNum
             };
             console.log("Document data:", paymentData);
             setPaymentData(paymentData);
@@ -102,8 +108,14 @@ const Item = () => {
       </div>
       <div className="gap">
         <div className="col-2 d-flex mx-auto" />
-        
-        <b className="text-black text-2xl">{payment_data.isDinein} ({payment_data.status})</b>
+        <a href={`./store?store=${payment_data.store}`} style={{ color: "blue" }}>
+    &lt; Back to store
+</a>
+<div className='mt-1 mb-2' >
+    <b className="text-black text-2xl">{payment_data.store}</b>
+</div>
+<b className="block text-black text-sm">{payment_data.isDinein} ({payment_data.status})</b>
+
         <b className="block text-black text-sm">{t("Order ID")}: {payment_data.document_id.substring(0, 3)}</b>
 
         {payment_data.status === "Handle Instore" && (

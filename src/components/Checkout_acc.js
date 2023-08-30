@@ -181,12 +181,6 @@ const handleMouseLeave = () => {
     return zeroDecimalCurrency;
   }
 
-  // Format amount for Stripe
-  function formatAmountForStripe(amount, currency) {
-    return zeroDecimalCurrency(amount, currency)
-      ? amount
-      : Math.round(amount * 100);
-  }
 
   useEffect(() => {
     startDataListeners();

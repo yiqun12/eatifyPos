@@ -237,7 +237,7 @@ const Food = () => {
       image: previewUrl,
       name: newItem.name || "Cuisine Name",
       CHI: newItem.CHI || "菜品名称",
-      subtotal: newItem.subtotal || "$0",
+      subtotal: newItem.subtotal || "1",
       category: newItem.category || (categoryState === null ? "Classic" : categoryState),
       categoryCHI:newItem.categoryCHI || "经典",
       Priority: newItem.Priority || "9999"
@@ -392,12 +392,12 @@ const Food = () => {
 
     <div>
     {isModalOpen && (
-          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center mt-20">
-            <div className="relative w-full max-w-2xl max-h-full">
+        <div id="defaultModal" className="fixed inset-0 z-50 p-4 overflow-x-hidden overflow-y-auto flex items-center justify-center mt-20 bg-black bg-opacity-70 blur-modal no-events">
+        <div className="relative w-full max-w-2xl max-h-full">
               <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-              <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+              <div className="flex items-start justify-between p-4 pt-4 pb-1 border-b rounded-t dark:border-gray-600">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {t("CHECKLIST")}
+                  {t("SELF CHECKLIST")}
                   </h3>
                   <button
                     onClick={handleEditShopInfoModalClose}
@@ -498,7 +498,7 @@ const Food = () => {
 
 
             {/* end of the top */}
-            <div className={isMobile ? 'scrolling-wrapper-filter mt-2' : "mb-2 mt-2 scrolling-wrapper-filter"} style={{ borderBottom: "1px solid black" }}>
+            <div className={isMobile ? 'scrolling-wrapper-filter mt-2' : "mb-2 mt-2 scrolling-wrapper-filter"}>
 
               <button onClick={() => {
                 setFoods(data)
@@ -526,7 +526,7 @@ const Food = () => {
 
         {/* diplay food */}
         <AnimatePresence>
-          <div className='grid grid-cols-2 lg:grid-cols-4 gap-6 pt-3'>
+          <div className='grid grid-cols-2 lg:grid-cols-4 gap-6'>
             <motion.div
               layout
               initial={{ opacity: 0 }}
@@ -534,7 +534,7 @@ const Food = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.1 }}
               key={""}
-              className="border rounded-lg duration-500 cursor-pointer">
+              className="shadow border rounded-lg duration-500 cursor-pointer">
               <label className='h-min overflow-hidden rounded-md'
                 style={{ backgroundColor: "rgba(246,246,248,1)", display: 'block', width: '100%' }}
 
@@ -620,7 +620,7 @@ const Food = () => {
                       style={{ width: "50%" }}
                       type="text"
                       name="subtotal"
-                      placeholder={"$0"}
+                      placeholder={"1"}
                       value={newItem.subtotal}
                       onChange={handleInputChange}
                     />
@@ -697,7 +697,7 @@ const Food = () => {
                   <div className="flex">
                     <span
                       style={{ cursor: "pointer" }}
-                      className="task-card__tag task-card__tag--marketing"
+                      className="task-card__tag mb-2 task-card__tag--marketing"
                       onClick={handleAddNewItem}
                     >
                       {t("Add New")}
@@ -909,7 +909,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
         exit={{ opacity: 0 }}
         transition={{ duration: 0.1 }}
         key={item.id}
-        className="border rounded-lg duration-500 cursor-pointer">
+        className="border shadow rounded-lg duration-500 cursor-pointer">
         <div className="h-min overflow-hidden rounded-md">
           <img loading="lazy" className="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg " src={item.image}
             onClick={() => {
@@ -1079,7 +1079,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
             <div className='flex' >
               <span
                 style={{ cursor: 'pointer' }}
-                className="task-card__tag task-card__tag--marketing"
+                className="task-card__tag  mb-2  task-card__tag--marketing"
                 onClick={() => {
                   updateItem(item.id, inputData);
                   setInputData(null); // reset input data

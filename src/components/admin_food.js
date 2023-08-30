@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import $ from 'jquery';
 import { useMyHook } from '../pages/myHook';
 import { useMemo } from 'react';
-import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, addDoc, getDocs, getDoc,updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { FiSearch } from 'react-icons/fi';
 
@@ -106,26 +106,21 @@ const Food = () => {
   const syncData = async() => {
     
     let sessionData;
-
-      // Define the query
-      const q = query(
-        collection(db, "TitleLogoNameContent"),
-        where("Name", "==", store), // Replace "nameField" with the name of the field in your Firestore document
-        limit(1)
-      );
     
       try {
-        // Execute the query
-        const querySnapshot = await getDocs(q);
-    
-        // Check if a document was found
-        if (!querySnapshot.empty) {
-          sessionData = querySnapshot.docs[0].data().key
-          const { key, ...rest } = querySnapshot.docs[0].data();
-
-          localStorage.setItem("TitleLogoNameContent",JSON.stringify(rest))
+        // Get a reference to the specific document with ID equal to store
+        const docRef = doc(db, "TitleLogoNameContent", store);
+      
+        // Fetch the document
+        const docSnapshot = await getDoc(docRef);
+      
+        if (docSnapshot.exists()) {
+          // The document exists
+          sessionData = docSnapshot.data().key;
+          const { key, ...rest } = docSnapshot.data();
+          localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
         } else {
-          console.log("No document found with the given name.");
+          console.log("No document found with the given ID.");
         }
       } catch (error) {
         console.error("Error fetching the document:", error);
@@ -537,10 +532,10 @@ const Food = () => {
       <div className='max-w-[1000px] m-auto px-4 '>
         <Scanner />
         {!isMobile ? <></> :
-          <div className='flex justify-between mt-2' >
+          <div className='flex mt-2' >
                             <button
                                         onClick={handleEditShopInfoModalOpen}
-            className="block  text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+            className="block mr-2  text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
             style={{  display: "inline-block" }}>
             {t("Edit Shop Info")}
           </button>
@@ -551,12 +546,12 @@ const Food = () => {
                 saveId(Math.random());
 
               }}
-              className="block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+              className="block mr-2 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
             >
               {t("Sync Menu")}
             </button>
             <button
-              className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="block mr-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               {t("Save Changes")}
             </button>
@@ -587,7 +582,7 @@ const Food = () => {
 
           </div>
           {isMobile ? <></> :
-            <div className='flex' style={{ marginLeft: "auto" }}>
+            <div className='flex ' style={{ marginLeft: "auto" }}>
                             <button
                                         onClick={handleEditShopInfoModalOpen}
             className="block mr-5 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"

@@ -13,7 +13,7 @@ import { ReactComponent as MinusSvg } from './minus.svg';
 import { FiSearch } from 'react-icons/fi';
 import TextField from '@mui/material/TextField';
 import Button_ from '@mui/material/Button'
-import { getFirestore, collection, query, where, getDocs, addDoc } from "firebase/firestore";
+import { getFirestore, collection, getDoc,setDoc, query, where, getDocs, addDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
 import {  doc, updateDoc, arrayUnion } from "firebase/firestore";
@@ -68,49 +68,50 @@ const Food = () => {
   const { user, user_loading } = useUserContext();
 
   const handleDemoStoreNameSubmit = async (event) => {
+    event.preventDefault();
+    console.log('Form submitted with name:', DemoStorename);
+    const storeName = DemoStorename;
+    const address = "no address";
+    const Open_time = "null";
+    const data = localStorage.getItem("food_arrays");
+  
+    // First, check if a document with the given ID exists
+    const docRef = doc(db, "TitleLogoNameContent", storeName);
+  
+    const docSnapshot = await getDoc(docRef);
+    if (docSnapshot.exists()) {
+      // If a document with the given ID exists
+      alert("Store name duplicated!");
+      return;
+    }
+  
+    // If the document doesn't exist, add a new one
+    const newDoc = {
+      Name: storeName,
+      Address: address,
+      Open_time: Open_time,
+      key: data
+    };
+  
+    try {
+      await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
       
-      event.preventDefault();
-      console.log('Form submitted with name:', DemoStorename);
-      const storeName = DemoStorename
-      const address = "no address"
-      const Open_time = "null"
-      const data = localStorage.getItem("food_arrays")
-  // First, check for duplicates
-  const storeCollection = collection(db, "TitleLogoNameContent");
-  const q = query(storeCollection, where("Name", "==", storeName));
-  const snapshot = await getDocs(q);
-  
-  if (!snapshot.empty) {
-    // If a document with the same storeName is found
-    alert("Store name duplicated!");
-    return;
-  }
-  
-  // If no duplicates are found, add the new document
-  const newDoc = {
-    Name: storeName,
-    Address: address,
-    Open_time: Open_time,
-    key: data
+      const userDoc = doc(db, "stripe_customers", user.uid);  // Assuming you have a user object with a uid property
+      try {
+        await updateDoc(userDoc, {
+          storelist: arrayUnion(storeName)
+        });
+        window.location.href = "/store?store=" + storeName;
+      } catch (error) {
+        console.error("Error updating storelist: ", error);
+      }
+      
+      console.log("Document added successfully!");
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
   };
   
-  try {
-    await addDoc(storeCollection, newDoc);
-    const userDoc = doc(db, "stripe_customers", user.uid);  // Assuming your collection name is "users"
-    try {
-      await updateDoc(userDoc, {
-        storelist: arrayUnion(storeName)
-      });
-      window.location.href = "/store?store="+storeName;
-    } catch (error) {
-      console.error("Error updating storelist: ", error);
-    }
-    console.log("Document added successfully!");
-  } catch (error) {
-    console.error("Error adding document: ", error);
-  }
-     // console.log(data)
-    };
     
     console.log(user.uid)
   const displayAllProductInfo = () => {

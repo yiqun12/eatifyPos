@@ -5,6 +5,7 @@ import Checkout from './Checkout';
 import { MyHookProvider } from '../pages/myHook';
 import Link from '@mui/material/Link';
 import { useMyHook } from '../pages/myHook';
+import {loadStripe} from '@stripe/stripe-js';
 
 const Dashboard = (props) => {
   /**listen to localtsorage */
@@ -15,7 +16,10 @@ const Dashboard = (props) => {
 
   const { user } = useUserContext();
   const { totalPrice } = props;
-  const { promise, logoutUser, emailVerification } = useUserContext();
+  const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
+  const promise = loadStripe(STRIPE_PUBLISHABLE_KEY, {
+    stripeAccount: JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).stripe_store_acct
+  });
   var verificationStatus = user.emailVerified ? "Verified" : "Not Verified";
 
   const [newCardAdded, setNewCardAdded] = useState(false);

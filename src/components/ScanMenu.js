@@ -133,7 +133,7 @@ const GoogleVisionDemo = () => {
           generatedUUIDs.add(id);
 
           item.id = id;
-          item.subtotal = 0;
+          item.subtotal = 1;
           item.Priority = 9999;
         });
         //console.log(jsonWithImage);

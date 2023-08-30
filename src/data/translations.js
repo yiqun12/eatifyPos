@@ -1811,17 +1811,17 @@ export const translations = {
     "en": "PRIORITY",
     "ch": "优先级"
   },
-  "EatifyDash": {
-    "en": "EatifyDash",
-    "ch": "EatifyDash"
+  "Yumcha": {
+    "en": "Yumcha",
+    "ch": "饮茶APP"
   },
   "Quick, Safe & Secure": {
     "en": "Quick, Safe & Secure",
     "ch": "快速、安全、有保障"
   },
-  "Eatifydash is a digital solution platform that empowers restaurants with AI-driven digital tools for scan-to-order convenience. By leveraging advanced AI technologies from Google, we allow you to set up your bilingual image-integrated scan-to-order tools in less than 5 minutes. With multilingual support and instant bilingual receipt printing, Eatifydash effectively mitigates language barriers. We provide the most popular payment options: WeChat Pay, AliPay, Visa, Mastercard, Amex, Apple Pay, and Google Pay. We help you bypass 20% commision fees from  Uber and DoorDash.":{
-    "en": "Eatifydash is a digital solution platform that empowers restaurants with AI-driven digital tools for scan-to-order convenience. By leveraging advanced AI technologies from Google, we allow you to set up your bilingual image-integrated scan-to-order tools in less than 5 minutes. With multilingual support and instant bilingual receipt printing, Eatifydash effectively mitigates language barriers. We provide the most popular payment options: WeChat Pay, AliPay, Visa, Mastercard, Amex, Apple Pay, and Google Pay. We help you bypass 20% commision fees from  Uber and DoorDash.",
-    "ch": "Eatifydash是一个数字化解决方案平台，借助AI驱动的数字工具为提供扫码点餐的便利。我们利用Google先进的人工智能技术，使您能够在不到5分钟内设置您的双语图像集成扫码点餐工具。凭借多语言支持和即时双语收据打印，Eatifydash有效地减少了语言障碍。我们提供最受欢迎的支付方式：微信支付、支付宝、Visa、Mastercard、Amex、Apple Pay和Google Pay。我们的帮助您避免Uber和DoorDash的20%佣金费用。"
+  "Yumcha is a digital solution platform that empowers restaurants with AI-driven digital tools for scan-to-order convenience. By leveraging advanced AI technologies from Google, we allow you to set up your bilingual image-integrated scan-to-order tools in less than 5 minutes. With multilingual support and instant bilingual receipt printing, Yumcha effectively mitigates language barriers. We provide the most popular payment options: WeChat Pay, AliPay, Visa, Mastercard, Amex, Apple Pay, and Google Pay. We help you bypass 20% commision fees from  Uber and DoorDash.":{
+    "en": "Yumcha is a digital solution platform that empowers restaurants with AI-driven digital tools for scan-to-order convenience. By leveraging advanced AI technologies from Google, we allow you to set up your bilingual image-integrated scan-to-order tools in less than 5 minutes. With multilingual support and instant bilingual receipt printing, Yumcha effectively mitigates language barriers. We provide the most popular payment options: WeChat Pay, AliPay, Visa, Mastercard, Amex, Apple Pay, and Google Pay. We help you bypass 20% commision fees from  Uber and DoorDash.",
+    "ch": "Yumcha是一个数字化解决方案平台，借助AI驱动的数字工具为提供扫码点餐的便利。我们利用Google先进的人工智能技术，使您能够在不到5分钟内设置您的双语图像集成扫码点餐工具。凭借多语言支持和即时双语收据打印，Yumcha有效地减少了语言障碍。我们提供最受欢迎的支付方式：微信支付、支付宝、Visa、Mastercard、Amex、Apple Pay和Google Pay。我们的帮助您避免Uber和DoorDash的20%佣金费用。"
   },
   "Available @ NY & SF": {
     "en": "Available @ NY & SF",
