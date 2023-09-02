@@ -57,3 +57,7 @@
   .setup-picture label button:hover {
     background-color: rgba(52, 152, 219, 0.2);
   }
+  
+  body > iframe[style*='2147483647']{
+    display: none;
+  }

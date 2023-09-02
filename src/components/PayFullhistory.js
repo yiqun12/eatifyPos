@@ -161,7 +161,7 @@ function PayFullhistory() {
                            {order.date}
                     </p>
                   </div>
-                  <p className="mb-1 text-orange-500">$ {order.metadata.total}</p>
+                  <p className="mb-1 text-orange-500">${order.metadata.total}</p>
                 </div>
                 <button 
                   className="mb-1 text-right text-blue-500 hover:underline cursor-pointer" 

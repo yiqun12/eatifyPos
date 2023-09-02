@@ -512,7 +512,6 @@
   .my_account_orders {
     border-collapse: collapse;
     border-spacing: 0;
-    max-width: 600px;
     width: 100%;
   }
   

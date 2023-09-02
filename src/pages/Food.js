@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect,useRef } from 'react'
 //import { data } from '../data/data.js'
 import { motion, AnimatePresence } from "framer-motion"
 import Button from 'react-bootstrap/Button';
@@ -202,6 +202,27 @@ const Food = () => {
       cart.removeClass('pulse');
     }, 0);
   };
+
+  const scrollingWrapperRef = useRef(null);
+
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (e.deltaY !== 0) {
+        scrollingWrapperRef.current.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }
+    };
+
+    const wrapper = scrollingWrapperRef.current;
+    wrapper.addEventListener('wheel', handleWheel);
+
+    // Cleanup event listener when the component unmounts
+    return () => {
+      wrapper.removeEventListener('wheel', handleWheel);
+    };
+  }, []); // Empty dependency array means this useEffect runs once when component mounts
+
+  
   /**drop food */
 
   //const data = JSON.parse(sessionStorage.getItem("Food_arrays"))
@@ -523,7 +544,7 @@ const Food = () => {
                 </>
 
               {/* end of the top */}
-              <div className="mt-2 scrolling-wrapper-filter mb-0">
+              <div ref={scrollingWrapperRef} className="mt-2 scrolling-wrapper-filter mb-0">
 
                 <button onClick={() => {setFoods(data)
                                       setSelectedFoodType(null);
