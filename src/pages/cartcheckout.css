@@ -48,8 +48,6 @@
     text-decoration: none;
 }
 .active{
-    border-bottom: 2px solid black;
-    font-weight: bold;
 }
 
 input{

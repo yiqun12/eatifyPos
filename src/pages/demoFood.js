@@ -90,7 +90,10 @@ const Food = () => {
       Name: storeName,
       Address: address,
       Open_time: Open_time,
-      key: data
+      key: data,
+      Image:"https://cdn.pixabay.com/photo/2016/03/02/20/13/grocery-1232944_1280.jpg",
+      stripe_store_acct:"",
+      storeOwnerId:user.uid
     };
   
     try {

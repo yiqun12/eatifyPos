@@ -3,12 +3,11 @@ import { useUserContext } from "./context/userContext";
 import SignUp from './pages/customer_signup';
 import LogIn from './pages/customer_login';
 import Navbar from './pages/Navbar'
-import Account from './pages/Account';
+//import Account from './components/Account';
 import Home from './pages/Home'
 import ForgotPassword from './pages/ForgotPassword'
 import Reservation from './pages/reservation'
 import Checkout from './pages/Checkout'
-import Chatbot from './pages/chatbot'
 
 import Admin_new from './components/Admin_new'
 import Account_admin from './components/Account_admin'
@@ -95,7 +94,6 @@ function App() {
                   user.uid === process.env.REACT_APP_ADMIN_UID ?
                   <Admin_new /> :
                   <LogIn />} />
-              <Route path="chatbot" element={<Chatbot />} />
 
 
               <Route path="orders" element={<Receipt />} />

@@ -409,7 +409,7 @@ function Checkout(props) {
                         <img className="img-fluid" src="https://img.icons8.com/color/48/000000/visa.png" />
                       )}
                     </div>
-                    <div className="col-7 select-dropdown">
+                    <div className="col-7 select-dropdown h6 font-semibold text-muted text-sm">
                       <select style={{ backgroundcolor: "white", color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
                         <option hidden data-type="mastercard">{t("Select Account")}</option>
                       </select>
@@ -872,7 +872,7 @@ function PayHistory(props) {
     const { error, paymentIntent } = await stripe.confirmAlipayPayment(
       payment.client_secret, {
         //http://localhost:3000/store?store=parkasia&table=A3&return=true
-        return_url: `${window.location.origin}/Checkout?store=parkasia&return=true`,
+        return_url: `${window.location.origin}/Checkout?store=${payment.store}&return=true`,
       })
 
     if (error) {

@@ -15,6 +15,8 @@ import { motion, AnimatePresence } from "framer-motion"
 
 
 function PayFullhistory() {
+
+
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -82,13 +84,13 @@ function PayFullhistory() {
             .subtract(4, "hours")
             .format("M/D/YYYY h:mma");
           const newItem = {
-            store:payment.store,
+            store: payment.store,
             id: item.id, // use only the first 4 characters of item.id as the value for the id property
             receiptData: item.receiptData,
             date: formattedDate,
             email: item.user_email,
             dineMode: item.metadata.isDine,
-            status: item.status === "succeeded" ? "Paid Online" : "Handle Instore",
+            status: item.status === "succeeded" ? "Paid Online" : "Instore Payment",
             total: parseFloat(item.metadata.total),
             tableNum: item.tableNum,
             metadata: item.metadata
@@ -131,115 +133,112 @@ function PayFullhistory() {
         <div>{t("Loading...")}</div>
       ) : (
         <>
-            {payments
-              .map((order) => (
-<>
-<AnimatePresence>
-      <div className='grid grid-cols-1 gap-0 pt-0'>
-        <motion.div
-          layout
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.1 }}
-          key={""}
-          className={`cursor-pointer rounded-lg duration-500`}
-          >
-          <div className='flex'>
-            <img
-              className="h-[70px] md:h-[90px] m-3 transition-all duration-500 object-cover rounded-t-lg"
-              src={JSON.parse(order.receiptData)[0].image}
-              loading="lazy"
-              style={{ width: "200px" }}
-            />
-            <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full'>
-              <div className="col-span-4 flex flex-col justify-between">
-                <div className="mt-2 flex justify-between">
-                  <div>
-                    <p className="mb-1">{order.store}</p>
-                    <p className="mb-1 text-gray-500">
-                           {order.date}
-                    </p>
-                  </div>
-                  <p className="mb-1 text-orange-500">${order.metadata.total}</p>
-                </div>
-                <button 
-                  className="mb-1 text-right text-blue-500 hover:underline cursor-pointer" 
-                  onClick={() => {toggleExpandedOrderId(order.id)} }
-                  style={{ textUnderlineOffset: '0.5em' }}
-                >
-                 {expandedOrderIds.includes(order.id)?(
-"Hide Details"
-                 ):(
-                  "View Details"
-                 )
-                 } 
-                </button>
-              </div>
-            </div>
-          </div>
-          {expandedOrderIds.includes(order.id) && (
-            <div className="p-2 rounded-b-lg">
-                      <div style={{ padding: "10px",paddingTop:"0px" }}>
-                      <div className="mt-2 flex justify-between">
-                  <div>
-                    <p className="mb-1 text-red-500">{order.dineMode==="DineIn"?"Table: "+order.tableNum:order.dineMode}</p>
-                    <p className="mb-1 text-gray-500">
-                      
-                    </p>
-                  </div>
-                  <p className="mb-1 text-green-500">{order.status} ({order.id.substring(0, 3)})</p>
-                </div>
-                        <div className="receipt">
-                          {JSON.parse(order.receiptData).map((item, index) => (
-                            
-                            <div className="receipt-item" key={item.id}>
-                                                    <div className="mt-2 flex justify-between">
-                  <div>
-                    <p className="mb-1 ">{item.name}</p>
-                    <p className="mb-1 text-gray-500">
-                    {item.quantity} x $ {item.subtotal}
-                    </p>
-                  </div>
-                  <p className="mb-1 text-orange-500">$ {Math.round(item.quantity * item.subtotal * 100) / 100}</p>
-                </div>
+          {payments
+            .map((order) => (
+              <>
+                <>
+                  <div className=' gap-0 pt-0'>
+                    <div
+
+                      className={`rounded-lg duration-500`}
+                    >
+                      <div className='flex'>
+                        <img
+                          className="h-[70px] md:h-[90px] w-[70px] md:w-[90px] mt-3 transition-all duration-500 object-cover rounded-md"
+                          src={JSON.parse(order.receiptData)[0].image}
+                          loading="lazy"
+                        />
+
+                        <div className='w-full ml-3'>
+                          <div className="mt-2 flex justify-between">
+                            <p className="mb-1 text-blue-700 d-block text-md font-semibold"
+                              onClick={() => { window.location.href = `/store?store=${order.store}`; }}
+                              style={{ cursor: 'pointer' }}
+                            >
+
+                              <span>{order.store}</span>
+                            </p>
+
+                          </div>
+
+                          <div className=" flex justify-between">
+                            <div>
+                              <p className="mb-1 d-block text-sm text-muted font-semibold">{order.date.split(" ")[0]}</p>
+                              <p className="mb-1 d-block text-sm text-muted font-semibold">${order.metadata.total}</p>
                             </div>
-                          ))}
-                                          <div className=" flex justify-between">
-                    <p className="mb-1">{t("Subtotal")}</p>
-                  <p className="mb-1 text-gray-500">$ {order.metadata.subtotal}</p>
-                </div>
-                <div className="flex justify-between">
-                    <p className="mb-1">{t("Tax")}</p>
-                  <p className="mb-1 text-gray-500">$ {order.metadata.tax}</p>
-                </div>
-                <div className=" flex justify-between">
-                    <p className="mb-1">{t("Tips")}</p>
-                  <p className="mb-1 text-gray-500">$ {order.metadata.tips}</p>
-                </div>
-                <div className=" flex justify-between">
-                    <p className="mb-1">{t("Total")}</p>
-                  <p className="mb-1 text-orange-500">$ {order.metadata.total}</p>
-                </div>
-                          <p
-                            onClick={() => { window.location.href = `/store?store=${order.store}`; }}
-                            style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
-                          >
-                            {t("Re-order in " )} {order.store}
-                          </p>
+
+
+                            <button
+                              className="mb-1 btn btn-sm btn-neutral"
+                              onClick={() => { toggleExpandedOrderId(order.id) }}
+                            >
+                              {expandedOrderIds.includes(order.id) ? (
+                                "Hide Details"
+                              ) : (
+                                "View Details"
+                              )
+                              }
+                            </button>
+                          </div>
+
                         </div>
                       </div>
+                      {expandedOrderIds.includes(order.id) && (
+                        <div className="p-0 p-0 rounded-b-lg">
+                          <div style={{ paddingTop: "0px", paddingBottom: "10px" }}>
+                            <div className="mt-1 flex justify-between mb-1">
+                              <div className='text-black d-block text-sm font-semibold '>
+                                Order Id: {order.id.substring(0, 3)}
+                              </div>
+
+
+                            </div>
+                            <p className="mb-1 text-gray-500 d-block text-sm font-semibold">{order.dineMode === "DineIn" ? "Table Number: " + order.tableNum : order.dineMode} ({order.status}) </p>
+
+                            <div className="receipt">
+                              {JSON.parse(order.receiptData).map((item, index) => (
+
+                                <div className="receipt-item" key={item.id}>
+                                  <div className="mt-0 flex justify-between">
+                                    <div>
+                                      <p className="mb-1 text-black d-block text-sm font-semibold ">{item.name}</p>
+                                      <p className="mb-1 text-gray-500 d-block text-sm font-semibold">
+                                        {item.quantity} x $ {item.subtotal}
+                                      </p>
+                                    </div>
+                                    <p className="mb-1 text-orange-700 d-block text-sm font-semibold  ">${Math.round(item.quantity * item.subtotal * 100) / 100}</p>
+                                  </div>
+                                </div>
+                              ))}
+                              <div className=" flex justify-between">
+                                <p className="mb-1 text-black d-block text-sm font-semibold">{t("Subtotal")}</p>
+                                <p className="mb-1 text-black d-block text-sm font-semibold">${order.metadata.subtotal}</p>
+                              </div>
+                              <div className="flex justify-between">
+                                <p className="mb-1 text-black d-block text-sm font-semibold">{t("Tax")}</p>
+                                <p className="mb-1 text-black d-block text-sm font-semibold">${order.metadata.tax}</p>
+                              </div>
+                              <div className=" flex justify-between">
+                                <p className="mb-1 text-black d-block text-sm font-semibold">{t("Gratuity")}</p>
+                                <p className="mb-1 text-black d-block text-sm font-semibold">${order.metadata.tips}</p>
+                              </div>
+                              <div className=" flex justify-between">
+                                <p className="mb-1 text-black d-block text-sm font-semibold">{t("Total")}</p>
+                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">${order.metadata.total}</p>
+                              </div>
+                              <hr></hr>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-          )}
-        </motion.div>
-      </div>
-      <hr></hr>
-    </AnimatePresence>
-
-
+                  </div>
                 </>
 
-              ))}
+
+              </>
+
+            ))}
         </>
 
       )}

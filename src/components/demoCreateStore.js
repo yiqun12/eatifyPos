@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 //import { data } from '../data/data.js'
 import { motion, AnimatePresence } from "framer-motion"
 import $ from 'jquery';
@@ -20,6 +20,26 @@ import Button from '@mui/material/Button';
 
 const Food = () => {
 
+  const [selectedFoodType, setSelectedFoodType] = useState(null);
+
+  const scrollingWrapperRef = useRef(null);
+
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (e.deltaY !== 0) {
+        scrollingWrapperRef.current.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }
+    };
+
+    const wrapper = scrollingWrapperRef.current;
+    wrapper.addEventListener('wheel', handleWheel);
+
+    // Cleanup event listener when the component unmounts
+    return () => {
+      wrapper.removeEventListener('wheel', handleWheel);
+    };
+  }, []); // Empty dependency array means this useEffect runs once when component mounts
 
   if (!localStorage.getItem("food_arrays") || localStorage.getItem("food_arrays") === "") {
     localStorage.setItem("food_arrays", "[]");
@@ -95,7 +115,7 @@ const Food = () => {
   useEffect(() => {
     saveId(Math.random());
   }, []);
-  
+
   useEffect(() => {
     // Get data from localStorage when component mounts
     const storedData = JSON.parse(localStorage.getItem("food_arrays") || "[]");
@@ -137,10 +157,17 @@ const Food = () => {
       })
     )
   }
-  const filterCHI = (name) => {
+  const filterTypeCHI = (categoryCHI) => {
     setFoods(
       data.filter((item) => {
-        return item.CHI.toLowerCase().includes(name.toLowerCase());
+        return item.categoryCHI === categoryCHI;
+      })
+    )
+  }
+  const filternameCHI = (CHI) => {
+    setFoods(
+      data.filter((item) => {
+        return item.CHI.includes(CHI);
       })
     )
   }
@@ -148,11 +175,11 @@ const Food = () => {
 
   const handleSearchChange = (event) => {
     setInput(event.target.value);
-    if (translationsMode_ === "ch"){
-        filterCHI(event.target.value);
+    if (translationsMode_ === "ch") {
+      filternameCHI(event.target.value);
 
-    }else{
-        filtername(event.target.value);
+    } else {
+      filtername(event.target.value);
 
     }
   }
@@ -181,6 +208,7 @@ const Food = () => {
   //const foodTypes = ['burger', 'pizza', 'salad', 'chicken'];
   //      <b style={{fontSize:"20px",color: 'red'}}>ATTENTION: YOU ARE IN ADMIN MODE!</b>
   const [foodTypes, setFoodTypes] = useState([...new Set(JSON.parse(localStorage.getItem("food_arrays") || "[]").map(item => item.category))]);
+  const [foodTypesCHI, setFoodTypesCHI] = useState([...new Set(JSON.parse(localStorage.getItem("food_arrays") || "[]").map(item => item.categoryCHI))]);
   //console.log(JSON.parse(localStorage.getItem("food_arrays")))
 
 
@@ -209,7 +237,7 @@ const Food = () => {
     subtotal: "",
     category: "",
     Priority: "",
-    categoryCHI:""
+    categoryCHI: ""
   });
 
   const [arr, setArr] = useState(JSON.parse(localStorage.getItem("food_arrays") || "[]"));
@@ -235,11 +263,11 @@ const Food = () => {
     const newItemWithPlaceholders = {
       id: newItemId,
       image: previewUrl,
-      name: newItem.name || "Cuisine Name",
+      name: newItem.name || "Dish Name",
       CHI: newItem.CHI || "菜品名称",
       subtotal: newItem.subtotal || "1",
-      category: newItem.category || (categoryState === null ? "Classic" : categoryState),
-      categoryCHI:newItem.categoryCHI || "经典",
+      category: newItem.category || (categoryState === null ? "Category" : categoryState),
+      categoryCHI: newItem.categoryCHI || "类别",
       Priority: newItem.Priority || "9999"
     };
 
@@ -263,7 +291,7 @@ const Food = () => {
       subtotal: "",
       category: "",
       Priority: "",
-      categoryCHI:""
+      categoryCHI: ""
     });
   };
   const [categoryState, setCategoryState] = useState(null);
@@ -391,57 +419,31 @@ const Food = () => {
   return (
 
     <div>
-    {isModalOpen && (
-        <div id="defaultModal" className="fixed inset-0 z-50 p-4 overflow-x-hidden overflow-y-auto flex items-center justify-center mt-20 bg-black bg-opacity-70 blur-modal no-events">
-        <div className="relative w-full max-w-2xl max-h-full">
-              <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-              <div className="flex items-start justify-between p-4 pt-4 pb-1 border-b rounded-t dark:border-gray-600">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {t("SELF CHECKLIST")}
-                  </h3>
-                  <button
-                    onClick={handleEditShopInfoModalClose}
-                    type="button"
-                    className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                    <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                    </svg>
-                    <span className="sr-only">{t("Close modal")}</span>
-                  </button>
-                </div>
-                <Checklist useMyHook={useMyHook}/>
-              </div>
-            </div>
-          </div>
-        )}
+
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
-      <div className='max-w-[1000px] m-auto px-4 '>
+      <div className='m-auto '>
+        <div className='flex mt-2' >
+
+
+
+        </div>
+
+        <div className="flex">
+          <div className="flex-grow mt-2">                          <b x="20" y="30" fill="#000" style={{ 'fontSize': '17px' }}>
+            Create Your New Store
+          </b></div>
+          <button
+            className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            onClick={() => window.location.href = "/DemoFood"}
+          >
+            {t("Create Now")}
+          </button>
+        </div>
         <Scanner />
-        {!isMobile ? <></> :
-          <div className='flex mt-2' >
-              <button
-              onClick={handleEditShopInfoModalOpen}
 
-              className="mr-2 block text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-yellow-600 dark:hover:bg-yellow-600 dark:focus:ring-yellow-800"
-              >
-              {t("Self Checklist")}
-            </button>
-
-            <button
-              className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              onClick={() => window.location.href = "/DemoFood"}
-
-            >
-              {t("See Your Store")}
-            </button>
-
-          </div>
-        }
         <div className='flex mt-2'>
           <div className='flex'
-            style={!isMobile ? {
-              width: '45%'
-            } : { width: '100%' }}>
+            style={{ width: '100%' }}>
             <div
               className='flex'
               style={{
@@ -452,37 +454,18 @@ const Food = () => {
             >
 
 
-              <div className="flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full sm:w-[400px] items-center">
+              <div className="flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full items-center">
                 <input type="search" className='flex bg-transparent p-2 w-full focus:outline-none text-black'
                   placeholder={t('Search your food')}
 
                   onChange={handleSearchChange} />
 
-                  
+
                 <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
               </div>
             </div>
 
           </div>
-          {isMobile ? <></> :
-            <div className='flex' style={{ marginLeft: "auto" }}>
-<button
-  className="mr-3 block text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-yellow-600 dark:hover:bg-yellow-600 dark:focus:ring-yellow-800"
-  onClick={handleEditShopInfoModalOpen}
->
-              
-              {t("Self Checklist")}
-            </button>
-
-              <button
-                className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                onClick={() => window.location.href = "/DemoFood"}
-                >
-                {t("See Your Store")}
-              </button>
-
-            </div>
-          }
         </div>
         <div>
 
@@ -498,27 +481,54 @@ const Food = () => {
 
 
             {/* end of the top */}
-            <div className={isMobile ? 'scrolling-wrapper-filter mt-2' : "mb-2 mt-2 scrolling-wrapper-filter"}>
+            <div ref={scrollingWrapperRef} className="mt-2 scrolling-wrapper-filter mb-0">
 
               <button onClick={() => {
                 setFoods(data)
-                setCategoryState(null);
+                setSelectedFoodType(null);
+              }}
+                className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === null ? 'underline' : ''}`}
+                style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
+              {
+                translationsMode_ === 'ch'
+                  ? foodTypesCHI.map((foodType) => (
+                    <button
+                      key={foodType}
+                      onClick={() => {
+                        filterTypeCHI(foodType);
+                        setSelectedFoodType(foodType);
+                      }}
+                      className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
+                        }`}
+                      style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+                    >
+                      <div>
+                        {foodType && foodType.length > 1
+                          ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                          : ''}
+                      </div>
+                    </button>
+                  ))
+                  : foodTypes.map((foodType) => (
+                    <button
+                      key={foodType}
+                      onClick={() => {
+                        filterType(foodType);
+                        setSelectedFoodType(foodType);
+                      }}
+                      className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
+                        }`}
+                      style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+                    >
+                      <div>
+                        {foodType && foodType.length > 1
+                          ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                          : ''}
+                      </div>
+                    </button>
+                  ))
+              }
 
-              }} className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-2 py-2' style={{ display: "inline-block" }}><b>{t("All")}</b></button>
-
-              {foodTypes.map((foodType) => (
-
-                <button
-                  key={foodType}
-                  onClick={() => {
-                    filterType(foodType);
-                    setCategoryState(foodType);
-                  }}
-                  className='m-1 border-black-600 text-black-600 hover:bg-amber-500 hover:text-white border rounded-xl px-2 py-2'
-                  style={{ display: "inline-block" }}>
-                  <b>{foodType}</b>
-                </button>
-              ))}
             </div>
           </div>
 
@@ -526,7 +536,7 @@ const Food = () => {
 
         {/* diplay food */}
         <AnimatePresence>
-          <div className='grid grid-cols-2 lg:grid-cols-4 gap-6'>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
             <motion.div
               layout
               initial={{ opacity: 0 }}
@@ -534,175 +544,220 @@ const Food = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.1 }}
               key={""}
-              className="shadow border rounded-lg duration-500 cursor-pointer">
-              <label className='h-min overflow-hidden rounded-md'
-                style={{ backgroundColor: "rgba(246,246,248,1)", display: 'block', width: '100%' }}
+              className=" border rounded-lg duration-500 cursor-pointer">
+              <div className='flex'>
+                <div style={{ width: "40%" }}>
+                  <label className='h-min overflow-hidden rounded-md'
+                    style={{ backgroundColor: "rgba(246,246,248,1)", display: 'block', width: '100%' }}
 
-              >
-                <input
-                  type="file"
-                  onChange={handleFileChangeAndUpload}
-                  style={{ display: 'none' }} // hides the input
-                />
-
-                <img
-                  className="w-full h-[100px] md:h-[125px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg"
-                  src={previewUrl}
-                  loading="lazy"
-                />
-              </label>
-              <div className="flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full">
-                <div
-                  className="col-span-4"
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between"
-                  }}
-                >
-                  <p className="mb-1">
-                    {t("ENGLISH NAME")}:
+                  >
                     <input
-                      type="text"
-                      name="name"
-                      placeholder={t("Cuisine Name")}
-                      value={newItem.name}
-                      onChange={handleInputChange}
+                      type="file"
+                      onChange={handleFileChangeAndUpload}
+                      style={{ display: 'none' }} // hides the input
                     />
-                  </p>
-                  <span
-                    style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}//blue
-                    className="task-card__tag task-card__tag--marketing"
-                    onClick={async () => {  //Auto Fill Chinese
-                      let translatedText = "Cuisine Name";
-                      if (newItem.name) {
-                        translatedText = newItem.name;
-                      }
-                      try {
-                        const chineseTranslation = await translateToChinese(translatedText);
-                        setNewItem({ ...newItem, CHI: chineseTranslation });
-                      } catch (error) {
-                        console.error("Translation error:", error);
-                      }
 
-                    }}
+                    <img
+                      className="w-full h-[80px] md:h-[95px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg"
+                      src={previewUrl}
+                      loading="lazy"
+                    />
+                  </label>
+                </div>
+                <div style={{ width: "60%" }}>
 
-                  >{t("Auto Fill Chinese")}</span>
-                  <p className="mb-1">{t("CHINESE NAME")}:</p>
+                  <div className="flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full">
+                    <div
+                      className="col-span-4"
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between"
+                      }}
+                    >
+                      <div className='flex'>
+
+                        <div className="flex" style={{ "width": "50%" }}>
+
+                          <p className="mb-1">
+                            <input
+                              type="text"
+                              name="name"
+                              placeholder={t("Dish Name")}
+                              value={newItem.name}
+                              onChange={handleInputChange}
+                            />
+                          </p>
+                        </div>
+                        <div className="flex justify-end" style={{ "width": "50%" }}>
+
+                          <span
+                            style={{ cursor: "pointer", backgroundColor: "#6C757D", marginTop: "2px", marginBottom: "5px" }}//blue
+                            className="task-card__tag task-card__tag--marketing"
+                            onClick={async () => {  //Auto Fill Chinese
+                              let translatedText = "Dish Name";
+                              if (newItem.name) {
+                                translatedText = newItem.name;
+                              }
+                              try {
+                                const chineseTranslation = await translateToChinese(translatedText);
+                                setNewItem({ ...newItem, CHI: chineseTranslation });
+                              } catch (error) {
+                                console.error("Translation error:", error);
+                              }
+
+                            }}
+
+                          >{t("Fill (CN)")}</span>
+                        </div>
+
+                      </div>
+                      <div className='flex'>
+
+                        <div className="flex" style={{ "width": "50%" }}>
+                          <input
+                            type="text"
+                            name="CHI"
+                            placeholder={"菜品名称"}
+                            value={newItem.CHI}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                        <div className="flex justify-end" style={{ "width": "50%" }}>
+
+                          <span
+                            style={{ cursor: "pointer", backgroundColor: "#6C757D", marginTop: "2px", marginBottom: "5px" }}//blue
+                            className="task-card__tag task-card__tag--marketing"
+
+                            onClick={async () => {  // Auto Fill English
+                              let translatedText = "菜品名称";
+                              if (newItem.CHI) {
+                                translatedText = newItem.CHI;
+                              }
+                              try {
+                                const EnglishTranslation = await translateToEnglish(translatedText);
+                                setNewItem({ ...newItem, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
+                              } catch (error) {
+                                console.error("Translation error:", error);
+                              }
+                            }}
+                          >{t("Fill (EN)")}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+              <div className='mr-2 ml-2 mt-2'>
+                <div className='flex'>
+
+                  <div className="flex" style={{ "width": "50%" }}>
+                    <p className="mb-1">
+                      <input
+                        style={{ width: "50%" }}
+                        type="text"
+                        name="category"
+                        placeholder={(categoryState === null ? "Category" : categoryState)}
+                        value={newItem.category}
+                        onChange={handleInputChange}
+                      />
+                    </p>
+                  </div>
+                  <div className="flex justify-end" style={{ "width": "50%" }}>
+
+                    <span
+                      style={{ cursor: "pointer", backgroundColor: "#6C757D", marginTop: "2px", marginBottom: "5px" }}//blue
+                      className="task-card__tag task-card__tag--marketing"
+                      onClick={async () => {  //Auto Fill Chinese
+                        let translatedText = "Category";
+                        if (newItem.category) {
+                          translatedText = newItem.category;
+                        }
+                        try {
+                          const chineseTranslation = await translateToChinese(translatedText);
+                          setNewItem({ ...newItem, categoryCHI: chineseTranslation });
+                        } catch (error) {
+                          console.error("Translation error:", error);
+                        }
+
+                      }}
+
+                    >{t("Fill (CN)")}</span>
+                  </div>
+
+                </div>
+                <div className='flex'>
+                  <div className="flex " style={{ "width": "50%" }}>
+
+                    <p className="mb-1">
+                      <input
+                        style={{ width: "50%" }}
+                        type="text"
+                        name="categoryCHI"
+                        placeholder={"类别"}
+                        value={newItem.categoryCHI}
+                        onChange={handleInputChange}
+                      />
+                    </p>
+                  </div>
+
+                  <div className="flex justify-end" style={{ "width": "50%" }}>
+
+                    <span
+                      style={{ cursor: "pointer", backgroundColor: "#6C757D", marginTop: "2px", marginBottom: "5px" }}//blue
+                      className="task-card__tag task-card__tag--marketing"
+
+                      onClick={async () => {  // Auto Fill English
+                        let translatedText = "类别";
+                        if (newItem.categoryCHI) {
+                          translatedText = newItem.categoryCHI;
+                        }
+                        try {
+                          const EnglishTranslation = await translateToEnglish(translatedText);
+                          setNewItem({ ...newItem, category: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
+                        } catch (error) {
+                          console.error("Translation error:", error);
+                        }
+                      }}
+                    >{t("Fill (EN)")}</span>
+                  </div>
+
+                </div>
+
+                <p className="mb-1">
+                  {t("PRIORITY")}:{" "}
                   <input
+                    style={{ width: "50%" }}
                     type="text"
-                    name="CHI"
-                    placeholder={"菜品名称"}
-                    value={newItem.CHI}
+                    name="Priority"
+                    placeholder={"9999"}
+                    value={newItem.Priority}
                     onChange={handleInputChange}
                   />
+                </p>
+
+                <p className="mb-1">
+                  {t("Price: $ ")}
+                  <input
+                    style={{ width: "50%" }}
+                    type="text"
+                    name="subtotal"
+                    placeholder={"1"}
+                    value={newItem.subtotal}
+                    onChange={handleInputChange}
+                  />
+                </p>
+
+                <div className="flex">
                   <span
-                    style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}//blue
-                    className="task-card__tag task-card__tag--marketing"
-
-                    onClick={async () => {  // Auto Fill English
-                      let translatedText = "菜品";
-                      if (newItem.CHI) {
-                        translatedText = newItem.CHI;
-                      }
-                      try {
-                        const EnglishTranslation = await translateToEnglish(translatedText);
-                        setNewItem({ ...newItem, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
-                      } catch (error) {
-                        console.error("Translation error:", error);
-                      }
-                    }}
-                  >{t("Auto Fill English")}</span>
-
-                  <p className="mb-1">
-                    {t("PRICE")}:{" "}
-                    <input
-                      style={{ width: "50%" }}
-                      type="text"
-                      name="subtotal"
-                      placeholder={"1"}
-                      value={newItem.subtotal}
-                      onChange={handleInputChange}
-                    />
-                  </p>
-                  <p className="mb-1">
-                    {t("CATEGORY")}:{" "}
-                    <input
-                      style={{ width: "50%" }}
-                      type="text"
-                      name="category"
-                      placeholder={(categoryState === null ? "Classic" : categoryState)}
-                      value={newItem.category}
-                      onChange={handleInputChange}
-                    />
-                  </p>
-                  <span
-                    style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}//blue
-                    className="task-card__tag task-card__tag--marketing"
-                    onClick={async () => {  //Auto Fill Chinese
-                      let translatedText = "Classic";
-                      if (newItem.category) {
-                        translatedText = newItem.category;
-                      }
-                      try {
-                        const chineseTranslation = await translateToChinese(translatedText);
-                        setNewItem({ ...newItem, categoryCHI: chineseTranslation });
-                      } catch (error) {
-                        console.error("Translation error:", error);
-                      }
-
-                    }}
-
-                  >{t("Auto Fill Chinese")}</span>
-                  <p className="mb-1">
-                    {t("CATEGORY IN CHINESE")}:{" "}
-                    <input
-                      style={{ width: "50%" }}
-                      type="text"
-                      name="categoryCHI"
-                      placeholder={"经典"}
-                      value={newItem.categoryCHI}
-                      onChange={handleInputChange}
-                    />
-                  </p>
-                  <span
-                    style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}//blue
-                    className="task-card__tag task-card__tag--marketing"
-
-                    onClick={async () => {  // Auto Fill English
-                      let translatedText = "经典";
-                      if (newItem.categoryCHI) {
-                        translatedText = newItem.categoryCHI;
-                      }
-                      try {
-                        const EnglishTranslation = await translateToEnglish(translatedText);
-                        setNewItem({ ...newItem, category: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
-                      } catch (error) {
-                        console.error("Translation error:", error);
-                      }
-                    }}
-                  >{t("Auto Fill English")}</span>
-                  <p className="mb-1">
-                    {t("PRIORITY")}:{" "}
-                    <input
-                      style={{ width: "50%" }}
-                      type="text"
-                      name="Priority"
-                      placeholder={"9999"}
-                      value={newItem.Priority}
-                      onChange={handleInputChange}
-                    />
-                  </p>
-
-                  <div className="flex">
-                    <span
-                      style={{ cursor: "pointer" }}
-                      className="task-card__tag mb-2 task-card__tag--marketing"
-                      onClick={handleAddNewItem}
-                    >
-                      {t("Add New")}
-                    </span>
-                  </div>
+                    style={{ cursor: "pointer" }}
+                    className="task-card__tag mb-2 task-card__tag--marketing"
+                    onClick={handleAddNewItem}
+                  >
+                    {t("Add New")}
+                  </span>
                 </div>
               </div>
             </motion.div>
@@ -833,7 +888,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                   <span className="sr-only">{t("Close modal")}</span>
                 </button>
               </div>
-              <div className='p-4 grid grid-cols-2 lg:grid-cols-4 gap-6 pt-3'>
+              <div className='p-4 grid grid-cols-1 lg:grid-cols-2 gap-6 pt-3'>
                 <motion.div
                   layout
                   initial={{ opacity: 0 }}
@@ -841,23 +896,22 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.1 }}
                   className="border rounded-lg duration-500 cursor-pointer">
+                  <div>
+                    <label className='h-min overflow-hidden rounded-md'
+                      style={{ backgroundColor: "rgba(246,246,248,1)", display: 'block', width: '100%' }}>
+                      <input
+                        type="file"
+                        onChange={handleFileChangeAndUpload}
+                        style={{ display: 'none' }} // hides the input
+                      />
 
-
-                  <label className='h-min overflow-hidden rounded-md'
-                    style={{ backgroundColor: "rgba(246,246,248,1)", display: 'block', width: '100%' }}>
-                    <input
-                      type="file"
-                      onChange={handleFileChangeAndUpload}
-                      style={{ display: 'none' }} // hides the input
-                    />
-
-                    <img
-                      className="w-full h-[100px] md:h-[125px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg"
-                      src={previewUrl} // you can use a default placeholder image
-                      loading="lazy"
-                    />
-                  </label>
-
+                      <img
+                        className="w-full h-[80px] md:h-[95px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg"
+                        src={previewUrl} // you can use a default placeholder image
+                        loading="lazy"
+                      />
+                    </label>
+                  </div>
 
                 </motion.div>
                 {imgGallery.slice(0, -1).map(gen_img => (
@@ -869,7 +923,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                     transition={{ duration: 0.1 }}
                     className="border rounded-lg duration-500 cursor-pointer">
                     <div className="h-min overflow-hidden rounded-md">
-                      <img loading="lazy" className="w-full h-[100px] md:h-[125px]  hover:scale-125 transition-all duration-500 cursor-pointer  object-cover rounded-t-lg " src={gen_img}
+                      <img loading="lazy" className="w-full h-[80px] md:h-[95px]  hover:scale-125 transition-all duration-500 cursor-pointer  object-cover rounded-t-lg " src={gen_img}
                         onClick={() => {
                           selectPic(gen_img, item)
                         }}
@@ -909,361 +963,245 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
         exit={{ opacity: 0 }}
         transition={{ duration: 0.1 }}
         key={item.id}
-        className="border shadow rounded-lg duration-500 cursor-pointer">
-        <div className="h-min overflow-hidden rounded-md">
-          <img loading="lazy" className="w-full h-[100px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[125px] object-cover rounded-t-lg " src={item.image}
-            onClick={() => {
-              handleModalGeneratePicOpen();
-              if (isGenChi) {
-                generatePic(item.CHI);
-                setGenChi(false);
-              } else {
-                generatePic(item.name);
-                setGenChi(true);
-              }
-              //setInputData(null); // reset input data
-            }}
-          />
-        </div>
-        <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full'>
-          <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-            <p className=' mb-1'>
-              {t("ENGLISH NAME")}:
-              <input
-                type="text"
-                name="name"
-                placeholder={item.name}
-                value={inputData?.name !== undefined ? inputData.name : item.name}
-                onChange={(e) => setInputData({ ...inputData, name: e.target.value })}
-              />
-            </p>
-            <span
-              style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}
-              className="task-card__tag task-card__tag--marketing"
-              onClick={async () => {  // Auto Fill English
-                let translatedText = "";
-                if (inputData?.name) {
-                  //console(inputData?.name)
-                  translatedText = inputData.name;
+        className="border rounded-lg duration-500 cursor-pointer">
+        <div className='flex'>
+          <div className="h-min overflow-hidden rounded-md" style={{ width: "40%" }}>
+            <img loading="lazy" className="w-full h-[80px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[95px] object-cover rounded-t-lg " src={item.image}
+              onClick={() => {
+                handleModalGeneratePicOpen();
+                if (isGenChi) {
+                  generatePic(item.CHI);
+                  setGenChi(false);
                 } else {
-                  //console(item.name)
-                  translatedText = item.name;
+                  generatePic(item.name);
+                  setGenChi(true);
                 }
-                try {
-                  const ChineseTranslation = await translateToChinese(translatedText);
-                  setInputData({ ...inputData, CHI: ChineseTranslation });
-                  updateItem(item.id, { ...inputData, CHI: ChineseTranslation })
-
-                } catch (error) {
-                  console.error("Translation error:", error);
-                }
+                //setInputData(null); // reset input data
               }}
-            >{t("Auto Fill Chinese")}</span>
-            <p className=' mb-1'>{t("CHINESE NAME")}: </p>
-            <input
-              type="text"
-              name="CHI"
-              placeholder={item.CHI}
-              value={inputData?.CHI !== undefined ? inputData.CHI : item.CHI}
-              onChange={(e) => setInputData({ ...inputData, CHI: e.target.value })}
             />
-            <span
-              style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}
-              className="task-card__tag task-card__tag--marketing"
+          </div>
+          <div style={{ width: "60%" }}>
+            <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full'>
+              <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div className='flex'>
+                  <div style={{ width: "50%" }}>
+                    <p className=' mb-1'>
+                      <input
+                        type="text"
+                        name="name"
+                        placeholder={item.name}
+                        value={inputData?.name !== undefined ? inputData.name : item.name}
+                        onChange={(e) => setInputData({ ...inputData, name: e.target.value })}
+                      />
+                    </p>
+                  </div>
 
-              onClick={async () => {  // Auto Fill English
-                let translatedText = "";
-                if (inputData?.CHI) {
+                  <div className="flex justify-end" style={{ "width": "50%" }}>
+                    <span
+                      style={{ cursor: "pointer", backgroundColor: "#6C757D", marginTop: "2px", marginBottom: "5px" }}
+                      className="task-card__tag task-card__tag--marketing"
+                      onClick={async () => {  // Auto Fill English
+                        let translatedText = "";
+                        if (inputData?.name) {
+                          //console(inputData?.name)
+                          translatedText = inputData.name;
+                        } else {
+                          //console(item.name)
+                          translatedText = item.name;
+                        }
+                        try {
+                          const ChineseTranslation = await translateToChinese(translatedText);
+                          setInputData({ ...inputData, CHI: ChineseTranslation });
+                          updateItem(item.id, { ...inputData, CHI: ChineseTranslation })
 
-                  translatedText = inputData.CHI;
-                } else {
-                  translatedText = item.CHI;
-                }
-                try {
-                  const EnglishTranslation = await translateToEnglish(translatedText);
-                  setInputData({ ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
-                  updateItem(item.id, { ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') })
+                        } catch (error) {
+                          console.error("Translation error:", error);
+                        }
+                      }}
+                    >{t("Fill (CN)")}</span>
+                  </div>
 
-                } catch (error) {
-                  console.error("Translation error:", error);
-                }
+                </div>
 
-              }}
-            >{t("Auto Fill English")}</span>
-            <p className='mb-1'>{t("PRICE")}:
-              <input
-                style={{ width: "50%" }}
-                type="text"
-                name="subtotal"
-                placeholder={item.subtotal}
-                value={inputData?.subtotal !== undefined ? inputData.subtotal : item.subtotal}
-                onChange={(e) => setInputData({ ...inputData, subtotal: e.target.value })}
-              />
-            </p>
-            <p className='mb-1'>{t("CATEGORY")}:
-              <input
-                style={{ width: "50%" }}
-                type="text"
-                name="category"
-                placeholder={item.category}
-                value={inputData?.category !== undefined ? inputData.category : item.category}
-                onChange={(e) => setInputData({ ...inputData, category: e.target.value })}
-              />
-            </p>
-            <span
-              style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}
-              className="task-card__tag task-card__tag--marketing"
-              onClick={async () => {  // Auto Fill English
-                let translatedText = "";
-                if (inputData?.category) {
-                  //console(inputData?.name)
-                  translatedText = inputData.category;
-                } else {
-                  //console(item.name)
-                  translatedText = item.category;
-                }
-                try {
-                  const ChineseTranslation = await translateToChinese(translatedText);
-                  setInputData({ ...inputData, categoryCHI: ChineseTranslation });
-                  updateItem(item.id, { ...inputData, categoryCHI: ChineseTranslation })
+                <div className='flex'>
+                  <div style={{ width: "50%" }} >
+                    <input
+                      type="text"
+                      name="CHI"
+                      placeholder={item.CHI}
+                      value={inputData?.CHI !== undefined ? inputData.CHI : item.CHI}
+                      onChange={(e) => setInputData({ ...inputData, CHI: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex justify-end" style={{ "width": "50%" }}>
 
-                } catch (error) {
-                  console.error("Translation error:", error);
-                }
-              }}
-            >{t("Auto Fill Chinese")}</span>
-            <p className='mb-1'>{t("CATEGORY IN CHINESE")}:
-              <input
-                style={{ width: "50%" }}
-                type="text"
-                name="categoryCHI"
-                placeholder={item.categoryCHI}
-                value={inputData?.categoryCHI !== undefined ? inputData.categoryCHI : item.categoryCHI}
-                onChange={(e) => setInputData({ ...inputData, categoryCHI: e.target.value })}
-              />
-            </p>
-            <span
-              style={{ cursor: "pointer", backgroundColor: "#ca8a04", marginTop: "2px", marginBottom: "5px" }}
-              className="task-card__tag task-card__tag--marketing"
+                    <span
+                      style={{ cursor: "pointer", backgroundColor: "#6C757D", marginTop: "2px", marginBottom: "5px" }}
+                      className="task-card__tag task-card__tag--marketing"
 
-              onClick={async () => {  // Auto Fill English
-                let translatedText = "";
-                if (inputData?.categoryCHI) {
+                      onClick={async () => {  // Auto Fill English
+                        let translatedText = "";
+                        if (inputData?.CHI) {
 
-                  translatedText = inputData.categoryCHI;
-                } else {
-                  translatedText = item.categoryCHI;
-                }
-                try {
-                  const EnglishTranslation = await translateToEnglish(translatedText);
-                  setInputData({ ...inputData, category: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
-                  updateItem(item.id, { ...inputData, category: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') })
+                          translatedText = inputData.CHI;
+                        } else {
+                          translatedText = item.CHI;
+                        }
+                        try {
+                          const EnglishTranslation = await translateToEnglish(translatedText);
+                          setInputData({ ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
+                          updateItem(item.id, { ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') })
 
-                } catch (error) {
-                  console.error("Translation error:", error);
-                }
+                        } catch (error) {
+                          console.error("Translation error:", error);
+                        }
 
-              }}
-            >{t("Auto Fill English")}</span>
-            <p className='mb-1'>{t("PRIORITY")}:
-              <input
-                style={{ width: "50%" }}
-                type="text"
-                name="Priority"
-                placeholder={item.Priority}
-                value={inputData?.Priority !== undefined ? inputData.Priority : item.Priority}
-                onChange={(e) => setInputData({ ...inputData, Priority: e.target.value })}
-              />
-            </p>
-            
-            <div className='flex' >
-              <span
-                style={{ cursor: 'pointer' }}
-                className="task-card__tag  mb-2  task-card__tag--marketing"
-                onClick={() => {
-                  updateItem(item.id, inputData);
-                  setInputData(null); // reset input data
-                }}
-              >
-                {t("Update")}
-              </span>
-              <span
-                onClick={() => {
-                  deleteFood_array(item.id);
-                  saveId(Math.random());
-                }}
-                style={{ marginLeft: "auto", cursor: 'pointer' }}
-                className="task-card__tag task-card__tag--design"
-              >
-                {t("Delete")}
-              </span>
+                      }}
+                    >{t("Fill (EN)")}</span>
+                  </div>
+
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
+
+
+        <div className='mr-2 ml-2 mt-2'>
+
+          <div className='flex'>
+            <div style={{ "width": "50%" }}>
+
+              <p className='mb-1'>
+                <input
+                  style={{ width: "50%" }}
+                  type="text"
+                  name="category"
+                  placeholder={item.category}
+                  value={inputData?.category !== undefined ? inputData.category : item.category}
+                  onChange={(e) => setInputData({ ...inputData, category: e.target.value })}
+                />
+              </p>
+            </div>
+            <div className="flex justify-end" style={{ "width": "50%" }}>
+
+              <span
+                style={{ cursor: "pointer", backgroundColor: "#6C757D", marginTop: "2px", marginBottom: "5px" }}
+                className="task-card__tag task-card__tag--marketing"
+                onClick={async () => {  // Auto Fill English
+                  let translatedText = "";
+                  if (inputData?.category) {
+                    //console(inputData?.name)
+                    translatedText = inputData.category;
+                  } else {
+                    //console(item.name)
+                    translatedText = item.category;
+                  }
+                  try {
+                    const ChineseTranslation = await translateToChinese(translatedText);
+                    setInputData({ ...inputData, categoryCHI: ChineseTranslation });
+                    updateItem(item.id, { ...inputData, categoryCHI: ChineseTranslation })
+
+                  } catch (error) {
+                    console.error("Translation error:", error);
+                  }
+                }}
+              >{t("Fill (CN)")}</span>
+            </div>
+
+          </div>
+          <div className='flex'>
+            <div style={{ width: "50%" }}>
+              <p className='mb-1'>
+                <input
+                  style={{ width: "50%" }}
+                  type="text"
+                  name="categoryCHI"
+                  placeholder={item.categoryCHI}
+                  value={inputData?.categoryCHI !== undefined ? inputData.categoryCHI : item.categoryCHI}
+                  onChange={(e) => setInputData({ ...inputData, categoryCHI: e.target.value })}
+                />
+              </p>
+            </div>
+            <div className="flex justify-end" style={{ "width": "50%" }}>
+
+              <span
+                style={{ cursor: "pointer", backgroundColor: "#6C757D", marginTop: "2px", marginBottom: "5px" }}
+                className="task-card__tag task-card__tag--marketing"
+
+                onClick={async () => {  // Auto Fill English
+                  let translatedText = "";
+                  if (inputData?.categoryCHI) {
+
+                    translatedText = inputData.categoryCHI;
+                  } else {
+                    translatedText = item.categoryCHI;
+                  }
+                  try {
+                    const EnglishTranslation = await translateToEnglish(translatedText);
+                    setInputData({ ...inputData, category: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
+                    updateItem(item.id, { ...inputData, category: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') })
+
+                  } catch (error) {
+                    console.error("Translation error:", error);
+                  }
+
+                }}
+              >{t("Fill (EN)")}</span>
+            </div>
+
+          </div>
+          <p className='mb-1'>{t("PRIORITY")}:
+            <input
+              style={{ width: "50%" }}
+              type="text"
+              name="Priority"
+              placeholder={item.Priority}
+              value={inputData?.Priority !== undefined ? inputData.Priority : item.Priority}
+              onChange={(e) => setInputData({ ...inputData, Priority: e.target.value })}
+            />
+          </p>
+          <p className='mb-1'>{t("Price: $ ")}
+            <input
+              style={{ width: "50%" }}
+              type="text"
+              name="subtotal"
+              placeholder={item.subtotal}
+              value={inputData?.subtotal !== undefined ? inputData.subtotal : item.subtotal}
+              onChange={(e) => setInputData({ ...inputData, subtotal: e.target.value })}
+            />
+          </p>
+          <div className='flex' >
+            <span
+              style={{ cursor: 'pointer' }}
+              className="task-card__tag  mb-2  task-card__tag--marketing"
+              onClick={() => {
+                updateItem(item.id, inputData);
+                setInputData(null); // reset input data
+              }}
+            >
+              {t("Update")}
+            </span>
+            <span
+              onClick={() => {
+                deleteFood_array(item.id);
+                saveId(Math.random());
+              }}
+              style={{ marginLeft: "auto", cursor: 'pointer' }}
+              className="task-card__tag task-card__tag--design"
+            >
+              {t("Delete")}
+            </span>
+          </div>
+        </div>
+
       </motion.div>
     </>
 
   );
 };
 
-
-const Checklist = () => {
-  /**listen to localtsorage */
-  const { id, saveId } = useMyHook(null);
-
-
-  useEffect(() => {
-    saveId(Math.random());
-  }, []);
-  const [translationsMode_, settranslationsMode_] = useState("en");
-
-  // for translations sake
-  const trans = JSON.parse(sessionStorage.getItem("translations"))
-  const t = useMemo(() => {
-    const trans = JSON.parse(sessionStorage.getItem("translations"))
-    const translationsMode = sessionStorage.getItem("translationsMode")
-    settranslationsMode_(sessionStorage.getItem("translationsMode"))
-
-    return (text) => {
-      if (trans != null && translationsMode != null) {
-        if (trans[text] != null && trans[text][translationsMode] != null) {
-          return trans[text][translationsMode];
-        }
-      }
-
-      return text;
-    };
-  }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
-  
-  return (
-    <>
-<section style={{
-  "maxWidth": "100%",
-  "boxSizing": "border-box"
-}}>
-  <ul className='p-3 pt-0'>
-  <h1 className='title_checklist'>{t("Create Your Store")}</h1>
-
-    <li class="activity">
-      <label style={{  "cursor": "pointer",
-  "display": "block"}}>
-        <input style={{  "visibility": "hidden",
-  "display": "none"}}class="item" type="checkbox"/>
-        <div class="check-container">
-          <div class="check">
-            <span class="svg-check"></span>
-          </div>
-          <div class="shade"></div>
-          <div class="instruction"><strong>{t("UPLOAD YOUR RESTAURANT MENU")}</strong></div>
-        </div>
-      </label>
-    </li>
-
-    <li class="activity">
-      <label style={{  "cursor": "pointer",
-  "display": "block"}}>
-        <input style={{  "visibility": "hidden",
-  "display": "none"}} class="item" type="checkbox"/>
-        <div class="check-container">
-          <div class="check">
-            <span class="svg-check"></span>
-          </div>
-          <div class="shade"></div>
-          <div class="instruction"><strong>{t("DOUBLE CHECK OUR GENERATED E-MENU")}</strong></div>
-        </div>
-      </label>
-    </li>  
-    <li class="activity">
-    
-    <label style={{  "cursor": "pointer",
-  "display": "block"}}>
-        <input style={{  "visibility": "hidden",
-  "display": "none"}} class="item" type="checkbox"/>
-        <div class="check-container">
-          <div class="check">
-            <span class="svg-check"></span>
-          </div>
-          <div class="shade"></div>
-          <div class="instruction"><strong>{t("SEE YOUR STORE")}</strong></div>
-        </div>
-      </label>
-    </li>      
-    <li class="activity">
-      <label style={{  "cursor": "pointer",
-  "display": "block"}}>
-        <input style={{  "visibility": "hidden",
-  "display": "none"}} class="item" type="checkbox"/>
-        <div class="check-container">
-          <div class="check">
-            <span class="svg-check"></span>
-          </div>
-          <div class="shade"></div>
-          <div class="instruction"><strong>{t("REGISTER A MERCHANT ACCOUNT")}</strong></div>
-        </div>
-      </label>
-    </li> 
-    <li class="activity">
-      <label style={{  "cursor": "pointer",
-  "display": "block"}}>
-        <input style={{  "visibility": "hidden",
-  "display": "none"}}class="item" type="checkbox"/>
-        <div class="check-container">
-          <div class="check">
-            <span class="svg-check"></span>
-          </div>          
-          <div class="shade"></div>
-          <div class="instruction"><strong>{t("UPLOAD DATA TO OUR CLOUD STORAGE")}</strong></div>
-        </div>
-      </label>
-    </li>
-    <li class="activity">
-      <label style={{  "cursor": "pointer",
-  "display": "block"}}>
-        <input style={{  "visibility": "hidden",
-  "display": "none"}} class="item" type="checkbox"/>
-        <div class="check-container">
-          <div class="check">
-            <span class="svg-check"></span>
-          </div>
-          <div class="shade"></div>
-          <div class="instruction"><strong>{t("PRINT YOUR QR CODE AND PASTE IN THE DINING TABLE")}</strong></div>
-        </div>
-      </label>
-    </li>      
-    <li class="activity">
-      <label style={{  "cursor": "pointer",
-  "display": "block"}}>
-        <input style={{  "visibility": "hidden",
-  "display": "none"}} class="item" type="checkbox"/>
-        <div class="check-container">
-          <div class="check">
-            <span class="svg-check"></span>
-          </div>
-          <div class="shade"></div>
-          <div class="instruction"><strong>{t("CONNECT PRINTER TO OUR SOFTWARE")}</strong></div>
-        </div>
-      </label>
-    </li>      
-    <li class="activity">
-      <label style={{  "cursor": "pointer",
-  "display": "block"}}>
-        <input style={{  "visibility": "hidden",
-  "display": "none"}} class="item" type="checkbox"/>
-        <div class="check-container">
-          <div class="check">
-            <span class="svg-check"></span>
-          </div>
-          <div class="shade"></div>
-          <div class="instruction"><strong>{t("SET UP PAYMENT(OPTIONAL)")}</strong></div>
-        </div>
-      </label>
-    </li>       
-  </ul>
-</section>
-</>
-
-  );
-};
 
 
 export default Food

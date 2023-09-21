@@ -225,8 +225,8 @@ const handleMouseLeave = () => {
         <div>
           <label style={{ width: '100%' }}>
 
-            <div className="row row-1">
-              <div className="col-2">
+            <div className="row row-1 pt-0 p-0">
+              <div className="col-2 p-0">
                 {selectedOption === 'mastercard' ? (
                   <img className="img-fluid" src="https://img.icons8.com/color/48/000000/mastercard-logo.png" />
                 ) : (
@@ -235,12 +235,12 @@ const handleMouseLeave = () => {
 
               </div>
 
-              <div className="col-7 select-dropdown">
+              <div className="col-7 select-dropdown h6 font-semibold text-muted text-sm ">
                 <select style={{ backgroundcolor: "white",color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
                   <option hidden data-type="mastercard">{t("Select Account")}</option>
                 </select>
               </div>
-              <div className="col-3 d-flex justify-content-center">
+              <div className="col-3 d-flex justify-content-end p-0">
                 <button                 onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
              type="submit" style={{ 'color': isHover ? '#0a58ca' : '#444444' }}             

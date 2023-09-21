@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 //import { data } from '../data/data.js'
 import { motion, AnimatePresence } from "framer-motion"
 import Button from 'react-bootstrap/Button';
@@ -14,7 +14,7 @@ import { FiSearch } from 'react-icons/fi';
 import { collection, getDocs } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useParams } from 'react-router-dom';
-import { query, where, limit,doc,getDoc } from "firebase/firestore";
+import { query, where, limit, doc, getDoc } from "firebase/firestore";
 
 import BusinessHoursTable from './BusinessHoursTable.js'
 
@@ -222,7 +222,7 @@ const Food = () => {
     };
   }, []); // Empty dependency array means this useEffect runs once when component mounts
 
-  
+
   /**drop food */
 
   //const data = JSON.parse(sessionStorage.getItem("Food_arrays"))
@@ -230,6 +230,7 @@ const Food = () => {
   const [foods, setFoods] = useState([]);
   const [selectedFoodType, setSelectedFoodType] = useState(null);
 
+  
   const filterType = (category) => {
     setFoods(
       data.filter((item) => {
@@ -244,11 +245,31 @@ const Food = () => {
       })
     )
   }
+  const filterTypeCHI = (categoryCHI) => {
+    setFoods(
+      data.filter((item) => {
+        return item.categoryCHI === categoryCHI;
+      })
+    )
+  }
+  const filternameCHI = (CHI) => {
+    setFoods(
+      data.filter((item) => {
+        return item.CHI.includes(CHI);
+      })
+    )
+  }
   const [input, setInput] = useState("");
 
   const handleInputChange = (event) => {
     setInput(event.target.value);
-    filtername(event.target.value);
+    if (translationsMode_ === "ch") {
+      filternameCHI(event.target.value);
+
+    } else {
+      filtername(event.target.value);
+
+    }
   }
   // timesClicked is an object that stores the number of times a item is clicked
   //const timesClicked = new Map();
@@ -508,65 +529,93 @@ const Food = () => {
 
               {/* web mode */}
 
-                <>
-                  <div>
-                    <div className='max-w-[1240px] mx-auto '>
-                      <div className='rounded-lg max-h-[200px] relative'>
-                        <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
-                          <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className='text-orange-500'>{storeInfo.Name}</span></h1>
-                          <h1 className='px-4 font-bold'>@{storeInfo.Address}</h1>
-                        </div>
-                        <img className='rounded-lg w-full max-h-[200px] object-cover' src={storeInfo?.Image !== null && storeInfo?.Image !== '' ? storeInfo.Image : (data?.[0]?.image || '')} alt="#" />
+              <>
+                <div>
+                  <div className='max-w-[1240px] mx-auto '>
+                    <div className='rounded-lg max-h-[200px] relative'>
+                      <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
+                        <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className='text-orange-500'>{storeInfo.Name}</span></h1>
+                        <h1 className='px-4 font-bold'>@{storeInfo.Address}</h1>
                       </div>
+                      <img className='rounded-lg w-full max-h-[200px] object-cover' src={storeInfo?.Image !== null && storeInfo?.Image !== '' ? storeInfo.Image : (data?.[0]?.image || '')} alt="#" />
                     </div>
                   </div>
-                  <div className='flex' style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                </div>
+                <div className='flex' style={{ justifyContent: 'space-between', alignItems: 'center' }}>
 
-                    <div className='flex' style={{ width: '75%', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div className='flex' style={{ width: '75%', flexDirection: 'column', justifyContent: 'space-between' }}>
 
-                      <div className="mt-2 flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full sm:w-[400px] items-center">
-                        <input
-                          type="search"
-                          className='flex bg-transparent p-2 w-full focus:outline-none text-black'
-                          placeholder={t('Search food item')}
-                          onChange={handleInputChange}
-                        />
-                        <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
-                      </div>
-                    </div>
-
-                    <div style={{  width: '30%', minWidth: "200px", marginBottom: "5px", textAlign: 'right' }}>
-                      <div style={{ paddingTop: "10px", cursor: "pointer" }}>
-                        <BusinessHoursTable storeStatus={isOpen} ></BusinessHoursTable>
-                      </div>
+                    <div className="mt-2 flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full sm:w-[400px] items-center">
+                      <input
+                        type="search"
+                        className='flex bg-transparent p-2 w-full focus:outline-none text-black'
+                        placeholder={t('Search food item')}
+                        onChange={handleInputChange}
+                      />
+                      <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
                     </div>
                   </div>
-                </>
+
+                  <div style={{ width: '30%', minWidth: "200px", marginBottom: "5px", textAlign: 'right' }}>
+                    <div style={{ paddingTop: "10px", cursor: "pointer" }}>
+                      <BusinessHoursTable storeStatus={isOpen} ></BusinessHoursTable>
+                    </div>
+                  </div>
+                </div>
+              </>
 
               {/* end of the top */}
               <div ref={scrollingWrapperRef} className="mt-2 scrolling-wrapper-filter mb-0">
 
-                <button onClick={() => {setFoods(data)
-                                      setSelectedFoodType(null);
-              }} 
-                className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === null ? 'underline' : ''}`}
-                style={{ display: "inline-block",textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
+                <button onClick={() => {
+                  setFoods(data)
+                  setSelectedFoodType(null);
+                }}
+                  className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === null ? 'underline' : ''}`}
+                  style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
 
-                {translationsMode_ === 'ch' ? foodTypesCHI : foodTypes.map((foodType) => (
+{
+  translationsMode_ === 'ch'
+    ? foodTypesCHI.map((foodType) => (
+        <button
+          key={foodType}
+          onClick={() => {
+            filterTypeCHI(foodType);
+            setSelectedFoodType(foodType);
+          }}
+          className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${
+            selectedFoodType === foodType ? 'underline' : ''
+          }`}
+          style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+        >
+          <div>
+            {foodType && foodType.length > 1
+              ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+              : ''}
+          </div>
+        </button>
+      ))
+    : foodTypes.map((foodType) => (
+        <button
+          key={foodType}
+          onClick={() => {
+            filterType(foodType);
+            setSelectedFoodType(foodType);
+          }}
+          className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${
+            selectedFoodType === foodType ? 'underline' : ''
+          }`}
+          style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+        >
+          <div>
+            {foodType && foodType.length > 1
+              ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+              : ''}
+          </div>
+        </button>
+      ))
+}
 
-                  <button
-                    key={foodType}
-                    onClick={() => {
-                      filterType(foodType);
-                      setSelectedFoodType(foodType);
-                    }}                   
-                    className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''}`}
-                    style={{ display: "inline-block",textUnderlineOffset: '0.5em' }}>
-                    <div>
-                      {foodType && foodType.length > 1 ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1)) : ""}
-                    </div>
-                  </button>
-                ))}
               </div>
             </div>
 

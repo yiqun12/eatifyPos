@@ -32,6 +32,39 @@ import cuiyuan from './cuiyuan.png'
 import cartImage from './shopcart.png';
 
 const Navbar = () => {
+  const googleTranslateElementInit = () => {
+    if (window.google && window.google.translate) {
+      new window.google.translate.TranslateElement(
+        {
+          pageLanguage: "en",
+          includedLanguages: "en,zh-CN,zh-TW",
+          autoDisplay: false
+        },
+        "google_translate_element"
+      );
+    } else {
+      console.error('Google Translate not initialized correctly');
+    }
+  };
+
+  useEffect(() => {
+    // Check if the script is already loaded
+    if (window.google && window.google.translate) {
+      googleTranslateElementInit();
+      return;
+    }
+
+    var addScript = document.createElement("script");
+    addScript.setAttribute(
+      "src",
+      "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+    );
+    addScript.onerror = function() {
+      console.error('Failed to load the Google Translate script');
+    };
+    document.body.appendChild(addScript);
+    window.googleTranslateElementInit = googleTranslateElementInit;
+  }, []);
   const params = new URLSearchParams(window.location.search);
   
   const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
@@ -406,22 +439,21 @@ const Navbar = () => {
   return (
 
     <>
-
-      <a class="float" >
+    {(location.pathname.includes('/store') || location.pathname.includes('/checkout')) && (
+      <a className="float">
         <a
-
           style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
 
           <div id="cart"
-            style={{ width:"60px",height:"60px",'color' : '#444444' }}
-            className="cart" data-totalitems={totalQuant} ref={btnRef} >
+            style={{ width: "60px", height: "60px", 'color': '#444444' }}
+            className="cart" data-totalitems={totalQuant} >
               
             <img src={cartImage} alt="Shopping Cart" />
 
           </div>
         </a>
       </a>
-
+    )}
       <div ref={modalRef} className="foodcart-modal modal">
 
 
@@ -570,18 +602,14 @@ const Navbar = () => {
           <div className='flex' style={{ flexDirection: "column" }}>
           <h1 className='text-orange-500' style={{ fontStyle: 'italic'
 }} onClick={event => window.location.href = '/'}>
-            {t("Yumcha")} 
             </h1>
 
           </div>
 
           <div className='flex ml-auto pr-4'>
+          <div id="google_translate_element"></div>
 
-            <select class="selectpicker" data-width="fit" onChange={changeLanguage}>
-              {/**如果选择中文，框显示成lang，如果是eng,框显示语言 */}
-              <option value='en' data-content='<span class="flag-icon flag-icon-us"></span> English' selected={languageOption() == 'en' ? true : false}>English</option>
-              <option value='ch' data-content='<span class="flag-icon flag-icon-mx"></span> Chinese' selected={languageOption() == 'ch' ? true : false}>中文</option>
-            </select>
+
             {!user_loading?
             <button className="ml-3" onClick={event => window.location.href = '/account'} style={{ 'cursor': "pointer", 'top': '-10px', fontSize: "16px" }}> {user ? t("Account") : t("Login")}</button>
             :

@@ -6,12 +6,16 @@ import { useMyHook } from '../pages/myHook';
 import { useMemo } from 'react';
 import { WindowSharp } from '@mui/icons-material';
 import imageCompression from 'browser-image-compression';
+import loadingGif from './loading.gif'; // Assuming it's in the same directory
+import { useUserContext } from "../context/userContext";
 
-const GoogleVisionDemo = () => {
+const GoogleVisionDemo = ({ store, setFoods }) => {
   const [imageUrl, setImageUrl] = useState('');
   const [extractedText, setExtractedText] = useState('');
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
+  const [uploadStatus, setUploadStatus] = useState('idle');  // Possible values: 'idle', 'loading', 'success'
+  const { user, user_loading } = useUserContext();
 
 
   useEffect(() => {
@@ -136,20 +140,33 @@ const GoogleVisionDemo = () => {
           item.subtotal = 1;
           item.Priority = 9999;
         });
-        //console.log(jsonWithImage);
-        translate(jsonWithImage.map(item => item.category).join('@')).then(async (translatedText) => { // Mark this function as async
-          const translatedNames = translatedText.split('@');
+        const mergedArray =  jsonWithImage.concat(JSON.parse(localStorage.getItem(store)));
 
-          const translatedMenuItems = jsonWithImage.map((item, index) => ({
-            ...item,
-            categoryCHI: translatedNames[index]
+        localStorage.setItem(store, JSON.stringify(mergedArray))
+        setFoods(mergedArray)
+        console.log(jsonWithImage);
+        //setPreviewUrl(img)
+        setUploadStatus('success');
+        saveId(Math.random());
+        //console.log(jsonWithImage);
+        // translate(jsonWithImage.map(item => item.category).join('@')).then(async (translatedText) => { // Mark this function as async
+        //   const translatedNames = translatedText.split('@');
+
+        //   const translatedMenuItems = jsonWithImage.map((item, index) => ({
+        //     ...item,
+        //     categoryCHI: translatedNames[index]
             
-          }));
-          localStorage.setItem("food_arrays", JSON.stringify(translatedMenuItems))
-          console.log(jsonWithImage);
-          setPreviewUrl(img)
-          window.location.reload()
-        });
+        //   }));
+        //   const mergedArray =  translatedMenuItems.concat(JSON.parse(localStorage.getItem(store)));
+
+        //   localStorage.setItem(store, JSON.stringify(mergedArray))
+        //   setFoods(mergedArray)
+        //   console.log(jsonWithImage);
+        //   //setPreviewUrl(img)
+        //   setUploadStatus('success');
+        //   saveId(Math.random());
+        //  // window.location.reload()
+        // });
         //localStorage.setItem("food_arrays", JSON.stringify(jsonWithImage))
         //console.log(img)
         //setPreviewUrl(img)
@@ -169,7 +186,9 @@ const GoogleVisionDemo = () => {
       //setUploadStatus('No file selected.');
       return;
     }
-    setPreviewUrl("https://img.zcool.cn/community/012d625a55b18da80120121f12e55d.gif")
+    setUploadStatus('loading');
+
+   // setPreviewUrl("https://img.zcool.cn/community/012d625a55b18da80120121f12e55d.gif")
 
       // 压缩选项
   const options = {
@@ -203,8 +222,12 @@ const GoogleVisionDemo = () => {
         //console.log(data.result.variants[0])
         //setPreviewUrl(data.result.variants[0])
         //setPreviewUrl("https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExcW9lZDRyMG9tdGw2a3B5cDVrNWpneWJhOHJuaHZvcW9kNTUydDU5cSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEjI6SIIHBdRxXI40/giphy.gif")
+        //setUploadStatus('loading');
+
         setImageUrl(data.result.variants[0])
         extractTextFromImage(data.result.variants[0])
+        //setUploadStatus('success');
+
         //setInputData({ ...inputData, image: data.result.variants[0] })
         //console.log(item)
         //updateItem(item.id, { ...inputData, image: data.result.variants[0] })
@@ -217,31 +240,35 @@ const GoogleVisionDemo = () => {
     }
   };
 
+
   return (
     <>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
 
-      <div class="setup-picture">
-      {previewUrl===""?        <></>  :<img
-            src={previewUrl} // you can use a default placeholder image
-            loading="lazy"
-          />
-          }
-        <label>
-          <div class="picture">
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="file"
-                onChange={handleFileChangeAndUpload}
-                style={{ display: 'none' }} // hides the input
-              />
+      <div >
+    <label style={{ cursor: 'pointer' }}>
+      <input
+        type="file"
+        onChange={handleFileChangeAndUpload}
+        style={{ display: 'none' }} // hides the input
+      />
+      <div className="btn d-inline-flex btn-sm btn-secondary mx-1">
+        <span className="pe-2">
+          { 
+            uploadStatus === 'loading' ? 
 
-              <i className='fa fa-camera' style={{ marginRight: '10px' }}></i>
-              <h3>UPLOAD MENU</h3>
-            </div>
-            <div class='clearfix'></div>
-          </div>
-        </label>
+            (<img className=" scale-150"style={{width:"17px",height:"17px",padding:"0px"}} src={loadingGif} alt="Loading..."/>) :
+            uploadStatus === 'success' ?
+            (<i className="bi bi-check-circle"></i>) :  // Check icon when upload succeeds
+            (<i className="bi bi-camera"></i>)
+          }
+        </span>
+        <span>
+          {"Scan Menu"}
+        </span>
+      </div>
+    </label>
+
       </div>
 
 

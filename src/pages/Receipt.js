@@ -53,7 +53,7 @@ const Item = () => {
               document_id: doc.id,
               time: payment.dateTime,
               email: payment.user_email,
-              status: payment.status === "succeeded" ? "Paid Online" : "Handle Instore",
+              status: payment.status === "succeeded" ? "Paid Online" : "Instore Payment",
               isDinein: payment.metadata.isDine === "TakeOut"?"TakeOut":"Table: "+payment.tableNum,
               tax: payment.metadata.tax,
               tips: payment.metadata.tips,
@@ -118,7 +118,7 @@ const Item = () => {
 
         <b className="block text-black text-sm">{t("Order ID")}: {payment_data.document_id.substring(0, 3)}</b>
 
-        {payment_data.status === "Handle Instore" && (
+        {payment_data.status === "Instore Payment" && (
   <>
         <span className="block text-black text-sm">{t("Phone#")}: {payment_data.phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}</span>
   </>
