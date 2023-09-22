@@ -727,7 +727,7 @@ const Food = ({ store }) => {
       </Helmet>
       {showModal2 && (
         <div id="defaultModal2" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
-          <div className="relative w-full max-w-2xl max-h-full">
+          <div className="relative shadow w-full max-w-2xl max-h-full">
             <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
               <div className="flex items-start justify-between p-4 rounded-t dark:border-gray-600">
 
@@ -791,7 +791,7 @@ const Food = ({ store }) => {
 
       {isModalOpen && (
         <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
-          <div className="relative w-full max-w-2xl max-h-full">
+          <div className="relative shadow w-full max-w-2xl max-h-full">
             <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
               <div className="flex items-start justify-between p-4 rounded-t dark:border-gray-600">
 
@@ -983,9 +983,9 @@ const Food = ({ store }) => {
                   </div>
 
                   <div style={{ width: 'calc(100% - 80px)' }}>  {/* adjust width */}
-                    <div className='ml-2 text-md font-semibold'>
+                    <div className=' text-md font-semibold'>
 
-                      <div className="mb-1 flex  items-center">
+                      <div className="mb-1 flex ml-2 items-center">
                         <span className='text-black'>
 
                           {t("Dish:")}&nbsp;
@@ -1019,14 +1019,14 @@ const Food = ({ store }) => {
 
                         >{t("Fill (CN)")}</span>
                       </div>
-                      <div className="mb-1 flex  items-center">
+                      <div className="mb-1 ml-2 flex  items-center">
                         <span className='text-black'>
 
                           {t("菜品:")}&nbsp;
                         </span>
                         <input
                           className='text-md font-semibold'
-                          style={{ width: "50%" }}
+                          style={{ width: "40%" }}
                           type="text"
                           name="CHI"
                           placeholder={"空"}
@@ -1056,7 +1056,7 @@ const Food = ({ store }) => {
                   </div>
 
                 </div>
-                <div className='ml-2 d-block text-md font-semibold'>
+                <div className=' d-block text-md font-semibold'>
                   <div className='flex'>
                     <div>
                       <div>
@@ -1094,7 +1094,7 @@ const Food = ({ store }) => {
                       <p className="mb-1">
                         <span className='text-black'>
 
-                          {"Attributes:"}
+                          {"Single-Selected Options:"}
                         </span>
 
                       </p>
@@ -1105,8 +1105,8 @@ const Food = ({ store }) => {
                           onClick={() => {
                             setModalOpen(true);
                           }}
-                          className='mr-1 text-white cursor-pointer' style={{ position: 'relative', background: '#1569e0', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                          {"Add"}
+                          className='mr-1 cursor-pointer' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                          {"Add Attribute"}
                         </div>
 
                         {attributeArray.map((attr, index) => (
@@ -1124,7 +1124,7 @@ const Food = ({ store }) => {
                       </div>
                       <p className="mb-1">
                         <span className='text-black'>
-                          {"Attributes2:"}
+                          {"Multi-Selected Options:"}
                         </span>
                       </p>
                       <div className='flex flex-wrap'>
@@ -1132,8 +1132,8 @@ const Food = ({ store }) => {
                           onClick={() => {
                             setShowModal2(true);
                           }}
-                          className='mr-1 text-white cursor-pointer' style={{ position: 'relative', background: '#1569e0', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                          {"Add"}
+                          className='mr-1 cursor-pointer' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                          {"Add Attribute"}
                         </div>
 
                         {attributeArray2.map((attr, index) => (
@@ -1198,38 +1198,43 @@ const Food = ({ store }) => {
 
                 </div>
 
-                <div className={`flex`}>
+                <div className={`flex justify-between`}>
                   <div>
                     <span
-                      className={`ml-2 cursor-pointer text-black`} style={{ position: 'relative', background: 'rgb(213, 245, 224)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
-                      onClick={handleAddNewItem}
+                      onClick={() => setExpandDetails(!expandDetails)} // Use an arrow function to toggle the state
+                      className={`cursor-pointer text-black`}
+                      style={{
+                        position: 'relative',
+                        background: 'rgb(244, 229, 208)',
+                        borderRadius: '8px',
+                        padding: '10px 10px 10px 10px',
+                        height: '32px',
+                        fontFamily: "Suisse Int'l",
+                        fontStyle: 'normal',
+                        fontWeight: 600,
+                        fontSize: '12px',
+                        lineHeight: '12px',
+                        letterSpacing: '0.05em',
+                        textTransform: 'uppercase',
+                        color: 'black',
+                        whiteSpace: 'nowrap',
+                      }}
                     >
-                      {t("Add New")}
-                    </span>
-                  </div>
-                  <span
-onClick={() => setExpandDetails(!expandDetails)} // Use an arrow function to toggle the state
-className={`cursor-pointer text-black  ml-auto`}
-style={{
-  position: 'relative',
-  background: 'rgb(244, 229, 208)',
-  borderRadius: '8px',
-  padding: '10px 10px 10px 10px',
-  height: '32px',
-  fontFamily: "Suisse Int'l",
-  fontStyle: 'normal',
-  fontWeight: 600,
-  fontSize: '12px',
-  lineHeight: '12px',
-  letterSpacing: '0.05em',
-  textTransform: 'uppercase',
-  color: 'black',
-  whiteSpace: 'nowrap',
-}}
->
 
-                    {expandDetails ? "Hide Details" : "Edit Details"}
+                      {expandDetails ? "Hide Details" : "Edit Details"}
+                    </span>
+
+                  </div>
+                  <div>
+
+                  <span
+                    className={`ml-auto cursor-pointer text-black`} style={{ position: 'relative', background: 'rgb(213, 245, 224)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
+                    onClick={handleAddNewItem}
+                  >
+                    {t("Add New")}
                   </span>
+                  </div>
+
                 </div>
 
 
@@ -1259,8 +1264,24 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
   const [inputData, setInputData] = useState({
     // Initialize other properties as needed
     attributes: item.attributes,
+    attributes2: item.attributes2,
+
     availability: item.availability, // Initialize the availability property as an empty array
+    
   });
+  const [width, setWidth] = useState(window.innerWidth - 64);
+
+  useEffect(() => {
+    function handleResize() {
+      setWidth(window.innerWidth - 64);
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  const isMobile = width <= 768;
+
   const [previewUrl, setPreviewUrl] = useState(add_image)
   // Initialize selectedOptions with an empty array
   //const [selectedOptions, setSelectedOptions] = useState([]);
@@ -1552,7 +1573,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
     <>
       {showModal2 && (
         <div id="defaultModal2" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
-          <div className="relative w-full max-w-2xl max-h-full">
+          <div className="relative shadow w-full max-w-2xl max-h-full">
             <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
               <div className="flex items-start justify-between p-4 rounded-t dark:border-gray-600">
 
@@ -1697,53 +1718,61 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                   <span className="sr-only">{t("Close modal")}</span>
                 </button>
               </div>
-              <div className='p-4 grid grid-cols-2 lg:grid-cols-4 gap-6 pt-3'>
-                <motion.div
-                  layout
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.1 }}
-                  className="border rounded-lg duration-500 cursor-pointer">
-
-
-                  <label className=''
-                    style={{ backgroundColor: "rgba(246,246,248,1)" }}>
-                    <input
-                      type="file"
-                      onChange={handleFileChangeAndUpload}
-                      style={{ display: 'none' }} // hides the input
-                    />
-
-                    <img
-                      className=" h-[80px] w-[80px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg"
-                      src={previewUrl} // you can use a default placeholder image
-                      loading="lazy"
-                    />
-                  </label>
-
-
-                </motion.div>
-                {imgGallery.slice(0, -1).map(gen_img => (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.1 }}
-                    className="border rounded-lg duration-500 cursor-pointer">
-                    <div className="h-min overflow-hidden rounded-md">
-                      <img loading="lazy" className=" h-[80px] w-[80px] hover:scale-125 transition-all duration-500 cursor-pointer  object-cover rounded-t-lg " src={gen_img}
-                        onClick={() => {
-                          selectPic(gen_img, item)
-                        }}
-                      />
-                    </div>
-                  </motion.div>
-                ))
-                }
-
-              </div>
+              <div className='p-4 pt-3 flex justify-between'>
+  <motion.div
+    layout
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.1 }}
+    className="border rounded-lg h-[80px] w-[80px] duration-500 cursor-pointer"
+    // The inline style for motion.div changes based on isMobile
+    style={
+      isMobile 
+      ? { display: "block", margin: "auto" } 
+      : {  }
+    }
+  >
+    <label 
+      className=''
+      style={{ backgroundColor: "rgba(246,246,248,1)" }}>
+      <input
+        type="file"
+        onChange={handleFileChangeAndUpload}
+        style={{ display: 'none' }} // hides the input
+      />
+      <img
+        className=" h-[80px] w-[80px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg"
+        src={previewUrl} // you can use a default placeholder image
+        loading="lazy"
+      />
+    </label>
+  </motion.div>
+  {imgGallery.slice(0, -1).map(gen_img => (
+    <motion.div
+      layout
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.1 }}
+      className="border rounded-lg h-[80px] w-[80px]  duration-500 cursor-pointer"
+      // The inline style for motion.div changes based on isMobile
+      style={
+        isMobile 
+        ? { display: "block", margin: "auto", marginTop: "10px" } 
+        : { }
+      }
+    >
+      <div className="h-min overflow-hidden rounded-md">
+        <img loading="lazy" className=" h-[80px] w-[80px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg" src={gen_img}
+          onClick={() => {
+            selectPic(gen_img, item)
+          }}
+        />
+      </div>
+    </motion.div>
+  ))}
+</div>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <button
                   className="block text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
@@ -1758,8 +1787,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                     }
                   }}
                 >
-                  {isGenChi ? t("New pictures for ") + item.CHI : t("New pictures for ") + item.name}
-
+                  {isGenChi ? t("Try Another Set of Pictures "): t("See Previous Set of Pictures")}
                 </button>
               </div>
             </div>
@@ -1806,9 +1834,9 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
           </div>
 
           <div style={{ width: 'calc(100% - 80px)' }}>  {/* adjust width */}
-            <div className='ml-2 text-md font-semibold'>
+            <div className='text-md font-semibold'>
 
-              <div className="mb-1 flex  items-center">
+              <div className="mb-1 ml-2 flex  items-center">
                 <input
                   className='text-md font-semibold'
                   type="text"
@@ -1841,7 +1869,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                   }}
                 >{t("Fill (CN)")}</span>
               </div>
-              <div className="mb-1 flex  items-center">
+              <div className="mb-1 flex ml-2 items-center">
                 <input
                   className='text-md font-semibold'
                   type="text"
@@ -1882,7 +1910,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
           </div>
 
         </div>
-        <div className='ml-2 d-block text-md font-semibold'>
+        <div className='d-block text-md font-semibold'>
           <div className='flex'>
             <div>
               <div>
@@ -1927,111 +1955,111 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
 
           {expandDetails ? <>
             <div>
-            <p className="mb-1">
-              <span className='text-black'>
+              <p className="mb-1">
+                <span className='text-black'>
 
-                {"Attributes:"}
-              </span>
+                {"Single-Selected Options:"}
+                </span>
 
-            </p>
-            <div className='flex flex-wrap'>
+              </p>
+              <div className='flex flex-wrap'>
 
 
 
-              <div
-                onClick={() => {
-                  setModalOpen(true);
-                }}
-                className='mr-1 text-white cursor-pointer' style={{ position: 'relative', background: '#1569e0', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                {"Add"}
+                <div
+                  onClick={() => {
+                    setModalOpen(true);
+                  }}
+                  className='mr-1 cursor-pointer' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                  {"Add Attribute"}
+                </div>
+
+                {item.attributes.map((attr, index) => (
+                  <>
+
+                    <div onClick={() => handleEditAttribute(index)} className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                      {attr}
+                      <span onClick={() => handleDeleteAttribute(index)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                        <i className="fas fa-times"></i>
+                      </span>
+                    </div>
+                  </>
+
+                ))}
+
               </div>
+              <p className="mb-1">
+                <span className='text-black'>
+                {"Multi-Selected Options:"}
+                </span>
+              </p>
+              <div className='flex flex-wrap'>
+                <div
+                  onClick={() => {
+                    setShowModal2(true);
+                  }}
+                  className='mr-1 cursor-pointer' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                  {"Add Attribute"}
+                </div>
 
-              {item.attributes.map((attr, index) => (
-                <>
+                {item.attributes2.map((attr, index) => (
+                  <>
+                    <div onClick={() => handleEditAttribute2(index)} className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                      {attr}
+                      <span onClick={() => handleDeleteAttribute2(index)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                        <i className="fas fa-times"></i>
+                      </span>
+                    </div>
+                  </>
+                ))}
+              </div>
+            </div>
 
-                  <div onClick={() => handleEditAttribute(index)} className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                    {attr}
-                    <span onClick={() => handleDeleteAttribute(index)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                      <i className="fas fa-times"></i>
+            <div className='mb-3'>
+              <p className="mb-1">
+                <span className='text-black'>
+
+                  {"Availability:"}
+                </span>
+
+              </p>
+              <div className='flex'>
+
+                <div className='mr-1 cursor-pointer'
+                  onClick={() => toggleOption('Morning')}
+                  style={{ position: 'relative', background: item.availability.includes('Morning') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                  Morning
+                  {item.availability.includes('Morning') && (
+                    <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                      <FontAwesomeIcon icon={faTimes} />
                     </span>
-                  </div>
-                </>
+                  )}
+                </div>
+                <div className='mr-1 cursor-pointer'
+                  onClick={() => toggleOption('Afternoon')}
 
-              ))}
-
-            </div>
-            <p className="mb-1">
-              <span className='text-black'>
-                {"Attributes2:"}
-              </span>
-            </p>
-            <div className='flex flex-wrap'>
-              <div
-                onClick={() => {
-                  setShowModal2(true);
-                }}
-                className='mr-1 text-white cursor-pointer' style={{ position: 'relative', background: '#1569e0', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                {"Add"}
-              </div>
-
-              {item.attributes2.map((attr, index) => (
-                <>
-                  <div onClick={() => handleEditAttribute2(index)} className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                    {attr}
-                    <span onClick={() => handleDeleteAttribute2(index)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                      <i className="fas fa-times"></i>
+                  style={{ position: 'relative', background: item.availability.includes('Afternoon') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                  Afternoon
+                  {item.availability.includes('Afternoon') && (
+                    <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                      <FontAwesomeIcon icon={faTimes} />
                     </span>
-                  </div>
-                </>
-              ))}
-            </div>
-          </div>
+                  )}
+                </div>
 
-          <div className='mb-3'>
-            <p className="mb-1">
-              <span className='text-black'>
-
-                {"Availability:"}
-              </span>
-
-            </p>
-            <div className='flex'>
-
-              <div className='mr-1 cursor-pointer'
-                onClick={() => toggleOption('Morning')}
-                style={{ position: 'relative', background: item.availability.includes('Morning') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                Morning
-                {item.availability.includes('Morning') && (
-                  <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                    <FontAwesomeIcon icon={faTimes} />
-                  </span>
-                )}
-              </div>
-              <div className='mr-1 cursor-pointer'
-                onClick={() => toggleOption('Afternoon')}
-
-                style={{ position: 'relative', background: item.availability.includes('Afternoon') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                Afternoon
-                {item.availability.includes('Afternoon') && (
-                  <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                    <FontAwesomeIcon icon={faTimes} />
-                  </span>
-                )}
+                <div className='mr-1 cursor-pointer'
+                  onClick={() => toggleOption('Evening')}
+                  style={{ position: 'relative', background: item.availability.includes('Evening') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                  Evening
+                  {item.availability.includes('Evening') && (
+                    <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                      <FontAwesomeIcon icon={faTimes} />
+                    </span>
+                  )}
+                </div>
               </div>
 
-              <div className='mr-1 cursor-pointer'
-                onClick={() => toggleOption('Evening')}
-                style={{ position: 'relative', background: item.availability.includes('Evening') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                Evening
-                {item.availability.includes('Evening') && (
-                  <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                    <FontAwesomeIcon icon={faTimes} />
-                  </span>
-                )}
-              </div>
-            </div>
-
-          </div></> : <div className='mb-2'></div>}
+            </div></> : <div className='mb-2'></div>}
 
 
 
@@ -2041,7 +2069,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
           <div>
             <span
               onClick={() => setExpandDetails(!expandDetails)} // Use an arrow function to toggle the state
-              className={`mt-auto cursor-pointer text-black  ml-auto`}
+              className={`mt-auto cursor-pointer text-black  `}
               style={{
                 position: 'relative',
                 background: 'rgb(244, 229, 208)',

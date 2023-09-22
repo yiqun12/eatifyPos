@@ -138,7 +138,9 @@ const GoogleVisionDemo = ({ store, setFoods }) => {
 
           item.id = id;
           item.subtotal = 1;
-          item.Priority = 9999;
+          item.attributes = [];
+          item.attributes2 = [];
+          item.availability = ['Morning', 'Afternoon', 'Evening'];
         });
         const mergedArray =  jsonWithImage.concat(JSON.parse(localStorage.getItem(store)));
 
