@@ -67,6 +67,7 @@ function DayTimeSelectors({ day, selectedTimePairs, onAddTime, onTimeChange, onD
                 <div >{day}</div>
                 <div style={{ display: "flex", margin: "5px" }}>
                     <input
+                        id="toggleCheckbox"
                         type="checkbox"
                         style={{ marginRight: "5px" }}
                         checked={selectedTimePairs.closed}

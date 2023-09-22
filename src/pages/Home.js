@@ -322,9 +322,9 @@ const Account = () => {
 
       <footer class="flex_">
         <section class="flex_content_">
-          <a href="#">Home</a>
-          <a href="#">About us</a>
-          <a href="#">Career</a>
+          <a >Home</a>
+          <a >About us</a>
+          <a >Career</a>
         </section>
         <section class="flex_content_ padding_1x" style={{ marginTop: "10px" }}>
           <p>© 2023 Eatifydash LLC || All rights reserved</p>

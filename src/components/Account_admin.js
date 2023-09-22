@@ -26,6 +26,7 @@ import firebase from 'firebase/compat/app';
 import ChangeTimeForm from "../pages/ChangeTimeForm"
 import DemoCreateStore from '../components/demoCreateStore'
 import Dropdown from 'react-bootstrap/Dropdown';
+import DemoFood from '../pages/demoFood'
 
 import barchar_logo from './file_barchar.png';
 import files_icon from './files_icon.png';
@@ -415,7 +416,7 @@ const Account = () => {
                     <div className="text-sm-end">
                       <div className="mx-n1">
 
-                        <a href="#" className="btn d-inline-flex btn-sm btn-outline-primary mx-1">
+                        <a className="btn d-inline-flex btn-sm btn-outline-primary mx-1">
                           <span className="pe-2">
                             <i className="bi bi-box-arrow-left"></i>
                           </span>
@@ -449,7 +450,6 @@ const Account = () => {
                           storelist && storelist.length > 0 ?
                             storelist.map((data, index) => (
                               <Dropdown.Item
-                                href="#"
                                 onClick={(e) => {
                                   handleTabClick(e, `#${data.id}`);
                                   setActiveStoreTab(data.id);
@@ -466,11 +466,11 @@ const Account = () => {
                     </Dropdown>
 
 
-                    <a href="#"
+                    <a 
                       onClick={(e) => handleTabClick(e, '#Revenue_Chart')}
                       class="btn d-inline-flex btn-sm btn-primary mx-1">
                       <span class=" pe-2">
-                        <i class="bi bi-plus"></i>
+                        <i class="bi bi-house"></i>
                       </span>
                       <span> {"Create Store"}</span>
                     </a>
@@ -484,11 +484,11 @@ const Account = () => {
                         setShowSection('')
                       }}
                     >
-                      <a href="#" className={`pt-0 nav-link ${activeTab === '#profile' || activeTab === '' ? 'active' : ''}`}>
+                      <a className={`pt-0 nav-link ${activeTab === '#profile' || activeTab === '' ? 'active' : ''}`}>
                         <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
-                            <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5Z" />
-                          </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/>
+</svg>
                         </i>
                       </a>
 
@@ -501,7 +501,7 @@ const Account = () => {
                         <li className={`nav-item p-0`}
                           onClick={() => setShowSection('sales')}
                         >
-                          <a href="#" className={`pt-0 nav-link ${showSection === `sales` ? 'active' : ''}`}>
+                          <a className={`pt-0 nav-link ${showSection === `sales` ? 'active' : ''}`}>
                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
                                 <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2zm1 12h2V2h-2v12zm-3 0V7H7v7h2zm-5 0v-3H2v3h2z" />
@@ -513,7 +513,7 @@ const Account = () => {
                         <li className={`nav-item p-0`}
                           onClick={() => setShowSection('menu')}
                         >
-                          <a href="#" className={`pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`}>
+                          <a className={`pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`}>
                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-book" viewBox="0 0 16 16">
                                 <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z" />
@@ -524,7 +524,7 @@ const Account = () => {
                         </li>
 
                         <li className={`nav-item p-0`} onClick={() => setShowSection('qrCode')}>
-                          <a href="#" className={`pt-0 nav-link ${showSection === `qrCode` ? 'active' : ''}`}>
+                          <a className={`pt-0 nav-link ${showSection === `qrCode` ? 'active' : ''}`}>
                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-qr-code" viewBox="0 0 16 16">
                                 <path d="M2 2h2v2H2V2Z" />
@@ -539,7 +539,7 @@ const Account = () => {
                         <li className={`nav-item p-0`}
                           onClick={() => setShowSection('stripeCard')}
                         >
-                          <a href="#" className={`pt-0 nav-link ${showSection === `stripeCard` ? 'active' : ''}`}>
+                          <a  className={`pt-0 nav-link ${showSection === `stripeCard` ? 'active' : ''}`}>
                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-credit-card" viewBox="0 0 16 16">
                                 <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v1h14V4a1 1 0 0 0-1-1H2zm13 4H1v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7z" />
@@ -552,7 +552,7 @@ const Account = () => {
                         <li className={`nav-item p-0`}
                           onClick={() => setShowSection('store')}
                         >
-                          <a href="#" className={`pt-0 nav-link ${showSection === `store` ? 'active' : ''}`}>
+                          <a className={`pt-0 nav-link ${showSection === `store` ? 'active' : ''}`}>
                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
                                 <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
@@ -585,7 +585,7 @@ const Account = () => {
 
                       <div className="tab-pane active mt-4" id="profile">
 
-                        <a href="#" class="nav-link d-flex align-items-center p-0">
+                        <a class="nav-link d-flex align-items-center p-0">
 
                           <div>
                             <span class="d-block text-md font-semibold">
@@ -613,7 +613,7 @@ const Account = () => {
                     {activeTab === '#Revenue_Chart' ? (
                       <div className="tab-pane-active" id="Revenue_Chart">
                         {/*create your store*/}
-                        <DemoCreateStore />
+                        <DemoFood />
                       </div>
 
 
@@ -638,15 +638,7 @@ const Account = () => {
                           }
                           {showSection === 'stripeCard' ? <>
 
-                            <div className='flex mt-3' >
-                              <div className='mt-2' style={{ width: "50%" }}>
-                                Payment Options:
 
-                              </div>
-                              <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
-                                <a href="https://connect.stripe.com/oauth/authorize?redirect_uri=https://connect.stripe.com/hosted/oauth&client_id=ca_NRqE7CXgaiYMc6p4Q5opvaOQ9AbqW33o&state=onbrd_OUg7Zk5piPAsBUKev36hdp68HO&response_type=code&scope=read_write&stripe_user[country]=US" class="stripe-connect"><span>Connect with</span></a>
-                              </div>
-                            </div>
                             <div className='flex mt-3' >
                               <div style={{ width: "10%" }}>
                               </div>
@@ -680,12 +672,12 @@ const Account = () => {
                           }
 
                           {showSection === 'store' ? <>
-                            <div>
-                              <div className='max-w-[1240px] mx-auto '>
-                                <div className='rounded-lg max-h-[200px] relative'>
+                            <div className=''>
+                              <div className='mx-auto '>
+                                <div className='mt-3 rounded-lg w-full  max-h-[200px] relative'>
                                   <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
                                     <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className='text-orange-500'>{data.Name}</span></h1>
-                                    <h1 className='px-4 font-bold'>@{data.Address}</h1>
+                                    <h1 className='px-4 text-white font-bold'>@{data.Address}</h1>
                                   </div>
                                   <img className='rounded-lg w-full max-h-[200px] object-cover' src={data?.Image} alt="#" />
                                 </div>
@@ -706,6 +698,12 @@ const Account = () => {
                                   <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="text" placeholder={data?.Address} />
                                 </div>
                               </div>
+                              <div className=' mb-6' >
+                                <div className='mb-3'>Payment Options:</div>
+                               <div>
+                               <a href="https://connect.stripe.com/oauth/authorize?redirect_uri=https://connect.stripe.com/hosted/oauth&client_id=ca_NRqE7CXgaiYMc6p4Q5opvaOQ9AbqW33o&state=onbrd_OUg7Zk5piPAsBUKev36hdp68HO&response_type=code&scope=read_write&stripe_user[country]=US" class="stripe-connect"><span>Connect with</span></a>
+                            </div>
+                                </div>
                               <label
                                 for="formFileLg"
                                 class="mb-2 inline-block text-neutral-700 dark:text-neutral-200"
@@ -719,9 +717,10 @@ const Account = () => {
                                 <div style={{ width: "50%" }}>
                                 </div>
                                 <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
-                                  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                                     Submit
-                                  </button>                                </div>
+                                  </button>                                
+                                  </div>
                               </div>
                             </form>
 

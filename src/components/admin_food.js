@@ -1,23 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react'
 //import { data } from '../data/data.js'
 import { motion, AnimatePresence } from "framer-motion"
-import $ from 'jquery';
 import { useMyHook } from '../pages/myHook';
 import { useMemo } from 'react';
-import { collection, doc, addDoc, getDocs, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
-import { FiSearch } from 'react-icons/fi';
-
 import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
 import axios from 'axios';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/functions';
 import './admin_food.css';
 import Scanner from './ScanMenu';
-import Checklist from '../pages/Checklist'
-import { query, where, limit } from "firebase/firestore";
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
 import { useUserContext } from "../context/userContext";
 import add_image from '../components/add_image.png';
 import { Helmet } from 'react-helmet';
@@ -324,20 +317,20 @@ const Food = ({ store }) => {
     setData(storedData);
   }, [id]);
 
-  async function updateKey() {
+  const updateKey = async () => {
+    console.log("updateKey");
     // Reference to the specific document
     const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
-
-    //const docRef = doc(db, "stripecustoemr", uid, "titlelogonameconet", store);
-
-    // Update the 'key' field to the value 1
+  
+    // Update the 'key' field to the value retrieved from localStorage
     await updateDoc(docRef, {
       key: localStorage.getItem(store)
     });
-  }
-
+  };
+  
 
   const syncData = async () => {
+    console.log("sync data")
 
     let sessionData;
 
@@ -360,7 +353,7 @@ const Food = ({ store }) => {
       console.error("Error fetching the document:", error);
     }
 
-
+    console.log(sessionData)
     if (sessionData) {
       localStorage.setItem(store, sessionData);
       setData(JSON.parse(sessionData)); // Update state
@@ -489,9 +482,7 @@ const Food = ({ store }) => {
     setTitleLogoNameContent(JSON.parse(localStorage.getItem("TitleLogoNameContent")))
   }, [id]);
 
-  useEffect(() => {
-    syncData()
-  }, []);
+
 
   const [arr, setArr] = useState(JSON.parse(localStorage.getItem(store) || "[]"));
 
@@ -516,8 +507,8 @@ const Food = ({ store }) => {
     const newItemWithPlaceholders = {
       id: newItemId,
       image: previewUrl,
-      name: newItem.name || "Void",
-      CHI: newItem.CHI || "空",
+      name: newItem.name || "Blank",
+      CHI: newItem.CHI || "空白的",
       subtotal: newItem.subtotal || "1",
       category: newItem.category || (categoryState === null ? "Classic" : categoryState),
       categoryCHI: newItem.categoryCHI || "类别",
@@ -594,7 +585,7 @@ const Food = ({ store }) => {
     setFoodTypes([...new Set(updatedArr.map(item => item.category))])
   }
 
-  const [previewUrl, setPreviewUrl] = useState(add_image);
+  const [previewUrl, setPreviewUrl] = useState("https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public");
 
   const handleFileChangeAndUpload = async (event) => {
     const selectedFile = event.target.files[0];
@@ -673,46 +664,6 @@ const Food = ({ store }) => {
     setModalOpen(false);
   };
 
-  const handleClickName = async (e) => {
-    e.preventDefault();
-    console.log(e.target.name.value);
-    const querySnapshot = await getDocs(collection(db, "TitleLogoNameContent"));
-    const docSnapshot = querySnapshot.docs[0];
-    const docRef = doc(db, 'TitleLogoNameContent', docSnapshot.id);
-    updateDoc(docRef, { Name: e.target.name.value })
-      .then(() => {
-        const newData = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        console.log(newData)
-        newData[0].Name = e.target.name.value
-        localStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
-        saveId(Math.random());
-      })
-      .catch((error) => {
-        console.error("Error updating document: ", error);
-      });
-
-  }
-  const handleClickAddress = async (e) => {
-    e.preventDefault();
-    console.log(e.target.address.value);
-    const querySnapshot = await getDocs(collection(db, "TitleLogoNameContent"));
-    const docSnapshot = querySnapshot.docs[0];
-    const docRef = doc(db, 'TitleLogoNameContent', docSnapshot.id);
-    updateDoc(docRef, { Address: e.target.address.value })
-      .then(() => {
-        const newData = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        console.log(newData)
-        newData[0].Address = e.target.address.value
-        localStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
-        saveId(Math.random());
-      })
-      .catch((error) => {
-        console.error("Error updating document: ", error);
-      });
-
-
-  }
-
   /**scanner */
 
   //Instruction:
@@ -724,6 +675,8 @@ const Food = ({ store }) => {
     <div className='max-w-[1597px] '>
       <Helmet>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha384-xxz5vNXM/dz2Uk5KA02wmbzm9KpPL5Sgt1JwBrJZ4tUfS5B/R5F/h5A5J7J5C5P9i" crossorigin="anonymous"/>
+
       </Helmet>
       {showModal2 && (
         <div id="defaultModal2" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
@@ -858,16 +811,24 @@ const Food = ({ store }) => {
       <div className="flex justify-between mt-3">
         <Scanner setFoods={setFoods} store={store} />
 
-        <a href="#" className="btn d-inline-flex btn-sm btn-primary mx-1">
+        <div onClick={updateKey} className="mb-2 btn d-inline-flex btn-sm btn-primary">
           <span className="pe-2">
             <i class="bi bi-bookmarks"></i>
           </span>
-          <span onClick={updateKey()}>
+          <span 
+          >
             {"Save Changes"}
           </span>
-        </a>
+        </div>
       </div>
+      <div                         onClick={() => {
+                            syncData();
+                          }}
+className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-neutral">
 
+                      <span>
+                      <i class="fa fa-refresh"></i> Refresh Data                     </span>
+                    </div>
 
 
       <div className='m-auto '>
@@ -941,6 +902,8 @@ const Food = ({ store }) => {
 
         </div>
 
+
+
         {/* diplay food */}
         <AnimatePresence>
           <div style={containerStyle}>
@@ -996,28 +959,25 @@ const Food = ({ store }) => {
                           style={{ width: "50%" }}
                           type="text"
                           name="name"
-                          placeholder={t("Void")}
+                          placeholder={t("Blank")}
                           value={newItem.name}
                           onChange={handleInputChange}
                         />
-                        <span
-                          className={`cursor-pointer text-black ml-auto`} style={{ position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
+                        <span onClick={async () => {  //Auto Fill Chinese
+                          let translatedText = "Blank";
+                          if (newItem.name) {
+                            translatedText = newItem.name;
+                          }
+                          try {
+                            const chineseTranslation = await translateToChinese(translatedText);
+                            setNewItem({ ...newItem, CHI: chineseTranslation });
+                          } catch (error) {
+                            console.error("Translation error:", error);
+                          }
 
-                          onClick={async () => {  //Auto Fill Chinese
-                            let translatedText = "Void";
-                            if (newItem.name) {
-                              translatedText = newItem.name;
-                            }
-                            try {
-                              const chineseTranslation = await translateToChinese(translatedText);
-                              setNewItem({ ...newItem, CHI: chineseTranslation });
-                            } catch (error) {
-                              console.error("Translation error:", error);
-                            }
+                        }}
+                          className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(CN)")}</span></span>
 
-                          }}
-
-                        >{t("Fill (CN)")}</span>
                       </div>
                       <div className="mb-1 ml-2 flex  items-center">
                         <span className='text-black'>
@@ -1029,27 +989,25 @@ const Food = ({ store }) => {
                           style={{ width: "40%" }}
                           type="text"
                           name="CHI"
-                          placeholder={"空"}
+                          placeholder={"空白的"}
                           value={newItem.CHI}
                           onChange={handleInputChange}
                         />
 
-                        <span
-                          className={`cursor-pointer text-black ml-auto`} style={{ position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
+                        <span onClick={async () => {  // Auto Fill English
+                          let translatedText = "空白的";
+                          if (newItem.CHI) {
+                            translatedText = newItem.CHI;
+                          }
+                          try {
+                            const EnglishTranslation = await translateToEnglish(translatedText);
+                            setNewItem({ ...newItem, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
+                          } catch (error) {
+                            console.error("Translation error:", error);
+                          }
+                        }}
+                          className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(EN)")}</span></span>
 
-                          onClick={async () => {  // Auto Fill English
-                            let translatedText = "空";
-                            if (newItem.CHI) {
-                              translatedText = newItem.CHI;
-                            }
-                            try {
-                              const EnglishTranslation = await translateToEnglish(translatedText);
-                              setNewItem({ ...newItem, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
-                            } catch (error) {
-                              console.error("Translation error:", error);
-                            }
-                          }}
-                        >{t("Fill (EN)")}</span>
                       </div>
 
                     </div>
@@ -1101,14 +1059,14 @@ const Food = ({ store }) => {
                       <div className='flex flex-wrap'>
 
 
-                        <div
-                          onClick={() => {
+                        <a                       onClick={() => {
                             setModalOpen(true);
                           }}
-                          className='mr-1 cursor-pointer' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                          {"Add Attribute"}
-                        </div>
+className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light">
 
+                      <span>
+                      {"Add Attribute"}                      </span>
+                    </a>
                         {attributeArray.map((attr, index) => (
                           <>
 
@@ -1128,14 +1086,15 @@ const Food = ({ store }) => {
                         </span>
                       </p>
                       <div className='flex flex-wrap'>
-                        <div
-                          onClick={() => {
+
+                        <a                          onClick={() => {
                             setShowModal2(true);
                           }}
-                          className='mr-1 cursor-pointer' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                          {"Add Attribute"}
-                        </div>
+className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light">
 
+                      <span>
+                      {"Add Attribute"}                      </span>
+                    </a>
                         {attributeArray2.map((attr, index) => (
                           <>
                             <div onClick={() => handleEditAttribute2(index)} className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
@@ -1199,40 +1158,25 @@ const Food = ({ store }) => {
                 </div>
 
                 <div className={`flex justify-between`}>
-                  <div>
-                    <span
-                      onClick={() => setExpandDetails(!expandDetails)} // Use an arrow function to toggle the state
-                      className={`cursor-pointer text-black`}
-                      style={{
-                        position: 'relative',
-                        background: 'rgb(244, 229, 208)',
-                        borderRadius: '8px',
-                        padding: '10px 10px 10px 10px',
-                        height: '32px',
-                        fontFamily: "Suisse Int'l",
-                        fontStyle: 'normal',
-                        fontWeight: 600,
-                        fontSize: '12px',
-                        lineHeight: '12px',
-                        letterSpacing: '0.05em',
-                        textTransform: 'uppercase',
-                        color: 'black',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
 
+                  <a                onClick={() => setExpandDetails(!expandDetails)} // Use an arrow function to toggle the state
+className="btn d-inline-flex d-inline-flex btn-sm btn-light">
+
+                      <span>
                       {expandDetails ? "Hide Details" : "Edit Details"}
-                    </span>
-
-                  </div>
+                      </span>
+                    </a>
                   <div>
 
-                  <span
-                    className={`ml-auto cursor-pointer text-black`} style={{ position: 'relative', background: 'rgb(213, 245, 224)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
-                    onClick={handleAddNewItem}
-                  >
-                    {t("Add New")}
-                  </span>
+
+                    <a  onClick={handleAddNewItem} className="btn d-inline-flex btn-sm btn-success">
+                      <span className="pe-2">
+                        <i class="bi bi-pencil"></i>
+                      </span>
+                      <span>
+                        {t("Add New")}
+                      </span>
+                    </a>
                   </div>
 
                 </div>
@@ -1267,7 +1211,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
     attributes2: item.attributes2,
 
     availability: item.availability, // Initialize the availability property as an empty array
-    
+
   });
   const [width, setWidth] = useState(window.innerWidth - 64);
 
@@ -1719,60 +1663,60 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                 </button>
               </div>
               <div className='p-4 pt-3 flex justify-between'>
-  <motion.div
-    layout
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    transition={{ duration: 0.1 }}
-    className="border rounded-lg h-[80px] w-[80px] duration-500 cursor-pointer"
-    // The inline style for motion.div changes based on isMobile
-    style={
-      isMobile 
-      ? { display: "block", margin: "auto" } 
-      : {  }
-    }
-  >
-    <label 
-      className=''
-      style={{ backgroundColor: "rgba(246,246,248,1)" }}>
-      <input
-        type="file"
-        onChange={handleFileChangeAndUpload}
-        style={{ display: 'none' }} // hides the input
-      />
-      <img
-        className=" h-[80px] w-[80px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg"
-        src={previewUrl} // you can use a default placeholder image
-        loading="lazy"
-      />
-    </label>
-  </motion.div>
-  {imgGallery.slice(0, -1).map(gen_img => (
-    <motion.div
-      layout
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.1 }}
-      className="border rounded-lg h-[80px] w-[80px]  duration-500 cursor-pointer"
-      // The inline style for motion.div changes based on isMobile
-      style={
-        isMobile 
-        ? { display: "block", margin: "auto", marginTop: "10px" } 
-        : { }
-      }
-    >
-      <div className="h-min overflow-hidden rounded-md">
-        <img loading="lazy" className=" h-[80px] w-[80px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg" src={gen_img}
-          onClick={() => {
-            selectPic(gen_img, item)
-          }}
-        />
-      </div>
-    </motion.div>
-  ))}
-</div>
+                <motion.div
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.1 }}
+                  className="border rounded-lg h-[80px] w-[80px] duration-500 cursor-pointer"
+                  // The inline style for motion.div changes based on isMobile
+                  style={
+                    isMobile
+                      ? { display: "block", margin: "auto" }
+                      : {}
+                  }
+                >
+                  <label
+                    className=''
+                    style={{ backgroundColor: "rgba(246,246,248,1)" }}>
+                    <input
+                      type="file"
+                      onChange={handleFileChangeAndUpload}
+                      style={{ display: 'none' }} // hides the input
+                    />
+                    <img
+                      className=" h-[80px] w-[80px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg"
+                      src={previewUrl} // you can use a default placeholder image
+                      loading="lazy"
+                    />
+                  </label>
+                </motion.div>
+                {imgGallery.slice(0, -1).map(gen_img => (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.1 }}
+                    className="border rounded-lg h-[80px] w-[80px]  duration-500 cursor-pointer"
+                    // The inline style for motion.div changes based on isMobile
+                    style={
+                      isMobile
+                        ? { display: "block", margin: "auto", marginTop: "10px" }
+                        : {}
+                    }
+                  >
+                    <div className="h-min overflow-hidden rounded-md">
+                      <img loading="lazy" className=" h-[80px] w-[80px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg" src={gen_img}
+                        onClick={() => {
+                          selectPic(gen_img, item)
+                        }}
+                      />
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <button
                   className="block text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
@@ -1787,7 +1731,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                     }
                   }}
                 >
-                  {isGenChi ? t("Try Another Set of Pictures "): t("See Previous Set of Pictures")}
+                  {isGenChi ? t("Try Another Set of Pictures ") : t("See Previous Set of Pictures")}
                 </button>
               </div>
             </div>
@@ -1847,27 +1791,29 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                     setInputData({ ...inputData, name: e.target.value });
                     updateItem(item.id, { ...inputData, name: e.target.value })
                   }} />
-                <span
-                  className={`cursor-pointer text-black ml-auto`} style={{ position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
-                  onClick={async () => {  // Auto Fill English
-                    let translatedText = "";
-                    if (inputData?.name) {
-                      //console(inputData?.name)
-                      translatedText = inputData.name;
-                    } else {
-                      //console(item.name)
-                      translatedText = item.name;
-                    }
-                    try {
-                      const ChineseTranslation = await translateToChinese(translatedText);
-                      setInputData({ ...inputData, CHI: ChineseTranslation });
-                      updateItem(item.id, { ...inputData, CHI: ChineseTranslation })
 
-                    } catch (error) {
-                      console.error("Translation error:", error);
-                    }
-                  }}
-                >{t("Fill (CN)")}</span>
+
+
+                <span onClick={async () => {  // Auto Fill English
+                  let translatedText = "";
+                  if (inputData?.name) {
+                    //console(inputData?.name)
+                    translatedText = inputData.name;
+                  } else {
+                    //console(item.name)
+                    translatedText = item.name;
+                  }
+                  try {
+                    const ChineseTranslation = await translateToChinese(translatedText);
+                    setInputData({ ...inputData, CHI: ChineseTranslation });
+                    updateItem(item.id, { ...inputData, CHI: ChineseTranslation })
+
+                  } catch (error) {
+                    console.error("Translation error:", error);
+                  }
+                }}
+                  className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(CN)")}</span></span>
+
               </div>
               <div className="mb-1 flex ml-2 items-center">
                 <input
@@ -1882,28 +1828,27 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                   }}
                 />
 
-                <span
-                  className={`cursor-pointer text-black ml-auto`} style={{ position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
 
-                  onClick={async () => {  // Auto Fill English
-                    let translatedText = "";
-                    if (inputData?.CHI) {
+                <span onClick={async () => {  // Auto Fill English
+                  let translatedText = "";
+                  if (inputData?.CHI) {
 
-                      translatedText = inputData.CHI;
-                    } else {
-                      translatedText = item.CHI;
-                    }
-                    try {
-                      const EnglishTranslation = await translateToEnglish(translatedText);
-                      setInputData({ ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
-                      updateItem(item.id, { ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') })
+                    translatedText = inputData.CHI;
+                  } else {
+                    translatedText = item.CHI;
+                  }
+                  try {
+                    const EnglishTranslation = await translateToEnglish(translatedText);
+                    setInputData({ ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
+                    updateItem(item.id, { ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') })
 
-                    } catch (error) {
-                      console.error("Translation error:", error);
-                    }
+                  } catch (error) {
+                    console.error("Translation error:", error);
+                  }
 
-                  }}
-                >{t("Fill (EN)")}</span>
+                }}
+                  className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(EN)")}</span></span>
+
               </div>
 
             </div>
@@ -1958,7 +1903,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
               <p className="mb-1">
                 <span className='text-black'>
 
-                {"Single-Selected Options:"}
+                  {"Single-Selected Options:"}
                 </span>
 
               </p>
@@ -1966,14 +1911,15 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
 
 
 
-                <div
-                  onClick={() => {
-                    setModalOpen(true);
-                  }}
-                  className='mr-1 cursor-pointer' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                  {"Add Attribute"}
-                </div>
 
+                <a                          onClick={() => {
+                            setModalOpen(true);
+                          }}
+className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light">
+
+                      <span>
+                      {"Add Attribute"}                      </span>
+                    </a>
                 {item.attributes.map((attr, index) => (
                   <>
 
@@ -1990,18 +1936,20 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
               </div>
               <p className="mb-1">
                 <span className='text-black'>
-                {"Multi-Selected Options:"}
+                  {"Multi-Selected Options:"}
                 </span>
               </p>
               <div className='flex flex-wrap'>
-                <div
-                  onClick={() => {
-                    setShowModal2(true);
-                  }}
-                  className='mr-1 cursor-pointer' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                  {"Add Attribute"}
-                </div>
 
+
+                <a             onClick={() => {
+                            setShowModal2(true);
+                          }}
+className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light">
+
+                      <span>
+                      {"Add Attribute"}                      </span>
+                    </a>
                 {item.attributes2.map((attr, index) => (
                   <>
                     <div onClick={() => handleEditAttribute2(index)} className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
@@ -2066,41 +2014,25 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
         </div>
 
         <div className={`flex justify-between`}>
-          <div>
-            <span
-              onClick={() => setExpandDetails(!expandDetails)} // Use an arrow function to toggle the state
-              className={`mt-auto cursor-pointer text-black  `}
-              style={{
-                position: 'relative',
-                background: 'rgb(244, 229, 208)',
-                borderRadius: '8px',
-                padding: '10px 10px 10px 10px',
-                height: '32px',
-                fontFamily: "Suisse Int'l",
-                fontStyle: 'normal',
-                fontWeight: 600,
-                fontSize: '12px',
-                lineHeight: '12px',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-                color: 'black',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {expandDetails ? "Hide Details" : "Edit Details"}
-            </span>
-          </div>
-          <div>
-            <span
-              className={`ml-auto cursor-pointer text-black`} style={{ position: 'relative', background: 'rgb(253, 224, 235)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
-              onClick={() => {
+        <a                    onClick={() => setExpandDetails(!expandDetails)} // Use an arrow function to toggle the state
+className="btn d-inline-flex d-inline-flex btn-sm btn-light">
+
+                      <span>
+                      {expandDetails ? "Hide Details" : "Edit Details"}
+                      </span>
+                    </a>
+
+          <a            onClick={() => {
                 deleteFood_array(item.id);
                 saveId(Math.random());
-              }}
-            >
-              {t("Delete")}
-            </span>
-          </div>
+              }} className="btn d-inline-flex btn-sm btn-danger">
+                      <span className="pe-2">
+                        <i class="bi bi-trash"></i>
+                      </span>
+                      <span>
+                        {t("Delete")}
+                      </span>
+                    </a>
         </div>
 
 

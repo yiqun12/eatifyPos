@@ -144,7 +144,7 @@ function PayFullhistory() {
                     >
                       <div className='flex'>
                         <img
-                          className="h-[70px] md:h-[90px] w-[70px] md:w-[90px] mt-3 transition-all duration-500 object-cover rounded-md"
+                          className="h-[80px]  w-[80px]  mt-3 transition-all duration-500 object-cover rounded-md"
                           src={JSON.parse(order.receiptData)[0].image}
                           loading="lazy"
                         />
@@ -167,18 +167,21 @@ function PayFullhistory() {
                               <p className="mb-1 d-block text-sm text-muted font-semibold">${order.metadata.total}</p>
                             </div>
 
+                            <a 
+   onClick={() => { toggleExpandedOrderId(order.id) }}
+   class="btn d-inline-flex btn-sm btn-light mx-1 text-center"  // Added "text-center" class
+   style={{ height: "40px", display: "flex", alignItems: "center" }}> {/* Added display and alignItems styles */}
+   <span class="pe-2">
+   </span>
+   <span>
+      {expandedOrderIds.includes(order.id) ? (
+         "Hide Details"
+      ) : (
+         "View Details"
+      )}
+   </span>
+</a>
 
-                            <button
-                              className="mb-1 btn btn-sm btn-neutral"
-                              onClick={() => { toggleExpandedOrderId(order.id) }}
-                            >
-                              {expandedOrderIds.includes(order.id) ? (
-                                "Hide Details"
-                              ) : (
-                                "View Details"
-                              )
-                              }
-                            </button>
                           </div>
 
                         </div>
