@@ -116,8 +116,8 @@ const Food = ({ store }) => {
 
 
   const [attributeArray2, setAttributeArray2] = useState([]);
-  const [attribute2, setAttribute2] = useState('');
-  const [value2, setValue2] = useState('');
+  const [attribute2, setAttribute2] = useState(''); 
+  const [value2, setValue2] = useState(''); 
   const [showModal2, setShowModal2] = useState(false);
   const [duplicateError2, setDuplicateError2] = useState(false);
   const [selectedAttributeIndex2, setSelectedAttributeIndex2] = useState(null);
@@ -147,12 +147,12 @@ const Food = ({ store }) => {
     if (existingAttributeIndex2 === -1) {
       setAttributeArray2([...attributeArray2, newAttribute2]);
       // Assuming you have another state called newItem2, similar to newItem
-      setNewItem({ ...newItem, attributes2: [...attributeArray2, newAttribute2] });
+      setNewItem({ ...newItem, attributes2: [...attributeArray2, newAttribute2] }); 
     } else {
       const updatedAttributes2 = [...attributeArray2];
       updatedAttributes2[existingAttributeIndex2] = newAttribute2;
       setAttributeArray2(updatedAttributes2);
-      setNewItem({ ...newItem, attributes2: updatedAttributes2 });
+      setNewItem({ ...newItem, attributes2: updatedAttributes2 }); 
     }
 
     setAttribute2('');
@@ -179,7 +179,7 @@ const Food = ({ store }) => {
     const updatedAttributes2 = [...attributeArray2];
     updatedAttributes2.splice(index, 1);
     setAttributeArray2(updatedAttributes2);
-    setNewItem({ ...newItem, attributes2: updatedAttributes2 });
+    setNewItem({ ...newItem, attributes2: updatedAttributes2 }); 
 
     if (index === selectedAttributeIndex2) {
       setShowModal2(false);
@@ -187,7 +187,7 @@ const Food = ({ store }) => {
     }
   };
 
-
+  
   useEffect(() => {
     const handleWheel = (e) => {
       if (e.deltaY !== 0) {
@@ -478,7 +478,7 @@ const Food = ({ store }) => {
     categoryCHI: "",
     availability: "",
     attributes: "",
-    attributes2: ""
+    attributes2:""
 
   });
   console.log(newItem)
@@ -726,68 +726,68 @@ const Food = ({ store }) => {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
       </Helmet>
       {showModal2 && (
-        <div id="defaultModal2" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
-          <div className="relative w-full max-w-2xl max-h-full">
-            <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-              <div className="flex items-start justify-between p-4 rounded-t dark:border-gray-600">
+    <div id="defaultModal2" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
+      <div className="relative w-full max-w-2xl max-h-full">
+        <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <div className="flex items-start justify-between p-4 rounded-t dark:border-gray-600">
 
-                <button
-                  onClick={() => setShowModal2(false)}
-                  type="button"
-                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                  <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                  </svg>
-                  <span className="sr-only">Close modal</span>
-                </button>
-              </div>
-              <div className='px-4'>
+            <button
+              onClick={() => setShowModal2(false)}
+              type="button"
+              className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+              <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+              </svg>
+              <span className="sr-only">Close modal</span>
+            </button>
+          </div>
+          <div className='px-4'>
 
-                <div>
-                  <div>
-                    <div className='flex'>
-                      <label>Attribute:&nbsp; </label>
-                      <input
-                        type="text"
-                        value={attribute2}
-                        placeholder="e.g., Oversized Portion"
-                        onChange={(e) => {
-                          setAttribute2(e.target.value);
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className='flex'>
-                      <label>Price:&nbsp; </label>
-                      <input
-                        type="text"
-                        value={value2}
-                        onChange={(e) => setValue2(e.target.value)}
-                        pattern="^[-]?\d+(,[-]?\d+)*$"
-                        placeholder="(Optional) e.g., 1,2,-3,0"
-                      />
-                    </div>
-                    {inputError2 && <p className="text-red-500">{inputError2}</p>}
-                  </div>
-
+            <div>
+              <div>
+                <div className='flex'>
+                  <label>Attribute:&nbsp; </label>
+                  <input
+                    type="text"
+                    value={attribute2}
+                    placeholder="e.g., Oversized Portion"
+                    onChange={(e) => {
+                      setAttribute2(e.target.value);
+                    }}
+                  />
                 </div>
+              </div>
 
+              <div>
+                <div className='flex'>
+                  <label>Price:&nbsp; </label>
+                  <input
+                    type="text"
+                    value={value2}
+                    onChange={(e) => setValue2(e.target.value)}
+                    pattern="^[-]?\d+(,[-]?\d+)*$"
+                    placeholder="(Optional) e.g., 1,2,-3,0"
+                  />
+                </div>
+                {inputError2 && <p className="text-red-500">{inputError2}</p>}
               </div>
-              <div className="flex items-center p-6 space-x-2 border-gray-200 rounded-b dark:border-gray-600">
-                <span
-                  className={`ml-auto cursor-pointer text-black`} style={{ position: 'relative', background: 'rgb(213, 245, 224)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
-                  onClick={handleAddAttribute2}
-                >
-                  Confirm
-                </span>
-                {duplicateError2 && <p className="text-red-500">Cannot be duplicated.</p>}
-              </div>
+
             </div>
+
+          </div>
+          <div className="flex items-center p-6 space-x-2 border-gray-200 rounded-b dark:border-gray-600">
+            <span
+              className={`ml-auto cursor-pointer text-black`} style={{ position: 'relative', background: 'rgb(213, 245, 224)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
+              onClick={handleAddAttribute2}
+            >
+              Confirm
+            </span>
+            {duplicateError2 && <p className="text-red-500">Cannot be duplicated.</p>}
           </div>
         </div>
-      )}
+      </div>
+    </div>
+  )}
 
       {isModalOpen && (
         <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
@@ -1085,116 +1085,138 @@ const Food = ({ store }) => {
                         />
                       </div>
                     </div>
+                      <span
+                        onClick={() => setExpandDetails(!expandDetails)} // Use an arrow function to toggle the state
+                        className={`mt-auto cursor-pointer text-black  ml-auto`}
+                        style={{
+                          position: 'relative',
+                          background: 'rgb(244, 229, 208)',
+                          borderRadius: '8px',
+                          padding: '10px 10px 10px 10px',
+                          height: '32px',
+                          fontFamily: "Suisse Int'l",
+                          fontStyle: 'normal',
+                          fontWeight: 600,
+                          fontSize: '12px',
+                          lineHeight: '12px',
+                          letterSpacing: '0.05em',
+                          textTransform: 'uppercase',
+                          color: 'black',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {expandDetails ? "Hide Details" : "Edit Details"}
+                      </span>
 
                   </div>
 
 
                   {expandDetails ? <>
                     <div>
-                      <p className="mb-1">
-                        <span className='text-black'>
+                    <p className="mb-1">
+                      <span className='text-black'>
 
-                          {"Attributes:"}
-                        </span>
+                        {"Attributes:"}
+                      </span>
 
-                      </p>
-                      <div className='flex flex-wrap'>
+                    </p>
+                    <div className='flex flex-wrap'>
 
 
-                        <div
-                          onClick={() => {
-                            setModalOpen(true);
-                          }}
-                          className='mr-1 text-white cursor-pointer' style={{ position: 'relative', background: '#1569e0', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                          {"Add"}
-                        </div>
-
-                        {attributeArray.map((attr, index) => (
-                          <>
-
-                            <div onClick={() => handleEditAttribute(index)} className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                              {attr}
-                              <span onClick={() => handleDeleteAttribute(index)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                                <i className="fas fa-times"></i>
-                              </span>
-                            </div>
-                          </>
-
-                        ))}
+                      <div
+                        onClick={() => {
+                          setModalOpen(true);
+                        }}
+                        className='mr-1 text-white cursor-pointer' style={{ position: 'relative', background: '#1569e0', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                        {"Add"}
                       </div>
-                      <p className="mb-1">
-                        <span className='text-black'>
-                          {"Attributes2:"}
-                        </span>
-                      </p>
-                      <div className='flex flex-wrap'>
-                        <div
-                          onClick={() => {
-                            setShowModal2(true);
-                          }}
-                          className='mr-1 text-white cursor-pointer' style={{ position: 'relative', background: '#1569e0', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                          {"Add"}
-                        </div>
 
-                        {attributeArray2.map((attr, index) => (
-                          <>
-                            <div onClick={() => handleEditAttribute2(index)} className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                              {attr}
-                              <span onClick={() => handleDeleteAttribute2(index)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                                <i className="fas fa-times"></i>
-                              </span>
-                            </div>
-                          </>
-                        ))}
+                      {attributeArray.map((attr, index) => (
+                        <>
+
+                          <div onClick={() => handleEditAttribute(index)} className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                            {attr}
+                            <span onClick={() => handleDeleteAttribute(index)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                              <i className="fas fa-times"></i>
+                            </span>
+                          </div>
+                        </>
+
+                      ))}
+                    </div>
+                    <p className="mb-1">
+    <span className='text-black'>
+      {"Attributes2:"}
+    </span>
+  </p>
+  <div className='flex flex-wrap'>
+    <div
+      onClick={() => {
+        setShowModal2(true);
+      }}
+      className='mr-1 text-white cursor-pointer' style={{ position: 'relative', background: '#1569e0', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+      {"Add"}
+    </div>
+
+    {attributeArray2.map((attr, index) => (
+      <>
+        <div onClick={() => handleEditAttribute2(index)}  className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+          {attr}
+          <span onClick={() => handleDeleteAttribute2(index)}  style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+            <i className="fas fa-times"></i>
+          </span>
+        </div>
+      </>
+    ))}
+  </div>
+                  </div>
+
+                  <div className='mb-3'>
+                    <p className="mb-1">
+                      <span className='text-black'>
+
+                        {"Availability:"}
+                      </span>
+
+                    </p>
+                    <div className='flex'>
+
+                      <div className='mr-1 cursor-pointer'
+                        onClick={() => toggleOption('Morning')}
+                        style={{ position: 'relative', background: selectedOptions.includes('Morning') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                        Morning
+                        {selectedOptions.includes('Morning') && (
+                          <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                            <FontAwesomeIcon icon={faTimes} />
+                          </span>
+                        )}
+                      </div>
+                      <div className='mr-1 cursor-pointer'
+                        onClick={() => toggleOption('Afternoon')}
+
+                        style={{ position: 'relative', background: selectedOptions.includes('Afternoon') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                        Afternoon
+                        {selectedOptions.includes('Afternoon') && (
+                          <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                            <FontAwesomeIcon icon={faTimes} />
+                          </span>
+                        )}
+                      </div>
+
+                      <div className='mr-1 cursor-pointer'
+                        onClick={() => toggleOption('Evening')}
+                        style={{ position: 'relative', background: selectedOptions.includes('Evening') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                        Evening
+                        {selectedOptions.includes('Evening') && (
+                          <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                            <FontAwesomeIcon icon={faTimes} />
+                          </span>
+                        )}
                       </div>
                     </div>
 
-                    <div className='mb-3'>
-                      <p className="mb-1">
-                        <span className='text-black'>
-
-                          {"Availability:"}
-                        </span>
-
-                      </p>
-                      <div className='flex'>
-
-                        <div className='mr-1 cursor-pointer'
-                          onClick={() => toggleOption('Morning')}
-                          style={{ position: 'relative', background: selectedOptions.includes('Morning') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                          Morning
-                          {selectedOptions.includes('Morning') && (
-                            <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                              <FontAwesomeIcon icon={faTimes} />
-                            </span>
-                          )}
-                        </div>
-                        <div className='mr-1 cursor-pointer'
-                          onClick={() => toggleOption('Afternoon')}
-
-                          style={{ position: 'relative', background: selectedOptions.includes('Afternoon') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                          Afternoon
-                          {selectedOptions.includes('Afternoon') && (
-                            <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                              <FontAwesomeIcon icon={faTimes} />
-                            </span>
-                          )}
-                        </div>
-
-                        <div className='mr-1 cursor-pointer'
-                          onClick={() => toggleOption('Evening')}
-                          style={{ position: 'relative', background: selectedOptions.includes('Evening') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                          Evening
-                          {selectedOptions.includes('Evening') && (
-                            <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                              <FontAwesomeIcon icon={faTimes} />
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                    </div></> :
-                    <div className='mb-2'></div>}
+                  </div></> : 
+                  <div className='mb-2'></div>}
 
                 </div>
 
@@ -1207,29 +1229,7 @@ const Food = ({ store }) => {
                       {t("Add New")}
                     </span>
                   </div>
-                  <span
-onClick={() => setExpandDetails(!expandDetails)} // Use an arrow function to toggle the state
-className={`cursor-pointer text-black  ml-auto`}
-style={{
-  position: 'relative',
-  background: 'rgb(244, 229, 208)',
-  borderRadius: '8px',
-  padding: '10px 10px 10px 10px',
-  height: '32px',
-  fontFamily: "Suisse Int'l",
-  fontStyle: 'normal',
-  fontWeight: 600,
-  fontSize: '12px',
-  lineHeight: '12px',
-  letterSpacing: '0.05em',
-  textTransform: 'uppercase',
-  color: 'black',
-  whiteSpace: 'nowrap',
-}}
->
 
-                    {expandDetails ? "Hide Details" : "Edit Details"}
-                  </span>
                 </div>
 
 
@@ -1258,7 +1258,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
   const [isModalGeneratePicOpen, setModalGeneratePicOpen] = useState(false);
   const [inputData, setInputData] = useState({
     // Initialize other properties as needed
-    attributes: item.attributes,
+    attributes:item.attributes,
     availability: item.availability, // Initialize the availability property as an empty array
   });
   const [previewUrl, setPreviewUrl] = useState(add_image)
@@ -1270,7 +1270,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
     if (item.availability.includes(option)) {
       // If the option is already selected, remove it
       //setSelectedOptions(selectedOptions.filter((item) => item !== option));
-
+      
       setInputData({ ...inputData, availability: item.availability.filter((item) => item !== option) })
       //console.log(item)
       updateItem(item.id, { ...inputData, availability: item.availability.filter((item) => item !== option) })
@@ -1279,14 +1279,13 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
       console.log(option)
       // If the option is not selected, add it
       //setSelectedOptions([...selectedOptions, option]);
-
+      
       setInputData({ ...inputData, availability: [...inputData.availability, option] })
       //console.log(item)
       updateItem(item.id, { ...inputData, availability: [...inputData.availability, option] })
 
     }
   };
-  const [expandDetails, setExpandDetails] = useState(false);
 
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -1328,7 +1327,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
     );
 
     if (existingAttributeIndex === -1) {
-
+      
       //setAttributeArray([...item.attributes, newAttribute]);
 
       setInputData({ ...inputData, attributes: [...item.attributes, newAttribute] })
@@ -1378,12 +1377,12 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
     }
   };
 
+  
 
 
-
-  //const [attributeArray2, setAttributeArray2] = useState([]);
-  const [attribute2, setAttribute2] = useState('');
-  const [value2, setValue2] = useState('');
+  const [attributeArray2, setAttributeArray2] = useState([]);
+  const [attribute2, setAttribute2] = useState(''); 
+  const [value2, setValue2] = useState(''); 
   const [showModal2, setShowModal2] = useState(false);
   const [duplicateError2, setDuplicateError2] = useState(false);
   const [selectedAttributeIndex2, setSelectedAttributeIndex2] = useState(null);
@@ -1406,24 +1405,19 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
     }
 
     const newAttribute2 = `${trimmedAttribute2} (${(enteredValue2 >= 0) ? `+$${enteredValue2}` : `-$${Math.abs(enteredValue2)}`})`;
-    const existingAttributeIndex2 = item.attributes2.findIndex((attr) =>
+    const existingAttributeIndex2 = attributeArray2.findIndex((attr) =>
       attr.startsWith(`${trimmedAttribute2} `)
     );
 
     if (existingAttributeIndex2 === -1) {
-      setInputData({ ...inputData, attributes2: [...item.attributes2, newAttribute2] })
-      updateItem(item.id, { ...inputData, attributes2: [...item.attributes2, [...item.attributes2, newAttribute2]] })
-
-      //setAttributeArray2([...attributeArray2, newAttribute2]);
+      setAttributeArray2([...attributeArray2, newAttribute2]);
       // Assuming you have another state called newItem2, similar to newItem
-      //setNewItem({ ...newItem, attributes2: [...attributeArray2, newAttribute2] }); 
+      setNewItem({ ...newItem, attributes2: [...attributeArray2, newAttribute2] }); 
     } else {
-      const updatedAttributes2 = [...item.attributes2];
+      const updatedAttributes2 = [...attributeArray2];
       updatedAttributes2[existingAttributeIndex2] = newAttribute2;
-      //setAttributeArray2(updatedAttributes2);
-      //setNewItem({ ...newItem, attributes2: updatedAttributes2 }); 
-      setInputData({ ...inputData, attributes2: updatedAttributes2 })
-      updateItem(item.id, { ...inputData, attributes2: updatedAttributes2 })
+      setAttributeArray2(updatedAttributes2);
+      setNewItem({ ...newItem, attributes2: updatedAttributes2 }); 
     }
 
     setAttribute2('');
@@ -1435,7 +1429,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
   };
 
   const handleEditAttribute2 = (index) => {
-    const selectedAttribute2 = item.attributes2[index];
+    const selectedAttribute2 = attributeArray2[index];
     const [selectedAttributeName2, selectedAttributeValue2] = selectedAttribute2
       .replace(/\s/g, '')
       .match(/(.+)\(([-]?\d+)\)/).slice(1);
@@ -1447,12 +1441,11 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
   };
 
   const handleDeleteAttribute2 = (index) => {
-    const updatedAttributes2 = [...item.attributes2];
+    const updatedAttributes2 = [...attributeArray2];
     updatedAttributes2.splice(index, 1);
-    //etAttributeArray2(updatedAttributes2);
-    //setNewItem({ ...newItem, attributes2: updatedAttributes2 }); 
-    setInputData({ ...inputData, attributes2: updatedAttributes2 })
-    updateItem(item.id, { ...inputData, attributes2: updatedAttributes2 })
+    setAttributeArray2(updatedAttributes2);
+    setNewItem({ ...newItem, attributes2: updatedAttributes2 }); 
+
     if (index === selectedAttributeIndex2) {
       setShowModal2(false);
       setInputError2('');
@@ -1550,71 +1543,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
 
   return (
     <>
-      {showModal2 && (
-        <div id="defaultModal2" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
-          <div className="relative w-full max-w-2xl max-h-full">
-            <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-              <div className="flex items-start justify-between p-4 rounded-t dark:border-gray-600">
-
-                <button
-                  onClick={() => setShowModal2(false)}
-                  type="button"
-                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                  <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                  </svg>
-                  <span className="sr-only">Close modal</span>
-                </button>
-              </div>
-              <div className='px-4'>
-
-                <div>
-                  <div>
-                    <div className='flex'>
-                      <label>Attribute:&nbsp; </label>
-                      <input
-                        type="text"
-                        value={attribute2}
-                        placeholder="e.g., Oversized Portion"
-                        onChange={(e) => {
-                          setAttribute2(e.target.value);
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className='flex'>
-                      <label>Price:&nbsp; </label>
-                      <input
-                        type="text"
-                        value={value2}
-                        onChange={(e) => setValue2(e.target.value)}
-                        pattern="^[-]?\d+(,[-]?\d+)*$"
-                        placeholder="(Optional) e.g., 1,2,-3,0"
-                      />
-                    </div>
-                    {inputError2 && <p className="text-red-500">{inputError2}</p>}
-                  </div>
-
-                </div>
-
-              </div>
-              <div className="flex items-center p-6 space-x-2 border-gray-200 rounded-b dark:border-gray-600">
-                <span
-                  className={`ml-auto cursor-pointer text-black`} style={{ position: 'relative', background: 'rgb(213, 245, 224)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
-                  onClick={handleAddAttribute2}
-                >
-                  Confirm
-                </span>
-                {duplicateError2 && <p className="text-red-500">Cannot be duplicated.</p>}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isModalOpen && (
+          {isModalOpen && (
         <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
           <div className="relative w-full max-w-2xl max-h-full">
             <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -1766,132 +1695,132 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
           </div>
         </div>
       )}
-      <motion.div
-        layout
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.1 }}
-        key={""}
-        className="duration-500">
+              <motion.div
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.1 }}
+                key={""}
+                className="duration-500">
 
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-        }}>
-          <div
-            style={{
-              width: '80px',
-            }}>
-            <label className='cursor-pointer'
-              style={{ display: 'block', width: '100%' }}
-            >
-              <img
-                className="h-[80px] w-[80px] transition-all duration-500 object-cover rounded-md"
-                src={item.image}
-                loading="lazy"
-                onClick={() => {
-                  handleModalGeneratePicOpen();
-                  if (isGenChi) {
-                    generatePic(item.CHI);
-                    setGenChi(false);
-                  } else {
-                    generatePic(item.name);
-                    setGenChi(true);
-                  }
-                  //setInputData(null); // reset input data
-                }}
-              />
-            </label>
-          </div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                }}>
+                  <div
+                    style={{
+                      width: '80px',
+                    }}>
+                    <label className='cursor-pointer'
+                      style={{ display: 'block', width: '100%' }}
+                    >
+                      <img
+                        className="h-[80px] w-[80px] transition-all duration-500 object-cover rounded-md"
+                        src={item.image}
+                        loading="lazy"
+                        onClick={() => {
+                          handleModalGeneratePicOpen();
+                          if (isGenChi) {
+                            generatePic(item.CHI);
+                            setGenChi(false);
+                          } else {
+                            generatePic(item.name);
+                            setGenChi(true);
+                          }
+                          //setInputData(null); // reset input data
+                        }}
+                      />
+                    </label>
+                  </div>
 
-          <div style={{ width: 'calc(100% - 80px)' }}>  {/* adjust width */}
-            <div className='ml-2 text-md font-semibold'>
+                  <div style={{ width: 'calc(100% - 80px)' }}>  {/* adjust width */}
+                    <div className='ml-2 text-md font-semibold'>
 
-              <div className="mb-1 flex  items-center">
-                <input
-                  className='text-md font-semibold'
-                  type="text"
-                  name="name"
-                  placeholder={item.name}
-                  value={inputData?.name !== undefined ? inputData.name : item.name}
-                  onChange={(e) => {
-                    setInputData({ ...inputData, name: e.target.value });
-                    updateItem(item.id, { ...inputData, name: e.target.value })
-                  }} />
-                <span
-                  className={`cursor-pointer text-black ml-auto`} style={{ position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
-                  onClick={async () => {  // Auto Fill English
-                    let translatedText = "";
-                    if (inputData?.name) {
-                      //console(inputData?.name)
-                      translatedText = inputData.name;
-                    } else {
-                      //console(item.name)
-                      translatedText = item.name;
-                    }
-                    try {
-                      const ChineseTranslation = await translateToChinese(translatedText);
-                      setInputData({ ...inputData, CHI: ChineseTranslation });
-                      updateItem(item.id, { ...inputData, CHI: ChineseTranslation })
+                      <div className="mb-1 flex  items-center">
+                        <input
+                          className='text-md font-semibold'
+                        type="text"
+                        name="name"
+                        placeholder={item.name}
+                        value={inputData?.name !== undefined ? inputData.name : item.name}
+                        onChange={(e) => {
+                          setInputData({ ...inputData, name: e.target.value });
+                          updateItem(item.id, { ...inputData, name: e.target.value })
+                        }}/>
+                        <span
+                          className={`cursor-pointer text-black ml-auto`} style={{ position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
+                          onClick={async () => {  // Auto Fill English
+                            let translatedText = "";
+                            if (inputData?.name) {
+                              //console(inputData?.name)
+                              translatedText = inputData.name;
+                            } else {
+                              //console(item.name)
+                              translatedText = item.name;
+                            }
+                            try {
+                              const ChineseTranslation = await translateToChinese(translatedText);
+                              setInputData({ ...inputData, CHI: ChineseTranslation });
+                              updateItem(item.id, { ...inputData, CHI: ChineseTranslation })
+    
+                            } catch (error) {
+                              console.error("Translation error:", error);
+                            }
+                          }}
+                        >{t("Fill (CN)")}</span>
+                      </div>
+                      <div className="mb-1 flex  items-center">
+                        <input
+                     className='text-md font-semibold'
+                      type="text"
+                      name="CHI"
+                      placeholder={item.CHI}
+                      value={inputData?.CHI !== undefined ? inputData.CHI : item.CHI}
+                      onChange={(e) => {
+                        setInputData({ ...inputData, CHI: e.target.value });
+                        updateItem(item.id, { ...inputData, CHI: e.target.value })
+                      }}
+                    />
 
-                    } catch (error) {
-                      console.error("Translation error:", error);
-                    }
-                  }}
-                >{t("Fill (CN)")}</span>
-              </div>
-              <div className="mb-1 flex  items-center">
-                <input
-                  className='text-md font-semibold'
-                  type="text"
-                  name="CHI"
-                  placeholder={item.CHI}
-                  value={inputData?.CHI !== undefined ? inputData.CHI : item.CHI}
-                  onChange={(e) => {
-                    setInputData({ ...inputData, CHI: e.target.value });
-                    updateItem(item.id, { ...inputData, CHI: e.target.value })
-                  }}
-                />
+                        <span
+                          className={`cursor-pointer text-black ml-auto`} style={{ position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
 
-                <span
-                  className={`cursor-pointer text-black ml-auto`} style={{ position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
+                          onClick={async () => {  // Auto Fill English
+                            let translatedText = "";
+                            if (inputData?.CHI) {
+    
+                              translatedText = inputData.CHI;
+                            } else {
+                              translatedText = item.CHI;
+                            }
+                            try {
+                              const EnglishTranslation = await translateToEnglish(translatedText);
+                              setInputData({ ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
+                              updateItem(item.id, { ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') })
+    
+                            } catch (error) {
+                              console.error("Translation error:", error);
+                            }
+    
+                          }}
+                        >{t("Fill (EN)")}</span>
+                      </div>
 
-                  onClick={async () => {  // Auto Fill English
-                    let translatedText = "";
-                    if (inputData?.CHI) {
+                    </div>
+                  </div>
 
-                      translatedText = inputData.CHI;
-                    } else {
-                      translatedText = item.CHI;
-                    }
-                    try {
-                      const EnglishTranslation = await translateToEnglish(translatedText);
-                      setInputData({ ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
-                      updateItem(item.id, { ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') })
-
-                    } catch (error) {
-                      console.error("Translation error:", error);
-                    }
-
-                  }}
-                >{t("Fill (EN)")}</span>
-              </div>
-
-            </div>
-          </div>
-
-        </div>
-        <div className='ml-2 d-block text-md font-semibold'>
-          <div className='flex'>
-            <div>
-              <div>
-                <span className='text-black'>
-                  {t("Category: ")}
-                </span>
-                <input
-                  className='text-md font-semibold'
-                  style={{ width: "50%" }}
+                </div>
+                <div className='ml-2 d-block text-md font-semibold'>
+                  <div className='flex'>
+                    <div>
+                      <div>
+                        <span className='text-black'>
+                          {t("Category: ")}
+                        </span>
+                        <input
+                          className='text-md font-semibold'
+                          style={{ width: "50%" }}
                   type="text"
                   name="category"
                   placeholder={item.category}
@@ -1902,181 +1831,164 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                   }}
                 />
 
-              </div>
-              <div>
-                <span className='text-black'>
-                  {t("Price: $ ")}
+                      </div>
+                      <div>
+                        <span className='text-black'>
+                          {t("Price: $ ")}
 
-                </span>
-                <input
-                  className='text-md font-semibold'
-                  style={{ width: "50%" }}
-                  type="text"
-                  name="subtotal"
-                  placeholder={item.subtotal}
-                  value={inputData?.subtotal !== undefined ? inputData.subtotal : item.subtotal}
-                  onChange={(e) => {//To do: 这里需要一些防呆验证 for cases like说enter-1 或者2.33333 或者abc 或者空白
-                    setInputData({ ...inputData, subtotal: e.target.value });
-                    updateItem(item.id, { ...inputData, subtotal: e.target.value })
-                  }}
-                />
-              </div>
-            </div>
+                        </span>
+                        <input
+                          className='text-md font-semibold'
+                          style={{ width: "50%" }}
+                          type="text"
+              name="subtotal"
+              placeholder={item.subtotal}
+              value={inputData?.subtotal !== undefined ? inputData.subtotal : item.subtotal}
+              onChange={(e) => {//To do: 这里需要一些防呆验证 for cases like说enter-1 或者2.33333 或者abc 或者空白
+                setInputData({ ...inputData, subtotal: e.target.value });
+                updateItem(item.id, { ...inputData, subtotal: e.target.value })
+              }}
+            />
+                      </div>
+                    </div>
+                      <span
+                        className={`mt-auto cursor-pointer text-black  ml-auto`}
+                        style={{
+                          position: 'relative',
+                          background: 'rgb(244, 229, 208)',
+                          borderRadius: '8px',
+                          padding: '10px 10px 10px 10px',
+                          height: '32px',
+                          fontFamily: "Suisse Int'l",
+                          fontStyle: 'normal',
+                          fontWeight: 600,
+                          fontSize: '12px',
+                          lineHeight: '12px',
+                          letterSpacing: '0.05em',
+                          textTransform: 'uppercase',
+                          color: 'black',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                         Hide Details
+                      </span>
 
-          </div>
-
-          {expandDetails ? <>
-            <div>
-            <p className="mb-1">
-              <span className='text-black'>
-
-                {"Attributes:"}
-              </span>
-
-            </p>
-            <div className='flex flex-wrap'>
+                  </div>
 
 
+                    <div>
+                    <p className="mb-1">
+                      <span className='text-black'>
 
-              <div
-                onClick={() => {
-                  setModalOpen(true);
-                }}
-                className='mr-1 text-white cursor-pointer' style={{ position: 'relative', background: '#1569e0', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                {"Add"}
-              </div>
+                        {"Attributes:"}
+                      </span>
 
-              {item.attributes.map((attr, index) => (
-                <>
+                    </p>
+                    <div className='flex flex-wrap'>
 
-                  <div onClick={() => handleEditAttribute(index)} className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                    {attr}
-                    <span onClick={() => handleDeleteAttribute(index)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                      <i className="fas fa-times"></i>
+
+
+                    <div
+                        onClick={() => {
+                          setModalOpen(true);
+                        }}
+                        className='mr-1 text-white cursor-pointer' style={{ position: 'relative', background: '#1569e0', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                        {"Add"}
+                      </div>
+
+                      {item.attributes.map((attr, index) => (
+                        <>
+
+                          <div onClick={() => handleEditAttribute(index)} className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                            {attr}
+                            <span onClick={() => handleDeleteAttribute(index)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                              <i className="fas fa-times"></i>
+                            </span>
+                          </div>
+                        </>
+
+                      ))}
+
+                    </div>
+
+                  </div>
+
+                  <div className='mb-3'>
+                    <p className="mb-1">
+                      <span className='text-black'>
+
+                        {"Availability:"}
+                      </span>
+
+                    </p>
+                    <div className='flex'>
+
+                      <div className='mr-1 cursor-pointer'
+                        onClick={() => toggleOption('Morning')}
+                        style={{ position: 'relative', background: item.availability.includes('Morning') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                        Morning
+                        {item.availability.includes('Morning') && (
+                          <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                            <FontAwesomeIcon icon={faTimes} />
+                          </span>
+                        )}
+                      </div>
+                      <div className='mr-1 cursor-pointer'
+                        onClick={() => toggleOption('Afternoon')}
+
+                        style={{ position: 'relative', background: item.availability.includes('Afternoon') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                        Afternoon
+                        {item.availability.includes('Afternoon') && (
+                          <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                            <FontAwesomeIcon icon={faTimes} />
+                          </span>
+                        )}
+                      </div>
+
+                      <div className='mr-1 cursor-pointer'
+                        onClick={() => toggleOption('Evening')}
+                        style={{ position: 'relative', background: item.availability.includes('Evening') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                        Evening
+                        {item.availability.includes('Evening') && (
+                          <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                            <FontAwesomeIcon icon={faTimes} />
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div className={`flex justify-between`}>
+                  <div>
+                    <span
+                      className={`ml-2 cursor-pointer text-black`} style={{ position: 'relative', background: 'rgb(213, 245, 224)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
+                      onClick={() => {
+                        updateItem(item.id, inputData);
+                        setInputData(null); // reset input data
+                      }}
+                              >
+                      {t("Update")}
                     </span>
                   </div>
-                </>
-
-              ))}
-
-            </div>
-            <p className="mb-1">
-              <span className='text-black'>
-                {"Attributes2:"}
-              </span>
-            </p>
-            <div className='flex flex-wrap'>
-              <div
-                onClick={() => {
-                  setShowModal2(true);
-                }}
-                className='mr-1 text-white cursor-pointer' style={{ position: 'relative', background: '#1569e0', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                {"Add"}
-              </div>
-
-              {item.attributes2.map((attr, index) => (
-                <>
-                  <div onClick={() => handleEditAttribute2(index)} className='mb-1 mr-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                    {attr}
-                    <span onClick={() => handleDeleteAttribute2(index)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                      <i className="fas fa-times"></i>
+                  <div>
+                    <span
+                      className={`ml-2 cursor-pointer text-black`} style={{ position: 'relative', background: 'rgb(213, 245, 224)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
+                      onClick={() => {
+                        deleteFood_array(item.id);
+                        saveId(Math.random());
+                      }}
+                              >
+                      {t("Delete")}
                     </span>
+                    {JSON.stringify(item)}
                   </div>
-                </>
-              ))}
-            </div>
-          </div>
-
-          <div className='mb-3'>
-            <p className="mb-1">
-              <span className='text-black'>
-
-                {"Availability:"}
-              </span>
-
-            </p>
-            <div className='flex'>
-
-              <div className='mr-1 cursor-pointer'
-                onClick={() => toggleOption('Morning')}
-                style={{ position: 'relative', background: item.availability.includes('Morning') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                Morning
-                {item.availability.includes('Morning') && (
-                  <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                    <FontAwesomeIcon icon={faTimes} />
-                  </span>
-                )}
-              </div>
-              <div className='mr-1 cursor-pointer'
-                onClick={() => toggleOption('Afternoon')}
-
-                style={{ position: 'relative', background: item.availability.includes('Afternoon') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                Afternoon
-                {item.availability.includes('Afternoon') && (
-                  <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                    <FontAwesomeIcon icon={faTimes} />
-                  </span>
-                )}
-              </div>
-
-              <div className='mr-1 cursor-pointer'
-                onClick={() => toggleOption('Evening')}
-                style={{ position: 'relative', background: item.availability.includes('Evening') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                Evening
-                {item.availability.includes('Evening') && (
-                  <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                    <FontAwesomeIcon icon={faTimes} />
-                  </span>
-                )}
-              </div>
-            </div>
-
-          </div></> : <div className='mb-2'></div>}
+                </div>
 
 
-
-        </div>
-
-        <div className={`flex justify-between`}>
-          <div>
-            <span
-              onClick={() => setExpandDetails(!expandDetails)} // Use an arrow function to toggle the state
-              className={`mt-auto cursor-pointer text-black  ml-auto`}
-              style={{
-                position: 'relative',
-                background: 'rgb(244, 229, 208)',
-                borderRadius: '8px',
-                padding: '10px 10px 10px 10px',
-                height: '32px',
-                fontFamily: "Suisse Int'l",
-                fontStyle: 'normal',
-                fontWeight: 600,
-                fontSize: '12px',
-                lineHeight: '12px',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-                color: 'black',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {expandDetails ? "Hide Details" : "Edit Details"}
-            </span>
-          </div>
-          <div>
-            <span
-              className={`ml-auto cursor-pointer text-black`} style={{ position: 'relative', background: 'rgb(253, 224, 235)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
-              onClick={() => {
-                deleteFood_array(item.id);
-                saveId(Math.random());
-              }}
-            >
-              {t("Delete")}
-            </span>
-          </div>
-        </div>
-
-
-      </motion.div>
+              </motion.div>
 
     </>
 
