@@ -18,7 +18,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const Food = ({ store }) => {
-
+  useEffect(() => {
+    // Check if "pizzahub" key exists in localStorage and if it's an empty array
+    const storedValue = localStorage.getItem(store);
+    
+    if (!storedValue || JSON.parse(storedValue).length === 0) {
+      // "pizzahub" doesn't exist in localStorage or is an empty array, so call syncData()
+      syncData();
+      // Set "pizzahub" in localStorage to prevent calling syncData() again
+      localStorage.setItem('pizzahub', JSON.stringify(['exists']));
+    }
+  }, []);
   const params = new URLSearchParams(window.location.search);
   const [selectedFoodType, setSelectedFoodType] = useState(null);
   const { user, user_loading } = useUserContext();
@@ -326,6 +336,8 @@ const Food = ({ store }) => {
     await updateDoc(docRef, {
       key: localStorage.getItem(store)
     });
+    alert("Saved Successful");
+
   };
   
 
@@ -679,9 +691,9 @@ const Food = ({ store }) => {
 
       </Helmet>
       {showModal2 && (
-        <div id="defaultModal2" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
-          <div className="relative shadow w-full max-w-2xl max-h-full">
-            <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+        <div id="defaultModal2" className="fixed border-black top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
+          <div className="relative shadow  border-black w-full max-w-2xl max-h-full">
+            <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
               <div className="flex items-start justify-between p-4 rounded-t dark:border-gray-600">
 
                 <button
@@ -743,10 +755,10 @@ const Food = ({ store }) => {
       )}
 
       {isModalOpen && (
-        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
-          <div className="relative shadow w-full max-w-2xl max-h-full">
-            <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-              <div className="flex items-start justify-between p-4 rounded-t dark:border-gray-600">
+        <div id="defaultModal" className="fixed top-0 border-gray-600 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
+          <div className="relative shadow border-gray-600 w-full max-w-2xl max-h-full">
+            <div className="relative bg-white rounded-lg shadow border-gray-600 ">
+              <div className="flex items-start justify-between p-4 rounded-t ">
 
                 <button
                   onClick={handleEditShopInfoModalClose}
@@ -808,7 +820,7 @@ const Food = ({ store }) => {
       )}
       <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
       </link>
-      <div className="flex justify-between mt-3">
+      <div className="mr-1 flex justify-between mt-3">
         <Scanner setFoods={setFoods} store={store} />
 
         <div onClick={updateKey} className="mb-2 btn d-inline-flex btn-sm btn-primary">
@@ -905,12 +917,11 @@ className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-neutral">
 
 
         {/* diplay food */}
-        <AnimatePresence>
           <div style={containerStyle}>
             <div style={itemStyle}>
 
 
-              <motion.div
+              <div
                 layout
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -1182,7 +1193,7 @@ className="btn d-inline-flex d-inline-flex btn-sm btn-light">
                 </div>
 
 
-              </motion.div>
+              </div>
             </div>
             {foods.map((item, index) => (
               <div style={itemStyle}>
@@ -1193,7 +1204,6 @@ className="btn d-inline-flex d-inline-flex btn-sm btn-light">
 
           </div>
 
-        </AnimatePresence>
       </div>
     </div >
   )
@@ -1460,14 +1470,16 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
       //setUploadStatus(`Error: ${error.message}`);
     }
   };
-  const generatePic = async (pic_name) => {
-    //console.log(isGenChi)
-    //console.log(pic_name)
+  const generatePic = async (item) => {
     setPreviewUrl(add_image)
     try {
       const myFunction = firebase.functions().httpsCallable('generatePic');
-      const result = await myFunction({ name: pic_name });
-      setImgGallery(result.data.result)
+      const resultCHI = await myFunction({ name: item.CHI });
+      const result = await myFunction({ name: item.name });
+      let ARRimageCHI = resultCHI.data.result
+      let ARRimage = result.data.result
+
+      setImgGallery(ARRimage.concat(ARRimageCHI))
       //console.log(result.data.result)
       //return(result.data.result)
       //setResponse(result);
@@ -1516,9 +1528,9 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
   return (
     <>
       {showModal2 && (
-        <div id="defaultModal2" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
-          <div className="relative shadow w-full max-w-2xl max-h-full">
-            <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+        <div id="defaultModal2" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0 border-gray-600">
+          <div className="relative shadow border-gray-600 w-full max-w-2xl max-h-full">
+            <div className="relative bg-white rounded-lg shadow border-gray-600">
               <div className="flex items-start justify-between p-4 rounded-t dark:border-gray-600">
 
                 <button
@@ -1647,10 +1659,10 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
       {isModalGeneratePicOpen && (
         <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center mt-20">
           <div className="relative w-full max-w-2xl max-h-full">
-            <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
               <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {t("Here are the images we've selected for you")}
+                  {t("We recommend these pictures...")}
                 </h3>
                 <button
                   onClick={handleModalGeneratePicClose}
@@ -1663,7 +1675,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                 </button>
               </div>
               <div className='p-4 pt-3 flex justify-between'>
-                <motion.div
+                <div
                   layout
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -1691,9 +1703,9 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                       loading="lazy"
                     />
                   </label>
-                </motion.div>
-                {imgGallery.slice(0, -1).map(gen_img => (
-                  <motion.div
+                </div>
+                {imgGallery.slice(0, 3).map(gen_img => (
+                  <div
                     layout
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -1714,31 +1726,41 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                         }}
                       />
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
+
               </div>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <button
-                  className="block text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3.5 py-2 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-                  style={{ display: "inline-block", marginBottom: "20px" }}
-                  onClick={() => {
-                    if (isGenChi) {
-                      generatePic(item.CHI);
-                      setGenChi(false);
-                    } else {
-                      generatePic(item.name);
-                      setGenChi(true);
+              <div className='p-4 pt-3 flex justify-between'>
+{imgGallery.slice(3, 7).map(gen_img => (
+                  <div
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.1 }}
+                    className="border rounded-lg h-[80px] w-[80px]  duration-500 cursor-pointer"
+                    // The inline style for motion.div changes based on isMobile
+                    style={
+                      isMobile
+                        ? { display: "block", margin: "auto", marginTop: "10px" }
+                        : {}
                     }
-                  }}
-                >
-                  {isGenChi ? t("Try Another Set of Pictures ") : t("See Previous Set of Pictures")}
-                </button>
-              </div>
+                  >
+                    <div className="h-min overflow-hidden rounded-md">
+                      <img loading="lazy" className=" h-[80px] w-[80px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg" src={gen_img}
+                        onClick={() => {
+                          selectPic(gen_img, item)
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+</div>
             </div>
           </div>
         </div>
       )}
-      <motion.div
+      <div
         layout
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -1764,13 +1786,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, translateToEnglish, 
                 loading="lazy"
                 onClick={() => {
                   handleModalGeneratePicOpen();
-                  if (isGenChi) {
-                    generatePic(item.CHI);
-                    setGenChi(false);
-                  } else {
-                    generatePic(item.name);
-                    setGenChi(true);
-                  }
+                    generatePic(item);
                   //setInputData(null); // reset input data
                 }}
               />
@@ -2036,7 +2052,7 @@ className="btn d-inline-flex d-inline-flex btn-sm btn-light">
         </div>
 
 
-      </motion.div>
+      </div>
 
     </>
 

@@ -8,13 +8,6 @@ import scroll from './scroll.png';
 import intro_pic from './Best-Free-Online-Ordering-Systems-for-Restaurants.png';
 
 import './home.css';
-// Import Swiper React components
-
-//import Navbar from './Navbar'
-/**
-
- * 
- */
 
 const Account = () => {
   const [width, setWidth] = useState(window.innerWidth - 64);

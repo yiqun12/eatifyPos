@@ -4,7 +4,10 @@ import { businessHours } from '../data/businessHours';
 
 import trash_can from './trash_can.png';
 import calendar from './calendar.png';
+import { useUserContext } from "../context/userContext";
 
+import { collection, doc, addDoc, getDocs, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { db } from '../firebase/index';
 
 import { useMemo } from 'react';
 
@@ -19,11 +22,13 @@ function TimeDropdown({ day, pairIndex, timeType, selectedTime, onTimeChange }) 
                 options.push(`${hour}:${minute}`);
             }
         }
+        options.push('23:59'); // Add "23:59" as an option
+
         return options;
     };
 
     return (
-        <div className="time-row">
+        <div className="time-row" style={{ whiteSpace: 'nowrap', overflowX: 'auto' }}>
             <label>{timeType}: </label>
             <select
                 value={selectedTime}
@@ -57,79 +62,119 @@ function DayTimeSelectors({ day, selectedTimePairs, onAddTime, onTimeChange, onD
         };
     }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
     return (
-        <div className="day-row" style={{
-            display: "flex",
-            justifyContent: "space-around",
-            margin: "auto",
-            padding: "5px"
-        }}>
-            <div style={{ width:"20%",display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+        <div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                 <div >{day}</div>
                 <div style={{ display: "flex", margin: "5px" }}>
                     <input
-                        id="toggleCheckbox"
+                        className='form-check-input'
                         type="checkbox"
                         style={{ marginRight: "5px" }}
                         checked={selectedTimePairs.closed}
                         onChange={() => toggleClosed(day)}
                     />
-                    <label htmlFor="toggleCheckbox">
+                    <label >
                         {selectedTimePairs.closed ? t('Closed') : t('Closed')}
                     </label>
                 </div>
             </div>
-        
-            <div style={{ width:"80%", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-                {!selectedTimePairs.closed && (
-                    <>
-                        {selectedTimePairs.times.map((pair, index) => (
-                            <div className="time-pair" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", alignItems: 'center' }} key={index}>
-                                <div style={{ display: "flex", alignItems: "center" }}>
-                                    <TimeDropdown
-                                        day={day}
-                                        pairIndex={index}
-                                        timeType="Open"
-                                        selectedTime={pair.open}
-                                        onTimeChange={onTimeChange}
-                                    />
-                                    <span> - </span>
-                                    <TimeDropdown
-                                        day={day}
-                                        pairIndex={index}
-                                        timeType="Close"
-                                        selectedTime={pair.close}
-                                        onTimeChange={onTimeChange}
-                                    />
-                                </div>
-                                {index === 0 && 
-                                <img onClick={() => onAddTime(day)} style={{ height: "30px" }} src={calendar} alt="Calendar" />
-                                }
-                                {index !== 0 && 
-                               <img onClick={() =>  onDeleteTime(day, index)} style={{ height: "30px" }} src={trash_can} alt="trash_can" />
+            <div className="day-row" style={{
+                justifyContent: "space-around",
+                margin: "auto",
+                padding: "5px"
+            }}>
 
-                                }
-                            </div>
-                        ))}
-                    </>
-                )}
+
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                    {!selectedTimePairs.closed && (
+                        <>
+                            {selectedTimePairs.times.map((pair, index) => (
+                                <div className="time-pair" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", alignItems: 'center' }} key={index}>
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                        <TimeDropdown
+                                            day={day}
+                                            pairIndex={index}
+                                            timeType="Open"
+                                            selectedTime={pair.open}
+                                            onTimeChange={onTimeChange}
+                                        />
+                                        <span> - </span>
+                                        <TimeDropdown
+                                            day={day}
+                                            pairIndex={index}
+                                            timeType="Close"
+                                            selectedTime={pair.close}
+                                            onTimeChange={onTimeChange}
+                                        />
+                                    </div>
+                                    {index === 0 &&
+                                        <img onClick={() => onAddTime(day)} style={{ height: "30px" }} src={calendar} alt="Calendar" />
+                                    }
+                                    {index !== 0 &&
+                                        <img onClick={() => onDeleteTime(day, index)} style={{ height: "30px" }} src={trash_can} alt="trash_can" />
+
+                                    }
+                                </div>
+                            ))}
+                        </>
+                    )}
+                </div>
             </div>
+
         </div>
-        
+
     );
 }
+function convertData(input) {
+    const dayMapping = {
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday",
+        "7": "Sunday",
+        "0": "Sunday" // since 0 and 7 both represent Sunday
+    };
 
-function ChangeTimeForm() {
+    const output = {};
+
+    for (let key in input) {
+        const dayName = dayMapping[key];
+        const timeRanges = input[key].timeRanges;
+        const isClosed = timeRanges.some(range => range.openTime === "xxxx" && range.closeTime === "xxxx");
+        const times = timeRanges.map(range => {
+            return {
+                open: `${range.openTime.substring(0, 2)}:${range.openTime.substring(2, 4)}`,
+                close: `${range.closeTime.substring(0, 2)}:${range.closeTime.substring(2, 4)}`
+            };
+        });
+
+        output[dayName] = {
+            times: isClosed ? [] : times,
+            closed: isClosed
+        };
+    }
+
+    return output;
+}
+
+function ChangeTimeForm({ storeID, storeOpenTime }) {
+    const { user, user_loading } = useUserContext();
+
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const [formData, setFormData] = useState({
-        Monday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
-        Tuesday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
-        Wednesday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
-        Thursday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
-        Friday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
-        Saturday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
-        Sunday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
-    });
+    // const [formData, setFormData] = useState({
+    //     Monday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
+    //     Tuesday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
+    //     Wednesday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
+    //     Thursday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
+    //     Friday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
+    //     Saturday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
+    //     Sunday: { times: [{ open: '00:00', close: '01:00' }], closed: false },
+    // });
+    const [formData, setFormData] = useState(convertData(JSON.parse(storeOpenTime)))
 
+    console.log(convertData(JSON.parse(storeOpenTime)))
     const handleAddTime = (day) => {
         setFormData(prev => ({
             ...prev,
@@ -173,7 +218,7 @@ function ChangeTimeForm() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const finalData = Object.entries(formData).reduce((acc, [day, data]) => {
             if (data.closed) {
@@ -188,8 +233,9 @@ function ChangeTimeForm() {
         }, {});
         console.log(JSON.stringify(finalData));
         // grabs the sessionstorage and updates the businesshours in the session
-        var businessHours = JSON.parse(sessionStorage.getItem("businessHours"))
-
+        //var businessHours = JSON.parse(sessionStorage.getItem("businessHours"))
+        var businessHours = JSON.parse(storeOpenTime)
+        console.log(storeOpenTime)
         const dayToIndexMapping = {
             "Sunday": 7,
             "Monday": 1,
@@ -217,7 +263,17 @@ function ChangeTimeForm() {
         updateBusinessHours(finalData);
 
         //   console.log("busienssHOurs: ", businessHours);
-        sessionStorage.setItem("businessHours", JSON.stringify(businessHours))
+        //sessionStorage.setItem("businessHours", JSON.stringify(businessHours))
+
+        const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID);
+  
+        // Update the 'key' field to the value retrieved from localStorage
+        await updateDoc(docRef, {
+          Open_time: JSON.stringify(businessHours)
+        });
+        console.log(businessHours)
+        alert("Updated Successful");
+
         // console.log(bus)
     };
 
@@ -252,13 +308,13 @@ function ChangeTimeForm() {
                     toggleClosed={toggleClosed}
                 />
             ))}
-                                          <div className='flex mt-3' >
-                                <div style={{ width: "50%" }}>
-                                </div>
-                                <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
-                                <Button style={{ margin: "5px" }} variant="primary" type="submit">{t("Submit")}</Button>
-                               </div>
-                              </div>
+            <div className='flex mt-3' >
+                <div style={{ width: "50%" }}>
+                </div>
+                <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
+                    <Button style={{ margin: "5px" }} variant="primary" type="submit">{t("Submit")}</Button>
+                </div>
+            </div>
         </form>
     );
 }

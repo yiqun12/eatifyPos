@@ -32,7 +32,6 @@ import barchar_logo from './file_barchar.png';
 import files_icon from './files_icon.png';
 import calendar_logo from './calendar_logo.png';
 import store_icon from './store_icon.png';
-import BusinessHoursTable from '../pages/BusinessHoursTable.js'
 import Admin_food from '../components/admin_food'
 
 
@@ -90,6 +89,8 @@ const Account = () => {
   const [activeTab, setActiveTab] = useState('');
   const [activeStoreTab, setActiveStoreTab] = useState('');
   const [storeName_, setStoreName_] = useState('');
+  const [storeID, setStoreID] = useState('');
+  const [storeOpenTime, setStoreOpenTime] = useState('');
 
   const handleTabClick = (e, tabHref) => {
     e.preventDefault();
@@ -226,7 +227,6 @@ const Account = () => {
       .doc(user.uid)
       .collection('TitleLogoNameContent')
       .onSnapshot((snapshot) => {
-        console.log('read your mom');
 
         const storeData = snapshot.docs.map((doc) => ({
           ...doc.data(),
@@ -344,6 +344,80 @@ const Account = () => {
 
 
   }
+    // Rename state variables
+  const [formValues, setFormValues] = useState({
+    storeName: '',
+    city: '',
+    picture: '',
+  });
+
+  // Rename function for form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({
+      ...formValues,
+      [name]: value,
+    });
+  };
+  const [previewUrl, setPreviewUrl] = useState('');
+
+  // Rename function for file input change
+  const handleFileInputChange = async (e) => {
+    //const file = e.target.files[0];
+    setPreviewUrl("https://media3.giphy.com/media/MydKZ8HdiPWALc0Lqf/giphy.gif")
+
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) {
+      //setUploadStatus('No file selected.');
+      return;
+    }
+
+    // Show a preview of the selected file
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await fetch('https://hello-world-twilight-art-645c.eatify12.workers.dev/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log(data.result.variants[0])
+        setPreviewUrl(data.result.variants[0])
+        setFormValues({
+          ...formValues,
+          picture: data.result.variants[0],
+        });
+      } else {
+      }
+    } catch (error) {
+    }
+
+
+  };
+
+  
+  // Rename function for form submission
+  const handleFormSubmit = async (e, name, address, image,id) => {
+    e.preventDefault();
+    // Here you can access formValues and perform actions like sending it to a server
+    console.log(formValues);
+    console.log(id)
+    const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", id);
+  
+    // Update the 'key' field to the value retrieved from localStorage
+    await updateDoc(docRef, {
+      Name: formValues.storeName!==''?formValues.storeName:name,
+      Image:formValues.picture!==''?formValues.picture:image,
+      Address:formValues.city!==''?formValues.city:address,
+
+    });
+    alert("Updated Successful");
+  };  
   return (
     <>
 
@@ -431,7 +505,7 @@ const Account = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="mt-2">
                     <Dropdown>
                       <Dropdown.Toggle
@@ -454,7 +528,9 @@ const Account = () => {
                                   handleTabClick(e, `#${data.id}`);
                                   setActiveStoreTab(data.id);
                                   setShowSection('sales');
-                                  setStoreName_(data.Name)
+                                  setStoreName_(data.Name);
+                                  setStoreID(data.id);
+                                  setStoreOpenTime(data.Open_time)
                                 }}
                               >
                                 {data.Name}
@@ -466,8 +542,12 @@ const Account = () => {
                     </Dropdown>
 
 
-                    <a 
-                      onClick={(e) => handleTabClick(e, '#Revenue_Chart')}
+                    <a
+                      onClick={(e) => {
+                        setShowSection('');
+                        handleTabClick(e, '#Revenue_Chart');
+                        setStoreName_('');
+                      }}
                       class="btn d-inline-flex btn-sm btn-primary mx-1">
                       <span class=" pe-2">
                         <i class="bi bi-house"></i>
@@ -486,9 +566,9 @@ const Account = () => {
                     >
                       <a className={`pt-0 nav-link ${activeTab === '#profile' || activeTab === '' ? 'active' : ''}`}>
                         <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
-  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/>
-</svg>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
+                          </svg>
                         </i>
                       </a>
 
@@ -539,7 +619,7 @@ const Account = () => {
                         <li className={`nav-item p-0`}
                           onClick={() => setShowSection('stripeCard')}
                         >
-                          <a  className={`pt-0 nav-link ${showSection === `stripeCard` ? 'active' : ''}`}>
+                          <a className={`pt-0 nav-link ${showSection === `stripeCard` ? 'active' : ''}`}>
                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-credit-card" viewBox="0 0 16 16">
                                 <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v1h14V4a1 1 0 0 0-1-1H2zm13 4H1v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7z" />
@@ -679,50 +759,73 @@ const Account = () => {
                                     <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className='text-orange-500'>{data.Name}</span></h1>
                                     <h1 className='px-4 text-white font-bold'>@{data.Address}</h1>
                                   </div>
-                                  <img className='rounded-lg w-full max-h-[200px] object-cover' src={data?.Image} alt="#" />
+                                  <img
+  className="rounded-lg w-full max-h-[200px] object-cover"
+  src={(previewUrl!=='') ? previewUrl : data?.Image }
+  alt="#"
+/>
                                 </div>
                               </div>
                             </div>
-                            <form class="w-full mb2">
-                              <div class="flex flex-wrap -mx-3 mb-6">
-                                <div class="w-full md:w-1/2 px-3">
-                                  <label class="text-gray-700 mt-3 mb-2" for="grid-first-name">
-                                    Store Name
-                                  </label>
-                                  <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder={data?.Name} />
-                                </div>
-                                <div class="w-full md:w-1/2 px-3">
-                                  <label class=" text-gray-700 mt-3 mb-2" for="grid-last-name">
-                                    City
-                                  </label>
-                                  <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="text" placeholder={data?.Address} />
+                            <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.Address, data?.Image,data?.id)}>
+      <div className="flex flex-wrap -mx-3 mb-6">
+        <div className="w-full md:w-1/2 px-3">
+          <label className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
+            Store Name
+          </label>
+          <input
+            className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+            id="storeName"
+            type="text"
+            name="storeName"
+            value={formValues.storeName}
+            onChange={handleInputChange}
+            placeholder={data?.Name}
+          />
+        </div>
+        <div className="w-full md:w-1/2 px-3">
+          <label className="text-gray-700 mt-3 mb-2" htmlFor="city">
+            City
+          </label>
+          <input
+            className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            id="city"
+            type="text"
+            name="city"
+            value={formValues.city}
+            onChange={handleInputChange}
+            placeholder={data?.Address}
+          />
+        </div>
+      </div>
+      <div className=' mb-6' >
+      <div className='mb-3'>Payment Options:</div>
+                                <div>
+                                  <a href="https://connect.stripe.com/oauth/authorize?redirect_uri=https://connect.stripe.com/hosted/oauth&client_id=ca_NRqE7CXgaiYMc6p4Q5opvaOQ9AbqW33o&state=onbrd_OUg7Zk5piPAsBUKev36hdp68HO&response_type=code&scope=read_write&stripe_user[country]=US" class="stripe-connect"><span>Connect with</span></a>
                                 </div>
                               </div>
-                              <div className=' mb-6' >
-                                <div className='mb-3'>Payment Options:</div>
-                               <div>
-                               <a href="https://connect.stripe.com/oauth/authorize?redirect_uri=https://connect.stripe.com/hosted/oauth&client_id=ca_NRqE7CXgaiYMc6p4Q5opvaOQ9AbqW33o&state=onbrd_OUg7Zk5piPAsBUKev36hdp68HO&response_type=code&scope=read_write&stripe_user[country]=US" class="stripe-connect"><span>Connect with</span></a>
-                            </div>
-                                </div>
-                              <label
-                                for="formFileLg"
-                                class="mb-2 inline-block text-neutral-700 dark:text-neutral-200"
-                              >UPLOAD YOUR STORE PICTURE HERE</label
-                              >
-                              <input
-                                class="relative m-0 block w-full min-w-0 flex-auto cursor-pointer rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] font-normal leading-[2.15] text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:cursor-pointer file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary"
-                                id="formFileLg"
-                                type="file" />
-                              <div className='flex mt-3' >
-                                <div style={{ width: "50%" }}>
-                                </div>
-                                <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
-                                <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                    Submit
-                                  </button>                                
-                                  </div>
-                              </div>
-                            </form>
+      <div className="mb-6">
+        <label htmlFor="formFileLg" className="mb-2 inline-block text-neutral-700 dark:text-neutral-200">
+        Upload Your Store Front Here
+        </label>
+        <input
+          className="relative m-0 block w-full min-w-0 flex-auto cursor-pointer rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] font-normal leading-[2.15] text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:cursor-pointer file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary"
+          id="formFileLg"
+          type="file"
+          accept="image/*"
+          onChange={handleFileInputChange}
+        />
+      </div>
+
+      <div className="flex mt-3">
+        <div style={{ width: "50%" }}></div>
+        <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
+          <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Submit
+          </button>
+        </div>
+      </div>
+    </form>
 
 
 
@@ -730,7 +833,7 @@ const Account = () => {
 
 
                             <div>Operating Hours:</div>
-                            <ChangeTimeForm />
+                            <ChangeTimeForm storeID={storeID} storeOpenTime={storeOpenTime} />
 
 
                           </> : <></>

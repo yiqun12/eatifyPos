@@ -6,14 +6,16 @@ import { useMyHook } from './myHook';
 import { useMemo } from 'react';
 import TextField from '@mui/material/TextField';
 import Button_ from '@mui/material/Button'
-import { getFirestore, collection, getDoc,setDoc, query, where, getDocs, addDoc } from "firebase/firestore";
+import { getFirestore, collection, getDoc, setDoc, query, where, getDocs, addDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
-import {  doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import QRCode from 'qrcode.react';
+import intro_pic from './Best-Free-Online-Ordering-Systems-for-Restaurants.png';
 
-import BusinessHoursTable from './BusinessHoursTable.js'
 
 const Food = () => {
+  console.log(JSON.parse(localStorage.getItem("demo")))
 
 
   /**listen to localtsorage */
@@ -31,78 +33,282 @@ const Food = () => {
 
   const handleDemoStoreNameSubmit = async (event) => {
     event.preventDefault();
-    console.log('Form submitted with name:', DemoStorename);
+    //console.log('Form submitted with name:', DemoStorename);
     const storeName = DemoStorename;
-    const address = "no address";
+    const address = "San Francisco";
     const Open_time = "null";
-    const data = ""
-    //const data = localStorage.getItem("food_arrays");
-  
-    // First, check if a document with the given ID exists
-    const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName);
-  
-    // If the document doesn't exist, add a new one
-    const newDoc = {
-      Name: storeName,
-      Address: address,
-      Open_time: Open_time,
-      key: data,
-      Image:"https://s3-media0.fl.yelpcdn.com/bphoto/byOMYO520SGEYxKAbK_PYw/l.jpg",
-      stripe_store_acct:"",
-      storeOwnerId:user.uid
-    };
-  
-    try {
-      await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
-      
-      console.log("Document added successfully!");
-    } catch (error) {
-      console.error("Error adding document: ", error);
+    const data = JSON.stringify( [
+      {
+          "name": "Vegetarian Dumpling",
+          "category": "Steamed",
+          "CHI": "素食饺子",
+          "image": "https://img1.baidu.com/it/u=517987704,3824020678&fm=253&fmt=auto&app=138&f=JPEG?w=377&h=500",
+          "id": "cee73b97-f9b9-41d0-8142-b55d8ddc1278",
+          "subtotal": "0",
+          "attributes": [],
+          "attributes2": [],
+          "availability": [
+              "Morning",
+              "Afternoon",
+              "Evening"
+          ]
+      },
+      {
+          "name": "Pork Short Rib",
+          "category": "Steamed",
+          "CHI": "排骨",
+          "image": "https://img2.baidu.com/it/u=3205301998,2228353888&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+          "id": "f9136833-4a0a-48a1-8b89-cde4dca31e60",
+          "subtotal": "0",
+          "attributes": [],
+          "attributes2": [],
+          "availability": [
+              "Morning",
+              "Afternoon",
+              "Evening"
+          ]
+      },
+      {
+          "name": "Phoenix Claws ",
+          "category": "Steamed",
+          "CHI": "凤爪",
+          "id": "64ad27d4-c313-4411-be4f-4a11c3926606",
+          "subtotal": "0",
+          "attributes": [],
+          "attributes2": [],
+          "availability": [
+              "Morning",
+              "Afternoon",
+              "Evening"
+          ],
+          "image": "https://img0.baidu.com/it/u=518468988,79599433&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667"
+      }
+  ])
+   const clock = {
+    "0": {
+        "timeRanges": [
+            {
+                "openTime": "xxxx",
+                "closeTime": "xxxx"
+            }
+        ],
+        "timezone": "ET"
+    },
+    "1": {
+        "timeRanges": [
+            {
+                "openTime": "xxxx",
+                "closeTime": "xxxx"
+            }
+        ],
+        "timezone": "ET"
+    },
+    "2": {
+        "timeRanges": [
+            {
+                "openTime": "xxxx",
+                "closeTime": "xxxx"
+            }
+        ],
+        "timezone": "ET"
+    },
+    "3": {
+        "timeRanges": [
+            {
+                "openTime": "xxxx",
+                "closeTime": "xxxx"
+            }
+        ],
+        "timezone": "ET"
+    },
+    "4": {
+        "timeRanges": [
+            {
+                "openTime": "xxxx",
+                "closeTime": "xxxx"
+            }
+        ],
+        "timezone": "ET"
+    },
+    "5": {
+        "timeRanges": [
+            {
+                "openTime": "xxxx",
+                "closeTime": "xxxx"
+            }
+        ],
+        "timezone": "ET"
+    },
+    "6": {
+        "timeRanges": [
+            {
+                "openTime": "xxxx",
+                "closeTime": "xxxx"
+            }
+        ],
+        "timezone": "ET"
+    },
+    "7": {
+        "timeRanges": [
+            {
+                "openTime": "xxxx",
+                "closeTime": "xxxx"
+            }
+        ],
+        "timezone": "ET"
     }
+}
+    
+    // First, check if a document with the given ID exists
+    let docRef;
+
+    try {
+      docRef = doc(db, "TitleLogoNameContent", storeName)
+      const doc_ = await getDoc(docRef);
+
+      if (doc_.exists()) {
+        console.log("Document exists!");
+        throw new Error('Document already exists!');
+      } else {
+        docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName);
+
+        // If the document doesn't exist, add a new one
+        const newDoc = {
+          Name: storeName,
+          Address: address,
+          Open_time: JSON.stringify(clock),
+          key: data,
+          Image: "https://s3-media0.fl.yelpcdn.com/bphoto/byOMYO520SGEYxKAbK_PYw/l.jpg",
+          stripe_store_acct: "",
+          storeOwnerId: user.uid
+        };
+    
+        try {
+          await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
+    
+          console.log("Document added successfully!");
+        } catch (error) {
+          console.error("Error adding document: ", error);
+        }      }
+    } catch (error) {
+      alert(error.message); // Displays the error message in an alert popup
+    }
+
+
   };
-   
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    function handleResize() {
+      setWidth(window.innerWidth);
+    }
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const isMobile = width <= 768;
 
   return (
 
     <div>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
-      <div className='max-w-[1000px] m-auto px-4 '>
-        <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
-          {/* Filter Type */}
-          <div className='Type' >
-            {/* <div className='flex justify-between flex-wrap'> */}
 
-            {/* web mode */}
-            <form onSubmit={handleDemoStoreNameSubmit} style={{ display: "flex", alignItems: "center" }}>
-            <TextField
+
+
+      <div className='flex'>
+        <div style={isMobile ? {} : { width: "45%" }}>
+          <div>
+            <form
+              className='mt-5 mr-5'
+              onSubmit={handleDemoStoreNameSubmit}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                padding: "20px",
+                borderRadius: !isMobile ? "8px" : "0px", // Apply borderRadius if isMobile is true, otherwise, set it to 0px
+                boxShadow: !isMobile ? "0px 0px 10px rgba(0,0,0,0.1)" : "none" // Apply boxShadow if isMobile is true, otherwise, set it to "none"
+              }}
+            >
+              <h2 style={{ marginBottom: "20px" }}>Your Store QR Code</h2>
+
+              <div style={{ marginBottom: "20px", textAlign: "center" }}>
+                Enter your store name below and click "Generate QR Code". Once generated, you can scan the QR code to access your store's menu.
+              </div>
+
+              <TextField
                 margin="normal"
                 required
                 fullWidth
                 id="name"
-                label="Name"  // I've used "Name" directly as you didn't provide the value of TitleLogoNameContent.Name
+                label="Store Name"
                 name="name"
                 autoComplete="name"
                 autoFocus
                 value={DemoStorename}
                 onChange={handleDemoStoreNameChange}
-                style={{ width: "50%" }}
-            />
-            <Button_
+              />
+
+
+              <Button_
                 fullWidth
                 type="submit"
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
-                style={{ width: "50%", marginLeft: "5%", height: "56px" }}
-            >
-                Make it a real store
-            </Button_>
-        </form>
-            {/* end of the top */}
+                style={{ height: "56px" }}
+              >
+                Generate QR Code
+              </Button_>
+              {(isMobile) &&
+                <div style={{ marginTop: "30px" }}>
+                  {DemoStorename ? <div style={{ marginBottom: "20px" }}>Your QR Code:</div> : <></>}
+
+
+                  <div style={{ display: "flex", justifyContent: "center", width: "100%", marginBottom: "20px", padding: "10px", border: "1px solid #ddd", borderRadius: "4px" }}>
+                    {DemoStorename ? <QRCode value={`https://eatifylab.com/store?store=${DemoStorename}`} /> : <img src={intro_pic}></img>}
+
+                  </div>
+
+                  <div style={{ marginBottom: "20px" }}>
+                    {DemoStorename ? <div>Visit: <a href={`https://eatifylab.com/store?store=${DemoStorename}`} target="_blank" rel="noopener noreferrer">{`https://eatifylab.com/store?store=${DemoStorename}`}</a></div> : <div></div>}
+                  </div>
+                </div>
+              }
+            </form>
 
           </div>
+        </div>
+        <div className="mr-2" style={isMobile ? {} : { width: "45%" }}>
 
-          </div>
+          {(!isMobile) &&
+            <div
+              className='mt-5'
 
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                padding: "20px",
+                borderRadius: !isMobile ? "8px" : "0px", // Apply borderRadius if isMobile is true, otherwise, set it to 0px
+                boxShadow: !isMobile ? "0px 0px 10px rgba(0,0,0,0.1)" : "none" // Apply boxShadow if isMobile is true, otherwise, set it to "none"
+              }}>
+              <div style={{ marginTop: "30px" }}>
+                {DemoStorename ? <div style={{ marginBottom: "20px" }}>Your QR Code:</div> : <></>}
+                <div style={{ display: "flex", justifyContent: "center", width: "100%", marginBottom: "20px", padding: "10px", border: "1px solid #ddd", borderRadius: "4px" }}>
+                  {DemoStorename ? <QRCode value={`https://eatifylab.com/store?store=${DemoStorename}`} /> : <img src={intro_pic}></img>}
+                </div>
+
+                <div style={{ marginBottom: "20px" }}>
+                  {DemoStorename ? <div>Visit: <a href={`https://eatifylab.com/store?store=${DemoStorename}`} target="_blank" rel="noopener noreferrer">{`https://eatifylab.com/store?store=${DemoStorename}`}</a></div> : <div></div>}
+                </div>
+              </div>
+            </div>
+
+          }
+
+        </div>
       </div>
     </div>
   )

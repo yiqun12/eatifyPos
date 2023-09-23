@@ -5,6 +5,7 @@ import Button from 'react-bootstrap/Button';
 import { useMemo } from 'react';
 
 import "./BusinessHoursTable.css";
+import { json } from 'react-router-dom';
 
 function parseTime(timeStr) {
   if (timeStr == "xxxx") {
@@ -54,13 +55,14 @@ function convertTo12HourFormat(timeStr) {
 }
 
 
-function BusinessHoursTable({storeStatus}) {
+function BusinessHoursTable({storeName,storeStatus}) {
   const [businessHours, setBusinessHours] = useState({});
   const [timezone, setTimezone] = useState("PDT");
-  const businessHoursData = JSON.parse(sessionStorage.getItem("businessHours"));
-
+ 
+  const businessHoursData = JSON.parse(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).Open_time);
+  
   useEffect(() => {
-    const businessHoursData = JSON.parse(sessionStorage.getItem("businessHours"));
+    const businessHoursData = JSON.parse(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).Open_time);
     
 
     const dayOfWeek = {

@@ -53,12 +53,12 @@ function App() {
       // Added line to grab translation file (can use the same method as food_data to grab translations file)
   // keep a counter so the local file does not refreshes multiple times
   // (would not need this in a scenario where server stores file or where local file is changed)
-  const businessHoursData = JSON.stringify(businessHours)
-  if (!sessionStorage.getItem("businessHours")) {
-    sessionStorage.setItem("businessHours", businessHoursData)
-  }
+  //const businessHoursData = JSON.stringify(businessHours)
+  //if (!sessionStorage.getItem("businessHours")) {
+  //  sessionStorage.setItem("businessHours", businessHoursData)
+  //}
   // Added line to grab timezone offset file from UTC
-  const timeZoneOffsetData = JSON.stringify(timeZones)
+  //const timeZoneOffsetData = JSON.stringify(timeZones)
   // console.log(timeZones["ET"])
   // sessionStorage.setItem("timezoneOffsets", timeZoneOffsetData[businessHoursData["timezone"]])
   // console.log(timeZones[(businessHours[1])["timezone"]])

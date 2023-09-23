@@ -385,7 +385,7 @@ const Food = () => {
   //const foodTypes = [...new Set(JSON.parse(sessionStorage.getItem("Food_arrays")).map(item => item.category))];
 
   // for businessHours
-  const businessHours = JSON.parse(sessionStorage.getItem("businessHours"))
+  const businessHours = JSON.parse(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).Open_time)
   // getting today's date
   const tempDate = new Date();
   const currentWeekday = tempDate.getDay();
@@ -558,7 +558,7 @@ const Food = () => {
 
                   <div style={{ width: '30%', minWidth: "200px", marginBottom: "5px", textAlign: 'right' }}>
                     <div style={{ paddingTop: "10px", cursor: "pointer" }}>
-                      <BusinessHoursTable storeStatus={isOpen} ></BusinessHoursTable>
+                      <BusinessHoursTable storeName={store} storeStatus={isOpen} ></BusinessHoursTable>
                     </div>
                   </div>
                 </div>
