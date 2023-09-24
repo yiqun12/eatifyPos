@@ -112,7 +112,7 @@ const Card = () => {
 
     <div className='max-w-[1000px] mx-auto p-2 py-12 grid md:grid-cols-1 gap-6'>
 
-        <div className='rounded-xl relative hover:scale-105 duration-500 cursor-pointer'>
+        <div className='rounded-xl relative hover:scale-105 cursor-pointer'>
             <div className='absolute w-full h-full bg-black/50 rounded-xl text-white'>
                 <p className=' font-bold text-2xl px-2 pt-4'>{[t('Guess you would like:'), <br />, t(item1.name)]}</p>
                 <button className='border border-white bg-white text-black mx-2 rounded-xl px-5 py-1 absolute bottom-4 shadow-md' 

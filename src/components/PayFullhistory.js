@@ -140,11 +140,11 @@ function PayFullhistory() {
                   <div className=' gap-0 pt-0'>
                     <div
 
-                      className={`rounded-lg duration-500`}
+                      className={`rounded-lg `}
                     >
                       <div className='flex'>
                         <img
-                          className="h-[80px]  w-[80px]  mt-3 transition-all duration-500 object-cover rounded-md"
+                          className="h-[80px]  w-[80px]  mt-3 transition-all object-cover rounded-md"
                           src={JSON.parse(order.receiptData)[0].image}
                           loading="lazy"
                         />

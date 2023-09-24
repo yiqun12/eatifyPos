@@ -55,9 +55,9 @@ const Food = () => {
   const [foodTypes, setFoodTypes] = useState([]);
   const [foodTypesCHI, setFoodTypesCHI] = useState([]);
   //const [storeOpenTime, setStoreOpenTime] = useState( );
-const localStorageId = sessionStorage.getItem('TitleLogoNameContent');
+  const localStorageId = sessionStorage.getItem('TitleLogoNameContent');
 
-const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('TitleLogoNameContent') !== null ? JSON.parse(JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).Open_time) : {"0":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"1":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"2":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"3":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"4":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"5":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"6":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"7":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"}});
+  const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('TitleLogoNameContent') !== null ? JSON.parse(JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).Open_time) : { "0": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "1": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "2": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "3": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "4": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "5": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "6": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "7": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" } });
 
   const fetchPost = async (name) => {
     const docRef = doc(db, "TitleLogoNameContent", name);
@@ -73,7 +73,7 @@ const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('Title
 
         // Save the fetched data to sessionStorage
         sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(docData));
-        setStoreOpenTime (JSON.parse(docData.Open_time))
+        setStoreOpenTime(JSON.parse(docData.Open_time))
         // Assuming you want to store the key from the fetched data as "Food_arrays"
         sessionStorage.setItem("Food_arrays", docData.key);
         setData(JSON.parse(docData.key))
@@ -234,7 +234,7 @@ const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('Title
   const [foods, setFoods] = useState([]);
   const [selectedFoodType, setSelectedFoodType] = useState(null);
 
-  
+
   const filterType = (category) => {
     setFoods(
       data.filter((item) => {
@@ -537,8 +537,9 @@ const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('Title
                   <div className='max-w-[1240px] mx-auto '>
                     <div className='rounded-lg max-h-[200px] relative'>
                       <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
-                        <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className='text-orange-500'>{storeInfo.Name}</span></h1>
-                        <h1 className='px-4 font-bold'>@{storeInfo.Address}</h1>
+                        <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className=''>{storeInfo.Name}</span></h1>
+                        <h1 className='px-4 font-bold text-orange-500'>@{storeInfo.Address}</h1>
+                        <BusinessHoursTable storeOpenTime={storeOpenTime} storeName={store} storeStatus={isOpen} ></BusinessHoursTable>
                       </div>
                       <img className='rounded-lg w-full max-h-[200px] object-cover' src={storeInfo?.Image !== null && storeInfo?.Image !== '' ? storeInfo.Image : (data?.[0]?.image || '')} alt="#" />
                     </div>
@@ -546,23 +547,14 @@ const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('Title
                 </div>
                 <div className='flex' style={{ justifyContent: 'space-between', alignItems: 'center' }}>
 
-                  <div className='flex' style={{ width: '75%', flexDirection: 'column', justifyContent: 'space-between' }}>
-
-                    <div className="mt-2 flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full sm:w-[400px] items-center">
-                      <input
-                        type="search"
-                        className='flex bg-transparent p-2 w-full focus:outline-none text-black'
-                        placeholder={t('Search food item')}
-                        onChange={handleInputChange}
-                      />
-                      <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
-                    </div>
-                  </div>
-
-                  <div style={{ width: '30%', minWidth: "200px", marginBottom: "5px", textAlign: 'right' }}>
-                    <div style={{ paddingTop: "10px", cursor: "pointer" }}>
-                      <BusinessHoursTable  storeOpenTime={storeOpenTime} storeName={store} storeStatus={isOpen} ></BusinessHoursTable>
-                    </div>
+                  <div className="mt-2 flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full items-center">
+                    <input
+                      type="search"
+                      className='flex bg-transparent p-2 w-full focus:outline-none text-black'
+                      placeholder={t('Search Food Item')}
+                      onChange={handleInputChange}
+                    />
+                    <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
                   </div>
                 </div>
               </>
@@ -577,47 +569,45 @@ const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('Title
                   className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === null ? 'underline' : ''}`}
                   style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
 
-{
-  translationsMode_ === 'ch'
-    ? foodTypesCHI.map((foodType) => (
-        <button
-          key={foodType}
-          onClick={() => {
-            filterTypeCHI(foodType);
-            setSelectedFoodType(foodType);
-          }}
-          className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${
-            selectedFoodType === foodType ? 'underline' : ''
-          }`}
-          style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-        >
-          <div>
-            {foodType && foodType.length > 1
-              ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-              : ''}
-          </div>
-        </button>
-      ))
-    : foodTypes.map((foodType) => (
-        <button
-          key={foodType}
-          onClick={() => {
-            filterType(foodType);
-            setSelectedFoodType(foodType);
-          }}
-          className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${
-            selectedFoodType === foodType ? 'underline' : ''
-          }`}
-          style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-        >
-          <div>
-            {foodType && foodType.length > 1
-              ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-              : ''}
-          </div>
-        </button>
-      ))
-}
+                {
+                  translationsMode_ === 'ch'
+                    ? foodTypesCHI.map((foodType) => (
+                      <button
+                        key={foodType}
+                        onClick={() => {
+                          filterTypeCHI(foodType);
+                          setSelectedFoodType(foodType);
+                        }}
+                        className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
+                          }`}
+                        style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+                      >
+                        <div>
+                          {foodType && foodType.length > 1
+                            ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                            : ''}
+                        </div>
+                      </button>
+                    ))
+                    : foodTypes.map((foodType) => (
+                      <button
+                        key={foodType}
+                        onClick={() => {
+                          filterType(foodType);
+                          setSelectedFoodType(foodType);
+                        }}
+                        className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
+                          }`}
+                        style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+                      >
+                        <div>
+                          {foodType && foodType.length > 1
+                            ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                            : ''}
+                        </div>
+                      </button>
+                    ))
+                }
 
               </div>
             </div>
@@ -635,11 +625,11 @@ const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('Title
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.1 }}
                   key={item.id}
-                  className=" rounded-lg duration-500 cursor-pointer">
+                  className=" rounded-lg cursor-pointer">
                   <div className='flex'>
                     <div style={{ width: "40%" }}>
                       <div class="h-min overflow-hidden rounded-md">
-                        <img loading="lazy" class="w-full h-[80px] hover:scale-125 transition-all duration-500 cursor-pointer md:h-[95px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
+                        <img loading="lazy" class="w-full h-[80px] hover:scale-125 transition-all cursor-pointer md:h-[95px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
                       </div>
                     </div>
                     <div style={{ width: "60%" }}>
@@ -660,7 +650,7 @@ const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('Title
                           }}>
                             <div className="col-span-2" style={{
                               display: "flex",
-                              flexDirection: "column", 
+                              flexDirection: "column",
                               justifyContent: "center",
                               alignItems: "center"
                             }}>
@@ -671,7 +661,7 @@ const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('Title
                               </p>
 
                             </div>
-                            
+                               <button>Hello </button>
                             <div className="col-span-2 flex justify-end">
 
                               {SearchQuantity(item.id) == 0 ?

@@ -9,7 +9,7 @@ import imageCompression from 'browser-image-compression';
 import loadingGif from './loading.gif'; // Assuming it's in the same directory
 import { useUserContext } from "../context/userContext";
 
-const GoogleVisionDemo = ({ store, setFoods }) => {
+const GoogleVisionDemo = ({ reload,store, setFoods }) => {
   const [imageUrl, setImageUrl] = useState('');
   const [extractedText, setExtractedText] = useState('');
   /**listen to localtsorage */
@@ -140,40 +140,19 @@ const GoogleVisionDemo = ({ store, setFoods }) => {
           item.subtotal = 1;
           item.attributes = [];
           item.attributes2 = [];
+          item.attributesArr = {};
           item.availability = ['Morning', 'Afternoon', 'Evening'];
         });
         const mergedArray =  jsonWithImage.concat(JSON.parse(localStorage.getItem(store)));
 
-        localStorage.setItem(store, JSON.stringify(mergedArray))
-        setFoods(mergedArray)
-        console.log(jsonWithImage);
+        //localStorage.setItem(store, JSON.stringify(mergedArray))
+        //setFoods(mergedArray)
+        console.log(mergedArray);
         //setPreviewUrl(img)
+        reload(mergedArray)
         setUploadStatus('success');
         saveId(Math.random());
-        //console.log(jsonWithImage);
-        // translate(jsonWithImage.map(item => item.category).join('@')).then(async (translatedText) => { // Mark this function as async
-        //   const translatedNames = translatedText.split('@');
 
-        //   const translatedMenuItems = jsonWithImage.map((item, index) => ({
-        //     ...item,
-        //     categoryCHI: translatedNames[index]
-            
-        //   }));
-        //   const mergedArray =  translatedMenuItems.concat(JSON.parse(localStorage.getItem(store)));
-
-        //   localStorage.setItem(store, JSON.stringify(mergedArray))
-        //   setFoods(mergedArray)
-        //   console.log(jsonWithImage);
-        //   //setPreviewUrl(img)
-        //   setUploadStatus('success');
-        //   saveId(Math.random());
-        //  // window.location.reload()
-        // });
-        //localStorage.setItem("food_arrays", JSON.stringify(jsonWithImage))
-        //console.log(img)
-        //setPreviewUrl(img)
-
-        //imageUrl
       });
 
     } else {
@@ -183,6 +162,7 @@ const GoogleVisionDemo = ({ store, setFoods }) => {
   };
   const [previewUrl, setPreviewUrl] = useState("")
   const handleFileChangeAndUpload = async (event) => {
+    console.log("scanning")
     const selectedFile = event.target.files[0];
     if (!selectedFile) {
       //setUploadStatus('No file selected.');

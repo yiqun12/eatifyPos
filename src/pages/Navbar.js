@@ -59,15 +59,15 @@ const Navbar = () => {
       "src",
       "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
     );
-    addScript.onerror = function() {
+    addScript.onerror = function () {
       console.error('Failed to load the Google Translate script');
     };
     document.body.appendChild(addScript);
     window.googleTranslateElementInit = googleTranslateElementInit;
   }, []);
   const params = new URLSearchParams(window.location.search);
-  
-  const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
+
+  const store = params.get('store') ? params.get('store').toLowerCase() : "";
   //const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
   console.log(store)
   /**listen to localtsorage */
@@ -391,7 +391,7 @@ const Navbar = () => {
   console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
     sessionStorage.setItem(store, JSON.stringify(products));
-    window.location.href = '/Checkout'+"?store="+storeValue+"&"+"table="+sessionStorage.getItem("table")
+    window.location.href = '/Checkout' + "?store=" + storeValue + "&" + "table=" + sessionStorage.getItem("table")
   };
 
   // for translations sake
@@ -439,21 +439,21 @@ const Navbar = () => {
   return (
 
     <>
-    {(location.pathname.includes('/store') || location.pathname.includes('/checkout')) && (
-      <a className="float">
-        <a
-          style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
+      {(location.pathname.includes('/store') || location.pathname.includes('/checkout')) && (
+        <a className="float">
+          <a
+            style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
 
-          <div id="cart"
-            style={{ width: "60px", height: "60px", 'color': '#444444' }}
-            className="cart" data-totalitems={totalQuant} >
-              
-            <img src={cartImage} alt="Shopping Cart" />
+            <div id="cart"
+              style={{ width: "60px", height: "60px", 'color': '#444444' }}
+              className="cart" data-totalitems={totalQuant} >
 
-          </div>
+              <img src={cartImage} alt="Shopping Cart" />
+
+            </div>
+          </a>
         </a>
-      </a>
-    )}
+      )}
       <div ref={modalRef} className="foodcart-modal modal">
 
 
@@ -585,42 +585,43 @@ const Navbar = () => {
       </div>
       {/**navbar */}
       <div className={"mx-auto sticky top-0 bg-white z-10"}>
-      <div className={!isMobile ? "max-w-[1000px] mx-auto justify-between sticky top-0 bg-white z-10" : "sticky top-0 z-10 justify-between bg-white"}>
+        <div className={!isMobile ? "max-w-[1000px] mx-auto justify-between sticky top-0 bg-white z-10" : "sticky top-0 z-10 justify-between bg-white"}>
 
-        <div className="col-span-4 pl-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
-          <img onClick={event => window.location.href = '/'}
-            src="https://cdn.discordapp.com/attachments/1140150068108873809/1144246943929868349/image.png"
-            alt=""
-            style={{
-              maxHeight: '50px',
-              maxWidth: '50px',
-              borderRadius: '50%',  // this makes the image round
-              objectFit: 'cover',   // this makes the image co0ver the entire dimensions
-              marginRight: '10px',   // added some margin to the right of the image
-              marginLeft:"5px"
-            }} />
-          <div className='flex' style={{ flexDirection: "column" }}>
-          <h1 className='text-orange-500' style={{ fontStyle: 'italic'
-}} onClick={event => window.location.href = '/'}>
-            </h1>
+          <div className="col-span-4 pl-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
+            <img onClick={event => window.location.href = '/'}
+              src="https://media.discordapp.net/attachments/1127948915870814271/1155545800542277662/image.png?width=183&height=181"
+              alt=""
+              style={{
+                maxHeight: '50px',
+                maxWidth: '50px',
+                borderRadius: '50%',  // this makes the image round
+                objectFit: 'cover',   // this makes the image co0ver the entire dimensions
+                marginRight: '10px',   // added some margin to the right of the image
+                marginLeft: "5px"
+              }} />
+            <div className='flex' style={{ flexDirection: "column" }}>
+              <h1 className='text-orange-500' style={{
+                fontStyle: 'italic'
+              }} onClick={event => window.location.href = '/'}>
+              </h1>
 
-          </div>
+            </div>
 
-          <div className='flex ml-auto pr-4'>
-          <div id="google_translate_element"></div>
+            <div className='flex ml-auto pr-4'>
+              <div id="google_translate_element"></div>
 
 
-            {!user_loading?
-            <button className="ml-3" onClick={event => window.location.href = '/account'} style={{ 'cursor': "pointer", 'top': '-10px', fontSize: "16px" }}> {user ? t("Account") : t("Login")}</button>
-            :
-            <>
-            </>}
+              {!user_loading ?
+                <button className="ml-3" onClick={event => window.location.href = '/account'} style={{ 'cursor': "pointer", 'top': '-10px', fontSize: "16px" }}> {user ? t("Account") : t("Login")}</button>
+                :
+                <>
+                </>}
+            </div>
+
           </div>
 
         </div>
-
-      </div>
-      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       </div>
     </>
   )

@@ -44,46 +44,46 @@ const Food = ({ store }) => {
     const initialState = {};
 
     for (const attributeName in jsonObject) {
-        if (jsonObject.hasOwnProperty(attributeName)) {
-            initialState[attributeName] = {
-                isSingleSelected: jsonObject[attributeName].isSingleSelected,
-                variations: jsonObject[attributeName].variations
-            };
-        }
+      if (jsonObject.hasOwnProperty(attributeName)) {
+        initialState[attributeName] = {
+          isSingleSelected: jsonObject[attributeName].isSingleSelected,
+          variations: jsonObject[attributeName].variations
+        };
+      }
     }
 
     return initialState;
-};
-useEffect(() => {
-  resetAttributes(transformJsonToInitialState({}));
-}, []);
-/**
- * 
-{
-    "size": {
-      "isSingleSelected": true,
-      "variations": [
-        {
-          "type": "bg",
-          "price": 2
-        },
-        {
-          "type": "sm",
-          "price": -1
-        }
-      ]
-    },
-    "more": {
-      "isSingleSelected": false,
-      "variations": [
-        {
-          "type": "more rice",
-          "price": 1
-        }
-      ]
+  };
+  useEffect(() => {
+    resetAttributes(transformJsonToInitialState({}));
+  }, []);
+  /**
+   * 
+  {
+      "size": {
+        "isSingleSelected": true,
+        "variations": [
+          {
+            "type": "bg",
+            "price": 2
+          },
+          {
+            "type": "sm",
+            "price": -1
+          }
+        ]
+      },
+      "more": {
+        "isSingleSelected": false,
+        "variations": [
+          {
+            "type": "more rice",
+            "price": 1
+          }
+        ]
+      }
     }
-  }
- */
+   */
   const formatPriceDisplay = (price) => {
     return price > 0 ? `+$${price.toFixed(2)}` : `-$${Math.abs(price).toFixed(2)}`;
   };
@@ -108,7 +108,7 @@ useEffect(() => {
       // "pizzahub" doesn't exist in localStorage or is an empty array, so call syncData()
       syncData();
       // Set "pizzahub" in localStorage to prevent calling syncData() again
-      localStorage.setItem('pizzahub', JSON.stringify(['exists']));
+      localStorage.setItem(store, JSON.stringify(['exists']));
     }
   }, []);
   const params = new URLSearchParams(window.location.search);
@@ -116,162 +116,6 @@ useEffect(() => {
   const { user, user_loading } = useUserContext();
 
   const scrollingWrapperRef = useRef(null);
-  const [attributeArray, setAttributeArray] = useState([]);
-  const [attribute, setAttribute] = useState(''); // Default attribute name
-  const [value, setValue] = useState(''); // Default attribute value
-  const [showModal, setShowModal] = useState(false);
-  const [duplicateError, setDuplicateError] = useState(false);
-  const [selectedAttributeIndex, setSelectedAttributeIndex] = useState(null);
-  const [inputError, setInputError] = useState('');
-
-  const handleAddAttribute = () => {
-    // Trim attribute and value to remove leading/trailing spaces
-    const trimmedAttribute = attribute.trim();
-    const trimmedValue = value.trim();
-
-    if (trimmedAttribute === '') {
-      setInputError('Attribute cannot be empty.');
-      return;
-    }
-
-    // Default to 0 if the user didn't enter anything for the value
-    const enteredValue = trimmedValue === '' ? '0' : trimmedValue;
-
-    // Validate the input format
-    const validFormat = /^[-]?\d+(,[-]?\d+)*$/.test(enteredValue);
-    if (!validFormat) {
-      setInputError('Invalid format. Use: 1,2,3,-2,-3,0, etc.');
-      return;
-    }
-
-    const newAttribute = `${trimmedAttribute} (${(enteredValue >= 0) ? `+$${enteredValue}` : `-$${Math.abs(enteredValue)}`})`;
-
-    // Check for duplicates based on attribute name
-    const existingAttributeIndex = attributeArray.findIndex((attr) =>
-      attr.startsWith(`${trimmedAttribute} `)
-    );
-
-    if (existingAttributeIndex === -1) {
-      setAttributeArray([...attributeArray, newAttribute]);
-      setNewItem({ ...newItem, attributes: [...attributeArray, newAttribute] });
-
-    } else {
-      // Modify the value of the existing attribute
-      const updatedAttributes = [...attributeArray];
-      updatedAttributes[existingAttributeIndex] = newAttribute;
-      setAttributeArray(updatedAttributes);
-      setNewItem({ ...newItem, attributes: updatedAttributes });
-
-    }
-
-    setAttribute(''); // Reset to default attribute name e.g. regular
-    setValue(''); // Reset to an empty string
-    setModalOpen(false);
-    setDuplicateError(false); // Reset duplicate error
-    setSelectedAttributeIndex(null); // Reset selected attribute index
-    setInputError(''); // Reset input error
-  };
-
-  const handleEditAttribute = (index) => {
-    // Parse the selected attribute to extract the attribute name and value
-    const selectedAttribute = attributeArray[index];
-    const [selectedAttributeName, selectedAttributeValue] = selectedAttribute
-      .replace(/\s/g, '') // Remove spaces
-      .match(/(.+)\(([-]?\d+)\)/).slice(1);
-
-    // Set the attribute and value in the state and open the modal
-    setAttribute(selectedAttributeName);
-    setValue(selectedAttributeValue);
-    setModalOpen(true);
-    setSelectedAttributeIndex(index);
-  };
-
-  const handleDeleteAttribute = (index) => {
-    const updatedAttributes = [...attributeArray];
-    updatedAttributes.splice(index, 1);
-    setAttributeArray(updatedAttributes);
-    setNewItem({ ...newItem, attributes: updatedAttributes });
-
-    // Reset the modal and input error if the deleted attribute is the selected one
-    if (index === selectedAttributeIndex) {
-      setModalOpen(false);
-      setInputError('');
-    }
-  };
-
-
-  const [attributeArray2, setAttributeArray2] = useState([]);
-  const [attribute2, setAttribute2] = useState('');
-  const [value2, setValue2] = useState('');
-  const [showModal2, setShowModal2] = useState(false);
-  const [duplicateError2, setDuplicateError2] = useState(false);
-  const [selectedAttributeIndex2, setSelectedAttributeIndex2] = useState(null);
-  const [inputError2, setInputError2] = useState('');
-
-  const handleAddAttribute2 = () => {
-    const trimmedAttribute2 = attribute2.trim();
-    const trimmedValue2 = value2.trim();
-
-    if (trimmedAttribute2 === '') {
-      setInputError2('Attribute cannot be empty.');
-      return;
-    }
-
-    const enteredValue2 = trimmedValue2 === '' ? '0' : trimmedValue2;
-    const validFormat2 = /^[-]?\d+(,[-]?\d+)*$/.test(enteredValue2);
-    if (!validFormat2) {
-      setInputError2('Invalid format. Use: 1,2,3,-2,-3,0, etc.');
-      return;
-    }
-
-    const newAttribute2 = `${trimmedAttribute2} (${(enteredValue2 >= 0) ? `+$${enteredValue2}` : `-$${Math.abs(enteredValue2)}`})`;
-    const existingAttributeIndex2 = attributeArray2.findIndex((attr) =>
-      attr.startsWith(`${trimmedAttribute2} `)
-    );
-
-    if (existingAttributeIndex2 === -1) {
-      setAttributeArray2([...attributeArray2, newAttribute2]);
-      // Assuming you have another state called newItem2, similar to newItem
-      setNewItem({ ...newItem, attributes2: [...attributeArray2, newAttribute2] });
-    } else {
-      const updatedAttributes2 = [...attributeArray2];
-      updatedAttributes2[existingAttributeIndex2] = newAttribute2;
-      setAttributeArray2(updatedAttributes2);
-      setNewItem({ ...newItem, attributes2: updatedAttributes2 });
-    }
-
-    setAttribute2('');
-    setValue2('');
-    setShowModal2(false);
-    setDuplicateError2(false);
-    setSelectedAttributeIndex2(null);
-    setInputError2('');
-  };
-
-  const handleEditAttribute2 = (index) => {
-    const selectedAttribute2 = attributeArray2[index];
-    const [selectedAttributeName2, selectedAttributeValue2] = selectedAttribute2
-      .replace(/\s/g, '')
-      .match(/(.+)\(([-]?\d+)\)/).slice(1);
-
-    setAttribute2(selectedAttributeName2);
-    setValue2(selectedAttributeValue2);
-    setShowModal2(true);
-    setSelectedAttributeIndex2(index);
-  };
-
-  const handleDeleteAttribute2 = (index) => {
-    const updatedAttributes2 = [...attributeArray2];
-    updatedAttributes2.splice(index, 1);
-    setAttributeArray2(updatedAttributes2);
-    setNewItem({ ...newItem, attributes2: updatedAttributes2 });
-
-    if (index === selectedAttributeIndex2) {
-      setShowModal2(false);
-      setInputError2('');
-    }
-  };
-
 
   useEffect(() => {
     const handleWheel = (e) => {
@@ -440,27 +284,19 @@ useEffect(() => {
         sessionData = docSnapshot.data().key;
         const { key, ...rest } = docSnapshot.data();
         localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
+        alert("refreshed successfully")
+        localStorage.setItem(store, sessionData);
+        setData(JSON.parse(sessionData)); // Update state
+        setFoods(JSON.parse(sessionData))
+        saveId(Math.random());
+        setArr(JSON.parse(sessionData));
+        setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
+
       } else {
         console.log("No document found with the given ID.");
       }
     } catch (error) {
       console.error("Error fetching the document:", error);
-    }
-
-    console.log(sessionData)
-    if (sessionData) {
-      localStorage.setItem(store, sessionData);
-      setData(JSON.parse(sessionData)); // Update state
-      setFoods(JSON.parse(sessionData))
-      saveId(Math.random());
-      setArr(JSON.parse(sessionData));
-      setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
-    } else {
-      setData(JSON.parse(sessionData)); // Update state
-      setFoods(JSON.parse(sessionData))
-      saveId(Math.random());
-      setArr(JSON.parse(sessionData));
-      setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
     }
 
   }
@@ -617,7 +453,6 @@ useEffect(() => {
     let updatedArr = [newItemWithPlaceholders, ...arr];
     reload(updatedArr)
     setSelectedOptions(['Morning', 'Afternoon', 'Evening']);
-    setAttributeArray([]);
     resetAttributes(transformJsonToInitialState({}))
     if (categoryState === null) {
 
@@ -641,7 +476,7 @@ useEffect(() => {
       availability: "",
       attributes: "",
       attributes2: "",
-      attributesArr:""
+      attributesArr: ""
     });
   };
   const [categoryState, setCategoryState] = useState(null);
@@ -705,9 +540,7 @@ useEffect(() => {
       if (data.success) {
         //console.log(data.result.variants[0])
         setPreviewUrl(data.result.variants[0])
-        //setInputData({ ...inputData, image: data.result.variants[0] })
         //console.log(item)
-        //updateItem(item.id, { ...inputData, image: data.result.variants[0] })
         //setUploadStatus('Image uploaded successfully.');
       } else {
         //setUploadStatus(`Failed to upload image: ${JSON.stringify(data.errors)}`);
@@ -775,140 +608,10 @@ useEffect(() => {
       </Helmet>
 
 
-
-
-      {showModal2 && (
-        <div id="defaultModal2" className="fixed border-black top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
-          <div className="relative shadow  border-black w-full max-w-2xl max-h-full">
-            <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
-              <div className="flex items-start justify-between p-4 rounded-t dark:border-gray-600">
-
-                <button
-                  onClick={() => setShowModal2(false)}
-                  type="button"
-                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                  <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                  </svg>
-                  <span className="sr-only">Close modal</span>
-                </button>
-              </div>
-              <div className='px-4'>
-
-                <div>
-                  <div>
-                    <div className='flex'>
-                      <label>Attribute:&nbsp; </label>
-                      <input
-                        type="text"
-                        value={attribute2}
-                        placeholder="e.g., Oversized Portion"
-                        onChange={(e) => {
-                          setAttribute2(e.target.value);
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className='flex'>
-                      <label>Price:&nbsp; </label>
-                      <input
-                        type="text"
-                        value={value2}
-                        onChange={(e) => setValue2(e.target.value)}
-                        pattern="^[-]?\d+(,[-]?\d+)*$"
-                        placeholder="(Optional) e.g., 1,2,-3,0"
-                      />
-                    </div>
-                    {inputError2 && <p className="text-red-500">{inputError2}</p>}
-                  </div>
-
-                </div>
-
-              </div>
-              <div className="flex items-center p-6 space-x-2 border-gray-200 rounded-b dark:border-gray-600">
-                <span
-                  className={`ml-auto cursor-pointer text-black`} style={{ position: 'relative', background: 'rgb(213, 245, 224)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
-                  onClick={handleAddAttribute2}
-                >
-                  Confirm
-                </span>
-                {duplicateError2 && <p className="text-red-500">Cannot be duplicated.</p>}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isModalOpen && (
-        <div id="defaultModal" className="fixed top-0 border-gray-600 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center mt-0">
-          <div className="relative shadow border-gray-600 w-full max-w-2xl max-h-full">
-            <div className="relative bg-white rounded-lg shadow border-gray-600 ">
-              <div className="flex items-start justify-between p-4 rounded-t ">
-
-                <button
-                  onClick={handleEditShopInfoModalClose}
-                  type="button"
-                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                  <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                  </svg>
-                  <span className="sr-only">{t("Close modal")}</span>
-                </button>
-              </div>
-              <div className='px-4'>
-
-                <div>
-                  <div>
-                    <div className='flex'>
-
-                      <label>Attribute:&nbsp; </label>
-                      <input
-                        type="text"
-                        value={attribute}
-                        placeholder="e.g., Oversized Portion"
-                        onChange={(e) => {
-                          setAttribute(e.target.value);
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className='flex'>
-                      <label>Price:&nbsp; </label>
-                      <input
-                        type="text"
-                        value={value}
-                        onChange={(e) => setValue(e.target.value)}
-                        pattern="^[-]?\d+(,[-]?\d+)*$"
-                        placeholder="(Optional) e.g., 1,2,-3,0"
-                      />
-                    </div>
-                    {inputError && <p className="text-red-500">{inputError}</p>}
-                  </div>
-
-                </div>
-
-              </div>
-              <div className="flex items-center p-6 space-x-2 border-gray-200 rounded-b dark:border-gray-600">
-                <span
-                  className={`ml-auto cursor-pointer text-black`} style={{ position: 'relative', background: 'rgb(213, 245, 224)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}
-                  onClick={handleAddAttribute}
-                >
-                  Confirm
-                </span>
-                {duplicateError && <p className="text-red-500">Cannot be duplicated.</p>}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
       <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
       </link>
       <div className="mr-1 flex justify-between mt-3">
-        <Scanner setFoods={setFoods} store={store} />
+        <Scanner reload={reload} setFoods={setFoods} store={store} />
 
         <div onClick={updateKey} className="mb-2 btn d-inline-flex btn-sm btn-primary">
           <span className="pe-2">
@@ -1015,7 +718,7 @@ useEffect(() => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.1 }}
               key={""}
-              className="duration-500">
+              className="">
 
               <div style={{
                 display: 'flex',
@@ -1036,7 +739,7 @@ useEffect(() => {
                     />
 
                     <img
-                      className="h-[80px] w-[80px] transition-all duration-500 object-cover rounded-md"
+                      className="h-[80px] w-[80px] transition-all object-cover rounded-md"
                       src={previewUrl}
                       loading="lazy"
                     />
@@ -1205,21 +908,21 @@ useEffect(() => {
                     </div></> : <></>}
 
                     <div className='flex'>
-  <a
-    onClick={() => {
-      if (!expandOptions) {
-        setExpandOptions(true);
-      } else {
-        addOrUpdateAttributeVariation();  
-      }
-    }}
-    className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light"
-  >
-    <span>
-      {"Add or Update Option"}
-    </span>
-  </a>
-</div>
+                      <a
+                        onClick={() => {
+                          if (!expandOptions) {
+                            setExpandOptions(true);
+                          } else {
+                            addOrUpdateAttributeVariation();
+                          }
+                        }}
+                        className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light"
+                      >
+                        <span>
+                          {"Add or Update Option"}
+                        </span>
+                      </a>
+                    </div>
 
                     {Object.entries(attributes).map(([attributeName, attributeDetails]) => (
                       <div key={attributeName}>
@@ -1236,7 +939,7 @@ useEffect(() => {
                               onChange={(e) => handleToggle(attributeName, !e.target.checked)}
                             />
                           </div>
-                          {" Multi-Select"} {}
+                          {" Multi-Select"} { }
                         </p>
 
                         <div className='flex flex-wrap'>
@@ -1339,7 +1042,7 @@ useEffect(() => {
           </div>
           {foods.map((item, index) => (
             <div style={itemStyle}>
-              <Item key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id ={id} saveId={saveId} />
+              <Item key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} />
 
             </div>
           ))}
@@ -1353,7 +1056,7 @@ useEffect(() => {
 
 
 
-const Item = ({ item, updateItem, deleteFood_array, saveId, id,translateToEnglish, translateToChinese }) => {
+const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEnglish, translateToChinese }) => {
 
   const {
     attributes,
@@ -1370,58 +1073,56 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id,translateToEnglis
   } = useDynamicAttributes();
 
   useEffect(() => {
-    // This effect will run whenever attributes state changes
-    console.log('Attributes updated:', attributes);
-    setInputData({ ...inputData, attributesArr: attributes })
-    updateItem(item.id,{ ...inputData, attributesArr: attributes })
-    //resetAttributes(transformJsonToInitialState(attributes))
+    console.log('Attributes updated:', item);
+    updateItem(item.id, { ...item, attributesArr: attributes })
   }, [attributes]); // Add attributes as a dependency
+
   const transformJsonToInitialState = (jsonObject) => {
     const initialState = {};
 
     for (const attributeName in jsonObject) {
-        if (jsonObject.hasOwnProperty(attributeName)) {
-            initialState[attributeName] = {
-                isSingleSelected: jsonObject[attributeName].isSingleSelected,
-                variations: jsonObject[attributeName].variations
-            };
-        }
+      if (jsonObject.hasOwnProperty(attributeName)) {
+        initialState[attributeName] = {
+          isSingleSelected: jsonObject[attributeName].isSingleSelected,
+          variations: jsonObject[attributeName].variations
+        };
+      }
     }
 
     return initialState;
-};
-useEffect(() => {
+  };
+  useEffect(() => {
 
-  resetAttributes(transformJsonToInitialState(item.attributesArr));// init
-}, []);
+    resetAttributes(transformJsonToInitialState(item.attributesArr));// init
+  }, []);
 
-/**
- * 
-{
-    "size": {
-      "isSingleSelected": true,
-      "variations": [
-        {
-          "type": "bg",
-          "price": 2
-        },
-        {
-          "type": "sm",
-          "price": -1
-        }
-      ]
-    },
-    "more": {
-      "isSingleSelected": false,
-      "variations": [
-        {
-          "type": "more rice",
-          "price": 1
-        }
-      ]
+  /**
+   * 
+  {
+      "size": {
+        "isSingleSelected": true,
+        "variations": [
+          {
+            "type": "bg",
+            "price": 2
+          },
+          {
+            "type": "sm",
+            "price": -1
+          }
+        ]
+      },
+      "more": {
+        "isSingleSelected": false,
+        "variations": [
+          {
+            "type": "more rice",
+            "price": 1
+          }
+        ]
+      }
     }
-  }
- */
+   */
   const formatPriceDisplay = (price) => {
     return price > 0 ? `+$${price.toFixed(2)}` : `-$${Math.abs(price).toFixed(2)}`;
   };
@@ -1442,11 +1143,7 @@ useEffect(() => {
   const [imgGallery, setImgGallery] = useState([]);
   const [isGenChi, setGenChi] = useState(false);
   const [isModalGeneratePicOpen, setModalGeneratePicOpen] = useState(false);
-  const [inputData, setInputData] = useState({
-    attributesArr:item.attributesArr,
-    availability: item.availability, // Initialize the availability property as an empty array
 
-  });
   const [width, setWidth] = useState(window.innerWidth - 64);
 
   useEffect(() => {
@@ -1469,24 +1166,21 @@ useEffect(() => {
     if (item.availability.includes(option)) {
       // If the option is already selected, remove it
       //setSelectedOptions(selectedOptions.filter((item) => item !== option));
-
-      setInputData({ ...inputData, availability: item.availability.filter((item) => item !== option) })
       //console.log(item)
-      updateItem(item.id, { ...inputData, availability: item.availability.filter((item) => item !== option) })
+      updateItem(item.id, { ...item, availability: item.availability.filter((item) => item !== option) })
 
     } else {
       console.log(option)
       // If the option is not selected, add it
       //setSelectedOptions([...selectedOptions, option]);
 
-      setInputData({ ...inputData, availability: [...inputData.availability, option] })
       //console.log(item)
-      updateItem(item.id, { ...inputData, availability: [...inputData.availability, option] })
+      updateItem(item.id, { ...item, availability: [...item.availability, option] })
 
     }
   };
-  const [expandDetails, setExpandDetails] = useState(true);
-  const [expandOptions, setExpandOptions] = useState(true);
+  const [expandDetails, setExpandDetails] = useState(false);
+  const [expandOptions, setExpandOptions] = useState(false);
 
   const handleFileChangeAndUpload = async (event) => {
     const selectedFile = event.target.files[0];
@@ -1511,9 +1205,8 @@ useEffect(() => {
       if (data.success) {
         //console.log(data.result.variants[0])
         setPreviewUrl(data.result.variants[0])
-        setInputData({ ...inputData, image: data.result.variants[0] })
         //console.log(item)
-        updateItem(item.id, { ...inputData, image: data.result.variants[0] })
+        updateItem(item.id, { ...item, image: data.result.variants[0] })
         //setUploadStatus('Image uploaded successfully.');
       } else {
         //setUploadStatus(`Failed to upload image: ${JSON.stringify(data.errors)}`);
@@ -1543,11 +1236,9 @@ useEffect(() => {
     }
   };
   const selectPic = (pic_url, item) => {
-    setInputData({ ...inputData, image: pic_url })
     //console.log(item)
-    updateItem(item.id, { ...inputData, image: pic_url })
+    updateItem(item.id, { ...item, image: pic_url })
     handleModalGeneratePicClose()
-    //updateItem({ ...inputData, image: pic_url })
   }
 
 
@@ -1580,8 +1271,8 @@ useEffect(() => {
   return (
     <>
       {isModalGeneratePicOpen && (
-        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center mt-20">
-          <div className="relative w-full max-w-2xl max-h-full">
+        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+          <div className="relative w-full max-w-2xl max-h-full ">
             <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
               <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -1604,7 +1295,7 @@ useEffect(() => {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.1 }}
-                  className="border rounded-lg h-[80px] w-[80px] duration-500 cursor-pointer"
+                  className="border rounded-lg h-[80px] w-[80px] cursor-pointer"
                   // The inline style for motion.div changes based on isMobile
                   style={
                     isMobile
@@ -1621,7 +1312,7 @@ useEffect(() => {
                       style={{ display: 'none' }} // hides the input
                     />
                     <img
-                      className=" h-[80px] w-[80px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg"
+                      className=" h-[80px] w-[80px] hover:scale-125 transition-all cursor-pointer object-cover rounded-t-lg"
                       src={previewUrl} // you can use a default placeholder image
                       loading="lazy"
                     />
@@ -1634,7 +1325,7 @@ useEffect(() => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.1 }}
-                    className="border rounded-lg h-[80px] w-[80px]  duration-500 cursor-pointer"
+                    className="border rounded-lg h-[80px] w-[80px] cursor-pointer"
                     // The inline style for motion.div changes based on isMobile
                     style={
                       isMobile
@@ -1643,7 +1334,7 @@ useEffect(() => {
                     }
                   >
                     <div className="h-min overflow-hidden rounded-md">
-                      <img loading="lazy" className=" h-[80px] w-[80px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg" src={gen_img}
+                      <img loading="lazy" className=" h-[80px] w-[80px] hover:scale-125 transition-all cursor-pointer object-cover rounded-t-lg" src={gen_img}
                         onClick={() => {
                           selectPic(gen_img, item)
                         }}
@@ -1661,7 +1352,7 @@ useEffect(() => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.1 }}
-                    className="border rounded-lg h-[80px] w-[80px]  duration-500 cursor-pointer"
+                    className="border rounded-lg h-[80px] w-[80px] cursor-pointer"
                     // The inline style for motion.div changes based on isMobile
                     style={
                       isMobile
@@ -1670,7 +1361,7 @@ useEffect(() => {
                     }
                   >
                     <div className="h-min overflow-hidden rounded-md">
-                      <img loading="lazy" className=" h-[80px] w-[80px] hover:scale-125 transition-all duration-500 cursor-pointer object-cover rounded-t-lg" src={gen_img}
+                      <img loading="lazy" className=" h-[80px] w-[80px] hover:scale-125 transition-all cursor-pointer object-cover rounded-t-lg" src={gen_img}
                         onClick={() => {
                           selectPic(gen_img, item)
                         }}
@@ -1690,7 +1381,7 @@ useEffect(() => {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.1 }}
         key={""}
-        className="duration-500">
+        className="">
 
         <div style={{
           display: 'flex',
@@ -1704,13 +1395,12 @@ useEffect(() => {
               style={{ display: 'block', width: '100%' }}
             >
               <img
-                className="h-[80px] w-[80px] transition-all duration-500 object-cover rounded-md"
+                className="h-[80px] w-[80px] transition-all object-cover rounded-md"
                 src={item.image}
                 loading="lazy"
                 onClick={() => {
                   handleModalGeneratePicOpen();
                   generatePic(item);
-                  //setInputData(null); // reset input data
                 }}
               />
             </label>
@@ -1725,27 +1415,24 @@ useEffect(() => {
                   type="text"
                   name="name"
                   placeholder={item.name}
-                  value={inputData?.name !== undefined ? inputData.name : item.name}
+                  value={item?.name}
                   onChange={(e) => {
-                    setInputData({ ...inputData, name: e.target.value });
-                    updateItem(item.id, { ...inputData, name: e.target.value })
+                    updateItem(item.id, { ...item, name: e.target.value })
                   }} />
-
+                  
 
 
                 <span onClick={async () => {  // Auto Fill English
                   let translatedText = "";
-                  if (inputData?.name) {
-                    //console(inputData?.name)
-                    translatedText = inputData.name;
+                  if (item?.name) {
+                    translatedText = item.name;
                   } else {
                     //console(item.name)
                     translatedText = item.name;
                   }
                   try {
                     const ChineseTranslation = await translateToChinese(translatedText);
-                    setInputData({ ...inputData, CHI: ChineseTranslation });
-                    updateItem(item.id, { ...inputData, CHI: ChineseTranslation })
+                    updateItem(item.id, { ...item, CHI: ChineseTranslation })
 
                   } catch (error) {
                     console.error("Translation error:", error);
@@ -1760,26 +1447,24 @@ useEffect(() => {
                   type="text"
                   name="CHI"
                   placeholder={item.CHI}
-                  value={inputData?.CHI !== undefined ? inputData.CHI : item.CHI}
+                  value={item?.CHI}
                   onChange={(e) => {
-                    setInputData({ ...inputData, CHI: e.target.value });
-                    updateItem(item.id, { ...inputData, CHI: e.target.value })
+                    updateItem(item.id, { ...item, CHI: e.target.value })
                   }}
                 />
 
 
                 <span onClick={async () => {  // Auto Fill English
                   let translatedText = "";
-                  if (inputData?.CHI) {
+                  if (item?.CHI) {
 
-                    translatedText = inputData.CHI;
+                    translatedText = item.CHI;
                   } else {
                     translatedText = item.CHI;
                   }
                   try {
                     const EnglishTranslation = await translateToEnglish(translatedText);
-                    setInputData({ ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
-                    updateItem(item.id, { ...inputData, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') })
+                    updateItem(item.id, { ...item, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') })
 
                   } catch (error) {
                     console.error("Translation error:", error);
@@ -1807,10 +1492,9 @@ useEffect(() => {
                   type="text"
                   name="category"
                   placeholder={item.category}
-                  value={inputData?.category !== undefined ? inputData.category : item.category}
+                  value={item?.category}
                   onChange={(e) => {
-                    setInputData({ ...inputData, category: e.target.value });
-                    updateItem(item.id, { ...inputData, category: e.target.value })
+                    updateItem(item.id, { ...item, category: e.target.value })
                   }}
                 />
 
@@ -1826,10 +1510,9 @@ useEffect(() => {
                   type="text"
                   name="subtotal"
                   placeholder={item.subtotal}
-                  value={inputData?.subtotal !== undefined ? inputData.subtotal : item.subtotal}
+                  value={item?.subtotal}
                   onChange={(e) => {//To do: 这里需要一些防呆验证 for cases like说enter-1 或者2.33333 或者abc 或者空白
-                    setInputData({ ...inputData, subtotal: e.target.value });
-                    updateItem(item.id, { ...inputData, subtotal: e.target.value })
+                    updateItem(item.id, { ...item, subtotal: e.target.value })
                   }}
                 />
               </div>
@@ -1842,118 +1525,118 @@ useEffect(() => {
           {expandDetails ? <>
 
             <div>
-                    <p className="mb-1">
-                      <span className='text-black'>
-                        {" Options:"}
-                      </span>
-                    </p>
-                    {expandOptions ? <><div className='d-block text-md font-semibold'>
-                      <div className='flex'>
+              <p className="mb-1">
+                <span className='text-black'>
+                  {" Options:"}
+                </span>
+              </p>
+              {expandOptions ? <><div className='d-block text-md font-semibold'>
+                <div className='flex'>
 
-                        <span className='text-black'>
-                          {t("Attributes Type: ")}
+                  <span className='text-black'>
+                    {t("Attributes Type: ")}
 
-                        </span>
-                        <input
-                          className='text-md font-semibold'
-                          style={{ width: "50%" }}
-                          value={currentAttribute}
-                          onChange={(e) => setCurrentAttribute(e.target.value)}
-                          placeholder="Size"
-                        />                </div>
+                  </span>
+                  <input
+                    className='text-md font-semibold'
+                    style={{ width: "50%" }}
+                    value={currentAttribute}
+                    onChange={(e) => setCurrentAttribute(e.target.value)}
+                    placeholder="Size"
+                  />                </div>
 
-                      <div className='flex'>
+                <div className='flex'>
 
-                        <span className='text-black'>
-                          {t("Variation Type: ")}
+                  <span className='text-black'>
+                    {t("Variation Type: ")}
 
-                        </span>
-                        <input
-                          className='text-md font-semibold'
-                          style={{ width: "50%" }}
-                          value={currentVariation.type}
-                          onChange={(e) => setCurrentVariation({ ...currentVariation, type: e.target.value })}
-                          placeholder="BG"
-                        />                </div>
+                  </span>
+                  <input
+                    className='text-md font-semibold'
+                    style={{ width: "50%" }}
+                    value={currentVariation.type}
+                    onChange={(e) => setCurrentVariation({ ...currentVariation, type: e.target.value })}
+                    placeholder="BG"
+                  />                </div>
 
-                      <div className='flex'>
+                <div className='flex'>
 
-                        <span className='text-black'>
-                          {t("Price: $ ")}
+                  <span className='text-black'>
+                    {t("Price: $ ")}
 
-                        </span>
+                  </span>
 
-                        <input
-                          className='text-md font-semibold'
-                          style={{ width: "50%" }}
-                          value={currentVariation.price}
-                          onChange={(e) => setCurrentVariation({ ...currentVariation, price: e.target.value })}
-                          placeholder="1"
-                        />
-                      </div>
-                      <div className='text-red-700'>
-                        {priceFormatError && <span>{priceFormatError}</span>}
+                  <input
+                    className='text-md font-semibold'
+                    style={{ width: "50%" }}
+                    value={currentVariation.price}
+                    onChange={(e) => setCurrentVariation({ ...currentVariation, price: e.target.value })}
+                    placeholder="1"
+                  />
+                </div>
+                <div className='text-red-700'>
+                  {priceFormatError && <span>{priceFormatError}</span>}
 
-                      </div>
+                </div>
 
-                    </div></> : <></>}
+              </div></> : <></>}
 
-                    <div className='flex'>
-  <a
-    onClick={() => {
-      if (!expandOptions) {
-        setExpandOptions(true);
-      } else {
-        addOrUpdateAttributeVariation();  
-      }
-    }}
-    className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light"
-  >
-    <span>
-      {"Add or Update Option"}
-    </span>
-  </a>
-</div>
+              <div className='flex'>
+                <a
+                  onClick={() => {
+                    if (!expandOptions) {
+                      setExpandOptions(true);
+                    } else {
+                      addOrUpdateAttributeVariation();
+                    }
+                  }}
+                  className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light"
+                >
+                  <span>
+                    {"Add or Update Option"}
+                  </span>
+                </a>
+              </div>
 
-                    {Object.entries(item.attributesArr).map(([attributeName, attributeDetails]) => (
-                      <div key={attributeName}>
-                        <p className="mb-1">
-                          <span onClick={() => setCurrentAttribute(attributeName)} className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
-                            {attributeName} &nbsp;
-                          </span>
-                          <div className="custom-control custom-switch" style={{ display: "inline-block", verticalAlign: "middle" }}>
-                            <input
-                              type="checkbox"
-                              className="custom-control-input"
-                              id="customSwitch1"
-                              checked={!attributeDetails.isSingleSelected}
-                              onChange={(e) => handleToggle(attributeName, !e.target.checked)}
-                            />
+              {Object.entries(item.attributesArr).map(([attributeName, attributeDetails]) => (
+                <div key={attributeName}>
+                  <p className="mb-1">
+                    <span onClick={() => setCurrentAttribute(attributeName)} className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
+                      {attributeName} &nbsp;
+                    </span>
+                    <div className="custom-control custom-switch" style={{ display: "inline-block", verticalAlign: "middle" }}>
+                      <input
+                        type="checkbox"
+                        className="custom-control-input"
+                        id="customSwitch1"
+                        checked={!attributeDetails.isSingleSelected}
+                        onChange={(e) => handleToggle(attributeName, !e.target.checked)}
+                      />
+                    </div>
+                    {" Multi-Select"} { }
+                  </p>
+
+                  <div className='flex flex-wrap'>
+                    {attributeDetails.variations.map((variation, idx) => (
+                      <>
+                        <div key={idx}>
+                          <div onClick={() => selectVariationForEdit(attributeName, variation)} className='mb-1 mr-1 mt-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                            {variation.type}({formatPriceDisplay(variation.price)})
+                            <span onClick={() => deleteVariation(attributeName, idx)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                              <i className="fas fa-times"></i>
+                            </span>
                           </div>
-                          {" Multi-Select"} {}
-                        </p>
-
-                        <div className='flex flex-wrap'>
-                          {attributeDetails.variations.map((variation, idx) => (
-                            <>
-                              <div key={idx}>
-                                <div onClick={() => selectVariationForEdit(attributeName, variation)} className='mb-1 mr-1 mt-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                                  {variation.type}({formatPriceDisplay(variation.price)})
-                                  <span onClick={() => deleteVariation(attributeName, idx)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                                    <i className="fas fa-times"></i>
-                                  </span>
-                                </div>
-                              </div>
-
-                            </>
-                          ))}
                         </div>
 
-                      </div>
+                      </>
                     ))}
-
-
                   </div>
+
+                </div>
+              ))}
+
+
+            </div>
 
             <div className='mb-3'>
               <p className="mb-1">
@@ -2037,6 +1720,5 @@ useEffect(() => {
 
 
 export default Food
-
 
 

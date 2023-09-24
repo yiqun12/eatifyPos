@@ -27,7 +27,11 @@ const Food = () => {
   const [DemoStorename, setDemoStore] = useState('demo');
 
   const handleDemoStoreNameChange = (event) => {
-    setDemoStore(event.target.value);
+    let value = event.target.value;
+    value = value.toLowerCase(); // Convert to lowercase
+    value = value.replace(/[^a-z0-9]/g, ''); // Remove special characters other than alphabets and numbers
+    setDemoStore(value);
+    //setDemoStore(event.target.value);
   };
   const { user, user_loading } = useUserContext();
 
@@ -39,14 +43,15 @@ const Food = () => {
     const Open_time = "null";
     const data = JSON.stringify( [
       {
-          "name": "Vegetarian Dumpling",
-          "category": "Steamed",
-          "CHI": "素食饺子",
-          "image": "https://img1.baidu.com/it/u=517987704,3824020678&fm=253&fmt=auto&app=138&f=JPEG?w=377&h=500",
-          "id": "cee73b97-f9b9-41d0-8142-b55d8ddc1278",
-          "subtotal": "0",
+          "name": "Filet Mignon",
+          "category": "Steak Cuts",
+          "CHI": "菲力牛排",
+          "image": "https://img1.baidu.com/it/u=1363595818,3487481938&fm=253&fmt=auto&app=138&f=JPEG?w=891&h=500",
+          "id": "b5fe9fb8-0f83-4b78-8ed5-c9cc3355aa76",
+          "subtotal": 1,
           "attributes": [],
           "attributes2": [],
+          "attributesArr": {},
           "availability": [
               "Morning",
               "Afternoon",
@@ -54,14 +59,15 @@ const Food = () => {
           ]
       },
       {
-          "name": "Pork Short Rib",
-          "category": "Steamed",
-          "CHI": "排骨",
-          "image": "https://img2.baidu.com/it/u=3205301998,2228353888&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-          "id": "f9136833-4a0a-48a1-8b89-cde4dca31e60",
-          "subtotal": "0",
+          "name": "Rib Eye Steak",
+          "category": "Steak Cuts",
+          "CHI": "肋眼牛排",
+          "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+          "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+          "subtotal": 1,
           "attributes": [],
           "attributes2": [],
+          "attributesArr": {},
           "availability": [
               "Morning",
               "Afternoon",
@@ -69,19 +75,20 @@ const Food = () => {
           ]
       },
       {
-          "name": "Phoenix Claws ",
-          "category": "Steamed",
-          "CHI": "凤爪",
-          "id": "64ad27d4-c313-4411-be4f-4a11c3926606",
-          "subtotal": "0",
+          "name": "Porterhouse for Two",
+          "category": "Steak Cuts",
+          "CHI": "上等腰肉牛排二人份",
+          "image": "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
+          "id": "267d3107-1532-4084-ab3b-b62ceda0b75c",
+          "subtotal": 1,
           "attributes": [],
           "attributes2": [],
+          "attributesArr": {},
           "availability": [
               "Morning",
               "Afternoon",
               "Evening"
-          ],
-          "image": "https://img0.baidu.com/it/u=518468988,79599433&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667"
+          ]
       }
   ])
    const clock = {"0":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"1":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"2":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"3":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"4":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"5":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"6":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"7":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"}}
@@ -166,18 +173,17 @@ const Food = () => {
               </div>
 
               <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="name"
-                label="Store Name"
-                name="name"
-                autoComplete="name"
-                autoFocus
-                value={DemoStorename}
-                onChange={handleDemoStoreNameChange}
-              />
-
+      margin="normal"
+      required
+      fullWidth
+      id="name"
+      label="Store Name"
+      name="name"
+      autoComplete="name"
+      autoFocus
+      value={DemoStorename}
+      onChange={handleDemoStoreNameChange}
+    />
 
               <Button_
                 fullWidth
