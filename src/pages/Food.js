@@ -54,6 +54,10 @@ const Food = () => {
   const [storeInfo, setStoreInfo] = useState({});
   const [foodTypes, setFoodTypes] = useState([]);
   const [foodTypesCHI, setFoodTypesCHI] = useState([]);
+  //const [storeOpenTime, setStoreOpenTime] = useState( );
+const localStorageId = sessionStorage.getItem('TitleLogoNameContent');
+
+const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('TitleLogoNameContent') !== null ? JSON.parse(JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).Open_time) : {"0":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"1":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"2":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"3":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"4":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"5":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"6":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"7":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"}});
 
   const fetchPost = async (name) => {
     const docRef = doc(db, "TitleLogoNameContent", name);
@@ -61,7 +65,7 @@ const Food = () => {
     try {
       // Fetch the document
       const docSnapshot = await getDoc(docRef);
-
+      console.log(docSnapshot)
       // Check if a document was found
       if (docSnapshot.exists()) {
         // The document exists
@@ -69,7 +73,7 @@ const Food = () => {
 
         // Save the fetched data to sessionStorage
         sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(docData));
-
+        setStoreOpenTime (JSON.parse(docData.Open_time))
         // Assuming you want to store the key from the fetched data as "Food_arrays"
         sessionStorage.setItem("Food_arrays", docData.key);
         setData(JSON.parse(docData.key))
@@ -87,8 +91,9 @@ const Food = () => {
         }
         // window.location.reload();
       } else {
-        sessionStorage.setItem("TitleLogoNameContent", "{}");
         sessionStorage.setItem("Food_arrays", "[]");
+
+
         // window.location.reload();
         setData([])
         setFoods([])
@@ -96,9 +101,8 @@ const Food = () => {
         console.log("No document found with the given name.");
       }
     } catch (error) {
-      sessionStorage.setItem("TitleLogoNameContent", "{}");
       sessionStorage.setItem("Food_arrays", "[]");
-      // window.location.reload();
+
       setData([])
       setFoods([])
 
@@ -385,7 +389,6 @@ const Food = () => {
   //const foodTypes = [...new Set(JSON.parse(sessionStorage.getItem("Food_arrays")).map(item => item.category))];
 
   // for businessHours
-  const businessHours = JSON.parse(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).Open_time)
   // getting today's date
   const tempDate = new Date();
   const currentWeekday = tempDate.getDay();
@@ -498,7 +501,7 @@ const Food = () => {
   useEffect(() => {
     // Function to update the store status
     function updateStoreStatus() {
-      setIsOpen(isWithinTimeRange(businessHours));
+      setIsOpen(isWithinTimeRange(storeOpenTime));
     }
 
     // Call the updateStoreStatus function initially to set the store status
@@ -558,7 +561,7 @@ const Food = () => {
 
                   <div style={{ width: '30%', minWidth: "200px", marginBottom: "5px", textAlign: 'right' }}>
                     <div style={{ paddingTop: "10px", cursor: "pointer" }}>
-                      <BusinessHoursTable storeName={store} storeStatus={isOpen} ></BusinessHoursTable>
+                      <BusinessHoursTable  storeOpenTime={storeOpenTime} storeName={store} storeStatus={isOpen} ></BusinessHoursTable>
                     </div>
                   </div>
                 </div>
@@ -640,7 +643,7 @@ const Food = () => {
                       </div>
                     </div>
                     <div style={{ width: "60%" }}>
-                      <div className='flex justify-between px-2 py-2 pb-1 grid grid-cols-4 w-full'>
+                      <div className='flex justify-between px-2 pb-1 grid grid-cols-4 w-full'>
 
                         {/* parent div of title + quantity and button parent div */}
                         <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
@@ -657,6 +660,7 @@ const Food = () => {
                           }}>
                             <div className="col-span-2" style={{
                               display: "flex",
+                              flexDirection: "column", 
                               justifyContent: "center",
                               alignItems: "center"
                             }}>
@@ -665,7 +669,9 @@ const Food = () => {
                                   ${item.subtotal}
                                 </span>
                               </p>
+
                             </div>
+                            
                             <div className="col-span-2 flex justify-end">
 
                               {SearchQuantity(item.id) == 0 ?

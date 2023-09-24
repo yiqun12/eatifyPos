@@ -55,14 +55,14 @@ function convertTo12HourFormat(timeStr) {
 }
 
 
-function BusinessHoursTable({storeName,storeStatus}) {
+function BusinessHoursTable({ storeOpenTime, storeName,storeStatus}) {
   const [businessHours, setBusinessHours] = useState({});
   const [timezone, setTimezone] = useState("PDT");
  
-  const businessHoursData = JSON.parse(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).Open_time);
+  const businessHoursData = storeOpenTime;
   
   useEffect(() => {
-    const businessHoursData = JSON.parse(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).Open_time);
+    const businessHoursData = storeOpenTime;
     
 
     const dayOfWeek = {

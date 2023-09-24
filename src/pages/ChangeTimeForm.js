@@ -151,7 +151,7 @@ function convertData(input) {
         });
 
         output[dayName] = {
-            times: isClosed ? [] : times,
+            times: times,
             closed: isClosed
         };
     }
