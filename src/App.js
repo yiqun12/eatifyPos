@@ -10,6 +10,8 @@ import Reservation from './pages/reservation'
 import Checkout from './pages/Checkout'
 
 import Admin_new from './components/Admin_new'
+import IframeDesk from './components/iframeDesk'
+
 import Account_admin from './components/Account_admin'
 import {
   BrowserRouter,
@@ -130,6 +132,7 @@ function App() {
       <Route exact path="/testing_admin" element={<Account_admin />} />
 
       <Route exact path="/test_admin_new" element={<Admin_new />} />
+      <Route exact path="/test_iframeDesk" element={<IframeDesk />} />
 
               {user ? <Route path="ForgotPassword" element={<Account_admin />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
               <Route exact path="/store" element={<Food />} />

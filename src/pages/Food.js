@@ -56,7 +56,9 @@ const Food = () => {
   const [foodTypesCHI, setFoodTypesCHI] = useState([]);
   //const [storeOpenTime, setStoreOpenTime] = useState( );
   const localStorageId = sessionStorage.getItem('TitleLogoNameContent');
-
+  const formatPriceDisplay = (price) => {
+    return price > 0 ? `+$${price.toFixed(2)}` : `-$${Math.abs(price).toFixed(2)}`;
+  };
   const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('TitleLogoNameContent') !== null ? JSON.parse(JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).Open_time) : { "0": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "1": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "2": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "3": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "4": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "5": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "6": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "7": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" } });
 
   const fetchPost = async (name) => {
@@ -495,8 +497,19 @@ const Food = () => {
     }
     return result;
   }
-
+  const [selectedFoodItem, setSelectedFoodItem] = useState('')
   const [isOpen, setIsOpen] = useState(false);
+  const [isModalVisible, setModalVisibility] = useState(false);
+
+  // Function to show the modal
+  const showModal = () => {
+    setModalVisibility(true);
+  }
+
+  // Function to hide the modal
+  const hideModal = () => {
+    setModalVisibility(false);
+  }
 
   useEffect(() => {
     // Function to update the store status
@@ -513,6 +526,7 @@ const Food = () => {
     // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
+
   if (false) {
     return <p>  <div className="pan-loader">
       Loading...
@@ -524,6 +538,167 @@ const Food = () => {
 
       <div>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
+        {isModalVisible && (
+          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+            <div className="relative w-full max-w-2xl max-h-full ">
+              <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
+                <div className="flex items-start justify-between p-1 border-b rounded-t dark:border-gray-600">
+                  <button
+                    onClick={hideModal}  // Updated to use hideModal
+                    type="button"
+                    className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                    <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span className="sr-only">{t("Close modal")}</span>
+                  </button>
+                </div>
+                <div className='flex justify-between'>
+                  <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover" src={selectedFoodItem.image} alt={selectedFoodItem.name} />
+                </div>
+                <div className='p-4 pt-3'>
+                  <div>
+                    {selectedFoodItem.name}
+                  </div>
+                  {Object.entries(selectedFoodItem.attributesArr).map(([attributeName, attributeDetails]) => (
+                    <div key={attributeName}>
+                      <p className="mb-1">
+                        <span className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
+                          {attributeName} {attributeDetails.isSingleSelected ? "(Choose one)" : ""}
+                        </span>
+                      </p>
+
+                      <div className='flex flex-wrap'>
+                        {attributeDetails.variations.map((variation, idx) => (
+                          <>
+                            <div key={idx}>
+                              <div className='mb-1 mr-1 mt-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                                {variation.type}({formatPriceDisplay(variation.price)})
+                              </div>
+                            </div>
+
+                          </>
+                        ))}
+                      </div>
+
+                    </div>
+                  ))}
+                </div>
+                <div className='p-4 pt-3 flex justify-between'>
+                  <div>$12</div>
+                  {SearchQuantity(selectedFoodItem.id) == 0 ?
+                    <>
+                      <div className="quantity"
+                        style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
+
+                        <div
+                          className="black_hover"
+                          style={{
+                            padding: '4px',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            display: "flex",
+                            border: "1px solid", // Adjust the border
+                            borderRadius: "50%", // Set borderRadius to 50% for a circle
+                            width: "30px", // Make sure width and height are equal
+                            height: "30px",
+
+                          }}
+                        >
+                          <button
+                            className="minus-btn"
+                            type="button"
+                            name="button"
+                            style={{
+                              marginTop: '0px',
+                              width: '20px',
+                              height: '20px',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              display: "flex",
+                            }}
+                            onClick={() => {
+                              handleDropFood();
+                              updateLocalStorage(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image);
+                              saveId(Math.random());
+                            }}
+                          >
+                            <PlusSvg
+                              style={{
+                                margin: '0px',
+                                width: '10px',
+                                height: '10px',
+                              }}
+                              alt=""
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                    :
+                    <>
+                      <div
+                        className={animationClass}
+                        style={{
+                          margin: '0px',
+                          display: 'flex',
+                          whiteSpace: 'nowrap',
+                          width: '80px',
+                          marginTop: '-18px',
+                          paddingTop: '20px',
+                          height: 'fit-content',
+                        }}
+                      >
+                        <div className="quantity"
+
+                          style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-18px", paddingTop: "20px", height: "fit-content" }}>
+                          <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                            <button
+
+                              className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                              onClick={() => {
+                                handleDeleteClick(selectedFoodItem.id);
+                                //saveId(Math.random());
+                              }}
+
+                            >
+                              <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                            </button>
+                          </div>
+                          <span
+
+                            type="text"
+                            style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                          >
+
+                            <span >
+                              {SearchQuantity(selectedFoodItem.id)}
+                            </span>
+
+                          </span>
+
+
+                          <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                            <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                              onClick={() => {
+                                handleDropFood();
+                                updateLocalStorage(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image);
+                                saveId(Math.random());
+                              }}
+                            >
+                              <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <div className='max-w-[1000px] m-auto px-4 '>
           <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
             {/* Filter Type */}
@@ -661,7 +836,7 @@ const Food = () => {
                               </p>
 
                             </div>
-                               <button>Hello </button>
+                            <button onClick={() => { showModal(); setSelectedFoodItem(item); }}>Show Modal</button>
                             <div className="col-span-2 flex justify-end">
 
                               {SearchQuantity(item.id) == 0 ?
