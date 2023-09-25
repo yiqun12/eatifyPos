@@ -21,6 +21,7 @@ import BusinessHoursTable from './BusinessHoursTable.js'
 const Food = () => {
   //const params = new URLSearchParams(window.location.search);
   const [selectedAttributes, setSelectedAttributes] = useState({});
+  const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
 
   const handleAttributeSelect = (attributeName, variationType) => {
     // Create a copy of the selectedAttributes state
@@ -51,7 +52,44 @@ const Food = () => {
 
     // Update the state with the new selected attributes
     setSelectedAttributes(updatedSelectedAttributes);
+
+    // After updating selectedAttributes, recalculate the total price
+    const newTotalPrice = TotalAttributePrice(updatedSelectedAttributes, selectedFoodItem.attributesArr);
+    setTotalPrice(newTotalPrice);
   };
+
+  // Function to calculate the total price based on selected attributes
+  const TotalAttributePrice = (selectedAttributes, attributesArr) => {
+    let total = 0;
+
+    for (const attributeName in selectedAttributes) {
+      const selectedVariations = selectedAttributes[attributeName];
+      const attributeDetails = attributesArr[attributeName];
+
+      if (attributeDetails.isSingleSelected) {
+        // For single selection attributes, find the selected variation and add its price
+        const selectedVariation = attributeDetails.variations.find(
+          (variation) => variation.type === selectedVariations
+        );
+        if (selectedVariation) {
+          total += selectedVariation.price;
+        }
+      } else {
+        // For multiple selection attributes, iterate through selected variations
+        selectedVariations.forEach((selectedVariation) => {
+          const variation = attributeDetails.variations.find(
+            (variation) => variation.type === selectedVariation
+          );
+          if (variation) {
+            total += variation.price;
+          }
+        });
+      }
+    }
+
+    return total;
+  };
+
 
   //const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
   //console.log(store)
@@ -643,7 +681,9 @@ const Food = () => {
 
                 </div>
                 <div className='p-4 pt-3 flex justify-between'>
-                  <div>$12</div>
+                <div>
+${Math.round(100 *(parseFloat(selectedFoodItem.subtotal)+parseFloat(totalPrice))) / 100}
+                </div>
                   {SearchQuantity(selectedFoodItem.id) == 0 ?
                     <>
                       <div className="quantity"

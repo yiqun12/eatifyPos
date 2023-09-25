@@ -284,7 +284,7 @@ const Food = ({ store }) => {
         sessionData = docSnapshot.data().key;
         const { key, ...rest } = docSnapshot.data();
         localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
-        alert("refreshed successfully")
+        //alert("refreshed successfully")
         localStorage.setItem(store, sessionData);
         setData(JSON.parse(sessionData)); // Update state
         setFoods(JSON.parse(sessionData))
