@@ -868,7 +868,7 @@ const Food = ({ store }) => {
                           style={{ width: "50%" }}
                           value={currentAttribute}
                           onChange={(e) => setCurrentAttribute(e.target.value)}
-                          placeholder="Size"
+                          placeholder=" Size"
                         />                </div>
 
                       <div className='flex'>
@@ -882,7 +882,7 @@ const Food = ({ store }) => {
                           style={{ width: "50%" }}
                           value={currentVariation.type}
                           onChange={(e) => setCurrentVariation({ ...currentVariation, type: e.target.value })}
-                          placeholder="BG"
+                          placeholder=" BG"
                         />                </div>
 
                       <div className='flex'>

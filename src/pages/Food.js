@@ -20,6 +20,38 @@ import BusinessHoursTable from './BusinessHoursTable.js'
 
 const Food = () => {
   //const params = new URLSearchParams(window.location.search);
+  const [selectedAttributes, setSelectedAttributes] = useState({});
+
+  const handleAttributeSelect = (attributeName, variationType) => {
+    // Create a copy of the selectedAttributes state
+    const updatedSelectedAttributes = { ...selectedAttributes };
+
+    if (selectedFoodItem.attributesArr[attributeName].isSingleSelected) {
+      // If isSingleSelected is true, set the selected variation as a string
+      updatedSelectedAttributes[attributeName] = variationType;
+    } else {
+      // If isSingleSelected is false, allow multiple selections as an array
+      if (!updatedSelectedAttributes[attributeName]) {
+        // If the attribute is not selected yet, initialize it as an array
+        updatedSelectedAttributes[attributeName] = [variationType];
+      } else {
+        // If the attribute is already selected, add or remove from the array
+        if (updatedSelectedAttributes[attributeName].includes(variationType)) {
+          updatedSelectedAttributes[attributeName] = updatedSelectedAttributes[attributeName].filter(
+            (selected) => selected !== variationType
+          );
+        } else {
+          updatedSelectedAttributes[attributeName] = [
+            ...updatedSelectedAttributes[attributeName],
+            variationType,
+          ];
+        }
+      }
+    }
+
+    // Update the state with the new selected attributes
+    setSelectedAttributes(updatedSelectedAttributes);
+  };
 
   //const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
   //console.log(store)
@@ -561,28 +593,54 @@ const Food = () => {
                     {selectedFoodItem.name}
                   </div>
                   {Object.entries(selectedFoodItem.attributesArr).map(([attributeName, attributeDetails]) => (
-                    <div key={attributeName}>
-                      <p className="mb-1">
-                        <span className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
-                          {attributeName} {attributeDetails.isSingleSelected ? "(Choose one)" : ""}
-                        </span>
-                      </p>
+        <div key={attributeName}>
+          <p className="mb-1">
+            <span className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
+              {attributeName} {attributeDetails.isSingleSelected ? "(Choose one)" : "(Choose multiple)"}
+            </span>
+          </p>
 
-                      <div className='flex flex-wrap'>
-                        {attributeDetails.variations.map((variation, idx) => (
-                          <>
-                            <div key={idx}>
-                              <div className='mb-1 mr-1 mt-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                                {variation.type}({formatPriceDisplay(variation.price)})
-                              </div>
-                            </div>
+          <div className='flex flex-wrap'>
+            {attributeDetails.variations.map((variation, idx) => (
+              <div key={idx}>
+                <div
+                  className={`mb-1 mr-1 mt-1 ${
+                    attributeDetails.isSingleSelected
+                      ? selectedAttributes[attributeName] === variation.type
+                        ? 'selected-variation'
+                        : ''
+                      : selectedAttributes[attributeName]?.includes(variation.type)
+                      ? 'selected-variation'
+                      : ''
+                  }`}
+                  style={{
+                    position: 'relative',
+                    background: 'rgb(208, 229, 253)',
+                    borderRadius: '8px',
+                    padding: '10px 10px 10px 10px',
+                    height: '32px',
+                    fontFamily: "Suisse Int'l",
+                    fontStyle: 'normal',
+                    fontWeight: 600,
+                    fontSize: '12px',
+                    lineHeight: '12px',
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase',
+                    color: 'black',
+                    whiteSpace: 'nowrap',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => handleAttributeSelect(attributeName, variation.type)}
+                >
+                  {variation.type}({formatPriceDisplay(variation.price)})
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <pre>{JSON.stringify(selectedAttributes, null, 2)}</pre>
 
-                          </>
-                        ))}
-                      </div>
-
-                    </div>
-                  ))}
                 </div>
                 <div className='p-4 pt-3 flex justify-between'>
                   <div>$12</div>
