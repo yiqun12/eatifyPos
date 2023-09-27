@@ -144,13 +144,13 @@ const Navbar = () => {
     document.querySelector('.shopping-cart').style.height = `${height}px`;
     //maybe add a line here...
     const calculateTotalPrice = () => {
-      const total = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
+      const total = products?.reduce((acc, item) => item && item.itemTotalPrice ? acc + item.itemTotalPrice : acc, 0);
       console.log(total)
       setTotalPrice(total);
     }
     calculateTotalPrice();
     const calculateTotalQuant = () => {
-      const total = products.reduce((acc, product) => acc + (product.quantity), 0);
+      const total = products?.reduce((acc, product) => acc + (product.quantity), 0);
       //  console.log(total)
       $('#cart').attr("data-totalitems", total);
       setTotalQuant(total);
@@ -160,28 +160,21 @@ const Navbar = () => {
     uploadProductsToLocalStorage(products);
   }, [products, width]);
 
-  const handleDeleteClick = (productId) => {
+  const handleDeleteClick = (productId, count) => {
     setProducts((prevProducts) => {
       saveId(Math.random());  // generate a new id here
-      return prevProducts.filter((product) => product.id !== productId);
+      return prevProducts.filter((product) => product.id !== productId || product.count !== count);
     });
-  }
+  }  
 
-  const handleAddProductClick = () => {
-    setProducts((prevProducts) => [...prevProducts, {
-      id: prevProducts.length + 1,
-      quantity: 1,
-      subtotal: 0,
-      image: item_1_pic
-    }]);
-  }
-  const handlePlusClick = (productId) => {
+  const handlePlusClick = (productId, targetCount) => {
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
-        if (product.id === productId) {
+        if (product.id === productId && product.count === targetCount) {
           saveId(Math.random());
           return {
             ...product,
+            itemTotalPrice:Math.round(100 *  product.itemTotalPrice/(product.quantity)*(Math.min(product.quantity + 1, 99)) ) / 100,
             quantity: Math.min(product.quantity + 1, 99),
           };
         }
@@ -190,16 +183,17 @@ const Navbar = () => {
       });
     });
   };
-  const handleMinusClick = (productId) => {
+  
+  const handleMinusClick = (productId,targetCount) => {
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
-        if (product.id === productId) {
+        if (product.id === productId && product.count === targetCount) {
           // Constrain the quantity of the product to be at least 0
-          let newQuantity = Math.max(product.quantity - 1, 1);
           saveId(Math.random());
           return {
             ...product,
-            quantity: newQuantity,
+            quantity: Math.max(product.quantity - 1, 1),
+            itemTotalPrice:Math.round(100 *  product.itemTotalPrice/(product.quantity)*(Math.max(product.quantity - 1, 1)) ) / 100,
           };
         }
         saveId(Math.random());
@@ -217,83 +211,10 @@ const Navbar = () => {
   const displayAllProductInfo = () => {
     // Retrieve the array from local storage
     let products = JSON.parse(sessionStorage.getItem(store));
-    //console.log("displayProductFunction")
-    //console.log(products)
-    // Create an empty array to store the products
-    let productArray = [];
-
-    // Loop through the array of products
-    for (let i = 0; products != null && i < products.length; i++) {
-      let product = products[i];
-      // Push the product object to the array
-      productArray.push({
-        id: product.id,
-        name: product.name,
-        quantity: product.quantity,
-        subtotal: product.subtotal,
-        image: product.image,
-      });
-    }
 
     // Return the array of product objects
-    return productArray;
+    return products;
   };
-  //display one item by id.
-  const displayProductInfo = (id) => {
-    // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem(store));
-
-    // Find the product with the matching id
-    let product = products.find((product) => product.id === id);
-
-    // Display the product info
-    // console.log(`Product ID: ${product.id}`);
-    // console.log(`Product Name: ${product.name}`);
-    // console.log(`Product Subtotal: ${product.subtotal}`);
-    //  console.log(`Product Image: ${product.image}`);
-    // console.log(`Product Times Clicked: ${product.timesClicked}`);
-  };
-
-  const handleLikeClick = (productId) => {
-    setProducts((prevProducts) => {
-      return prevProducts.map((product) => {
-        if (product.id === productId) {
-          return {
-            ...product,
-            liked: !product.liked,
-          };
-        }
-        return product;
-      });
-    });
-  }
-  const [inputConfirmed, setInputConfirmed] = useState(false);
-
-  const handleQuantityChange = (productId, newQuantity) => {
-    const safeQuantity = newQuantity ? Math.min(Math.max(parseInt(newQuantity, 10), 0), 99) : 0;
-
-    setInputConfirmed(false);
-
-    setProducts((prevProducts) => {
-      return prevProducts.map((product) => {
-        if (product.id === productId) {
-          return {
-            ...product,
-            quantity: safeQuantity,
-          };
-        }
-        return product;
-      });
-    });
-  };
-
-  const handleBlur = (product) => {
-    setInputConfirmed(true);
-    if (product.quantity === 0) {
-      handleDeleteClick(product.id)
-    }
-  };
-
 
   // modal. 
   const modalRef = useRef(null);
@@ -311,9 +232,7 @@ const Navbar = () => {
 
   const closeModal = () => {
     //console.log(products)
-    sessionStorage.setItem(store, JSON.stringify(products));
     modalRef.current.style.display = 'none';
-
   };
 
   useEffect(() => {
@@ -343,52 +262,15 @@ const Navbar = () => {
       : null
   );
   const url = "http://localhost:8080"
-  const handleLogin = async (googleData) => {
-    const res = await fetch(url + '/api/google-login', {
-      method: 'POST',
-      credentials: 'include',
-      body: JSON.stringify({
-        token: googleData.tokenId,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    const data = await res.json();
-    setLoginData(data);
-    //console.log(data)
-    sessionStorage.setItem('loginData', JSON.stringify(data));
-    sessionStorage.setItem('picture', JSON.stringify(data.picture));
-    sessionStorage.setItem('token', googleData.tokenId);
-    sessionStorage.setItem('loginID', JSON.stringify(data.id))
-    // console.log(document.cookie);
-    window.location.reload(false);
-  };
-  const handleLogout = () => {
-    axios.get(url + "/logout").then((response) => {//get logout for cookie 
-      // delete cookies front end :)
-      //document.cookie=document.cookie+";max-age=0";
-      //document.cookie=document.cookie+";max-age=0";
-      //console.log("clean cookie");
-    });
-    sessionStorage.removeItem('loginData');//remove sessionStorage data user name.
-    sessionStorage.removeItem('loginID');
-    sessionStorage.removeItem('picture');
-    sessionStorage.removeItem('name');
-    sessionStorage.removeItem('email');
-    sessionStorage.removeItem('token');
-    setLoginData(null);//empty the sessionStorage data
-    window.location.reload(false);
-  };
-  const handleFailure = (response) => {
-    //console.log("Fail to login", response)
-  }
 
   const queryParams = new URLSearchParams(location.search);
   const storeValue = queryParams.get('store'); // should give "parkasia"
   const tableValue = queryParams.get('table'); // should give "A3"
-  console.log(storeValue)
-  console.log(tableValue)
+  if (!sessionStorage.getItem(storeValue)) {
+    sessionStorage.setItem(storeValue, JSON.stringify([]));
+}
+  //console.log(storeValue)
+  //console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
     sessionStorage.setItem(store, JSON.stringify(products));
     window.location.href = '/Checkout' + "?store=" + storeValue + "&" + "table=" + sessionStorage.getItem("table")
@@ -488,7 +370,7 @@ const Navbar = () => {
                     <span class="text-left">
                       <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
                       {t("Checkout")} </span>
-                    <span class="text-right"> ${Math.round(100 * totalPrice) / 100}</span>
+                    <span class="text-right"> ${Math.round(100 * totalPrice) / 100 } </span>
                   </button>
                 </>
               }
@@ -497,7 +379,7 @@ const Navbar = () => {
           <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
 
             {/* generates each food entry */}
-            {products.map((product) => (
+            {products?.map((product) => (
               // the parent div
               // can make the parent div flexbox
               <div key={product.id} className="item">
@@ -506,11 +388,10 @@ const Navbar = () => {
                 <div className="buttons">
                   <DeleteSvg className="delete-btn"
                     onClick={() => {
-                      handleDeleteClick(product.id)
+                      handleDeleteClick(product.id,product.count)
                     }}></DeleteSvg>
                   {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
                 </div>
-
                 {/* the image */}
                 <div className="image">
                   <div class="image-container" >
@@ -522,16 +403,22 @@ const Navbar = () => {
                 <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available" }}>
                   {/* the name */}
                   <div className="description" style={{ width: "-webkit-fill-available" }}>
-                    <span style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>{t(product.name)}</span>
-                  </div>
 
+                    <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
+                      <div style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>{t(product.name)}</div>
+
+                      <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
+
+                    </div>                  </div>
 
                   {/* <div className="theset"> */}
                   {/* start of quantity (quantity = quantity text + buttons div) */}
-                  <div className="quantity"
+                  <div className="quantity p-0"
                     style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
-                    <span>${Math.round(100 * product.quantity * product.subtotal) / 100}</span>
+                    <div>
+                    <div>${product.itemTotalPrice}</div>
 
+                    </div>
                     {/* the add minus box set up */}
                     <div style={{ display: "flex" }}>
 
@@ -540,9 +427,10 @@ const Navbar = () => {
                         <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                           onClick={() => {
                             if (product.quantity === 1) {
-                              handleDeleteClick(product.id);
+                              handleDeleteClick(product.id,product.count);
                             } else {
-                              handleMinusClick(product.id);
+                              handleMinusClick(product.id,product.count)
+                              //handleMinusClick(product.id);
                             }
                           }}>
                           <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
@@ -561,7 +449,7 @@ const Navbar = () => {
                       <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
                         <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                           onClick={() => {
-                            handlePlusClick(product.id)
+                            handlePlusClick(product.id,product.count)
                             saveId(Math.random());
                           }}>
                           <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />

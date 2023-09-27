@@ -61,13 +61,13 @@ const App = () => {
   const isTooSmall= cardidth <= 270;
 
   //fetch data from local stroage products.
-  const [totalPrice, setTotalPrice] = useState(products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0));
+  const [totalPrice, setTotalPrice] = useState(products?.length ? products.reduce((acc, item) => acc + (item?.itemTotalPrice || 0), 0) : 0);
 
 
   useEffect(() => {
     //maybe add a line here...
     const calculateTotalPrice = () => {
-      const total = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
+      const total = products?.length ? products.reduce((acc, item) => acc + (item?.itemTotalPrice || 0), 0) : 0
       //console.log(total)
       //console.log(products)
       setTotalPrice(total);
@@ -287,26 +287,29 @@ const Item = (props) => {
         </span>
         {products.map((product, index) => {
           return (
-            <div className="row row-main" key={index}>
+            <div className="row row-main my-2" key={index}>
               <div className="col-3">
-                <div style={{ width: '65px', height: '65px', marginTop: '-10px' }} class="image-container">
+                <div style={{ width: '65px', height: '65px' }} class="image-container">
                   <img src={product.image} alt="" />
                 </div>
               </div>
-              <div className="col-6">
-                <div className="row d-flex">
-                  <p>
+              <div className="col-9">
+                <div className="row d-flex ">
+                  <p className='m-0 pb-0'>
                     <b>{t(product.name)}</b>
+                    
                   </p>
                 </div>
+                
                 <div className="row d-flex">
-                  <p className="text-muted">@ ${product.subtotal} {t("each")} x {product.quantity}</p>
+                <p className='m-0 pb-0'>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</p>
                 </div>
-              </div>
-              <div className="col-3 d-flex justify-content-end">
-                <p>
-                  <b>$ {Math.round(100*(product.quantity * product.subtotal))/100 } </b>
-                </p>
+
+                <div className="d-flex justify-between">
+    <div className="text-muted">@ ${Math.round(100*(product.itemTotalPrice/product.quantity))/100 } {t("each")} x {product.quantity}</div>
+    <div><b>$ {Math.round(100*(product.itemTotalPrice))/100 } </b></div>
+</div>
+
               </div>
             </div>
           );

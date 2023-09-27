@@ -17,13 +17,16 @@ import { useParams } from 'react-router-dom';
 import { query, where, limit, doc, getDoc } from "firebase/firestore";
 
 import BusinessHoursTable from './BusinessHoursTable.js'
+import { v4 as uuidv4 } from 'uuid';
 
 const Food = () => {
   //const params = new URLSearchParams(window.location.search);
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
+  const [count, setCount] = useState(0);  // Set up a state
 
-  const handleAttributeSelect = (attributeName, variationType) => {
+  const handleAttributeSelect = (attributeName, variationType, id, count) => {
+
     // Create a copy of the selectedAttributes state
     const updatedSelectedAttributes = { ...selectedAttributes };
 
@@ -47,6 +50,14 @@ const Food = () => {
             variationType,
           ];
         }
+
+        // If the array becomes empty after modification, delete it from the object
+        if (updatedSelectedAttributes[attributeName].length === 0) {
+          delete updatedSelectedAttributes[attributeName];
+        } else {
+          // Sort the array if it is not empty
+          updatedSelectedAttributes[attributeName].sort();
+        }
       }
     }
 
@@ -56,7 +67,17 @@ const Food = () => {
     // After updating selectedAttributes, recalculate the total price
     const newTotalPrice = TotalAttributePrice(updatedSelectedAttributes, selectedFoodItem.attributesArr);
     setTotalPrice(newTotalPrice);
+    let products = JSON.parse(sessionStorage.getItem(store));
+    const product = products.find((product) => product.id === id && product.count === count);
+    console.log(product)
+    console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
+
+    product.attributeSelected = updatedSelectedAttributes
+    product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
+    sessionStorage.setItem(store, JSON.stringify(products));
+
   };
+
 
   // Function to calculate the total price based on selected attributes
   const TotalAttributePrice = (selectedAttributes, attributesArr) => {
@@ -187,19 +208,6 @@ const Food = () => {
     //console.log("hello")
   }, []); // <-- Empty dependency array
 
-  const [numbers, setNumbers] = useState([0, 0, 0]);
-
-  const incrementNumber = (index) => {
-    setNumbers((prevNumbers) =>
-      prevNumbers.map((num, i) => (i === index ? num + 1 : num))
-    );
-  };
-
-  const decrementNumber = (index) => {
-    setNumbers((prevNumbers) =>
-      prevNumbers.map((num, i) => (i === index ? num - 1 : num))
-    );
-  };
   const [animationClass, setAnimationClass] = useState('');
 
   useEffect(() => {
@@ -354,31 +362,59 @@ const Food = () => {
   const divStyle = {
     color: 'black',
   };
-  const SearchQuantity = (id) => {
+
+  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count) => {
+
+    // Check if the array exists in local storage
+    if (sessionStorage.getItem(store) === null) {
+      // If it doesn't exist, set the value to an empty array
+      sessionStorage.setItem(store, JSON.stringify([]));
+    }
+
     // Retrieve the array from local storage
     let products = JSON.parse(sessionStorage.getItem(store));
-    // Check if the products array exists
-    if (products && products.length > 0) {
-      // Find the product with the given id
-      const product = products.find((item) => item.id === id);
 
-      // If the product is found and has a quantity greater than 0, return the quantity
-      if (product && product.quantity && product.quantity > 0) {
-        //console.log("hello " + product.quantity)
-        return product.quantity;
-      }
+    // Find the product with the matching id
+    //let product = products.find((product) => product.id === id);
+    const product = products.find((product) => product.id === id && product.count === count);
+
+    // If the product exists, update its name, subtotal, image, and timesClicked values
+    if (product) {
+      product.name = name;
+      product.subtotal = subtotal;
+      product.image = image;
+      product.quantity++;
+      product.attributeSelected = attributeSelected;
+      product.count = count;
+      product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
+    } else {
+      // If the product doesn't exist, add it to the array
+      products.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: subtotal });
     }
-    //console.log("hello 0")
-    // If the product is not found or the quantity is less than or equal to 0, return 0
-    return 0;
+
+
+
+    //product.itemTotalPrice= Math.round(100 *((parseFloat(totalPrice)+parseFloat(product.subtotal))*parseFloat(product.quantity))/ 100)
+    console.log(product)
+    // Update the array in local storage
+    sessionStorage.setItem(store, JSON.stringify(products));
+
+    const calculateTotalQuant = () => {
+      const total = products.reduce((acc, product) => acc + (product.quantity), 0);
+      // console.log(total)
+      $('#cart').attr("data-totalitems", total);
+    }
+    calculateTotalQuant();
   };
-  const handleDeleteClick = (id) => {
+
+
+  const deleteSpecialFood = (id, count, attributeSelected) => {
     let products = JSON.parse(sessionStorage.getItem(store));
-    //console.log(products);
 
     if (products && products.length > 0) {
       // Find the index of the product with the given id
-      const productIndex = products.findIndex((item) => item.id === id);
+      //const productIndex = products.findIndex((item) => item.id === id);
+      let productIndex = products.findIndex((product) => product.id === id && product.count === count);
 
       // If the product is found, decrement its quantity
       if (productIndex !== -1) {
@@ -386,9 +422,15 @@ const Food = () => {
 
         // If the quantity becomes 0, remove the product from the array
         if (products[productIndex].quantity <= 0) {
+          console.log("delete now")
           products.splice(productIndex, 1);
+          sessionStorage.setItem(store, JSON.stringify(products));
+          hideModal()
+          return
         }
+        const product = products.find((product) => product.id === id && product.count === count);
 
+        product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
         // Save the updated array in local storage
         sessionStorage.setItem(store, JSON.stringify(products));
       }
@@ -403,43 +445,14 @@ const Food = () => {
 
     saveId(Math.random());
   };
-  const updateLocalStorage = (id, name, subtotal, image) => {
-    //  console.log(id, name, subtotal, image);
-
-    // Check if the array exists in local storage
-    if (sessionStorage.getItem(store) === null) {
-      // If it doesn't exist, set the value to an empty array
-      sessionStorage.setItem(store, JSON.stringify([]));
-    }
-
+  const searchSpeicalFoodQuantity = (id, count) => {
     // Retrieve the array from local storage
     let products = JSON.parse(sessionStorage.getItem(store));
-
-    // Find the product with the matching id
-    let product = products.find((product) => product.id === id);
-
-    // If the product exists, update its name, subtotal, image, and timesClicked values
-    if (product) {
-      product.name = name;
-      product.subtotal = subtotal;
-      product.image = image;
-      product.quantity++;
-    } else {
-      // If the product doesn't exist, add it to the array
-      products.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1 });
-
-    }
-
-    // Update the array in local storage
-    sessionStorage.setItem(store, JSON.stringify(products));
-
-    const calculateTotalQuant = () => {
-      const total = products.reduce((acc, product) => acc + (product.quantity), 0);
-      // console.log(total)
-      $('#cart').attr("data-totalitems", total);
-    }
-    calculateTotalQuant();
+    const product = products.find((product) => product.id === id && product.count === count);
+    // If the product is not found or the quantity is less than or equal to 0, return 0
+    return product ? product.quantity : 0;
   };
+
   const [translationsMode_, settranslationsMode_] = useState("en");
   // for translations sake
   const trans = JSON.parse(sessionStorage.getItem("translations"))
@@ -572,8 +585,15 @@ const Food = () => {
   const [isModalVisible, setModalVisibility] = useState(false);
 
   // Function to show the modal
-  const showModal = () => {
+  const showModal = (item) => {
+    const randomNum = uuidv4()
+    setCount(randomNum);  // Increment the count every time the modal is opened
     setModalVisibility(true);
+    setSelectedAttributes({})
+    setTotalPrice(0);
+    addSpecialFood(item.id, item.name, item.subtotal, item.image, item, randomNum)
+    //const [selectedAttributes, setSelectedAttributes] = useState({});
+    //const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
   }
 
   // Function to hide the modal
@@ -609,7 +629,7 @@ const Food = () => {
       <div>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
         {isModalVisible && (
-          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+          <div id={count} className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
             <div className="relative w-full max-w-2xl max-h-full ">
               <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
                 <div className="flex items-start justify-between p-1 border-b rounded-t dark:border-gray-600">
@@ -631,60 +651,69 @@ const Food = () => {
                     {selectedFoodItem.name}
                   </div>
                   {Object.entries(selectedFoodItem.attributesArr).map(([attributeName, attributeDetails]) => (
-        <div key={attributeName}>
-          <p className="mb-1">
-            <span className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
-              {attributeName} {attributeDetails.isSingleSelected ? "(Choose one)" : "(Choose multiple)"}
-            </span>
-          </p>
+                    <div key={attributeName}>
+                      <p className="mb-1">
+                        <span className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
+                          {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : ""}
+                        </span>
+                      </p>
 
-          <div className='flex flex-wrap'>
-            {attributeDetails.variations.map((variation, idx) => (
-              <div key={idx}>
-                <div
-                  className={`mb-1 mr-1 mt-1 ${
-                    attributeDetails.isSingleSelected
-                      ? selectedAttributes[attributeName] === variation.type
-                        ? 'selected-variation'
-                        : ''
-                      : selectedAttributes[attributeName]?.includes(variation.type)
-                      ? 'selected-variation'
-                      : ''
-                  }`}
-                  style={{
-                    position: 'relative',
-                    background: 'rgb(208, 229, 253)',
-                    borderRadius: '8px',
-                    padding: '10px 10px 10px 10px',
-                    height: '32px',
-                    fontFamily: "Suisse Int'l",
-                    fontStyle: 'normal',
-                    fontWeight: 600,
-                    fontSize: '12px',
-                    lineHeight: '12px',
-                    letterSpacing: '0.05em',
-                    textTransform: 'uppercase',
-                    color: 'black',
-                    whiteSpace: 'nowrap',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => handleAttributeSelect(attributeName, variation.type)}
-                >
-                  {variation.type}({formatPriceDisplay(variation.price)})
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-      <pre>{JSON.stringify(selectedAttributes, null, 2)}</pre>
-
+                      <div className='flex flex-wrap'>
+                        {attributeDetails.variations.map((variation, idx) => (
+                          <div key={idx}>
+                            <div
+                              className={`mb-1 mr-1 mt-1 ${attributeDetails.isSingleSelected
+                                ? selectedAttributes[attributeName] === variation.type
+                                  ? 'selected-variation'
+                                  : ''
+                                : selectedAttributes[attributeName]?.includes(variation.type)
+                                  ? 'selected-variation'
+                                  : ''
+                                }`}
+                              style={{
+                                position: 'relative',
+                                background: attributeDetails.isSingleSelected
+                                  ? selectedAttributes[attributeName] === variation.type
+                                    ? 'rgb(207, 238, 227)' // Selected background color
+                                    : 'white' // Not selected background color (white)
+                                  : selectedAttributes[attributeName]?.includes(variation.type)
+                                    ? 'rgb(207, 238, 227)' // Selected background color
+                                    : 'white', // Not selected background color (white)
+                                border: attributeDetails.isSingleSelected ||
+                                  (selectedAttributes[attributeName]?.includes(variation.type))
+                                  ? '1px solid black' // Add a black border when background is white
+                                  : '1px solid black', // No border when background is colored
+                                borderRadius: '8px',
+                                padding: '10px 10px 10px 10px',
+                                height: '32px',
+                                fontFamily: "Suisse Int'l",
+                                fontStyle: 'normal',
+                                fontWeight: 600,
+                                fontSize: '12px',
+                                lineHeight: '12px',
+                                letterSpacing: '0.05em',
+                                textTransform: 'uppercase',
+                                color: 'black',
+                                whiteSpace: 'nowrap',
+                                cursor: 'pointer',
+                              }}
+                              onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count)}
+                            >
+                              {variation.type}({formatPriceDisplay(variation.price)})
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <pre>{JSON.stringify(selectedAttributes, null, 2)}</pre>
+                  <div>{searchSpeicalFoodQuantity(selectedFoodItem.id, count)}</div>
                 </div>
                 <div className='p-4 pt-3 flex justify-between'>
-                <div>
-${Math.round(100 *(parseFloat(selectedFoodItem.subtotal)+parseFloat(totalPrice))) / 100}
-                </div>
-                  {SearchQuantity(selectedFoodItem.id) == 0 ?
+                  <div>
+                    ${Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100}
+                  </div>
+                  {searchSpeicalFoodQuantity(selectedFoodItem.id, count) == 0 ?
                     <>
                       <div className="quantity"
                         style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
@@ -717,7 +746,7 @@ ${Math.round(100 *(parseFloat(selectedFoodItem.subtotal)+parseFloat(totalPrice))
                             }}
                             onClick={() => {
                               handleDropFood();
-                              updateLocalStorage(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image);
+                              addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count);
                               saveId(Math.random());
                             }}
                           >
@@ -755,7 +784,7 @@ ${Math.round(100 *(parseFloat(selectedFoodItem.subtotal)+parseFloat(totalPrice))
 
                               className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                               onClick={() => {
-                                handleDeleteClick(selectedFoodItem.id);
+                                deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes);
                                 //saveId(Math.random());
                               }}
 
@@ -770,7 +799,7 @@ ${Math.round(100 *(parseFloat(selectedFoodItem.subtotal)+parseFloat(totalPrice))
                           >
 
                             <span >
-                              {SearchQuantity(selectedFoodItem.id)}
+                              {searchSpeicalFoodQuantity(selectedFoodItem.id, count)}
                             </span>
 
                           </span>
@@ -780,7 +809,7 @@ ${Math.round(100 *(parseFloat(selectedFoodItem.subtotal)+parseFloat(totalPrice))
                             <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                               onClick={() => {
                                 handleDropFood();
-                                updateLocalStorage(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image);
+                                addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count);
                                 saveId(Math.random());
                               }}
                             >
@@ -934,117 +963,53 @@ ${Math.round(100 *(parseFloat(selectedFoodItem.subtotal)+parseFloat(totalPrice))
                               </p>
 
                             </div>
-                            <button onClick={() => { showModal(); setSelectedFoodItem(item); }}>Show Modal</button>
                             <div className="col-span-2 flex justify-end">
 
-                              {SearchQuantity(item.id) == 0 ?
-                                <>
-                                  <div className="quantity"
-                                    style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
+                              <div className="quantity"
+                                style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
 
-                                    <div
-                                      className="black_hover"
-                                      style={{
-                                        padding: '4px',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        display: "flex",
-                                        border: "1px solid", // Adjust the border
-                                        borderRadius: "50%", // Set borderRadius to 50% for a circle
-                                        width: "30px", // Make sure width and height are equal
-                                        height: "30px",
+                                <div
+                                  className="black_hover"
+                                  style={{
+                                    padding: '4px',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    display: "flex",
+                                    border: "1px solid", // Adjust the border
+                                    borderRadius: "50%", // Set borderRadius to 50% for a circle
+                                    width: "30px", // Make sure width and height are equal
+                                    height: "30px",
 
-                                      }}
-                                    >
-                                      <button
-                                        className="minus-btn"
-                                        type="button"
-                                        name="button"
-                                        style={{
-                                          marginTop: '0px',
-                                          width: '20px',
-                                          height: '20px',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          display: "flex",
-                                        }}
-                                        onClick={() => {
-                                          handleDropFood();
-                                          updateLocalStorage(item.id, item.name, item.subtotal, item.image);
-                                          saveId(Math.random());
-                                        }}
-                                      >
-                                        <PlusSvg
-                                          style={{
-                                            margin: '0px',
-                                            width: '10px',
-                                            height: '10px',
-                                          }}
-                                          alt=""
-                                        />
-                                      </button>
-                                    </div>
-                                  </div>
-                                </>
-                                :
-                                <>
-                                  <div
-                                    className={animationClass}
+                                  }}
+                                >
+                                  <button
+                                    className="minus-btn"
+                                    type="button"
+                                    name="button"
                                     style={{
-                                      margin: '0px',
-                                      display: 'flex',
-                                      whiteSpace: 'nowrap',
-                                      width: '80px',
-                                      marginTop: '-18px',
-                                      paddingTop: '20px',
-                                      height: 'fit-content',
+                                      marginTop: '0px',
+                                      width: '20px',
+                                      height: '20px',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      display: "flex",
+                                    }}
+                                    onClick={() => {
+                                      showModal(item); setSelectedFoodItem(item);;
+
                                     }}
                                   >
-                                    <div className="quantity"
-
-                                      style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-18px", paddingTop: "20px", height: "fit-content" }}>
-                                      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                                        <button
-
-                                          className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                                          onClick={() => {
-                                            handleDeleteClick(item.id);
-                                            //saveId(Math.random());
-                                          }}
-
-                                        >
-                                          <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                                        </button>
-                                      </div>
-                                      <span
-
-                                        type="text"
-                                        style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                                      >
-
-                                        <span >
-                                          {SearchQuantity(item.id)}
-                                        </span>
-
-                                      </span>
-
-
-                                      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                                        <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                                          onClick={() => {
-                                            handleDropFood();
-                                            updateLocalStorage(item.id, item.name, item.subtotal, item.image);
-                                            saveId(Math.random());
-                                          }}
-                                        >
-                                          <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </>
-
-                              }
+                                    <PlusSvg
+                                      style={{
+                                        margin: '0px',
+                                        width: '10px',
+                                        height: '10px',
+                                      }}
+                                      alt=""
+                                    />
+                                  </button>
+                                </div>
+                              </div>
                             </div>
 
                           </div>
