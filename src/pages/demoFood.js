@@ -144,6 +144,11 @@ const Food = () => {
 
   const isMobile = width <= 768;
 
+  const handleButtonClick = () => {
+    // Append "#123" to the URL
+    window.location.hash = `${DemoStorename}`;
+};
+
   return (
 
     <div>
@@ -184,13 +189,13 @@ const Food = () => {
       value={DemoStorename}
       onChange={handleDemoStoreNameChange}
     />
-
               <Button_
                 fullWidth
                 type="submit"
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 style={{ height: "56px" }}
+                onClick={handleButtonClick}
               >
                 Generate QR Code
               </Button_>
