@@ -423,18 +423,22 @@ const Account = () => {
   useEffect(() => {
     function handleHashChange() {
       const hashValue = window.location.hash;
-      hashRedirect(hashValue);
-      // switch (hashValue) {
-      //   case '#example1':
-      //     exampleFunction1();
-      //     break;
-      //   case '#example2':
-      //     exampleFunction2();
-      //     break;
-      //   // Add more cases for other hash values as needed...
-      //   default:
-      //     break;
-      // }
+      // hashRedirect(hashValue);
+      switch (hashValue) {
+        case '#createStore':
+          redirectCreateStore(hashValue);
+          break;
+        // Add more cases for other hash values as needed...
+        default:
+          hashRedirect(hashValue);
+          break;
+      }
+    }
+
+    function redirectCreateStore(hashValue) {
+      setShowSection('');
+      setActiveTab('#Revenue_Chart');
+      setStoreName_('');
     }
 
     function hashRedirect(hashValue) {
