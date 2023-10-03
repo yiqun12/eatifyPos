@@ -419,6 +419,77 @@ const Account = () => {
     });
     alert("Updated Successful");
   };  
+
+  // for the hashtage # check in URL and then redirect to correct location
+  useEffect(() => {
+    function handleHashChange() {
+      const hashValue = window.location.hash;
+      // hashRedirect(hashValue);
+      switch (hashValue) {
+        case '#createStore':
+          redirectCreateStore(hashValue);
+          break;
+        // Add more cases for other hash values as needed...
+        default:
+          hashRedirect(hashValue);
+          break;
+      }
+    }
+
+    function redirectCreateStore(hashValue) {
+      setShowSection('');
+      setActiveTab('#Revenue_Chart');
+      setStoreName_('');
+    }
+
+    function hashRedirect(hashValue) {
+      // console.log('Called function for #example1');
+      // handleTabClick(e, `#${data.id}`);
+      const valueWithoutHash = hashValue.substring(1);
+
+      console.log(storelist);
+      // handleTabClick(e, `#${data.id}`);
+
+      // setActiveTab(tabHref);
+      // setActiveStoreTab(data.id);
+      // setShowSection('sales');
+      // setStoreName_(data.Name);
+      // setStoreID(data.id);
+      // setStoreOpenTime(data.Open_time);
+      // setShowSection('store')
+
+      setActiveTab(hashValue);
+      setActiveStoreTab(valueWithoutHash);
+      setStoreName_(valueWithoutHash);
+      setStoreID(valueWithoutHash);
+      const default_Open_time = `{"0":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"1":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"2":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"3":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"4":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"5":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"6":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"7":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"}}`;
+
+      setStoreOpenTime(default_Open_time);
+      setShowSection('store')
+      // const pathWithoutHash = window.location.pathname + window.location.search;
+      // history.push(pathWithoutHash);
+
+      // store.id = store.Name
+      // store.Open_time = `{"0":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"1":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"2":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"3":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"4":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"5":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"6":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"7":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"}}`
+  
+
+      console.log("Hello hasRedirect works: ", valueWithoutHash);
+    }
+
+    // Call the function on mount to check initial hash value
+    handleHashChange();
+    
+    // Listen to the hash change
+    window.addEventListener('hashchange', handleHashChange);
+    
+    // Cleanup the listener on unmount
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
+
+
   return (
     <>
 
@@ -464,6 +535,7 @@ const Account = () => {
                     handleTabClick(e, `#${data.id}`);
                     setActiveStoreTab(data.id);
                     setShowSection('sales');
+                    setStoreName_(data.Name);
 
                   }}
                 >
