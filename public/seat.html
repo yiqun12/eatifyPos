@@ -21,6 +21,29 @@
 </head>
 
 <body onload="loadingFunction(); ">
+  <!-- Table Modal -->
+<div id="addTableModal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Add Table</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <label for="tableName">Table Name:</label>
+              <input type="text" id="tableName" class="form-control">
+              <!-- You can add more content/form here related to adding table -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="addTableBtn">Add</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+  </div>
+</div>
+
   <!-- partial:index.partial.html -->
   <div class="container-fluid text-center">
     <h1>Dining Room Layout</h1>
@@ -288,7 +311,7 @@
     }
 
     // added default parameters for scaleX and scaleY, so if no values are given for those, it'll default to 1
-    function addRect(left, top, width, height, scaleX = 1, scaleY = 1) {
+    function addRect(left, top, width, height, scaleX = 1, scaleY = 1, tableName) {
       const id = generateId()
       const o = new fabric.Rect({
         width: width,
@@ -303,7 +326,7 @@
         snapAngle: 45,
         selectable: true,
       })
-      const t = new fabric.IText(tableNumber.toString(), {
+      const t = new fabric.IText(tableName, {
         fontFamily: 'Calibri',
         fontSize: 14,
         fill: '#fff',
@@ -326,9 +349,9 @@
       // this on() triggers when the table is selected
       g.on("selected", function () {
         // this.number returns the number, this returns the whole item
-        console.log("This is table ", this.number);
-        const selectedNumber = this.number;
-        window.parent.postMessage(selectedNumber, "*");
+        console.log("This is table ", this.tableName);
+        const selectedtable = this.tableName;
+        window.parent.postMessage(selectedtable, "*");
       })
       canvas.add(g)
       object = {
@@ -338,7 +361,8 @@
         width: g.width,
         height: g.height,
         scaleX: g.scaleX,
-        scaleY: g.scaleY
+        scaleY: g.scaleY,
+        tableName: tableName
       }
       board.table.push(object)
       console.log(object)
@@ -347,7 +371,7 @@
       return g
     }
 
-    function addCircle(left, top, radius, scaleX = 1, scaleY = 1) {
+    function addCircle(left, top, radius, scaleX = 1, scaleY = 1, tableName) {
       const id = generateId()
       const o = new fabric.Circle({
         radius: radius,
@@ -359,7 +383,7 @@
         originY: 'center',
         centeredRotation: true
       })
-      const t = new fabric.IText(tableNumber.toString(), {
+      const t = new fabric.IText(tableName, {
         fontFamily: 'Calibri',
         fontSize: 14,
         fill: '#fff',
@@ -383,9 +407,9 @@
       // this on() triggers when the table is selected
       g.on("selected", function () {
         // this.number returns the number, this returns the whole item
-        console.log("This is table ", this.number);
-        const selectedNumber = this.number;
-        window.parent.postMessage(selectedNumber, "*");
+        console.log("This is table ", this.tableName);
+        const selectedTable = this.tableName;
+        window.parent.postMessage(selectedTable, "*");
       })
 
       canvas.add(g)
@@ -395,7 +419,8 @@
         top: g.top,
         radius: g.radius,
         scaleX: g.scaleX,
-        scaleY: g.scaleY
+        scaleY: g.scaleY,
+        tableName: tableName
       }
       board.table.push(object)
       console.log(board)
@@ -630,16 +655,53 @@
       })
     }
 
-    document.querySelectorAll('.rectangle')[0].addEventListener('click', function () {
-      const o = addRect(0, 0, 60, 60, 1, 1)
-      canvas.setActiveObject(o)
-    })
 
-    document.querySelectorAll('.circle')[0].addEventListener('click', function () {
-      const o = addCircle(0, 0, 30, 1, 1)
-      canvas.setActiveObject(o)
-    })
 
+// below is the controller for the add tables buttons (circle and rectangle) and modal controller
+let shapeToAdd = null; // this can be "rectangle", "circle", or null
+
+document.querySelectorAll('.rectangle')[0].addEventListener('click', function () {
+    shapeToAdd = "rectangle";
+    $('#addTableModal').modal('show');
+});
+
+document.querySelectorAll('.circle')[0].addEventListener('click', function () {
+    shapeToAdd = "circle";
+    $('#addTableModal').modal('show');
+});
+
+document.getElementById('addTableBtn').addEventListener('click', function() {
+    const tableName = document.getElementById('tableName').value.trim();
+
+    // Check if table name is already present in board.table
+    const isDuplicate = board.table.some(table => table.tableName === tableName);
+
+    if (tableName.trim() === "") {
+        alert("Table name cannot be empty!");
+    } else if (isDuplicate) {
+        alert("Table name already exists on the board. Please choose another name.");
+        document.getElementById('tableName').value = ""; // Clear the input for the next usage
+    } else {
+        $('#addTableModal').modal('hide');
+
+        if (shapeToAdd === "rectangle") {
+            const o = addRect(0, 0, 60, 60, 1, 1, tableName);
+            canvas.setActiveObject(o);
+        } else if (shapeToAdd === "circle") {
+            const o = addCircle(0, 0, 30, 1, 1, tableName);  // addCircle has a similar signature
+            canvas.setActiveObject(o);
+        }
+
+    }
+});
+
+// the below clears the input for the next usage
+$('#addTableModal').on('hidden.bs.modal', function() {
+    shapeToAdd = null; // Reset the shapeToAdd variable
+    document.getElementById('tableName').value = ""; // Clear the input
+});
+
+// here is the controller for rest of the shapes
 
     document.querySelectorAll('.chair')[0].addEventListener('click', function () {
       const o = addChair(0, 0, 1, 1)
@@ -756,9 +818,9 @@
 
       tables.forEach(element => {
         if (element.type == 'rect') {
-          addRect(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY)
+          addRect(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY, element.tableName)
         } else if (element.type == 'circle') {
-          addCircle(element.left, element.top, element.radius, element.scaleX, element.scaleY)
+          addCircle(element.left, element.top, element.radius, element.scaleX, element.scaleY, element.tableName)
         }
       });
 
