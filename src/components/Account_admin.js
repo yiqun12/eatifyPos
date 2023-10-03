@@ -27,6 +27,7 @@ import ChangeTimeForm from "../pages/ChangeTimeForm"
 import DemoCreateStore from '../components/demoCreateStore'
 import Dropdown from 'react-bootstrap/Dropdown';
 import DemoFood from '../pages/demoFood'
+import StripeConnectButton from '../components/StripeConnectButton'
 
 import barchar_logo from './file_barchar.png';
 import files_icon from './files_icon.png';
@@ -473,7 +474,6 @@ const Account = () => {
               ))}
             </div>
           </nav>
-
           <div className="h-screen flex-grow-1 overflow-y-lg-auto" style={{
             backgroundColor: 'white', // Set the background color to white
           }}>
@@ -801,7 +801,10 @@ const Account = () => {
       <div className=' mb-6' >
       <div className='mb-3'>Payment Options:</div>
                                 <div>
-                                  <a href="https://connect.stripe.com/oauth/authorize?redirect_uri=https://connect.stripe.com/hosted/oauth&client_id=ca_NRqE7CXgaiYMc6p4Q5opvaOQ9AbqW33o&state=onbrd_OUg7Zk5piPAsBUKev36hdp68HO&response_type=code&scope=read_write&stripe_user[country]=US" class="stripe-connect"><span>Connect with</span></a>
+                                <StripeConnectButton store={data.id} user={user.uid}></StripeConnectButton>
+
+                                  <a href="https://connect.stripe.com/oauth/authorize?redirect_uri=https://connect.stripe.com/hosted/oauth&client_id=ca_NRqE7CXgaiYMc6p4Q5opvaOQ9AbqW33o&state=onbrd_OUg7Zk5piPAsBUKev36hdp68HO&response_type=code&scope=read_write&stripe_user[country]=US" class="stripe-connect">
+                                    <span>Connect with</span></a>
                                 </div>
                               </div>
       <div className="mb-6">

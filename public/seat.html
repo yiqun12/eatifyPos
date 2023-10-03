@@ -79,27 +79,9 @@
         <button class="btn btn-primary" onclick="saveBoard()">Save</button>
         <button class="btn btn-danger" onclick="clearBoard()">Clear</button>
       </div>
-
-      <div class="my-table">
-        <div id="content">
-          <div id="horz-list">
-            <ul>
-              <li><button>+ &#9647;Table</button></li>
-              <li><button>+ &#9711;Table</button></li>
-              <li><button>+ &#9651;Table</button></li>
-              <li><button>+ Chair</button></li>
-              <li><button>+ Bar</button></li>
-              <li><button>+ Wall</button></li>
-            </ul>
-          </div>
-        </div>
-
-            </div>
-
       <div class="btn-group">
         <button class="btn btn-primary rectangle">+ &#9647; Table</button>
         <button class="btn btn-primary circle">+ &#9711; Table</button>
-        <button class="btn btn-primary triangle">+ &#9651; Table</button>
         <button class="btn btn-primary chair">+ Chair</button>
         <button class="btn btn-primary bar">+ Bar</button>
         <button class="btn btn-default wall">+ Wall</button>
@@ -459,61 +441,6 @@
       return g
     }
 
-    function addTriangle(left, top, radius, scaleX = 1, scaleY = 1) {
-      const id = generateId()
-      const o = new fabric.Triangle({
-        radius: radius,
-        fill: tableFill,
-        stroke: tableStroke,
-        strokeWidth: 2,
-        shadow: tableShadow,
-        originX: 'center',
-        originY: 'center',
-        centeredRotation: true
-      })
-      const t = new fabric.IText(tableNumber.toString(), {
-        fontFamily: 'Calibri',
-        fontSize: 14,
-        fill: '#fff',
-        textAlign: 'center',
-        originX: 'center',
-        originY: 'center'
-      })
-      const g = new fabric.Group([o, t], {
-        left: left,
-        top: top,
-        centeredRotation: true,
-        snapAngle: 45,
-        selectable: true,
-        type: 'triangle',
-        id: id,
-        number: tableNumber,
-        scaleX: scaleX,
-        scaleY: scaleY,
-        radius: radius
-
-      })
-      // this on() triggers when the table is selected
-      g.on("selected", function () {
-        // this.number returns the number, this returns the whole item
-        console.log("This is table ", this.number);
-        const selectedNumber = this.number;
-        window.parent.postMessage(selectedNumber, "*");
-      })
-      canvas.add(g)
-      object = {
-        type: "triangle",
-        left: g.left,
-        top: g.top,
-        radius: g.radius,
-        scaleX: g.scaleX,
-        scaleY: g.scaleY
-      }
-      board.table.push(object)
-      console.log(board)
-      tableNumber++
-      return g
-    }
 
 
     function addChair(left, top, scaleX = 1, scaleY = 1) {
@@ -662,7 +589,7 @@
         board.table[index].scaleX = target.scaleX
         board.table[index].scaleY = target.scaleY
       }
-      else if (target.type == 'circle' || target.type == 'triangle') {
+      else if (target.type == 'circle') {
         // grab the number (the number - 1 is the index in table list)
         let index = target.number - 1
         board.table[index].left = target.left
@@ -750,10 +677,6 @@
       canvas.setActiveObject(o)
     })
 
-    document.querySelectorAll('.triangle')[0].addEventListener('click', function () {
-      const o = addTriangle(0, 0, 30, 1, 1)
-      canvas.setActiveObject(o)
-    })
 
     document.querySelectorAll('.chair')[0].addEventListener('click', function () {
       const o = addChair(0, 0, 1, 1)
@@ -871,8 +794,6 @@
       tables.forEach(element => {
         if (element.type == 'rect') {
           addRect(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY)
-        } else if (element.type == 'triangle') {
-          addTriangle(element.left, element.top, element.radius, element.scaleX, element.scaleY)
         } else if (element.type == 'circle') {
           addCircle(element.left, element.top, element.radius, element.scaleX, element.scaleY)
         }
