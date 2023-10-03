@@ -40,6 +40,8 @@ import { timeZones } from "./data/timeZones"
 import Food from './pages/Food'
 import Checklist from './pages/Checklist'
 import DemoFood from './pages/demoFood'
+import Refresh from './pages/Refresh'
+
 // import the time change page for testing
 import ChangeTimeForm from "./pages/ChangeTimeForm"
 
@@ -138,6 +140,7 @@ function App() {
               <Route exact path="/store" element={<Food />} />
               <Route exact path="/DemoFood" element={<DemoFood />} />
               <Route exact path="/AdminFood" element={<Admin_food />} />
+              <Route exact path="/Refresh" element={<Refresh />} />
 
               <Route path='*' exact={true} element={<Home />} />
               <Route exact path="/" element={<Home />} />

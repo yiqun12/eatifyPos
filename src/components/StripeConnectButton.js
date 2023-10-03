@@ -8,11 +8,12 @@ function StripeOnboardingButton(props) {
             const myFunction = firebase.functions().httpsCallable('createStripeLink');
             const payload = {
                 store: props.store,
-                userID:props.user
+                userID: props.user
             };
             const result = await myFunction(payload);
-            console.log(result.data.url)
-            console.log(result.data.accountId)
+            //console.log(result.data.url)
+            //console.log(result.data.accountId)
+            window.open(result.data.url)
             //setLink(result.data.url);
             //setAccountId(result.data.accountId);
         } catch (error) {
@@ -22,7 +23,9 @@ function StripeOnboardingButton(props) {
 
     return (
         <div>
-            <button onClick={createLink}>Connect with Stripe</button>
+
+            <a style={{cursor:"pointer"}}onClick={createLink} class="stripe-connect">
+                <span>Connect with</span></a>
         </div>
     );
 }
