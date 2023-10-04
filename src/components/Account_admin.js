@@ -431,14 +431,56 @@ const Account = () => {
         case '#createStore':
           redirectCreateStore(hashValue);
           break;
+        case '#person':
+          redirectPerson();
+          break;
+        case '#charts':
+          redirectCharts();
+          break;
+        case '#book':
+          redirectMenuBook();
+          break;
+        case '#code':
+          redirectCode();
+          break;
+        case '#cards':
+          redirectCards();
+          break;
+        case '#settings':
+          redirectSettings();
+          break;
         // Add more cases for other hash values as needed...
+
+        // this default is for the storeName cases
         default:
           hashRedirect(hashValue);
           break;
       }
     }
 
-    function redirectCreateStore(hashValue) {
+    // these redirects are to simulate the click of the 6 tab options of each store
+    function redirectPerson() {
+      setShowSection('')
+    }
+
+    function redirectCharts() {
+      setShowSection('sales')
+    }
+    function redirectMenuBook() {
+      setShowSection('menu')
+    }
+    function redirectCards() {
+      setShowSection('stripeCard')
+    }
+    function redirectCode() {
+      setShowSection('qrCode')
+    }
+    function redirectSettings() {
+      setShowSection('store')
+    }
+
+    // this redirect takes you to the store creation settings/page
+    function redirectCreateStore() {
       setShowSection('');
       setActiveTab('#Revenue_Chart');
       setStoreName_('');
@@ -464,9 +506,22 @@ const Account = () => {
       setActiveStoreTab(valueWithoutHash);
       setStoreName_(valueWithoutHash);
       setStoreID(valueWithoutHash);
+
+      // if there is a new store, use the default open time
       const default_Open_time = `{"0":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"1":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"2":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"3":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"4":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"5":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"6":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"7":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"}}`;
 
-      setStoreOpenTime(default_Open_time);
+      // checks if the store Name is already in the list of stores already created
+      const foundObject = storelist.find(item => item.Name === valueWithoutHash);
+     
+      // if so, then use the time saved before
+      if (foundObject) {
+        // Do something with the found object
+        setStoreOpenTime(foundObject.Open_time);
+      } else {
+        // else use the default settings
+        setStoreOpenTime(default_Open_time);
+      }
+
       setShowSection('store')
       // const pathWithoutHash = window.location.pathname + window.location.search;
       // history.push(pathWithoutHash);
