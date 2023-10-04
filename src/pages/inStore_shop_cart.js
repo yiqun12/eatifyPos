@@ -133,7 +133,7 @@ const Navbar = ({ store }) => {
       }
     } else {
 
-      height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
+      height = (products?.length || 0) * 123 + 100;      // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
     }
 
     //console.log("product changed")

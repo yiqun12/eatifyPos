@@ -31,10 +31,20 @@ function Refresh() {
         const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName);
         updateDoc(docRef, {
           stripe_store_acct: stripe_store_acct
-        }).catch(error => {
-          console.error("Error updating document:", error);
-          alert("For sercurity concern, you do not have permision to access our database. Please contact our customer service.");
-        });
+      }).then(() => {
+          // After successful update, fetch the document again to see the updated content.
+          return docRef.get();
+      }).then(docSnapshot => {
+          if (docSnapshot.exists) {
+              console.log("Updated Document:", docSnapshot.data());
+              // Do other tasks with the updated document if needed.
+          } else {
+              console.warn("Document does not exist!");
+          }
+      }).catch(error => {
+          console.error("Error updating or fetching document:", error);
+          alert("Due to security concerns, you do not have permission to update our database. Please contact customer support for further assistance.");
+      });      
         alert(JSON.stringify({stripe_store_acct,storeName,id}));
 
         window.location.href = "/account";

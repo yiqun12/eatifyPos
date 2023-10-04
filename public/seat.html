@@ -22,27 +22,27 @@
 
 <body onload="loadingFunction(); ">
   <!-- Table Modal -->
-<div id="addTableModal" class="modal fade" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
+  <div id="addTableModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
       <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title">Add Table</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-              </button>
-          </div>
-          <div class="modal-body">
-              <label for="tableName">Table Name:</label>
-              <input type="text" id="tableName" class="form-control">
-              <!-- You can add more content/form here related to adding table -->
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" id="addTableBtn">Add</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <div class="modal-header">
+          <h5 class="modal-title">Add Table</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <label for="tableName">Table Name:</label>
+          <input type="text" id="tableName" class="form-control">
+          <!-- You can add more content/form here related to adding table -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="addTableBtn">Add</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
       </div>
+    </div>
   </div>
-</div>
 
   <!-- partial:index.partial.html -->
   <div class="container-fluid text-center">
@@ -61,7 +61,7 @@
         </div>
       </div>
       <div class="col-sm-2 form-group" style="display: flex;justify-content: center; align-items: center; width: 100%;">
-        <button class="btn btn-primary" onclick="loadBoard()">Load</button>
+        <button class="btn btn-warning customer-mode">Go Back</button>
         <button class="btn btn-primary" onclick="saveBoard()">Save</button>
         <button class="btn btn-danger" onclick="clearBoard()">Clear</button>
       </div>
@@ -72,13 +72,13 @@
         <button class="btn btn-primary bar">+ Bar</button>
         <button class="btn btn-default wall">+ Wall</button>
         <button class="btn btn-danger remove">Remove</button>
-        <button class="btn btn-warning customer-mode">Customer mode</button>
       </div>
     </div>
 
     <div class="form-group customer-menu">
       <div class="btn-group">
-        <button class="btn btn-success submit">Submit reservation</button>
+        <button class="btn btn-primary" onclick="saveBoard()">Save</button>
+        <button class="btn btn-primary" onclick="loadBoard()">Load</button>
         <button class="btn btn-warning admin-mode">Admin mode</button>
       </div>
       <br />
@@ -160,9 +160,8 @@
 
     function loadBoard() {
       console.log("load board")
-      // console.log(board)
+      console.log(board)
       clearBoard()
-
       // this is where you read external (previously saved board data and load it in)
 
       let arrangement = JSON.parse(window.sessionStorage.getItem("restaurant_seat_arrangement"))
@@ -192,7 +191,7 @@
     //     loadButton.click();
 
     //          var adminModeButton = document.querySelector('.customer-mode');
-        
+
     //         // Simulate a click on the button
     //         adminModeButton.click(); 
     //   }, 1); // 0.5 second delay
@@ -202,7 +201,25 @@
     function loadingFunction() {
       resizeCanvas()
       initCanvas()
-      addDefaultObjects()
+      loadBoard()
+      canvas.getObjects().map(o => {
+        o.hasControls = false
+        o.lockMovementX = true
+        o.lockMovementY = true
+        if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
+          o.selectable = false
+        }
+        o.borderColor = '#38A62E'
+        o.borderScaleFactor = 2.5
+      })
+      canvas.selection = false
+      canvas.hoverCursor = 'pointer'
+      canvas.discardActiveObject()
+      canvas.renderAll()
+      document.querySelectorAll('.admin-menu')[0].style.display = 'none'
+      document.querySelectorAll('.customer-menu')[0].style.display = 'block'
+      current_mode = "customer"
+      window.parent.postMessage(`customer mode active`, "*");
 
     }
 
@@ -238,13 +255,13 @@
 
       // this has to be inside initCanvas() so that every Newly created canvas has this functionality
       // when the blank canvas is clicked and the shapes are deselected, it sends a message to the parent
-      canvas.on('mouse:down', function(options) {
+      canvas.on('mouse:down', function (options) {
         // console.log("mouse down")
         // when the target doesn't exist (IE just the canvas)
         if (current_mode === "customer") {
           // console.log(options.target)
           if (!options.target) {
-          // console.log("mouse down on canvas")
+            // console.log("mouse down on canvas")
             canvas.discardActiveObject().renderAll();
             window.parent.postMessage(`table_deselected`, "*");
           }
@@ -253,7 +270,7 @@
             window.parent.postMessage(`selected_table ${options.target.tableName}`, "*");
           }
         }
-    });
+      });
 
 
       canvas.on('object:moving', function (e) {
@@ -385,7 +402,8 @@
         height: g.height,
         scaleX: g.scaleX,
         scaleY: g.scaleY,
-        tableName: tableName
+        tableName: tableName,
+        id: g.id
       }
       board.table.push(object)
       console.log(object)
@@ -426,7 +444,7 @@
         tableName: tableName,
         scaleX: scaleX,
         scaleY: scaleY,
-        radius: radius
+        radius: radius,
       })
       // this on() triggers when the table is selected
       g.on("selected", function () {
@@ -445,11 +463,11 @@
         radius: g.radius,
         scaleX: g.scaleX,
         scaleY: g.scaleY,
-        tableName: tableName
+        tableName: tableName,
+        id: g.id
       }
       board.table.push(object)
       console.log(board)
-
       tableNumber++
       return g
     }
@@ -477,6 +495,7 @@
         scaleX: scaleX,
         scaleY: scaleY
       })
+
       canvas.add(o)
       object = {
         left: o.left,
@@ -484,7 +503,8 @@
         width: o.width,
         height: o.height,
         scaleX: o.scaleX,
-        scaleY: o.scaleY
+        scaleY: o.scaleY,
+        id: o.id
       }
       board.chair.push(object)
       console.log(o)
@@ -522,8 +542,10 @@
         type: 'bar',
         scaleX: scaleX,
         scaleY: scaleY,
-        number: barNumber
+        number: barNumber,
+        id: o.id,
       })
+      console.log(g.id)
       canvas.add(g)
       object = {
         left: g.left,
@@ -531,7 +553,8 @@
         width: g.width,
         height: g.height,
         scaleX: g.scaleX,
-        scaleY: g.scaleY
+        scaleY: g.scaleY,
+        id: o.id
       }
       board.bar.push(object)
       console.log(board)
@@ -568,7 +591,9 @@
         width: o.width,
         height: o.height,
         scaleX: o.scaleX,
-        scaleY: o.scaleY
+        scaleY: o.scaleY,
+        id: o.id
+
       }
       board.wall.push(object)
       console.log(board)
@@ -582,16 +607,6 @@
         top: Math.round(target.top / (grid / 2)) * grid / 2
       })
 
-      // update the position of the piece on board
-      console.log("left", target.left)
-      console.log("top", target.top)
-      // console.log("width", target.width)
-      // console.log("height", target.height)
-      // console.log("number", target.number)
-      console.log(target)
-
-      // console.log(target.width)
-      // if the object is a rect
       if (target.type == 'rect') {
         // grab the number (the number - 1 is the index in table list)
         let index = target.number - 1
@@ -682,51 +697,51 @@
 
 
 
-// below is the controller for the add tables buttons (circle and rectangle) and modal controller
-let shapeToAdd = null; // this can be "rectangle", "circle", or null
+    // below is the controller for the add tables buttons (circle and rectangle) and modal controller
+    let shapeToAdd = null; // this can be "rectangle", "circle", or null
 
-document.querySelectorAll('.rectangle')[0].addEventListener('click', function () {
-    shapeToAdd = "rectangle";
-    $('#addTableModal').modal('show');
-});
+    document.querySelectorAll('.rectangle')[0].addEventListener('click', function () {
+      shapeToAdd = "rectangle";
+      $('#addTableModal').modal('show');
+    });
 
-document.querySelectorAll('.circle')[0].addEventListener('click', function () {
-    shapeToAdd = "circle";
-    $('#addTableModal').modal('show');
-});
+    document.querySelectorAll('.circle')[0].addEventListener('click', function () {
+      shapeToAdd = "circle";
+      $('#addTableModal').modal('show');
+    });
 
-document.getElementById('addTableBtn').addEventListener('click', function() {
-    const tableName = document.getElementById('tableName').value.trim();
+    document.getElementById('addTableBtn').addEventListener('click', function () {
+      const tableName = document.getElementById('tableName').value.trim();
 
-    // Check if table name is already present in board.table
-    const isDuplicate = board.table.some(table => table.tableName === tableName);
+      // Check if table name is already present in board.table
+      const isDuplicate = board.table.some(table => table.tableName === tableName);
 
-    if (tableName.trim() === "") {
+      if (tableName.trim() === "") {
         alert("Table name cannot be empty!");
-    } else if (isDuplicate) {
+      } else if (isDuplicate) {
         alert("Table name already exists on the board. Please choose another name.");
         document.getElementById('tableName').value = ""; // Clear the input for the next usage
-    } else {
+      } else {
         $('#addTableModal').modal('hide');
 
         if (shapeToAdd === "rectangle") {
-            const o = addRect(0, 0, 60, 60, 1, 1, tableName);
-            canvas.setActiveObject(o);
+          const o = addRect(0, 0, 60, 60, 1, 1, tableName);
+          canvas.setActiveObject(o);
         } else if (shapeToAdd === "circle") {
-            const o = addCircle(0, 0, 30, 1, 1, tableName);  // addCircle has a similar signature
-            canvas.setActiveObject(o);
+          const o = addCircle(0, 0, 30, 1, 1, tableName);  // addCircle has a similar signature
+          canvas.setActiveObject(o);
         }
 
-    }
-});
+      }
+    });
 
-// the below clears the input for the next usage
-$('#addTableModal').on('hidden.bs.modal', function() {
-    shapeToAdd = null; // Reset the shapeToAdd variable
-    document.getElementById('tableName').value = ""; // Clear the input
-});
+    // the below clears the input for the next usage
+    $('#addTableModal').on('hidden.bs.modal', function () {
+      shapeToAdd = null; // Reset the shapeToAdd variable
+      document.getElementById('tableName').value = ""; // Clear the input
+    });
 
-// here is the controller for rest of the shapes
+    // here is the controller for rest of the shapes
 
     document.querySelectorAll('.chair')[0].addEventListener('click', function () {
       const o = addChair(0, 0, 1, 1)
@@ -742,20 +757,38 @@ $('#addTableModal').on('hidden.bs.modal', function() {
       const o = addWall(0, 0, 60, 180, 1, 1)
       canvas.setActiveObject(o)
     })
+    function removeObjectFromBoard(id) {
+    // Loop through each category in the board
+    for (const category in board) {
+        // If the category contains the object with the given ID, remove it
+        const index = board[category].findIndex(item => item.id === id);
+        if (index !== -1) {
+            board[category].splice(index, 1);
+            return; // Exit the function since we've found and removed the item
+        }
+    }
+}
 
     document.querySelectorAll('.remove')[0].addEventListener('click', function () {
       const o = canvas.getActiveObject()
       if (o) {
+        console.log(o.id)
+        console.log(board)
+        removeObjectFromBoard(o.id);
+
         o.remove()
         canvas.remove(o)
         canvas.discardActiveObject()
         canvas.renderAll()
+        console.log("remove")
       }
     })
 
     let current_mode = "customer";
 
     document.querySelectorAll('.customer-mode')[0].addEventListener('click', function () {
+      loadBoard()
+
       canvas.getObjects().map(o => {
         o.hasControls = false
         o.lockMovementX = true
@@ -774,7 +807,6 @@ $('#addTableModal').on('hidden.bs.modal', function() {
       document.querySelectorAll('.customer-menu')[0].style.display = 'block'
       current_mode = "customer"
       window.parent.postMessage(`customer mode active`, "*");
-      
     })
 
     document.querySelectorAll('.admin-mode')[0].addEventListener('click', function () {
@@ -851,28 +883,28 @@ $('#addTableModal').on('hidden.bs.modal', function() {
 
       tables.forEach(element => {
         if (element.type == 'rect') {
-          addRect(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY, element.tableName)
+          addRect(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY, element.tableName,element.id)
         } else if (element.type == 'circle') {
-          addCircle(element.left, element.top, element.radius, element.scaleX, element.scaleY, element.tableName)
+          addCircle(element.left, element.top, element.radius, element.scaleX, element.scaleY, element.tableName,element.id)
         }
       });
 
       // getting the chairs category from baord and adding all the chairs to canvas
       chairs = board.chair
       chairs.forEach(element => {
-        addChair(element.left, element.top, element.scaleX, element.scaleY)
+        addChair(element.left, element.top, element.scaleX, element.scaleY,element.id)
       })
 
       // getting the bars category from board and adding all the bars to canvas
       bars = board.bar
       bars.forEach(element => {
-        addBar(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY)
+        addBar(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY,element.id)
       })
 
       // getting the walls category from board and adding all the walls to canvas
       walls = board.wall
       walls.forEach(element => {
-        addWall(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY)
+        addWall(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY,element.id)
       })
       // addChair(15, 105)
       // addChair(15, 135)
