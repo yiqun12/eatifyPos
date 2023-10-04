@@ -34,6 +34,7 @@ import files_icon from './files_icon.png';
 import calendar_logo from './calendar_logo.png';
 import store_icon from './store_icon.png';
 import Admin_food from '../components/admin_food'
+import IframeDesk from '../components/iframeDesk'
 
 import myImage from './check-mark.png';  // Import the image
 
@@ -783,9 +784,9 @@ const Account = () => {
                           }
                           {showSection === 'qrCode' ? <>
 
-                            <div>QR code for Tables:</div>
-
-                            <QRCode value={"google.com"} />
+                            <IframeDesk store={data.id} ></IframeDesk>
+               
+                            {/* <QRCode value={"google.com"} /> */}
                             <hr />
                           </> : <></>
                           }

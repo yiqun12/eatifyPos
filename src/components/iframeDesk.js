@@ -11,6 +11,8 @@ import minusSvg from '../pages/minus.svg';
 import { useRef } from "react";
 import { data_ } from '../data/data.js'
 
+import InStore_food from '../pages/inStore_food'
+import InStore_shop_cart from '../pages/inStore_shop_cart'
 
 function Iframe({ src, width, height }) {
     const iframeRef = useRef();
@@ -35,7 +37,7 @@ function Iframe({ src, width, height }) {
     return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
 }
 
-function App() {
+function App({ store }) {
 
     const [Food_arrays, setFood_arrays] = useState(JSON.parse(sessionStorage.getItem("Food_arrays")));
     /**listen to localtsorage */
@@ -46,7 +48,7 @@ function App() {
     const [selectedItem, setSelectedItem] = useState('Order');
 
     /**change app namne and logo */
-   // const [faviconUrl, setFaviconUrl] = useState('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
+    // const [faviconUrl, setFaviconUrl] = useState('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
     const handleOpenCashDraw = async () => {
         try {
             const dateTime = new Date().toISOString();
@@ -237,19 +239,20 @@ function App() {
     // the selectedTable variable allows you to keep track which table you have selected
     const [selectedTable, setSelectedTable] = useState(null);
     const [selectedSeatMode, setSelectedSeatMode] = useState("customer");
+    console.log(selectedSeatMode)
 
     // the below messageHandler + useEffect() below allows for communication from iframe to parent window
     const messageHandler = useCallback((event) => {
         // console.log(event.data);
-    
+
         // the code serves to communicate with the iframe
         if (event.data.includes('selected_table')) {
             // Extract the table number after the colon and trim any whitespace
             const tableNumber = event.data.split('selected_table')[1].trim();
-            
+
             // Set the table number to the selectedTable state
             setSelectedTable(tableNumber);
-            
+
             console.log(tableNumber);
             setModalOpen(true);
         } else if (event.data === "admin mode active") {
@@ -439,54 +442,120 @@ function App() {
 
     return (
 
-                <div>
+        <div>
 
-                {/* modal code for when table inside iframe is clicked in customer mode */}
-                {isModalOpen && (
-                <div id="addTableModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+            {/* modal code for when table inside iframe is clicked in customer mode */}
+            {isModalOpen && (
+                <div id="addTableModal" className="modal fade show " role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
                     <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                        <h5 className="modal-title">Table {selectedTable}</h5>
-                        <button type="button" className="close" onClick={() => setModalOpen(false)} aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        </div>
-                        <div className="modal-body">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Table {selectedTable}</h5>
+                                <button type="button" className="close" onClick={() => setModalOpen(false)} aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div className="modal-body">
                                 {/* in the body of the modal contains the search food items functionality */}
-                                    <section className="task-list">
+                                <InStore_food store={store} ></InStore_food>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-                                        <input
-                                            type="text"
-                                            name="inputData"
-                                            placeholder={t("Search food items")}
-                                            className="search-bar"
-                                            style={{ marginLeft: "5px", height: '30px', width: "80%", marginBottom: "5px" }}
-                                            onChange={(e) => {
-                                                searchItemFromShopItem(e.target.value);
-                                                setSearchData(e.target.value);
-                                            }}
-                                            value={searchData}
-                                        />
+            {/* beginning of the other code */}
 
-                                        <div className="task-wrap" style={{ minHeight: '400px', maxHeight: '400px', overflowY: 'scroll' }}>
-                                            {search_food.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
-                                                <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
-                                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                                        <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
-                                                            <img src={task.image} alt="" />
+            <div style={{ margin: "10px", display: "flex" }}>
+                {selectedItem === 'Order' ?
+
+                    <>
+                        <header className="main-header" style={{ height: "100px" }}>
+
+                            <div className="search-wrap">
+                            </div>
+                        </header>
+                        <div >
+                            <Iframe ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" />
+                        </div>
+
+                        <section className="task-list" >
+                            <div className="task-wrap" style={{ minHeight: '350px', maxHeight: '350px', overflowY: 'scroll' }}>
+                                <div className={`task-card ${"task.checked" ? "task-card--done" : ""}`}>
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+
+
+
+                                        <div>
+                                            {/* open drawer here above the table info */}
+                                            <a className="main-nav__link" style={{ background: "#e1ecf4", display: "inline-block" }} onClick={handleOpenCashDraw}>
+                                                <img src={icons8Drawer} alt="Icons8 Drawer" style={{ display: "inline-block" }} />
+                                                {t("OPEN DRAWER")}
+                                            </a>
+                                            <InStore_shop_cart store={store} ></InStore_shop_cart>
+
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "5px" }}>
+                                                <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '10px' }}>
+                                                    {sessionStorage.getItem("tableMode") === "table-NaN" ? (
+                                                        <>Did not select table</>
+                                                    ) : (
+                                                        <>{sessionStorage.getItem("tableMode")}</>
+                                                    )}
+                                                </span>
+                                                <Button variant="contained" onClick={handleAdminCheckout}>
+                                                    {t("Checkout")} $ {(JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+                                                        return accumulator + task.quantity * task.subtotal;
+                                                    }, 0) * 1.086).toFixed(2)}
+                                                </Button>
+                                            </div>
+                                            <hr />
+
+                                            {sessionStorage.getItem(sessionStorage.getItem("tableMode")) == "[]" ? <>Void</> : <></>}
+
+                                            {JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).map((task) => (
+                                                <div
+                                                    key={task.id}
+                                                    style={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        width: '100%',
+                                                    }}
+                                                >
+                                                    <div style={{ width: "175px" }}>
+                                                        <div style={{ marginLeft: '10px' }}>{task.name}</div>
+                                                        <div style={{ marginLeft: '10px' }}>
+                                                            <span>${task.subtotal} x {task.quantity} = ${task.quantity * task.subtotal}</span>
                                                         </div>
-                                                        <div style={{ marginLeft: "10px" }}>{task.name}</div>
-                                                        <span
-                                                            style={{ cursor: 'pointer', marginLeft: 'auto' }}
-                                                            onClick={() => {
-                                                                shopAdd(task.id);
-                                                                saveId(Math.random());
-                                                            }}
-                                                            className="task-card__tag task-card__tag--marketing"
-                                                        >
-                                                            {t("Add")}
-                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <div className="quantity" style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: '5px', height: 'fit-content' }}>
+                                                            <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: 'flex', borderLeft: '1px solid', borderTop: '1px solid', borderBottom: '1px solid', borderRadius: '12rem 0 0 12rem', height: '30px' }}>
+                                                                <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: 'flex' }} onClick={() => {
+                                                                    if (task.quantity === 1) {
+                                                                        deleteItem(task.id);
+                                                                        saveId(Math.random());
+                                                                    } else {
+                                                                        clickedMinus(task.id);
+                                                                        saveId(Math.random());
+                                                                    }
+                                                                }}>
+                                                                    <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
+                                                                </button>
+                                                            </div>
+                                                            <span type="text" style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: '1px solid', borderBottom: '1px solid', display: 'flex', padding: '0px' }}>{task.quantity}</span>
+                                                            <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: 'flex', borderRight: '1px solid', borderTop: '1px solid', borderBottom: '1px solid', borderRadius: '0 12rem 12rem 0', height: '30px' }}>
+                                                                <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: 'flex' }} onClick={() => {
+                                                                    clickedAdd(task.id)
+                                                                    saveId(Math.random());
+                                                                }}>
+                                                                    <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
 
                                                     </div>
 
@@ -494,141 +563,34 @@ function App() {
 
                                                 </div>
                                             ))}
-                                        </div>
-                                    </section>
-                        </div>
-                        <div className="modal-footer">
-                        <button type="button" className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                )}
+                                            <div>
+                                                <hr />
+                                                <div>Subtotal: $ {JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+                                                    return accumulator + task.quantity * task.subtotal;
+                                                }, 0).toFixed(2)}</div>
 
-                {/* beginning of the other code */}
+                                                <div>Tax: $ {(JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+                                                    return accumulator + task.quantity * task.subtotal;
+                                                }, 0) * 0.086).toFixed(2)}</div>
 
-                <div style={{margin:"10px", display:"flex"}}>
-                    { selectedItem === 'Order' ?
-
-                                <>
-                                    <header className="main-header" style={{ height: "100px" }}>
-
-                                        <div className="search-wrap">
-                                        </div>
-                                    </header>
-                                    <div style={{ marginTop: "-100px" }}>
-                                        <Iframe ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" />
-                                    </div>
-
-                                    <section className="task-list" style={{ marginTop: "-100px" }}>
-                                        <div className="task-wrap" style={{ minHeight: '350px', maxHeight: '350px', overflowY: 'scroll' }}>
-                                            <div className={`task-card ${"task.checked" ? "task-card--done" : ""}`}>
-                                                <div style={{ display: "flex", alignItems: "center" }}>
-
-
-
-                                                    <div>
-                                                        {/* open drawer here above the table info */}
-                                                        <a className="main-nav__link" style={{ background: "#e1ecf4", display: "inline-block" }} onClick={handleOpenCashDraw}>
-                                                            <img src={icons8Drawer} alt="Icons8 Drawer" style={{ display: "inline-block" }} />
-                                                            {t("OPEN DRAWER")}
-                                                        </a>
-
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "5px" }}>
-                                                            <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '10px' }}>
-                                                                {sessionStorage.getItem("tableMode") === "table-NaN" ? (
-                                                                    <>Did not select table</>
-                                                                ) : (
-                                                                    <>{sessionStorage.getItem("tableMode")}</>
-                                                                )}
-                                                            </span>
-                                                            <Button variant="contained" onClick={handleAdminCheckout}>
-                                                                {t("Checkout")} $ {(JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
-                                                                    return accumulator + task.quantity * task.subtotal;
-                                                                }, 0) * 1.086).toFixed(2)}
-                                                            </Button>
-                                                        </div>
-                                                        <hr />
-
-                                                        {sessionStorage.getItem(sessionStorage.getItem("tableMode")) == "[]" ? <>Void</> : <></>}
-
-                                                        {JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).map((task) => (
-                                                            <div
-                                                                key={task.id}
-                                                                style={{
-                                                                    display: 'flex',
-                                                                    justifyContent: 'space-between',
-                                                                    alignItems: 'center',
-                                                                    width: '100%',
-                                                                }}
-                                                            >
-                                                                <div style={{ width: "175px" }}>
-                                                                    <div style={{ marginLeft: '10px' }}>{task.name}</div>
-                                                                    <div style={{ marginLeft: '10px' }}>
-                                                                        <span>${task.subtotal} x {task.quantity} = ${task.quantity * task.subtotal}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div>
-                                                                    <div className="quantity" style={{ marginRight: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', paddingTop: '5px', height: 'fit-content' }}>
-                                                                        <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: 'flex', borderLeft: '1px solid', borderTop: '1px solid', borderBottom: '1px solid', borderRadius: '12rem 0 0 12rem', height: '30px' }}>
-                                                                            <button className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: 'flex' }} onClick={() => {
-                                                                                if (task.quantity === 1) {
-                                                                                    deleteItem(task.id);
-                                                                                    saveId(Math.random());
-                                                                                } else {
-                                                                                    clickedMinus(task.id);
-                                                                                    saveId(Math.random());
-                                                                                }
-                                                                            }}>
-                                                                                <img style={{ margin: '0px', width: '10px', height: '10px' }} src={minusSvg} alt="" />
-                                                                            </button>
-                                                                        </div>
-                                                                        <span type="text" style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: '1px solid', borderBottom: '1px solid', display: 'flex', padding: '0px' }}>{task.quantity}</span>
-                                                                        <div style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: 'flex', borderRight: '1px solid', borderTop: '1px solid', borderBottom: '1px solid', borderRadius: '0 12rem 12rem 0', height: '30px' }}>
-                                                                            <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: 'flex' }} onClick={() => {
-                                                                                clickedAdd(task.id)
-                                                                                saveId(Math.random());
-                                                                            }}>
-                                                                                <img style={{ margin: '0px', width: '10px', height: '10px' }} src={plusSvg} alt="" />
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </div>
-
-
-
-                                                            </div>
-                                                        ))}
-                                                        <div>
-                                                            <hr />
-                                                            <div>Subtotal: $ {JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
-                                                                return accumulator + task.quantity * task.subtotal;
-                                                            }, 0).toFixed(2)}</div>
-
-                                                            <div>Tax: $ {(JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
-                                                                return accumulator + task.quantity * task.subtotal;
-                                                            }, 0) * 0.086).toFixed(2)}</div>
-
-                                                            <div>Total: $ {(JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
-                                                                return accumulator + task.quantity * task.subtotal;
-                                                            }, 0) * 1.086).toFixed(2)}</div>
-
-                                                        </div>
-                                                    </div>
-
-
-                                                </div>
-
-
+                                                <div>Total: $ {(JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).reduce((accumulator, task) => {
+                                                    return accumulator + task.quantity * task.subtotal;
+                                                }, 0) * 1.086).toFixed(2)}</div>
 
                                             </div>
                                         </div>
-                                    </section>
-                                    
-                                    {/* test display for seat mode change */}
-                                    <span>The current mode is {selectedSeatMode}</span>
-                                    {/* <section className="task-list" style={{ marginTop: "275px" }}>
+
+
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* test display for seat mode change */}
+                        {/* <section className="task-list" style={{ marginTop: "275px" }}>
 
                                         <input
                                             type="text"
@@ -671,20 +633,20 @@ function App() {
                                         </div>
                                     </section> */}
 
-                                </>
+                    </>
 
 
 
-                                :
+                    :
 
 
 
 
 
 
-                                        null}
-                </div>
-                </div>
+                    null}
+            </div>
+        </div>
 
     );
 }
