@@ -322,7 +322,7 @@ const Navbar = ({ store }) => {
 
 
         {/* popup content */}
-        <div className="shopping-cart" >
+        <div className="shopping-cart" style={{margin: "auto"}}>
 
           {/* shoppig cart */}
           <div className="title" style={{ height: '80px' }}>

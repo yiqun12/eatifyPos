@@ -906,7 +906,10 @@ const Food = ({ store }) => {
 
           {/* diplay food */}
           <AnimatePresence>
-            <div className={isMobile ? 'grid grid-cols-1 gap-3 pt-2' : 'grid lg:grid-cols-2 gap-3'}>
+            <div className={isMobile ? 'grid grid-cols-1 gap-3 pt-2' : 'grid lg:grid-cols-2 gap-3'}       style={{
+        gridTemplateRows: `repeat(1, 1fr)`,
+        gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)'
+      }}>
               {foods.map((item, index) => (
                 <motion.div
                   layout
