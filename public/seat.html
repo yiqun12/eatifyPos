@@ -62,8 +62,8 @@
       </div>
       <div class="col-sm-2 form-group" style="display: flex;justify-content: center; align-items: center; width: 100%;">
         <button class="btn btn-warning customer-mode">Go Back</button>
-        <button class="btn btn-primary" onclick="saveBoard()">Save</button>
-        <button class="btn btn-danger" onclick="clearBoard()">Clear</button>
+        <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button> -->
+<button class="btn btn-danger" onclick="clearBoard(); saveBoard();">Clear</button>
       </div>
       <div class="btn-group">
         <button class="btn btn-primary rectangle">+ &#9647; Table</button>
@@ -77,8 +77,8 @@
 
     <div class="form-group customer-menu">
       <div class="btn-group">
-        <button class="btn btn-primary" onclick="saveBoard()">Save</button>
-        <button class="btn btn-primary" onclick="loadBoard()">Load</button>
+        <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button>
+        <button class="btn btn-primary" onclick="loadBoard()">Load</button> -->
         <button class="btn btn-warning admin-mode">Admin mode</button>
       </div>
       <br />
@@ -265,7 +265,7 @@
             canvas.discardActiveObject().renderAll();
             window.parent.postMessage(`table_deselected`, "*");
           }
-          if (options.target.type === "rect" || options.target.type === "circle") {
+          if (options.target?.type === "rect" || options.target?.type === "circle") {
             // console.log(options.target.tableName)
             window.parent.postMessage(`selected_table ${options.target.tableName}`, "*");
           }
@@ -386,6 +386,10 @@
         originX: 'center',
         originY: 'center'
       })
+
+    //       // Store original fontSize
+    // t.originalFontSize = t.fontSize;
+
       const g = new fabric.Group([o, t], {
         left: left,
         top: top,
@@ -399,6 +403,19 @@
         scaleX: scaleX,
         scaleY: scaleY
       })
+
+          /* TODO:  Fix the sizes of the text so that it doesn't scale with the shape
+      */
+
+    //       // this on() triggers when the group is scaled
+    // g.on('scaling', function() {
+    //     // Adjust the fontSize of the text inside the group to counteract the group's scaling
+    //     t.fontSize = t.originalFontSize / g.scaleX;
+    //     t.setCoords(); // Refresh text coordinates
+    // });
+
+    
+
       // this on() triggers when the table is selected
       g.on("selected", function () {
         // this.number returns the number, this returns the whole item
@@ -408,6 +425,8 @@
           window.parent.postMessage(`selected_table ${selectedTable}`, "*");
       })
       canvas.add(g)
+
+      
       object = {
         type: "rect",
         left: g.left,
@@ -425,6 +444,10 @@
       console.log(object)
       // console.log(board)
       tableNumber++
+
+      // saving the board after object creation
+      saveBoard()
+
       return g
     }
 
@@ -453,6 +476,10 @@
         originX: 'center',
         originY: 'center'
       })
+
+      // // Store original fontSize
+      // t.originalFontSize = t.fontSize;
+
       const g = new fabric.Group([o, t], {
         left: left,
         top: top,
@@ -476,6 +503,17 @@
           window.parent.postMessage(`selected_table ${selectedTable}`, "*");
       })
 
+      
+          /* TODO:  Fix the sizes of the text so that it doesn't scale with the shape
+      */
+
+    //       // this on() triggers when the group is scaled
+    // g.on('scaling', function() {
+    //     // Adjust the fontSize of the text inside the group to counteract the group's scaling
+    //     t.fontSize = t.originalFontSize / g.scaleX;
+    //     t.setCoords(); // Refresh text coordinates
+    // });
+
       canvas.add(g)
       object = {
         type: "circle",
@@ -492,6 +530,9 @@
       board.table.push(object)
       console.log(board)
       tableNumber++
+
+      // saving the board after object creation
+      saveBoard()
       return g
     }
 
@@ -540,6 +581,10 @@
       board.chair.push(object)
       console.log(o)
       chairNumber++
+
+      // saving the board after object creation
+      saveBoard()
+
       return o
     }
 
@@ -652,6 +697,10 @@
       board.bar.push(object)
       console.log(board)
       barNumber++
+
+      // saving the board after object creation
+      saveBoard()
+
       return o
     }
 
@@ -699,6 +748,10 @@
       board.wall.push(object)
       console.log(board)
       wallNumber++
+
+      // saving the board after object creation
+      saveBoard()
+
       return o
     }
 
@@ -769,6 +822,9 @@
         board.wall[index].snapAngle = target.snapAngle
         board.wall[index].angle = target.angle
       }
+
+      // saving the board after moving the object
+      saveBoard()
 
     }
 
@@ -893,6 +949,9 @@
         canvas.discardActiveObject()
         canvas.renderAll()
         console.log("remove")
+
+        // saving the board after object deletion
+        saveBoard()
       }
     })
 
