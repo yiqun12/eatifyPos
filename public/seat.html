@@ -142,12 +142,12 @@
       'wall': [],
     }
 
-    let external_board = {
-      'table': [],
-      'chair': [],
-      'bar': [],
-      'wall': [],
-    }
+    // let external_board = {
+    //   'table': [],
+    //   'chair': [],
+    //   'bar': [],
+    //   'wall': [],
+    // }
 
     function saveBoard() {
       console.log("save board")
@@ -349,8 +349,21 @@
     }
 
     // added default parameters for scaleX and scaleY, so if no values are given for those, it'll default to 1
-    function addRect(left, top, width, height, scaleX = 1, scaleY = 1, tableName) {
-      const id = generateId()
+    function addRect(left, top, width, height, scaleX = 1, scaleY = 1, tableName, id = "xxxx", snapAngle = 45, angle = 0) {
+      const generated_id = generateId()
+      if (id === "xxxx") {
+        id = generated_id
+      }
+      
+      // TODO: Find the bug that is increase width and height by 2 everytime save+load is activated (might be just one of these functions)
+      
+      // current braindead solution to a hard to solve problem
+      // the width & height increments by 2 everything save + load is used
+      width = width - 2;
+      height = height - 2;
+
+      // console.log("width: ", width)
+      // console.log("height: ", height)
       const o = new fabric.Rect({
         width: width,
         height: height,
@@ -361,8 +374,9 @@
         originX: 'center',
         originY: 'center',
         centeredRotation: true,
-        snapAngle: 45,
+        snapAngle: snapAngle,
         selectable: true,
+        angle: angle
       })
       const t = new fabric.IText(tableName, {
         fontFamily: 'Calibri',
@@ -376,7 +390,7 @@
         left: left,
         top: top,
         centeredRotation: true,
-        snapAngle: 45,
+        snapAngle: snapAngle,
         selectable: true,
         type: 'rect',
         id: id,
@@ -403,7 +417,9 @@
         scaleX: g.scaleX,
         scaleY: g.scaleY,
         tableName: tableName,
-        id: g.id
+        id: g.id,
+        snapAngle: g.snapAngle,
+        angle: o.angle
       }
       board.table.push(object)
       console.log(object)
@@ -412,8 +428,12 @@
       return g
     }
 
-    function addCircle(left, top, radius, scaleX = 1, scaleY = 1, tableName) {
-      const id = generateId()
+    function addCircle(left, top, radius, scaleX = 1, scaleY = 1, tableName, id = "xxxx", snapAngle = 45, angle = 0) {
+      const generated_id = generateId()
+      if (id === "xxxx") {
+        id = generated_id
+      }
+
       const o = new fabric.Circle({
         radius: radius,
         fill: tableFill,
@@ -422,7 +442,8 @@
         shadow: tableShadow,
         originX: 'center',
         originY: 'center',
-        centeredRotation: true
+        centeredRotation: true,
+        angle: angle
       })
       const t = new fabric.IText(tableName, {
         fontFamily: 'Calibri',
@@ -436,7 +457,7 @@
         left: left,
         top: top,
         centeredRotation: true,
-        snapAngle: 45,
+        snapAngle: snapAngle,
         selectable: true,
         type: 'circle',
         id: id,
@@ -464,7 +485,9 @@
         scaleX: g.scaleX,
         scaleY: g.scaleY,
         tableName: tableName,
-        id: g.id
+        id: g.id,
+        snapAngle: g.snapAngle,
+        angle: o.angle
       }
       board.table.push(object)
       console.log(board)
@@ -474,7 +497,12 @@
 
 
 
-    function addChair(left, top, scaleX = 1, scaleY = 1) {
+    function addChair(left, top, scaleX = 1, scaleY = 1, id = "xxxx", snapAngle = 45, angle = 0) {
+      const generated_id = generateId()
+      if (id === "xxxx") {
+        id = generated_id
+      }
+
       const o = new fabric.Rect({
         left: left,
         top: top,
@@ -487,13 +515,14 @@
         originX: 'left',
         originY: 'top',
         centeredRotation: true,
-        snapAngle: 45,
+        snapAngle: snapAngle,
         selectable: true,
         type: 'chair',
-        id: generateId(),
+        id: id,
         number: chairNumber,
         scaleX: scaleX,
-        scaleY: scaleY
+        scaleY: scaleY,
+        angle: angle
       })
 
       canvas.add(o)
@@ -504,7 +533,9 @@
         height: o.height,
         scaleX: o.scaleX,
         scaleY: o.scaleY,
-        id: o.id
+        id: o.id,
+        snapAngle: o.snapAngle,
+        angle: o.angle,
       }
       board.chair.push(object)
       console.log(o)
@@ -512,58 +543,125 @@
       return o
     }
 
-    function addBar(left, top, width, height, scaleX = 1, scaleY = 1) {
+    function addBar(left, top, width, height, scaleX = 1, scaleY = 1, id = "xxxx", snapAngle = 45, angle = 0) {
+      // // console.log("width: ", width)
+      // // console.log("height: ", height)
+
+      // const generated_id = generateId()
+      // if (id === "xxxx") {
+      //   id = generated_id
+      // }
+
+      // // TODO: Find the bug that is increase width and height by 2 everytime save+load is activated (might be just one of these functions)
+      
+      // // current braindead solution to a hard to solve problem
+      // // the width & height increments by 2 everything save + load is used
+      // width = width - 2;
+      // height = height - 2;
+
+      // // console.log("scaling factors: ", scaleX, " ", scaleY)
+      // const o = new fabric.Rect({
+      //   width: width,
+      //   height: height,
+      //   fill: barFill,
+      //   stroke: barStroke,
+      //   strokeWidth: 2,
+      //   shadow: barShadow,
+      //   originX: 'center',
+      //   originY: 'center',
+      //   type: 'bar',
+      //   id: id,
+      //   angle: angle
+      // })
+      // const t = new fabric.IText(barText, {
+      //   fontFamily: 'Calibri',
+      //   fontSize: 14,
+      //   fill: '#fff',
+      //   textAlign: 'center',
+      //   originX: 'center',
+      //   originY: 'center'
+      // })
+      // const g = new fabric.Group([o, t], {
+      //   left: left,
+      //   top: top,
+      //   centeredRotation: true,
+      //   snapAngle: snapAngle,
+      //   selectable: true,
+      //   type: 'bar',
+      //   scaleX: scaleX,
+      //   scaleY: scaleY,
+      //   number: barNumber,
+      //   id: o.id,
+      // })
+      // console.log(g.id)
+      // canvas.add(g)
+      // object = {
+      //   left: g.left,
+      //   top: g.top,
+      //   width: g.width,
+      //   height: g.height,
+      //   scaleX: g.scaleX,
+      //   scaleY: g.scaleY,
+      //   id: o.id,
+      //   snapAngle: g.snapAngle,
+      //   angle: o.angle
+      // }
+      // board.bar.push(object)
+      // console.log(board)
+      // barNumber++
+      // return g
+      const generated_id = generateId()
+      if (id === "xxxx") {
+        id = generated_id
+      }
+
       const o = new fabric.Rect({
+        left: left,
+        top: top,
         width: width,
         height: height,
         fill: barFill,
         stroke: barStroke,
         strokeWidth: 2,
         shadow: barShadow,
-        originX: 'center',
-        originY: 'center',
-        type: 'bar',
-        id: generateId()
-      })
-      const t = new fabric.IText(barText, {
-        fontFamily: 'Calibri',
-        fontSize: 14,
-        fill: '#fff',
-        textAlign: 'center',
-        originX: 'center',
-        originY: 'center'
-      })
-      const g = new fabric.Group([o, t], {
-        left: left,
-        top: top,
+        originX: 'left',
+        originY: 'top',
         centeredRotation: true,
-        snapAngle: 45,
+        snapAngle: snapAngle,
         selectable: true,
         type: 'bar',
+        id: id,
+        number: barNumber,
         scaleX: scaleX,
         scaleY: scaleY,
-        number: barNumber,
-        id: o.id,
+        angle: angle
       })
-      console.log(g.id)
-      canvas.add(g)
+      canvas.add(o)
       object = {
-        left: g.left,
-        top: g.top,
-        width: g.width,
-        height: g.height,
-        scaleX: g.scaleX,
-        scaleY: g.scaleY,
-        id: o.id
+        left: o.left,
+        top: o.top,
+        width: o.width,
+        height: o.height,
+        scaleX: o.scaleX,
+        scaleY: o.scaleY,
+        id: o.id,
+        snapAngle: o.snapAngle,
+        angle: o.angle
+
       }
       board.bar.push(object)
       console.log(board)
       barNumber++
-      return g
+      return o
     }
 
 
-    function addWall(left, top, width, height, scaleX = 1, scaleY = 1) {
+    function addWall(left, top, width, height, scaleX = 1, scaleY = 1, id = "xxxx", snapAngle = 45, angle = 0) {
+      const generated_id = generateId()
+      if (id === "xxxx") {
+        id = generated_id
+      }
+
       const o = new fabric.Rect({
         left: left,
         top: top,
@@ -576,13 +674,14 @@
         originX: 'left',
         originY: 'top',
         centeredRotation: true,
-        snapAngle: 45,
+        snapAngle: snapAngle,
         selectable: true,
         type: 'wall',
-        id: generateId(),
+        id: id,
         number: wallNumber,
         scaleX: scaleX,
-        scaleY: scaleY
+        scaleY: scaleY,
+        angle: angle
       })
       canvas.add(o)
       object = {
@@ -592,7 +691,9 @@
         height: o.height,
         scaleX: o.scaleX,
         scaleY: o.scaleY,
-        id: o.id
+        id: o.id,
+        snapAngle: o.snapAngle,
+        angle: o.angle
 
       }
       board.wall.push(object)
@@ -609,6 +710,7 @@
 
       if (target.type == 'rect') {
         // grab the number (the number - 1 is the index in table list)
+        console.log(target)
         let index = target.number - 1
         board.table[index].left = target.left
         board.table[index].top = target.top
@@ -616,6 +718,8 @@
         board.table[index].height = target.height
         board.table[index].scaleX = target.scaleX
         board.table[index].scaleY = target.scaleY
+        board.table[index].snapAngle = target.snapAngle
+        board.table[index].angle = target.angle
       }
       else if (target.type == 'circle') {
         // grab the number (the number - 1 is the index in table list)
@@ -625,9 +729,11 @@
         board.table[index].radius = target.radius
         board.table[index].scaleX = target.scaleX
         board.table[index].scaleY = target.scaleY
+        board.table[index].snapAngle = target.snapAngle
+        board.table[index].angle = target.angle
       }
       else if (target.type == 'chair') {
-        // grab the number (the number - 1 is the index in table list)
+        // grab the number (the number - 1 is the index in chair list)
         let index = target.number - 1
         console.log(board.chair)
         console.log(board.chair)
@@ -635,9 +741,11 @@
         board.chair[index].top = target.top
         board.chair[index].scaleX = target.scaleX
         board.chair[index].scaleY = target.scaleY
+        board.chair[index].snapAngle = target.snapAngle
+        board.chair[index].angle = target.angle
       }
       else if (target.type == 'bar') {
-        // grab the number (the number - 1 is the index in table list)
+        // grab the number (the number - 1 is the index in bar list)
         let index = target.number - 1
         console.log(target.number)
         board.bar[index].left = target.left
@@ -646,9 +754,11 @@
         board.bar[index].height = target.height
         board.bar[index].scaleX = target.scaleX
         board.bar[index].scaleY = target.scaleY
+        board.bar[index].snapAngle = target.snapAngle
+        board.bar[index].angle = target.angle
       }
       else if (target.type == 'wall') {
-        // grab the number (the number - 1 is the index in table list)
+        // grab the number (the number - 1 is the index in wall list)
         let index = target.number - 1
         board.wall[index].left = target.left
         board.wall[index].top = target.top
@@ -656,6 +766,8 @@
         board.wall[index].height = target.height
         board.wall[index].scaleX = target.scaleX
         board.wall[index].scaleY = target.scaleY
+        board.wall[index].snapAngle = target.snapAngle
+        board.wall[index].angle = target.angle
       }
 
     }
@@ -883,28 +995,30 @@
 
       tables.forEach(element => {
         if (element.type == 'rect') {
-          addRect(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY, element.tableName,element.id)
+    //       left, top, radius, scaleX = 1, scaleY = 1, tableName, snapAngle = 45, angle = 0
+    // left, top, width, height, scaleX = 1, scaleY = 1, tableName, snapAngle = 45
+          addRect(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY, element.tableName,element.id, element.snapAngle, element.angle)
         } else if (element.type == 'circle') {
-          addCircle(element.left, element.top, element.radius, element.scaleX, element.scaleY, element.tableName,element.id)
+          addCircle(element.left, element.top, element.radius, element.scaleX, element.scaleY, element.tableName,element.id, element.snapAngle, element.angle)
         }
       });
 
       // getting the chairs category from baord and adding all the chairs to canvas
       chairs = board.chair
       chairs.forEach(element => {
-        addChair(element.left, element.top, element.scaleX, element.scaleY,element.id)
+        addChair(element.left, element.top, element.scaleX, element.scaleY,element.id, element.snapAngle, element.angle)
       })
 
       // getting the bars category from board and adding all the bars to canvas
       bars = board.bar
       bars.forEach(element => {
-        addBar(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY,element.id)
+        addBar(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY,element.id, element.snapAngle, element.angle)
       })
 
       // getting the walls category from board and adding all the walls to canvas
       walls = board.wall
       walls.forEach(element => {
-        addWall(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY,element.id)
+        addWall(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY,element.id, element.snapAngle, element.angle)
       })
       // addChair(15, 105)
       // addChair(15, 135)
