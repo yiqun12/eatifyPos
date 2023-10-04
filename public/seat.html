@@ -235,6 +235,27 @@
         canvas.add(lineY)
       }
 
+
+      // this has to be inside initCanvas() so that every Newly created canvas has this functionality
+      // when the blank canvas is clicked and the shapes are deselected, it sends a message to the parent
+      canvas.on('mouse:down', function(options) {
+        // console.log("mouse down")
+        // when the target doesn't exist (IE just the canvas)
+        if (current_mode === "customer") {
+          // console.log(options.target)
+          if (!options.target) {
+          // console.log("mouse down on canvas")
+            canvas.discardActiveObject().renderAll();
+            window.parent.postMessage(`table_deselected`, "*");
+          }
+          if (options.target.type === "rect" || options.target.type === "circle") {
+            // console.log(options.target.tableName)
+            window.parent.postMessage(`selected_table ${options.target.tableName}`, "*");
+          }
+        }
+    });
+
+
       canvas.on('object:moving', function (e) {
         snapToGrid(e.target)
       })
@@ -343,6 +364,7 @@
         type: 'rect',
         id: id,
         number: tableNumber,
+        tableName: tableName,
         scaleX: scaleX,
         scaleY: scaleY
       })
@@ -350,8 +372,9 @@
       g.on("selected", function () {
         // this.number returns the number, this returns the whole item
         console.log("This is table ", this.tableName);
-        const selectedtable = this.tableName;
-        window.parent.postMessage(selectedtable, "*");
+        const selectedTable = this.tableName;
+        if (current_mode === "customer")
+          window.parent.postMessage(`selected_table ${selectedTable}`, "*");
       })
       canvas.add(g)
       object = {
@@ -400,6 +423,7 @@
         type: 'circle',
         id: id,
         number: tableNumber,
+        tableName: tableName,
         scaleX: scaleX,
         scaleY: scaleY,
         radius: radius
@@ -409,7 +433,8 @@
         // this.number returns the number, this returns the whole item
         console.log("This is table ", this.tableName);
         const selectedTable = this.tableName;
-        window.parent.postMessage(selectedTable, "*");
+        if (current_mode === "customer")
+          window.parent.postMessage(`selected_table ${selectedTable}`, "*");
       })
 
       canvas.add(g)
@@ -728,6 +753,8 @@ $('#addTableModal').on('hidden.bs.modal', function() {
       }
     })
 
+    let current_mode = "customer";
+
     document.querySelectorAll('.customer-mode')[0].addEventListener('click', function () {
       canvas.getObjects().map(o => {
         o.hasControls = false
@@ -745,6 +772,9 @@ $('#addTableModal').on('hidden.bs.modal', function() {
       canvas.renderAll()
       document.querySelectorAll('.admin-menu')[0].style.display = 'none'
       document.querySelectorAll('.customer-menu')[0].style.display = 'block'
+      current_mode = "customer"
+      window.parent.postMessage(`customer mode active`, "*");
+      
     })
 
     document.querySelectorAll('.admin-mode')[0].addEventListener('click', function () {
@@ -764,7 +794,10 @@ $('#addTableModal').on('hidden.bs.modal', function() {
       canvas.renderAll()
       document.querySelectorAll('.admin-menu')[0].style.display = 'block'
       document.querySelectorAll('.customer-menu')[0].style.display = 'none'
+      current_mode = "admin"
+      window.parent.postMessage(`admin mode active`, "*");
     })
+
 
     function formatTime(val) {
       const hours = Math.floor(val / 60)
