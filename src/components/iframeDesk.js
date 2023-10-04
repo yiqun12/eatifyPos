@@ -447,7 +447,7 @@ function App({ store }) {
             {/* modal code for when table inside iframe is clicked in customer mode */}
             {isModalOpen && (
                 <div id="addTableModal" className="modal fade show " role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                    <div className="modal-dialog" role="document">
+                    <div className="modal-dialog modal-xl" role="document">
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">Table {selectedTable}</h5>
@@ -483,7 +483,7 @@ function App({ store }) {
                         </div>
 
                         <section className="task-list" >
-                            <div className="task-wrap" style={{ minHeight: '350px', maxHeight: '350px', overflowY: 'scroll' }}>
+                            <div className="task-wrap" style={{ minHeight: '350px', overflowY: 'scroll' }}>
                                 <div className={`task-card ${"task.checked" ? "task-card--done" : ""}`}>
                                     <div style={{ display: "flex", alignItems: "center" }}>
 
@@ -491,13 +491,16 @@ function App({ store }) {
 
                                         <div>
                                             {/* open drawer here above the table info */}
-                                            <a className="main-nav__link" style={{ background: "#e1ecf4", display: "inline-block" }} onClick={handleOpenCashDraw}>
+                                            <a className="main-nav__link" style={{ background: "#e1ecf4", display: "flex",
+    justifyContent: "center",
+    margin: "auto",
+    width: "fit-content" }} onClick={handleOpenCashDraw}>
                                                 <img src={icons8Drawer} alt="Icons8 Drawer" style={{ display: "inline-block" }} />
                                                 {t("OPEN DRAWER")}
                                             </a>
                                             <InStore_shop_cart store={store} ></InStore_shop_cart>
 
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "5px" }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: "10px" }}>
                                                 <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '10px' }}>
                                                     {sessionStorage.getItem("tableMode") === "table-NaN" ? (
                                                         <>Did not select table</>
