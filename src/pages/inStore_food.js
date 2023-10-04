@@ -19,7 +19,7 @@ import { query, where, limit, doc, getDoc } from "firebase/firestore";
 import BusinessHoursTable from './BusinessHoursTable.js'
 import { v4 as uuidv4 } from 'uuid';
 
-const Food = ({ store }) => {
+const Food = ({ store, selectedTable }) => {
   //const params = new URLSearchParams(window.location.search);
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
@@ -67,14 +67,14 @@ const Food = ({ store }) => {
     // After updating selectedAttributes, recalculate the total price
     const newTotalPrice = TotalAttributePrice(updatedSelectedAttributes, selectedFoodItem.attributesArr);
     setTotalPrice(newTotalPrice);
-    let products = JSON.parse(sessionStorage.getItem(store));
+    let products = JSON.parse(sessionStorage.getItem(store + "-" + selectedTable));
     const product = products.find((product) => product.id === id && product.count === count);
     console.log(product)
     console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
 
     product.attributeSelected = updatedSelectedAttributes
     product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
-    sessionStorage.setItem(store, JSON.stringify(products));
+    sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
 
   };
 
@@ -121,24 +121,6 @@ const Food = ({ store }) => {
   const storeValue = store
 
   console.log(storeValue)
-  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
-
-  //console.log(user_loading)
-  if (tableValue === "") {
-    if (sessionStorage.getItem('table')) {//存在过
-      sessionStorage.setItem('isDinein', true)
-    } else {//不存在
-      sessionStorage.setItem('table', tableValue)
-      sessionStorage.setItem('isDinein', false)
-
-    }
-  } else {
-    sessionStorage.setItem('table', tableValue)
-    sessionStorage.setItem('isDinein', true)
-  }
-  //console.log(tableValue)
-
-  //const data = 
 
   const [data, setData] = useState([]);
   const [storeInfo, setStoreInfo] = useState({});
@@ -235,7 +217,7 @@ const Food = ({ store }) => {
 
   const displayAllProductInfo = () => {
     // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem(store));
+    let products = JSON.parse(sessionStorage.getItem(store + "-" + selectedTable));
     //console.log("displayProductFunction")
     //console.log(products)
     // Create an empty array to store the products
@@ -365,17 +347,17 @@ const Food = ({ store }) => {
   const addSpecialFood = (id, name, subtotal, image, attributeSelected, count) => {
 
     // Check if the array exists in local storage
-    if (sessionStorage.getItem(store) === null) {
+    if (sessionStorage.getItem(store + "-" + selectedTable) === null) {
       // If it doesn't exist, set the value to an empty array
-      sessionStorage.setItem(store, JSON.stringify([]));
+      sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
     }
 
     // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem(store));
+    let products = JSON.parse(sessionStorage.getItem(store + "-" + selectedTable));
 
     // Find the product with the matching id
     //let product = products.find((product) => product.id === id);
-    const product = products.find((product) => product.id === id && product.count === count);
+    const product = products?.find((product) => product.id === id && product.count === count);
 
     // If the product exists, update its name, subtotal, image, and timesClicked values
     if (product) {
@@ -388,7 +370,7 @@ const Food = ({ store }) => {
       product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
     } else {
       // If the product doesn't exist, add it to the array
-      products.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: subtotal });
+      products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: subtotal });
     }
 
 
@@ -396,10 +378,10 @@ const Food = ({ store }) => {
     //product.itemTotalPrice= Math.round(100 *((parseFloat(totalPrice)+parseFloat(product.subtotal))*parseFloat(product.quantity))/ 100)
     console.log(product)
     // Update the array in local storage
-    sessionStorage.setItem(store, JSON.stringify(products));
+    sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
 
     const calculateTotalQuant = () => {
-      const total = products.reduce((acc, product) => acc + (product.quantity), 0);
+      const total = products?.reduce((acc, product) => acc + (product.quantity), 0);
       // console.log(total)
       $('#cart').attr("data-totalitems", total);
     }
@@ -408,7 +390,7 @@ const Food = ({ store }) => {
 
 
   const deleteSpecialFood = (id, count, attributeSelected) => {
-    let products = JSON.parse(sessionStorage.getItem(store));
+    let products = JSON.parse(sessionStorage.getItem(store + "-" + selectedTable));
 
     if (products && products.length > 0) {
       // Find the index of the product with the given id
@@ -423,7 +405,7 @@ const Food = ({ store }) => {
         if (products[productIndex].quantity <= 0) {
           console.log("delete now")
           products.splice(productIndex, 1);
-          sessionStorage.setItem(store, JSON.stringify(products));
+          sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
           hideModal()
           return
         }
@@ -431,7 +413,7 @@ const Food = ({ store }) => {
 
         product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
         // Save the updated array in local storage
-        sessionStorage.setItem(store, JSON.stringify(products));
+        sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
       }
 
     }
@@ -446,7 +428,7 @@ const Food = ({ store }) => {
   };
   const searchSpeicalFoodQuantity = (id, count) => {
     // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem(store));
+    let products = JSON.parse(sessionStorage.getItem(store + "-" + selectedTable));
     const product = products.find((product) => product.id === id && product.count === count);
     // If the product is not found or the quantity is less than or equal to 0, return 0
     return product ? product.quantity : 0;
@@ -647,7 +629,7 @@ const Food = ({ store }) => {
                 </div>
                 <div className='p-4 pt-3'>
                   <div>
-                    {selectedFoodItem.name}
+                    {selectedFoodItem?.name}
                   </div>
                   {Object.entries(selectedFoodItem.attributesArr).map(([attributeName, attributeDetails]) => (
                     <div key={attributeName}>
@@ -705,8 +687,8 @@ const Food = ({ store }) => {
                       </div>
                     </div>
                   ))}
-                  <pre>{JSON.stringify(selectedAttributes, null, 2)}</pre>
-                  <div>{searchSpeicalFoodQuantity(selectedFoodItem.id, count)}</div>
+                  {/* <pre>{JSON.stringify(selectedAttributes, null, 2)}</pre>
+                  <div>{searchSpeicalFoodQuantity(selectedFoodItem.id, count)}</div> */}
                 </div>
                 <div className='p-4 pt-3 flex justify-between'>
                   <div>
@@ -906,10 +888,10 @@ const Food = ({ store }) => {
 
           {/* diplay food */}
           <AnimatePresence>
-            <div className={isMobile ? 'grid grid-cols-1 gap-3 pt-2' : 'grid lg:grid-cols-2 gap-3'}       style={{
-        gridTemplateRows: `repeat(1, 1fr)`,
-        gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)'
-      }}>
+            <div className={isMobile ? 'grid grid-cols-1 gap-3 pt-2' : 'grid lg:grid-cols-2 gap-3'} style={{
+              gridTemplateRows: `repeat(1, 1fr)`,
+              gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)'
+            }}>
               {foods.map((item, index) => (
                 <motion.div
                   layout
@@ -926,18 +908,20 @@ const Food = ({ store }) => {
                       </div>
                     </div>
                     <div style={{ width: "60%" }}>
-                      <div className='flex justify-between px-2 pb-1 grid grid-cols-4 w-full'>
+                      <div className='flex-row px-2 pb-1 w-full'>
 
                         {/* parent div of title + quantity and button parent div */}
                         <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                          <div className="col-span-4">
+                          <div className="col-span-4 ">
                             <p className=' mb-1'>{translationsMode_ === "ch" ? item.CHI : item.name}</p>
                           </div>
 
                           {/* parent div of the quantity and buttons */}
-                          <div style={{
+
+                          {/* ^ end of parent div of quantity and button */}
+                        </div>
+                        <div style={{
                             display: "flex",
-                            flexDirection: "row",
                             justifyContent: "space-between",
                             marginBottom: "10px"
                           }}>
@@ -1004,8 +988,6 @@ const Food = ({ store }) => {
                             </div>
 
                           </div>
-                          {/* ^ end of parent div of quantity and button */}
-                        </div>
                         {/* ^ end of parent div of title + quantity and buttons */}
                       </div>
                       {/* This is Tony added code */}

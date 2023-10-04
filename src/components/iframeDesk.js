@@ -451,17 +451,15 @@ function App({ store }) {
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">Table {selectedTable}</h5>
-                                <button type="button" className="close" onClick={() => setModalOpen(false)} aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
+                                <div className="modal-footer">
+                                    <button type="button" className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
+                                </div>
                             </div>
                             <div className="modal-body">
                                 {/* in the body of the modal contains the search food items functionality */}
-                                <InStore_food store={store} ></InStore_food>
+                                <InStore_food store={store} selectedTable={selectedTable} ></InStore_food>
                             </div>
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
-                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -491,14 +489,16 @@ function App({ store }) {
 
                                         <div>
                                             {/* open drawer here above the table info */}
-                                            <a className="main-nav__link" style={{ background: "#e1ecf4", display: "flex",
-    justifyContent: "center",
-    margin: "auto",
-    width: "fit-content" }} onClick={handleOpenCashDraw}>
+                                            <a className="main-nav__link" style={{
+                                                background: "#e1ecf4", display: "flex",
+                                                justifyContent: "center",
+                                                margin: "auto",
+                                                width: "fit-content"
+                                            }} onClick={handleOpenCashDraw}>
                                                 <img src={icons8Drawer} alt="Icons8 Drawer" style={{ display: "inline-block" }} />
                                                 {t("OPEN DRAWER")}
                                             </a>
-                                            <InStore_shop_cart store={store} ></InStore_shop_cart>
+                                            <InStore_shop_cart store={store}  ></InStore_shop_cart>
 
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: "10px" }}>
                                                 <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '10px' }}>

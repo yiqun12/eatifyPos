@@ -706,8 +706,8 @@ const Food = () => {
                       </div>
                     </div>
                   ))}
-                  <pre>{JSON.stringify(selectedAttributes, null, 2)}</pre>
-                  <div>{searchSpeicalFoodQuantity(selectedFoodItem.id, count)}</div>
+                  {/* <pre>{JSON.stringify(selectedAttributes, null, 2)}</pre>
+                  <div>{searchSpeicalFoodQuantity(selectedFoodItem.id, count)}</div> */}
                 </div>
                 <div className='p-4 pt-3 flex justify-between'>
                   <div>
