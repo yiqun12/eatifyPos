@@ -498,7 +498,7 @@ function App({ store }) {
                                                 <img src={icons8Drawer} alt="Icons8 Drawer" style={{ display: "inline-block" }} />
                                                 {t("OPEN DRAWER")}
                                             </a>
-                                            <InStore_shop_cart store={store}  ></InStore_shop_cart>
+                                            <InStore_shop_cart store={store} selectedTable={selectedTable}  ></InStore_shop_cart>
 
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: "10px" }}>
                                                 <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '10px' }}>

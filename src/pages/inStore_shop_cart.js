@@ -31,41 +31,7 @@ import cuiyuan from './cuiyuan.png'
 
 import cartImage from './shopcart.png';
 
-const Navbar = ({ store }) => {
-
-  const googleTranslateElementInit = () => {
-    if (window.google && window.google.translate) {
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: "en",
-          includedLanguages: "en,zh-CN,zh-TW",
-          autoDisplay: false
-        },
-        "google_translate_element"
-      );
-    } else {
-      console.error('Google Translate not initialized correctly');
-    }
-  };
-
-  useEffect(() => {
-    // Check if the script is already loaded
-    if (window.google && window.google.translate) {
-      googleTranslateElementInit();
-      return;
-    }
-
-    var addScript = document.createElement("script");
-    addScript.setAttribute(
-      "src",
-      "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-    );
-    addScript.onerror = function () {
-      console.error('Failed to load the Google Translate script');
-    };
-    document.body.appendChild(addScript);
-    window.googleTranslateElementInit = googleTranslateElementInit;
-  }, []);
+const Navbar = ({ store, selectedTable  }) => {
 
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
@@ -107,18 +73,7 @@ const Navbar = ({ store }) => {
 
   //console.log(user)
   ///shopping cart products
-  const [products, setProducts] = useState([
-  ]);
-
-
-  useEffect(() => {
-    // Call the displayAllProductInfo function to retrieve the array of products from local storage
-    let productArray = displayAllProductInfo();
-    // Update the products state with the array of products
-    setProducts(productArray);
-  }, []);
-
-
+  let products = useState(JSON.parse(sessionStorage.getItem(store + "-" + selectedTable)));
   const [totalQuant, setTotalQuant] = useState(0);
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
@@ -158,75 +113,78 @@ const Navbar = ({ store }) => {
   }, [products, width]);
 
   const handleDeleteClick = (productId, count) => {
-    setProducts((prevProducts) => {
-      saveId(Math.random());  // generate a new id here
-      return prevProducts.filter((product) => product.id !== productId || product.count !== count);
-    });
+    products = (prevProducts) => {
+      const newId = Math.random(); // Generate a new ID once
+    
+      return prevProducts.filter((product) => {
+        if (product.id !== productId || product.count !== count) {
+          return true; // Keep the product
+        }
+    
+        // Update the product's ID and return false to exclude it
+        saveId(newId);
+        return false;
+      });
+    };
+    
   }  
 
   const handlePlusClick = (productId, targetCount) => {
-    setProducts((prevProducts) => {
+    products = (prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId && product.count === targetCount) {
+          const newQuantity = Math.min(product.quantity + 1, 99);
+          const newItemTotalPrice = Math.round((product.itemTotalPrice / product.quantity) * newQuantity * 100) / 100;
+    
           saveId(Math.random());
+    
           return {
             ...product,
-            itemTotalPrice:Math.round(100 *  product.itemTotalPrice/(product.quantity)*(Math.min(product.quantity + 1, 99)) ) / 100,
-            quantity: Math.min(product.quantity + 1, 99),
+            quantity: newQuantity,
+            itemTotalPrice: newItemTotalPrice,
           };
         }
+    
         saveId(Math.random());
         return product;
       });
-    });
+    };
   };
   
   const handleMinusClick = (productId,targetCount) => {
-    setProducts((prevProducts) => {
+    products = (prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId && product.count === targetCount) {
-          // Constrain the quantity of the product to be at least 0
+          const newQuantity = Math.max(product.quantity - 1, 0);
+          const newItemTotalPrice = Math.round((product.itemTotalPrice / product.quantity) * newQuantity * 100) / 100;
+          
           saveId(Math.random());
+    
           return {
             ...product,
-            quantity: Math.max(product.quantity - 1, 1),
-            itemTotalPrice:Math.round(100 *  product.itemTotalPrice/(product.quantity)*(Math.max(product.quantity - 1, 1)) ) / 100,
+            quantity: newQuantity,
+            itemTotalPrice: newItemTotalPrice,
           };
         }
+    
         saveId(Math.random());
         return product;
       });
-    });
+    };
+    
     uploadProductsToLocalStorage(products);
 
   };
   const uploadProductsToLocalStorage = (products) => {
     // Set the products array in local storage
-    sessionStorage.setItem(store, JSON.stringify(products));
+    sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
   };
   //display every item.
-  const displayAllProductInfo = () => {
-    // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem(store));
-
-    // Return the array of product objects
-    return products;
-  };
 
   // modal. 
   const modalRef = useRef(null);
   const btnRef = useRef(null);
   const spanRef = useRef(null);
-  const openModal = () => {
-    // Call the displayAllProductInfo function to retrieve the array of products from local storage
-    let productArray = displayAllProductInfo();
-    //console.log(productArray)
-    // Update the products state with the array of products
-    setProducts(productArray);
-    modalRef.current.style.display = 'block';
-    // Retrieve the array from local storage
-  };
-
   const closeModal = () => {
     //console.log(products)
     modalRef.current.style.display = 'none';
@@ -246,7 +204,7 @@ const Navbar = ({ store }) => {
     window.onclick = (event) => {
       if (event.target === modal) {
 
-        sessionStorage.setItem(store, JSON.stringify(products));
+        sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
         modal.style.display = "none";
       }
     }
@@ -261,16 +219,14 @@ const Navbar = ({ store }) => {
   const url = "http://localhost:8080"
 
   const queryParams = new URLSearchParams(location.search);
-  const storeValue = queryParams.get('store'); // should give "parkasia"
-  const tableValue = queryParams.get('table'); // should give "A3"
-  if (!sessionStorage.getItem(storeValue)) {
-    sessionStorage.setItem(storeValue, JSON.stringify([]));
+
+  if (!sessionStorage.getItem(store + "-" + selectedTable)) {
+    sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
 }
   //console.log(storeValue)
   //console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
-    sessionStorage.setItem(store, JSON.stringify(products));
-    window.location.href = '/Checkout' + "?store=" + storeValue + "&" + "table=" + sessionStorage.getItem("table")
+    sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
   };
 
   // for translations sake
@@ -323,10 +279,9 @@ const Navbar = ({ store }) => {
 
         {/* popup content */}
         <div className="shopping-cart" style={{margin: "auto"}}>
-
           {/* shoppig cart */}
           <div className="title" style={{ height: '80px' }}>
-
+          <div>{JSON.stringify(sessionStorage.getItem(store + "-" + selectedTable))}</div>
 
             <DeleteSvg className="delete-btn" style={{ 'postion': 'absolute', float: 'right', cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></DeleteSvg>
 
