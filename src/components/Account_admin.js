@@ -875,7 +875,7 @@ const Account = () => {
 
                                 {data?.stripe_store_acct === "" ?
                                   <>
-                                                                <div className='mb-3'>Receive Payment Options:</div>
+                                    <div className='mb-3'>Receive Payment Options:</div>
 
                                     <div>
                                       <StripeConnectButton store={data.id} user={user.uid}></StripeConnectButton>
@@ -884,19 +884,17 @@ const Account = () => {
 
                                   :
                                   <>
-                                          <div style={{ display: 'flex' }}>
- 
-                                          <img 
-            src={myImage}  // Use the imported image here
-            alt="Description" 
-            style={{
-                width: '30px',
-                height: '30px',
-                display: 'block',
-                margin: '0 auto' // Optional: centers the image if its parent is a block with a specific width
-            }} 
-        />
-                                    You already connect with Stripe to receive payment!
+                                    <div style={{ display: 'flex' }}>
+
+                                      <img className='mr-2'
+                                        src={myImage}  // Use the imported image here
+                                        alt="Description"
+                                        style={{
+                                          width: '30px',
+                                          height: '30px',
+                                        }}
+                                      />
+                                      You already connect with Stripe to receive payment!
                                     </div>
 
                                   </>

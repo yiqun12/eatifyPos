@@ -35,9 +35,11 @@ function Refresh() {
           console.error("Error updating document:", error);
           alert("For sercurity concern, you do not have permision to access our database. Please contact our customer service.");
         });
+        alert(JSON.stringify({stripe_store_acct,storeName,id}));
+
         window.location.href = "/account";
       } else {
-        alert("For sercurity concern, you are authorized. You need to log in your account and try again. Or contact our customer service.");
+        alert(stripe_store_acct);
       }
     }
     

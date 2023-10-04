@@ -1139,26 +1139,26 @@ function PayHistory(props) {
   };
 
   const handleConfirm = () => {
-    let phoneNumber = '';
-    inputs.current.forEach((input) => {
-      phoneNumber += input.value;
-    });
+    // let phoneNumber = '';
+    // inputs.current.forEach((input) => {
+    //   phoneNumber += input.value;
+    // });
 
-    function isTenDigitNumber(s) {
-      if (s.length !== 10) {
-        return false;
-      }
+    // function isTenDigitNumber(s) {
+    //   if (s.length !== 10) {
+    //     return false;
+    //   }
 
-      return /^\d{10}$/.test(s);
-    }
-    var s = phoneNumber;
-    var result = isTenDigitNumber(s);
+    //   return /^\d{10}$/.test(s);
+    // }
+    // var s = phoneNumber;
+    // var result = isTenDigitNumber(s);
 
-    if (result === false) {
-      setErrorMessage('This is not a valid number');
-    } else {
-      setErrorMessage(''); // Clear the error message if the input is valid
-      console.log(phoneNumber);
+    // if (result === false) {
+    //   setErrorMessage('This is not a valid number');
+    // } else {
+    //   setErrorMessage(''); // Clear the error message if the input is valid
+    //   console.log(phoneNumber);
       const amount = Number(totalPrice);
       const currency = 'usd';
       //  console.log(currency)
@@ -1166,20 +1166,22 @@ function PayHistory(props) {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
 
-
+       
       const data = {
         store,
         payment_method: 'instore_pay',
         currency,
         amount: amount,
         status: 'new',
-        phoneNumber,
+        phoneNumber:"12345",
         receipt: sessionStorage.getItem(store),
         dateTime: date,
         user_email: user.email,
         isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
         tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
       };
+      console.log("data")
+      console.log(data)
       //send to db
       firebase
         .firestore()
@@ -1190,14 +1192,14 @@ function PayHistory(props) {
           props.setReceiptToken(docRef.id)
           console.log("Document ID is:", docRef.id);
           sessionStorage.removeItem(store);
-          window.location.href = '/orders?order=' + docRef.id;
+          //window.location.href = '/orders?order=' + docRef.id;
         })
         .catch((error) => {
           props.setReceiptToken("")
           console.error("Error adding document: ", error);
         });
 
-    }
+    
   };
   const isMobileOrTablet = useMobileAndTabletCheck();
 
@@ -1250,7 +1252,7 @@ function PayHistory(props) {
       {location ? (
         distanceStatus === 'near' ? (
           <div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            {/* <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <p>{t("Enter your phone number to use 'Pay Later'")}:</p>
               <div className="phone-field">
                 &#40;
@@ -1358,8 +1360,8 @@ function PayHistory(props) {
                   onKeyUp={(e) => handleKeyUp(e, 9)}
                 />
               </div>
-            </div>
-            {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+            </div> */}
+            {/* {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>} */}
 
             <button
               onClick={handleConfirm}
