@@ -234,8 +234,33 @@ function App() {
     const [src, setSrc] = useState(window.PUBLIC_URL + "/seat.html");
     const iframeRef = useRef(null);
 
+    // the selectedTable variable allows you to keep track which table you have selected
+    const [selectedTable, setSelectedTable] = useState(null);
+    const [selectedSeatMode, setSelectedSeatMode] = useState("customer");
+
+    // the below messageHandler + useEffect() below allows for communication from iframe to parent window
     const messageHandler = useCallback((event) => {
-        if (event.data === 'buttonClicked') {
+        // console.log(event.data);
+    
+        // the code serves to communicate with the iframe
+        if (event.data.includes('selected_table')) {
+            // Extract the table number after the colon and trim any whitespace
+            const tableNumber = event.data.split('selected_table')[1].trim();
+            
+            // Set the table number to the selectedTable state
+            setSelectedTable(tableNumber);
+            
+            console.log(tableNumber);
+            setModalOpen(true);
+        } else if (event.data === "admin mode active") {
+            setSelectedSeatMode("admin");
+        } else if (event.data === "customer mode active") {
+            setSelectedSeatMode("customer");
+        } else if (event.data === "table_deselected") {
+            setSelectedTable(null);
+            console.log("Table deselected");
+        }
+        else if (event.data === 'buttonClicked') {
             console.log('Button clicked2!');
         }
     }, []);
@@ -402,13 +427,87 @@ function App() {
 
     let search_food = !searchData ? Food_arrays : cheeseItems_;
 
+    // used for modal open and close
+    const [isModalOpen, setModalOpen] = useState(false);
+
+    // COMMENT: The below code is added to the original messageHandler function above as a conditional statement to listen back from iframe
+    // const messageHandler = useCallback((event) => {
+    //     if (event.data === 'rectangleClicked') {
+    //       setModalOpen(true);
+    //     }
+    //   }, []);
+
     return (
 
                 <div>
-                <a className="main-nav__link" style={{ background: "#e1ecf4", display: "inline-block" }} onClick={handleOpenCashDraw}>
-                                    <img src={icons8Drawer} alt="Icons8 Drawer" style={{ display: "inline-block" }} />
-                                    {t("OPEN DRAWER")}
-                                </a>
+
+                {/* modal code for when table inside iframe is clicked in customer mode */}
+                {isModalOpen && (
+                <div id="addTableModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                    <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                        <h5 className="modal-title">Table {selectedTable}</h5>
+                        <button type="button" className="close" onClick={() => setModalOpen(false)} aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        </div>
+                        <div className="modal-body">
+                                {/* in the body of the modal contains the search food items functionality */}
+                                    <section className="task-list">
+
+                                        <input
+                                            type="text"
+                                            name="inputData"
+                                            placeholder={t("Search food items")}
+                                            className="search-bar"
+                                            style={{ marginLeft: "5px", height: '30px', width: "80%", marginBottom: "5px" }}
+                                            onChange={(e) => {
+                                                searchItemFromShopItem(e.target.value);
+                                                setSearchData(e.target.value);
+                                            }}
+                                            value={searchData}
+                                        />
+
+                                        <div className="task-wrap" style={{ minHeight: '400px', maxHeight: '400px', overflowY: 'scroll' }}>
+                                            {search_food.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
+                                                <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
+                                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                                        <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
+                                                            <img src={task.image} alt="" />
+                                                        </div>
+                                                        <div style={{ marginLeft: "10px" }}>{task.name}</div>
+                                                        <span
+                                                            style={{ cursor: 'pointer', marginLeft: 'auto' }}
+                                                            onClick={() => {
+                                                                shopAdd(task.id);
+                                                                saveId(Math.random());
+                                                            }}
+                                                            className="task-card__tag task-card__tag--marketing"
+                                                        >
+                                                            {t("Add")}
+                                                        </span>
+
+                                                    </div>
+
+
+
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </section>
+                        </div>
+                        <div className="modal-footer">
+                        <button type="button" className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                )}
+
+                {/* beginning of the other code */}
+
+                <div style={{margin:"10px", display:"flex"}}>
                     { selectedItem === 'Order' ?
 
                                 <>
@@ -418,7 +517,7 @@ function App() {
                                         </div>
                                     </header>
                                     <div style={{ marginTop: "-100px" }}>
-                                        <Iframe src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" />
+                                        <Iframe ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" />
                                     </div>
 
                                     <section className="task-list" style={{ marginTop: "-100px" }}>
@@ -429,7 +528,11 @@ function App() {
 
 
                                                     <div>
-
+                                                        {/* open drawer here above the table info */}
+                                                        <a className="main-nav__link" style={{ background: "#e1ecf4", display: "inline-block" }} onClick={handleOpenCashDraw}>
+                                                            <img src={icons8Drawer} alt="Icons8 Drawer" style={{ display: "inline-block" }} />
+                                                            {t("OPEN DRAWER")}
+                                                        </a>
 
                                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "5px" }}>
                                                             <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '10px' }}>
@@ -522,7 +625,10 @@ function App() {
                                             </div>
                                         </div>
                                     </section>
-                                    <section className="task-list" style={{ marginTop: "275px" }}>
+                                    
+                                    {/* test display for seat mode change */}
+                                    <span>The current mode is {selectedSeatMode}</span>
+                                    {/* <section className="task-list" style={{ marginTop: "275px" }}>
 
                                         <input
                                             type="text"
@@ -563,7 +669,7 @@ function App() {
                                                 </div>
                                             ))}
                                         </div>
-                                    </section>
+                                    </section> */}
 
                                 </>
 
@@ -577,7 +683,7 @@ function App() {
 
 
                                         null}
-
+                </div>
                 </div>
 
     );
