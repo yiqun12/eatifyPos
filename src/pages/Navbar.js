@@ -32,6 +32,7 @@ import cuiyuan from './cuiyuan.png'
 import cartImage from './shopcart.png';
 
 const Navbar = () => {
+
   const googleTranslateElementInit = () => {
     if (window.google && window.google.translate) {
       new window.google.translate.TranslateElement(
@@ -75,6 +76,7 @@ const Navbar = () => {
   useEffect(() => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
+
 
 
   /**check if its mobile/browser */
@@ -317,6 +319,12 @@ const Navbar = () => {
       return sessionStorage.getItem("translationsMode")
   }
 
+
+  // the below code checks for language option changes with the google translate widget
+  $('.goog-te-combo').on('change',function(){
+    let language = $("select.goog-te-combo option:selected").text();
+     console.log(language)
+ });
 
   return (
 
