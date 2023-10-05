@@ -31,12 +31,13 @@ import cuiyuan from './cuiyuan.png'
 
 import cartImage from './shopcart.png';
 
-const Navbar = ({ store, selectedTable  }) => {
+const Navbar = ({ store, selectedTable, setProducts , products }) => {
 
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
-    //console.log('Component B - ID changed:', id);
+    setProducts(sessionStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(sessionStorage.getItem(store + "-" + selectedTable)) : [])
+    console.log('Component B - ID changed:', id);
   }, [id]);
 
 
@@ -73,8 +74,9 @@ const Navbar = ({ store, selectedTable  }) => {
 
   //console.log(user)
   ///shopping cart products
-  let products = useState(JSON.parse(sessionStorage.getItem(store + "-" + selectedTable)));
+  console.log(products)
   const [totalQuant, setTotalQuant] = useState(0);
+  console.log(totalQuant)
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
     let height = 100;
@@ -91,7 +93,6 @@ const Navbar = ({ store, selectedTable  }) => {
       height = (products?.length || 0) * 123 + 100;      // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
     }
 
-    //console.log("product changed")
     // Update the height of the shopping cart element
     document.querySelector('.shopping-cart').style.height = `${height}px`;
     //maybe add a line here...
@@ -100,80 +101,47 @@ const Navbar = ({ store, selectedTable  }) => {
       console.log(total)
       setTotalPrice(total);
     }
-    calculateTotalPrice();
-    const calculateTotalQuant = () => {
-      const total = products?.reduce((acc, product) => acc + (product.quantity), 0);
-      //  console.log(total)
-      $('#cart').attr("data-totalitems", total);
-      setTotalQuant(total);
-    }
-    calculateTotalQuant();
+    calculateTotalPrice();;
 
     uploadProductsToLocalStorage(products);
   }, [products, width]);
 
   const handleDeleteClick = (productId, count) => {
-    products = (prevProducts) => {
-      const newId = Math.random(); // Generate a new ID once
-    
-      return prevProducts.filter((product) => {
-        if (product.id !== productId || product.count !== count) {
-          return true; // Keep the product
-        }
-    
-        // Update the product's ID and return false to exclude it
-        saveId(newId);
-        return false;
-      });
-    };
-    
-  }  
+    setProducts((prevProducts) => {
+      return prevProducts.filter((product) => product.id !== productId || product.count !== count);
+    });
+  }
 
   const handlePlusClick = (productId, targetCount) => {
-    products = (prevProducts) => {
+    setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId && product.count === targetCount) {
-          const newQuantity = Math.min(product.quantity + 1, 99);
-          const newItemTotalPrice = Math.round((product.itemTotalPrice / product.quantity) * newQuantity * 100) / 100;
-    
-          saveId(Math.random());
-    
           return {
             ...product,
-            quantity: newQuantity,
-            itemTotalPrice: newItemTotalPrice,
+            quantity: Math.min(product.quantity + 1, 99),
+            itemTotalPrice: Math.round(100 * product.itemTotalPrice / (product.quantity) * (Math.min(product.quantity + 1, 99))) / 100,
           };
         }
-    
-        saveId(Math.random());
         return product;
       });
-    };
+    });
   };
-  
-  const handleMinusClick = (productId,targetCount) => {
-    products = (prevProducts) => {
+
+  const handleMinusClick = (productId, targetCount) => {
+    setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId && product.count === targetCount) {
-          const newQuantity = Math.max(product.quantity - 1, 0);
-          const newItemTotalPrice = Math.round((product.itemTotalPrice / product.quantity) * newQuantity * 100) / 100;
-          
-          saveId(Math.random());
-    
+          // Constrain the quantity of the product to be at least 0
           return {
             ...product,
-            quantity: newQuantity,
-            itemTotalPrice: newItemTotalPrice,
+            quantity: Math.max(product.quantity - 1, 1),
+            itemTotalPrice: Math.round(100 * product.itemTotalPrice / (product.quantity) * (Math.max(product.quantity - 1, 1))) / 100,
           };
         }
-    
-        saveId(Math.random());
         return product;
       });
-    };
-    
-    uploadProductsToLocalStorage(products);
-
+    });
+    //uploadProductsToLocalStorage(products);
   };
   const uploadProductsToLocalStorage = (products) => {
     // Set the products array in local storage
@@ -222,7 +190,7 @@ const Navbar = ({ store, selectedTable  }) => {
 
   if (!sessionStorage.getItem(store + "-" + selectedTable)) {
     sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
-}
+  }
   //console.log(storeValue)
   //console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
@@ -277,58 +245,52 @@ const Navbar = ({ store, selectedTable  }) => {
 
 
 
-        {/* popup content */}
-        <div className="shopping-cart" style={{margin: "auto"}}>
-          {/* shoppig cart */}
-          <div className="title" style={{ height: '80px' }}>
-          <div>{JSON.stringify(sessionStorage.getItem(store + "-" + selectedTable))}</div>
-
-            <DeleteSvg className="delete-btn" style={{ 'postion': 'absolute', float: 'right', cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></DeleteSvg>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              {totalPrice === 0 ?
-                <div>
-                  <div style={{ marginTop: "15px" }}>
-                    <span>
-                      <i style={{ fontSize: "35px" }} className="material-icons nav__icon">shopping_cart_checkout</i>
-                      <span >&nbsp;{t("Your cart is currently empty.")}</span>
-                    </span>
-
-
-                  </div>
+      {/* popup content */}
+      <div className="shopping-cart" style={{ margin: "auto" }}>
+        {/* shoppig cart */}
+        <div className="title" style={{ height: '80px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            {totalPrice === 0 ?
+              <div>
+                <div style={{ marginTop: "15px" }}>
+                  <span>
+                    <i style={{ fontSize: "35px" }} className="material-icons nav__icon">shopping_cart_checkout</i>
+                    <span >&nbsp;{t("Table ${selectedTable} is empty.")}</span>
+                  </span>
                 </div>
-                :
-                <>
-                  <button
-                    style={{ width: "80%", border: "0px", margin: "auto" }}
-                    class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
-                    onClick={HandleCheckout_local_stripe}>
+              </div>
+              :
+              <>
+                <button
+                  style={{ width: "80%", border: "0px", margin: "auto" }}
+                  class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
+                  onClick={HandleCheckout_local_stripe}>
 
-                    <span class="text-left">
-                      <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                      {t("Checkout")} </span>
-                    <span class="text-right"> ${Math.round(100 * totalPrice) / 100 } </span>
-                  </button>
-                </>
-              }
-            </div>
+                  <span class="text-left">
+                    <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                    {t("Checkout")} </span>
+                  <span class="text-right"> ${Math.round(100 * totalPrice) / 100} </span>
+                </button>
+              </>
+            }
           </div>
-          <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
+        </div>
+        <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
 
-            {/* generates each food entry */}
-            {products?.map((product) => (
-              // the parent div
-              // can make the parent div flexbox
-              <div key={product.id} className="item">
+          {/* generates each food entry */}
+          {products?.map((product) => (
+            // the parent div
+            // can make the parent div flexbox
+            <div key={product.id} className="item">
 
-                {/* the delete button */}
-                <div className="buttons">
-                  <DeleteSvg className="delete-btn"
-                    onClick={() => {
-                      handleDeleteClick(product.id,product.count)
-                    }}></DeleteSvg>
-                  {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
-                </div>
+              {/* the delete button */}
+              <div className="buttons">
+                <DeleteSvg className="delete-btn"
+                  onClick={() => {
+                    handleDeleteClick(product.id, product.count)
+                  }}></DeleteSvg>
+                {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
+              </div>
                 {/* the image */}
                 <div className="image">
                   <div class="image-container" >
@@ -336,74 +298,69 @@ const Navbar = ({ store, selectedTable  }) => {
                   </div>
                 </div>
 
-                {/* the name + quantity parent div*/}
-                <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available" }}>
-                  {/* the name */}
-                  <div className="description" style={{ width: "-webkit-fill-available" }}>
 
-                    <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
+              {/* the name + quantity parent div*/}
+              <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available" }}>
+                {/* the name */}
+                <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
                       <div style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>{t(product.name)}</div>
 
                       <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
 
-                    </div>                  </div>
+                    </div>                  
 
-                  {/* <div className="theset"> */}
-                  {/* start of quantity (quantity = quantity text + buttons div) */}
-                  <div className="quantity p-0"
-                    style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
-                    <div>
-                    <div>${product.itemTotalPrice}</div>
+                <div className="quantity p-0"
+                  style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
+                  <div>
+                  <div>${product.itemTotalPrice}</div>
 
-                    </div>
-                    {/* the add minus box set up */}
-                    <div style={{ display: "flex" }}>
-
-                      {/* the start of minus button set up */}
-                      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                        <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                          onClick={() => {
-                            if (product.quantity === 1) {
-                              handleDeleteClick(product.id,product.count);
-                            } else {
-                              handleMinusClick(product.id,product.count)
-                              //handleMinusClick(product.id);
-                            }
-                          }}>
-                          <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                        </button>
-                      </div>
-                      {/* the end of minus button set up */}
-
-                      { /* start of the quantity number */}
-                      <span
-                        type="text"
-                        style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                      >{product.quantity}</span>
-                      { /* end of the quantity number */}
-
-                      { /* start of the add button */}
-                      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                        <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                          onClick={() => {
-                            handlePlusClick(product.id,product.count)
-                            saveId(Math.random());
-                          }}>
-                          <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                        </button>
-                      </div>
-                      { /* end of the add button */}
-                    </div>
-                    { /* end of the add minus setup*/}
                   </div>
+                  {/* the add minus box set up */}
+                  <div style={{ display: "flex" }}>
 
-                  {/* end of quantity */}
+                    {/* the start of minus button set up */}
+                    <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                      <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                        onClick={() => {
+                          if (product.quantity === 1) {
+                            handleDeleteClick(product.id, product.count);
+                          } else {
+                            handleMinusClick(product.id, product.count)
+                          }
+                        }}>
+                        <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                      </button>
+                    </div>
+                    {/* the end of minus button set up */}
+
+                    { /* start of the quantity number */}
+                    <span
+                      type="text"
+                      style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                    >{product.quantity}</span>
+                    { /* end of the quantity number */}
+
+                    { /* start of the add button */}
+                    <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                      <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                        onClick={() => {
+                          handlePlusClick(product.id, product.count)
+                        }}>
+                        <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                      </button>
+                    </div>
+                    { /* end of the add button */}
+                  </div>
+                  { /* end of the add minus setup*/}
                 </div>
 
-                {/* end of name + quantity parent div*/}
+                {/* end of quantity */}
               </div>
 
-            ))}
+              {/* end of name + quantity parent div*/}
+            </div>
+
+          ))}
 
         </div>
       </div>
