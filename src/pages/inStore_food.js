@@ -11,12 +11,9 @@ import { useMemo } from 'react';
 import { ReactComponent as PlusSvg } from './plus.svg';
 import { ReactComponent as MinusSvg } from './minus.svg';
 import { FiSearch } from 'react-icons/fi';
-import { collection, getDocs } from "firebase/firestore";
 import { db } from '../firebase/index';
-import { useParams } from 'react-router-dom';
-import { query, where, limit, doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
-import BusinessHoursTable from './BusinessHoursTable.js'
 import { v4 as uuidv4 } from 'uuid';
 
 const Food = ({ store, selectedTable }) => {
@@ -67,14 +64,14 @@ const Food = ({ store, selectedTable }) => {
     // After updating selectedAttributes, recalculate the total price
     const newTotalPrice = TotalAttributePrice(updatedSelectedAttributes, selectedFoodItem.attributesArr);
     setTotalPrice(newTotalPrice);
-    let products = JSON.parse(sessionStorage.getItem(store + "-" + selectedTable));
+    let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
     const product = products.find((product) => product.id === id && product.count === count);
     console.log(product)
     console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
 
     product.attributeSelected = updatedSelectedAttributes
     product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
-    sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+    localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
 
   };
 
@@ -217,7 +214,7 @@ const Food = ({ store, selectedTable }) => {
 
   const displayAllProductInfo = () => {
     // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem(store + "-" + selectedTable));
+    let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
     //console.log("displayProductFunction")
     //console.log(products)
     // Create an empty array to store the products
@@ -347,13 +344,13 @@ const Food = ({ store, selectedTable }) => {
   const addSpecialFood = (id, name, subtotal, image, attributeSelected, count) => {
 
     // Check if the array exists in local storage
-    if (sessionStorage.getItem(store + "-" + selectedTable) === null) {
+    if (localStorage.getItem(store + "-" + selectedTable) === null) {
       // If it doesn't exist, set the value to an empty array
-      sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
+      localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
     }
 
     // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem(store + "-" + selectedTable));
+    let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
 
     // Find the product with the matching id
     //let product = products.find((product) => product.id === id);
@@ -378,7 +375,7 @@ const Food = ({ store, selectedTable }) => {
     //product.itemTotalPrice= Math.round(100 *((parseFloat(totalPrice)+parseFloat(product.subtotal))*parseFloat(product.quantity))/ 100)
     console.log(product)
     // Update the array in local storage
-    sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+    localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
 
     const calculateTotalQuant = () => {
       const total = products?.reduce((acc, product) => acc + (product.quantity), 0);
@@ -390,7 +387,7 @@ const Food = ({ store, selectedTable }) => {
 
 
   const deleteSpecialFood = (id, count, attributeSelected) => {
-    let products = JSON.parse(sessionStorage.getItem(store + "-" + selectedTable));
+    let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
 
     if (products && products.length > 0) {
       // Find the index of the product with the given id
@@ -405,7 +402,7 @@ const Food = ({ store, selectedTable }) => {
         if (products[productIndex].quantity <= 0) {
           console.log("delete now")
           products.splice(productIndex, 1);
-          sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+          localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
           hideModal()
           return
         }
@@ -413,7 +410,7 @@ const Food = ({ store, selectedTable }) => {
 
         product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
         // Save the updated array in local storage
-        sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+        localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
       }
 
     }
@@ -428,7 +425,7 @@ const Food = ({ store, selectedTable }) => {
   };
   const searchSpeicalFoodQuantity = (id, count) => {
     // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem(store + "-" + selectedTable));
+    let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
     const product = products.find((product) => product.id === id && product.count === count);
     // If the product is not found or the quantity is less than or equal to 0, return 0
     return product ? product.quantity : 0;

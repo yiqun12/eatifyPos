@@ -28,7 +28,8 @@ import { ReactComponent as MinusSvg } from './minus.svg';
 import logo_fork from './logo_fork.png'
 import Hero from './Hero'
 import cuiyuan from './cuiyuan.png'
-
+import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
+import { db } from '../firebase/index';
 import cartImage from './shopcart.png';
 
 const Navbar = ({ store, selectedTable, setProducts , products }) => {
@@ -36,7 +37,7 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
-    setProducts(sessionStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(sessionStorage.getItem(store + "-" + selectedTable)) : [])
+    setProducts(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
     console.log('Component B - ID changed:', id);
   }, [id]);
 
@@ -54,22 +55,6 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
     }
   }, []);
 
-  const isMobile = width <= 768;
-
-  const [isHover, setIsHover] = useState(false);
-
-  const handleMouseEnter = () => {
-    setIsHover(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHover(false);
-  };
-
-  const { logoutUser } = useUserContext();
-  const { user, user_loading } = useUserContext();
-
-  const location = useLocation();
   const [totalPrice, setTotalPrice] = useState(0);
 
   //console.log(user)
@@ -145,60 +130,38 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
   };
   const uploadProductsToLocalStorage = (products) => {
     // Set the products array in local storage
-    sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+    localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
   };
   //display every item.
 
   // modal. 
   const modalRef = useRef(null);
-  const btnRef = useRef(null);
-  const spanRef = useRef(null);
-  const closeModal = () => {
-    //console.log(products)
-    modalRef.current.style.display = 'none';
-  };
+
 
   useEffect(() => {
     // Get the modal
     const modal = modalRef.current;
-
-    // Get the button that opens the modal
-    const btn = btnRef.current;
-
-    // Get the <span> element that closes the modal
-    const span = spanRef.current;
-
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = (event) => {
       if (event.target === modal) {
 
-        sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+        localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
         modal.style.display = "none";
       }
     }
   }, [products]);// pass `products` as a dependency
-  //This will ensure that the useEffect hook is re-run every time the products value changes, and the latest value will be saved to local storage.
-  //google login button functions
-  const [loginData, setLoginData] = useState(
-    sessionStorage.getItem('loginData')
-      ? JSON.parse(sessionStorage.getItem('loginData'))
-      : null
-  );
-  const url = "http://localhost:8080"
 
-  const queryParams = new URLSearchParams(location.search);
 
-  if (!sessionStorage.getItem(store + "-" + selectedTable)) {
-    sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
+  if (!localStorage.getItem(store + "-" + selectedTable)) {
+    localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
   }
   //console.log(storeValue)
   //console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
-    sessionStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+    localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
   };
 
   // for translations sake
-  const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = useMemo(() => {
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const translationsMode = sessionStorage.getItem("translationsMode")
@@ -222,22 +185,18 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")])
 
 
-  const changeLanguage = (e) => {
-    var languageCode = e.target.value
-    sessionStorage.setItem("translationsMode", languageCode)
-    saveId(Math.random())
-    // if (languageCode == "ch")
-    // console.log(languageCode)
-  }
-
-  const languageOption = () => {
-    //console.log(sessionStorage.getItem("translationsMode"))
-    if (sessionStorage.getItem("translationsMode") == null)
-      return 'en'
-    else
-      return sessionStorage.getItem("translationsMode")
-  }
-
+  const handleOpenCashDraw = async () => {
+    try {
+        const dateTime = new Date().toISOString();
+        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+        const docRef = await addDoc(collection(db, "open_cashdraw"), {
+            date: date
+        });
+        console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+        console.error("Error adding document: ", e);
+    }
+}
 
   return (
 
@@ -248,14 +207,68 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
       {/* popup content */}
       <div className="shopping-cart" style={{ margin: "auto" }}>
         {/* shoppig cart */}
+
+        <div className="flex flex-col md:flex-row">
+  <div className="flex flex-col md:w-1/2">
+    <button
+      style={{ width:"90%", border: "0px", margin: "auto" }}
+      className="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
+      onClick={HandleCheckout_local_stripe}
+    >
+      <span className="text-left">
+        <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+        {t("Print Receipt")}{" "}
+      </span>
+    </button>
+
+    <button
+      style={{ width:"90%", border: "0px", margin: "auto" }}
+      className="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
+      onClick={handleOpenCashDraw}
+    >
+      <span className="text-left">
+        <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+        {t("Open Cash Draw")}{" "}
+      </span>
+    </button>
+  </div>
+
+  <div className="flex flex-col md:w-1/2">
+    <button
+      style={{ width:"90%", border: "0px", margin: "auto" }}
+      className="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
+      onClick={HandleCheckout_local_stripe}
+    >
+      <span className="text-left">
+        <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+        {t("Checkout with Cash")}{" "}
+      </span>
+    </button>
+
+    <button
+      style={{ width:"90%", border: "0px", margin: "auto" }}
+      className="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
+      onClick={HandleCheckout_local_stripe}
+    >
+      <span className="text-left">
+        <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+        {t("Checkout with Credit Card")}{" "}
+      </span>
+    </button>
+  </div>
+</div>
+
+        
         <div className="title" style={{ height: '80px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+
+
             {totalPrice === 0 ?
               <div>
                 <div style={{ marginTop: "15px" }}>
                   <span>
                     <i style={{ fontSize: "35px" }} className="material-icons nav__icon">shopping_cart_checkout</i>
-                    <span >&nbsp;{t("Table ${selectedTable} is empty.")}</span>
+                    <span>&nbsp;{`Table ${selectedTable} is empty.`}</span>
                   </span>
                 </div>
               </div>
@@ -268,7 +281,7 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
 
                   <span class="text-left">
                     <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                    {t("Checkout")} </span>
+                    {t("Finish")} </span>
                   <span class="text-right"> ${Math.round(100 * totalPrice) / 100} </span>
                 </button>
               </>

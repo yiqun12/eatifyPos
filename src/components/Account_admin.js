@@ -568,15 +568,14 @@ const Account = () => {
           >
 
             <div className={`container-fluid `} style={{ "minHeight": "0px" }}>
-              <button
+            <button
                 className={`mt-2 btn mr-2 ${activeTab === '#profile' ? 'border-black' : ''}`}
+                onClick={(e) => handleTabClick(e, '#profile')}
               >
                 <div style={{ alignItems: 'center', justifyContent: 'center' }}>
                   Account
                 </div>
               </button>
-
-
               <button
                 className={`mt-2 btn mr-2 ${activeTab === '#Revenue_Chart' ? 'border-black' : ''}`}
                 onClick={(e) => handleTabClick(e, '#Revenue_Chart')}
@@ -593,7 +592,6 @@ const Account = () => {
                     setActiveStoreTab(data.id);
                     setShowSection('sales');
                     setStoreName_(data.Name);
-
                   }}
                 >
                   <div style={{ alignItems: 'center', justifyContent: 'center' }}>

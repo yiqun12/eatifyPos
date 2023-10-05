@@ -46,9 +46,6 @@
 
   <!-- partial:index.partial.html -->
   <div class="container-fluid text-center">
-    <h1>Dining Room Layout</h1>
-    <p class="text-muted">View and modify the table status for customer <a href="https://refreshless.com/nouislider/"
-        target="_blank"></a> </p>
     <div class="form-group admin-menu" style="display: none;">
       <div class="row">
         <div class="col-sm-2 col-sm-offset-3 form-group">
@@ -63,7 +60,7 @@
       <div class="col-sm-2 form-group" style="display: flex;justify-content: center; align-items: center; width: 100%;">
         <button class="btn btn-warning customer-mode">Go Back</button>
         <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button> -->
-<button class="btn btn-danger" onclick="clearBoard(); saveBoard();">Clear</button>
+        <button class="btn btn-danger" onclick="clearBoard(); saveBoard();">Clear</button>
       </div>
       <div class="btn-group">
         <button class="btn btn-primary rectangle">+ &#9647; Table</button>
@@ -354,9 +351,9 @@
       if (id === "xxxx") {
         id = generated_id
       }
-      
+
       // TODO: Find the bug that is increase width and height by 2 everytime save+load is activated (might be just one of these functions)
-      
+
       // current braindead solution to a hard to solve problem
       // the width & height increments by 2 everything save + load is used
       width = width - 2;
@@ -387,8 +384,8 @@
         originY: 'center'
       })
 
-    //       // Store original fontSize
-    // t.originalFontSize = t.fontSize;
+      //       // Store original fontSize
+      // t.originalFontSize = t.fontSize;
 
       const g = new fabric.Group([o, t], {
         left: left,
@@ -404,17 +401,17 @@
         scaleY: scaleY
       })
 
-          /* TODO:  Fix the sizes of the text so that it doesn't scale with the shape
-      */
+      /* TODO:  Fix the sizes of the text so that it doesn't scale with the shape
+  */
 
-    //       // this on() triggers when the group is scaled
-    // g.on('scaling', function() {
-    //     // Adjust the fontSize of the text inside the group to counteract the group's scaling
-    //     t.fontSize = t.originalFontSize / g.scaleX;
-    //     t.setCoords(); // Refresh text coordinates
-    // });
+      //       // this on() triggers when the group is scaled
+      // g.on('scaling', function() {
+      //     // Adjust the fontSize of the text inside the group to counteract the group's scaling
+      //     t.fontSize = t.originalFontSize / g.scaleX;
+      //     t.setCoords(); // Refresh text coordinates
+      // });
 
-    
+
 
       // this on() triggers when the table is selected
       g.on("selected", function () {
@@ -426,7 +423,7 @@
       })
       canvas.add(g)
 
-      
+
       object = {
         type: "rect",
         left: g.left,
@@ -503,16 +500,16 @@
           window.parent.postMessage(`selected_table ${selectedTable}`, "*");
       })
 
-      
-          /* TODO:  Fix the sizes of the text so that it doesn't scale with the shape
-      */
 
-    //       // this on() triggers when the group is scaled
-    // g.on('scaling', function() {
-    //     // Adjust the fontSize of the text inside the group to counteract the group's scaling
-    //     t.fontSize = t.originalFontSize / g.scaleX;
-    //     t.setCoords(); // Refresh text coordinates
-    // });
+      /* TODO:  Fix the sizes of the text so that it doesn't scale with the shape
+  */
+
+      //       // this on() triggers when the group is scaled
+      // g.on('scaling', function() {
+      //     // Adjust the fontSize of the text inside the group to counteract the group's scaling
+      //     t.fontSize = t.originalFontSize / g.scaleX;
+      //     t.setCoords(); // Refresh text coordinates
+      // });
 
       canvas.add(g)
       object = {
@@ -598,7 +595,7 @@
       // }
 
       // // TODO: Find the bug that is increase width and height by 2 everytime save+load is activated (might be just one of these functions)
-      
+
       // // current braindead solution to a hard to solve problem
       // // the width & height increments by 2 everything save + load is used
       // width = width - 2;
@@ -926,16 +923,16 @@
       canvas.setActiveObject(o)
     })
     function removeObjectFromBoard(id) {
-    // Loop through each category in the board
-    for (const category in board) {
+      // Loop through each category in the board
+      for (const category in board) {
         // If the category contains the object with the given ID, remove it
         const index = board[category].findIndex(item => item.id === id);
         if (index !== -1) {
-            board[category].splice(index, 1);
-            return; // Exit the function since we've found and removed the item
+          board[category].splice(index, 1);
+          return; // Exit the function since we've found and removed the item
         }
+      }
     }
-}
 
     document.querySelectorAll('.remove')[0].addEventListener('click', function () {
       const o = canvas.getActiveObject()
@@ -1054,30 +1051,30 @@
 
       tables.forEach(element => {
         if (element.type == 'rect') {
-    //       left, top, radius, scaleX = 1, scaleY = 1, tableName, snapAngle = 45, angle = 0
-    // left, top, width, height, scaleX = 1, scaleY = 1, tableName, snapAngle = 45
-          addRect(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY, element.tableName,element.id, element.snapAngle, element.angle)
+          //       left, top, radius, scaleX = 1, scaleY = 1, tableName, snapAngle = 45, angle = 0
+          // left, top, width, height, scaleX = 1, scaleY = 1, tableName, snapAngle = 45
+          addRect(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY, element.tableName, element.id, element.snapAngle, element.angle)
         } else if (element.type == 'circle') {
-          addCircle(element.left, element.top, element.radius, element.scaleX, element.scaleY, element.tableName,element.id, element.snapAngle, element.angle)
+          addCircle(element.left, element.top, element.radius, element.scaleX, element.scaleY, element.tableName, element.id, element.snapAngle, element.angle)
         }
       });
 
       // getting the chairs category from baord and adding all the chairs to canvas
       chairs = board.chair
       chairs.forEach(element => {
-        addChair(element.left, element.top, element.scaleX, element.scaleY,element.id, element.snapAngle, element.angle)
+        addChair(element.left, element.top, element.scaleX, element.scaleY, element.id, element.snapAngle, element.angle)
       })
 
       // getting the bars category from board and adding all the bars to canvas
       bars = board.bar
       bars.forEach(element => {
-        addBar(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY,element.id, element.snapAngle, element.angle)
+        addBar(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY, element.id, element.snapAngle, element.angle)
       })
 
       // getting the walls category from board and adding all the walls to canvas
       walls = board.wall
       walls.forEach(element => {
-        addWall(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY,element.id, element.snapAngle, element.angle)
+        addWall(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY, element.id, element.snapAngle, element.angle)
       })
       // addChair(15, 105)
       // addChair(15, 135)

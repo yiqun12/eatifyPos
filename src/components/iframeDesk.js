@@ -42,23 +42,6 @@ function App({ store }) {
     /**listen to localtsorage */
     const { id, saveId } = useMyHook(null);
 
-    /**change app namne and logo */
-    // const [faviconUrl, setFaviconUrl] = useState('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
-    const handleOpenCashDraw = async () => {
-        try {
-            const dateTime = new Date().toISOString();
-            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-            const docRef = await addDoc(collection(db, "open_cashdraw"), {
-                date: date
-            });
-            console.log("Document written with ID: ", docRef.id);
-        } catch (e) {
-            console.error("Error adding document: ", e);
-        }
-    }
-
-
-
     // for translate
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const t = (text) => {
@@ -276,16 +259,6 @@ function App({ store }) {
                                 <div className={`task-card ${"task.checked" ? "task-card--done" : ""}`}>
                                     <div style={{ display: "flex", alignItems: "center" }}>
                                         <div>
-                                            {/* open drawer here above the table info */}
-                                            <a className="main-nav__link" style={{
-                                                background: "#e1ecf4", display: "flex",
-                                                justifyContent: "center",
-                                                margin: "auto",
-                                                width: "fit-content"
-                                            }} onClick={handleOpenCashDraw}>
-                                                <img src={icons8Drawer} alt="Icons8 Drawer" style={{ display: "inline-block" }} />
-                                                {t("OPEN DRAWER")}
-                                            </a>
                                             <InStore_shop_cart store={store} selectedTable={selectedTable} products={products} setProducts={setProducts}  ></InStore_shop_cart>
                                             <hr />
                                         </div>
@@ -294,50 +267,6 @@ function App({ store }) {
                                 </div>
                             </div>
                         </section>
-
-                        {/* test display for seat mode change */}
-                        {/* <section className="task-list" style={{ marginTop: "275px" }}>
-
-                                        <input
-                                            type="text"
-                                            name="inputData"
-                                            placeholder={t("Search food items")}
-                                            className="search-bar"
-                                            style={{ marginLeft: "5px", height: '30px', width: "80%", marginBottom: "5px" }}
-                                            onChange={(e) => {
-                                                searchItemFromShopItem(e.target.value);
-                                                setSearchData(e.target.value);
-                                            }}
-                                            value={searchData}
-                                        />
-
-                                        <div className="task-wrap" style={{ minHeight: '400px', maxHeight: '400px', overflowY: 'scroll' }}>
-                                            {search_food.sort((a, b) => (a.name > b.name) ? 1 : -1).map((task) => (
-                                                <div className={`task-card ${task.checked ? "task-card--done" : ""}`}>
-                                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                                        <div style={{ width: "50px", height: "50px", padding: "5px" }} class="image-container">
-                                                            <img src={task.image} alt="" />
-                                                        </div>
-                                                        <div style={{ marginLeft: "10px" }}>{task.name}</div>
-                                                        <span
-                                                            style={{ cursor: 'pointer', marginLeft: 'auto' }}
-                                                            onClick={() => {
-                                                                shopAdd(task.id);
-                                                                saveId(Math.random());
-                                                            }}
-                                                            className="task-card__tag task-card__tag--marketing"
-                                                        >
-                                                            {t("Add")}
-                                                        </span>
-
-                                                    </div>
-
-
-
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </section> */}
 
                     </>
 
