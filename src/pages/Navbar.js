@@ -162,12 +162,12 @@ const Navbar = () => {
     uploadProductsToLocalStorage(products);
   }, [products, width]);
 
-  const handleDeleteClick = (productId, count) => {
+  const handleDeleteClick = (productId,count) => {
     setProducts((prevProducts) => {
-      saveId(Math.random());  // generate a new id here
-      return prevProducts.filter((product) => product.id !== productId || product.count !== count);
+      return prevProducts.filter((product) => product.count !== count);
     });
-  }  
+  }
+  
 
   const handlePlusClick = (productId, targetCount) => {
     setProducts((prevProducts) => {
@@ -202,8 +202,6 @@ const Navbar = () => {
         return product;
       });
     });
-    uploadProductsToLocalStorage(products);
-
   };
   const uploadProductsToLocalStorage = (products) => {
     // Set the products array in local storage
@@ -327,7 +325,11 @@ const Navbar = () => {
         $('.goog-te-combo').on('change', function() {
           let language = $("select.goog-te-combo option:selected").text();
           console.log(language);
-          sessionStorage.setItem("Google-language", language);
+          if(sessionStorage.getItem("Google-language")&& sessionStorage.getItem("Google-language") !== null &&language!==sessionStorage.getItem("Google-language")){
+            sessionStorage.setItem("Google-language", language);
+            saveId(Math.random());  // generate a new id here
+          }
+
         });
       } else {
         // If the widget is not yet loaded, wait and try again.

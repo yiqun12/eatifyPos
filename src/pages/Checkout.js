@@ -275,7 +275,6 @@ const Item = (props) => {
                 &nbsp;
               </b> :
               <b> {t("Summary")}
-
               </b>
             }
 
@@ -296,7 +295,9 @@ const Item = (props) => {
               <div className="col-9">
                 <div className="row d-flex ">
                   <p className='m-0 pb-0'>
-                    <b>{t(product.name)}</b>
+                    <b class="notranslate">
+                    {sessionStorage.getItem("Google-language").includes("Chinese") ? t(product?.CHI) : (product?.name)}
+                    </b>
 
                   </p>
                 </div>

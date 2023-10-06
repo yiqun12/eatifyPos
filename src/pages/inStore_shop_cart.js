@@ -91,11 +91,14 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
     uploadProductsToLocalStorage(products);
   }, [products, width]);
 
-  const handleDeleteClick = (productId, count) => {
+
+  const handleDeleteClick = (productId,count) => {
     setProducts((prevProducts) => {
-      return prevProducts.filter((product) => product.id !== productId || product.count !== count);
+      return prevProducts.filter((product) => product.count !== count);
     });
   }
+  
+
 
   const handlePlusClick = (productId, targetCount) => {
     setProducts((prevProducts) => {

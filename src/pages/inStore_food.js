@@ -325,7 +325,7 @@ const Food = ({ store, selectedTable }) => {
 
   const handleInputChange = (event) => {
     setInput(event.target.value);
-    if (translationsMode_ === "ch") {
+    if (sessionStorage.getItem("Google-language").includes("Chinese")) {
       filternameCHI(event.target.value);
 
     } else {
@@ -348,7 +348,10 @@ const Food = ({ store, selectedTable }) => {
       // If it doesn't exist, set the value to an empty array
       localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
     }
-
+    if (!localStorage.getItem(store + "-" + selectedTable)) {
+      // If it doesn't exist, set the value to an empty array
+      localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
+    }
     // Retrieve the array from local storage
     let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
 

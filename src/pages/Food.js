@@ -222,12 +222,12 @@ const Food = () => {
     setAnimationClass('quantity');
   }, []);
 
-  useEffect(() => {
-    setProducts(JSON.parse(sessionStorage.getItem(store)) ?? []);
-  }, []);
 
   const [products, setProducts] = useState([
   ]);
+  useEffect(() => {
+    setProducts(JSON.parse(sessionStorage.getItem(store)) ?? []);
+  }, []);
 
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
@@ -328,7 +328,7 @@ const Food = () => {
 
   const handleInputChange = (event) => {
     setInput(event.target.value);
-    if (translationsMode_ === "ch") {
+    if (sessionStorage.getItem("Google-language").includes("Chinese")) {
       filternameCHI(event.target.value);
 
     } else {
@@ -380,7 +380,7 @@ const Food = () => {
     console.log(product)
     // Update the array in local storage
     sessionStorage.setItem(store, JSON.stringify(products));
-
+       
     const calculateTotalQuant = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity), 0);
       // console.log(total)
@@ -925,8 +925,6 @@ const Food = () => {
                         {/* parent div of title + quantity and button parent div */}
                         <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                           <div className="col-span-4">
-                          {sessionStorage.getItem("Google-language")}
-
                           <span class="notranslate">
 {sessionStorage.getItem("Google-language").includes("Chinese") ? item?.CHI : item?.name}
 </span >
