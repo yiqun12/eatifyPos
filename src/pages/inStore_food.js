@@ -569,7 +569,7 @@ const Food = ({ store, selectedTable }) => {
     setModalVisibility(true);
     setSelectedAttributes({})
     setTotalPrice(0);
-    addSpecialFood(item.id, item.name, item.subtotal, item.image, item, randomNum)
+    addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum)
     //const [selectedAttributes, setSelectedAttributes] = useState({});
     //const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
   }

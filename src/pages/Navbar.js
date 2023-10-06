@@ -38,7 +38,7 @@ const Navbar = () => {
       new window.google.translate.TranslateElement(
         {
           pageLanguage: "en",
-          includedLanguages: "en,zh-CN,zh-TW",
+          includedLanguages: "en,zh-CN",
           autoDisplay: false
         },
         "google_translate_element"
@@ -266,7 +266,7 @@ const Navbar = () => {
   const url = "http://localhost:8080"
 
   const queryParams = new URLSearchParams(location.search);
-  const storeValue = queryParams.get('store'); // should give "parkasia"
+  const storeValue = params.get('store') ? params.get('store').toLowerCase() : ""; // should give "parkasia"
   const tableValue = queryParams.get('table'); // should give "A3"
   if (!sessionStorage.getItem(storeValue)) {
     sessionStorage.setItem(storeValue, JSON.stringify([]));
@@ -319,13 +319,26 @@ const Navbar = () => {
       return sessionStorage.getItem("translationsMode")
   }
 
-
+  
   // the below code checks for language option changes with the google translate widget
-  $('.goog-te-combo').on('change',function(){
-    let language = $("select.goog-te-combo option:selected").text();
-     console.log(language)
- });
-
+  $(document).ready(function() {
+    function listenToTranslateWidget() {
+      if ($('.goog-te-combo').length) {
+        $('.goog-te-combo').on('change', function() {
+          let language = $("select.goog-te-combo option:selected").text();
+          console.log(language);
+          sessionStorage.setItem("Google-language", language);
+        });
+      } else {
+        // If the widget is not yet loaded, wait and try again.
+        setTimeout(listenToTranslateWidget, 1000); // Try again in 1 second
+      }
+    }
+  
+    listenToTranslateWidget();
+  });
+  
+  
   return (
 
     <>
@@ -413,7 +426,11 @@ const Navbar = () => {
                   <div className="description" style={{ width: "-webkit-fill-available" }}>
 
                     <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
-                      <div style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>{t(product.name)}</div>
+                      <div class='notranslate' style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>
+                      <span class="notranslate">
+                      {sessionStorage.getItem("Google-language").includes("Chinese") ? t(product.CHI) : (product.name)}
+                      </span>
+                        </div>
 
                       <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
 

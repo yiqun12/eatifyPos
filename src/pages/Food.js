@@ -120,10 +120,18 @@ const Food = () => {
 
   const storeValue = params.get('store') ? params.get('store').toLowerCase() : "";
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
-
-  console.log(storeValue)
   const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
 
+
+
+    if (!sessionStorage.getItem(store)) {
+        // If 'abc' doesn't exist, set a default value
+        sessionStorage.setItem(store, '[]');
+    }
+    if (sessionStorage.getItem(store)===null) {
+      // If 'abc' doesn't exist, set a default value
+      sessionStorage.setItem(store, '[]');
+  }
   //console.log(user_loading)
   if (tableValue === "") {
     if (sessionStorage.getItem('table')) {//存在过
@@ -215,10 +223,7 @@ const Food = () => {
   }, []);
 
   useEffect(() => {
-    // Call the displayAllProductInfo function to retrieve the array of products from local storage
-    let productArray = displayAllProductInfo();
-    // Update the products state with the array of products
-    setProducts(productArray);
+    setProducts(JSON.parse(sessionStorage.getItem(store)) ?? []);
   }, []);
 
   const [products, setProducts] = useState([
@@ -234,30 +239,6 @@ const Food = () => {
     saveId(Math.random());
   }, [products]);
 
-  const displayAllProductInfo = () => {
-    // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem(store));
-    //console.log("displayProductFunction")
-    //console.log(products)
-    // Create an empty array to store the products
-    let productArray = [];
-
-    // Loop through the array of products
-    for (let i = 0; products != null && i < products.length; i++) {
-      let product = products[i];
-      // Push the product object to the array
-      productArray.push({
-        id: product.id,
-        name: product.name,
-        quantity: product.quantity,
-        subtotal: product.subtotal,
-        image: product.image,
-      });
-    }
-
-    // Return the array of product objects
-    return productArray;
-  };
 
   /**dorp food */
 
@@ -363,7 +344,7 @@ const Food = () => {
     color: 'black',
   };
 
-  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count) => {
+  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI) => {
 
     // Check if the array exists in local storage
     if (sessionStorage.getItem(store) === null) {
@@ -373,11 +354,11 @@ const Food = () => {
 
     // Retrieve the array from local storage
     let products = JSON.parse(sessionStorage.getItem(store));
-
+    console.log("products")
+    console.log(products)
     // Find the product with the matching id
-    //let product = products.find((product) => product.id === id);
-    const product = products.find((product) => product.id === id && product.count === count);
-
+    const product = products?.find((product) => product.id === id && product.count === count);
+    console.log(product)
     // If the product exists, update its name, subtotal, image, and timesClicked values
     if (product) {
       product.name = name;
@@ -387,9 +368,10 @@ const Food = () => {
       product.attributeSelected = attributeSelected;
       product.count = count;
       product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
+      product.CHI = CHI
     } else {
       // If the product doesn't exist, add it to the array
-      products.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: subtotal });
+      products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: subtotal,CHI:CHI });
     }
 
 
@@ -448,7 +430,7 @@ const Food = () => {
   const searchSpeicalFoodQuantity = (id, count) => {
     // Retrieve the array from local storage
     let products = JSON.parse(sessionStorage.getItem(store));
-    const product = products.find((product) => product.id === id && product.count === count);
+    const product = products?.find((product) => product.id === id && product.count === count);
     // If the product is not found or the quantity is less than or equal to 0, return 0
     return product ? product.quantity : 0;
   };
@@ -591,7 +573,7 @@ const Food = () => {
     setModalVisibility(true);
     setSelectedAttributes({})
     setTotalPrice(0);
-    addSpecialFood(item.id, item.name, item.subtotal, item.image, item, randomNum)
+    addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI)
     //const [selectedAttributes, setSelectedAttributes] = useState({});
     //const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
   }
@@ -648,9 +630,12 @@ const Food = () => {
                 </div>
                 <div className='p-4 pt-3'>
                   <div>
-                    {selectedFoodItem.name}
+                  <span class="notranslate">
+
+                  {sessionStorage.getItem("Google-language").includes("Chinese") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
+                  </span>
                   </div>
-                  {Object.entries(selectedFoodItem.attributesArr).map(([attributeName, attributeDetails]) => (
+                  {Object.entries(selectedFoodItem?.attributesArr)?.map(([attributeName, attributeDetails]) => (
                     <div key={attributeName}>
                       <p className="mb-1">
                         <span className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
@@ -746,7 +731,7 @@ const Food = () => {
                             }}
                             onClick={() => {
                               handleDropFood();
-                              addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count);
+                              addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count, selectedFoodItem.CHI );
                               saveId(Math.random());
                             }}
                           >
@@ -809,7 +794,7 @@ const Food = () => {
                             <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                               onClick={() => {
                                 handleDropFood();
-                                addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count);
+                                addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count,selectedFoodItem.CHI );
                                 saveId(Math.random());
                               }}
                             >
@@ -940,7 +925,11 @@ const Food = () => {
                         {/* parent div of title + quantity and button parent div */}
                         <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                           <div className="col-span-4">
-                            <p className=' mb-1'>{translationsMode_ === "ch" ? item.CHI : item.name}</p>
+                          {sessionStorage.getItem("Google-language")}
+
+                          <span class="notranslate">
+{sessionStorage.getItem("Google-language").includes("Chinese") ? item?.CHI : item?.name}
+</span >
                           </div>
 
                           {/* parent div of the quantity and buttons */}
@@ -995,7 +984,10 @@ const Food = () => {
                                       display: "flex",
                                     }}
                                     onClick={() => {
-                                      showModal(item); setSelectedFoodItem(item);;
+                                      console.log("item")
+                                      console.log(item)
+                                      setSelectedFoodItem(item);;
+                                      showModal(item); 
 
                                     }}
                                   >

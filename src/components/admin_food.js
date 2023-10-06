@@ -151,7 +151,6 @@ const Food = ({ store }) => {
     console.log(selectedOptions)
   };
 
-  //const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
   const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
   console.log(store)
   const [data, setData] = useState(JSON.parse(localStorage.getItem(store) || "[]"));
