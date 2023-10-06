@@ -112,17 +112,7 @@ const Navbar = () => {
 
   //console.log(user)
   ///shopping cart products
-  const [products, setProducts] = useState([
-  ]);
-
-
-  useEffect(() => {
-    // Call the displayAllProductInfo function to retrieve the array of products from local storage
-    let productArray = displayAllProductInfo();
-    // Update the products state with the array of products
-    setProducts(productArray);
-  }, []);
-
+  const [products, setProducts] = useState(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []);
 
   const [totalQuant, setTotalQuant] = useState(0);
   useEffect(() => {
@@ -159,7 +149,7 @@ const Navbar = () => {
     }
     calculateTotalQuant();
 
-    uploadProductsToLocalStorage(products);
+    sessionStorage.setItem(store, JSON.stringify(products));
   }, [products, width]);
 
   const handleDeleteClick = (productId,count) => {
@@ -173,14 +163,12 @@ const Navbar = () => {
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId && product.count === targetCount) {
-          saveId(Math.random());
           return {
             ...product,
             itemTotalPrice:Math.round(100 *  product.itemTotalPrice/(product.quantity)*(Math.min(product.quantity + 1, 99)) ) / 100,
             quantity: Math.min(product.quantity + 1, 99),
           };
         }
-        saveId(Math.random());
         return product;
       });
     });
@@ -191,29 +179,15 @@ const Navbar = () => {
       return prevProducts.map((product) => {
         if (product.id === productId && product.count === targetCount) {
           // Constrain the quantity of the product to be at least 0
-          saveId(Math.random());
           return {
             ...product,
             quantity: Math.max(product.quantity - 1, 1),
             itemTotalPrice:Math.round(100 *  product.itemTotalPrice/(product.quantity)*(Math.max(product.quantity - 1, 1)) ) / 100,
           };
         }
-        saveId(Math.random());
         return product;
       });
     });
-  };
-  const uploadProductsToLocalStorage = (products) => {
-    // Set the products array in local storage
-    sessionStorage.setItem(store, JSON.stringify(products));
-  };
-  //display every item.
-  const displayAllProductInfo = () => {
-    // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem(store));
-
-    // Return the array of product objects
-    return products;
   };
 
   // modal. 
@@ -221,11 +195,7 @@ const Navbar = () => {
   const btnRef = useRef(null);
   const spanRef = useRef(null);
   const openModal = () => {
-    // Call the displayAllProductInfo function to retrieve the array of products from local storage
-    let productArray = displayAllProductInfo();
-    //console.log(productArray)
-    // Update the products state with the array of products
-    setProducts(productArray);
+    setProducts(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : [])
     modalRef.current.style.display = 'block';
     // Retrieve the array from local storage
   };
@@ -248,8 +218,6 @@ const Navbar = () => {
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = (event) => {
       if (event.target === modal) {
-
-        sessionStorage.setItem(store, JSON.stringify(products));
         modal.style.display = "none";
       }
     }
@@ -299,23 +267,6 @@ const Navbar = () => {
       return text
     }
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")])
-
-
-  const changeLanguage = (e) => {
-    var languageCode = e.target.value
-    sessionStorage.setItem("translationsMode", languageCode)
-    saveId(Math.random())
-    // if (languageCode == "ch")
-    // console.log(languageCode)
-  }
-
-  const languageOption = () => {
-    //console.log(sessionStorage.getItem("translationsMode"))
-    if (sessionStorage.getItem("translationsMode") == null)
-      return 'en'
-    else
-      return sessionStorage.getItem("translationsMode")
-  }
 
   
   // the below code checks for language option changes with the google translate widget
@@ -430,7 +381,7 @@ const Navbar = () => {
                     <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
                       <div class='notranslate' style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>
                       <span class="notranslate">
-                      {sessionStorage.getItem("Google-language").includes("Chinese") ? t(product.CHI) : (product.name)}
+                      {sessionStorage.getItem("Google-language")?.includes("Chinese") ? t(product.CHI) : (product.name)}
                       </span>
                         </div>
 
@@ -477,7 +428,6 @@ const Navbar = () => {
                         <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                           onClick={() => {
                             handlePlusClick(product.id,product.count)
-                            saveId(Math.random());
                           }}>
                           <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
                         </button>

@@ -30,9 +30,20 @@ const Food = () => {
     // Create a copy of the selectedAttributes state
     const updatedSelectedAttributes = { ...selectedAttributes };
 
+    console.log(updatedSelectedAttributes[attributeName])
     if (selectedFoodItem.attributesArr[attributeName].isSingleSelected) {
       // If isSingleSelected is true, set the selected variation as a string
-      updatedSelectedAttributes[attributeName] = variationType;
+      if (updatedSelectedAttributes[attributeName] === null) {
+        updatedSelectedAttributes[attributeName] = variationType;
+      }
+      if(updatedSelectedAttributes[attributeName] === variationType){
+        delete updatedSelectedAttributes[attributeName];
+
+      }else{
+        updatedSelectedAttributes[attributeName] = variationType;
+      }
+
+
     } else {
       // If isSingleSelected is false, allow multiple selections as an array
       if (!updatedSelectedAttributes[attributeName]) {
@@ -328,7 +339,7 @@ const Food = () => {
 
   const handleInputChange = (event) => {
     setInput(event.target.value);
-    if (sessionStorage.getItem("Google-language").includes("Chinese")) {
+    if (sessionStorage.getItem("Google-language")?.includes("Chinese")) {
       filternameCHI(event.target.value);
 
     } else {
@@ -380,7 +391,7 @@ const Food = () => {
     console.log(product)
     // Update the array in local storage
     sessionStorage.setItem(store, JSON.stringify(products));
-       
+    setProducts(products)
     const calculateTotalQuant = () => {
       const total = products.reduce((acc, product) => acc + (product.quantity), 0);
       // console.log(total)
@@ -407,6 +418,14 @@ const Food = () => {
           console.log("delete now")
           products.splice(productIndex, 1);
           sessionStorage.setItem(store, JSON.stringify(products));
+          const calculateTotalQuant = () => {
+            const total = products.reduce((acc, product) => acc + (product.quantity), 0);
+            // console.log(total)
+            $('#cart').attr("data-totalitems", total);
+          }
+          calculateTotalQuant();
+      
+          saveId(Math.random());
           hideModal()
           return
         }
@@ -415,6 +434,8 @@ const Food = () => {
         product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
         // Save the updated array in local storage
         sessionStorage.setItem(store, JSON.stringify(products));
+        setProducts(products)
+
       }
 
     }
@@ -632,7 +653,7 @@ const Food = () => {
                   <div>
                   <span class="notranslate">
 
-                  {sessionStorage.getItem("Google-language").includes("Chinese") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
+                  {sessionStorage.getItem("Google-language")?.includes("Chinese") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
                   </span>
                   </div>
                   {Object.entries(selectedFoodItem?.attributesArr)?.map(([attributeName, attributeDetails]) => (
@@ -732,7 +753,7 @@ const Food = () => {
                             onClick={() => {
                               handleDropFood();
                               addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count, selectedFoodItem.CHI );
-                              saveId(Math.random());
+                              //saveId(Math.random());
                             }}
                           >
                             <PlusSvg
@@ -795,7 +816,7 @@ const Food = () => {
                               onClick={() => {
                                 handleDropFood();
                                 addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count,selectedFoodItem.CHI );
-                                saveId(Math.random());
+                                //saveId(Math.random());
                               }}
                             >
                               <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
@@ -926,7 +947,7 @@ const Food = () => {
                         <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                           <div className="col-span-4">
                           <span class="notranslate">
-{sessionStorage.getItem("Google-language").includes("Chinese") ? item?.CHI : item?.name}
+{sessionStorage.getItem("Google-language")?.includes("Chinese") ? item?.CHI : item?.name}
 </span >
                           </div>
 

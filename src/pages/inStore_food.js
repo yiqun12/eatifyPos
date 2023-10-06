@@ -27,9 +27,18 @@ const Food = ({ store, selectedTable }) => {
     // Create a copy of the selectedAttributes state
     const updatedSelectedAttributes = { ...selectedAttributes };
 
+    console.log(updatedSelectedAttributes[attributeName])
     if (selectedFoodItem.attributesArr[attributeName].isSingleSelected) {
       // If isSingleSelected is true, set the selected variation as a string
-      updatedSelectedAttributes[attributeName] = variationType;
+      if (updatedSelectedAttributes[attributeName] === null) {
+        updatedSelectedAttributes[attributeName] = variationType;
+      }
+      if(updatedSelectedAttributes[attributeName] === variationType){
+        delete updatedSelectedAttributes[attributeName];
+
+      }else{
+        updatedSelectedAttributes[attributeName] = variationType;
+      }
     } else {
       // If isSingleSelected is false, allow multiple selections as an array
       if (!updatedSelectedAttributes[attributeName]) {
@@ -64,16 +73,17 @@ const Food = ({ store, selectedTable }) => {
     // After updating selectedAttributes, recalculate the total price
     const newTotalPrice = TotalAttributePrice(updatedSelectedAttributes, selectedFoodItem.attributesArr);
     setTotalPrice(newTotalPrice);
-    let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
+    let products = JSON.parse(sessionStorage.getItem(store));
     const product = products.find((product) => product.id === id && product.count === count);
     console.log(product)
     console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
 
     product.attributeSelected = updatedSelectedAttributes
     product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
-    localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+    sessionStorage.setItem(store, JSON.stringify(products));
 
   };
+
 
 
   // Function to calculate the total price based on selected attributes
