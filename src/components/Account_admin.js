@@ -689,6 +689,7 @@ const Account = () => {
                       onClick={(e) => {
                         handleTabClick(e, '#profile');
                         setShowSection('')
+                        window.location.hash = `person`;
                       }}
                     >
                       <a className={`pt-0 nav-link ${activeTab === '#profile' || activeTab === '' ? 'active' : ''}`}>
@@ -706,7 +707,8 @@ const Account = () => {
 
                       <>
                         <li className={`nav-item p-0`}
-                          onClick={() => setShowSection('sales')}
+                          onClick={() => {setShowSection('sales')
+                          window.location.hash = `charts`;}}
                         >
                           <a className={`pt-0 nav-link ${showSection === `sales` ? 'active' : ''}`}>
                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
@@ -718,7 +720,8 @@ const Account = () => {
 
                         </li>
                         <li className={`nav-item p-0`}
-                          onClick={() => setShowSection('menu')}
+                          onClick={() => {setShowSection('menu')
+                          window.location.hash = `book`;}}
                         >
                           <a className={`pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`}>
                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
@@ -730,7 +733,8 @@ const Account = () => {
 
                         </li>
 
-                        <li className={`nav-item p-0`} onClick={() => setShowSection('qrCode')}>
+                        <li className={`nav-item p-0`} onClick={() => {setShowSection('qrCode')
+                         window.location.hash = `code`;}}>
                           <a className={`pt-0 nav-link ${showSection === `qrCode` ? 'active' : ''}`}>
                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-qr-code" viewBox="0 0 16 16">
@@ -744,7 +748,8 @@ const Account = () => {
                           </a>
                         </li>
                         <li className={`nav-item p-0`}
-                          onClick={() => setShowSection('stripeCard')}
+                          onClick={() => { setShowSection('stripeCard')
+                          window.location.hash = `cards`;}}
                         >
                           <a className={`pt-0 nav-link ${showSection === `stripeCard` ? 'active' : ''}`}>
                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
@@ -757,7 +762,8 @@ const Account = () => {
 
                         </li>
                         <li className={`nav-item p-0`}
-                          onClick={() => setShowSection('store')}
+                          onClick={() => {setShowSection('store')
+                          window.location.hash = `settings`;}}
                         >
                           <a className={`pt-0 nav-link ${showSection === `store` ? 'active' : ''}`}>
                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
