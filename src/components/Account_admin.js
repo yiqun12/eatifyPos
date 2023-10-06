@@ -778,6 +778,7 @@ const Account = () => {
                                   setStoreName_(data.Name);
                                   setStoreID(data.id);
                                   setStoreOpenTime(data.Open_time)
+                                  setActiveStoreId(data.id)
                                 }}
                               >
                                 {data.Name}
