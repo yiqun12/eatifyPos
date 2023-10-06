@@ -269,16 +269,7 @@ function App({ store }) {
                         </section>
 
                     </>
-
-
-
                     :
-
-
-
-
-
-
                     null}
             </div>
         </div>
@@ -286,5 +277,4 @@ function App({ store }) {
     );
 }
 export default App;
-
 

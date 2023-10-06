@@ -365,11 +365,8 @@ const Food = () => {
 
     // Retrieve the array from local storage
     let products = JSON.parse(sessionStorage.getItem(store));
-    console.log("products")
-    console.log(products)
     // Find the product with the matching id
     const product = products?.find((product) => product.id === id && product.count === count);
-    console.log(product)
     // If the product exists, update its name, subtotal, image, and timesClicked values
     if (product) {
       product.name = name;
@@ -385,10 +382,6 @@ const Food = () => {
       products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: subtotal,CHI:CHI });
     }
 
-
-
-    //product.itemTotalPrice= Math.round(100 *((parseFloat(totalPrice)+parseFloat(product.subtotal))*parseFloat(product.quantity))/ 100)
-    console.log(product)
     // Update the array in local storage
     sessionStorage.setItem(store, JSON.stringify(products));
     setProducts(products)

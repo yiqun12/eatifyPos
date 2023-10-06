@@ -576,15 +576,12 @@ const Account = () => {
                 onClick={(e) => handleTabClick(e, '#profile')}
               >
                 <div style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"style={{ fill: 'currentColor' }} class="bi bi-person" viewBox="0 0 16 16">
+                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
+                          </svg>
+                        </i>
                   Account
-                </div>
-              </button>
-              <button
-                className={`mt-2 btn mr-2 ${activeTab === '#Revenue_Chart' ? 'border-black' : ''}`}
-                onClick={(e) => handleTabClick(e, '#Revenue_Chart')}
-              >
-                <div style={{ alignItems: 'center', justifyContent: 'center' }}>
-                  Add New Store
                 </div>
               </button>
               {storelist?.map((data, index) => (
@@ -791,16 +788,16 @@ const Account = () => {
 
                       }}
                     >
-                      <a className={`pt-0 nav-link ${activeTab === '#profile' || activeTab === '' ? 'active' : ''}`}>
+                      <a className={`pt-0 nav-link ${(activeTab === '#profile' || activeTab === '') && width < 1024 ? 'active' : ''}`}>
                         <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"style={{ fill: width>1024 ? 'white' : 'currentColor' }} class="bi bi-person" viewBox="0 0 16 16">
                             <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
                           </svg>
                         </i>
                       </a>
 
                     </li>
-                    {activeTab === `#profile` || storeName_ === '' ?
+                    {activeTab === `#profile` || storeName_ === ''||width>1024 ?
 
                       <></> :
 
@@ -920,7 +917,6 @@ const Account = () => {
                           </div>
 
                         </a>
-                        <Checkout />
                         <h5>{t("Past Orders:")}</h5>
                         <PayFullhistory />
                       </div>

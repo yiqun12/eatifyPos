@@ -37,8 +37,8 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
-    setProducts(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
-    console.log('Component B - ID changed:', id);
+    //setProducts(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
+    //console.log('Component B - ID changed:', id);
   }, [id]);
 
 
@@ -88,7 +88,7 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
     }
     calculateTotalPrice();;
 
-    uploadProductsToLocalStorage(products);
+    //uploadProductsToLocalStorage(products);
   }, [products, width]);
 
 
@@ -96,6 +96,7 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
     setProducts((prevProducts) => {
       return prevProducts.filter((product) => product.count !== count);
     });
+    uploadProductsToLocalStorage(products);
   }
   
 
@@ -113,6 +114,7 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
         return product;
       });
     });
+    uploadProductsToLocalStorage(products);
   };
 
   const handleMinusClick = (productId, targetCount) => {
@@ -129,30 +131,14 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
         return product;
       });
     });
-    //uploadProductsToLocalStorage(products);
+    uploadProductsToLocalStorage(products);
   };
+  
   const uploadProductsToLocalStorage = (products) => {
     // Set the products array in local storage
     localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
   };
   //display every item.
-
-  // modal. 
-  const modalRef = useRef(null);
-
-
-  useEffect(() => {
-    // Get the modal
-    const modal = modalRef.current;
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = (event) => {
-      if (event.target === modal) {
-
-        localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
-        modal.style.display = "none";
-      }
-    }
-  }, [products]);// pass `products` as a dependency
 
 
   if (!localStorage.getItem(store + "-" + selectedTable)) {
@@ -294,7 +280,7 @@ const Navbar = ({ store, selectedTable, setProducts , products }) => {
         <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
 
           {/* generates each food entry */}
-          {products?.map((product) => (
+          {(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])?.map((product) => (
             // the parent div
             // can make the parent div flexbox
             <div key={product.id} className="item">

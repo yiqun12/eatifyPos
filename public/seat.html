@@ -8,12 +8,6 @@
   <link rel='stylesheet' href='https://cdn.rawgit.com/leongersen/noUiSlider/master/distribute/nouislider.min.css'>
   <link rel="stylesheet" href="./style.css">
   <style>
-    .canvas-container {
-      margin-right: auto;
-      margin-left: auto;
-    }
-  </style>
-  <style>
     .col-sm-2.col-sm-offset-3.form-group {
       display: none;
     }
@@ -57,18 +51,18 @@
           <input type="number" id="height" class="form-control" value="812" />
         </div>
       </div>
-      <div class="col-sm-2 form-group" style="display: flex;justify-content: center; align-items: center; width: 100%;">
-        <button class="btn btn-warning customer-mode">Go Back</button>
+      <!-- <div class="col-sm-2 form-group" style="display: flex;justify-content: center; align-items: center; width: 100%;"> -->
         <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button> -->
-        <button class="btn btn-danger" onclick="clearBoard(); saveBoard();">Clear</button>
-      </div>
+        <!-- <button class="btn btn-danger" onclick="clearBoard(); saveBoard();">Clear</button> -->
+      <!-- </div> -->
       <div class="btn-group">
         <button class="btn btn-primary rectangle">+ &#9647; Table</button>
         <button class="btn btn-primary circle">+ &#9711; Table</button>
         <button class="btn btn-primary chair">+ Chair</button>
-        <button class="btn btn-primary bar">+ Bar</button>
+        <!-- <button class="btn btn-primary bar">+ Bar</button> -->
         <button class="btn btn-default wall">+ Wall</button>
         <button class="btn btn-danger remove">Remove</button>
+        <button class="btn btn-warning customer-mode">Go Back</button>
       </div>
     </div>
 
@@ -76,15 +70,16 @@
       <div class="btn-group">
         <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button>
         <button class="btn btn-primary" onclick="loadBoard()">Load</button> -->
-        <button class="btn btn-warning admin-mode">Admin mode</button>
+        <button class="btn btn-danger admin-mode" style="text-align: left;">Admin Mode</button>
       </div>
-      <br />
-      <br />
       <div id="slider"></div>
       <div id="slider-value"></div>
     </div>
+    <div id="canvas-container" style="overflow: auto; width: 500px; height: 600px;">
 
-    <canvas id="canvas" width="500" height="812"></canvas>
+    <canvas id="canvas" width="500" height="600"></canvas>
+  </div>
+
   </div>
 
   <div class="modal fade" id="modal" tabindex="-1" role="dialog">
@@ -109,7 +104,7 @@
     let canvas
     let tableNumber = 1
     let chairNumber = 1
-    let barNumber = 1
+    // let barNumber = 1
     let wallNumber = 1
     const grid = 30
     const backgroundColor = '#f8f8f8'
@@ -120,10 +115,10 @@
     const chairFill = 'rgba(67, 42, 4, 0.7)'
     const chairStroke = '#32230b'
     const chairShadow = 'rgba(0, 0, 0, 0.4) 3px 3px 7px'
-    const barFill = 'rgba(0, 93, 127, 0.7)'
-    const barStroke = '#003e54'
-    const barShadow = 'rgba(0, 0, 0, 0.4) 3px 3px 7px'
-    const barText = 'Bar'
+    // const barFill = 'rgba(0, 93, 127, 0.7)'
+    // const barStroke = '#003e54'
+    // const barShadow = 'rgba(0, 0, 0, 0.4) 3px 3px 7px'
+    // const barText = 'Bar'
     const wallFill = 'rgba(136, 136, 136, 0.7)'
     const wallStroke = '#686868'
     const wallShadow = 'rgba(0, 0, 0, 0.4) 5px 5px 20px'
@@ -135,7 +130,7 @@
     let board = {
       'table': [],
       'chair': [],
-      'bar': [],
+      // 'bar': [],
       'wall': [],
     }
 
@@ -171,7 +166,7 @@
       board = {
         'table': [],
         'chair': [],
-        'bar': [],
+        // 'bar': [],
         'wall': [],
       }
       resizeCanvas()
@@ -203,7 +198,9 @@
         o.hasControls = false
         o.lockMovementX = true
         o.lockMovementY = true
-        if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
+        // if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
+
+        if (o.type === 'chair' || o.type === 'wall') {
           o.selectable = false
         }
         o.borderColor = '#38A62E'
@@ -229,7 +226,7 @@
       canvas = new fabric.Canvas('canvas')
       tableNumber = 1
       chairNumber = 1
-      barNumber = 1
+      // barNumber = 1
       wallNumber = 1
       canvas.backgroundColor = backgroundColor
 
@@ -585,121 +582,55 @@
       return o
     }
 
-    function addBar(left, top, width, height, scaleX = 1, scaleY = 1, id = "xxxx", snapAngle = 45, angle = 0) {
-      // // console.log("width: ", width)
-      // // console.log("height: ", height)
+    // function addBar(left, top, width, height, scaleX = 1, scaleY = 1, id = "xxxx", snapAngle = 45, angle = 0) {
+    //   const generated_id = generateId()
+    //   if (id === "xxxx") {
+    //     id = generated_id
+    //   }
 
-      // const generated_id = generateId()
-      // if (id === "xxxx") {
-      //   id = generated_id
-      // }
+    //   const o = new fabric.Rect({
+    //     left: left,
+    //     top: top,
+    //     width: width,
+    //     height: height,
+    //     fill: barFill,
+    //     stroke: barStroke,
+    //     strokeWidth: 2,
+    //     shadow: barShadow,
+    //     originX: 'left',
+    //     originY: 'top',
+    //     centeredRotation: true,
+    //     snapAngle: snapAngle,
+    //     selectable: true,
+    //     type: 'bar',
+    //     id: id,
+    //     number: barNumber,
+    //     scaleX: scaleX,
+    //     scaleY: scaleY,
+    //     angle: angle
+    //   })
+    //   canvas.add(o)
+    //   object = {
+    //     left: o.left,
+    //     top: o.top,
+    //     width: o.width,
+    //     height: o.height,
+    //     scaleX: o.scaleX,
+    //     scaleY: o.scaleY,
+    //     id: o.id,
+    //     snapAngle: o.snapAngle,
+    //     angle: o.angle
 
-      // // TODO: Find the bug that is increase width and height by 2 everytime save+load is activated (might be just one of these functions)
+    //   }
+    //   board.bar.push(object)
+    //   console.log(board)
+    //   barNumber++
 
-      // // current braindead solution to a hard to solve problem
-      // // the width & height increments by 2 everything save + load is used
-      // width = width - 2;
-      // height = height - 2;
+    //   // saving the board after object creation
+    //   saveBoard()
 
-      // // console.log("scaling factors: ", scaleX, " ", scaleY)
-      // const o = new fabric.Rect({
-      //   width: width,
-      //   height: height,
-      //   fill: barFill,
-      //   stroke: barStroke,
-      //   strokeWidth: 2,
-      //   shadow: barShadow,
-      //   originX: 'center',
-      //   originY: 'center',
-      //   type: 'bar',
-      //   id: id,
-      //   angle: angle
-      // })
-      // const t = new fabric.IText(barText, {
-      //   fontFamily: 'Calibri',
-      //   fontSize: 14,
-      //   fill: '#fff',
-      //   textAlign: 'center',
-      //   originX: 'center',
-      //   originY: 'center'
-      // })
-      // const g = new fabric.Group([o, t], {
-      //   left: left,
-      //   top: top,
-      //   centeredRotation: true,
-      //   snapAngle: snapAngle,
-      //   selectable: true,
-      //   type: 'bar',
-      //   scaleX: scaleX,
-      //   scaleY: scaleY,
-      //   number: barNumber,
-      //   id: o.id,
-      // })
-      // console.log(g.id)
-      // canvas.add(g)
-      // object = {
-      //   left: g.left,
-      //   top: g.top,
-      //   width: g.width,
-      //   height: g.height,
-      //   scaleX: g.scaleX,
-      //   scaleY: g.scaleY,
-      //   id: o.id,
-      //   snapAngle: g.snapAngle,
-      //   angle: o.angle
-      // }
-      // board.bar.push(object)
-      // console.log(board)
-      // barNumber++
-      // return g
-      const generated_id = generateId()
-      if (id === "xxxx") {
-        id = generated_id
-      }
-
-      const o = new fabric.Rect({
-        left: left,
-        top: top,
-        width: width,
-        height: height,
-        fill: barFill,
-        stroke: barStroke,
-        strokeWidth: 2,
-        shadow: barShadow,
-        originX: 'left',
-        originY: 'top',
-        centeredRotation: true,
-        snapAngle: snapAngle,
-        selectable: true,
-        type: 'bar',
-        id: id,
-        number: barNumber,
-        scaleX: scaleX,
-        scaleY: scaleY,
-        angle: angle
-      })
-      canvas.add(o)
-      object = {
-        left: o.left,
-        top: o.top,
-        width: o.width,
-        height: o.height,
-        scaleX: o.scaleX,
-        scaleY: o.scaleY,
-        id: o.id,
-        snapAngle: o.snapAngle,
-        angle: o.angle
-
-      }
-      board.bar.push(object)
-      console.log(board)
-      barNumber++
-
-      // saving the board after object creation
-      saveBoard()
-
-      return o
-    }
+    //   return o
+    // }
 
 
     function addWall(left, top, width, height, scaleX = 1, scaleY = 1, id = "xxxx", snapAngle = 45, angle = 0) {
@@ -794,19 +725,19 @@
         board.chair[index].snapAngle = target.snapAngle
         board.chair[index].angle = target.angle
       }
-      else if (target.type == 'bar') {
-        // grab the number (the number - 1 is the index in bar list)
-        let index = target.number - 1
-        console.log(target.number)
-        board.bar[index].left = target.left
-        board.bar[index].top = target.top
-        board.bar[index].width = target.width
-        board.bar[index].height = target.height
-        board.bar[index].scaleX = target.scaleX
-        board.bar[index].scaleY = target.scaleY
-        board.bar[index].snapAngle = target.snapAngle
-        board.bar[index].angle = target.angle
-      }
+      // else if (target.type == 'bar') {
+      //   // grab the number (the number - 1 is the index in bar list)
+      //   let index = target.number - 1
+      //   console.log(target.number)
+      //   board.bar[index].left = target.left
+      //   board.bar[index].top = target.top
+      //   board.bar[index].width = target.width
+      //   board.bar[index].height = target.height
+      //   board.bar[index].scaleX = target.scaleX
+      //   board.bar[index].scaleY = target.scaleY
+      //   board.bar[index].snapAngle = target.snapAngle
+      //   board.bar[index].angle = target.angle
+      // }
       else if (target.type == 'wall') {
         // grab the number (the number - 1 is the index in wall list)
         let index = target.number - 1
@@ -913,10 +844,10 @@
       canvas.setActiveObject(o)
     })
 
-    document.querySelectorAll('.bar')[0].addEventListener('click', function () {
-      const o = addBar(0, 0, 180, 60, 1, 1)
-      canvas.setActiveObject(o)
-    })
+    // document.querySelectorAll('.bar')[0].addEventListener('click', function () {
+    //   const o = addBar(0, 0, 180, 60, 1, 1)
+    //   canvas.setActiveObject(o)
+    // })
 
     document.querySelectorAll('.wall')[0].addEventListener('click', function () {
       const o = addWall(0, 0, 60, 180, 1, 1)
@@ -961,7 +892,9 @@
         o.hasControls = false
         o.lockMovementX = true
         o.lockMovementY = true
-        if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
+        // if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
+          if (o.type === 'chair' || o.type === 'wall') {
+
           o.selectable = false
         }
         o.borderColor = '#38A62E'
@@ -982,7 +915,9 @@
         o.hasControls = true
         o.lockMovementX = false
         o.lockMovementY = false
-        if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
+        // if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
+        if (o.type === 'chair' || o.type === 'wall') {
+
           o.selectable = true
         }
         o.borderColor = 'rgba(102, 153, 255, 0.75)'
@@ -1066,10 +1001,10 @@
       })
 
       // getting the bars category from board and adding all the bars to canvas
-      bars = board.bar
-      bars.forEach(element => {
-        addBar(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY, element.id, element.snapAngle, element.angle)
-      })
+      // bars = board.bar
+      // bars.forEach(element => {
+      //   addBar(element.left, element.top, element.width, element.height, element.scaleX, element.scaleY, element.id, element.snapAngle, element.angle)
+      // })
 
       // getting the walls category from board and adding all the walls to canvas
       walls = board.wall

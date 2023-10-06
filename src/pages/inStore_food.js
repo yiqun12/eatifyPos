@@ -416,6 +416,7 @@ const Food = ({ store, selectedTable }) => {
           console.log("delete now")
           products.splice(productIndex, 1);
           localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+          saveId(Math.random());
           hideModal()
           return
         }
@@ -427,13 +428,6 @@ const Food = ({ store, selectedTable }) => {
       }
 
     }
-    const calculateTotalQuant = () => {
-      const total = products.reduce((acc, product) => acc + (product.quantity), 0);
-      // console.log(total)
-      $('#cart').attr("data-totalitems", total);
-    }
-    calculateTotalQuant();
-
     saveId(Math.random());
   };
   const searchSpeicalFoodQuantity = (id, count) => {
@@ -583,6 +577,7 @@ const Food = ({ store, selectedTable }) => {
     setSelectedAttributes({})
     setTotalPrice(0);
     addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum)
+    saveId(Math.random());
     //const [selectedAttributes, setSelectedAttributes] = useState({});
     //const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
   }
@@ -980,8 +975,8 @@ const Food = ({ store, selectedTable }) => {
                                       display: "flex",
                                     }}
                                     onClick={() => {
-                                      showModal(item); setSelectedFoodItem(item);;
-
+                                      showModal(item); 
+                                      setSelectedFoodItem(item);;
                                     }}
                                   >
                                     <PlusSvg
