@@ -409,11 +409,12 @@ function Checkout(props) {
                         <img className="img-fluid" src="https://img.icons8.com/color/48/000000/visa.png" />
                       )}
                     </div>
-                    <div className="col-7 select-dropdown h6 font-semibold text-muted text-sm">
+                    {/* save card for future use */}
+                    {/* <div className="col-7 select-dropdown h6 font-semibold text-muted text-sm">
                       <select style={{ backgroundcolor: "white", color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
                         <option hidden data-type="mastercard">{t("Select Account")}</option>
                       </select>
-                    </div>
+                    </div> */}
                     <div className="col-3 d-flex justify-content-center">
                       <button onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}

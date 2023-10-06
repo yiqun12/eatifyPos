@@ -229,16 +229,17 @@ function CardSection(props) {
                   'paddingLeft': 0,
                   'paddingRight': 0,
                   color: "black"
-                }}>{t("Card details")}</span>
+                }}>{t("Credit Card Number")}</span>
               </div>
               <div className="row row-2" style={{
                 'paddingLeft': 0,
                 'paddingRight': 0
               }}>
-                <span style={{
+                <span class="notranslate"  style={{
                   'paddingLeft': 0,
                   'paddingRight': 0
-                }}>                  <CardElement
+                }}>                  
+                <CardElement
                     id="card-element" options={CARD_ELEMENT_OPTIONS} />
                 </span>
               </div>
@@ -249,15 +250,15 @@ function CardSection(props) {
 
 
           <div id="prompt-message" role="alert"></div>
-
-          <MDBCheckbox
+         {/* save card checkbox for future use*/}
+          {/* <MDBCheckbox
             name='flexCheck'
             value=''
             id='flexCheckChecked'
             label={t('Save Card')}
             defaultChecked={isChecked.current}
             onChange={handleCheckboxChange}
-          />
+          /> */}
 
           <button style={{ width: "100%" }} class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">{t("Pay")} ${totalPrice}</button>
         </form>

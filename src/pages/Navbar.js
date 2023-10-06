@@ -267,7 +267,10 @@ const Navbar = () => {
       return text
     }
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")])
-
+  if(sessionStorage.getItem("Google-language")&& sessionStorage.getItem("Google-language") !== null){
+  }else{
+    sessionStorage.setItem("Google-language", "Select Language");
+  }
   
   // the below code checks for language option changes with the google translate widget
   $(document).ready(function() {
