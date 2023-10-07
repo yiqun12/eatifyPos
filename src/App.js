@@ -45,6 +45,10 @@ import Refresh from './pages/Refresh'
 // import the time change page for testing
 import ChangeTimeForm from "./pages/ChangeTimeForm"
 
+// import the terminal page
+
+import PaymentComponent from "./pages/PaymentComponent";
+
 function App() {
   const { user, user_loading } = useUserContext();
 
@@ -132,6 +136,8 @@ function App() {
 
       {/* testing from tony */}
       <Route exact path="/testing_admin" element={<Account_admin />} />
+
+      <Route exact path="/terminal_page" element={<PaymentComponent/>}/>
 
       <Route exact path="/test_admin_new" element={<Admin_new />} />
       <Route exact path="/test_iframeDesk" element={<IframeDesk store={"demo"}/>} />
