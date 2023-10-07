@@ -43,8 +43,6 @@ import { ReactComponent as Todo_icon } from './todo_icon.svg';
 import { ReactComponent as Menu_icon } from './menu_icon.svg';
 import file_icon from './file_icon.png';
 
-
-
 const Account = () => {
 
 
