@@ -7,6 +7,8 @@ const PaymentComponent = () => {
   var locationId;
   var readerId;
   var paymentIntentId;
+  var simulation_mode;
+
 
   // the functions to the server
   async function createLocation(payloadLocation) {
@@ -229,6 +231,13 @@ catch (error) {
         terminalRegistrationCode: stripeTerminalRegistrationCode,
         connected_stripe_account_id: stripeID
       }
+
+      // if registration code is simulated-wpe, its not live mode
+      if (stripeTerminalRegistrationCode === "simulated-wpe") {
+        simulation_mode = true;
+      } else {
+        simulation_mode = false;
+      }
       const reader = await createReader(payloadReader);
       console.log("registered reader: ", reader);
       readerId = reader["id"]
@@ -256,6 +265,10 @@ catch (error) {
       const reader = await processPayment();
       console.log("payment processed at reader: ", reader);
   
+      if (simulation_mode == true) {
+        const simulatedPayment = await simulatePayment();
+        console.log("simulated payment at: ", simulatedPayment);
+      }
       const simulatedPayment = await simulatePayment();
       console.log("simulated payment at: ", simulatedPayment);
   
