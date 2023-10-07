@@ -573,7 +573,9 @@ const Account = () => {
             <div className={`container-fluid `} style={{ "minHeight": "0px" }}>
             <button
                 className={`mt-2 btn mr-2 ml-2 ${activeTab === '#profile' ? 'border-black' : ''}`}
-                onClick={(e) => handleTabClick(e, '#profile')}
+                onClick={(e) => {handleTabClick(e, '#profile')
+                setActiveStoreId("")}
+              }
               >
                 <div style={{ alignItems: 'center', justifyContent: 'center' }}>
                 <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
@@ -595,7 +597,6 @@ const Account = () => {
                   setStoreID(data.id);
                   setActiveStoreId(data.id)
                   setStoreOpenTime(data.Open_time)
-
                 }}
               >
                 <div style={{ alignItems: 'center', justifyContent: 'center' }}>
