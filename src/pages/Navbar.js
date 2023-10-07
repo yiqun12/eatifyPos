@@ -224,12 +224,6 @@ const Navbar = () => {
   }, [products]);// pass `products` as a dependency
   //This will ensure that the useEffect hook is re-run every time the products value changes, and the latest value will be saved to local storage.
   //google login button functions
-  const [loginData, setLoginData] = useState(
-    sessionStorage.getItem('loginData')
-      ? JSON.parse(sessionStorage.getItem('loginData'))
-      : null
-  );
-  const url = "http://localhost:8080"
 
   const queryParams = new URLSearchParams(location.search);
   const storeValue = params.get('store') ? params.get('store').toLowerCase() : ""; // should give "parkasia"
@@ -359,7 +353,7 @@ const Navbar = () => {
             {products?.map((product) => (
               // the parent div
               // can make the parent div flexbox
-              <div key={product.id} className="item">
+              <div key={product.count} className="item">
 
                 {/* the delete button */}
                 <div className="buttons">

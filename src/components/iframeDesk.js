@@ -100,6 +100,7 @@ function App({ store }) {
             setSelectedSeatMode("customer");
         } else if (event.data === "table_deselected") {
             setSelectedTable(null);
+            saveId(Math.random());
             console.log("Table deselected");
         }
         else if (event.data === 'buttonClicked') {
@@ -213,7 +214,6 @@ function App({ store }) {
     }
 
     const [isModalOpen, setModalOpen] = useState(false);
-    const [products, setProducts] = useState([]);
 
 
     return (
@@ -255,15 +255,12 @@ function App({ store }) {
                         </div>
 
                         <section className="task-list" >
-                            <div className="task-wrap" style={{ minHeight: '350px', overflowY: 'scroll' }}>
-                                <div className={`task-card ${"task.checked" ? "task-card--done" : ""}`}>
+                            <div className="task-wrap" style={{ minHeight: '800px', overflowY: 'scroll' }}>
                                     <div style={{ display: "flex", alignItems: "center" }}>
                                         <div>
-                                            <InStore_shop_cart store={store} selectedTable={selectedTable} products={products} setProducts={setProducts}  ></InStore_shop_cart>
+                                            <InStore_shop_cart store={store} selectedTable={selectedTable}  ></InStore_shop_cart>
                                             <hr />
                                         </div>
-                                    </div>
-
                                 </div>
                             </div>
                         </section>

@@ -134,7 +134,7 @@ function App() {
       <Route exact path="/testing_admin" element={<Account_admin />} />
 
       <Route exact path="/test_admin_new" element={<Admin_new />} />
-      <Route exact path="/test_iframeDesk" element={<IframeDesk />} />
+      <Route exact path="/test_iframeDesk" element={<IframeDesk store={"demo"}/>} />
 
               {user ? <Route path="ForgotPassword" element={<Account_admin />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
               <Route exact path="/store" element={<Food />} />
