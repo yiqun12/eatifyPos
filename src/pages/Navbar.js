@@ -70,7 +70,6 @@ const Navbar = () => {
 
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
   //const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
-  console.log(store)
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -133,11 +132,15 @@ const Navbar = () => {
 
     //console.log("product changed")
     // Update the height of the shopping cart element
-    document.querySelector('.shopping-cart').style.height = `${height}px`;
-    //maybe add a line here...
+    const shoppingCart = document.querySelector('.shopping-cart');
+
+    if (shoppingCart && shoppingCart.style) {
+        shoppingCart.style.height = `${height}px`;
+    }
+        //maybe add a line here...
     const calculateTotalPrice = () => {
       const total = products?.reduce((acc, item) => item && item.itemTotalPrice ? acc + item.itemTotalPrice : acc, 0);
-      console.log(total)
+      //console.log(total)
       setTotalPrice(total);
     }
     calculateTotalPrice();
@@ -288,9 +291,12 @@ const Navbar = () => {
     listenToTranslateWidget();
   });
   
-  
-  return (
+  if (location.pathname.includes('/testing_food')){
+    return (<></>)
+  }
 
+  return (
+    
     <>
       {(location.pathname.includes('/store') || location.pathname.includes('/checkout')) && (
         <a className="float">

@@ -60,7 +60,7 @@ const Navbar = ({ store, selectedTable }) => {
   const [totalPrice, setTotalPrice] = useState(0);
 
   const [totalQuant, setTotalQuant] = useState(0);
-  console.log(totalQuant)
+  //console.log(totalQuant)
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
     let height = 100;

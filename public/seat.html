@@ -886,7 +886,7 @@
     let current_mode = "customer";
 
     document.querySelectorAll('.customer-mode')[0].addEventListener('click', function () {
-      loadBoard()
+      //loadBoard()
 
       canvas.getObjects().map(o => {
         o.hasControls = false
@@ -907,6 +907,7 @@
       document.querySelectorAll('.admin-menu')[0].style.display = 'none'
       document.querySelectorAll('.customer-menu')[0].style.display = 'block'
       current_mode = "customer"
+      console.log(`customer mode active`, "*")
       window.parent.postMessage(`customer mode active`, "*");
     })
 

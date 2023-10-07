@@ -241,15 +241,21 @@ function App({ store }) {
 
             {/* beginning of the other code */}
 
-            <div style={{ margin: "10px", display: "flex" }}>
                 {true ?
 
                     <>
-                        <header className="main-header" style={{ height: "100px" }}>
 
-                            <div className="search-wrap">
-                            </div>
-                        </header>
+<a
+                      onClick={(e) => {
+                      }}
+                      class="btn d-inline-flex btn-sm btn-primary mx-1">
+                      <span class=" pe-2">
+                        <i class="bi bi-house"></i>
+                      </span>
+                      <span> {"Create Store"}</span>
+                    </a>
+                    <div style={{ margin: "10px", display: "flex" }}>
+
                         <div >
                             <Iframe ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" />
                         </div>
@@ -264,11 +270,11 @@ function App({ store }) {
                                 </div>
                             </div>
                         </section>
+                        </div>
 
                     </>
                     :
                     null}
-            </div>
         </div>
 
     );

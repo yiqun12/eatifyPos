@@ -38,6 +38,8 @@ import { businessHours } from "./data/businessHours";
 /// import timezone offsets
 import { timeZones } from "./data/timeZones"
 import Food from './pages/Food'
+import Food_testing from './pages/Food_testing'
+
 import Checklist from './pages/Checklist'
 import DemoFood from './pages/demoFood'
 import Refresh from './pages/Refresh'
@@ -136,6 +138,7 @@ function App() {
 
       {/* testing from tony */}
       <Route exact path="/testing_admin" element={<Account_admin />} />
+      <Route exact path="/testing_food" element={<Food_testing />} />
 
       <Route exact path="/terminal_page" element={<PaymentComponent/>}/>
 
