@@ -46,6 +46,7 @@ import Refresh from './pages/Refresh'
 import ChangeTimeForm from "./pages/ChangeTimeForm"
 
 // import the terminal page
+
 import PaymentComponent from "./pages/PaymentComponent";
 
 function App() {

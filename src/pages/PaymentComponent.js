@@ -9,6 +9,7 @@ const PaymentComponent = () => {
   var paymentIntentId;
   var simulation_mode;
 
+
   // the functions to the server
   async function createLocation(payloadLocation) {
     try {
@@ -237,7 +238,6 @@ catch (error) {
       } else {
         simulation_mode = false;
       }
-
       const reader = await createReader(payloadReader);
       console.log("registered reader: ", reader);
       readerId = reader["id"]
@@ -269,6 +269,8 @@ catch (error) {
         const simulatedPayment = await simulatePayment();
         console.log("simulated payment at: ", simulatedPayment);
       }
+      const simulatedPayment = await simulatePayment();
+      console.log("simulated payment at: ", simulatedPayment);
   
       const capturedPayment = await capture(paymentIntent.id);
       console.log("payment is captured: ", capturedPayment);
