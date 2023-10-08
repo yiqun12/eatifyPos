@@ -3,8 +3,45 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {useState, useEffect} from 'react';
 
 const exampleJSON = [
-  {orderId: "1", date: "10/7/2023", amount: "100", Status: "Review"},
-  {orderId: "2", date: "10/7/2023", amount: "300", Status: "Review"},
+  {orderId: "1", date: "10/7/2023", amount: "100", Status: "Review", 
+  items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+  "name":"肉眼牛排",
+  "subtotal":1,
+  "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+  "quantity":5,
+  "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
+  "count":"9224d939-2223-4820-b802-f61ddd9b2879",
+  "itemTotalPrice":90,
+  "cancel":"true"},
+  {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
+  "name":"宫保鸡丁",
+  "subtotal":"1",
+  "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+  "quantity":4,
+  "attributeSelected":{"size":["big"]},
+  "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+  "itemTotalPrice":8}
+]
+},
+  {orderId: "2", date: "10/7/2023", amount: "300", Status: "Review",  
+  items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+  "name":"肉眼牛排",
+  "subtotal":1,
+  "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+  "quantity":5,
+  "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
+  "count":"9224d939-2223-4820-b802-f61ddd9b2879",
+  "itemTotalPrice":90,
+  "cancel":"true"},
+  {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
+  "name":"宫保鸡丁",
+  "subtotal":"1",
+  "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+  "quantity":4,
+  "attributeSelected":{"size":["big"]},
+  "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+  "itemTotalPrice":8}
+]},
   {orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid"}
 ];
 
@@ -86,6 +123,9 @@ const Test_Notification_Page = () => {
 //     setSortedData(updatedData);
 // }
 
+const [expandedOrderId, setExpandedOrderId] = useState(null);
+
+
   return (
     // <div>Hello</div>
    <div>
@@ -133,6 +173,7 @@ const Test_Notification_Page = () => {
               </thead>
               <tbody>
               {sortedData.map(order => (
+                <>
           <tr key={order.orderId}>
             <td>
               <a className="text-heading font-semibold" href="#">
@@ -152,12 +193,65 @@ const Test_Notification_Page = () => {
             </td>
             <td className="text-end">
             <button className="btn btn-sm btn-neutral" onClick={() => clickConfirm(order.orderId)}>Confirm</button>
-             <button className="btn btn-sm btn-neutral">View</button>
+             <button className="btn btn-sm btn-neutral" onClick={() => {
+                if (expandedOrderId === order.orderId) {
+                    setExpandedOrderId(null);
+                } else {
+                    setExpandedOrderId(order.orderId);
+                }
+            }}>View</button>
               <button type="button" className="btn btn-sm btn-neutral text-danger-hover" onClick={() => deleteItem(order.orderId)}>
                 Delete
               </button>
             </td>
+
+
+                    {/* Check if the current order should have its items shown
+        {order.orderId === expandedOrderId && (
+            <td colSpan="5">
+                <div style={{padding: '10px', backgroundColor: '#f8f9fa'}}>
+                    {order.items && order.items.map(item => (
+                      <div key={item.id}>
+                          Name: {item.name} | Quantity: {item.quantity} | Price: {item.itemTotalPrice}
+                          {item.attributeSelected && Object.keys(item.attributeSelected).map(attributeKey => (
+                              <div key={attributeKey}>
+                                  {attributeKey}: {Array.isArray(item.attributeSelected[attributeKey]) 
+                                      ? item.attributeSelected[attributeKey].join(', ') 
+                                      : item.attributeSelected[attributeKey]
+                                  }
+                              </div>
+                          ))}
+                      </div>
+                    ))}
+                </div>
+            </td>
+        )} */}
+
+
           </tr>
+
+          {order.orderId === expandedOrderId && (
+            <tr>
+                <td colSpan="5">
+                    <div style={{padding: '10px', backgroundColor: '#f8f9fa'}}>
+                        {order.items && order.items.map(item => (
+                            <div key={item.id}>
+                                Name: {item.name} | Quantity: {item.quantity} | Price: {item.itemTotalPrice}
+                                {item.attributeSelected && Object.keys(item.attributeSelected).map(attributeKey => (
+                                    <div key={attributeKey}>
+                                        {attributeKey}: {Array.isArray(item.attributeSelected[attributeKey]) 
+                                            ? item.attributeSelected[attributeKey].join(', ') 
+                                            : item.attributeSelected[attributeKey]
+                                        }
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                </td>
+            </tr>
+          )}
+          </>
         ))}
               </tbody>
             </table>
