@@ -51,6 +51,8 @@ import ChangeTimeForm from "./pages/ChangeTimeForm"
 
 import PaymentComponent from "./pages/PaymentComponent";
 
+import BusinessHoursTestPage from "./pages/BusinessHoursTestPage.js";
+
 function App() {
   const { user, user_loading } = useUserContext();
 
@@ -141,6 +143,8 @@ function App() {
       <Route exact path="/testing_food" element={<Food_testing />} />
 
       <Route exact path="/terminal_page" element={<PaymentComponent/>}/>
+      <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage/>}/>
+      {/* <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage/>}/> */}
 
       <Route exact path="/test_admin_new" element={<Admin_new />} />
       <Route exact path="/test_iframeDesk" element={<IframeDesk store={"demo"}/>} />

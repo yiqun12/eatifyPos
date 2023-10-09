@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 import "./BusinessHoursTable.css";
 import { json } from 'react-router-dom';
 
+
 function parseTime(timeStr) {
   if (timeStr == "xxxx") {
     return { closed: true }
@@ -55,7 +56,7 @@ function convertTo12HourFormat(timeStr) {
 }
 
 
-function BusinessHoursTable({ storeOpenTime, storeName, storeStatus }) {
+function BusinessHoursTable({ storeOpenTime}) {
   const [businessHours, setBusinessHours] = useState({});
   const [timezone, setTimezone] = useState("PDT");
 
@@ -169,6 +170,7 @@ function BusinessHoursTable({ storeOpenTime, storeName, storeStatus }) {
 
       for (const range of ranges) {
         if (range.openTime !== "xxxx" && range.openTime >= currentTime) {
+          console.log("next open time: ", currentDayIndex, " ", range.openTime)
           return {
             day: currentDayIndex,
             time: range.openTime
@@ -189,12 +191,12 @@ function BusinessHoursTable({ storeOpenTime, storeName, storeStatus }) {
     const dayNames = ["Sun", "Mon", "Tues", "Weds", "Thurs", "Fri", "Sat"];
 
     if (dayTimeObject == null) {
-      return null;
+      return "Null";
     }
 
     const dayName = dayNames[dayTimeObject["day"]];
     // return `${dayName} ${convertTo12HourFormat(dayTimeObject["time"])}`;
-    return `${convertTo12HourFormat(dayTimeObject["time"])}`;
+    return `${isOpen ? "Open until" : "Close until"} ${dayName} ${convertTo12HourFormat(dayTimeObject["time"])}`;
 
   }
 
@@ -230,6 +232,13 @@ function BusinessHoursTable({ storeOpenTime, storeName, storeStatus }) {
     });
   }
 
+  var isOpen = false;
+  if (getNextCloseTimeRange() === null) {
+    isOpen = false;
+  }else {
+    isOpen = true;
+  }
+
   return (
     <>
       {/* <BusinessHoursTable></BusinessHoursTable> */}
@@ -241,7 +250,7 @@ function BusinessHoursTable({ storeOpenTime, storeName, storeStatus }) {
       </Button> } */}
 
       <h1 onClick={handleShow} className="responsive-text px-4 font-bold" style={{ cursor: "pointer", color: 'gray'}}>
-        {getCurrentDayTimeRanges()}
+        {isOpen ? grabDayTime(getNextCloseTimeRange())  : grabDayTime(getNextOpenTimeRange())}
       </h1>
       {/* <Button variant="primary" onClick={handleShow}>
       Business Hours
