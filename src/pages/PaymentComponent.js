@@ -269,11 +269,11 @@ catch (error) {
         const simulatedPayment = await simulatePayment();
         console.log("simulated payment at: ", simulatedPayment);
       }
-      const simulatedPayment = await simulatePayment();
-      console.log("simulated payment at: ", simulatedPayment);
+      // const simulatedPayment = await simulatePayment();
+      // console.log("simulated payment at: ", simulatedPayment);
   
-      const capturedPayment = await capture(paymentIntent.id);
-      console.log("payment is captured: ", capturedPayment);
+      // const capturedPayment = await capture(paymentIntent.id);
+      // console.log("payment is captured: ", capturedPayment);
     } catch (error) {
       console.error("Error in makePayment: ", error.message);
     } finally {
