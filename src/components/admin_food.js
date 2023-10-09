@@ -876,7 +876,7 @@ const Food = ({ store }) => {
                           style={{ width: "50%" }}
                           value={currentVariation.type}
                           onChange={(e) => setCurrentVariation({ ...currentVariation, type: e.target.value })}
-                          placeholder=" BG"
+                          placeholder=" Big"
                         />                </div>
 
                       <div className='flex'>
@@ -925,13 +925,13 @@ const Food = ({ store }) => {
                             {attributeName} &nbsp;
                           </span>
                           <div className="custom-control custom-switch" style={{ display: "inline-block", verticalAlign: "middle" }}>
-                            <input
-                              type="checkbox"
-                              className="custom-control-input"
-                              id="customSwitch1"
-                              checked={!attributeDetails.isSingleSelected}
-                              onChange={(e) => handleToggle(attributeName, !e.target.checked)}
-                            />
+                                                                     <input
+                        className='form-check-input'
+                        type="checkbox"
+                        style={{ marginRight: "5px" }}
+                        checked={!attributeDetails.isSingleSelected}
+                        onChange={(e) => handleToggle(attributeName, !e.target.checked)}
+                        />
                           </div>
                           {" Multi-Select"} { }
                         </p>
@@ -1599,13 +1599,14 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
                       {attributeName} &nbsp;
                     </span>
                     <div className="custom-control custom-switch" style={{ display: "inline-block", verticalAlign: "middle" }}>
-                      <input
+        
+                                          <input
+                        className='form-check-input'
                         type="checkbox"
-                        className="custom-control-input"
-                        id="customSwitch1"
+                        style={{ marginRight: "5px" }}
                         checked={!attributeDetails.isSingleSelected}
                         onChange={(e) => handleToggle(attributeName, !e.target.checked)}
-                      />
+                    />
                     </div>
                     {" Multi-Select"} { }
                   </p>

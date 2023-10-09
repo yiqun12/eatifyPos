@@ -13,10 +13,18 @@ import { data_ } from '../data/data.js'
 
 import InStore_food from '../pages/inStore_food'
 import InStore_shop_cart from '../pages/inStore_shop_cart'
+import { useUserContext } from "../context/userContext";
 
-function Iframe({ src, width, height }) {
+function Iframe({ src, width, height, storeName }) {
     const iframeRef = useRef();
-
+    console.log(storeName)
+    useEffect(() => {
+        // existing fetchHtml logic...
+      
+        iframeRef.current.onload = () => {
+          iframeRef.current.contentWindow.postMessage(storeName+'_restaurant_seat_arrangement', '*');
+        };
+      }, [src]);
 
     useEffect(() => {
         const fetchHtml = async () => {
@@ -38,6 +46,8 @@ function Iframe({ src, width, height }) {
 }
 
 function App({ store }) {
+    const { user, user_loading } = useUserContext();
+
     const buttonStyles = {
         // Converting global and element styles to React's inline style
         boxSizing: 'border-box',
@@ -260,9 +270,20 @@ function App({ store }) {
     }
 
     const [isModalOpen, setModalOpen] = useState(false);
+    
+    const handleFormSubmit = async (store) => {
 
+        const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
+        console.log(JSON.parse(sessionStorage.getItem(store+"_restaurant_seat_arrangement")))
+        // Update the 'key' field to the value retrieved from localStorage
+        await updateDoc(docRef, {
+            restaurant_seat_arrangement: sessionStorage.getItem(store+"_restaurant_seat_arrangement")
+    
+        });
+        alert("Updated Successful");
+      };
 
-    return (
+      return (
 
         <div>
 
@@ -292,14 +313,14 @@ function App({ store }) {
                 <>
                     <div className='flex flex-col' style={{ alignItems: 'flex-start' }}>
                         {selectedSeatMode === 'admin' ?
-                            <div style={buttonStyles} className='mt-3 hover:bg-yellow-700'>{t("Save Layout")}</div>
+                            <div style={buttonStyles} onClick={() => handleFormSubmit(store)}  className='mt-3 hover:bg-yellow-700'>{t("Save Layout")}</div>
                             : <></>
                         }
 
                         <div style={{ margin: "10px", display: "flex" }}>
 
                             <div >
-                                <Iframe ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" />
+                                <Iframe ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" storeName={store} />
                             </div>
 
                             <section className="task-list" >

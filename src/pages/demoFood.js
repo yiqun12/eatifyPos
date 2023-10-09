@@ -92,8 +92,38 @@ const Food = () => {
       }
   ])
    const clock = {"0":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"1":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"2":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"3":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"4":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"5":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"6":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"7":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"}}
-  const restaurant_seat_arrangement = {"table":[{"type":"rect","left":45,"top":75,"width":60,"height":60,"scaleX":1,"scaleY":1,"tableName":"A","id":"ukjfm8xc","snapAngle":45,"angle":0}],"chair":[],"wall":[]};
-    // First, check if a document with the given ID exists
+  const restaurant_seat_arrangement = {
+    "table": [
+        {
+            "type": "rect",
+            "left": 45,
+            "top": 75,
+            "width": 60,
+            "height": 60,
+            "scaleX": 1,
+            "scaleY": 1,
+            "tableName": "A12",
+            "id": "j57opywg",
+            "snapAngle": 45,
+            "angle": 0
+        },
+        {
+            "type": "rect",
+            "left": 165,
+            "top": 75,
+            "width": 60,
+            "height": 60,
+            "scaleX": 1,
+            "scaleY": 1,
+            "tableName": "A3",
+            "id": "spkjh6o6",
+            "snapAngle": 45,
+            "angle": 0
+        }
+    ],
+    "chair": [],
+    "wall": []
+}
     let docRef;
 
     try {

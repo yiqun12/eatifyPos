@@ -105,7 +105,7 @@
   <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
   <script src='https://cdn.rawgit.com/leongersen/noUiSlider/master/distribute/nouislider.min.js'></script>
   <script>
-
+    let store
     let canvas
     let tableNumber = 1
     let chairNumber = 1
@@ -145,13 +145,42 @@
     //   'bar': [],
     //   'wall': [],
     // }
+    window.addEventListener('message', function(event) {
+  if (event.data.includes("_restaurant_seat_arrangement")) {
+    store = event.data
+    loadBoard()
+    
+    canvas.getObjects().map(o => {
+        o.hasControls = false
+        o.lockMovementX = true
+        o.lockMovementY = true
+        // if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
+
+        if (o.type === 'chair' || o.type === 'wall') {
+          o.selectable = false
+        }
+        o.borderColor = '#38A62E'
+        o.borderScaleFactor = 2.5
+      })
+      canvas.selection = false
+      canvas.hoverCursor = 'pointer'
+      canvas.discardActiveObject()
+      canvas.renderAll()
+      document.querySelectorAll('.admin-menu')[0].style.display = 'none'
+      document.querySelectorAll('.customer-menu')[0].style.display = 'block'
+      current_mode = "customer"
+      window.parent.postMessage(`customer mode active`, "*");
+      //console.log('Received "hello" from parent');
+  }
+});
+
 
     function saveBoard() {
       console.log("save board")
       console.log(board)
 
       // this is where you save the board to an external js
-      window.sessionStorage.setItem("restaurant_seat_arrangement", JSON.stringify(board));
+      window.sessionStorage.setItem(store, JSON.stringify(board));
       // external_board = board
     }
 
@@ -161,7 +190,7 @@
       clearBoard()
       // this is where you read external (previously saved board data and load it in)
 
-      let arrangement = JSON.parse(window.sessionStorage.getItem("restaurant_seat_arrangement"))
+      let arrangement = JSON.parse(window.sessionStorage.getItem(store))
 
       addDefaultObjects(arrangement)
     }
@@ -198,27 +227,7 @@
     function loadingFunction() {
       resizeCanvas()
       initCanvas()
-      loadBoard()
-      canvas.getObjects().map(o => {
-        o.hasControls = false
-        o.lockMovementX = true
-        o.lockMovementY = true
-        // if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
 
-        if (o.type === 'chair' || o.type === 'wall') {
-          o.selectable = false
-        }
-        o.borderColor = '#38A62E'
-        o.borderScaleFactor = 2.5
-      })
-      canvas.selection = false
-      canvas.hoverCursor = 'pointer'
-      canvas.discardActiveObject()
-      canvas.renderAll()
-      document.querySelectorAll('.admin-menu')[0].style.display = 'none'
-      document.querySelectorAll('.customer-menu')[0].style.display = 'block'
-      current_mode = "customer"
-      window.parent.postMessage(`customer mode active`, "*");
 
     }
 
