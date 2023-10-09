@@ -39,7 +39,7 @@
   </div>
 
   <!-- partial:index.partial.html -->
-  <div class="container-fluid text-center">
+  <div class="container-fluid text-center" style="padding: 0;">
     <div class="form-group admin-menu" style="display: none;">
       <div class="row">
         <div class="col-sm-2 col-sm-offset-3 form-group">
@@ -55,19 +55,24 @@
         <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button> -->
         <!-- <button class="btn btn-danger" onclick="clearBoard(); saveBoard();">Clear</button> -->
       <!-- </div> -->
-      <div class="btn-group">
-        <button class="btn btn-primary rectangle">+ &#9647; Table</button>
-        <button class="btn btn-primary circle">+ &#9711; Table</button>
-        <button class="btn btn-primary chair">+ Chair</button>
-        <!-- <button class="btn btn-primary bar">+ Bar</button> -->
-        <button class="btn btn-default wall">+ Wall</button>
-        <button class="btn btn-danger remove">Remove</button>
-        <button class="btn btn-warning customer-mode">Go Back</button>
-      </div>
+      <div class="btn-group" style="width: 100%;">
+        <!-- float: left will make these buttons align to the left -->
+        <button class="btn btn-primary rectangle" style="float: left;">+ &#9647; Table</button>
+        <button class="btn btn-primary circle" style="float: left;">+ &#9711; Table</button>
+        <button class="btn btn-primary chair" style="float: left;">+ Chair</button>
+        <!-- float: left will make these buttons align to the left -->
+        <!-- <button class="btn btn-primary bar" style="float: left;">+ Bar</button> -->
+        <button class="btn btn-default wall" style="float: left;">+ Wall</button>
+    
+        <!-- float: right will make these buttons align to the right -->
+        <button class="btn btn-danger remove" style="float: left;">Remove</button>
+        <button class="btn btn-success customer-mode" style="float: right;">Go Back</button>
+    </div>
+    
     </div>
 
     <div class="form-group customer-menu">
-      <div class="btn-group">
+      <div class="btn-group" style="width: 100%;">
         <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button>
         <button class="btn btn-primary" onclick="loadBoard()">Load</button> -->
         <button class="btn btn-danger admin-mode" style="text-align: left;">Admin Mode</button>

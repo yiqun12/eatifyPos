@@ -38,7 +38,52 @@ function Iframe({ src, width, height }) {
 }
 
 function App({ store }) {
+    const buttonStyles = {
+        // Converting global and element styles to React's inline style
+        boxSizing: 'border-box',
+        fontFamily: 'inherit',
+        fontSize: 'inherit',
+        lineHeight: 'inherit',
+        color: 'inherit',
+        margin: '0',
+        overflow: 'visible',
+        textTransform: 'none',
+        cursor: 'pointer',
+        WebkitAppearance: 'button',
 
+        // .btn styles
+        display: 'inline-block',
+        padding: '6px 12px',
+        marginBottom: '0',
+        fontWeight: '400',
+        textAlign: 'center',
+        whiteSpace: 'nowrap',
+        verticalAlign: 'middle',
+        touchAction: 'manipulation',
+        background: 'none',
+        border: '1px solid transparent',
+        borderRadius: '4px',
+        fontSize: '14px',
+        fontWeight: '400',
+        lineHeight: '1.42857143',
+        // .btn-primary styles
+        color: '#fff',
+        backgroundColor: '#eea236',
+        borderColor: '#eea236',
+
+        // .btn-group-vertical>.btn, .btn-group>.btn styles
+        position: 'relative',
+        float: 'left',
+
+        // .btn-group>.btn:first-child styles
+        marginLeft: '12px',
+
+        // .btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) styles
+        // Note: Pseudo selectors like :not, :last-child, etc. can't be directly translated to inline styles.
+        borderTopRightRadius: '0',
+        borderBottomRightRadius: '0',
+    };
+    
     /**listen to localtsorage */
     const { id, saveId } = useMyHook(null);
 
@@ -76,6 +121,7 @@ function App({ store }) {
     const [src, setSrc] = useState(window.PUBLIC_URL + "/seat.html");
     const iframeRef = useRef(null);
 
+    
     // the selectedTable variable allows you to keep track which table you have selected
     const [selectedTable, setSelectedTable] = useState(null);
     const [selectedSeatMode, setSelectedSeatMode] = useState("customer");
@@ -241,40 +287,37 @@ function App({ store }) {
 
             {/* beginning of the other code */}
 
-                {true ?
+            {true ?
 
-                    <>
+                <>
+                    <div className='flex flex-col' style={{ alignItems: 'flex-start' }}>
+                        {selectedSeatMode === 'admin' ?
+                            <div style={buttonStyles} className='mt-3 hover:bg-yellow-700'>{t("Save Layout")}</div>
+                            : <></>
+                        }
 
-<a
-                      onClick={(e) => {
-                      }}
-                      class="btn d-inline-flex btn-sm btn-primary mx-1">
-                      <span class=" pe-2">
-                        <i class="bi bi-house"></i>
-                      </span>
-                      <span> {"Create Store"}</span>
-                    </a>
-                    <div style={{ margin: "10px", display: "flex" }}>
+                        <div style={{ margin: "10px", display: "flex" }}>
 
-                        <div >
-                            <Iframe ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" />
-                        </div>
+                            <div >
+                                <Iframe ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" />
+                            </div>
 
-                        <section className="task-list" >
-                            <div className="task-wrap" style={{ minHeight: '800px', overflowY: 'scroll' }}>
+                            <section className="task-list" >
+                                <div className="task-wrap" style={{ minHeight: '800px', overflowY: 'scroll' }}>
                                     <div style={{ display: "flex", alignItems: "center" }}>
                                         <div>
                                             <InStore_shop_cart store={store} selectedTable={selectedTable}  ></InStore_shop_cart>
                                             <hr />
                                         </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </section>
+                            </section>
                         </div>
+                    </div>
 
-                    </>
-                    :
-                    null}
+                </>
+                :
+                null}
         </div>
 
     );

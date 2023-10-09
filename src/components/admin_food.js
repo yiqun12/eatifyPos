@@ -100,17 +100,7 @@ const Food = ({ store }) => {
     setIsSingleSelect(isSingle);
   };
 
-  useEffect(() => {
-    // Check if "pizzahub" key exists in localStorage and if it's an empty array
-    const storedValue = localStorage.getItem(store);
 
-    if (!storedValue || JSON.parse(storedValue).length === 0) {
-      // "pizzahub" doesn't exist in localStorage or is an empty array, so call syncData()
-      syncData();
-      // Set "pizzahub" in localStorage to prevent calling syncData() again
-      localStorage.setItem(store, JSON.stringify(['exists']));
-    }
-  }, []);
   const params = new URLSearchParams(window.location.search);
   const [selectedFoodType, setSelectedFoodType] = useState(null);
   const { user, user_loading } = useUserContext();
@@ -334,7 +324,7 @@ const Food = ({ store }) => {
 
   const handleSearchChange = (event) => {
     setInput(event.target.value);
-    if (translationsMode_ === "ch") {
+    if (sessionStorage.getItem("Google-language")?.includes("Chinese")) {
       filterCHI(event.target.value);
 
     } else {
@@ -596,7 +586,11 @@ const Food = ({ store }) => {
   //Instruction:
   //Click on the image to change:
   //
-
+  useEffect(() => {
+    console.log("hellooooooooooooooooooooo")
+    syncData();
+    syncData();
+  }, []);
   return (
 
     <div className='max-w-[1597px] '>
@@ -623,6 +617,7 @@ const Food = ({ store }) => {
         </div>
       </div>
       <div onClick={() => {
+        syncData();
         syncData();
       }}
         className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-neutral">

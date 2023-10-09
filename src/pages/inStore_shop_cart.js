@@ -177,53 +177,65 @@ const Navbar = ({ store, selectedTable }) => {
         <div className="shopping-cart" style={{ margin: "auto" }}>
           {/* shoppig cart */}
 
-          <div className="flex flex-col md:flex-row">
-            <div className="flex flex-col md:w-1/2">
-              <button
-                style={{ width: "90%", border: "0px", margin: "auto" }}
-                className="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
-                onClick={HandleCheckout_local_stripe}
-              >
-                <span className="text-left">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                  {t("Print Receipt")}{" "}
-                </span>
-              </button>
+          <div className="flex flex-col flex-row">
+            <div className="flex flex-col w-1/3">
 
-              <button
-                style={{ width: "90%", border: "0px", margin: "auto" }}
-                className="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
-                onClick={handleOpenCashDraw}
-              >
-                <span className="text-left">
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
                   <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                  {t("Open Cash Draw")}{" "}
                 </span>
-              </button>
+                <span>{t("Print Receipt")}{" "}</span>
+              </a>
+
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                </span>
+                <span>{t("Print Receipt")}{" "}</span>
+              </a>
             </div>
 
-            <div className="flex flex-col md:w-1/2">
-              <button
-                style={{ width: "90%", border: "0px", margin: "auto" }}
-                className="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
-                onClick={HandleCheckout_local_stripe}
-              >
-                <span className="text-left">
+            <div className="flex flex-col w-1/3">
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
                   <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                  {t("Checkout with Cash")}{" "}
                 </span>
-              </button>
+                <span>{t("Print Receipt")}{" "}</span>
+              </a>
 
-              <button
-                style={{ width: "90%", border: "0px", margin: "auto" }}
-                className="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
-                onClick={HandleCheckout_local_stripe}
-              >
-                <span className="text-left">
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
                   <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                  {t("Checkout with Credit Card")}{" "}
                 </span>
-              </button>
+                <span>{t("Print Receipt")}{" "}</span>
+              </a>
+            </div>
+            <div className="flex flex-col w-1/3">
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                </span>
+                <span>{t("Print Receipt")}{" "}</span>
+              </a>
+
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                </span>
+                <span>{t("Print Receipt")}{" "}</span>
+              </a>
             </div>
           </div>
 
@@ -251,7 +263,7 @@ const Navbar = ({ store, selectedTable }) => {
                     <span class="text-left">
                       <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
                       {t("Finish")} </span>
-                    <span class="text-right"> ${Math.round(100 * totalPrice) / 100} </span>
+                    <span class="text-right notranslate"> ${Math.round(100 * totalPrice) / 100} </span>
                   </button>
                 </>
               }
@@ -263,88 +275,91 @@ const Navbar = ({ store, selectedTable }) => {
             {(Array.isArray(products) ? products : []).map((product) => (
               // the parent div
               // can make the parent div flexbox
-<div>
-{JSON.stringify(product.count)}
-
-<div key={product.count} className="item">
-
-{/* the delete button */}
-<div className="buttons">
-  <DeleteSvg className="delete-btn"
-    onClick={() => {
-      handleDeleteClick(product.id, product.count)
-    }}></DeleteSvg>
-  {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
-</div>
-{/* the image */}
-<div className="image">
-  <div class="image-container" >
-    <img style={{ marginLeft: '-7px' }} src={product.image} alt="" />
-  </div>
-</div>
+              <div>
+                <div key={product.count} className="item">
+                  {/* the delete button */}
+                  <div className="buttons">
+                    <DeleteSvg className="delete-btn"
+                      onClick={() => {
+                        handleDeleteClick(product.id, product.count)
+                      }}></DeleteSvg>
+                    {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
+                  </div>
+                  {/* the image */}
+                  <div className="image">
+                    <div class="image-container" >
+                      <img style={{ marginLeft: '-7px' }} src={product.image} alt="" />
+                    </div>
+                  </div>
 
 
-{/* the name + quantity parent div*/}
-<div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available" }}>
-  {/* the name */}
-  <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
-    <div style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>{t(product.name)}</div>
+                  {/* the name + quantity parent div*/}
+                  <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available" }}>
+                    {/* the name */}
+                    <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
+                      <div style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>
+                        <span class="notranslate">
 
-    <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
+                          {sessionStorage.getItem("Google-language")?.includes("Chinese") ? t(product?.CHI) : (product?.name)}
+                        </span>
+                      </div>
 
-  </div>
+                      <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
 
-  <div className="quantity p-0"
-    style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
-    <div>
-      <div>${product.itemTotalPrice}</div>
+                    </div>
 
-    </div>
-    {/* the add minus box set up */}
-    <div style={{ display: "flex" }}>
+                    <div className="quantity p-0"
+                      style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
+                      <div>
+                        <div className='notranslate'>${product.itemTotalPrice}</div>
 
-      {/* the start of minus button set up */}
-      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-        <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-          onClick={() => {
-            if (product.quantity === 1) {
-              handleDeleteClick(product.id, product.count);
-            } else {
-              handleMinusClick(product.id, product.count)
-            }
-          }}>
-          <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-        </button>
-      </div>
-      {/* the end of minus button set up */}
+                      </div>
+                      {/* the add minus box set up */}
+                      <div style={{ display: "flex" }}>
 
-      { /* start of the quantity number */}
-      <span
-        type="text"
-        style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-      >{product.quantity}</span>
-      { /* end of the quantity number */}
+                        {/* the start of minus button set up */}
+                        <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                          <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                            onClick={() => {
+                              if (product.quantity === 1) {
+                                handleDeleteClick(product.id, product.count);
+                              } else {
+                                handleMinusClick(product.id, product.count)
+                              }
+                            }}>
+                            <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                          </button>
+                        </div>
+                        {/* the end of minus button set up */}
 
-      { /* start of the add button */}
-      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-        <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-          onClick={() => {
-            handlePlusClick(product.id, product.count)
-          }}>
-          <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-        </button>
-      </div>
-      { /* end of the add button */}
-    </div>
-    { /* end of the add minus setup*/}
-  </div>
+                        { /* start of the quantity number */}
+                        <span
+                          className='notranslate'
+                          type="text"
+                          style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                        >{product.quantity}</span>
+                        { /* end of the quantity number */}
 
-  {/* end of quantity */}
-</div>
+                        { /* start of the add button */}
+                        <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                          <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                            onClick={() => {
+                              handlePlusClick(product.id, product.count)
+                            }}>
+                            <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                          </button>
+                        </div>
+                        { /* end of the add button */}
+                      </div>
+                      { /* end of the add minus setup*/}
+                    </div>
 
-{/* end of name + quantity parent div*/}
-</div>
-</div>
+                    {/* end of quantity */}
+                  </div>
+
+                  {/* end of name + quantity parent div*/}
+                </div>
+              </div>
 
             ))}
 

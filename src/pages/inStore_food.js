@@ -223,28 +223,7 @@ const Food = ({ store, selectedTable }) => {
   }, [products]);
 
   const displayAllProductInfo = () => {
-    // Retrieve the array from local storage
-    let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
-    //console.log("displayProductFunction")
-    //console.log(products)
-    // Create an empty array to store the products
-    let productArray = [];
-
-    // Loop through the array of products
-    for (let i = 0; products != null && i < products.length; i++) {
-      let product = products[i];
-      // Push the product object to the array
-      productArray.push({
-        id: product.id,
-        name: product.name,
-        quantity: product.quantity,
-        subtotal: product.subtotal,
-        image: product.image,
-      });
-    }
-
-    // Return the array of product objects
-    return productArray;
+    return JSON.parse(localStorage.getItem(store + "-" + selectedTable));
   };
 
   /**dorp food */
@@ -335,7 +314,7 @@ const Food = ({ store, selectedTable }) => {
 
   const handleInputChange = (event) => {
     setInput(event.target.value);
-    if (sessionStorage.getItem("Google-language").includes("Chinese")) {
+    if (sessionStorage.getItem("Google-language")?.includes("Chinese")) {
       filternameCHI(event.target.value);
 
     } else {
@@ -351,7 +330,7 @@ const Food = ({ store, selectedTable }) => {
     color: 'black',
   };
 
-  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count) => {
+  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI) => {
 
     // Check if the array exists in local storage
     if (localStorage.getItem(store + "-" + selectedTable) === null) {
@@ -377,10 +356,11 @@ const Food = ({ store, selectedTable }) => {
       product.quantity++;
       product.attributeSelected = attributeSelected;
       product.count = count;
-      product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
+      product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100);
+      product.CHI = CHI;
     } else {
       // If the product doesn't exist, add it to the array
-      products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: subtotal });
+      products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: subtotal,CHI:CHI });
     }
 
 
@@ -576,7 +556,7 @@ const Food = ({ store, selectedTable }) => {
     setModalVisibility(true);
     setSelectedAttributes({})
     setTotalPrice(0);
-    addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum)
+    addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI)
     saveId(Math.random());
     //const [selectedAttributes, setSelectedAttributes] = useState({});
     //const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
@@ -634,7 +614,10 @@ const Food = ({ store, selectedTable }) => {
                 </div>
                 <div className='p-4 pt-3'>
                   <div>
-                    {selectedFoodItem?.name}
+                  <span class="notranslate">
+
+{sessionStorage.getItem("Google-language")?.includes("Chinese") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
+</span>
                   </div>
                   {Object.entries(selectedFoodItem.attributesArr).map(([attributeName, attributeDetails]) => (
                     <div key={attributeName}>
@@ -685,6 +668,7 @@ const Food = ({ store, selectedTable }) => {
                               }}
                               onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count)}
                             >
+                              
                               {variation.type}({formatPriceDisplay(variation.price)})
                             </div>
                           </div>
@@ -697,7 +681,10 @@ const Food = ({ store, selectedTable }) => {
                 </div>
                 <div className='p-4 pt-3 flex justify-between'>
                   <div>
-                    ${Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100}
+                  <span class="notranslate">
+                  ${Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100}
+         
+                                                          </span>
                   </div>
                   {searchSpeicalFoodQuantity(selectedFoodItem.id, count) == 0 ?
                     <>
@@ -732,7 +719,7 @@ const Food = ({ store, selectedTable }) => {
                             }}
                             onClick={() => {
                               handleDropFood();
-                              addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count);
+                              addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count, selectedFoodItem.CHI );
                               saveId(Math.random());
                             }}
                           >
@@ -784,7 +771,7 @@ const Food = ({ store, selectedTable }) => {
                             style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
                           >
 
-                            <span >
+                            <span class="notranslate">
                               {searchSpeicalFoodQuantity(selectedFoodItem.id, count)}
                             </span>
 
@@ -795,7 +782,7 @@ const Food = ({ store, selectedTable }) => {
                             <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                               onClick={() => {
                                 handleDropFood();
-                                addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count);
+                                addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count,selectedFoodItem.CHI);
                                 saveId(Math.random());
                               }}
                             >
@@ -918,8 +905,10 @@ const Food = ({ store, selectedTable }) => {
                         {/* parent div of title + quantity and button parent div */}
                         <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                           <div className="col-span-4 ">
-                            <p className=' mb-1'>{translationsMode_ === "ch" ? item.CHI : item.name}</p>
-                          </div>
+                          <p class="notranslate">
+
+{sessionStorage.getItem("Google-language")?.includes("Chinese") ? t(item?.CHI) : (item?.name)}
+</p>                          </div>
 
                           {/* parent div of the quantity and buttons */}
 

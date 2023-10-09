@@ -60,19 +60,19 @@ function App() {
     // Added line to grab translation file (can use the same method as food_data to grab translations file)
     sessionStorage.setItem("translations", JSON.stringify(translations))
 
-      // Added line to grab translation file (can use the same method as food_data to grab translations file)
-  // keep a counter so the local file does not refreshes multiple times
-  // (would not need this in a scenario where server stores file or where local file is changed)
-  //const businessHoursData = JSON.stringify(businessHours)
-  //if (!sessionStorage.getItem("businessHours")) {
-  //  sessionStorage.setItem("businessHours", businessHoursData)
-  //}
-  // Added line to grab timezone offset file from UTC
-  //const timeZoneOffsetData = JSON.stringify(timeZones)
-  // console.log(timeZones["ET"])
-  // sessionStorage.setItem("timezoneOffsets", timeZoneOffsetData[businessHoursData["timezone"]])
-  // console.log(timeZones[(businessHours[1])["timezone"]])
-  sessionStorage.setItem("timezoneOffsets", JSON.stringify(timeZones[(businessHours[1])["timezone"]]))
+    // Added line to grab translation file (can use the same method as food_data to grab translations file)
+    // keep a counter so the local file does not refreshes multiple times
+    // (would not need this in a scenario where server stores file or where local file is changed)
+    //const businessHoursData = JSON.stringify(businessHours)
+    //if (!sessionStorage.getItem("businessHours")) {
+    //  sessionStorage.setItem("businessHours", businessHoursData)
+    //}
+    // Added line to grab timezone offset file from UTC
+    //const timeZoneOffsetData = JSON.stringify(timeZones)
+    // console.log(timeZones["ET"])
+    // sessionStorage.setItem("timezoneOffsets", timeZoneOffsetData[businessHoursData["timezone"]])
+    // console.log(timeZones[(businessHours[1])["timezone"]])
+    sessionStorage.setItem("timezoneOffsets", JSON.stringify(timeZones[(businessHours[1])["timezone"]]))
 
 
   }, []);
@@ -129,21 +129,21 @@ function App() {
                 <Route path="LogIn" element={<LogIn />}></Route>
               }
 
-                 <Route path="DemoCreateStore" element={<DemoCreateStore />}></Route>
-              
+              <Route path="DemoCreateStore" element={<DemoCreateStore />}></Route>
+
               <Route path="SignUp" element={<SignUp />}></Route>
 
-      {/*testing from tony change Time menu */}
-      <Route exact path="/change_time" element={<ChangeTimeForm />} />
+              {/*testing from tony change Time menu */}
+              <Route exact path="/change_time" element={<ChangeTimeForm />} />
 
-      {/* testing from tony */}
-      <Route exact path="/testing_admin" element={<Account_admin />} />
-      <Route exact path="/testing_food" element={<Food_testing />} />
+              {/* testing from tony */}
+              <Route exact path="/testing_admin" element={<Account_admin />} />
+              <Route exact path="/testing_food" element={<Food_testing />} />
 
-      <Route exact path="/terminal_page" element={<PaymentComponent/>}/>
+              <Route exact path="/terminal_page" element={<PaymentComponent />} />
 
-      <Route exact path="/test_admin_new" element={<Admin_new />} />
-      <Route exact path="/test_iframeDesk" element={<IframeDesk store={"demo"}/>} />
+              <Route exact path="/test_admin_new" element={<Admin_new />} />
+              <Route exact path="/test_iframeDesk" element={<IframeDesk store={"demo"} />} />
 
               {user ? <Route path="ForgotPassword" element={<Account_admin />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
               <Route exact path="/store" element={<Food />} />

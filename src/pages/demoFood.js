@@ -91,8 +91,8 @@ const Food = () => {
           ]
       }
   ])
-   const clock = {"0":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"1":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"2":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"3":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"4":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"5":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"6":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"},"7":{"timeRanges":[{"openTime":"xxxx","closeTime":"2359"}],"timezone":"ET"}}
-    
+   const clock = {"0":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"1":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"2":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"3":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"4":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"5":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"6":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"7":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"}}
+  const restaurant_seat_arrangement = {"table":[{"type":"rect","left":45,"top":75,"width":60,"height":60,"scaleX":1,"scaleY":1,"tableName":"A","id":"ukjfm8xc","snapAngle":45,"angle":0}],"chair":[],"wall":[]};
     // First, check if a document with the given ID exists
     let docRef;
 
@@ -114,7 +114,8 @@ const Food = () => {
           key: data,
           Image: "https://s3-media0.fl.yelpcdn.com/bphoto/byOMYO520SGEYxKAbK_PYw/l.jpg",
           stripe_store_acct: "",
-          storeOwnerId: user.uid
+          storeOwnerId: user.uid,
+          restaurant_seat_arrangement:JSON.stringify(restaurant_seat_arrangement),
         };
     
         try {

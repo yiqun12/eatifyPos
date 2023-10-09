@@ -347,7 +347,7 @@ const Navbar = () => {
                     <span class="text-left">
                       <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
                       {t("Checkout")} </span>
-                    <span class="text-right"> ${Math.round(100 * totalPrice) / 100 } </span>
+                    <span class="text-right notranslate"> ${Math.round(100 * totalPrice) / 100 } </span>
                   </button>
                 </>
               }
@@ -421,6 +421,7 @@ const Navbar = () => {
 
                       { /* start of the quantity number */}
                       <span
+                      class="notranslate"
                         type="text"
                         style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
                       >{product.quantity}</span>

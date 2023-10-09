@@ -207,7 +207,7 @@ const Account = () => {
             revenue: Math.round(dailyRevenue[date] * 100) / 100
           };
         });
-        console.log("hello", dailyRevenueArray)
+      //  console.log("hello", dailyRevenueArray)
         // Example output: [{date: '3/14/2023', revenue: 10}, {date: '3/13/2023', revenue: 10}, {date: '3/4/2023', revenue: 10}]
         setRevenueData(dailyRevenueArray)
 
@@ -260,7 +260,7 @@ const Account = () => {
   });
   const sortedData = filteredData.sort((a, b) => new Date(a.date) - new Date(b.date)).map(item => ({ ...item, date: (new Date(item.date).getMonth() + 1) + '/' + new Date(item.date).getDate() }));
 
-  console.log(sortedData)
+ // console.log(sortedData)
 
   if (!sessionStorage.getItem("tableMode")) {
     sessionStorage.setItem("tableMode", "table-NaN");
