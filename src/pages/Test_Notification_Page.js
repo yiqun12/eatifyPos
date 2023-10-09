@@ -277,7 +277,7 @@ const [expandedOrderId, setExpandedOrderId] = useState(null);
             </table>
           </div>
           <div class="card-footer border-0 py-5">
-            <span class="text-muted text-sm">Showing {exampleJSON.length <= 10 ? exampleJSON.length : "10" } items out of {exampleJSON.length} results found</span>
+            <span class="text-muted text-sm">Showing {sortedData.length <= 10 ? sortedData.length : "10" } items out of {sortedData.length} results found</span>
           </div>
         </div>
       </div>
