@@ -840,7 +840,7 @@ const Food = () => {
                       <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
                         <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className=''>{storeInfo.Name}</span></h1>
                         <h1 className='px-4 font-bold text-orange-500'>@{storeInfo.Address}</h1>
-                        <BusinessHoursTable storeOpenTime={storeOpenTime} storeName={store} storeStatus={isOpen} ></BusinessHoursTable>
+                        <BusinessHoursTable storeOpenTime={storeOpenTime}></BusinessHoursTable>
                       </div>
                       <img className='rounded-lg w-full max-h-[200px] object-cover' src={storeInfo?.Image !== null && storeInfo?.Image !== '' ? storeInfo.Image : (data?.[0]?.image || '')} alt="#" />
                     </div>

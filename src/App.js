@@ -51,6 +51,10 @@ import ChangeTimeForm from "./pages/ChangeTimeForm"
 
 import PaymentComponent from "./pages/PaymentComponent";
 
+import BusinessHoursTestPage from "./pages/BusinessHoursTestPage.js";
+
+import Test_Notification_Page from "./pages/Test_Notification_Page.js";
+
 function App() {
   const { user, user_loading } = useUserContext();
 
@@ -140,7 +144,16 @@ function App() {
               <Route exact path="/testing_admin" element={<Account_admin />} />
               <Route exact path="/testing_food" element={<Food_testing />} />
 
+<<<<<<< HEAD
               <Route exact path="/terminal_page" element={<PaymentComponent />} />
+=======
+      <Route exact path="/terminal_page" element={<PaymentComponent/>}/>
+      <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage/>}/>
+
+      <Route exact path="/test_notification_page" element={<Test_Notification_Page/>}/>
+
+      {/* <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage/>}/> */}
+>>>>>>> d9b3b3f60657784e5a3ed86780be76e11dad9492
 
               <Route exact path="/test_admin_new" element={<Admin_new />} />
               <Route exact path="/test_iframeDesk" element={<IframeDesk store={"demo"} />} />
