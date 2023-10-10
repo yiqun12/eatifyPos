@@ -78,7 +78,7 @@ const Food = () => {
     // After updating selectedAttributes, recalculate the total price
     const newTotalPrice = TotalAttributePrice(updatedSelectedAttributes, selectedFoodItem.attributesArr);
     setTotalPrice(newTotalPrice);
-    let products = JSON.parse(sessionStorage.getItem(store));
+    const products = JSON.parse(sessionStorage.getItem(store));
     const product = products.find((product) => product.id === id && product.count === count);
     console.log(product)
     console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
@@ -86,6 +86,7 @@ const Food = () => {
     product.attributeSelected = updatedSelectedAttributes
     product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
     sessionStorage.setItem(store, JSON.stringify(products));
+    saveId(Math.random());
 
   };
 

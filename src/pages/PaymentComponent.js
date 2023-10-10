@@ -4,17 +4,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const PaymentComponent = () => {
 
   // the three variables we keep track of for payment
-<<<<<<< HEAD
-  //save locationID and readerID to get start
-  var locationId ='tml_FSBAewo3kacqkF' ;//tml_FSBAewo3kacqkF
-  var readerId = 'tmr_FSBAewrUS4V1pY';//tmr_FSBAewrUS4V1pY
-=======
   // TODO: Save these two values to somewhere so no need to
   var locationId;
   var readerId;
   var connected_stripe_account_id;
 
->>>>>>> 2a640e9fa72cd81ca19d15ec62b72b63c099f9d5
   var paymentIntentId;
 
 
