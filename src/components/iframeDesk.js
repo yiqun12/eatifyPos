@@ -1,7 +1,7 @@
 import React from 'react';
 import './style.css';
 import { useCallback, useState, useEffect } from 'react';
-import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc,getDoc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useMyHook } from '../pages/myHook';
 import Button from '@mui/material/Button';
@@ -46,6 +46,39 @@ function Iframe({ src, width, height, storeName }) {
 }
 
 function App({ store }) {
+
+    const syncData = async () => {
+        console.log("sync data")
+    
+        let sessionData;
+    
+        try {
+          // Get a reference to the specific document with ID equal to store
+          const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
+    
+          // Fetch the document
+          const docSnapshot = await getDoc(docRef);
+    
+          if (docSnapshot.exists()) {
+            // The document exists
+            sessionData = docSnapshot.data().key;
+            const { key, ...rest } = docSnapshot.data();
+            localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
+    
+          } else {
+            console.log("No document found with the given ID.");
+          }
+        } catch (error) {
+          console.error("Error fetching the document:", error);
+        }
+    
+      }
+
+      useEffect(() => {
+        //console.log("hellooooooooooooooooooooo")
+        syncData();
+      }, []);
+      
     const { user, user_loading } = useUserContext();
 
     const buttonStyles = {

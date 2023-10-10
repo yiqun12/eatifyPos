@@ -52,8 +52,8 @@
         </div>
       </div>
       <!-- <div class="col-sm-2 form-group" style="display: flex;justify-content: center; align-items: center; width: 100%;"> -->
-        <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button> -->
-        <!-- <button class="btn btn-danger" onclick="clearBoard(); saveBoard();">Clear</button> -->
+      <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button> -->
+      <!-- <button class="btn btn-danger" onclick="clearBoard(); saveBoard();">Clear</button> -->
       <!-- </div> -->
       <div class="btn-group" style="width: 100%;">
         <!-- float: left will make these buttons align to the left -->
@@ -63,27 +63,23 @@
         <!-- float: left will make these buttons align to the left -->
         <!-- <button class="btn btn-primary bar" style="float: left;">+ Bar</button> -->
         <button class="btn btn-default wall" style="float: left;">+ Wall</button>
-    
+
         <!-- float: right will make these buttons align to the right -->
         <button class="btn btn-danger remove" style="float: left;">Remove</button>
         <button class="btn btn-success customer-mode" style="float: right;">Go Back</button>
-    </div>
-    
+      </div>
+
     </div>
 
     <div class="form-group customer-menu">
-      <div class="btn-group" style="width: 100%;">
-        <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button>
-        <button class="btn btn-primary" onclick="loadBoard()">Load</button> -->
-        <button class="btn btn-danger admin-mode" style="text-align: left;">Admin Mode</button>
-      </div>
+
       <div id="slider"></div>
       <div id="slider-value"></div>
     </div>
     <div id="canvas-container" style="overflow: auto; width: 500px; height: 730px;">
 
-    <canvas id="canvas" width="500" height="730"></canvas>
-  </div>
+      <canvas id="canvas" width="500" height="730"></canvas>
+    </div>
 
   </div>
 
@@ -99,6 +95,13 @@
       </div>
     </div>
   </div>
+
+  <div class="btn-group" style="width: 100%; margin-top: 20px;">
+    <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button>
+    <button class="btn btn-primary" onclick="loadBoard()">Load</button> -->
+    <button class="btn btn-danger admin-mode" style="text-align: left;">Admin Mode</button>
+  </div>
+
   <!-- partial -->
   <script src='https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.11/fabric.min.js'></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
@@ -145,34 +148,34 @@
     //   'bar': [],
     //   'wall': [],
     // }
-    window.addEventListener('message', function(event) {
-  if (event.data.includes("_restaurant_seat_arrangement")) {
-    store = event.data
-    loadBoard()
-    
-    canvas.getObjects().map(o => {
-        o.hasControls = false
-        o.lockMovementX = true
-        o.lockMovementY = true
-        // if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
+    window.addEventListener('message', function (event) {
+      if (event.data.includes("_restaurant_seat_arrangement")) {
+        store = event.data
+        loadBoard()
 
-        if (o.type === 'chair' || o.type === 'wall') {
-          o.selectable = false
-        }
-        o.borderColor = '#38A62E'
-        o.borderScaleFactor = 2.5
-      })
-      canvas.selection = false
-      canvas.hoverCursor = 'pointer'
-      canvas.discardActiveObject()
-      canvas.renderAll()
-      document.querySelectorAll('.admin-menu')[0].style.display = 'none'
-      document.querySelectorAll('.customer-menu')[0].style.display = 'block'
-      current_mode = "customer"
-      window.parent.postMessage(`customer mode active`, "*");
-      //console.log('Received "hello" from parent');
-  }
-});
+        canvas.getObjects().map(o => {
+          o.hasControls = false
+          o.lockMovementX = true
+          o.lockMovementY = true
+          // if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
+
+          if (o.type === 'chair' || o.type === 'wall') {
+            o.selectable = false
+          }
+          o.borderColor = '#38A62E'
+          o.borderScaleFactor = 2.5
+        })
+        canvas.selection = false
+        canvas.hoverCursor = 'pointer'
+        canvas.discardActiveObject()
+        canvas.renderAll()
+        document.querySelectorAll('.admin-menu')[0].style.display = 'none'
+        document.querySelectorAll('.customer-menu')[0].style.display = 'block'
+        current_mode = "customer"
+        window.parent.postMessage(`customer mode active`, "*");
+        //console.log('Received "hello" from parent');
+      }
+    });
 
 
     function saveBoard() {
@@ -907,7 +910,7 @@
         o.lockMovementX = true
         o.lockMovementY = true
         // if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
-          if (o.type === 'chair' || o.type === 'wall') {
+        if (o.type === 'chair' || o.type === 'wall') {
 
           o.selectable = false
         }

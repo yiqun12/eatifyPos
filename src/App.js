@@ -50,6 +50,7 @@ import ChangeTimeForm from "./pages/ChangeTimeForm"
 // import the terminal page
 
 import PaymentComponent from "./pages/PaymentComponent";
+//import PaymentComponent2 from "./pages/PaymentCompo2";
 
 import BusinessHoursTestPage from "./pages/BusinessHoursTestPage.js";
 
@@ -145,6 +146,7 @@ function App() {
               <Route exact path="/testing_food" element={<Food_testing />} />
 
       <Route exact path="/terminal_page" element={<PaymentComponent/>}/>
+
       <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage/>}/>
 
       <Route exact path="/test_notification_page" element={<Test_Notification_Page/>}/>

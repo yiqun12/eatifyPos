@@ -169,7 +169,6 @@ const Food = () => {
   const formatPriceDisplay = (price) => {
     return price > 0 ? `+$${price.toFixed(2)}` : `-$${Math.abs(price).toFixed(2)}`;
   };
-  const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('TitleLogoNameContent') !== null ? JSON.parse(JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).Open_time) : { "0": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "1": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "2": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "3": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "4": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "5": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "6": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "7": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" } });
 
   const fetchPost = async (name) => {
     const docRef = doc(db, "TitleLogoNameContent", name);
@@ -185,7 +184,7 @@ const Food = () => {
 
         // Save the fetched data to sessionStorage
         sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(docData));
-        setStoreOpenTime(JSON.parse(docData.Open_time))
+        //setStoreOpenTime(JSON.parse(docData.Open_time))
         // Assuming you want to store the key from the fetched data as "Food_arrays"
         sessionStorage.setItem("Food_arrays", docData.key);
         setData(JSON.parse(docData.key))
@@ -597,21 +596,21 @@ const Food = () => {
     setModalVisibility(false);
   }
 
-  useEffect(() => {
-    // Function to update the store status
-    function updateStoreStatus() {
-      setIsOpen(isWithinTimeRange(storeOpenTime));
-    }
+  // useEffect(() => {
+  //   // Function to update the store status
+  //   function updateStoreStatus() {
+  //     setIsOpen(isWithinTimeRange(storeOpenTime));
+  //   }
 
-    // Call the updateStoreStatus function initially to set the store status
-    updateStoreStatus();
+  //   // Call the updateStoreStatus function initially to set the store status
+  //   updateStoreStatus();
 
-    // Update the store status every minute (you can adjust the interval if needed)
-    const intervalId = setInterval(updateStoreStatus, 60000);
+  //   // Update the store status every minute (you can adjust the interval if needed)
+  //   const intervalId = setInterval(updateStoreStatus, 60000);
 
-    // Clean up the interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
+  //   // Clean up the interval on component unmount
+  //   return () => clearInterval(intervalId);
+  // }, []);
 
   if (false) {
     return <p>  <div className="pan-loader">
@@ -840,7 +839,7 @@ const Food = () => {
                       <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
                         <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className=''>{storeInfo.Name}</span></h1>
                         <h1 className='px-4 font-bold text-orange-500'>@{storeInfo.Address}</h1>
-                        <BusinessHoursTable storeOpenTime={storeOpenTime}></BusinessHoursTable>
+                        <BusinessHoursTable></BusinessHoursTable>
                       </div>
                       <img className='rounded-lg w-full max-h-[200px] object-cover' src={storeInfo?.Image !== null && storeInfo?.Image !== '' ? storeInfo.Image : (data?.[0]?.image || '')} alt="#" />
                     </div>

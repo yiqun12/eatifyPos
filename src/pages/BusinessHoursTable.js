@@ -56,7 +56,8 @@ function convertTo12HourFormat(timeStr) {
 }
 
 
-function BusinessHoursTable({ storeOpenTime}) {
+function BusinessHoursTable() {
+  const storeOpenTime = sessionStorage.getItem('TitleLogoNameContent') !== null ? JSON.parse(JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).Open_time) : { "0": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "1": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "2": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "3": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "4": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "5": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "6": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "7": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" } }
   const [businessHours, setBusinessHours] = useState({});
   const [timezone, setTimezone] = useState("PDT");
 
@@ -77,7 +78,7 @@ function BusinessHoursTable({ storeOpenTime}) {
     };
 
     const newBusinessHours = {};
-
+    
     for (let day in businessHoursData) {
       // skip day = 0 (sunday duplicate) if removed will print out undefined duplicate sunday
       if (day == 0) {
@@ -99,7 +100,7 @@ function BusinessHoursTable({ storeOpenTime}) {
       }
       newBusinessHours[dayOfWeek[day]] = businessHoursRangesDaily;
     }
-
+    console.log(newBusinessHours)
     setBusinessHours(newBusinessHours);
     setTimezone((businessHoursData[1])["timezone"])
   }, []);

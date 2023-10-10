@@ -63,19 +63,7 @@ const Navbar = ({ store, selectedTable }) => {
   //console.log(totalQuant)
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
-    let height = 100;
-    if (width > 575) {
-      if (products && products.length > 0) {
-        if (products.length < 4) {
-          height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
-        } else {
-          height = 3 * 123 + 140; // set height to show only the first 3 items and the shopping cart header
-        }
-      }
-    } else {
-
-      height = (products?.length || 0) * 123 + 100;      // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
-    }
+    let height = 700;
 
     // Update the height of the shopping cart element
     document.querySelector('.shopping-cart').style.height = `${height}px`;
@@ -174,73 +162,9 @@ const Navbar = ({ store, selectedTable }) => {
     <>
       <>
         {/* popup content */}
-        <div className="shopping-cart" style={{ margin: "auto" }}>
+        <div className="shopping-cart1" style={{ margin: "auto" }}>
           {/* shoppig cart */}
-
-          <div className="flex flex-col flex-row">
-            <div className="flex flex-col w-1/3">
-
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Print Receipt")}{" "}</span>
-              </a>
-
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Print Receipt")}{" "}</span>
-              </a>
-            </div>
-
-            <div className="flex flex-col w-1/3">
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Print Receipt")}{" "}</span>
-              </a>
-
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Print Receipt")}{" "}</span>
-              </a>
-            </div>
-            <div className="flex flex-col w-1/3">
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Print Receipt")}{" "}</span>
-              </a>
-
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Print Receipt")}{" "}</span>
-              </a>
-            </div>
-          </div>
-
-
-          <div className="title" style={{ height: '80px' }}>
+          <div className="title " style={{ height: '80px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
 
 
@@ -255,21 +179,76 @@ const Navbar = ({ store, selectedTable }) => {
                 </div>
                 :
                 <>
-                  <button
-                    style={{ width: "80%", border: "0px", margin: "auto" }}
-                    class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
-                    onClick={HandleCheckout_local_stripe}>
-
-                    <span class="text-left">
-                      <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                      {t("Finish")} </span>
-                    <span class="text-right notranslate"> ${Math.round(100 * totalPrice) / 100} </span>
-                  </button>
                 </>
               }
             </div>
           </div>
-          <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
+          <div className="flex flex-col flex-row">
+            <div className="flex flex-col w-1/3">
+
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                </span>
+                <span>{t("Checkout")}{" "}</span>
+              </a>
+
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                </span>
+                <span>{t("Print Receipt")}{" "}</span>
+              </a>
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                </span>
+                <span>{t("Split Payment")}{" "}</span>
+              </a>
+
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                </span>
+                <span>{t("Customize Price")}{" "}</span>
+              </a>
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                </span>
+                <span>{t("Send to kitchen")}{" "}</span>
+              </a>
+
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                </span>
+                <span>{t("Print Merchant Copy")}{" "}</span>
+              </a>
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1">
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                </span>
+                <span>{t("Print Customer Copy")}{" "}</span>
+              </a>
+          </div>
+
+
+          <div className='flex flex-col w-2/3' style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
 
             {/* generates each food entry */}
             {(Array.isArray(products) ? products : []).map((product) => (
@@ -364,6 +343,17 @@ const Navbar = ({ store, selectedTable }) => {
             ))}
 
           </div>
+          </div>
+
+          {totalPrice === 0 ?
+<></>
+                :
+                <>
+                  
+                    <span class="text-right notranslate"> ${Math.round(100 * totalPrice) / 100} </span>
+                    <span class="text-right notranslate"> 8.25% ${Math.round(100 * totalPrice) / 100 * 1.0825} </span>
+                </>
+              }
         </div>
       </>
     </>

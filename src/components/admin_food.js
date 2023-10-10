@@ -275,11 +275,11 @@ const Food = ({ store }) => {
         localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
         //alert("refreshed successfully")
         localStorage.setItem(store, sessionData);
+        setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
         setData(JSON.parse(sessionData)); // Update state
         setFoods(JSON.parse(sessionData))
-        saveId(Math.random());
         setArr(JSON.parse(sessionData));
-        setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
+        saveId(Math.random());
 
       } else {
         console.log("No document found with the given ID.");
@@ -587,9 +587,9 @@ const Food = ({ store }) => {
   //Click on the image to change:
   //
   useEffect(() => {
-    console.log("hellooooooooooooooooooooo")
+    //console.log("hellooooooooooooooooooooo")
     syncData();
-    syncData();
+    //syncData();
   }, []);
   return (
 
@@ -618,7 +618,7 @@ const Food = ({ store }) => {
       </div>
       <div onClick={() => {
         syncData();
-        syncData();
+        //syncData();
       }}
         className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-neutral">
 
@@ -925,13 +925,13 @@ const Food = ({ store }) => {
                             {attributeName} &nbsp;
                           </span>
                           <div className="custom-control custom-switch" style={{ display: "inline-block", verticalAlign: "middle" }}>
-                                                                     <input
-                        className='form-check-input'
-                        type="checkbox"
-                        style={{ marginRight: "5px" }}
-                        checked={!attributeDetails.isSingleSelected}
-                        onChange={(e) => handleToggle(attributeName, !e.target.checked)}
-                        />
+                            <input
+                              className='form-check-input'
+                              type="checkbox"
+                              style={{ marginRight: "5px" }}
+                              checked={!attributeDetails.isSingleSelected}
+                              onChange={(e) => handleToggle(attributeName, !e.target.checked)}
+                            />
                           </div>
                           {" Multi-Select"} { }
                         </p>
@@ -1413,7 +1413,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
                   onChange={(e) => {
                     updateItem(item.id, { ...item, name: e.target.value })
                   }} />
-                  
+
 
 
                 <span onClick={async () => {  // Auto Fill English
@@ -1599,14 +1599,14 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
                       {attributeName} &nbsp;
                     </span>
                     <div className="custom-control custom-switch" style={{ display: "inline-block", verticalAlign: "middle" }}>
-        
-                                          <input
+
+                      <input
                         className='form-check-input'
                         type="checkbox"
                         style={{ marginRight: "5px" }}
                         checked={!attributeDetails.isSingleSelected}
                         onChange={(e) => handleToggle(attributeName, !e.target.checked)}
-                    />
+                      />
                     </div>
                     {" Multi-Select"} { }
                   </p>

@@ -4,9 +4,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const PaymentComponent = () => {
 
   // the three variables we keep track of for payment
-  var locationId;
-  var readerId;
+  //save locationID and readerID to get start
+  var locationId ='tml_FSBAewo3kacqkF' ;//tml_FSBAewo3kacqkF
+  var readerId = 'tmr_FSBAewrUS4V1pY';//tmr_FSBAewrUS4V1pY
   var paymentIntentId;
+
+
   var simulation_mode;
 
 
