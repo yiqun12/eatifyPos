@@ -4,9 +4,17 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const PaymentComponent = () => {
 
   // the three variables we keep track of for payment
+<<<<<<< HEAD
   //save locationID and readerID to get start
   var locationId ='tml_FSBAewo3kacqkF' ;//tml_FSBAewo3kacqkF
   var readerId = 'tmr_FSBAewrUS4V1pY';//tmr_FSBAewrUS4V1pY
+=======
+  // TODO: Save these two values to somewhere so no need to
+  var locationId;
+  var readerId;
+  var connected_stripe_account_id;
+
+>>>>>>> 2a640e9fa72cd81ca19d15ec62b72b63c099f9d5
   var paymentIntentId;
 
 
@@ -27,6 +35,8 @@ const PaymentComponent = () => {
         postal_code: payloadLocation.storeDetails.address.zip,
       }
     };
+
+    connected_stripe_account_id = payloadLocation.stripeID;
 
     const response = await fetch("http://localhost:4242/create_location", {
       method: "POST",
@@ -57,7 +67,7 @@ catch (error) {
       const response = await fetch("http://localhost:4242/register_reader", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ location_id: locationId, terminal_code: payloadReader.terminalRegistrationCode }),
+        body: JSON.stringify({ location_id: locationId, terminal_code: payloadReader.terminalRegistrationCode, connected_stripe_account_id: connected_stripe_account_id }),
       });
 
       if (!response.ok) {
@@ -80,7 +90,7 @@ catch (error) {
       const response = await fetch("http://localhost:4242/create_payment_intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: amount }),
+        body: JSON.stringify({ amount: amount, connected_stripe_account_id: connected_stripe_account_id }),
       });
   
       if (!response.ok) {
@@ -106,6 +116,7 @@ catch (error) {
         body: JSON.stringify({
           reader_id: readerId,
           payment_intent_id: paymentIntentId,
+          connected_stripe_account_id: connected_stripe_account_id
         }),
       });
   
@@ -131,6 +142,7 @@ catch (error) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           reader_id: readerId,
+          connected_stripe_account_id: connected_stripe_account_id
         }),
       });
   
@@ -154,7 +166,7 @@ catch (error) {
       const response = await fetch("http://localhost:4242/capture_payment_intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payment_intent_id: paymentIntentId }),
+        body: JSON.stringify({ payment_intent_id: paymentIntentId, connected_stripe_account_id: connected_stripe_account_id }),
       });
   
       if (!response.ok) {
@@ -177,7 +189,7 @@ catch (error) {
       const response = await fetch("http://localhost:4242/cancel_action", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reader_id: readerId, }),
+        body: JSON.stringify({ reader_id: readerId, connected_stripe_account_id: connected_stripe_account_id}),
       });
   
       if (!response.ok) {
