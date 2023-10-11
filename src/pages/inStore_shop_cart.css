@@ -1,0 +1,6 @@
+/* For most modern browsers */
+.tips-no-spinners::-webkit-inner-spin-button,
+.tips-no-spinners::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
