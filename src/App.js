@@ -142,8 +142,8 @@ function App() {
               <Route exact path="/testing_admin" element={<Account_admin />} />
               <Route exact path="/testing_food" element={<Food_testing />} />
 
-              <Route exact path="/terminal_page" element={<PaymentComponent connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"}  />} />
-              <Route exact path="/terminal_page2" element={<PaymentComponent2 chargeAmount={"1234"}  connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} readerId ={'tmr_FSM9TgWuFNfaCi'} locationId={"tml_FSM9TQ4UTPMMVG"} />} />
+              <Route exact path="/terminal_page" element={<PaymentComponent storeDisplayName = {"display"} storeID = {"demo"} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"}  />} />
+              <Route exact path="/terminal_page2" element={<PaymentComponent2  storeID = {"demo"} chargeAmount={"1234"}  connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} readerId ={'tmr_FSM9TgWuFNfaCi'} locationId={"tml_FSM9TQ4UTPMMVG"} />} />
 
               <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage />} />
 

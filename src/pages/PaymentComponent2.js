@@ -1,14 +1,23 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useUserContext } from "../context/userContext";
+import { useState, useEffect } from 'react';
+import firebase from 'firebase/compat/app';
 
-const PaymentComponent = ({chargeAmount, connected_stripe_account_id, readerId, locationId}) => {
+const PaymentComponent = ({storeID,chargeAmount, connected_stripe_account_id, readerId, locationId}) => {
 
   // the three variables we keep track of for payment
   var paymentIntentId;
+  const { user, user_loading } = useUserContext();
 
  console.log(connected_stripe_account_id)
  console.log(readerId)
  console.log(locationId)
+
+
+
+
+
   var simulation_mode;
 
   async function createPaymentIntent(amount) {
@@ -159,10 +168,54 @@ catch (error) {
       cancelPaymentButton.disabled = false;
     }
   }
+
+
+  const [items, setItems] = useState([])
+
+  useEffect(() => {
+   firebase
+     .firestore()
+     .collection('stripe_customers')
+     .doc(user.uid)
+     .collection('TitleLogoNameContent')
+     .doc(storeID)
+     .collection('terminals')
+     .onSnapshot((snapshot) => {
+ 
+       const terminalsData = snapshot.docs.map((doc) => ({
+         ...doc.data(),
+         id: doc.id,
+       }));
+       setSelectedId(terminalsData)
+       console.log(terminalsData)
+     });
+ }, [])
+ 
+ const [selectedId, setSelectedId] = useState(null);
+
+
   return (
     <div className="container-fluid h-100">
       <div className="row h-100">
         <div className="col-sm-6 offset h-100">        
+
+        <div>
+            {items.map(item => (
+                <div key={item.id}>
+                    <label>
+                        <input
+                            type="radio"
+                            name="dataItem"
+                            value={item.id}
+                            checked={selectedId === item.id}
+                            onChange={() => setSelectedId(item.id)}
+                        />
+                        {item.id}
+                    </label>
+                </div>
+            ))}
+            <div>Selected ID: {selectedId}</div>
+        </div>
 
           <div class="row margin pad">
             <button id="create-payment-button" className="btn btn-primary" style={{marginBottom: "10px"}} onClick={makePayment}>

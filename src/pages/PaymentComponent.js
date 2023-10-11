@@ -1,8 +1,11 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState, useEffect } from 'react';
+import { db } from '../firebase/index'; // Make sure to import necessary functions
+import { useUserContext } from "../context/userContext";
+import { doc, collection, setDoc, getDoc } from 'firebase/firestore';
 
-const PaymentComponent = ({ connected_stripe_account_id }) => {
+const PaymentComponent = ({storeDisplayName, storeID, connected_stripe_account_id }) => {
   const country = 'US'
   // the three variables we keep track of for payment
   // TODO: Save these two values to somewhere so no need to
@@ -11,6 +14,7 @@ const PaymentComponent = ({ connected_stripe_account_id }) => {
   //var connected_stripe_account_id;
 
   var paymentIntentId;
+  const { user, user_loading } = useUserContext();
 
   const [error, setError] = useState("");
   var simulation_mode;
@@ -52,7 +56,7 @@ const PaymentComponent = ({ connected_stripe_account_id }) => {
       return await response.json();
     }
     catch (error) {
-      setError("There was an error with createLocation:"+ error.message)
+      setError("There was an error with createLocation:" + error.message)
       console.error("There was an error with createLocation:", error.message);
       throw error; // rethrow to handle it outside of the function or display to user
     }
@@ -90,7 +94,6 @@ const PaymentComponent = ({ connected_stripe_account_id }) => {
     const registerTerminalButton = document.getElementById("register-terminal-button");
     registerTerminalButton.className = "loading";
     registerTerminalButton.disabled = true;
-
     try {
       //const stripeID = document.getElementById("stripeID").value;
       const nameOfStore = document.getElementById("nameOfStore").value;
@@ -115,7 +118,7 @@ const PaymentComponent = ({ connected_stripe_account_id }) => {
       }
 
       const location = await createLocation(payloadLocation);
-      console.log("registered location at: ", location);
+      //console.log("registered location at: ", location);
       locationId = location["id"]
 
       const payloadReader = {
@@ -130,11 +133,47 @@ const PaymentComponent = ({ connected_stripe_account_id }) => {
         simulation_mode = false;
       }
       const reader = await createReader(payloadReader);
-      console.log("registered reader: ", reader);
+      //console.log("registered reader: ", reader);
       readerId = reader["id"]
+      let docRef;
 
+      try {
+        docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals",stripeTerminalRegistrationCode)
+        const doc_ = await getDoc(docRef);
+  
+        if (doc_.exists()) {
+          console.log("Document exists!");
+          throw new Error('Document already exists!');
+        } else {
+          docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals",stripeTerminalRegistrationCode)
+  
+          // If the document doesn't exist, add a new one
+          const dateTime = new Date().toISOString();
+          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+
+          const newDoc = {
+            locationId: locationId,
+            readerId: readerId,
+            isActive: true,
+            date: date
+          };
+      
+          try {
+            await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
+            alert("Terminal registers successfully");
+          } catch (error) {
+            setError("Error adding document: ");
+            throw new Error("")
+          }      
+        }
+      } catch (error) {
+        setError(`Error`);
+        console.error(error);
+      }
+
+      
     } catch (error) {
-      setError("Error in registerTerminal: "+ error.message)
+      setError("Error in registerTerminal: " + error.message)
       console.error("Error in registerTerminal: ", error.message);
       throw new Error(error.message);
 
@@ -142,7 +181,8 @@ const PaymentComponent = ({ connected_stripe_account_id }) => {
       registerTerminalButton.className = "btn btn-primary";
       registerTerminalButton.disabled = false;
     }
-    console.log("OK!!!!!!!!!!!!!!!!")
+
+
   }
 
   return (
@@ -158,12 +198,12 @@ const PaymentComponent = ({ connected_stripe_account_id }) => {
                 className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
                 id="nameOfStore"
                 type="text"
-                placeholder="store name"
+                placeholder= {storeDisplayName}
               />
             </div>
             <div className="w-full px-3">
               <label className="text-gray-700 mt-3 mb-2">
-               Store Location Address:
+                Store Location Address:
               </label>
               <input
                 className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
@@ -214,14 +254,14 @@ const PaymentComponent = ({ connected_stripe_account_id }) => {
                 id="stripeTerminalRegistrationCode"
                 type="text"
                 placeholder="Unique Stripe Terminal Registration code"
-                />
+              />
             </div>
           </div>
           <div style={{ color: 'red' }}>{error}</div>
           <div className="flex mt-3">
             <div style={{ width: "50%" }}></div>
             <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
-            <button id="register-terminal-button" onClick={registerTerminal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Register POS Machine</button>
+              <button id="register-terminal-button" onClick={registerTerminal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Register POS Machine</button>
 
             </div>
           </div>
