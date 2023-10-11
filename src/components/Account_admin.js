@@ -898,7 +898,7 @@ const Account = () => {
                     </div>
                   </div>
 
-                  <div class="mt-2">
+                  <div class="mt-2 mb-2">
                     <Dropdown>
                       <Dropdown.Toggle
                         variant="neutral"
@@ -941,6 +941,7 @@ const Account = () => {
                         setShowSection('');
                         handleTabClick(e, '#Revenue_Chart');
                         setStoreName_('');
+                        setActiveStoreId('')
                       }}
                       class="btn d-inline-flex btn-sm btn-primary mx-1">
                       <span class=" pe-2">
@@ -951,7 +952,7 @@ const Account = () => {
                   </div>
 
 
-                  <ul className={`nav nav-tabs mt-4 overflow-x border-0 ${isMobile ? 'd-flex justify-content-between' : ''}`}>
+                  {/* <ul className={`nav nav-tabs mt-4 overflow-x border-0 ${isMobile ? 'd-flex justify-content-between' : ''}`}>
                     <li className={`nav-item p-0`}
                       onClick={(e) => {
                         handleTabClick(e, '#profile');
@@ -1060,7 +1061,7 @@ const Account = () => {
 
 
 
-                  </ul>
+                  </ul> */}
                 </div>
               </div>
             </header>
