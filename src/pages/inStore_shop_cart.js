@@ -164,6 +164,8 @@ const Navbar = ({ store, selectedTable }) => {
     // Add a new state for the modal
   const [isTipsModalOpen, setTipsModalOpen] = useState(false);
 
+  const [selectedTipPercentage, setSelectedTipPercentage] = useState(null);
+
   // Create a function to open the modal
   const handleAddTipClick = () => {
       setTipsModalOpen(true);
@@ -171,10 +173,9 @@ const Navbar = ({ store, selectedTable }) => {
 
   const handleCancelTip = () => {
     setTips("");  // reset the tips value
+    setSelectedTipPercentage("");
     setTipsModalOpen(false);  // close the modal
 };
-
-const [selectedTipPercentage, setSelectedTipPercentage] = useState(null);
 
 const handlePercentageTip = (percentage) => {
   const calculatedTip = totalPrice * percentage;
