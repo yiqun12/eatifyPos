@@ -31,6 +31,7 @@ import cuiyuan from './cuiyuan.png'
 import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import cartImage from './shopcart.png';
+import "./inStore_shop_cart.css";
 
 const Navbar = ({ store, selectedTable }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
@@ -166,6 +167,8 @@ const Navbar = ({ store, selectedTable }) => {
 
   const [selectedTipPercentage, setSelectedTipPercentage] = useState(null);
 
+  const [customPercentage, setCustomPercentage] = useState("");
+
   // Create a function to open the modal
   const handleAddTipClick = () => {
       setTipsModalOpen(true);
@@ -178,11 +181,26 @@ const Navbar = ({ store, selectedTable }) => {
 };
 
 const handlePercentageTip = (percentage) => {
+      // If the value is less than 0, set it to 0 (or any other default value)
+      if (percentage < 0) {
+        percentage = 0;
+    }
   const calculatedTip = totalPrice * percentage;
   setTips(calculatedTip.toFixed(2)); // This will keep the tip value to two decimal places
   setSelectedTipPercentage(percentage);
 }
 
+const handleCustomPercentageChange = (e) => {
+  let value = e.target.value;
+      // If the value is less than 0, set it to 0 (or any other default value)
+      if (value < 0) {
+        value = 0;
+    }
+  setCustomPercentage(value);
+  const calculatedTip = totalPrice * (Number(value) / 100);
+  setTips(calculatedTip.toFixed(2));
+  setSelectedTipPercentage(null);
+}
   return (
 
     <>
@@ -339,12 +357,31 @@ const handlePercentageTip = (percentage) => {
 >
     25%
 </button>
+<div className="col">
+    <input 
+        type="number" 
+        placeholder="%" 
+        min="0"  // Add this line
+        value={customPercentage} 
+        onChange={handleCustomPercentageChange} 
+        className="form-control tips-no-spinners"  // Added the 'no-spinners' class
+    />
+</div>
                     </div>
                     <input 
     type="number" 
+    min="0"  // Add this line
     placeholder="Enter tip amount" 
     value={tips} 
-    onChange={(e) => { setTips(e.target.value); setSelectedTipPercentage(null); }} 
+    className="form-control tips-no-spinners"  // Added the 'no-spinners' class
+    onChange={(e) => { 
+      let value = e.target.value;
+      if (value < 0) {
+          value = 0;
+      }
+      setTips(value); 
+      setSelectedTipPercentage(null);
+  }} 
     onFocus={() => setSelectedTipPercentage(null)}
 />
                 </div>
@@ -475,7 +512,7 @@ const handlePercentageTip = (percentage) => {
                               <div class="text-right notranslate">tips: ${tips} </div>
               )}
 
-              <div class="text-right notranslate">Total (+8.25%): ${Math.round(100 * totalPrice  * 1.0825) / 100} </div>
+              <div class="text-right notranslate">Total (+8.25% & Tips): ${(Math.round(100 * totalPrice  * 1.0825) / 100) + tips} </div>
             </>
           }
             </div>
