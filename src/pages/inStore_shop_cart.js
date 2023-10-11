@@ -16,7 +16,7 @@ import './float.css';
 import $ from 'jquery';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
-import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard, faGift, faMoneyBillWave, faUsers, faPencilAlt, faTimes, faArrowRight, faPrint } from '@fortawesome/free-solid-svg-icons';
 import logo_transparent from './logo_transparent.png'
 //import { flexbox } from '@mui/system';
 import "./navbar.css";
@@ -157,12 +157,38 @@ const Navbar = ({ store, selectedTable }) => {
   const HandleCheckout_local_stripe = async () => {
   };
 
+
+  // handling the add tips logic + modal
+  const [tips, setTips] = useState('');
+
+    // Add a new state for the modal
+  const [isTipsModalOpen, setTipsModalOpen] = useState(false);
+
+  // Create a function to open the modal
+  const handleAddTipClick = () => {
+      setTipsModalOpen(true);
+  };
+
+  const handleCancelTip = () => {
+    setTips("");  // reset the tips value
+    setTipsModalOpen(false);  // close the modal
+};
+
+const [selectedTipPercentage, setSelectedTipPercentage] = useState(null);
+
+const handlePercentageTip = (percentage) => {
+  const calculatedTip = totalPrice * percentage;
+  setTips(calculatedTip.toFixed(2)); // This will keep the tip value to two decimal places
+  setSelectedTipPercentage(percentage);
+}
+
   return (
 
     <>
       <>
+
         {/* popup content */}
-        <div className="shopping-cart1" style={{ margin: "auto" }}>
+        <div className="shopping-cart1" style={{ margin: "auto", height: "fit-content" }}>
           {/* shoppig cart */}
           <div className="title " style={{ height: '80px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -190,7 +216,7 @@ const Navbar = ({ store, selectedTable }) => {
             </div>
           </div>
           <div className="flex flex-col flex-row">
-            <div className='flex flex-col w-2/3' style={width > 575 ? { overflowY: "auto" } : { overflowY: "auto" }}>
+            <div className='flex flex-col w-2/3' style={width > 575 ? { overflowY: "auto", maxHeight: "500px" } : { overflowY: "auto", maxHeight: "500px"}}>
 
               {/* generates each food entry */}
               {(Array.isArray(products) ? products : []).map((product) => (
@@ -279,100 +305,175 @@ const Navbar = ({ store, selectedTable }) => {
 
             </div>
             <div className="flex flex-col w-1/3">
+                    {/* the modal for tips */}
+                    {isTipsModalOpen && (
+    <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+        <div className="modal-dialog" role="document">
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h5 className="modal-title">Add Tip</h5>
+                </div>
+                <div className="modal-body">
+                    <div className="row mb-3">
+                    <button 
+    type="button" 
+    className={`btn col ${selectedTipPercentage === 0.15 ? 'btn-primary' : 'btn-outline-primary'}`} 
+    onClick={() => handlePercentageTip(0.15)}
+>
+    15%
+</button>
 
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Checkout")}{" "}</span>
-              </a>
+<button 
+    type="button" 
+    className={`btn col ${selectedTipPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`} 
+    onClick={() => handlePercentageTip(0.20)}
+>
+    20%
+</button>
 
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Print Receipt")}{" "}</span>
-              </a>
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Split Payment")}{" "}</span>
-              </a>
+<button 
+    type="button" 
+    className={`btn col ${selectedTipPercentage === 0.25 ? 'btn-primary' : 'btn-outline-primary'}`} 
+    onClick={() => handlePercentageTip(0.25)}
+>
+    25%
+</button>
+                    </div>
+                    <input 
+    type="number" 
+    placeholder="Enter tip amount" 
+    value={tips} 
+    onChange={(e) => { setTips(e.target.value); setSelectedTipPercentage(null); }} 
+    onFocus={() => setSelectedTipPercentage(null)}
+/>
+                </div>
+                <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary" onClick={() => handleCancelTip()}>Cancel</button>
+                    <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>Add Tip</button>
+                </div>
+            </div>
+        </div>
+    </div>
+)}
 
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Customize Price")}{" "}</span>
-              </a>
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Send to kitchen")}{" "}</span>
-              </a>
+<a
+  onClick={handleAddTipClick}
+  class="mt-3 btn btn-sm btn-primary mx-1"
+  style={{backgroundColor: "#4CAF50"}}> {/* Green for Add tip */}
+    <span class=" pe-2">
+      <FontAwesomeIcon icon={faGift} /> &nbsp;
+    </span>
+    <span >{t("Add tip")}{" "}</span>
+</a>
 
+<a
+  onClick={(e) => { }}
+  class="mt-3 btn btn-sm btn-primary mx-1"
+  style={{backgroundColor: "#2196F3"}}> {/* Blue for Card Pay */}
+    <span class=" pe-2">
+      <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+    </span>
+    <span>{t("Card Pay")}{" "}</span>
+</a>
+
+<a
+  onClick={(e) => { }}
+  class="mt-3 btn btn-sm btn-primary mx-1"
+  style={{backgroundColor: "#2196F3"}}> {/* Blue for Cash Pay */}
+    <span class=" pe-2">
+      <FontAwesomeIcon icon={faMoneyBillWave} /> &nbsp;
+    </span>
+    <span>{t("Cash Pay")}{" "}</span>
+</a>
+
+<a
+  onClick={(e) => { }}
+  class="mt-3 btn btn-sm btn-primary mx-1"
+  style={{backgroundColor: "#FF9800"}}> {/* Orange for Split Payment */}
+    <span class=" pe-2">
+      <FontAwesomeIcon icon={faUsers} /> &nbsp;
+    </span>
+    <span>{t("Split Payment")}{" "}</span>
+</a>
+
+<a
+  onClick={(e) => { }}
+  class="mt-3 btn btn-sm btn-primary mx-1"
+  style={{backgroundColor: "#00695C"}}> {/* Teal for Customize Price */}
+    <span class=" pe-2">
+      <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;
+    </span>
+    <span>{t("Customize Price")}{" "}</span>
+</a>
+
+<a
+  onClick={(e) => { }}
+  class="mt-3 btn btn-sm btn-primary mx-1"
+  style={{backgroundColor: "#9C27B0"}}> {/* Purple for Send to Kitchen */}
+    <span class=" pe-2">
+      <FontAwesomeIcon icon={faArrowRight} /> &nbsp;
+    </span>
+    <span>{t("Send to kitchen")}{" "}</span>
+</a>
+
+<a
+  onClick={(e) => { }}
+  class="mt-3 btn btn-sm btn-primary mx-1"
+  style={{backgroundColor: "#9E9E9E"}}> {/* Gray for Print Receipt */}
+    <span class=" pe-2">
+      <FontAwesomeIcon icon={faPrint} /> &nbsp;
+    </span>
+    <span>{t("Print Receipt")}{" "}</span>
+</a>
+
+<a
+  onClick={(e) => { }}
+  class="mt-3 btn btn-sm btn-primary mx-1"
+  style={{backgroundColor: "#9E9E9E"}}> {/* Gray for Print Merchant Copy */}
+    <span class=" pe-2">
+      <FontAwesomeIcon icon={faPrint} /> &nbsp;
+    </span>
+    <span>{t("Print Merchant Copy")}{" "}</span>
+</a>
               <a
                 onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
+                class="mt-3 btn btn-sm btn-primary mx-1"
+                  style={{backgroundColor: "#9E9E9E"}}> {/* Gray for Print Merchant Copy */}
                 <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Print Merchant Copy")}{" "}</span>
-              </a>
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                  <FontAwesomeIcon icon={faPrint} /> &nbsp;
                 </span>
                 <span>{t("Print Customer Copy")}{" "}</span>
               </a>
               <a
                 onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
+                class="mt-3 btn btn-sm btn-primary mx-1"
+                style={{backgroundColor: "#F44336"}}> {/* Gray for Print Merchant Copy */}
+
                 <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Add tip")}{" "}</span>
-              </a>
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                  <FontAwesomeIcon icon={faTimes}/> &nbsp;
                 </span>
                 <span>{t("Delete Order")}{" "}</span>
-              </a>
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1">
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Cash Pay")}{" "}</span>
               </a>
               <br></br>
               {totalPrice === 0 ?
             <>
                <div class="text-right notranslate">subtotal: ${Math.round(100 * totalPrice) / 100} </div>
+
+               {tips && (
+                              <div class="text-right notranslate">tips: ${tips} </div>
+              )}
+
               <div class="text-right notranslate">Total (+8.25%): ${Math.round(100 * totalPrice  * 1.0825) / 100} </div>
             </>
             :
             <>
 
               <div class="text-right notranslate">subtotal: ${Math.round(100 * totalPrice) / 100} </div>
+              
+                            {tips && (
+                              <div class="text-right notranslate">tips: ${tips} </div>
+              )}
+
               <div class="text-right notranslate">Total (+8.25%): ${Math.round(100 * totalPrice  * 1.0825) / 100} </div>
             </>
           }
