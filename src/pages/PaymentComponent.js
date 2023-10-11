@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { db } from '../firebase/index'; // Make sure to import necessary functions
 import { useUserContext } from "../context/userContext";
 import { doc, collection, setDoc, getDoc } from 'firebase/firestore';
+import firebase from 'firebase/compat/app';
 
-const PaymentComponent = ({storeDisplayName, storeID, connected_stripe_account_id }) => {
+const PaymentComponent = ({ storeDisplayName, storeID, connected_stripe_account_id }) => {
   const country = 'US'
   // the three variables we keep track of for payment
   // TODO: Save these two values to somewhere so no need to
@@ -138,15 +139,15 @@ const PaymentComponent = ({storeDisplayName, storeID, connected_stripe_account_i
       let docRef;
 
       try {
-        docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals",stripeTerminalRegistrationCode)
+        docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals", stripeTerminalRegistrationCode)
         const doc_ = await getDoc(docRef);
-  
+
         if (doc_.exists()) {
           console.log("Document exists!");
           throw new Error('Document already exists!');
         } else {
-          docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals",stripeTerminalRegistrationCode)
-  
+          docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals", stripeTerminalRegistrationCode)
+
           // If the document doesn't exist, add a new one
           const dateTime = new Date().toISOString();
           const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
@@ -157,21 +158,21 @@ const PaymentComponent = ({storeDisplayName, storeID, connected_stripe_account_i
             isActive: true,
             date: date
           };
-      
+
           try {
             await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
             alert("Terminal registers successfully");
           } catch (error) {
             setError("Error adding document: ");
             throw new Error("")
-          }      
+          }
         }
       } catch (error) {
         setError(`Error`);
         console.error(error);
       }
 
-      
+
     } catch (error) {
       setError("Error in registerTerminal: " + error.message)
       console.error("Error in registerTerminal: ", error.message);
@@ -184,89 +185,150 @@ const PaymentComponent = ({storeDisplayName, storeID, connected_stripe_account_i
 
 
   }
+  const [items, setItems] = useState([])
+
+  useEffect(() => {
+    firebase
+      .firestore()
+      .collection('stripe_customers')
+      .doc(user.uid)
+      .collection('TitleLogoNameContent')
+      .doc(storeID)
+      .collection('terminals')
+      .onSnapshot((snapshot) => {
+
+        const terminalsData = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+
+
+        setItems(terminalsData.sort((a, b) => b.date.localeCompare(a.date)))
+        console.log(terminalsData)
+      });
+  }, [])
+  const formatDate = (dateString) => {
+    const dateParts = dateString.split('-');
+    const formattedDate = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`;
+    return formattedDate;
+  };
+
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <>
-      <form className="form-group">
-        <div className="w-full mb-2" >
-          <div className="flex flex-wrap -mx-3 mb-6">
-            <div className="w-full px-3">
-              <label className="text-gray-700 mt-3 mb-2" htmlFor="streetAddress">
-                Store Display Name
-              </label>
-              <input
-                className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-                id="nameOfStore"
-                type="text"
-                placeholder= {storeDisplayName}
-              />
-            </div>
-            <div className="w-full px-3">
-              <label className="text-gray-700 mt-3 mb-2">
-                Store Location Address:
-              </label>
-              <input
-                className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-                id="streetAddress"
-                type="text"
-                placeholder="street sddress"
-              />
-            </div>
-            <div className="w-full px-3">
-              <label className="text-gray-700 mt-3 mb-2">
-                City:
-              </label>
-              <input
-                className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="cityName"
-                type="text"
-                placeholder="city name"
-              />
-            </div>
-            <div className="w-full px-3">
-              <label className="text-gray-700 mt-3 mb-2">
-                State:
-              </label>
-              <input
-                className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="state"
-                type="text"
-                placeholder="state"
-              />
-            </div>
-            <div className="w-full px-3">
-              <label className="text-gray-700 mt-3 mb-2">
-                Zip Code:
-              </label>
-              <input
-                className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="zipCode"
-                type="text"
-                placeholder="zip code"
-              />
-            </div>
-            <div className="w-full px-3">
-              <label className="text-gray-700 mt-3 mb-2">
-                Unique Stripe Terminal Registration code:
-              </label>
-              <input
-                className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="stripeTerminalRegistrationCode"
-                type="text"
-                placeholder="Unique Stripe Terminal Registration code"
-              />
-            </div>
-          </div>
-          <div style={{ color: 'red' }}>{error}</div>
-          <div className="flex mt-3">
-            <div style={{ width: "50%" }}></div>
-            <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
-              <button id="register-terminal-button" onClick={registerTerminal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Register POS Machine</button>
+      <label className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
+        POS machines:
+      </label>
+      <div className='mb-1'>In Store Payment Options:</div>
 
-            </div>
+      <div>
+
+        {items.map(item => (
+          <div key={item.id}>
+            <label className='flex'>
+              {item.id}  ({formatDate(item.date)})
+            </label>
+          </div>
+        ))}
+        <div className="flex mt-3">
+          <div style={{ width: "50%" }}></div>
+          <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
+            {!isExpanded && (
+              <button
+                id="register-terminal-button"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => setIsExpanded(true)}
+              >
+                Registrater New POS Machine
+              </button>
+            )}
+
           </div>
         </div>
-      </form>
+
+        {isExpanded && <form className="form-group">
+          <div className="w-full mb-2" >
+            <div className="flex flex-wrap -mx-3 mb-6">
+              <div className="w-full px-3">
+                <label className="text-gray-700 mt-3 mb-2" htmlFor="streetAddress">
+                  Store Display Name
+                </label>
+                <input
+                  className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+                  id="nameOfStore"
+                  type="text"
+                  placeholder={storeDisplayName}
+                />
+              </div>
+              <div className="w-full px-3">
+                <label className="text-gray-700 mt-3 mb-2">
+                  Store Location Address:
+                </label>
+                <input
+                  className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+                  id="streetAddress"
+                  type="text"
+                  placeholder="street sddress"
+                />
+              </div>
+              <div className="w-full px-3">
+                <label className="text-gray-700 mt-3 mb-2">
+                  City:
+                </label>
+                <input
+                  className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                  id="cityName"
+                  type="text"
+                  placeholder="city name"
+                />
+              </div>
+              <div className="w-full px-3">
+                <label className="text-gray-700 mt-3 mb-2">
+                  State:
+                </label>
+                <input
+                  className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                  id="state"
+                  type="text"
+                  placeholder="state"
+                />
+              </div>
+              <div className="w-full px-3">
+                <label className="text-gray-700 mt-3 mb-2">
+                  Zip Code:
+                </label>
+                <input
+                  className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                  id="zipCode"
+                  type="text"
+                  placeholder="zip code"
+                />
+              </div>
+              <div className="w-full px-3">
+                <label className="text-gray-700 mt-3 mb-2">
+                  Unique Stripe Terminal Registration code:
+                </label>
+                <input
+                  className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                  id="stripeTerminalRegistrationCode"
+                  type="text"
+                  placeholder="Unique Stripe Terminal Registration code"
+                />
+              </div>
+            </div>
+            <div style={{ color: 'red' }}>{error}</div>
+            <div className="flex mt-3">
+              <div style={{ width: "50%" }}></div>
+              <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
+                <button id="register-terminal-button" onClick={registerTerminal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Register POS Machine</button>
+
+              </div>
+            </div>
+          </div>
+        </form>}
+      </div>
+
     </>
   );
 }

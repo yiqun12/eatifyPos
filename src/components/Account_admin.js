@@ -27,6 +27,7 @@ import ChangeTimeForm from "../pages/ChangeTimeForm"
 import Dropdown from 'react-bootstrap/Dropdown';
 import DemoFood from '../pages/demoFood'
 import StripeConnectButton from '../components/StripeConnectButton'
+import PaymentComponent from "../pages/PaymentComponent";
 
 import barchar_logo from './file_barchar.png';
 import files_icon from './files_icon.png';
@@ -1259,7 +1260,6 @@ const Account = () => {
 
                             <hr />
                             <div className=' mb-6' >
-                              <div className='mb-3'>Receive Payment Options:</div>
 
                               {data?.stripe_store_acct === "" ?
                                 <>
@@ -1286,9 +1286,8 @@ const Account = () => {
                                     />
                                     You already connect with Stripe to receive online payment!
                                   </div>
-                                  <div className='mb-1'>In Store Payment Options:</div>
 
-                                  <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Register POS Machine </button>
+                                  <PaymentComponent storeDisplayName = {data?.Name} storeID = {data?.id} connected_stripe_account_id={data?.stripe_store_acct}  />
                                 </>
                               }
                             </div>
