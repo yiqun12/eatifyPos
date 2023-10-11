@@ -2,72 +2,73 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {useState, useEffect} from 'react';
 
-const exampleJSON = [  {orderId: "1", date: "10/7/2023", amount: "100", Status: "Review", 
-items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-"name":"肉眼牛排",
-"subtotal":1,
-"image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-"quantity":5,
-"attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
-"count":"9224d939-2223-4820-b802-f61ddd9b2879",
-"itemTotalPrice":90,
-"cancel":"true"},
-{"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
-"name":"宫保鸡丁",
-"subtotal":"1",
-"image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-"quantity":4,
-"attributeSelected":{"size":["big"]},
-"count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-"itemTotalPrice":8}
-]},
-  {orderId: "2", date: "10/7/2023", amount: "300", Status: "Review",  
-  items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-  "name":"肉眼牛排",
-  "subtotal":1,
-  "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-  "quantity":5,
-  "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
-  "count":"9224d939-2223-4820-b802-f61ddd9b2879",
-  "itemTotalPrice":90,
-  "cancel":"true"},
-  {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
-  "name":"宫保鸡丁",
-  "subtotal":"1",
-  "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-  "quantity":4,
-  "attributeSelected":{"size":["big"]},
-  "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-  "itemTotalPrice":8}
-]},
-  {orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid",
-  items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-  "name":"肉眼牛排",
-  "subtotal":1,
-  "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-  "quantity":5,
-  "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
-  "count":"9224d939-2223-4820-b802-f61ddd9b2879",
-  "itemTotalPrice":90,
-  "cancel":"true"},
-  {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
-  "name":"宫保鸡丁",
-  "subtotal":"1",
-  "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-  "quantity":4,
-  "attributeSelected":{"size":["big"]},
-  "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-  "itemTotalPrice":8}
-]}
-];
+// const exampleJSON = [  {orderId: "1", date: "10/7/2023", amount: "100", Status: "Review", 
+// items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+// "name":"肉眼牛排",
+// "subtotal":1,
+// "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+// "quantity":5,
+// "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
+// "count":"9224d939-2223-4820-b802-f61ddd9b2879",
+// "itemTotalPrice":90,
+// "cancel":"true"},
+// {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
+// "name":"宫保鸡丁",
+// "subtotal":"1",
+// "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+// "quantity":4,
+// "attributeSelected":{"size":["big"]},
+// "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+// "itemTotalPrice":8}
+// ]},
+//   {orderId: "2", date: "10/7/2023", amount: "300", Status: "Review",  
+//   items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+//   "name":"肉眼牛排",
+//   "subtotal":1,
+//   "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+//   "quantity":5,
+//   "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
+//   "count":"9224d939-2223-4820-b802-f61ddd9b2879",
+//   "itemTotalPrice":90,
+//   "cancel":"true"},
+//   {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
+//   "name":"宫保鸡丁",
+//   "subtotal":"1",
+//   "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+//   "quantity":4,
+//   "attributeSelected":{"size":["big"]},
+//   "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+//   "itemTotalPrice":8}
+// ]},
+//   {orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid",
+//   items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+//   "name":"肉眼牛排",
+//   "subtotal":1,
+//   "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+//   "quantity":5,
+//   "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
+//   "count":"9224d939-2223-4820-b802-f61ddd9b2879",
+//   "itemTotalPrice":90,
+//   "cancel":"true"},
+//   {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
+//   "name":"宫保鸡丁",
+//   "subtotal":"1",
+//   "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+//   "quantity":4,
+//   "attributeSelected":{"size":["big"]},
+//   "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+//   "itemTotalPrice":8}
+// ]}
+// ];
 
-const Test_Notification_Page = () => {
+function Test_Notification_Page({reviewVar, setReviewVar, sortedData, setSortedData}) {
 
   // const exampleJSON = [{orderId: "1", date: "10/7/2023", amount: "100", Status: "Review"},{orderId: "2", date: "10/7/2023", amount: "300", Status: "Review"},{orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid"}]
 
-  const [sortedData, setSortedData] = useState(exampleJSON);
+  // const [sortedData, setSortedData] = useState(exampleJSON);
 
   var reviewCount = sortedData.filter(item => item.Status === "Review").length;
+  setReviewVar(reviewCount)
 
   const statusPriority = {
     "Review": 1,
@@ -86,6 +87,9 @@ const Test_Notification_Page = () => {
           return item;
       });
       reviewCount = sortedData.filter(item => item.Status === "Review").length;
+
+      setReviewVar(reviewCount);
+
       setSortedData(updatedData);
       setTriggerSort(prev => !prev); // flip the value to trigger sorting
   }
@@ -117,10 +121,6 @@ const Test_Notification_Page = () => {
     }
   }
  
-  function getNumberUnderReview () {
-    const reviewCount = exampleJSON.filter(item => item.Status === "Review").length;
-    return reviewCount
-  }
 
   function deleteItem(orderId) {
     const updatedData = sortedData.filter(item => item.orderId !== orderId);
@@ -172,7 +172,7 @@ const [expandedOrderId, setExpandedOrderId] = useState(null);
       verticalAlign: 'middle' // added to vertically center the circle
     }}
 >
-    {reviewCount}
+    {reviewVar}
 </span></h5>
           </div>
           <div class="table-responsive">
