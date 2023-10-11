@@ -398,7 +398,7 @@ function Checkout(props) {
       <div>
         <div id="card2-header">
           <div id="add-new-card">
-            <form id="payment-form">
+            {/* <form id="payment-form">
               <div>
                 <label style={{ width: '100%' }}>
                   <div className="row row-1">
@@ -409,12 +409,6 @@ function Checkout(props) {
                         <img className="img-fluid" src="https://img.icons8.com/color/48/000000/visa.png" />
                       )}
                     </div>
-                    {/* save card for future use */}
-                    {/* <div className="col-7 select-dropdown h6 font-semibold text-muted text-sm">
-                      <select style={{ backgroundcolor: "white", color: "#9ca3af" }} name="payment-method" onChange={handleOptionChange} required>
-                        <option hidden data-type="mastercard">{t("Select Account")}</option>
-                      </select>
-                    </div> */}
                     <div className="col-3 d-flex justify-content-center">
                       <button onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
@@ -437,11 +431,12 @@ function Checkout(props) {
                 {t("Pay with Saved Card")}
               </button>
 
-            </form>
+            </form> */}
             {paymentRequest && <PaymentRequestButtonElement options={{ paymentRequest }} />}
 
             <form id="payment-form" onSubmit={handleWechat}>
               <button
+                onClick={handleWechat}
                 type="submit"
                 name="pay"
                 class="text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
@@ -735,7 +730,7 @@ function CardSection(props) {
             </div>
 
             {error && <div id="prompt-message" role="alert">{error}</div>}
-            <div style={{ color: "white", fontSize: "5px" }}>.</div>
+            {/* <div style={{ color: "white", fontSize: "5px" }}>.</div>
             <MDBCheckbox
               name='flexCheck'
               value={saveCard}
@@ -743,13 +738,13 @@ function CardSection(props) {
               checked={saveCard}
               label={t('Save Card')}
               onChange={handleSaveCardChange}
-            />
+            /> */}
             <div style={{ color: "white", fontSize: "5px" }}>.</div>
             <button
               style={{ "borderRadius": "0.2rem", width: "100%" }}
               class="text-white bg-orange-700 hover:bg-orange-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
               <FontAwesomeIcon icon={faCreditCard} />
-              &nbsp; {t("Pay with New Card")}</button>
+              &nbsp; {t("Pay with Credit Card")}</button>
           </form>
 
         </div>
@@ -1139,69 +1134,6 @@ function PayHistory(props) {
     }
   };
 
-  const handleConfirm = () => {
-    // let phoneNumber = '';
-    // inputs.current.forEach((input) => {
-    //   phoneNumber += input.value;
-    // });
-
-    // function isTenDigitNumber(s) {
-    //   if (s.length !== 10) {
-    //     return false;
-    //   }
-
-    //   return /^\d{10}$/.test(s);
-    // }
-    // var s = phoneNumber;
-    // var result = isTenDigitNumber(s);
-
-    // if (result === false) {
-    //   setErrorMessage('This is not a valid number');
-    // } else {
-    //   setErrorMessage(''); // Clear the error message if the input is valid
-    //   console.log(phoneNumber);
-      const amount = Number(totalPrice);
-      const currency = 'usd';
-      //  console.log(currency)
-      console.log(amount)
-      const dateTime = new Date().toISOString();
-      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-
-       
-      const data = {
-        store,
-        payment_method: 'instore_pay',
-        currency,
-        amount: amount,
-        status: 'new',
-        phoneNumber:"12345",
-        receipt: sessionStorage.getItem(store),
-        dateTime: date,
-        user_email: user.email,
-        isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
-        tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
-      };
-      console.log("data")
-      console.log(data)
-      //send to db
-      firebase
-        .firestore()
-        .collection('stripe_customers')
-        .doc(user.uid)
-        .collection('payments')
-        .add(data).then((docRef) => {
-          props.setReceiptToken(docRef.id)
-          console.log("Document ID is:", docRef.id);
-          sessionStorage.removeItem(store);
-          //window.location.href = '/orders?order=' + docRef.id;
-        })
-        .catch((error) => {
-          props.setReceiptToken("")
-          console.error("Error adding document: ", error);
-        });
-
-    
-  };
   const isMobileOrTablet = useMobileAndTabletCheck();
 
 
@@ -1253,119 +1185,7 @@ function PayHistory(props) {
       {location ? (
         distanceStatus === 'near' ? (
           <div>
-            {/* <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <p>{t("Enter your phone number to use 'Pay Later'")}:</p>
-              <div className="phone-field">
-                &#40;
-                <input
-                  ref={(el) => (inputs.current[0] = el)}
-                  className="phone-input"
-                  name="phone-input"
-                  type="tel"
-                  size="1"
-                  maxLength="1"
-                  placeholder="4"
-                  autoFocus
-                  onKeyUp={(e) => handleKeyUp(e, 0)}
-                />
-                <input
-                  ref={(el) => (inputs.current[1] = el)}
-                  className="phone-input"
-                  name="phone-input"
-                  type="tel"
-                  size="1"
-                  maxLength="1"
-                  placeholder="1"
-                  onKeyUp={(e) => handleKeyUp(e, 1)}
-                />
-                <input
-                  ref={(el) => (inputs.current[2] = el)}
-                  className="phone-input"
-                  name="phone-input"
-                  type="tel"
-                  size="1"
-                  maxLength="1"
-                  placeholder="5"
-                  onKeyUp={(e) => handleKeyUp(e, 2)}
-                />
-                &#41; &nbsp;
-                <input
-                  ref={(el) => (inputs.current[3] = el)}
-                  className="phone-input"
-                  name="phone-input"
-                  type="tel"
-                  size="1"
-                  maxLength="1"
-                  placeholder="5"
-                  onKeyUp={(e) => handleKeyUp(e, 3)}
-                />
-                <input
-                  ref={(el) => (inputs.current[4] = el)}
-                  className="phone-input"
-                  name="phone-input"
-                  type="tel"
-                  size="1"
-                  maxLength="1"
-                  placeholder="5"
-                  onKeyUp={(e) => handleKeyUp(e, 4)}
-                />
-                <input
-                  ref={(el) => (inputs.current[5] = el)}
-                  className="phone-input"
-                  name="phone-input"
-                  type="tel"
-                  size="1"
-                  maxLength="1"
-                  placeholder="5"
-                  onKeyUp={(e) => handleKeyUp(e, 5)}
-                />
-                &nbsp;&#8722;&nbsp;
-                <input
-                  ref={(el) => (inputs.current[6] = el)}
-                  className="phone-input"
-                  name="phone-input"
-                  type="tel"
-                  size="1"
-                  maxLength="1"
-                  placeholder="1"
-                  onKeyUp={(e) => handleKeyUp(e, 6)}
-                />
-                <input
-                  ref={(el) => (inputs.current[7] = el)}
-                  className="phone-input"
-                  name="phone-input"
-                  type="tel"
-                  size="1"
-                  maxLength="1"
-                  placeholder="2"
-                  onKeyUp={(e) => handleKeyUp(e, 7)}
-                />
-                <input
-                  ref={(el) => (inputs.current[8] = el)}
-                  className="phone-input"
-                  name="phone-input"
-                  type="tel"
-                  size="1"
-                  maxLength="1"
-                  placeholder="3"
-                  onKeyUp={(e) => handleKeyUp(e, 8)}
-                />
-                <input
-                  ref={(el) => (inputs.current[9] = el)}
-                  className="phone-input"
-                  name="phone-input"
-                  type="tel"
-                  size="1"
-                  maxLength="1"
-                  placeholder="4"
-                  onKeyUp={(e) => handleKeyUp(e, 9)}
-                />
-              </div>
-            </div> */}
-            {/* {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>} */}
-
             <button
-              onClick={handleConfirm}
               class="mt-3 text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
               style={{ "borderRadius": "0.2rem", width: "100%" }}
             >

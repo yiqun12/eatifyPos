@@ -24,7 +24,6 @@ import Button from '@mui/material/Button';
 import QRCode from 'qrcode.react';
 import firebase from 'firebase/compat/app';
 import ChangeTimeForm from "../pages/ChangeTimeForm"
-import DemoCreateStore from '../components/demoCreateStore'
 import Dropdown from 'react-bootstrap/Dropdown';
 import DemoFood from '../pages/demoFood'
 import StripeConnectButton from '../components/StripeConnectButton'

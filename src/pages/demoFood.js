@@ -146,6 +146,7 @@ const Food = () => {
           stripe_store_acct: "",
           storeOwnerId: user.uid,
           restaurant_seat_arrangement:JSON.stringify(restaurant_seat_arrangement),
+          categoryCHI:'',
         };
     
         try {

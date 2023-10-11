@@ -26,7 +26,6 @@ import Receipt from './pages/Receipt'
 import Html from './components/Html'
 import { Navigate } from 'react-router-dom';
 import Admin_food from './components/admin_food'
-import DemoCreateStore from './components/demoCreateStore'
 
 
 // translation purposes -> can switch to using fetchPost() to grab translation file just like food_array
@@ -134,8 +133,6 @@ function App() {
                 <Route path="LogIn" element={<LogIn />}></Route>
               }
 
-              <Route path="DemoCreateStore" element={<DemoCreateStore />}></Route>
-
               <Route path="SignUp" element={<SignUp />}></Route>
 
               {/*testing from tony change Time menu */}
@@ -146,7 +143,7 @@ function App() {
               <Route exact path="/testing_food" element={<Food_testing />} />
 
               <Route exact path="/terminal_page" element={<PaymentComponent connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"}  />} />
-              <Route exact path="/terminal_page2" element={<PaymentComponent2  connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} readerId ={'tmr_FSGYlA9Yp9jI49'} locationId={"tml_FSGYlAlhHg7wbr"} />} />
+              <Route exact path="/terminal_page2" element={<PaymentComponent2 chargeAmount={"1234"}  connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} readerId ={'tmr_FSM9TgWuFNfaCi'} locationId={"tml_FSM9TQ4UTPMMVG"} />} />
 
               <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage />} />
 

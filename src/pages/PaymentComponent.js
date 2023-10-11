@@ -1,8 +1,9 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useState, useEffect } from 'react';
 
-const PaymentComponent = ({connected_stripe_account_id} ) => {
-  const country ='US'
+const PaymentComponent = ({ connected_stripe_account_id }) => {
+  const country = 'US'
   // the three variables we keep track of for payment
   // TODO: Save these two values to somewhere so no need to
   var locationId;
@@ -11,51 +12,53 @@ const PaymentComponent = ({connected_stripe_account_id} ) => {
 
   var paymentIntentId;
 
-
+  const [error, setError] = useState("");
   var simulation_mode;
 
 
   // the functions to the server
   async function createLocation(payloadLocation) {
     try {
-    const formattedPayload = {
-      connected_stripe_account_id: connected_stripe_account_id,
-      display_name: payloadLocation.storeDetails.name,
-      address: { 
-        line1: payloadLocation.storeDetails.address.street,
-        city: payloadLocation.storeDetails.address.city,
-        state: payloadLocation.storeDetails.address.state,
-        country: country,
-        postal_code: payloadLocation.storeDetails.address.zip,
+      const formattedPayload = {
+        connected_stripe_account_id: connected_stripe_account_id,
+        display_name: payloadLocation.storeDetails.name,
+        address: {
+          line1: payloadLocation.storeDetails.address.street,
+          city: payloadLocation.storeDetails.address.city,
+          state: payloadLocation.storeDetails.address.state,
+          country: country,
+          postal_code: payloadLocation.storeDetails.address.zip,
+        }
+      };
+
+      connected_stripe_account_id = connected_stripe_account_id;
+
+      const response = await fetch("http://localhost:4242/create_location", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formattedPayload)
+      });
+
+      if (!response.ok) {
+        const responseData = await response.json();
+        setError(responseData.error)
+        throw new Error(responseData.error);
       }
-    };
 
-    connected_stripe_account_id = connected_stripe_account_id;
+      console.log("the response was okay");
 
-    const response = await fetch("http://localhost:4242/create_location", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(formattedPayload)
-    });
-
-    if (!response.ok) {
-      const responseData = await response.json();
-      throw new Error(responseData.error);
+      return await response.json();
+    }
+    catch (error) {
+      setError("There was an error with createLocation:"+ error.message)
+      console.error("There was an error with createLocation:", error.message);
+      throw error; // rethrow to handle it outside of the function or display to user
+    }
   }
 
-  console.log("the response was okay");
 
-  return await response.json();
-}
-catch (error) {
-  console.error("There was an error with createLocation:", error.message);
-  throw error; // rethrow to handle it outside of the function or display to user
-}
-  }
-  
-  
   async function createReader(payloadReader) {
     try {
       const response = await fetch("http://localhost:4242/register_reader", {
@@ -66,139 +69,19 @@ catch (error) {
 
       if (!response.ok) {
         const responseData = await response.json();
+        setError(responseData.error)
         throw new Error(responseData.error);
+      }
+
+      console.log("the response was okay");
+
+      return await response.json();
     }
-
-    console.log("the response was okay");
-
-    return await response.json();
-}
-catch (error) {
-    console.error("There was an error with createReader:", error.message);
-    throw error; // rethrow to handle it outside of the function or display to user
-}
-  }
-  
-  async function createPaymentIntent(amount) {
-    try {
-      const response = await fetch("http://localhost:4242/create_payment_intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: amount, connected_stripe_account_id: connected_stripe_account_id }),
-      });
-  
-      if (!response.ok) {
-        const responseData = await response.json();
-        throw new Error(responseData.error);
+    catch (error) {
+      setError("There was an error with createReader:", error.message)
+      console.error("There was an error with createReader:", error.message);
+      throw error; // rethrow to handle it outside of the function or display to user
     }
-
-    console.log("the response was okay");
-
-    return await response.json();
-}
-catch (error) {
-    console.error("There was an error with createPaymentIntent:", error.message);
-    throw error; // rethrow to handle it outside of the function or display to user
-}
-  }
-  
-  async function processPayment() {
-    try {
-      const response = await fetch("http://localhost:4242/process_payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          reader_id: readerId,
-          payment_intent_id: paymentIntentId,
-          connected_stripe_account_id: connected_stripe_account_id
-        }),
-      });
-  
-      if (!response.ok) {
-        const responseData = await response.json();
-        throw new Error(responseData.error);
-    }
-
-    console.log("the response was okay");
-
-    return await response.json();
-}
-catch (error) {
-    console.error("There was an error with processPayment:", error.message);
-    throw error; // rethrow to handle it outside of the function or display to user
-}
-  }
-  
-  async function simulatePayment() {
-    try {
-      const response = await fetch("http://localhost:4242/simulate_payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          reader_id: readerId,
-          connected_stripe_account_id: connected_stripe_account_id
-        }),
-      });
-  
-      if (!response.ok) {
-        const responseData = await response.json();
-        throw new Error(responseData.error);
-    }
-
-    console.log("the response was okay");
-
-    return await response.json();
-}
-catch (error) {
-    console.error("There was an error with simulatePayment:", error.message);
-    throw error; // rethrow to handle it outside of the function or display to user
-}
-  }
-  
-  async function capture(paymentIntentId) {
-    try {
-      const response = await fetch("http://localhost:4242/capture_payment_intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payment_intent_id: paymentIntentId, connected_stripe_account_id: connected_stripe_account_id }),
-      });
-  
-      if (!response.ok) {
-        const responseData = await response.json();
-        throw new Error(responseData.error);
-    }
-
-    console.log("the response was okay");
-
-    return await response.json();
-}
-catch (error) {
-    console.error("There was an error with capture:", error.message);
-    throw error; // rethrow to handle it outside of the function or display to user
-}
-  }
-  
-  async function cancel() {
-    try {
-      const response = await fetch("http://localhost:4242/cancel_action", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reader_id: readerId, connected_stripe_account_id: connected_stripe_account_id}),
-      });
-  
-      if (!response.ok) {
-        const responseData = await response.json();
-        throw new Error(responseData.error);
-    }
-
-    console.log("the response was okay");
-
-    return await response.json();
-}
-catch (error) {
-    console.error("There was an error with cancel:", error.message);
-    throw error; // rethrow to handle it outside of the function or display to user
-}
   }
 
   // the onclick reactions
@@ -207,7 +90,7 @@ catch (error) {
     const registerTerminalButton = document.getElementById("register-terminal-button");
     registerTerminalButton.className = "loading";
     registerTerminalButton.disabled = true;
-  
+
     try {
       //const stripeID = document.getElementById("stripeID").value;
       const nameOfStore = document.getElementById("nameOfStore").value;
@@ -216,7 +99,7 @@ catch (error) {
       const state = document.getElementById("state").value;
       const zipCode = document.getElementById("zipCode").value;
       const stripeTerminalRegistrationCode = document.getElementById("stripeTerminalRegistrationCode").value.trim();
-  
+
       const payloadLocation = {
         stripeID: connected_stripe_account_id,
         storeDetails: {
@@ -230,11 +113,11 @@ catch (error) {
           }
         }
       }
-  
+
       const location = await createLocation(payloadLocation);
       console.log("registered location at: ", location);
       locationId = location["id"]
-  
+
       const payloadReader = {
         terminalRegistrationCode: stripeTerminalRegistrationCode,
         connected_stripe_account_id: connected_stripe_account_id
@@ -249,118 +132,102 @@ catch (error) {
       const reader = await createReader(payloadReader);
       console.log("registered reader: ", reader);
       readerId = reader["id"]
-  
+
     } catch (error) {
+      setError("Error in registerTerminal: "+ error.message)
       console.error("Error in registerTerminal: ", error.message);
+      throw new Error(error.message);
+
     } finally {
       registerTerminalButton.className = "btn btn-primary";
       registerTerminalButton.disabled = false;
     }
+    console.log("OK!!!!!!!!!!!!!!!!")
   }
-  
-  async function makePayment() {
-    const createPaymentButton = document.getElementById("create-payment-button");
-    createPaymentButton.className = "loading";
-    createPaymentButton.disabled = true;
-  
-    try {
-      let amount = document.getElementById("amount-input").value;
-  
-      const paymentIntent = await createPaymentIntent(amount);
-      console.log("payment intent: ", paymentIntent);
-      paymentIntentId = paymentIntent["id"]
-  
-      const reader = await processPayment();
-      console.log("payment processed at reader: ", reader);
-  
-      if (simulation_mode == true) {
-        const simulatedPayment = await simulatePayment();
-        console.log("simulated payment at: ", simulatedPayment);
-      }
-      // const simulatedPayment = await simulatePayment();
-      // console.log("simulated payment at: ", simulatedPayment);
-  
-      // const capturedPayment = await capture(paymentIntent.id);
-      // console.log("payment is captured: ", capturedPayment);
-    } catch (error) {
-      console.error("Error in makePayment: ", error.message);
-    } finally {
-      createPaymentButton.className = "btn btn-primary";
-      createPaymentButton.disabled = false;
-    }
-  }
-  
-  async function cancelPayment() {
-    const cancelPaymentButton = document.getElementById("cancel-payment-button");
-    cancelPaymentButton.className = "loading";
-    cancelPaymentButton.disabled = true;
-  
-    try {
-      const reader = await cancel();
-      console.log("canceled payment at: ", reader);
-    } catch (error) {
-      console.error("Error in cancelPayment: ", error.message);
-    } finally {
-      cancelPaymentButton.className = "btn btn-primary";
-      cancelPaymentButton.disabled = false;
-    }
-  }
+
   return (
-    <div className="container-fluid h-100">
-      <div className="row h-100">
-        <div className="col-sm-6 offset h-100">
-          {/* bootstrap input fields */}
-          <div className="form-group">
-          <input
-              type="text"
-              className="form-control"
-              id="nameOfStore"
-              placeholder="store name"
-            />
-            <label htmlFor="streetAddress">Street Address:</label>
-            <input
-              type="text"
-              className="form-control"
-              id="streetAddress"
-              placeholder="street sddress"
-            />
-            <input
-              type="text"
-              className="form-control"
-              id="cityName"
-              placeholder="city name"
-            />
-            <input
-              type="text"
-              className="form-control"
-              id="state"
-              placeholder="state"
-            />
-            <input
-              type="text"
-              className="form-control"
-              id="zipCode"
-              placeholder="zip code"
-            />
+    <>
+      <form className="form-group">
+        <div className="w-full mb-2" >
+          <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="w-full px-3">
+              <label className="text-gray-700 mt-3 mb-2" htmlFor="streetAddress">
+                Store Display Name
+              </label>
+              <input
+                className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+                id="nameOfStore"
+                type="text"
+                placeholder="store name"
+              />
+            </div>
+            <div className="w-full px-3">
+              <label className="text-gray-700 mt-3 mb-2">
+               Store Location Address:
+              </label>
+              <input
+                className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+                id="streetAddress"
+                type="text"
+                placeholder="street sddress"
+              />
+            </div>
+            <div className="w-full px-3">
+              <label className="text-gray-700 mt-3 mb-2">
+                City:
+              </label>
+              <input
+                className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                id="cityName"
+                type="text"
+                placeholder="city name"
+              />
+            </div>
+            <div className="w-full px-3">
+              <label className="text-gray-700 mt-3 mb-2">
+                State:
+              </label>
+              <input
+                className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                id="state"
+                type="text"
+                placeholder="state"
+              />
+            </div>
+            <div className="w-full px-3">
+              <label className="text-gray-700 mt-3 mb-2">
+                Zip Code:
+              </label>
+              <input
+                className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                id="zipCode"
+                type="text"
+                placeholder="zip code"
+              />
+            </div>
+            <div className="w-full px-3">
+              <label className="text-gray-700 mt-3 mb-2">
+                Unique Stripe Terminal Registration code:
+              </label>
+              <input
+                className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                id="stripeTerminalRegistrationCode"
+                type="text"
+                placeholder="Unique Stripe Terminal Registration code"
+                />
+            </div>
           </div>
+          <div style={{ color: 'red' }}>{error}</div>
+          <div className="flex mt-3">
+            <div style={{ width: "50%" }}></div>
+            <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
+            <button id="register-terminal-button" onClick={registerTerminal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Register POS Machine</button>
 
-          <label>Stripe Terminal Registration code:</label>
-            <input
-              type="text"
-              className="form-control"
-              id="stripeTerminalRegistrationCode"
-              placeholder="simulated-wpe"
-            />
-
-          <div className="row margin pad">
-
-            <button className="btn btn-primary" id="register-terminal-button" onClick={registerTerminal}>
-              Register the terminal
-            </button>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </form>
+    </>
   );
 }
 

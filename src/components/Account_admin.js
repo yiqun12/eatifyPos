@@ -24,7 +24,6 @@ import Button from '@mui/material/Button';
 import QRCode from 'qrcode.react';
 import firebase from 'firebase/compat/app';
 import ChangeTimeForm from "../pages/ChangeTimeForm"
-import DemoCreateStore from '../components/demoCreateStore'
 import Dropdown from 'react-bootstrap/Dropdown';
 import DemoFood from '../pages/demoFood'
 import StripeConnectButton from '../components/StripeConnectButton'
@@ -361,6 +360,7 @@ const Account = () => {
   // Rename state variables
   const [formValues, setFormValues] = useState({
     storeName: '',
+    storeNameCHI: '',
     city: '',
     picture: '',
   });
@@ -417,7 +417,7 @@ const Account = () => {
   // using the below to control if suboption popping and popping out depending on which store is selected on the side bar
   const [activeStoreId, setActiveStoreId] = useState(null);
   // Rename function for form submission
-  const handleFormSubmit = async (e, name, address, image, id) => {
+  const handleFormSubmit = async (e, name, storeNameCHI, address, image, id) => {
     e.preventDefault();
     // Here you can access formValues and perform actions like sending it to a server
     console.log(formValues);
@@ -427,6 +427,7 @@ const Account = () => {
     // Update the 'key' field to the value retrieved from localStorage
     await updateDoc(docRef, {
       Name: formValues.storeName !== '' ? formValues.storeName : name,
+      storeNameCHI: formValues.storeNameCHI !== '' ? formValues.storeNameCHI : storeNameCHI,
       Image: formValues.picture !== '' ? formValues.picture : image,
       Address: formValues.city !== '' ? formValues.city : address,
 
@@ -559,133 +560,169 @@ const Account = () => {
   }, []);
 
   // passes in the data for the notification child and updates as the value changes (this is to be loaded in as data from cloud)
-  const [notificationData, setNotificationData] = useState([  {orderId: "1", date: "10/7/2023", amount: "100", Status: "Review", 
-  items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-  "name":"肉眼牛排",
-  "subtotal":1,
-  "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-  "quantity":5,
-  "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
-  "count":"9224d939-2223-4820-b802-f61ddd9b2879",
-  "itemTotalPrice":90,
-  "cancel":"true"},
-  {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
-  "name":"宫保鸡丁",
-  "subtotal":"1",
-  "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-  "quantity":4,
-  "attributeSelected":{"size":["big"]},
-  "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-  "itemTotalPrice":8}
-  ]},
-    {orderId: "2", date: "10/7/2023", amount: "300", Status: "Review",  
-    items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-    "name":"肉眼牛排",
-    "subtotal":1,
-    "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-    "quantity":5,
-    "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
-    "count":"9224d939-2223-4820-b802-f61ddd9b2879",
-    "itemTotalPrice":90,
-    "cancel":"true"},
-    {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
-    "name":"宫保鸡丁",
-    "subtotal":"1",
-    "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-    "quantity":4,
-    "attributeSelected":{"size":["big"]},
-    "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-    "itemTotalPrice":8}
-  ]},
-    {orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid",
-    items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-    "name":"肉眼牛排",
-    "subtotal":1,
-    "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-    "quantity":5,
-    "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
-    "count":"9224d939-2223-4820-b802-f61ddd9b2879",
-    "itemTotalPrice":90,
-    "cancel":"true"},
-    {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
-    "name":"宫保鸡丁",
-    "subtotal":"1",
-    "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-    "quantity":4,
-    "attributeSelected":{"size":["big"]},
-    "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-    "itemTotalPrice":8}
-  ]}
+  const [notificationData, setNotificationData] = useState([{
+    orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+    items: [{
+      "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+      "name": "肉眼牛排",
+      "subtotal": 1,
+      "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+      "quantity": 5,
+      "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+      "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+      "itemTotalPrice": 90,
+      "cancel": "true"
+    },
+    {
+      "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+      "name": "宫保鸡丁",
+      "subtotal": "1",
+      "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+      "quantity": 4,
+      "attributeSelected": { "size": ["big"] },
+      "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+      "itemTotalPrice": 8
+    }
+    ]
+  },
+  {
+    orderId: "2", date: "10/7/2023", amount: "300", Status: "Review",
+    items: [{
+      "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+      "name": "肉眼牛排",
+      "subtotal": 1,
+      "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+      "quantity": 5,
+      "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+      "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+      "itemTotalPrice": 90,
+      "cancel": "true"
+    },
+    {
+      "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+      "name": "宫保鸡丁",
+      "subtotal": "1",
+      "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+      "quantity": 4,
+      "attributeSelected": { "size": ["big"] },
+      "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+      "itemTotalPrice": 8
+    }
+    ]
+  },
+  {
+    orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid",
+    items: [{
+      "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+      "name": "肉眼牛排",
+      "subtotal": 1,
+      "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+      "quantity": 5,
+      "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+      "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+      "itemTotalPrice": 90,
+      "cancel": "true"
+    },
+    {
+      "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+      "name": "宫保鸡丁",
+      "subtotal": "1",
+      "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+      "quantity": 4,
+      "attributeSelected": { "size": ["big"] },
+      "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+      "itemTotalPrice": 8
+    }
+    ]
+  }
   ]);
 
   // lifting the variable of # under review from the Test_notication_Page component lists
-  const [numberReviewVariable, setNumberReviewVariable] = useState(notificationData? notificationData.filter(item => item.Status === "Review").length : 0);
+  const [numberReviewVariable, setNumberReviewVariable] = useState(notificationData ? notificationData.filter(item => item.Status === "Review").length : 0);
 
 
   useEffect(() => {
     // console.log("numberReviewVariable has been updated:", numberReviewVariable);
     // Perform any additional logic in the parent component when the number changes
     setNumberReviewVariable(notificationData.filter(item => item.Status === "Review").length);
-}, [notificationData]);
+  }, [notificationData]);
 
   useEffect(() => {
-    setNotificationData([  {orderId: "1", date: "10/7/2023", amount: "100", Status: "Review", 
-    items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-    "name":"肉眼牛排",
-    "subtotal":1,
-    "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-    "quantity":5,
-    "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
-    "count":"9224d939-2223-4820-b802-f61ddd9b2879",
-    "itemTotalPrice":90,
-    "cancel":"true"},
-    {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
-    "name":"宫保鸡丁",
-    "subtotal":"1",
-    "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-    "quantity":4,
-    "attributeSelected":{"size":["big"]},
-    "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-    "itemTotalPrice":8}
-    ]},
-      {orderId: "2", date: "10/7/2023", amount: "300", Status: "Review",  
-      items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-      "name":"肉眼牛排",
-      "subtotal":1,
-      "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-      "quantity":5,
-      "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
-      "count":"9224d939-2223-4820-b802-f61ddd9b2879",
-      "itemTotalPrice":90,
-      "cancel":"true"},
-      {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
-      "name":"宫保鸡丁",
-      "subtotal":"1",
-      "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-      "quantity":4,
-      "attributeSelected":{"size":["big"]},
-      "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-      "itemTotalPrice":8}
-    ]},
-      {orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid",
-      items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-      "name":"肉眼牛排",
-      "subtotal":1,
-      "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-      "quantity":5,
-      "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
-      "count":"9224d939-2223-4820-b802-f61ddd9b2879",
-      "itemTotalPrice":90,
-      "cancel":"true"},
-      {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
-      "name":"宫保鸡丁",
-      "subtotal":"1",
-      "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-      "quantity":4,
-      "attributeSelected":{"size":["big"]},
-      "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-      "itemTotalPrice":8}
-    ]}
+    setNotificationData([{
+      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },
+    {
+      orderId: "2", date: "10/7/2023", amount: "300", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },
+    {
+      orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    }
     ]);
   }, [storeID])
 
@@ -815,22 +852,22 @@ const Account = () => {
                                 <path d="M2 10a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-1z" />
                               </svg>
                             </i>
-                            <span style={{ marginLeft: "5%" }}>Notification <span 
-    style={{
-      display: 'inline-flex', // changed from 'flex' to 'inline-flex'
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '15px',
-      height: '15px',
-      backgroundColor: 'blue',
-      borderRadius: '50%',
-      color: 'white',
-      fontSize: '10px',
-      verticalAlign: 'middle' // added to vertically center the circle
-    }}
->
-    {numberReviewVariable}
-</span> </span>
+                            <span style={{ marginLeft: "5%" }}>Notification <span
+                              style={{
+                                display: 'inline-flex', // changed from 'flex' to 'inline-flex'
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '15px',
+                                height: '15px',
+                                backgroundColor: 'blue',
+                                borderRadius: '50%',
+                                color: 'white',
+                                fontSize: '10px',
+                                verticalAlign: 'middle' // added to vertically center the circle
+                              }}
+                            >
+                              {numberReviewVariable}
+                            </span> </span>
                           </a>
 
                         </li>
@@ -1130,7 +1167,7 @@ const Account = () => {
                           </> : <></>
                           }
                           {showSection === 'stripeCard' ? <>
-                            <Test_Notification_Page reviewVar={numberReviewVariable} setReviewVar={setNumberReviewVariable} sortedData={notificationData} setSortedData={setNotificationData}/>
+                            <Test_Notification_Page reviewVar={numberReviewVariable} setReviewVar={setNumberReviewVariable} sortedData={notificationData} setSortedData={setNotificationData} />
                           </> : <></>
                           }
 
@@ -1150,11 +1187,11 @@ const Account = () => {
                                 </div>
                               </div>
                             </div>
-                            <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.Address, data?.Image, data?.id)}>
+                            <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id)}>
                               <div className="flex flex-wrap -mx-3 mb-6">
-                                <div className="w-full md:w-1/2 px-3">
+                                <div className="w-full px-3">
                                   <label className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
-                                    Store Name
+                                    Store Display Name
                                   </label>
                                   <input
                                     className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
@@ -1166,9 +1203,23 @@ const Account = () => {
                                     placeholder={data?.Name}
                                   />
                                 </div>
-                                <div className="w-full md:w-1/2 px-3">
+                                <div className="w-full px-3">
+                                  <label className="text-gray-700 mt-3 mb-2" htmlFor="storeNameCHI">
+                                    Store Display Name in Second Language (Optional)
+                                  </label>
+                                  <input
+                                    className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+                                    id="storeNameCHI"
+                                    type="text"
+                                    name="storeNameCHI"
+                                    value={formValues.storeNameCHI}
+                                    onChange={handleInputChange}
+                                    placeholder={data?.storeNameCHI}
+                                  />
+                                </div>
+                                <div className="w-full px-3">
                                   <label className="text-gray-700 mt-3 mb-2" htmlFor="city">
-                                    City
+                                    Display City
                                   </label>
                                   <input
                                     className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
@@ -1208,10 +1259,11 @@ const Account = () => {
 
                             <hr />
                             <div className=' mb-6' >
+                              <div className='mb-3'>Receive Payment Options:</div>
 
                               {data?.stripe_store_acct === "" ?
                                 <>
-                                  <div className='mb-3'>Receive Payment Options:</div>
+                                  <div className='mb-1'>Online Payment Options:</div>
 
                                   <div>
                                     <StripeConnectButton store={data.id} user={user.uid}></StripeConnectButton>
@@ -1220,7 +1272,9 @@ const Account = () => {
 
                                 :
                                 <>
-                                  <div style={{ display: 'flex' }}>
+                                  <div className='mb-1'>Online Payment Options:</div>
+
+                                  <div className='mb-1' style={{ display: 'flex' }}>
 
                                     <img className='mr-2'
                                       src={myImage}  // Use the imported image here
@@ -1230,9 +1284,11 @@ const Account = () => {
                                         height: '30px',
                                       }}
                                     />
-                                    You already connect with Stripe to receive payment!
+                                    You already connect with Stripe to receive online payment!
                                   </div>
+                                  <div className='mb-1'>In Store Payment Options:</div>
 
+                                  <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Register POS Machine </button>
                                 </>
                               }
                             </div>

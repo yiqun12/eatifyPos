@@ -18,6 +18,7 @@ import { useUserContext } from "../context/userContext";
 function Iframe({ src, width, height, storeName }) {
     const iframeRef = useRef();
     console.log(storeName)
+    
     useEffect(() => {
         // existing fetchHtml logic...
       
@@ -64,7 +65,9 @@ function App({ store }) {
             sessionData = docSnapshot.data().key;
             const { key, ...rest } = docSnapshot.data();
             localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
-    
+            console.log("rest")
+            console.log(rest.restaurant_seat_arrangement)
+            localStorage.setItem(store+'_restaurant_seat_arrangement',rest.restaurant_seat_arrangement)
           } else {
             console.log("No document found with the given ID.");
           }
@@ -307,10 +310,10 @@ function App({ store }) {
     const handleFormSubmit = async (store) => {
 
         const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
-        console.log(JSON.parse(sessionStorage.getItem(store+"_restaurant_seat_arrangement")))
+        console.log(JSON.parse(localStorage.getItem(store+"_restaurant_seat_arrangement")))
         // Update the 'key' field to the value retrieved from localStorage
         await updateDoc(docRef, {
-            restaurant_seat_arrangement: sessionStorage.getItem(store+"_restaurant_seat_arrangement")
+            restaurant_seat_arrangement: localStorage.getItem(store+"_restaurant_seat_arrangement")
     
         });
         alert("Updated Successful");

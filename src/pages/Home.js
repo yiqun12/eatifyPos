@@ -63,8 +63,7 @@ const Account = () => {
     				<h1 style = {{"font-size": "40px", "font-weight":"600", "margin-bottom": "2rem"}}>About YumCha</h1>
     				<p style = {{"color: #525252; line-height": "1.5"}}>{t("By leveraging advanced AI technologies from Google, we allow you to set up your bilingual image-integrated scan-to-order tools in less than 5 minutes. With multilingual support and instant bilingual receipt printing, Eatifydash effectively mitigates language barriers. We provide the most popular payment options: WeChat Pay, AliPay, Visa, Mastercard, Amex, Apple Pay, and Google Pay. We help you bypass 20% commision fees from  Uber and DoorDash.")}</p>
     				 <p style = {{"color": "#525252", "border-top": "0.5px solid #919191", "padding-top": "2%"}}>Available @ NY & SF</p>
-    				 <button className='button_demo' href ="" style={{"margin-top":"5%"}} onClick={() => window.location.href = "/DemoCreateStore"}
-             >Set it up in less than 5 minute</button>
+    				 <button className='button_demo' href ="" style={{"margin-top":"5%"}} onClick={() => window.location.href = "/account"}>Set it up in less than 5 minute</button>
     			</div>
 
     			<div class = "grid-item" style = {{"text-align": "center",  "padding": "5%"}}>

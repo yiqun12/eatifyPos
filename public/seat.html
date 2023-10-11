@@ -183,7 +183,7 @@
       console.log(board)
 
       // this is where you save the board to an external js
-      window.sessionStorage.setItem(store, JSON.stringify(board));
+      window.localStorage.setItem(store, JSON.stringify(board));
       // external_board = board
     }
 
@@ -193,7 +193,7 @@
       clearBoard()
       // this is where you read external (previously saved board data and load it in)
 
-      let arrangement = JSON.parse(window.sessionStorage.getItem(store))
+      let arrangement = JSON.parse(window.localStorage.getItem(store))
 
       addDefaultObjects(arrangement)
     }
@@ -208,6 +208,7 @@
       }
       resizeCanvas()
       initCanvas()
+      //saveBoard()
     }
 
     // document.addEventListener("DOMContentLoaded", function () {
