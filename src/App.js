@@ -50,7 +50,7 @@ import ChangeTimeForm from "./pages/ChangeTimeForm"
 // import the terminal page
 
 import PaymentComponent from "./pages/PaymentComponent";
-//import PaymentComponent2 from "./pages/PaymentCompo2";
+import PaymentComponent2 from "./pages/PaymentComponent2";
 
 import BusinessHoursTestPage from "./pages/BusinessHoursTestPage.js";
 
@@ -145,7 +145,8 @@ function App() {
               <Route exact path="/testing_admin" element={<Account_admin />} />
               <Route exact path="/testing_food" element={<Food_testing />} />
 
-              <Route exact path="/terminal_page" element={<PaymentComponent />} />
+              <Route exact path="/terminal_page" element={<PaymentComponent connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"}  />} />
+              <Route exact path="/terminal_page2" element={<PaymentComponent2  connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} readerId ={'tmr_FSGYlA9Yp9jI49'} locationId={"tml_FSGYlAlhHg7wbr"} />} />
 
               <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage />} />
 

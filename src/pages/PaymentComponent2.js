@@ -1,13 +1,13 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const PaymentComponent = ({connected_stripe_account_id} ) => {
-  const country ='US'
+const PaymentComponent = ({connected_stripe_account_id, readerId, locationId}) => {
+
   // the three variables we keep track of for payment
   // TODO: Save these two values to somewhere so no need to
   var locationId;
   var readerId;
-  //var connected_stripe_account_id;
+  var connected_stripe_account_id;
 
   var paymentIntentId;
 
@@ -19,18 +19,18 @@ const PaymentComponent = ({connected_stripe_account_id} ) => {
   async function createLocation(payloadLocation) {
     try {
     const formattedPayload = {
-      connected_stripe_account_id: connected_stripe_account_id,
+      connected_stripe_account_id: payloadLocation.stripeID,
       display_name: payloadLocation.storeDetails.name,
       address: { 
         line1: payloadLocation.storeDetails.address.street,
         city: payloadLocation.storeDetails.address.city,
         state: payloadLocation.storeDetails.address.state,
-        country: country,
+        country: payloadLocation.storeDetails.address.country,
         postal_code: payloadLocation.storeDetails.address.zip,
       }
     };
 
-    connected_stripe_account_id = connected_stripe_account_id;
+    connected_stripe_account_id = payloadLocation.stripeID;
 
     const response = await fetch("http://localhost:4242/create_location", {
       method: "POST",
@@ -209,16 +209,17 @@ catch (error) {
     registerTerminalButton.disabled = true;
   
     try {
-      //const stripeID = document.getElementById("stripeID").value;
+      const stripeID = document.getElementById("stripeID").value;
       const nameOfStore = document.getElementById("nameOfStore").value;
       const streetAddress = document.getElementById("streetAddress").value;
       const cityName = document.getElementById("cityName").value;
       const state = document.getElementById("state").value;
+      const country = document.getElementById("country").value;
       const zipCode = document.getElementById("zipCode").value;
       const stripeTerminalRegistrationCode = document.getElementById("stripeTerminalRegistrationCode").value.trim();
   
       const payloadLocation = {
-        stripeID: connected_stripe_account_id,
+        stripeID: stripeID,
         storeDetails: {
           name: nameOfStore,
           address: {
@@ -237,7 +238,7 @@ catch (error) {
   
       const payloadReader = {
         terminalRegistrationCode: stripeTerminalRegistrationCode,
-        connected_stripe_account_id: connected_stripe_account_id
+        connected_stripe_account_id: stripeID
       }
 
       // if registration code is simulated-wpe, its not live mode
@@ -308,56 +309,27 @@ catch (error) {
   return (
     <div className="container-fluid h-100">
       <div className="row h-100">
-        <div className="col-sm-6 offset h-100">
-          {/* bootstrap input fields */}
-          <div className="form-group">
-          <input
-              type="text"
-              className="form-control"
-              id="nameOfStore"
-              placeholder="store name"
-            />
-            <label htmlFor="streetAddress">Street Address:</label>
-            <input
-              type="text"
-              className="form-control"
-              id="streetAddress"
-              placeholder="street sddress"
-            />
-            <input
-              type="text"
-              className="form-control"
-              id="cityName"
-              placeholder="city name"
-            />
-            <input
-              type="text"
-              className="form-control"
-              id="state"
-              placeholder="state"
-            />
-            <input
-              type="text"
-              className="form-control"
-              id="zipCode"
-              placeholder="zip code"
-            />
+        <div className="col-sm-6 offset h-100">        
+
+          <div class="row margin pad text">Enter an amount</div>
+          <div class="row pad">
+            <div class="">
+              <input id="amount-input" type="text"/> 
+            </div>
           </div>
 
-          <label>Stripe Terminal Registration code:</label>
-            <input
-              type="text"
-              className="form-control"
-              id="stripeTerminalRegistrationCode"
-              placeholder="simulated-wpe"
-            />
-
-          <div className="row margin pad">
-
-            <button className="btn btn-primary" id="register-terminal-button" onClick={registerTerminal}>
-              Register the terminal
+          <div class="row margin pad">
+            <button id="create-payment-button" className="btn btn-primary" style={{marginBottom: "10px"}} onClick={makePayment}>
+              Process Payment
             </button>
           </div>
+
+          <div class="row margin pad">
+            <button id="cancel-payment-button" className="btn btn-primary" onClick={cancelPayment}>
+              Cancel payment
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
