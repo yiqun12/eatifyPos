@@ -127,7 +127,7 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id }
     createPaymentButton.disabled = true;
 
     try {
-      let amount = chargeAmount;
+      let amount = chargeAmount*100;
 
       const paymentIntent = await createPaymentIntent(amount);
       console.log("payment intent: ", paymentIntent);
@@ -206,7 +206,7 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id }
   return (
     <div className="container-fluid h-100">
       <div className="row h-100">
-        <div className="col-sm-6 offset h-100">
+        <div className="offset h-100">
           {items.length === 0 ?
             <></>
             :
@@ -234,7 +234,7 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id }
               </div>
               <div class="mt-2 row margin pad">
                 <button id="create-payment-button" className="btn btn-primary" onClick={makePayment}>
-                  Process Payment
+                  Process Payment {chargeAmount}
                 </button>
               </div>
 

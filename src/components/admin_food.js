@@ -275,11 +275,11 @@ const Food = ({ store }) => {
         localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
         //alert("refreshed successfully")
         localStorage.setItem(store, sessionData);
-        setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
         setData(JSON.parse(sessionData)); // Update state
         setFoods(JSON.parse(sessionData))
-        setArr(JSON.parse(sessionData));
         saveId(Math.random());
+        setArr(JSON.parse(sessionData));
+        setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
 
       } else {
         console.log("No document found with the given ID.");
@@ -589,7 +589,7 @@ const Food = ({ store }) => {
   useEffect(() => {
     //console.log("hellooooooooooooooooooooo")
     syncData();
-    //syncData();
+    syncData();
   }, []);
   return (
 
@@ -618,7 +618,7 @@ const Food = ({ store }) => {
       </div>
       <div onClick={() => {
         syncData();
-        //syncData();
+        syncData();
       }}
         className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-neutral">
 

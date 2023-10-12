@@ -32,8 +32,9 @@ import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase
 import { db } from '../firebase/index';
 import cartImage from './shopcart.png';
 import "./inStore_shop_cart.css";
+import PaymentComponent2 from "../pages/PaymentComponent2";
 
-const Navbar = ({ store, selectedTable }) => {
+const Navbar = ({ store, selectedTable,acct }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   /**listen to localtsorage */
 
@@ -57,8 +58,10 @@ const Navbar = ({ store, selectedTable }) => {
       window.removeEventListener('resize', handleWindowSizeChange);
     }
   }, []);
+  const [tips, setTips] = useState('');
 
   const [totalPrice, setTotalPrice] = useState(0);
+  const [finalPrice, setFinalPrice] = useState(0);
 
   const [totalQuant, setTotalQuant] = useState(0);
   //console.log(totalQuant)
@@ -73,11 +76,13 @@ const Navbar = ({ store, selectedTable }) => {
       const total = (Array.isArray(products) ? products : []).reduce((acc, item) => item && item.itemTotalPrice ? acc + item.itemTotalPrice : acc, 0);
       console.log(total)
       setTotalPrice(total);
+      setFinalPrice((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))) / 100))
+      console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))) / 100))
     }
     calculateTotalPrice();;
     localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
 
-  }, [products, width]);
+  }, [products, width,tips]);
 
 
   const handleDeleteClick = (productId, count) => {
@@ -160,9 +165,8 @@ const Navbar = ({ store, selectedTable }) => {
 
 
   // handling the add tips logic + modal
-  const [tips, setTips] = useState('');
 
-    // Add a new state for the modal
+  // Add a new state for the modal
   const [isTipsModalOpen, setTipsModalOpen] = useState(false);
 
   const [selectedTipPercentage, setSelectedTipPercentage] = useState(null);
@@ -171,36 +175,70 @@ const Navbar = ({ store, selectedTable }) => {
 
   // Create a function to open the modal
   const handleAddTipClick = () => {
-      setTipsModalOpen(true);
+    setTipsModalOpen(true);
   };
 
   const handleCancelTip = () => {
     setTips("");  // reset the tips value
+    
     setSelectedTipPercentage("");
     setTipsModalOpen(false);  // close the modal
-};
+  };
 
-const handlePercentageTip = (percentage) => {
-      // If the value is less than 0, set it to 0 (or any other default value)
-      if (percentage < 0) {
-        percentage = 0;
+  const handlePercentageTip = (percentage) => {
+    // If the value is less than 0, set it to 0 (or any other default value)
+    if (percentage < 0) {
+      percentage = 0;
     }
-  const calculatedTip = totalPrice * percentage;
-  setTips(calculatedTip.toFixed(2)); // This will keep the tip value to two decimal places
-  setSelectedTipPercentage(percentage);
-}
+    const calculatedTip = totalPrice * percentage;
+    setTips(calculatedTip.toFixed(2)); // This will keep the tip value to two decimal places
+    setSelectedTipPercentage(percentage);
+  }
 
-const handleCustomPercentageChange = (e) => {
-  let value = e.target.value;
-      // If the value is less than 0, set it to 0 (or any other default value)
-      if (value < 0) {
-        value = 0;
+  const handleCustomPercentageChange = (e) => {
+    let value = e.target.value;
+    // If the value is less than 0, set it to 0 (or any other default value)
+    if (value < 0) {
+      value = 0;
     }
-  setCustomPercentage(value);
-  const calculatedTip = totalPrice * (Number(value) / 100);
-  setTips(calculatedTip.toFixed(2));
-  setSelectedTipPercentage(null);
-}
+    setCustomPercentage(value);
+    const calculatedTip = totalPrice * (Number(value) / 100);
+    setTips(calculatedTip.toFixed(2));
+    setSelectedTipPercentage(null);
+  }
+
+  const [isMyModalVisible, setMyModalVisible] = useState(false);
+
+  const myStyles = {
+      overlayStyle: {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: isMyModalVisible ? 'flex' : 'none',
+          justifyContent: 'center',
+          alignItems: 'center',
+      },
+      modalStyle: {
+          backgroundColor: '#fff',
+          padding: '20px',
+          borderRadius: '4px',
+          width: '80%',
+          position: 'relative',
+      },
+      closeBtnStyle: {
+          position: 'absolute',
+          right: '10px',
+          top: '10px',
+          background: 'none',
+          border: 'none',
+          fontSize: '24px',
+          cursor: 'pointer',
+      }
+  };
+
   return (
 
     <>
@@ -216,9 +254,9 @@ const handleCustomPercentageChange = (e) => {
               {totalPrice === 0 ?
                 <div>
                   <div style={{ marginTop: "15px" }}>
-                    {selectedTable===null?
-                    <span>No table is selected</span>:
-                    <span>&nbsp;{`Table ${selectedTable} is empty.`}</span>
+                    {selectedTable === null ?
+                      <span>No table is selected</span> :
+                      <span>&nbsp;{`Table ${selectedTable} is empty.`}</span>
 
                     }
                   </div>
@@ -235,7 +273,7 @@ const handleCustomPercentageChange = (e) => {
             </div>
           </div>
           <div className="flex flex-col flex-row">
-            <div className='flex flex-col w-2/3' style={width > 575 ? { overflowY: "auto", maxHeight: "500px" } : { overflowY: "auto", maxHeight: "500px"}}>
+            <div className='flex flex-col w-2/3' style={width > 575 ? { overflowY: "auto", maxHeight: "500px" } : { overflowY: "auto", maxHeight: "500px" }}>
 
               {/* generates each food entry */}
               {(Array.isArray(products) ? products : []).map((product) => (
@@ -324,159 +362,167 @@ const handleCustomPercentageChange = (e) => {
 
             </div>
             <div className="flex flex-col w-1/3">
-                    {/* the modal for tips */}
-                    {isTipsModalOpen && (
-    <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-        <div className="modal-dialog" role="document">
-            <div className="modal-content">
-                <div className="modal-header">
-                    <h5 className="modal-title">Add Tip</h5>
-                </div>
-                <div className="modal-body">
-                    <div className="row mb-3">
-                    <button 
-    type="button" 
-    className={`btn col ${selectedTipPercentage === 0.15 ? 'btn-primary' : 'btn-outline-primary'}`} 
-    onClick={() => handlePercentageTip(0.15)}
->
-    15%
-</button>
+              {/* the modal for tips */}
+              {isTipsModalOpen && (
+                <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                  <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <h5 className="modal-title">Add Tip</h5>
+                      </div>
+                      <div className="modal-body">
+                        <div className="row mb-3">
+                          <button
+                            type="button"
+                            className={`btn col ${selectedTipPercentage === 0.15 ? 'btn-primary' : 'btn-outline-primary'}`}
+                            onClick={() => handlePercentageTip(0.15)}
+                          >
+                            15%
+                          </button>
 
-<button 
-    type="button" 
-    className={`btn col ${selectedTipPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`} 
-    onClick={() => handlePercentageTip(0.20)}
->
-    20%
-</button>
+                          <button
+                            type="button"
+                            className={`btn col ${selectedTipPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`}
+                            onClick={() => handlePercentageTip(0.20)}
+                          >
+                            20%
+                          </button>
 
-<button 
-    type="button" 
-    className={`btn col ${selectedTipPercentage === 0.25 ? 'btn-primary' : 'btn-outline-primary'}`} 
-    onClick={() => handlePercentageTip(0.25)}
->
-    25%
-</button>
-<div className="col">
-    <input 
-        type="number" 
-        placeholder="%" 
-        min="0"  // Add this line
-        value={customPercentage} 
-        onChange={handleCustomPercentageChange} 
-        className="form-control tips-no-spinners"  // Added the 'no-spinners' class
-    />
-</div>
+                          <button
+                            type="button"
+                            className={`btn col ${selectedTipPercentage === 0.25 ? 'btn-primary' : 'btn-outline-primary'}`}
+                            onClick={() => handlePercentageTip(0.25)}
+                          >
+                            25%
+                          </button>
+                          <div className="col">
+                            <input
+                              type="number"
+                              placeholder="%"
+                              min="0"  // Add this line
+                              value={customPercentage}
+                              onChange={handleCustomPercentageChange}
+                              className="form-control tips-no-spinners"  // Added the 'no-spinners' class
+                            />
+                          </div>
+                        </div>
+                        <input
+                          type="number"
+                          min="0"  // Add this line
+                          placeholder="Enter tip amount"
+                          value={tips}
+                          className="form-control tips-no-spinners"  // Added the 'no-spinners' class
+                          onChange={(e) => {
+                            let value = e.target.value;
+                            if (value < 0) {
+                              value = 0;
+                            }
+                            setTips(value);
+                            setSelectedTipPercentage(null);
+                          }}
+                          onFocus={() => setSelectedTipPercentage(null)}
+                        />
+                      </div>
+                      <div className="modal-footer">
+                        <button type="button" className="btn btn-secondary" onClick={() => handleCancelTip()}>Cancel</button>
+                        <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>Add Tip</button>
+                      </div>
                     </div>
-                    <input 
-    type="number" 
-    min="0"  // Add this line
-    placeholder="Enter tip amount" 
-    value={tips} 
-    className="form-control tips-no-spinners"  // Added the 'no-spinners' class
-    onChange={(e) => { 
-      let value = e.target.value;
-      if (value < 0) {
-          value = 0;
-      }
-      setTips(value); 
-      setSelectedTipPercentage(null);
-  }} 
-    onFocus={() => setSelectedTipPercentage(null)}
-/>
+                  </div>
                 </div>
-                <div className="modal-footer">
-                    <button type="button" className="btn btn-secondary" onClick={() => handleCancelTip()}>Cancel</button>
-                    <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>Add Tip</button>
+              )}
+
+              <a
+                onClick={handleAddTipClick}
+                class="mt-3 btn btn-sm btn-primary mx-1"
+                style={{ backgroundColor: "#4CAF50" }}> {/* Green for Add tip */}
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faGift} /> &nbsp;
+                </span>
+                <span >{t("Add tip")}{" "}</span>
+              </a>
+
+              <a
+                onClick={() => setMyModalVisible(true)}
+                class="mt-3 btn btn-sm btn-primary mx-1"
+                style={{ backgroundColor: "#2196F3" }}> {/* Blue for Card Pay */}
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                </span>
+                <span>{t("Card Pay")}{" "}</span>
+              </a>
+        <div className="MyApp">
+
+            <div style={myStyles.overlayStyle}>
+                <div style={myStyles.modalStyle}>
+                    <button style={myStyles.closeBtnStyle} onClick={() => setMyModalVisible(false)}>X</button>
+                    <PaymentComponent2  storeID = {store} chargeAmount={finalPrice}  connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />
                 </div>
             </div>
         </div>
-    </div>
-)}
-
-<a
-  onClick={handleAddTipClick}
-  class="mt-3 btn btn-sm btn-primary mx-1"
-  style={{backgroundColor: "#4CAF50"}}> {/* Green for Add tip */}
-    <span class=" pe-2">
-      <FontAwesomeIcon icon={faGift} /> &nbsp;
-    </span>
-    <span >{t("Add tip")}{" "}</span>
-</a>
-
-<a
-  onClick={(e) => { }}
-  class="mt-3 btn btn-sm btn-primary mx-1"
-  style={{backgroundColor: "#2196F3"}}> {/* Blue for Card Pay */}
-    <span class=" pe-2">
-      <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-    </span>
-    <span>{t("Card Pay")}{" "}</span>
-</a>
-
-<a
-  onClick={(e) => { }}
-  class="mt-3 btn btn-sm btn-primary mx-1"
-  style={{backgroundColor: "#2196F3"}}> {/* Blue for Cash Pay */}
-    <span class=" pe-2">
-      <FontAwesomeIcon icon={faMoneyBillWave} /> &nbsp;
-    </span>
-    <span>{t("Cash Pay")}{" "}</span>
-</a>
-
-<a
-  onClick={(e) => { }}
-  class="mt-3 btn btn-sm btn-primary mx-1"
-  style={{backgroundColor: "#FF9800"}}> {/* Orange for Split Payment */}
-    <span class=" pe-2">
-      <FontAwesomeIcon icon={faUsers} /> &nbsp;
-    </span>
-    <span>{t("Split Payment")}{" "}</span>
-</a>
-
-<a
-  onClick={(e) => { }}
-  class="mt-3 btn btn-sm btn-primary mx-1"
-  style={{backgroundColor: "#00695C"}}> {/* Teal for Customize Price */}
-    <span class=" pe-2">
-      <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;
-    </span>
-    <span>{t("Customize Price")}{" "}</span>
-</a>
-
-<a
-  onClick={(e) => { }}
-  class="mt-3 btn btn-sm btn-primary mx-1"
-  style={{backgroundColor: "#9C27B0"}}> {/* Purple for Send to Kitchen */}
-    <span class=" pe-2">
-      <FontAwesomeIcon icon={faArrowRight} /> &nbsp;
-    </span>
-    <span>{t("Send to kitchen")}{" "}</span>
-</a>
-
-<a
-  onClick={(e) => { }}
-  class="mt-3 btn btn-sm btn-primary mx-1"
-  style={{backgroundColor: "#9E9E9E"}}> {/* Gray for Print Receipt */}
-    <span class=" pe-2">
-      <FontAwesomeIcon icon={faPrint} /> &nbsp;
-    </span>
-    <span>{t("Print Receipt")}{" "}</span>
-</a>
-
-<a
-  onClick={(e) => { }}
-  class="mt-3 btn btn-sm btn-primary mx-1"
-  style={{backgroundColor: "#9E9E9E"}}> {/* Gray for Print Merchant Copy */}
-    <span class=" pe-2">
-      <FontAwesomeIcon icon={faPrint} /> &nbsp;
-    </span>
-    <span>{t("Print Merchant Copy")}{" "}</span>
-</a>
               <a
                 onClick={(e) => { }}
                 class="mt-3 btn btn-sm btn-primary mx-1"
-                  style={{backgroundColor: "#9E9E9E"}}> {/* Gray for Print Merchant Copy */}
+                style={{ backgroundColor: "#2196F3" }}> {/* Blue for Cash Pay */}
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faMoneyBillWave} /> &nbsp;
+                </span>
+                <span>{t("Cash Pay")}{" "}</span>
+              </a>
+
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1"
+                style={{ backgroundColor: "#FF9800" }}> {/* Orange for Split Payment */}
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faUsers} /> &nbsp;
+                </span>
+                <span>{t("Split Payment")}{" "}</span>
+              </a>
+
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1"
+                style={{ backgroundColor: "#00695C" }}> {/* Teal for Customize Price */}
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;
+                </span>
+                <span>{t("Customize Price")}{" "}</span>
+              </a>
+
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1"
+                style={{ backgroundColor: "#9C27B0" }}> {/* Purple for Send to Kitchen */}
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faArrowRight} /> &nbsp;
+                </span>
+                <span>{t("Send to kitchen")}{" "}</span>
+              </a>
+
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1"
+                style={{ backgroundColor: "#9E9E9E" }}> {/* Gray for Print Receipt */}
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faPrint} /> &nbsp;
+                </span>
+                <span>{t("Print Receipt")}{" "}</span>
+              </a>
+
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1"
+                style={{ backgroundColor: "#9E9E9E" }}> {/* Gray for Print Merchant Copy */}
+                <span class=" pe-2">
+                  <FontAwesomeIcon icon={faPrint} /> &nbsp;
+                </span>
+                <span>{t("Print Merchant Copy")}{" "}</span>
+              </a>
+              <a
+                onClick={(e) => { }}
+                class="mt-3 btn btn-sm btn-primary mx-1"
+                style={{ backgroundColor: "#9E9E9E" }}> {/* Gray for Print Merchant Copy */}
                 <span class=" pe-2">
                   <FontAwesomeIcon icon={faPrint} /> &nbsp;
                 </span>
@@ -485,36 +531,24 @@ const handleCustomPercentageChange = (e) => {
               <a
                 onClick={(e) => { }}
                 class="mt-3 btn btn-sm btn-primary mx-1"
-                style={{backgroundColor: "#F44336"}}> {/* Gray for Print Merchant Copy */}
+                style={{ backgroundColor: "#F44336" }}> {/* Gray for Print Merchant Copy */}
 
                 <span class=" pe-2">
-                  <FontAwesomeIcon icon={faTimes}/> &nbsp;
+                  <FontAwesomeIcon icon={faTimes} /> &nbsp;
                 </span>
                 <span>{t("Delete Order")}{" "}</span>
               </a>
               <br></br>
-              {totalPrice === 0 ?
-            <>
-               <div class="text-right notranslate">subtotal: ${Math.round(100 * totalPrice) / 100} </div>
+              <>
 
-               {tips && (
-                              <div class="text-right notranslate">tips: ${tips} </div>
-              )}
+                <div class="text-right notranslate">Subtotal: ${Math.round(100 * totalPrice) / 100} </div>
 
-              <div class="text-right notranslate">Total (+8.25%): ${Math.round(100 * totalPrice  * 1.0825) / 100} </div>
-            </>
-            :
-            <>
-
-              <div class="text-right notranslate">subtotal: ${Math.round(100 * totalPrice) / 100} </div>
-              
-                            {tips && (
-                              <div class="text-right notranslate">tips: ${tips} </div>
-              )}
-
-              <div class="text-right notranslate">Total (+8.25% & Tips): ${(Math.round(100 * totalPrice  * 1.0825) / 100) + tips} </div>
-            </>
-          }
+                {tips && (
+                  <div class="text-right notranslate">Tips: ${tips} </div>
+                )}
+                <div class="text-right notranslate">Tax(8.25%): ${(Math.round(100 * totalPrice * 0.0825) / 100)}    </div>
+                <div class="text-right notranslate">Total: ${(Math.round(100 * (totalPrice * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))) / 100)} </div>
+              </>
             </div>
           </div>
 

@@ -990,7 +990,7 @@ const Account = () => {
                   </div>
 
 
-                  {/* <ul className={`nav nav-tabs mt-4 overflow-x border-0 ${isMobile ? 'd-flex justify-content-between' : ''}`}>
+                  <ul className={`nav nav-tabs mt-4 overflow-x border-0 ${isMobile ? 'd-flex justify-content-between' : ''}`}>
                     <li className={`nav-item p-0`}
                       onClick={(e) => {
                         handleTabClick(e, '#profile');
@@ -1099,7 +1099,7 @@ const Account = () => {
 
 
 
-                  </ul> */}
+                  </ul>
                 </div>
               </div>
             </header>
@@ -1161,7 +1161,7 @@ const Account = () => {
                           }
                           {showSection === 'qrCode' ? <>
 
-                            <IframeDesk store={data.id} ></IframeDesk>
+                            <IframeDesk store={data.id} acct={data.stripe_store_acct}></IframeDesk>
 
                             {/* <QRCode value={"google.com"} /> */}
                             <hr />
@@ -1287,7 +1287,7 @@ const Account = () => {
                                     You already connect with Stripe to receive online payment!
                                   </div>
 
-                                  <PaymentComponent storeDisplayName = {data?.Name} storeID = {data?.id} connected_stripe_account_id={data?.stripe_store_acct}  />
+                                  <PaymentComponent storeDisplayName={data?.Name} storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
                                 </>
                               }
                             </div>
@@ -1303,7 +1303,7 @@ const Account = () => {
 
 
                           {showSection === 'sales' ? <>
-                            <div className={isMobile ? "flex" : 'flex'}>
+                            <div className="flex mt-3">
                               <div style={isMobile ? { width: "50%" } : { width: "50%" }}>
                                 <h6 x="20" y="30" fill="#000" style={{ 'fontSize': '17px' }}>
                                   Revenue : $
@@ -1353,56 +1353,37 @@ const Account = () => {
                                 />
 
                                 <div>
-                                  <button
-                                    className="mt-2 btn"
-                                    style={{ "border": "2px solid #cc9966" }}
-                                    onClick={() => setSelectedDate(new Date(dateNow))}                                >
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                      <img
-                                        className='m-0 scale-150'
-                                        style={{ height: '30px' }}
-                                        src={file_icon}
-                                        alt="Description"
-                                      /> {"\u00A0List Today Orders"}
-                                    </div>
-                                  </button>
+                                  <a
+                                    onClick={() => setSelectedDate(new Date(dateNow))}
+                                    class="btn d-inline-flex btn-sm btn-primary mx-1 mb-2">
+                                    <span class=" pe-2">
+                                      <i class="bi bi-house"></i>
+                                    </span>
+                                    <span>{"\u00A0List Today Orders"}</span>
+                                  </a>
                                 </div>
 
                                 <div>
-                                  <button
-                                    className="mt-2 btn"
-                                    style={{ "border": "2px solid #cc9966" }}
-
+                                  <a
                                     onClick={() => setSelectedDate(null)}
-                                  >
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                      <img
-                                        className='m-0 scale-150'
-                                        style={{ height: '30px' }}
-                                        src={files_icon}
-                                        alt="Description"
-                                      />{"\u00A0List All Orders"}
-                                    </div>
-                                  </button>
+                                    class="btn d-inline-flex btn-sm btn-secondary mx-1 mb-2">
+                                    <span class=" pe-2">
+                                      <i class="bi bi-house"></i>
+                                    </span>
+                                    <span>{"\u00A0List All Orders"}</span>
+                                  </a>
                                 </div>
 
-                                <div>
-                                  <button
-                                    className="mt-2 btn"
-                                    style={{ "border": "2px solid #cc9966" }}
 
+                                <div>
+                                  <a
                                     onClick={() => setShowChart(!showChart)}
-                                  >
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                      <img
-                                        className='m-0 scale-150'
-                                        style={{ height: '30px' }}
-                                        src={barchar_logo}
-                                        alt="Description"
-                                      />
-                                      {!showChart ? '\u00A0Show Chart' : '\u00A0Hide Chart'}
-                                    </div>
-                                  </button>
+                                    class="btn d-inline-flex btn-sm btn-info mx-1 mb-2">
+                                    <span class=" pe-2">
+                                      <i class="bi bi-house"></i>
+                                    </span>
+                                    <span> {!showChart ? '\u00A0Show Chart' : '\u00A0Hide Chart'}</span>
+                                  </a>
                                 </div>
 
                               </div>

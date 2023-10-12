@@ -46,7 +46,7 @@ function Iframe({ src, width, height, storeName }) {
     return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
 }
 
-function App({ store }) {
+function App({ store,acct }) {
 
     const syncData = async () => {
         console.log("sync data")
@@ -364,7 +364,7 @@ function App({ store }) {
                                 <div className="task-wrap" style={{ minHeight: '800px', overflowY: 'scroll' }}>
                                     <div style={{ display: "flex", alignItems: "center" }}>
                                         <div>
-                                            <InStore_shop_cart store={store} selectedTable={selectedTable}  ></InStore_shop_cart>
+                                            <InStore_shop_cart store={store} acct={acct} selectedTable={selectedTable}  ></InStore_shop_cart>
                                             <hr />
                                         </div>
                                     </div>
