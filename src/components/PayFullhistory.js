@@ -85,7 +85,7 @@ function PayFullhistory() {
             .format("M/D/YYYY h:mma");
           const newItem = {
             store: payment.store,
-            id: item.id, // use only the first 4 characters of item.id as the value for the id property
+            id: item.id.substring(0, 4), // use only the first 4 characters of item.id as the value for the id property
             receiptData: item.receiptData,
             date: formattedDate,
             email: item.user_email,
@@ -93,7 +93,7 @@ function PayFullhistory() {
             status: item.status === "succeeded" ? "Paid Online" : "Instore Payment",
             total: parseFloat(item.metadata.total),
             tableNum: item.tableNum,
-            metadata: item.metadata
+            metadata: item.metadata,
           };
           newItems.push(newItem); // Push the new item into the array
         });

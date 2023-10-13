@@ -50,7 +50,7 @@ const Item = () => {
             
             const paymentData = {
               receipt_data: payment.receiptData,
-              document_id: doc.id,
+              document_id: doc.id.substring(0, 4),
               time: payment.dateTime,
               email: payment.user_email,
               status: payment.status === "succeeded" ? "Paid Online" : "Instore Payment",
@@ -59,7 +59,6 @@ const Item = () => {
               tips: payment.metadata.tips,
               subtotal: payment.metadata.subtotal,
               total: payment.metadata.total,
-              phoneNumber:payment.phoneNumber ? payment.phoneNumber : '',
               store:payment.store,
               tableNum:payment.tableNum
             };
@@ -118,11 +117,6 @@ const Item = () => {
 
         <b className="block text-black text-sm">{t("Order ID")}: {payment_data.document_id.substring(0, 3)}</b>
 
-        {payment_data.status === "Instore Payment" && (
-  <>
-        <span className="block text-black text-sm">{t("Phone#")}: {payment_data.phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}</span>
-  </>
-)}
         <span className="block text-black text-sm">{  moment(payment_data.time, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-8).format("MMMM D, YYYY h:mm a")}</span>
 
 

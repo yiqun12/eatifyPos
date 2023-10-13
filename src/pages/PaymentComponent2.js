@@ -4,7 +4,7 @@ import { useUserContext } from "../context/userContext";
 import { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 
-const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id }) => {
+const PaymentComponent = ({ selectedTable,storeID, chargeAmount, connected_stripe_account_id }) => {
 
   // the three variables we keep track of for payment
   var paymentIntentId;
@@ -20,12 +20,15 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id }
 
   var simulation_mode;
 
-  async function createPaymentIntent(amount) {
+  async function createPaymentIntent(amount,receipt_JSON) {
+    console.log("createPaymentIntent")
+
     try {
       const response = await fetch("http://localhost:4242/create_payment_intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: amount, connected_stripe_account_id: connected_stripe_account_id }),
+        body: JSON.stringify({ amount: amount, connected_stripe_account_id: connected_stripe_account_id,receipt_JSON:receipt_JSON,storeID:storeID,selectedTable:selectedTable,uid:user.uid, 
+          user_email: user.email,}),
       });
 
       if (!response.ok) {
@@ -44,6 +47,7 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id }
   }
 
   async function processPayment() {
+    console.log("processPayment")
     try {
       const response = await fetch("http://localhost:4242/process_payment", {
         method: "POST",
@@ -71,6 +75,7 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id }
   }
 
   async function simulatePayment() {
+    console.log("simulatePayment")
     try {
       const response = await fetch("http://localhost:4242/simulate_payment", {
         method: "POST",
@@ -98,6 +103,7 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id }
 
 
   async function cancel() {
+    console.log("cancel")
     try {
       const response = await fetch("http://localhost:4242/cancel_action", {
         method: "POST",
@@ -122,14 +128,16 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id }
 
 
   async function makePayment() {
+    console.log("makePayment")
     const createPaymentButton = document.getElementById("create-payment-button");
     createPaymentButton.className = "loading";
     createPaymentButton.disabled = true;
-
+    console.log("make payment")
+    console.log(localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
     try {
       let amount = chargeAmount*100;
 
-      const paymentIntent = await createPaymentIntent(amount);
+      const paymentIntent = await createPaymentIntent(amount,localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]");
       console.log("payment intent: ", paymentIntent);
       paymentIntentId = paymentIntent["id"]
 
@@ -154,6 +162,7 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id }
   }
 
   async function cancelPayment() {
+    
     const cancelPaymentButton = document.getElementById("cancel-payment-button");
     cancelPaymentButton.className = "loading";
     cancelPaymentButton.disabled = true;
@@ -245,10 +254,6 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id }
               </div>
             </>
           }
-
-
-
-
         </div>
       </div>
     </div>

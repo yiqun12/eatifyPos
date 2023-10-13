@@ -456,7 +456,7 @@ const Navbar = ({ store, selectedTable,acct }) => {
             <div style={myStyles.overlayStyle}>
                 <div style={myStyles.modalStyle}>
                     <button style={myStyles.closeBtnStyle} onClick={() => setMyModalVisible(false)}>X</button>
-                    <PaymentComponent2  storeID = {store} chargeAmount={finalPrice}  connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />
+                    <PaymentComponent2 selectedTable = {selectedTable} storeID = {store} chargeAmount={finalPrice}  connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />
                 </div>
             </div>
         </div>

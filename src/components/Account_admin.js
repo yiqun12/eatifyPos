@@ -177,7 +177,7 @@ const Account = () => {
             .subtract(4, "hours")
             .format("M/D/YYYY h:mma");
           const newItem = {
-            id: item.id.substring(0, 5), // use only the first 4 characters of item.id as the value for the id property
+            id: item.id.substring(0, 4), // use only the first 4 characters of item.id as the value for the id property
             receiptData: item.receiptData,
             date: formattedDate,
             email: item.user_email,

@@ -92,6 +92,7 @@ function Checkout(props) {
       receipt: sessionStorage.getItem(store),
       dateTime: date,
       user_email: user.email,
+      uid:user.uid,
       isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
       tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
     };
@@ -159,6 +160,7 @@ function Checkout(props) {
         receipt: sessionStorage.getItem(store),
         dateTime: date,
         user_email: user.email,
+        uid:user.uid,
         isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
         tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
       };
@@ -330,6 +332,7 @@ function Checkout(props) {
             receipt: sessionStorage.getItem(store),
             dateTime: date,
             user_email: user.email,
+            uid:user.uid,
             isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
             tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
           };
@@ -608,6 +611,7 @@ function CardSection(props) {
       receipt: sessionStorage.getItem(store),
       dateTime: date,
       user_email: user.email,
+      uid:user.uid,
       isDinein: sessionStorage.getItem('isDinein') === 'true' ? 'DineIn' : 'TakeOut',
       saveCard: saveCard, // Include the saveCard value in the data
       tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
@@ -813,6 +817,7 @@ function PayHistory(props) {
       receipt: sessionStorage.getItem(store),
       dateTime: date,
       user_email: user.email,
+      uid:user.uid,
       isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
       tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
     };
@@ -849,6 +854,7 @@ function PayHistory(props) {
       payment = paymentIntent;
       payment['receiptData'] = sessionStorage.getItem(store);
       payment['user_email'] = user.email;
+      payment['uid'] = user.uid
     }
 
     await firebase
@@ -898,6 +904,7 @@ function PayHistory(props) {
       payment = paymentIntent;
       payment['receiptData'] = sessionStorage.getItem(store);
       payment['user_email'] = user.email;
+      payment['uid'] = user.uid;
     }
     //send to db
     await firebase
@@ -1042,6 +1049,7 @@ function PayHistory(props) {
         payment = paymentIntent;
         payment['receiptData'] = sessionStorage.getItem(store);
         payment['user_email'] = user.email;
+        payment['uid'] = user.uid;
       }
 
       const docId = sessionStorage.getItem('docid');
