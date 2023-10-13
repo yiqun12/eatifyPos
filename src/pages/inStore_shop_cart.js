@@ -59,6 +59,7 @@ const Navbar = ({ store, selectedTable,acct }) => {
     }
   }, []);
   const [tips, setTips] = useState('');
+  const [discount, setDiscount] = useState('');
 
   const [totalPrice, setTotalPrice] = useState(0);
   const [finalPrice, setFinalPrice] = useState(0);
@@ -76,13 +77,13 @@ const Navbar = ({ store, selectedTable,acct }) => {
       const total = (Array.isArray(products) ? products : []).reduce((acc, item) => item && item.itemTotalPrice ? acc + item.itemTotalPrice : acc, 0);
       console.log(total)
       setTotalPrice(total);
-      setFinalPrice((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))) / 100))
-      console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))) / 100))
+      setFinalPrice((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
+      console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
     }
     calculateTotalPrice();;
     localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
 
-  }, [products, width,tips]);
+  }, [products, width,tips, discount]);
 
 
   const handleDeleteClick = (productId, count) => {
@@ -206,6 +207,48 @@ const Navbar = ({ store, selectedTable,acct }) => {
     setTips(calculatedTip.toFixed(2));
     setSelectedTipPercentage(null);
   }
+
+  // the modal and logic for discounts
+  // const [discount, setDiscount] = useState('');  //declared ontop
+  const [isDiscountModalOpen, setDiscountModalOpen] = useState(false);
+  const [selectedDiscountPercentage, setSelectedDiscountPercentage] = useState(null);
+  const [customDiscountPercentage, setCustomDiscountPercentage] = useState("");
+
+  const handleAddDiscountClick = () => {
+    setDiscountModalOpen(true);
+  };
+
+  const handleCancelDiscount = () => {
+      setDiscount('');  // reset the discount value
+      setDiscountModalOpen(false);  // close the modal
+  };
+
+  const applyDiscount = (value) => {
+      if (value < 0) {
+          value = 0;
+      }
+      setDiscount(value);
+  };
+
+  const handleDiscountPercentage = (percentage) => {
+    if (percentage < 0) {
+        percentage = 0;
+    }
+    const calculatedDiscount = totalPrice * percentage;
+    setDiscount(calculatedDiscount.toFixed(2));
+    setSelectedDiscountPercentage(percentage);
+}
+
+const handleCustomDiscountPercentageChange = (e) => {
+    let value = e.target.value;
+    if (value < 0) {
+        value = 0;
+    }
+    setCustomDiscountPercentage(value);
+    const calculatedDiscount = totalPrice * (Number(value) / 100);
+    setDiscount(calculatedDiscount.toFixed(2));
+    setSelectedDiscountPercentage(null);
+}
 
   const [isMyModalVisible, setMyModalVisible] = useState(false);
 
@@ -432,6 +475,74 @@ const Navbar = ({ store, selectedTable,acct }) => {
                 </div>
               )}
 
+{isDiscountModalOpen && (
+    <div id="addDiscountModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+        <div className="modal-dialog" role="document">
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h5 className="modal-title">Add Discount</h5>
+                </div>
+                <div className="modal-body">
+        <div className="row mb-3">
+            {/* Percentage options */}
+            <button
+                type="button"
+                className={`btn col ${selectedDiscountPercentage === 0.10 ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => handleDiscountPercentage(0.10)}
+            >
+                10%
+            </button>
+            <button
+                type="button"
+                className={`btn col ${selectedDiscountPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => handleDiscountPercentage(0.20)}
+            >
+                20%
+            </button>
+            <button
+                type="button"
+                className={`btn col ${selectedDiscountPercentage === 0.30 ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => handleDiscountPercentage(0.30)}
+            >
+                30%
+            </button>
+            <div className="col">
+                <input
+                    type="number"
+                    placeholder="%"
+                    min="0"
+                    value={customDiscountPercentage}
+                    onChange={handleCustomDiscountPercentageChange}
+                    className="form-control"
+                />
+            </div>
+        </div>
+        {/* Discount amount input */}
+        <input
+            type="number"
+            min="0"
+            placeholder="Enter discount amount"
+            value={discount}
+            className="form-control"
+            onChange={(e) => {
+                let value = parseFloat(e.target.value);
+                if (value < 0 || isNaN(value)) {
+                    value = 0;
+                }
+                applyDiscount(value);
+                setSelectedDiscountPercentage(null);
+            }}
+        />
+    </div>
+                <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary" onClick={handleCancelDiscount}>Cancel</button>
+                    <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>Apply Discount</button>
+                </div>
+            </div>
+        </div>
+    </div>
+)}
+
               <a
                 onClick={handleAddTipClick}
                 class="mt-3 btn btn-sm btn-primary mx-1"
@@ -440,6 +551,16 @@ const Navbar = ({ store, selectedTable,acct }) => {
                   <FontAwesomeIcon icon={faGift} /> &nbsp;
                 </span>
                 <span >{t("Add tip")}{" "}</span>
+              </a>
+
+              <a 
+                onClick={handleAddDiscountClick}
+                class="mt-3 btn btn-sm btn-primary mx-1"
+                style={{ backgroundColor: "#e57373" }}> {/* Red for Add Discount */}
+                <span class="pe-2">
+                    <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;
+                </span>
+                <span>{t("Add Discount")}</span>
               </a>
 
               <a
@@ -543,11 +664,15 @@ const Navbar = ({ store, selectedTable,acct }) => {
 
                 <div class="text-right notranslate">Subtotal: ${Math.round(100 * totalPrice) / 100} </div>
 
+                {discount && (
+                  <div class="text-right notranslate">Discount: -${discount} </div>
+                 )}
+
                 {tips && (
                   <div class="text-right notranslate">Tips: ${tips} </div>
                 )}
                 <div class="text-right notranslate">Tax(8.25%): ${(Math.round(100 * totalPrice * 0.0825) / 100)}    </div>
-                <div class="text-right notranslate">Total: ${(Math.round(100 * (totalPrice * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))) / 100)} </div>
+                <div class="text-right notranslate">Total: ${finalPrice} </div>
               </>
             </div>
           </div>
