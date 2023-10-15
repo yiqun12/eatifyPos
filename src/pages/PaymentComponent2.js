@@ -3,131 +3,88 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useUserContext } from "../context/userContext";
 import { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
+import myImage from '../components/check-mark.png';  // Import the image
 
-const PaymentComponent = ({ selectedTable,storeID, chargeAmount, connected_stripe_account_id }) => {
+const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received,setReceived, selectedTable,storeID, chargeAmount, connected_stripe_account_id,discount,service_fee }) => {
 
   // the three variables we keep track of for payment
   var paymentIntentId;
   const { user, user_loading } = useUserContext();
 
-  //  console.log(connected_stripe_account_id)
-  //  console.log(readerId)
-  //  console.log(locationId)
-
-  console.log()
-
-
-
   var simulation_mode;
 
-  async function createPaymentIntent(amount,receipt_JSON) {
-    console.log("createPaymentIntent")
+  async function createPaymentIntent(amount, receipt_JSON) {
+    console.log("createPaymentIntent");
 
     try {
-      const response = await fetch("http://localhost:4242/create_payment_intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: amount, connected_stripe_account_id: connected_stripe_account_id,receipt_JSON:receipt_JSON,storeID:storeID,selectedTable:selectedTable,uid:user.uid, 
-          user_email: user.email,}),
-      });
-
-      if (!response.ok) {
-        const responseData = await response.json();
-        throw new Error(responseData.error);
-      }
-
-      console.log("the response was okay");
-
-      return await response.json();
-    }
-    catch (error) {
-      console.error("There was an error with createPaymentIntent:", error.message);
-      throw error; // rethrow to handle it outside of the function or display to user
+        const createPaymentIntentFunction = firebase.functions().httpsCallable('createPaymentIntent');
+  
+        const response = await createPaymentIntentFunction({
+            amount: amount, 
+            connected_stripe_account_id: connected_stripe_account_id,
+            receipt_JSON: receipt_JSON,
+            storeID: storeID,
+            selectedTable: selectedTable,
+            uid: user.uid, 
+            user_email: user.email,
+            discount:discount,
+            service_fee:service_fee,
+        });
+  
+        console.log("the response was okay");
+        return response.data;
+  
+    } catch (error) {
+        console.error("There was an error with createPaymentIntent:", error.message);
+        throw error; // rethrow to handle it outside of the function or display to user
     }
   }
-
+  
   async function processPayment() {
-    console.log("processPayment")
+    console.log("processPayment");
+    
     try {
-      const response = await fetch("http://localhost:4242/process_payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          reader_id: items.find(item => item.id === selectedId).readerId,
-          payment_intent_id: paymentIntentId,
-          connected_stripe_account_id: connected_stripe_account_id
-        }),
-      });
+        const processPaymentFunction = firebase.functions().httpsCallable('processPayment');
 
-      if (!response.ok) {
-        const responseData = await response.json();
-        throw new Error(responseData.error);
-      }
+        const response = await processPaymentFunction({
+            reader_id: items.find(item => item.id === selectedId).readerId,
+            payment_intent_id: paymentIntentId,
+            connected_stripe_account_id: connected_stripe_account_id
+        });
 
-      console.log("the response was okay");
-
-      return await response.json();
+        console.log("the response was okay");
+        return response.data;
+    } catch (error) {
+        console.error("There was an error with processPayment:", error.message);
+        throw error; // rethrow to handle it outside of the function or display to user
     }
-    catch (error) {
-      console.error("There was an error with processPayment:", error.message);
-      throw error; // rethrow to handle it outside of the function or display to user
-    }
-  }
+}
 
-  async function simulatePayment() {
-    console.log("simulatePayment")
-    try {
-      const response = await fetch("http://localhost:4242/simulate_payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          reader_id: items.find(item => item.id === selectedId).readerId,
-          connected_stripe_account_id: connected_stripe_account_id
-        }),
-      });
-
-      if (!response.ok) {
-        const responseData = await response.json();
-        throw new Error(responseData.error);
-      }
-
-      console.log("the response was okay");
-
-      return await response.json();
-    }
-    catch (error) {
-      console.error("There was an error with simulatePayment:", error.message);
-      throw error; // rethrow to handle it outside of the function or display to user
-    }
-  }
 
 
   async function cancel() {
-    console.log("cancel")
+    console.log("cancel");
+    setIsPaymentClick(false)
     try {
-      const response = await fetch("http://localhost:4242/cancel_action", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reader_id: items.find(item => item.id === selectedId).readerId, connected_stripe_account_id: connected_stripe_account_id }),
-      });
+        const cancelActionFunction = firebase.functions().httpsCallable('cancelAction');
 
-      if (!response.ok) {
-        const responseData = await response.json();
-        throw new Error(responseData.error);
-      }
+        const response = await cancelActionFunction({
+            reader_id: items.find(item => item.id === selectedId).readerId,
+            connected_stripe_account_id: connected_stripe_account_id
+        });
 
-      console.log("the response was okay");
+        console.log("the response was okay");
+        return response.data;
 
-      return await response.json();
+    } catch (error) {
+        console.error("There was an error with cancel:", error.message);
+        throw error; // rethrow to handle it outside of the function or display to user
     }
-    catch (error) {
-      console.error("There was an error with cancel:", error.message);
-      throw error; // rethrow to handle it outside of the function or display to user
-    }
-  }
+}
 
-
+const [intent, setIntent] = useState([])
   async function makePayment() {
+    setIsPaymentClick(true)
     console.log("makePayment")
     const createPaymentButton = document.getElementById("create-payment-button");
     createPaymentButton.className = "loading";
@@ -135,7 +92,7 @@ const PaymentComponent = ({ selectedTable,storeID, chargeAmount, connected_strip
     console.log("make payment")
     console.log(localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
     try {
-      let amount = chargeAmount*100;
+      let amount = Math.round(chargeAmount*100);
 
       const paymentIntent = await createPaymentIntent(amount,localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]");
       console.log("payment intent: ", paymentIntent);
@@ -145,21 +102,22 @@ const PaymentComponent = ({ selectedTable,storeID, chargeAmount, connected_strip
       console.log("payment processed at reader: ", reader);
 
       if (simulation_mode == true) {
-        const simulatedPayment = await simulatePayment();
-        console.log("simulated payment at: ", simulatedPayment);
+        // const simulatedPayment = await simulatePayment();
+        // console.log("simulated payment at: ", simulatedPayment);
       }
-      // const simulatedPayment = await simulatePayment();
-      // console.log("simulated payment at: ", simulatedPayment);
+      console.log("intents"+paymentIntentId)
+      setIntent(paymentIntentId)
 
-      // const capturedPayment = await capture(paymentIntent.id);
-      // console.log("payment is captured: ", capturedPayment);
     } catch (error) {
       console.error("Error in makePayment: ", error.message);
     } finally {
-      createPaymentButton.className = "btn btn-primary";
+      //createPaymentButton.className = "btn btn-primary";
       createPaymentButton.disabled = false;
     }
   }
+
+  
+
 
   async function cancelPayment() {
     
@@ -173,7 +131,7 @@ const PaymentComponent = ({ selectedTable,storeID, chargeAmount, connected_strip
     } catch (error) {
       console.error("Error in cancelPayment: ", error.message);
     } finally {
-      cancelPaymentButton.className = "btn btn-danger";
+     // cancelPaymentButton.className = "btn btn-danger";
       cancelPaymentButton.disabled = false;
     }
   }
@@ -203,6 +161,42 @@ const PaymentComponent = ({ selectedTable,storeID, chargeAmount, connected_strip
       });
   }, [])
 
+
+
+
+  useEffect(() => {
+    const unsubscribe = firebase
+      .firestore()
+      .collection('stripe_customers')
+      .doc(user.uid)
+      .collection('TitleLogoNameContent')
+      .doc(storeID)
+      .collection('success_payment')
+      .where('id', '==', intent)
+      .where('status', '==', 'succeeded')
+      .onSnapshot((snapshot) => {
+        const newTerminalsData = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+        }));
+
+        console.log("hello");
+        console.log(newTerminalsData);
+        if (newTerminalsData.length === 0) {
+          // newTerminalsData is an empty array
+          setReceived(false)
+          //console.log("newTerminalsData is empty");
+        } else {
+          setReceived(true)
+          // newTerminalsData is not empty
+          //console.log("newTerminalsData is not empty");
+        }
+      });
+  
+    // Return a cleanup function to unsubscribe from the snapshot listener when the component unmounts
+    return () => unsubscribe();
+  }, [intent]); // Remove the empty dependency array to listen to real-time changes
+  
+
   const [selectedId, setSelectedId] = useState("");
 
   // Function to format date string into human-readable format
@@ -224,6 +218,11 @@ const PaymentComponent = ({ selectedTable,storeID, chargeAmount, connected_strip
                 <label className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
                   Select your terminal:
                 </label>
+                {received?
+              <>true</>:<>false</>
+              }
+
+
                 {items.map(item => (
                   <div key={item.id}>
                     <label className='flex'>
@@ -241,17 +240,42 @@ const PaymentComponent = ({ selectedTable,storeID, chargeAmount, connected_strip
                   </div>
                 ))}
               </div>
-              <div class="mt-2 row margin pad">
-                <button id="create-payment-button" className="btn btn-primary" onClick={makePayment}>
-                  Process Payment {chargeAmount}
-                </button>
-              </div>
 
+
+{(isPaymentClick&& received)?
+
+              <>
+              
+              
+              <div className='mt-2' style={{ display: 'flex' }}>
+
+<img className='mr-2'
+  src={myImage}  // Use the imported image here
+  alt="Description"
+  style={{
+    width: '30px',
+    height: '30px',
+  }}
+/>
+We have received the payment.</div>
+              </>:<>
+              
+              {isPaymentClick?
+                            <div class="mt-2 row margin pad">
+                            <button id="cancel-payment-button" className="btn btn-danger" onClick={cancelPayment}>
+                              Cancel payment
+                            </button>
+                          </div>:              
               <div class="mt-2 row margin pad">
-                <button id="cancel-payment-button" className="btn btn-danger" onClick={cancelPayment}>
-                  Cancel payment
-                </button>
-              </div>
+              <button id="create-payment-button" className="btn btn-primary" onClick={makePayment}>
+                Process Payment {chargeAmount}
+              </button>
+            </div>
+
+            }</>
+
+            }
+
             </>
           }
         </div>

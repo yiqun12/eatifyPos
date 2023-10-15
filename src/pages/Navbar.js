@@ -139,7 +139,7 @@ const Navbar = () => {
     }
         //maybe add a line here...
     const calculateTotalPrice = () => {
-      const total = products?.reduce((acc, item) => item && item.itemTotalPrice ? acc + item.itemTotalPrice : acc, 0);
+      const total = products?.reduce((acc, item) => item && parseFloat(item.itemTotalPrice) ? parseFloat(acc) + parseFloat(item.itemTotalPrice) : parseFloat(acc), 0);
       //console.log(total)
       setTotalPrice(total);
     }

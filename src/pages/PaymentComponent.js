@@ -24,70 +24,54 @@ const PaymentComponent = ({ storeDisplayName, storeID, connected_stripe_account_
   // the functions to the server
   async function createLocation(payloadLocation) {
     try {
+        const formattedPayload = {
+            connected_stripe_account_id: connected_stripe_account_id,
+            display_name: payloadLocation.storeDetails.name,
+            address: {
+                line1: payloadLocation.storeDetails.address.street,
+                city: payloadLocation.storeDetails.address.city,
+                state: payloadLocation.storeDetails.address.state,
+                country: country,
+                postal_code: payloadLocation.storeDetails.address.zip,
+            }
+        };
+
+        const createLocationFunction = firebase.functions().httpsCallable('createLocation');
+        const result = await createLocationFunction(formattedPayload);
+        
+        console.log("the response was okay:", result.data);
+        return result.data;
+
+    } catch (error) {
+        setError("There was an error with createLocation: " + error.message);
+        console.error("There was an error with createLocation:", error.message);
+        throw error; // rethrow to handle it outside of the function or display to user
+    }
+}
+
+
+
+async function createReader(payloadReader) {
+  try {
       const formattedPayload = {
-        connected_stripe_account_id: connected_stripe_account_id,
-        display_name: payloadLocation.storeDetails.name,
-        address: {
-          line1: payloadLocation.storeDetails.address.street,
-          city: payloadLocation.storeDetails.address.city,
-          state: payloadLocation.storeDetails.address.state,
-          country: country,
-          postal_code: payloadLocation.storeDetails.address.zip,
-        }
+          location_id: locationId, 
+          terminal_code: payloadReader.terminalRegistrationCode, 
+          connected_stripe_account_id: connected_stripe_account_id
       };
 
-      connected_stripe_account_id = connected_stripe_account_id;
+      const registerReaderFunction = firebase.functions().httpsCallable('registerReader');
+      const result = await registerReaderFunction(formattedPayload);
+      
+      console.log("the response was okay:", result.data);
+      return result.data;
 
-      const response = await fetch("http://localhost:4242/create_location", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(formattedPayload)
-      });
-
-      if (!response.ok) {
-        const responseData = await response.json();
-        setError(responseData.error)
-        throw new Error(responseData.error);
-      }
-
-      console.log("the response was okay");
-
-      return await response.json();
-    }
-    catch (error) {
-      setError("There was an error with createLocation:" + error.message)
-      console.error("There was an error with createLocation:", error.message);
-      throw error; // rethrow to handle it outside of the function or display to user
-    }
-  }
-
-
-  async function createReader(payloadReader) {
-    try {
-      const response = await fetch("http://localhost:4242/register_reader", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ location_id: locationId, terminal_code: payloadReader.terminalRegistrationCode, connected_stripe_account_id: connected_stripe_account_id }),
-      });
-
-      if (!response.ok) {
-        const responseData = await response.json();
-        setError(responseData.error)
-        throw new Error(responseData.error);
-      }
-
-      console.log("the response was okay");
-
-      return await response.json();
-    }
-    catch (error) {
-      setError("There was an error with createReader:", error.message)
+  } catch (error) {
+      setError("There was an error with createReader: " + error.message);
       console.error("There was an error with createReader:", error.message);
       throw error; // rethrow to handle it outside of the function or display to user
-    }
   }
+}
+
 
   // the onclick reactions
 

@@ -74,11 +74,14 @@ const Navbar = ({ store, selectedTable,acct }) => {
     document.querySelector('.shopping-cart').style.height = `${height}px`;
     //maybe add a line here...
     const calculateTotalPrice = () => {
-      const total = (Array.isArray(products) ? products : []).reduce((acc, item) => item && item.itemTotalPrice ? acc + item.itemTotalPrice : acc, 0);
+      const total = (Array.isArray(products) ? products : []).reduce((acc, item) => item && parseFloat(item.itemTotalPrice) ? parseFloat(acc) + parseFloat(item.itemTotalPrice) : parseFloat(acc), 0);
       console.log(total)
       setTotalPrice(total);
+      console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))
+      console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))
+      
       setFinalPrice((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
-      console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
+      //console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
     }
     calculateTotalPrice();;
     localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
@@ -251,6 +254,8 @@ const handleCustomDiscountPercentageChange = (e) => {
 }
 
   const [isMyModalVisible, setMyModalVisible] = useState(false);
+  const [received, setReceived] = useState(false)
+  const [isPaymentClick, setIsPaymentClick] = useState(false)
 
   const myStyles = {
       overlayStyle: {
@@ -550,7 +555,7 @@ const handleCustomDiscountPercentageChange = (e) => {
                 <span class=" pe-2">
                   <FontAwesomeIcon icon={faGift} /> &nbsp;
                 </span>
-                <span >{t("Add tip")}{" "}</span>
+                <span >{t("Add Service Fee")}{" "}</span>
               </a>
 
               <a 
@@ -576,8 +581,8 @@ const handleCustomDiscountPercentageChange = (e) => {
 
             <div style={myStyles.overlayStyle}>
                 <div style={myStyles.modalStyle}>
-                    <button style={myStyles.closeBtnStyle} onClick={() => setMyModalVisible(false)}>X</button>
-                    <PaymentComponent2 selectedTable = {selectedTable} storeID = {store} chargeAmount={finalPrice}  connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />
+                    <button style={myStyles.closeBtnStyle} onClick={() => {setMyModalVisible(false); setReceived(false)}}>X</button>
+                    <PaymentComponent2 setIsPaymentClick={setIsPaymentClick} isPaymentClick = {isPaymentClick} received ={ received}  setReceived ={setReceived} selectedTable = {selectedTable} storeID = {store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee = {(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />
                 </div>
             </div>
         </div>
@@ -586,7 +591,7 @@ const handleCustomDiscountPercentageChange = (e) => {
                 class="mt-3 btn btn-sm btn-primary mx-1"
                 style={{ backgroundColor: "#2196F3" }}> {/* Blue for Cash Pay */}
                 <span class=" pe-2">
-                  <FontAwesomeIcon icon={faMoneyBillWave} /> &nbsp;
+                  <FontAwesomeIcon icon={faMoneyBillWave} />
                 </span>
                 <span>{t("Cash Pay")}{" "}</span>
               </a>
@@ -596,7 +601,7 @@ const handleCustomDiscountPercentageChange = (e) => {
                 class="mt-3 btn btn-sm btn-primary mx-1"
                 style={{ backgroundColor: "#FF9800" }}> {/* Orange for Split Payment */}
                 <span class=" pe-2">
-                  <FontAwesomeIcon icon={faUsers} /> &nbsp;
+                  <FontAwesomeIcon icon={faUsers} /> 
                 </span>
                 <span>{t("Split Payment")}{" "}</span>
               </a>
@@ -604,19 +609,9 @@ const handleCustomDiscountPercentageChange = (e) => {
               <a
                 onClick={(e) => { }}
                 class="mt-3 btn btn-sm btn-primary mx-1"
-                style={{ backgroundColor: "#00695C" }}> {/* Teal for Customize Price */}
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;
-                </span>
-                <span>{t("Customize Price")}{" "}</span>
-              </a>
-
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1"
                 style={{ backgroundColor: "#9C27B0" }}> {/* Purple for Send to Kitchen */}
                 <span class=" pe-2">
-                  <FontAwesomeIcon icon={faArrowRight} /> &nbsp;
+                  <FontAwesomeIcon icon={faArrowRight} />
                 </span>
                 <span>{t("Send to kitchen")}{" "}</span>
               </a>
@@ -624,30 +619,20 @@ const handleCustomDiscountPercentageChange = (e) => {
               <a
                 onClick={(e) => { }}
                 class="mt-3 btn btn-sm btn-primary mx-1"
-                style={{ backgroundColor: "#9E9E9E" }}> {/* Gray for Print Receipt */}
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faPrint} /> &nbsp;
-                </span>
-                <span>{t("Print Receipt")}{" "}</span>
-              </a>
-
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1"
                 style={{ backgroundColor: "#9E9E9E" }}> {/* Gray for Print Merchant Copy */}
                 <span class=" pe-2">
-                  <FontAwesomeIcon icon={faPrint} /> &nbsp;
+                  <FontAwesomeIcon icon={faPrint} />
                 </span>
-                <span>{t("Print Merchant Copy")}{" "}</span>
+                <span>{t("Merchant Receipt")}{" "}</span>
               </a>
               <a
                 onClick={(e) => { }}
                 class="mt-3 btn btn-sm btn-primary mx-1"
                 style={{ backgroundColor: "#9E9E9E" }}> {/* Gray for Print Merchant Copy */}
                 <span class=" pe-2">
-                  <FontAwesomeIcon icon={faPrint} /> &nbsp;
+                  <FontAwesomeIcon icon={faPrint} />
                 </span>
-                <span>{t("Print Customer Copy")}{" "}</span>
+                <span>{t("Customer Receipt")}{" "}</span>
               </a>
               <a
                 onClick={(e) => { }}
@@ -655,9 +640,9 @@ const handleCustomDiscountPercentageChange = (e) => {
                 style={{ backgroundColor: "#F44336" }}> {/* Gray for Print Merchant Copy */}
 
                 <span class=" pe-2">
-                  <FontAwesomeIcon icon={faTimes} /> &nbsp;
+                  <FontAwesomeIcon icon={faTimes} /> 
                 </span>
-                <span>{t("Delete Order")}{" "}</span>
+                <span>{t("Finish Order")}{" "}</span>
               </a>
               <br></br>
               <>
@@ -669,7 +654,7 @@ const handleCustomDiscountPercentageChange = (e) => {
                  )}
 
                 {tips && (
-                  <div class="text-right notranslate">Tips: ${tips} </div>
+                  <div class="text-right notranslate">Service Fee: ${tips} </div>
                 )}
                 <div class="text-right notranslate">Tax(8.25%): ${(Math.round(100 * totalPrice * 0.0825) / 100)}    </div>
                 <div class="text-right notranslate">Total: ${finalPrice} </div>

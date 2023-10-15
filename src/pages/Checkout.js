@@ -61,13 +61,13 @@ const App = () => {
   const isTooSmall = cardidth <= 270;
 
   //fetch data from local stroage products.
-  const [totalPrice, setTotalPrice] = useState(products?.length ? products.reduce((acc, item) => acc + (item?.itemTotalPrice || 0), 0) : 0);
+  const [totalPrice, setTotalPrice] = useState(products?.length ? products.reduce((acc, item) =>parseFloat( acc) + (parseFloat(item?.itemTotalPrice) || 0), 0) : 0);
 
 
   useEffect(() => {
     //maybe add a line here...
     const calculateTotalPrice = () => {
-      const total = products?.length ? products.reduce((acc, item) => acc + (item?.itemTotalPrice || 0), 0) : 0
+      const total = products?.length ? products.reduce((acc, item) => parseFloat(acc) + ( parseFloat(item?.itemTotalPrice) || 0), 0) : 0
       //console.log(total)
       //console.log(products)
       setTotalPrice(total);
