@@ -34,10 +34,11 @@ import cartImage from './shopcart.png';
 import "./inStore_shop_cart.css";
 import PaymentComponent2 from "../pages/PaymentComponent2";
 
-const Navbar = ({ store, selectedTable,acct }) => {
+const Navbar = ({ store, selectedTable, acct }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   /**listen to localtsorage */
 
+  const { user, user_loading } = useUserContext();
 
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -79,14 +80,14 @@ const Navbar = ({ store, selectedTable,acct }) => {
       setTotalPrice(total);
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))
-      
+
       setFinalPrice((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
       //console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
     }
     calculateTotalPrice();;
     localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
 
-  }, [products, width,tips, discount]);
+  }, [products, width, tips, discount]);
 
 
   const handleDeleteClick = (productId, count) => {
@@ -152,20 +153,54 @@ const Navbar = ({ store, selectedTable,acct }) => {
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")])
 
 
-  const handleOpenCashDraw = async () => {
+  const MerchantReceipt = async () => {
     try {
+        const dateTime = new Date().toISOString();
+        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+        const docRef = await addDoc(collection(db,  "stripe_customers", user.uid, "TitleLogoNameContent", store,"MerchantReceipt"), {
+            date: date  
+        });
+        console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+        console.error("Error adding document: ", e);
+    }
+}
+const CustomerReceipt = async () => {
+  try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docRef = await addDoc(collection(db, "open_cashdraw"), {
-        date: date
+      const docRef = await addDoc(collection(db,  "stripe_customers", user.uid, "TitleLogoNameContent", store, "CustomerReceipt"), {
+          date: date
       });
       console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
+  } catch (e) {
       console.error("Error adding document: ", e);
-    }
   }
-  const HandleCheckout_local_stripe = async () => {
-  };
+}
+const SendToKitchen = async () => {
+  try {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docRef = await addDoc(collection(db,  "stripe_customers", user.uid, "TitleLogoNameContent", store,"SendToKitchen"), {
+          date: date
+      });
+      console.log("Document written with ID: ", docRef.id);
+  } catch (e) {
+      console.error("Error adding document: ", e);
+  }
+}
+const OpenCashDraw = async () => {
+  try {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docRef = await addDoc(collection(db,  "stripe_customers", user.uid, "TitleLogoNameContent", store,"OpenCashDraw"), {
+          date: date
+      });
+      console.log("Document written with ID: ", docRef.id);
+  } catch (e) {
+      console.error("Error adding document: ", e);
+  }
+}
 
 
   // handling the add tips logic + modal
@@ -184,7 +219,7 @@ const Navbar = ({ store, selectedTable,acct }) => {
 
   const handleCancelTip = () => {
     setTips("");  // reset the tips value
-    
+
     setSelectedTipPercentage("");
     setTipsModalOpen(false);  // close the modal
   };
@@ -222,69 +257,69 @@ const Navbar = ({ store, selectedTable,acct }) => {
   };
 
   const handleCancelDiscount = () => {
-      setDiscount('');  // reset the discount value
-      setDiscountModalOpen(false);  // close the modal
+    setDiscount('');  // reset the discount value
+    setDiscountModalOpen(false);  // close the modal
   };
 
   const applyDiscount = (value) => {
-      if (value < 0) {
-          value = 0;
-      }
-      setDiscount(value);
+    if (value < 0) {
+      value = 0;
+    }
+    setDiscount(value);
   };
 
   const handleDiscountPercentage = (percentage) => {
     if (percentage < 0) {
-        percentage = 0;
+      percentage = 0;
     }
     const calculatedDiscount = totalPrice * percentage;
     setDiscount(calculatedDiscount.toFixed(2));
     setSelectedDiscountPercentage(percentage);
-}
+  }
 
-const handleCustomDiscountPercentageChange = (e) => {
+  const handleCustomDiscountPercentageChange = (e) => {
     let value = e.target.value;
     if (value < 0) {
-        value = 0;
+      value = 0;
     }
     setCustomDiscountPercentage(value);
     const calculatedDiscount = totalPrice * (Number(value) / 100);
     setDiscount(calculatedDiscount.toFixed(2));
     setSelectedDiscountPercentage(null);
-}
+  }
 
   const [isMyModalVisible, setMyModalVisible] = useState(false);
   const [received, setReceived] = useState(false)
   const [isPaymentClick, setIsPaymentClick] = useState(false)
 
   const myStyles = {
-      overlayStyle: {
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: isMyModalVisible ? 'flex' : 'none',
-          justifyContent: 'center',
-          alignItems: 'center',
-      },
-      modalStyle: {
-          backgroundColor: '#fff',
-          padding: '20px',
-          borderRadius: '4px',
-          width: '80%',
-          position: 'relative',
-      },
-      closeBtnStyle: {
-          position: 'absolute',
-          right: '10px',
-          top: '10px',
-          background: 'none',
-          border: 'none',
-          fontSize: '24px',
-          cursor: 'pointer',
-      }
+    overlayStyle: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: isMyModalVisible ? 'flex' : 'none',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalStyle: {
+      backgroundColor: '#fff',
+      padding: '20px',
+      borderRadius: '4px',
+      width: '80%',
+      position: 'relative',
+    },
+    closeBtnStyle: {
+      position: 'absolute',
+      right: '10px',
+      top: '10px',
+      background: 'none',
+      border: 'none',
+      fontSize: '24px',
+      cursor: 'pointer',
+    }
   };
 
   return (
@@ -480,73 +515,73 @@ const handleCustomDiscountPercentageChange = (e) => {
                 </div>
               )}
 
-{isDiscountModalOpen && (
-    <div id="addDiscountModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-        <div className="modal-dialog" role="document">
-            <div className="modal-content">
-                <div className="modal-header">
-                    <h5 className="modal-title">Add Discount</h5>
+              {isDiscountModalOpen && (
+                <div id="addDiscountModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                  <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <h5 className="modal-title">Add Discount</h5>
+                      </div>
+                      <div className="modal-body">
+                        <div className="row mb-3">
+                          {/* Percentage options */}
+                          <button
+                            type="button"
+                            className={`btn col ${selectedDiscountPercentage === 0.10 ? 'btn-primary' : 'btn-outline-primary'}`}
+                            onClick={() => handleDiscountPercentage(0.10)}
+                          >
+                            10%
+                          </button>
+                          <button
+                            type="button"
+                            className={`btn col ${selectedDiscountPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`}
+                            onClick={() => handleDiscountPercentage(0.20)}
+                          >
+                            20%
+                          </button>
+                          <button
+                            type="button"
+                            className={`btn col ${selectedDiscountPercentage === 0.30 ? 'btn-primary' : 'btn-outline-primary'}`}
+                            onClick={() => handleDiscountPercentage(0.30)}
+                          >
+                            30%
+                          </button>
+                          <div className="col">
+                            <input
+                              type="number"
+                              placeholder="%"
+                              min="0"
+                              value={customDiscountPercentage}
+                              onChange={handleCustomDiscountPercentageChange}
+                              className="form-control"
+                            />
+                          </div>
+                        </div>
+                        {/* Discount amount input */}
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="Enter discount amount"
+                          value={discount}
+                          className="form-control"
+                          onChange={(e) => {
+                            let value = parseFloat(e.target.value);
+                            if (value < 0 || isNaN(value)) {
+                              value = 0;
+                            }
+                            applyDiscount(value);
+                            setSelectedDiscountPercentage(null);
+                          }}
+                        />
+                      </div>
+                      <div className="modal-footer">
+                        <button type="button" className="btn btn-secondary" onClick={handleCancelDiscount}>Cancel</button>
+                        <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>Apply Discount</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="modal-body">
-        <div className="row mb-3">
-            {/* Percentage options */}
-            <button
-                type="button"
-                className={`btn col ${selectedDiscountPercentage === 0.10 ? 'btn-primary' : 'btn-outline-primary'}`}
-                onClick={() => handleDiscountPercentage(0.10)}
-            >
-                10%
-            </button>
-            <button
-                type="button"
-                className={`btn col ${selectedDiscountPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`}
-                onClick={() => handleDiscountPercentage(0.20)}
-            >
-                20%
-            </button>
-            <button
-                type="button"
-                className={`btn col ${selectedDiscountPercentage === 0.30 ? 'btn-primary' : 'btn-outline-primary'}`}
-                onClick={() => handleDiscountPercentage(0.30)}
-            >
-                30%
-            </button>
-            <div className="col">
-                <input
-                    type="number"
-                    placeholder="%"
-                    min="0"
-                    value={customDiscountPercentage}
-                    onChange={handleCustomDiscountPercentageChange}
-                    className="form-control"
-                />
-            </div>
-        </div>
-        {/* Discount amount input */}
-        <input
-            type="number"
-            min="0"
-            placeholder="Enter discount amount"
-            value={discount}
-            className="form-control"
-            onChange={(e) => {
-                let value = parseFloat(e.target.value);
-                if (value < 0 || isNaN(value)) {
-                    value = 0;
-                }
-                applyDiscount(value);
-                setSelectedDiscountPercentage(null);
-            }}
-        />
-    </div>
-                <div className="modal-footer">
-                    <button type="button" className="btn btn-secondary" onClick={handleCancelDiscount}>Cancel</button>
-                    <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>Apply Discount</button>
-                </div>
-            </div>
-        </div>
-    </div>
-)}
+              )}
 
               <a
                 onClick={handleAddTipClick}
@@ -558,12 +593,12 @@ const handleCustomDiscountPercentageChange = (e) => {
                 <span >{t("Add Service Fee")}{" "}</span>
               </a>
 
-              <a 
+              <a
                 onClick={handleAddDiscountClick}
                 class="mt-3 btn btn-sm btn-primary mx-1"
                 style={{ backgroundColor: "#e57373" }}> {/* Red for Add Discount */}
                 <span class="pe-2">
-                    <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;
+                  <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;
                 </span>
                 <span>{t("Add Discount")}</span>
               </a>
@@ -577,17 +612,17 @@ const handleCustomDiscountPercentageChange = (e) => {
                 </span>
                 <span>{t("Card Pay")}{" "}</span>
               </a>
-        <div className="MyApp">
+              <div className="MyApp">
 
-            <div style={myStyles.overlayStyle}>
-                <div style={myStyles.modalStyle}>
-                    <button style={myStyles.closeBtnStyle} onClick={() => {setMyModalVisible(false); setReceived(false)}}>X</button>
-                    <PaymentComponent2 setIsPaymentClick={setIsPaymentClick} isPaymentClick = {isPaymentClick} received ={ received}  setReceived ={setReceived} selectedTable = {selectedTable} storeID = {store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee = {(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />
+                <div style={myStyles.overlayStyle}>
+                  <div style={myStyles.modalStyle}>
+                    <button style={myStyles.closeBtnStyle} onClick={() => { setMyModalVisible(false); setReceived(false) }}>X</button>
+                    <PaymentComponent2 setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />
+                  </div>
                 </div>
-            </div>
-        </div>
-              <a
-                onClick={(e) => { }}
+              </div>
+              <a 
+               onClick={OpenCashDraw}
                 class="mt-3 btn btn-sm btn-primary mx-1"
                 style={{ backgroundColor: "#2196F3" }}> {/* Blue for Cash Pay */}
                 <span class=" pe-2">
@@ -601,13 +636,13 @@ const handleCustomDiscountPercentageChange = (e) => {
                 class="mt-3 btn btn-sm btn-primary mx-1"
                 style={{ backgroundColor: "#FF9800" }}> {/* Orange for Split Payment */}
                 <span class=" pe-2">
-                  <FontAwesomeIcon icon={faUsers} /> 
+                  <FontAwesomeIcon icon={faUsers} />
                 </span>
                 <span>{t("Split Payment")}{" "}</span>
               </a>
 
               <a
-                onClick={(e) => { }}
+              onClick={SendToKitchen}
                 class="mt-3 btn btn-sm btn-primary mx-1"
                 style={{ backgroundColor: "#9C27B0" }}> {/* Purple for Send to Kitchen */}
                 <span class=" pe-2">
@@ -617,7 +652,7 @@ const handleCustomDiscountPercentageChange = (e) => {
               </a>
 
               <a
-                onClick={(e) => { }}
+                onClick={MerchantReceipt}
                 class="mt-3 btn btn-sm btn-primary mx-1"
                 style={{ backgroundColor: "#9E9E9E" }}> {/* Gray for Print Merchant Copy */}
                 <span class=" pe-2">
@@ -626,7 +661,7 @@ const handleCustomDiscountPercentageChange = (e) => {
                 <span>{t("Merchant Receipt")}{" "}</span>
               </a>
               <a
-                onClick={(e) => { }}
+                onClick={CustomerReceipt}
                 class="mt-3 btn btn-sm btn-primary mx-1"
                 style={{ backgroundColor: "#9E9E9E" }}> {/* Gray for Print Merchant Copy */}
                 <span class=" pe-2">
@@ -640,7 +675,7 @@ const handleCustomDiscountPercentageChange = (e) => {
                 style={{ backgroundColor: "#F44336" }}> {/* Gray for Print Merchant Copy */}
 
                 <span class=" pe-2">
-                  <FontAwesomeIcon icon={faTimes} /> 
+                  <FontAwesomeIcon icon={faTimes} />
                 </span>
                 <span>{t("Finish Order")}{" "}</span>
               </a>
@@ -651,7 +686,7 @@ const handleCustomDiscountPercentageChange = (e) => {
 
                 {discount && (
                   <div class="text-right notranslate">Discount: -${discount} </div>
-                 )}
+                )}
 
                 {tips && (
                   <div class="text-right notranslate">Service Fee: ${tips} </div>
