@@ -439,8 +439,25 @@ const Account = () => {
   useEffect(() => {
     function handleHashChange() {
       const hashValue = window.location.hash;
+      console.log("hashvalue: ", hashValue)
+      // example URL http://localhost:3000/account#code?store=dnd21
+      // example hash value #code?store=dnd21
+
+      // Split the hash value by the "?" character
+      const parts = hashValue.split('?');
+
+      // The part before the "?" mark will be in parts[0]
+      const partBeforeQuestionMark = parts[0];
+
+      console.log("Part before '?': ", partBeforeQuestionMark);
+
+      // The part before the "?" mark will be in parts[0]
+      const partAfterQuestionMark = parts[1];
+
+      console.log("Part after '?': ", partAfterQuestionMark);
+
       // hashRedirect(hashValue);
-      switch (hashValue) {
+      switch (partBeforeQuestionMark) {
         case '#createStore':
           redirectCreateStore(hashValue);
           break;
@@ -448,19 +465,19 @@ const Account = () => {
           redirectPerson();
           break;
         case '#charts':
-          redirectCharts();
+          redirectCharts(partAfterQuestionMark);
           break;
         case '#book':
-          redirectMenuBook();
+          redirectMenuBook(partAfterQuestionMark);
           break;
         case '#code':
-          redirectCode();
+          redirectCode(partAfterQuestionMark);
           break;
         case '#cards':
-          redirectCards();
+          redirectCards(partAfterQuestionMark);
           break;
         case '#settings':
-          redirectSettings();
+          redirectSettings(partAfterQuestionMark);
           break;
         // Add more cases for other hash values as needed...
 
@@ -471,24 +488,247 @@ const Account = () => {
       }
     }
 
+
+    // Define a function to fetch storelist and return it as a promise
+    // this allows you to wait until storelist is set and use it in functions instead of empty []
+    function fetchStorelist() {
+      return new Promise((resolve, reject) => {
+        const unsubscribe = firebase
+          .firestore()
+          .collection('stripe_customers')
+          .doc(user.uid)
+          .collection('TitleLogoNameContent')
+          .onSnapshot((snapshot) => {
+            const storeData = snapshot.docs.map((doc) => ({
+              ...doc.data(),
+              id: doc.id,
+            }));
+            console.log(storeData);
+            resolve(storeData.reverse());
+            unsubscribe(); // Unsubscribe from the snapshot listener once data is fetched
+          });
+      });
+    }
+
     // these redirects are to simulate the click of the 6 tab options of each store
     function redirectPerson() {
+      
       setShowSection('')
     }
 
-    function redirectCharts() {
+  async function redirectCharts(partAfterQuestionMark) {
+  // Check if partAfterQuestionMark is like store=dnd21
+  if (partAfterQuestionMark.includes('store=')) {
+    // Split partAfterQuestionMark by '=' to get the store value
+    const parts = partAfterQuestionMark.split('=');
+
+    // The second part of the resulting array (parts[1]) will be the store value
+    const storeValue = parts[1];
+
+    console.log("Store Value:", storeValue);
+
+    try {
+      const storelist = await fetchStorelist();
+      console.log("storelist: ", storelist);
+
+      // Find the index of the object whose .Name matches storeValue
+      const index = storelist.findIndex(data => data.Name === storeValue);
+
+      if (index !== -1) {
+        // The object was found, you can access it using storelist[index]
+        const selectedStore = storelist[index];
+
+        // Now, you can perform actions with the selected store object
+        console.log("Selected Store:", selectedStore);
+
+        // Example of using the selected store object
+        setActiveTab(`#${selectedStore.id}`);
+        setActiveStoreTab(selectedStore.id);
+        setStoreName_(selectedStore.Name);
+        setStoreID(selectedStore.id);
+        setActiveStoreId(selectedStore.id)
+        setStoreOpenTime(selectedStore.Open_time)
+      } else {
+        // The object with the specified Name was not found in the array
+        console.log("Store not found in storelist");
+      }
+    } catch (error) {
+      console.error("Error fetching storelist:", error);
+    }
+  }
       setShowSection('sales')
     }
-    function redirectMenuBook() {
+    
+  async function redirectMenuBook(partAfterQuestionMark) {
+  // Check if partAfterQuestionMark is like store=dnd21
+  if (partAfterQuestionMark.includes('store=')) {
+    // Split partAfterQuestionMark by '=' to get the store value
+    const parts = partAfterQuestionMark.split('=');
+
+    // The second part of the resulting array (parts[1]) will be the store value
+    const storeValue = parts[1];
+
+    console.log("Store Value:", storeValue);
+
+    try {
+      const storelist = await fetchStorelist();
+      console.log("storelist: ", storelist);
+
+      // Find the index of the object whose .Name matches storeValue
+      const index = storelist.findIndex(data => data.Name === storeValue);
+
+      if (index !== -1) {
+        // The object was found, you can access it using storelist[index]
+        const selectedStore = storelist[index];
+
+        // Now, you can perform actions with the selected store object
+        console.log("Selected Store:", selectedStore);
+
+        // Example of using the selected store object
+        setActiveTab(`#${selectedStore.id}`);
+        setActiveStoreTab(selectedStore.id);
+        setStoreName_(selectedStore.Name);
+        setStoreID(selectedStore.id);
+        setActiveStoreId(selectedStore.id)
+        setStoreOpenTime(selectedStore.Open_time)
+      } else {
+        // The object with the specified Name was not found in the array
+        console.log("Store not found in storelist");
+      }
+    } catch (error) {
+      console.error("Error fetching storelist:", error);
+    }
+  }
       setShowSection('menu')
     }
-    function redirectCards() {
+
+  async function redirectCards(partAfterQuestionMark) {
+  // Check if partAfterQuestionMark is like store=dnd21
+  if (partAfterQuestionMark.includes('store=')) {
+    // Split partAfterQuestionMark by '=' to get the store value
+    const parts = partAfterQuestionMark.split('=');
+
+    // The second part of the resulting array (parts[1]) will be the store value
+    const storeValue = parts[1];
+
+    console.log("Store Value:", storeValue);
+
+    try {
+      const storelist = await fetchStorelist();
+      console.log("storelist: ", storelist);
+
+      // Find the index of the object whose .Name matches storeValue
+      const index = storelist.findIndex(data => data.Name === storeValue);
+
+      if (index !== -1) {
+        // The object was found, you can access it using storelist[index]
+        const selectedStore = storelist[index];
+
+        // Now, you can perform actions with the selected store object
+        console.log("Selected Store:", selectedStore);
+
+        // Example of using the selected store object
+        setActiveTab(`#${selectedStore.id}`);
+        setActiveStoreTab(selectedStore.id);
+        setStoreName_(selectedStore.Name);
+        setStoreID(selectedStore.id);
+        setActiveStoreId(selectedStore.id)
+        setStoreOpenTime(selectedStore.Open_time)
+      } else {
+        // The object with the specified Name was not found in the array
+        console.log("Store not found in storelist");
+      }
+    } catch (error) {
+      console.error("Error fetching storelist:", error);
+    }
+  }
       setShowSection('stripeCard')
     }
-    function redirectCode() {
-      setShowSection('qrCode')
+
+// Modify redirectCode to use async/await with the fetchStorelist function
+async function redirectCode(partAfterQuestionMark) {
+  // Check if partAfterQuestionMark is like store=dnd21
+  if (partAfterQuestionMark.includes('store=')) {
+    // Split partAfterQuestionMark by '=' to get the store value
+    const parts = partAfterQuestionMark.split('=');
+
+    // The second part of the resulting array (parts[1]) will be the store value
+    const storeValue = parts[1];
+
+    console.log("Store Value:", storeValue);
+
+    try {
+      const storelist = await fetchStorelist();
+      console.log("storelist: ", storelist);
+
+      // Find the index of the object whose .Name matches storeValue
+      const index = storelist.findIndex(data => data.Name === storeValue);
+
+      if (index !== -1) {
+        // The object was found, you can access it using storelist[index]
+        const selectedStore = storelist[index];
+
+        // Now, you can perform actions with the selected store object
+        console.log("Selected Store:", selectedStore);
+
+        // Example of using the selected store object
+        setActiveTab(`#${selectedStore.id}`);
+        setActiveStoreTab(selectedStore.id);
+        setStoreName_(selectedStore.Name);
+        setStoreID(selectedStore.id);
+        setActiveStoreId(selectedStore.id)
+        setStoreOpenTime(selectedStore.Open_time)
+      } else {
+        // The object with the specified Name was not found in the array
+        console.log("Store not found in storelist");
+      }
+    } catch (error) {
+      console.error("Error fetching storelist:", error);
     }
-    function redirectSettings() {
+  }
+  setShowSection('qrCode');
+}
+
+  async function redirectSettings(partAfterQuestionMark) {
+  // Check if partAfterQuestionMark is like store=dnd21
+  if (partAfterQuestionMark.includes('store=')) {
+    // Split partAfterQuestionMark by '=' to get the store value
+    const parts = partAfterQuestionMark.split('=');
+
+    // The second part of the resulting array (parts[1]) will be the store value
+    const storeValue = parts[1];
+
+    console.log("Store Value:", storeValue);
+
+    try {
+      const storelist = await fetchStorelist();
+      console.log("storelist: ", storelist);
+
+      // Find the index of the object whose .Name matches storeValue
+      const index = storelist.findIndex(data => data.Name === storeValue);
+
+      if (index !== -1) {
+        // The object was found, you can access it using storelist[index]
+        const selectedStore = storelist[index];
+
+        // Now, you can perform actions with the selected store object
+        console.log("Selected Store:", selectedStore);
+
+        // Example of using the selected store object
+        setActiveTab(`#${selectedStore.id}`);
+        setActiveStoreTab(selectedStore.id);
+        setStoreName_(selectedStore.Name);
+        setStoreID(selectedStore.id);
+        setActiveStoreId(selectedStore.id)
+        setStoreOpenTime(selectedStore.Open_time)
+      } else {
+        // The object with the specified Name was not found in the array
+        console.log("Store not found in storelist");
+      }
+    } catch (error) {
+      console.error("Error fetching storelist:", error);
+    }
+  }
       setShowSection('store')
     }
 
@@ -790,7 +1030,7 @@ const Account = () => {
                         <li className={`nav-item p-0`} style={{ width: "80%", margin: "auto", borderColor: "transparent !important" }}
                           onClick={() => {
                             setShowSection('sales')
-                            window.location.hash = `charts`;
+                            window.location.hash = `charts?store=${storeName_}`;
                           }}
                         >
                           <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `sales` ? 'active' : ''}`} style={{ marginLeft: "0", border: "0px" }}>
@@ -806,7 +1046,7 @@ const Account = () => {
                         <li className={`nav-item p-0`}
                           onClick={() => {
                             setShowSection('menu')
-                            window.location.hash = `book`;
+                            window.location.hash = `book?store=${storeName_}`;
                           }}
                           style={{ width: "80%", margin: "auto" }}
                         >
@@ -824,7 +1064,7 @@ const Account = () => {
 
                         <li className={`nav-item p-0`} onClick={() => {
                           setShowSection('qrCode')
-                          window.location.hash = `code`
+                          window.location.hash = `code?store=${storeName_}`
                         }} style={{ width: "80%", margin: "auto" }}>
                           <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `qrCode` ? 'active' : ''}`} style={{ border: "0px" }}>
                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
@@ -842,7 +1082,7 @@ const Account = () => {
                         <li className={`nav-item p-0`}
                           onClick={() => {
                             setShowSection('stripeCard')
-                            window.location.hash = `cards`;
+                            window.location.hash = `cards?store=${storeName_}`;
                           }}
                           style={{ width: "80%", margin: "auto" }}
                         >
@@ -875,7 +1115,7 @@ const Account = () => {
                         <li className={`nav-item border-b-0 p-0`}
                           onClick={() => {
                             setShowSection('store')
-                            window.location.hash = data.id;
+                            window.location.hash = `settings?store=${storeName_}`;
                           }}
                           style={{ width: "80%", margin: "auto", border: "0px" }}
                         >
