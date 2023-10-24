@@ -1,7 +1,7 @@
 import React from 'react';
 import './style.css';
 import { useCallback, useState, useEffect } from 'react';
-import { collection, doc,getDoc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, getDoc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useMyHook } from '../pages/myHook';
 import Button from '@mui/material/Button';
@@ -18,14 +18,14 @@ import { useUserContext } from "../context/userContext";
 function Iframe({ src, width, height, storeName }) {
     const iframeRef = useRef();
     console.log(storeName)
-    
+
     useEffect(() => {
         // existing fetchHtml logic...
-      
+
         iframeRef.current.onload = () => {
-          iframeRef.current.contentWindow.postMessage(storeName+'_restaurant_seat_arrangement', '*');
+            iframeRef.current.contentWindow.postMessage(storeName + '_restaurant_seat_arrangement', '*');
         };
-      }, [src]);
+    }, [src]);
 
     useEffect(() => {
         const fetchHtml = async () => {
@@ -46,42 +46,42 @@ function Iframe({ src, width, height, storeName }) {
     return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
 }
 
-function App({ store,acct }) {
+function App({ store, acct }) {
 
     const syncData = async () => {
         console.log("sync data")
-    
-        let sessionData;
-    
-        try {
-          // Get a reference to the specific document with ID equal to store
-          const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
-    
-          // Fetch the document
-          const docSnapshot = await getDoc(docRef);
-    
-          if (docSnapshot.exists()) {
-            // The document exists
-            sessionData = docSnapshot.data().key;
-            const { key, ...rest } = docSnapshot.data();
-            localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
-            console.log("rest")
-            console.log(rest.restaurant_seat_arrangement)
-            localStorage.setItem(store+'_restaurant_seat_arrangement',rest.restaurant_seat_arrangement)
-          } else {
-            console.log("No document found with the given ID.");
-          }
-        } catch (error) {
-          console.error("Error fetching the document:", error);
-        }
-    
-      }
 
-      useEffect(() => {
+        let sessionData;
+
+        try {
+            // Get a reference to the specific document with ID equal to store
+            const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
+
+            // Fetch the document
+            const docSnapshot = await getDoc(docRef);
+
+            if (docSnapshot.exists()) {
+                // The document exists
+                sessionData = docSnapshot.data().key;
+                const { key, ...rest } = docSnapshot.data();
+                localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
+                console.log("rest")
+                console.log(rest.restaurant_seat_arrangement)
+                localStorage.setItem(store + '_restaurant_seat_arrangement', rest.restaurant_seat_arrangement)
+            } else {
+                console.log("No document found with the given ID.");
+            }
+        } catch (error) {
+            console.error("Error fetching the document:", error);
+        }
+
+    }
+
+    useEffect(() => {
         //console.log("hellooooooooooooooooooooo")
         syncData();
-      }, []);
-      
+    }, []);
+
     const { user, user_loading } = useUserContext();
 
     const buttonStyles = {
@@ -129,7 +129,7 @@ function App({ store,acct }) {
         borderTopRightRadius: '0',
         borderBottomRightRadius: '0',
     };
-    
+
     /**listen to localtsorage */
     const { id, saveId } = useMyHook(null);
 
@@ -167,9 +167,9 @@ function App({ store,acct }) {
     const [src, setSrc] = useState(window.PUBLIC_URL + "/seat.html");
     const iframeRef = useRef(null);
 
-    
+
     // the selectedTable variable allows you to keep track which table you have selected
-    const [selectedTable, setSelectedTable] = useState(null);
+    const [selectedTable, setSelectedTable] = useState("null");
     const [selectedSeatMode, setSelectedSeatMode] = useState("customer");
     // the below messageHandler + useEffect() below allows for communication from iframe to parent window
     const messageHandler = useCallback((event) => {
@@ -191,8 +191,9 @@ function App({ store,acct }) {
         } else if (event.data === "customer mode active") {
             setSelectedSeatMode("customer");
         } else if (event.data === "table_deselected") {
-            setSelectedTable(null);
+            setSelectedTable("null");
             saveId(Math.random());
+            console.log(event.data)
             console.log("Table deselected");
         }
         else if (event.data === 'buttonClicked') {
@@ -306,42 +307,23 @@ function App({ store,acct }) {
     }
 
     const [isModalOpen, setModalOpen] = useState(false);
-    
+
     const handleFormSubmit = async (store) => {
 
         const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
-        console.log(JSON.parse(localStorage.getItem(store+"_restaurant_seat_arrangement")))
+        console.log(JSON.parse(localStorage.getItem(store + "_restaurant_seat_arrangement")))
         // Update the 'key' field to the value retrieved from localStorage
         await updateDoc(docRef, {
-            restaurant_seat_arrangement: localStorage.getItem(store+"_restaurant_seat_arrangement")
-    
+            restaurant_seat_arrangement: localStorage.getItem(store + "_restaurant_seat_arrangement")
+
         });
         alert("Updated Successful");
-      };
-      
+    };
 
-      return (
+
+    return (
 
         <div>
-
-            {/* modal code for when table inside iframe is clicked in customer mode */}
-            {isModalOpen && (
-                <div id="addTableModal" className="modal fade show " role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                    <div className="modal-dialog modal-xl" role="document">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Table {selectedTable}</h5>
-                                <button type="button" className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
-                            </div>
-                            <div className="modal-body">
-                                {/* in the body of the modal contains the search food items functionality */}
-                                <InStore_food store={store} selectedTable={selectedTable} ></InStore_food>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* beginning of the other code */}
 
@@ -350,14 +332,34 @@ function App({ store,acct }) {
                 <>
                     <div className='flex flex-col' style={{ alignItems: 'flex-start' }}>
                         {selectedSeatMode === 'admin' ?
-                            <div style={buttonStyles} onClick={() => handleFormSubmit(store)}  className='mt-3 hover:bg-yellow-700'>{t("Save Layout")}</div>
+                            <div style={buttonStyles} onClick={() => handleFormSubmit(store)} className='mt-3 hover:bg-yellow-700'>{t("Save Layout")}</div>
                             : <></>
                         }
 
                         <div style={{ margin: "10px", display: "flex" }}>
 
-                            <div >
+                        <div style={{ position: 'relative', width: "540px", height: "800px" }}>
                                 <Iframe ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" storeName={store} />
+
+                                {/* modal code for when table inside iframe is clicked in customer mode */}
+                                {isModalOpen && (
+                                    
+                                    <div  id="addTableModal" className="modal fade show " role="dialog" style={{ display: 'block',position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,1)', zIndex: '10' }}>
+                                        <div className="modal-dialog modal-xl" role="document">
+                                            <div className="modal-content">
+                                                <div className="modal-header">
+                                                    <h5 className="modal-title">{selectedTable}</h5>
+                                                    <button type="button" className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
+                                                </div>
+                                                <div className="modal-body">
+                                                    {/* in the body of the modal contains the search food items functionality */}
+                                                    <InStore_food store={store} selectedTable={selectedTable} ></InStore_food>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <section className="task-list" >

@@ -96,7 +96,7 @@
     </div>
   </div>
 
-  <div class="btn-group" style="width: 100%; margin-top: 20px;">
+  <div class="btn-group admin_hello" style="width: 100%; margin-top: 20px;">
     <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button>
     <button class="btn btn-primary" onclick="loadBoard()">Load</button> -->
     <button class="btn btn-danger admin-mode" style="text-align: left;">Admin Mode</button>
@@ -171,6 +171,7 @@
         canvas.renderAll()
         document.querySelectorAll('.admin-menu')[0].style.display = 'none'
         document.querySelectorAll('.customer-menu')[0].style.display = 'block'
+        
         current_mode = "customer"
         window.parent.postMessage(`customer mode active`, "*");
         //console.log('Received "hello" from parent');
@@ -283,8 +284,22 @@
           }
         }
       });
-
-
+      canvas.on('touch:start', function (options) {
+        // console.log("mouse down")
+        // when the target doesn't exist (IE just the canvas)
+        if (current_mode === "customer") {
+          // console.log(options.target)
+          if (!options.target) {
+            // console.log("mouse down on canvas")
+            canvas.discardActiveObject().renderAll();
+            window.parent.postMessage(`table_deselected`, "*");
+          }
+          if (options.target?.type === "rect" || options.target?.type === "circle") {
+            // console.log(options.target.tableName)
+            window.parent.postMessage(`selected_table ${options.target.tableName}`, "*");
+          }
+        }
+      });
       canvas.on('object:moving', function (e) {
         snapToGrid(e.target)
       })
@@ -924,6 +939,7 @@
       canvas.renderAll()
       document.querySelectorAll('.admin-menu')[0].style.display = 'none'
       document.querySelectorAll('.customer-menu')[0].style.display = 'block'
+      document.querySelectorAll('.admin_hello')[0].style.display = 'block'
       current_mode = "customer"
       console.log(`customer mode active`, "*")
       window.parent.postMessage(`customer mode active`, "*");
@@ -946,8 +962,11 @@
       canvas.hoverCursor = 'move'
       canvas.discardActiveObject()
       canvas.renderAll()
+      
       document.querySelectorAll('.admin-menu')[0].style.display = 'block'
       document.querySelectorAll('.customer-menu')[0].style.display = 'none'
+      document.querySelectorAll('.admin_hello')[0].style.display = 'none'
+
       current_mode = "admin"
       window.parent.postMessage(`admin mode active`, "*");
     })

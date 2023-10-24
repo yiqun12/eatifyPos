@@ -37,7 +37,8 @@ import PaymentComponent2 from "../pages/PaymentComponent2";
 const Navbar = ({ store, selectedTable, acct }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   /**listen to localtsorage */
-
+  console.log("products")
+  console.log(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
   const { user, user_loading } = useUserContext();
 
   const { id, saveId } = useMyHook(null);
@@ -69,10 +70,6 @@ const Navbar = ({ store, selectedTable, acct }) => {
   //console.log(totalQuant)
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
-    let height = 700;
-
-    // Update the height of the shopping cart element
-    document.querySelector('.shopping-cart').style.height = `${height}px`;
     //maybe add a line here...
     const calculateTotalPrice = () => {
       const total = (Array.isArray(products) ? products : []).reduce((acc, item) => item && parseFloat(item.itemTotalPrice) ? parseFloat(acc) + parseFloat(item.itemTotalPrice) : parseFloat(acc), 0);
@@ -158,7 +155,8 @@ const Navbar = ({ store, selectedTable, acct }) => {
         const dateTime = new Date().toISOString();
         const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
         const docRef = await addDoc(collection(db,  "stripe_customers", user.uid, "TitleLogoNameContent", store,"MerchantReceipt"), {
-            date: date  
+            date: date,  
+            data:localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
         });
         console.log("Document written with ID: ", docRef.id);
     } catch (e) {
@@ -170,7 +168,8 @@ const CustomerReceipt = async () => {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db,  "stripe_customers", user.uid, "TitleLogoNameContent", store, "CustomerReceipt"), {
-          date: date
+        date: date,  
+        data:localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
       });
       console.log("Document written with ID: ", docRef.id);
   } catch (e) {
@@ -182,7 +181,8 @@ const SendToKitchen = async () => {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db,  "stripe_customers", user.uid, "TitleLogoNameContent", store,"SendToKitchen"), {
-          date: date
+        date: date,  
+        data:localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
       });
       console.log("Document written with ID: ", docRef.id);
   } catch (e) {
@@ -194,7 +194,8 @@ const OpenCashDraw = async () => {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db,  "stripe_customers", user.uid, "TitleLogoNameContent", store,"OpenCashDraw"), {
-          date: date
+        date: date,  
+        data:localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
       });
       console.log("Document written with ID: ", docRef.id);
   } catch (e) {
@@ -334,25 +335,13 @@ const OpenCashDraw = async () => {
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
 
 
-              {totalPrice === 0 ?
-                <div>
-                  <div style={{ marginTop: "15px" }}>
-                    {selectedTable === null ?
-                      <span>No table is selected</span> :
-                      <span>&nbsp;{`Table ${selectedTable} is empty.`}</span>
-
-                    }
-                  </div>
-                </div>
-                :
-                <div>
+            <div>
                   <div style={{ marginTop: "15px" }}>
                     <span>
                       <span>{`Your selected table is ${selectedTable}`}</span>
                     </span>
                   </div>
                 </div>
-              }
             </div>
           </div>
           <div className="flex flex-col flex-row">
@@ -453,7 +442,7 @@ const OpenCashDraw = async () => {
                       <div className="modal-header">
                         <h5 className="modal-title">Add Tip</h5>
                       </div>
-                      <div className="modal-body">
+                      <div >
                         <div className="row mb-3">
                           <button
                             type="button"
@@ -583,102 +572,87 @@ const OpenCashDraw = async () => {
                 </div>
               )}
 
-              <a
-                onClick={handleAddTipClick}
-                class="mt-3 btn btn-sm btn-primary mx-1"
-                style={{ backgroundColor: "#4CAF50" }}> {/* Green for Add tip */}
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faGift} /> &nbsp;
-                </span>
-                <span >{t("Add Service Fee")}{" "}</span>
-              </a>
+<a
+    onClick={handleAddTipClick}
+    className="mt-3 btn btn-sm btn-success mx-1"> 
+    <span className="pe-2">
+        <FontAwesomeIcon icon={faGift} /> &nbsp;
+    </span>
+    <span>{t("Add Service Fee")}</span>
+</a>
 
-              <a
-                onClick={handleAddDiscountClick}
-                class="mt-3 btn btn-sm btn-primary mx-1"
-                style={{ backgroundColor: "#e57373" }}> {/* Red for Add Discount */}
-                <span class="pe-2">
-                  <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;
-                </span>
-                <span>{t("Add Discount")}</span>
-              </a>
+<a
+    onClick={handleAddDiscountClick}
+    className="mt-3 btn btn-sm btn-danger mx-1">
+    <span className="pe-2">
+        <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;
+    </span>
+    <span>{t("Add Discount")}</span>
+</a>
 
-              <a
-                onClick={() => setMyModalVisible(true)}
-                class="mt-3 btn btn-sm btn-primary mx-1"
-                style={{ backgroundColor: "#2196F3" }}> {/* Blue for Card Pay */}
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                </span>
-                <span>{t("Card Pay")}{" "}</span>
-              </a>
-              <div className="MyApp">
+<a
+    onClick={() => setMyModalVisible(true)}
+    className="mt-3 btn btn-sm btn-primary mx-1">
+    <span className="pe-2">
+        <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+    </span>
+    <span>{t("Card Pay")}</span>
+</a>
 
-                <div style={myStyles.overlayStyle}>
-                  <div style={myStyles.modalStyle}>
-                    <button style={myStyles.closeBtnStyle} onClick={() => { setMyModalVisible(false); setReceived(false) }}>X</button>
-                    <PaymentComponent2 setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />
-                  </div>
-                </div>
-              </div>
-              <a 
-               onClick={OpenCashDraw}
-                class="mt-3 btn btn-sm btn-primary mx-1"
-                style={{ backgroundColor: "#2196F3" }}> {/* Blue for Cash Pay */}
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faMoneyBillWave} />
-                </span>
-                <span>{t("Cash Pay")}{" "}</span>
-              </a>
+<a 
+    onClick={OpenCashDraw}
+    className="mt-3 btn btn-sm btn-primary mx-1">
+    <span className="pe-2">
+        <FontAwesomeIcon icon={faMoneyBillWave} />
+    </span>
+    <span>{t("Cash Pay")}</span>
+</a>
 
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1"
-                style={{ backgroundColor: "#FF9800" }}> {/* Orange for Split Payment */}
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faUsers} />
-                </span>
-                <span>{t("Split Payment")}{" "}</span>
-              </a>
+<a
+    onClick={(e) => { }}
+    className="mt-3 btn btn-sm btn-warning mx-1">
+    <span className="pe-2">
+        <FontAwesomeIcon icon={faUsers} />
+    </span>
+    <span>{t("Split Payment")}</span>
+</a>
 
-              <a
-              onClick={SendToKitchen}
-                class="mt-3 btn btn-sm btn-primary mx-1"
-                style={{ backgroundColor: "#9C27B0" }}> {/* Purple for Send to Kitchen */}
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faArrowRight} />
-                </span>
-                <span>{t("Send to kitchen")}{" "}</span>
-              </a>
+<a
+    onClick={SendToKitchen}
+    className="mt-3 btn btn-sm btn-info mx-1">
+    <span className="pe-2">
+        <FontAwesomeIcon icon={faArrowRight} />
+    </span>
+    <span>{t("Send to kitchen")}</span>
+</a>
 
-              <a
-                onClick={MerchantReceipt}
-                class="mt-3 btn btn-sm btn-primary mx-1"
-                style={{ backgroundColor: "#9E9E9E" }}> {/* Gray for Print Merchant Copy */}
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faPrint} />
-                </span>
-                <span>{t("Merchant Receipt")}{" "}</span>
-              </a>
-              <a
-                onClick={CustomerReceipt}
-                class="mt-3 btn btn-sm btn-primary mx-1"
-                style={{ backgroundColor: "#9E9E9E" }}> {/* Gray for Print Merchant Copy */}
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faPrint} />
-                </span>
-                <span>{t("Customer Receipt")}{" "}</span>
-              </a>
-              <a
-                onClick={(e) => { }}
-                class="mt-3 btn btn-sm btn-primary mx-1"
-                style={{ backgroundColor: "#F44336" }}> {/* Gray for Print Merchant Copy */}
+<a
+    onClick={MerchantReceipt}
+    className="mt-3 btn btn-sm btn-secondary mx-1">
+    <span className="pe-2">
+        <FontAwesomeIcon icon={faPrint} />
+    </span>
+    <span>{t("Merchant Receipt")}</span>
+</a>
 
-                <span class=" pe-2">
-                  <FontAwesomeIcon icon={faTimes} />
-                </span>
-                <span>{t("Finish Order")}{" "}</span>
-              </a>
+<a
+    onClick={CustomerReceipt}
+    className="mt-3 btn btn-sm btn-secondary mx-1">
+    <span className="pe-2">
+        <FontAwesomeIcon icon={faPrint} />
+    </span>
+    <span>{t("Customer Receipt")}</span>
+</a>
+
+<a
+    onClick={(e) => { }}
+    className="mt-3 btn btn-sm btn-danger mx-1">
+    <span className="pe-2">
+        <FontAwesomeIcon icon={faTimes} />
+    </span>
+    <span>{t("Finish Order")}</span>
+</a>
+
               <br></br>
               <>
 

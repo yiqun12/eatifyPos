@@ -983,7 +983,7 @@ async function redirectCode(partAfterQuestionMark) {
 
         <div className="d-flex flex-column flex-lg-row h-lg-full bg-surface-secondary">
           <nav
-            className={`navbar ${width < 1024 ? "d-none" : ""} show navbar-vertical h-lg-screen navbar-expand-lg px-0 py-3 navbar-light bg-white border-bottom border-bottom-lg-0 border-end-lg`}
+            className={`navbar ${width < 1024 ? "d-none" : ""} show navbar-vertical z-0 h-lg-screen navbar-expand-lg px-0 py-3 navbar-light bg-white border-bottom border-bottom-lg-0 border-end-lg`}
             id="navbarVertical"
           >
 
