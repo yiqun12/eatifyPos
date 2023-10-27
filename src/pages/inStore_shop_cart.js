@@ -16,7 +16,7 @@ import './float.css';
 import $ from 'jquery';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
-import { faCreditCard, faGift, faMoneyBillWave, faUsers, faPencilAlt, faTimes, faArrowRight, faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard, faGift, faDollarSign, faUsers, faPencilAlt, faTimes, faArrowRight, faPrint } from '@fortawesome/free-solid-svg-icons';
 import logo_transparent from './logo_transparent.png'
 //import { flexbox } from '@mui/system';
 import "./navbar.css";
@@ -442,7 +442,7 @@ const OpenCashDraw = async () => {
                       <div className="modal-header">
                         <h5 className="modal-title">Add Tip</h5>
                       </div>
-                      <div >
+                      <div className="modal-body">
                         <div className="row mb-3">
                           <button
                             type="button"
@@ -542,7 +542,7 @@ const OpenCashDraw = async () => {
                               min="0"
                               value={customDiscountPercentage}
                               onChange={handleCustomDiscountPercentageChange}
-                              className="form-control"
+                              className="form-control discounts-no-spinners"
                             />
                           </div>
                         </div>
@@ -552,7 +552,7 @@ const OpenCashDraw = async () => {
                           min="0"
                           placeholder="Enter discount amount"
                           value={discount}
-                          className="form-control"
+                          className="form-control discounts-no-spinners"
                           onChange={(e) => {
                             let value = parseFloat(e.target.value);
                             if (value < 0 || isNaN(value)) {
@@ -603,7 +603,7 @@ const OpenCashDraw = async () => {
     onClick={OpenCashDraw}
     className="mt-3 btn btn-sm btn-primary mx-1">
     <span className="pe-2">
-        <FontAwesomeIcon icon={faMoneyBillWave} />
+        <FontAwesomeIcon icon={faDollarSign} /> &nbsp;
     </span>
     <span>{t("Cash Pay")}</span>
 </a>

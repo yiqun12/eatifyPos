@@ -512,7 +512,7 @@ const Account = () => {
 
     // these redirects are to simulate the click of the 6 tab options of each store
     function redirectPerson() {
-      
+
       setShowSection('')
     }
 
@@ -993,6 +993,7 @@ async function redirectCode(partAfterQuestionMark) {
                 onClick={(e) => {
                   handleTabClick(e, '#profile')
                   setActiveStoreId("")
+                  window.location.hash = 'person'
                 }
                 }
               >
@@ -1150,6 +1151,8 @@ async function redirectCode(partAfterQuestionMark) {
                   handleTabClick(e, '#Revenue_Chart');
                   setStoreName_('');
                   setActiveStoreId('')
+                  window.location.hash = 'createStore'
+                  
                 }}
               >
                 <div style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -1235,6 +1238,7 @@ async function redirectCode(partAfterQuestionMark) {
                                 setStoreID(data.id);
                                 setStoreOpenTime(data.Open_time)
                                 setActiveStoreId(data.id)
+                                window.location.hash = 'person'
 
                               }}
                             >
@@ -1252,7 +1256,7 @@ async function redirectCode(partAfterQuestionMark) {
                       setShowSection('');
                       handleTabClick(e, '#Revenue_Chart');
                       setStoreName_('');
-                      setActiveStoreId('')
+                      setActiveStoreId('');
                     }}
                     class="btn d-inline-flex btn-sm btn-primary mx-1">
                     <span class=" pe-2">
