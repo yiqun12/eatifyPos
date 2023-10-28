@@ -440,7 +440,7 @@ const Navbar = ({ store, selectedTable, acct }) => {
                   <div className="modal-dialog" role="document">
                     <div className="modal-content">
                       <div className="modal-header">
-                        <h5 className="modal-title">Add Tip</h5>
+                        <h5 className="modal-title">Add Service Fee</h5>
                       </div>
                       <div className="modal-body">
                         <div className="row mb-3">
@@ -497,7 +497,7 @@ const Navbar = ({ store, selectedTable, acct }) => {
                       </div>
                       <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" onClick={() => handleCancelTip()}>Cancel</button>
-                        <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>Add Tip</button>
+                        <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>Add Service Fee</button>
                       </div>
                     </div>
                   </div>
@@ -598,10 +598,18 @@ const Navbar = ({ store, selectedTable, acct }) => {
                 </span>
                 <span>{t("Card Pay")}</span>
               </a>
+              <div className="MyApp">
 
+                <div style={myStyles.overlayStyle}>
+                  <div style={myStyles.modalStyle}>
+                    <button style={myStyles.closeBtnStyle} onClick={() => { setMyModalVisible(false); setReceived(false) }}>X</button>
+                    <PaymentComponent2 setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />
+                  </div>
+                </div>
+              </div>
               <a
-                onClick={OpenCashDraw}
-                className="mt-3 btn btn-sm btn-primary mx-1">
+onClick={() => { OpenCashDraw(); handleAddTipClick(); }}
+className="mt-3 btn btn-sm btn-primary mx-1">
                 <span className="pe-2">
                   <FontAwesomeIcon icon={faDollarSign} />
                 </span>

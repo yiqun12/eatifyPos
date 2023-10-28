@@ -167,20 +167,20 @@ function PayFullhistory() {
                               <p className="mb-1 d-block text-sm text-muted font-semibold">${order.metadata.total}</p>
                             </div>
 
-                            <a 
-   onClick={() => { toggleExpandedOrderId(order.id) }}
-   class="btn d-inline-flex btn-sm btn-light mx-1 text-center"  // Added "text-center" class
-   style={{ height: "40px", display: "flex", alignItems: "center" }}> {/* Added display and alignItems styles */}
-   <span class="pe-2">
-   </span>
-   <span>
-      {expandedOrderIds.includes(order.id) ? (
-         "Hide Details"
-      ) : (
-         "View Details"
-      )}
-   </span>
-</a>
+                            <a
+                              onClick={() => { toggleExpandedOrderId(order.id) }}
+                              class="btn d-inline-flex btn-sm btn-light mx-1 text-center"  // Added "text-center" class
+                              style={{ height: "40px", display: "flex", alignItems: "center" }}> {/* Added display and alignItems styles */}
+                              <span class="pe-2">
+                              </span>
+                              <span>
+                                {expandedOrderIds.includes(order.id) ? (
+                                  "Hide Details"
+                                ) : (
+                                  "View Details"
+                                )}
+                              </span>
+                            </a>
 
                           </div>
 
