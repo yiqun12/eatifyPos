@@ -613,12 +613,20 @@ const Food = ({ store, selectedTable }) => {
     console.log("hello")
     //const [selectedAttributes, setSelectedAttributes] = useState({});
     //const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
+    
+    // Add a CSS class to disable body scroll
+    // document.body.style.overflow = 'hidden';
+    // document.documentElement.style.overflow = 'hidden';
   }
 
   // Function to hide the modal
   const hideModal = () => {
     handleResetAllCustomAttributes();
     setModalVisibility(false);
+
+    // Remove the CSS class to enable body scroll
+    // document.body.style.overflow = 'auto';
+    // document.documentElement.style.overflow = 'auto';
   }
 
   useEffect(() => {

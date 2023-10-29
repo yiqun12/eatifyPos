@@ -34,7 +34,9 @@ import cartImage from './shopcart.png';
 import "./inStore_shop_cart.css";
 import PaymentComponent2 from "../pages/PaymentComponent2";
 
-const Navbar = ({ store, selectedTable, acct }) => {
+import Dnd_Test from './dnd_test';
+
+const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   /**listen to localtsorage */
   console.log("products")
@@ -289,6 +291,7 @@ const OpenCashDraw = async () => {
     setSelectedDiscountPercentage(null);
   }
 
+
   const [isMyModalVisible, setMyModalVisible] = useState(false);
   const [received, setReceived] = useState(false)
   const [isPaymentClick, setIsPaymentClick] = useState(false)
@@ -322,6 +325,7 @@ const OpenCashDraw = async () => {
       cursor: 'pointer',
     }
   };
+
 
   return (
 
@@ -609,7 +613,7 @@ const OpenCashDraw = async () => {
 </a>
 
 <a
-    onClick={(e) => { }}
+    onClick={(e) => {openSplitPaymentModal()}}
     className="mt-3 btn btn-sm btn-warning mx-1">
     <span className="pe-2">
         <FontAwesomeIcon icon={faUsers} />
