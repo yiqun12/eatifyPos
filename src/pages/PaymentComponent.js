@@ -146,6 +146,7 @@ async function createReader(payloadReader) {
           try {
             await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
             alert("Terminal registers successfully");
+            setIsExpanded(false)
           } catch (error) {
             setError("Error adding document: ");
             throw new Error("")

@@ -145,7 +145,7 @@ const Account = () => {
 
   const moment = require('moment');
   const [storelist, setStorelist] = useState([]);
-  console.log(orders)
+ // console.log(orders)
 
   const fetchPost = async () => {
     if (activeStoreTab !== '') {
@@ -367,6 +367,10 @@ const Account = () => {
     storeNameCHI: '',
     city: '',
     picture: '',
+    physical_address:'',
+    State:'',
+    ZipCode:'',
+    Phone:''
   });
 
   // Rename function for form input changes
@@ -421,7 +425,8 @@ const Account = () => {
   // using the below to control if suboption popping and popping out depending on which store is selected on the side bar
   const [activeStoreId, setActiveStoreId] = useState(null);
   // Rename function for form submission
-  const handleFormSubmit = async (e, name, storeNameCHI, address, image, id) => {
+  const handleFormSubmit = async (e, name, storeNameCHI, address, image, id,physical_address,State,ZipCode,Phone) => {
+
     e.preventDefault();
     // Here you can access formValues and perform actions like sending it to a server
     console.log(formValues);
@@ -434,7 +439,10 @@ const Account = () => {
       storeNameCHI: formValues.storeNameCHI !== '' ? formValues.storeNameCHI : storeNameCHI,
       Image: formValues.picture !== '' ? formValues.picture : image,
       Address: formValues.city !== '' ? formValues.city : address,
-
+      Phone:formValues.Phone !== '' ? formValues.Phone : Phone,
+      ZipCode:formValues.ZipCode !== '' ? formValues.ZipCode : ZipCode,
+      State:formValues.State !== '' ? formValues.State : State,
+      physical_address:formValues.physical_address !== '' ? formValues.physical_address : physical_address,
     });
     alert("Updated Successful");
   };
@@ -1473,7 +1481,7 @@ const Account = () => {
                                 </div>
                               </div>
                             </div>
-                            <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id)}>
+                            <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id,data?.physical_address,data?.State,data?.ZipCode,data?.Phone)}>
                               <div className="flex flex-wrap -mx-3 mb-6">
                                 <div className="w-full px-3">
                                   <label className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
@@ -1504,6 +1512,21 @@ const Account = () => {
                                   />
                                 </div>
                                 <div className="w-full px-3">
+                                  <label className="text-gray-700 mt-3 mb-2" htmlFor="physical_address">
+                                    Display Address
+                                  </label>
+                                  <input
+                                    className=
+                                    "appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    id="physical_address"
+                                    type="text"
+                                    name="physical_address"
+                                    value={formValues.physical_address}
+                                    onChange={handleInputChange}
+                                    placeholder={data?.physical_address}
+                                  />
+                                </div>
+                                <div className="w-full px-3">
                                   <label className="text-gray-700 mt-3 mb-2" htmlFor="city">
                                     Display City
                                   </label>
@@ -1515,6 +1538,52 @@ const Account = () => {
                                     value={formValues.city}
                                     onChange={handleInputChange}
                                     placeholder={data?.Address}
+                                  />
+                                </div>
+
+                                <div className="w-full px-3">
+                                  <label className="text-gray-700 mt-3 mb-2" htmlFor="State">
+                                    State
+                                  </label>
+                                  <input
+                                    className=
+                                    "appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    id="State"
+                                    type="text"
+                                    name="State"
+                                    value={formValues.State}
+                                    onChange={handleInputChange}
+                                    placeholder={data?.State}
+                                  />
+                                </div>
+                                <div className="w-full px-3">
+                                  <label className="text-gray-700 mt-3 mb-2" htmlFor="ZipCode">
+                                    Zip Code
+                                  </label>
+                                  <input
+                                    className=
+                                    "appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    id="ZipCode"
+                                    type="text"
+                                    name="ZipCode"
+                                    value={formValues.ZipCode}
+                                    onChange={handleInputChange}
+                                    placeholder={data?.ZipCode}
+                                  />
+                                </div>
+                                <div className="w-full px-3">
+                                  <label className="text-gray-700 mt-3 mb-2" htmlFor="Phone">
+                                    Phone
+                                  </label>
+                                  <input
+                                    className=
+                                    "appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    id="Phone"
+                                    type="text"
+                                    name="Phone"
+                                    value={formValues.Phone}
+                                    onChange={handleInputChange}
+                                    placeholder={data?.Phone}
                                   />
                                 </div>
                               </div>

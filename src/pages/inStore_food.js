@@ -317,7 +317,7 @@ const Food = ({ store, selectedTable }) => {
 
   const handleInputChange = (event) => {
     setInput(event.target.value);
-    if (sessionStorage.getItem("Google-language")?.includes("Chinese")) {
+    if (sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中")) {
       filternameCHI(event.target.value);
 
     } else {
@@ -671,7 +671,7 @@ const Food = ({ store, selectedTable }) => {
                 <div className='p-4 pt-3'>
                   <div className='flex justify-between'>
                     <h4 class="notranslate">
-                      {sessionStorage.getItem("Google-language")?.includes("Chinese") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
+                      {sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
                     </h4>
                   </div>
                   <div className="mb-3">
@@ -966,7 +966,7 @@ const Food = ({ store, selectedTable }) => {
                           <div className="col-span-4 ">
                             <p class="notranslate">
 
-                              {sessionStorage.getItem("Google-language")?.includes("Chinese") ? t(item?.CHI) : (item?.name)}
+                              {sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
                             </p>                          </div>
 
                           {/* parent div of the quantity and buttons */}

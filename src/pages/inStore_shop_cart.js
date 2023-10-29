@@ -156,7 +156,8 @@ const Navbar = ({ store, selectedTable, acct }) => {
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "MerchantReceipt"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
+        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        selectedTable: selectedTable
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
@@ -169,7 +170,8 @@ const Navbar = ({ store, selectedTable, acct }) => {
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "CustomerReceipt"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
+        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        selectedTable: selectedTable
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
@@ -182,7 +184,8 @@ const Navbar = ({ store, selectedTable, acct }) => {
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
+        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        selectedTable: selectedTable
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
@@ -195,14 +198,89 @@ const Navbar = ({ store, selectedTable, acct }) => {
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "OpenCashDraw"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
+        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        selectedTable: selectedTable
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
   }
-
+  const CashCheckOut = async (extra) => {
+    let extra_tip = 0
+    if(extra !== null){
+      extra_tip=extra.toFixed(2)
+    }
+    try {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
+        amount: Math.round(finalPrice * 100),
+        amount_capturable: 0,
+        amount_details: { tip: { amount: 0 } },
+        amount_received: Math.round(finalPrice * 100),
+        application: "",
+        application_fee_amount: 0,
+        automatic_payment_methods: null,
+        canceled_at: null,
+        cancellation_reason: null,
+        capture_method: "automatic",
+        client_secret: "pi_none",
+        confirmation_method: "automatic",
+        created: 0,
+        currency: "usd",
+        customer: null,
+        dateTime: date,
+        description: null,
+        id: "pi_none",
+        invoice: null,
+        last_payment_error: null,
+        latest_charge: "ch_none",
+        livemode: true,
+        metadata: {
+          discount: discount===""?0:discount,
+          isDine: true,
+          service_fee: tips===""?0:tips,
+          subtotal: Math.round(100 * totalPrice) / 100,
+          tax: Math.round(100 * totalPrice * 0.0825) / 100,
+          tips:  Math.round(100 * extra_tip) / 100 ,
+          total: finalPrice,
+        }, // Assuming an empty map converts to an empty object
+        next_action: null,
+        object: "payment_intent",
+        on_behalf_of: null,
+        payment_method: "pm_none",
+        payment_method_configuration_details: null,
+        payment_method_options: {}, // Assuming an empty map converts to an empty object
+        card_present: {}, // Assuming an empty map converts to an empty object
+        request_extended_authorization: false,
+        request_incremental_authorization_support: false,
+        payment_method_types: ["Handle_Instore"],
+        powerBy: "Handle Instore",
+        processing: null,
+        receiptData: localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]",
+        receipt_email: null,
+        review: null,
+        setup_future_usage: null,
+        shipping: null,
+        source: null,
+        statement_descriptor: null,
+        statement_descriptor_suffix: null,
+        status: "succeeded",
+        store: store,
+        storeOwnerId: user.uid,
+        stripe_store_acct: acct,
+        tableNum: selectedTable,
+        transfer_data: null,
+        transfer_group: null,
+        uid: user.uid,
+        user_email: user.email,
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
 
   // handling the add tips logic + modal
 
@@ -322,6 +400,103 @@ const Navbar = ({ store, selectedTable, acct }) => {
       cursor: 'pointer',
     }
   };
+  const [isUniqueModalOpen, setUniqueModalOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [customAmount, setCustomAmount] = useState("");
+  const [result, setResult] = useState(null);
+  const [extra, setExtra] = useState(null);
+  const [finalResult, setFinalResult] = useState(null);
+
+  const openUniqueModal = () => setUniqueModalOpen(true);
+  const closeUniqueModal = () => setUniqueModalOpen(false);
+
+  const handleChange = (event) => {
+    setInputValue(event.target.value);
+  };
+
+  const handleCustomAmountChange = (event) => {
+    setCustomAmount(event.target.value);
+  };
+
+  const calculateResult = () => {
+    const x = parseInt(inputValue);
+    if (!isNaN(x) && x > 10) {
+      setResult(x - 10);
+    } else {
+      alert("Please enter a number greater than 10");
+    }
+  };
+
+  const calculateExtra = (percentage) => {
+    const extraAmount = (10 * percentage) / 100;
+    setExtra(extraAmount);
+    setFinalResult(10 + extraAmount);
+  };
+
+  const calculateCustomAmount = () => {
+    const amount = parseFloat(customAmount);
+    if (!isNaN(amount)) {
+      setExtra(amount);
+      setFinalResult(10 + amount);
+    } else {
+      alert("Please enter a valid number");
+    }
+  };
+
+  const uniqueModalStyles = {
+    overlayStyle: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: isUniqueModalOpen ? 'flex' : 'none',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalStyle: {
+      backgroundColor: '#fff',
+      padding: '20px',
+      borderRadius: '8px',
+      width: '100%',
+      maxWidth: '400px',
+      position: 'relative',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    },
+    closeBtnStyle: {
+      position: 'absolute',
+      right: '10px',
+      top: '10px',
+      background: 'none',
+      border: 'none',
+      fontSize: '24px',
+      cursor: 'pointer',
+    },
+    inputStyle: {
+      width: '100%',
+      padding: '12px',
+      boxSizing: 'border-box',
+      marginBottom: '10px',
+      borderRadius: '4px',
+      border: '1px solid #ccc',
+    },
+    buttonStyle: {
+      backgroundColor: '#007bff',
+      color: '#fff',
+      padding: '12px 15px',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      width: '100%',
+      marginBottom: '10px',
+    },
+  };
+  const [isCustomAmountVisible, setCustomAmountVisible] = useState(false);
+
+  const toggleCustomAmountVisibility = () => {
+    setCustomAmountVisible(!isCustomAmountVisible);
+  };
 
   return (
 
@@ -369,7 +544,7 @@ const Navbar = ({ store, selectedTable, acct }) => {
                         <div style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>
                           <span class="notranslate">
 
-                            {sessionStorage.getItem("Google-language")?.includes("Chinese") ? t(product?.CHI) : (product?.name)}
+                            {sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
                           </span>
                         </div>
 
@@ -454,19 +629,20 @@ const Navbar = ({ store, selectedTable, acct }) => {
 
                           <button
                             type="button"
+                            className={`btn col ${selectedTipPercentage === 0.18 ? 'btn-primary' : 'btn-outline-primary'}`}
+                            onClick={() => handlePercentageTip(0.18)}
+                          >
+                            18%
+                          </button>
+
+                          <button
+                            type="button"
                             className={`btn col ${selectedTipPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`}
                             onClick={() => handlePercentageTip(0.20)}
                           >
                             20%
                           </button>
-
-                          <button
-                            type="button"
-                            className={`btn col ${selectedTipPercentage === 0.25 ? 'btn-primary' : 'btn-outline-primary'}`}
-                            onClick={() => handlePercentageTip(0.25)}
-                          >
-                            25%
-                          </button>
+                          
                           <div className="col">
                             <input
                               type="number"
@@ -603,19 +779,97 @@ const Navbar = ({ store, selectedTable, acct }) => {
                 <div style={myStyles.overlayStyle}>
                   <div style={myStyles.modalStyle}>
                     <button style={myStyles.closeBtnStyle} onClick={() => { setMyModalVisible(false); setReceived(false) }}>X</button>
-                    <PaymentComponent2 setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />
+                    <PaymentComponent2 setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
                   </div>
                 </div>
               </div>
               <a
-onClick={() => { OpenCashDraw(); handleAddTipClick(); }}
-className="mt-3 btn btn-sm btn-primary mx-1">
+                onClick={() => { OpenCashDraw();openUniqueModal() }}
+                className="mt-3 btn btn-sm btn-primary mx-1">
                 <span className="pe-2">
                   <FontAwesomeIcon icon={faDollarSign} />
                 </span>
                 <span>{t("Cash Pay")}</span>
               </a>
+              <div style={uniqueModalStyles.overlayStyle}>
+        <div style={uniqueModalStyles.modalStyle} className="p-4 rounded-lg">
+          <button style={uniqueModalStyles.closeBtnStyle} onClick={closeUniqueModal}>
+            &times;
+          </button>
+          <h2 className="text-2xl font-semibold mb-4">Cash Pay</h2>
+          <p className="mb-2">Cash On Delivery</p>
+          <input
+            type="number"
+            value={inputValue}
+            onChange={handleChange}
+            style={uniqueModalStyles.inputStyle}
+            className="mb-4 p-2 w-full border rounded-md"
+          />
+          <button
+            onClick={calculateResult}
+            style={uniqueModalStyles.buttonStyle}
+            className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
+          >
+            Calculate Give Back Cash
+          </button>
+          {result !== null && (
+  <p className="mb-4">
+    Give Back Cash : {extra !== null ? (result - extra).toFixed(2) : result}
+  </p>
+)}
 
+<p className="mb-4">Gratuity:</p>
+          <div className="flex justify-between mb-4">
+            <button onClick={() => calculateExtra(15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
+              15%
+            </button>
+            <button onClick={() => calculateExtra(18)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mx-1">
+              18%
+            </button>
+            <button onClick={() => calculateExtra(20)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
+              20%
+            </button>
+            <button onClick={toggleCustomAmountVisibility} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
+              Other
+            </button>
+          </div>
+
+          {isCustomAmountVisible && (
+            <>
+              <p className="mb-2">Custom Gratuity:</p>
+              <div className="flex">
+                <input
+                  type="number"
+                  value={customAmount}
+                  onChange={handleCustomAmountChange}
+                  style={uniqueModalStyles.inputStyle}
+                  className="p-2 w-full border rounded-md mr-2"
+                />
+                <button
+                  onClick={calculateCustomAmount}
+                  className="bg-orange-500 text-white px-4 py-2 rounded-md w-1/3"
+                >
+                  Add
+                </button>
+              </div>
+            </>
+          )}
+
+          {extra !== null && (
+            <p className="mt-4">Gratuity Amount: {extra.toFixed(2)}</p>
+          )}
+          
+           <button
+                           onClick={() => { CashCheckOut(extra) }}
+
+            style={uniqueModalStyles.buttonStyle}
+            className="mb-4 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+          >
+            Confirm
+          </button>
+        </div>
+
+      </div>
               <a
                 onClick={(e) => { }}
                 className="mt-3 btn btn-sm btn-warning mx-1">

@@ -320,7 +320,7 @@ const Food = () => {
 
   const handleInputChange = (event) => {
     setInput(event.target.value);
-    if (sessionStorage.getItem("Google-language")?.includes("Chinese")) {
+    if (sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中")) {
       filternameCHI(event.target.value);
 
     } else {
@@ -627,7 +627,7 @@ const Food = () => {
                   <div>
                   <span class="notranslate">
 
-                  {sessionStorage.getItem("Google-language")?.includes("Chinese") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
+                  {sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
                   </span>
                   </div>
                   {Object.entries(selectedFoodItem?.attributesArr)?.map(([attributeName, attributeDetails]) => (
@@ -807,7 +807,7 @@ const Food = () => {
                           <div className="col-span-4">
                             <div>{item?.CHI}</div>
                           <span class="notranslate">
-{sessionStorage.getItem("Google-language")?.includes("Chinese") ? item?.CHI : item?.name}
+{sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
 </span >
                           </div>
 

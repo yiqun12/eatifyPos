@@ -85,11 +85,6 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
   const [intent, setIntent] = useState([])
   async function makePayment() {
     setIsPaymentClick(true)
-    console.log("makePayment")
-    const createPaymentButton = document.getElementById("create-payment-button");
-    createPaymentButton.className = "loading";
-    createPaymentButton.disabled = true;
-    console.log("make payment")
     console.log(localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
     try {
       let amount = Math.round(chargeAmount * 100);
@@ -111,8 +106,7 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
     } catch (error) {
       console.error("Error in makePayment: ", error.message);
     } finally {
-      //createPaymentButton.className = "btn btn-primary";
-      createPaymentButton.disabled = false;
+
     }
   }
 
@@ -121,10 +115,6 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
 
   async function cancelPayment() {
 
-    const cancelPaymentButton = document.getElementById("cancel-payment-button");
-    cancelPaymentButton.className = "loading";
-    cancelPaymentButton.disabled = true;
-
     try {
       const reader = await cancel();
       console.log("canceled payment at: ", reader);
@@ -132,7 +122,6 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
       console.error("Error in cancelPayment: ", error.message);
     } finally {
       // cancelPaymentButton.className = "btn btn-danger";
-      cancelPaymentButton.disabled = false;
     }
   }
 

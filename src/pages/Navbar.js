@@ -384,7 +384,7 @@ const Navbar = () => {
                     <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
                       <div class='notranslate' style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>
                       <span class="notranslate">
-                      {sessionStorage.getItem("Google-language")?.includes("Chinese") ? t(product.CHI) : (product.name)}
+                      {sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? t(product.CHI) : (product.name)}
                       </span>
                         </div>
 

@@ -78,7 +78,6 @@ function App({ store, acct }) {
     }
 
     useEffect(() => {
-        //console.log("hellooooooooooooooooooooo")
         syncData();
     }, []);
 
