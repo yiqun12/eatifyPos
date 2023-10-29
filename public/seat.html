@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title> Restaurant reservation system</title>
   <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
   <link rel='stylesheet' href='https://cdn.rawgit.com/leongersen/noUiSlider/master/distribute/nouislider.min.css'>
@@ -103,10 +104,12 @@
   </div>
 
   <!-- partial -->
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.11/fabric.min.js'></script>
+  <!-- <script src='https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.11/fabric.min.js'></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
   <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
   <script src='https://cdn.rawgit.com/leongersen/noUiSlider/master/distribute/nouislider.min.js'></script>
+  
   <script>
     let store
     let canvas
@@ -265,86 +268,171 @@
         canvas.add(lineY)
       }
 
-
+      // ********* // 
       // this has to be inside initCanvas() so that every Newly created canvas has this functionality
-      // when the blank canvas is clicked and the shapes are deselected, it sends a message to the parent
-      canvas.on('mouse:down', function (options) {
-        // console.log("mouse down")
-        // when the target doesn't exist (IE just the canvas)
-        if (current_mode === "customer") {
-          // console.log(options.target)
-          if (!options.target) {
-            // console.log("mouse down on canvas")
-            canvas.discardActiveObject().renderAll();
-            window.parent.postMessage(`table_deselected`, "*");
-          }
-          if (options.target?.type === "rect" || options.target?.type === "circle") {
-            // console.log(options.target.tableName)
-            window.parent.postMessage(`selected_table ${options.target.tableName}`, "*");
-          }
-        }
-      });
-      canvas.on('touch:start', function (options) {
-        // console.log("mouse down")
-        // when the target doesn't exist (IE just the canvas)
-        if (current_mode === "customer") {
-          // console.log(options.target)
-          if (!options.target) {
-            // console.log("mouse down on canvas")
-            canvas.discardActiveObject().renderAll();
-            window.parent.postMessage(`table_deselected`, "*");
-          }
-          if (options.target?.type === "rect" || options.target?.type === "circle") {
-            // console.log(options.target.tableName)
-            window.parent.postMessage(`selected_table ${options.target.tableName}`, "*");
-          }
-        }
-      });
-      canvas.on('object:moving', function (e) {
-        snapToGrid(e.target)
-      })
+      function handleCanvasEvents(canvas) {
+        canvas.on('mouse:down', function (options) {
+          handleEvent(options);
+        });
 
-      canvas.on('object:scaling', function (e) {
-        if (e.target.scaleX > 5) {
-          e.target.scaleX = 5
-        }
-        if (e.target.scaleY > 5) {
-          e.target.scaleY = 5
-        }
-        if (!e.target.strokeWidthUnscaled && e.target.strokeWidth) {
-          e.target.strokeWidthUnscaled = e.target.strokeWidth
-        }
-        if (e.target.strokeWidthUnscaled) {
-          e.target.strokeWidth = e.target.strokeWidthUnscaled / e.target.scaleX
-          if (e.target.strokeWidth === e.target.strokeWidthUnscaled) {
-            e.target.strokeWidth = e.target.strokeWidthUnscaled / e.target.scaleY
+        canvas.on('touch:start', function (options) {
+          handleEvent(options);
+        });
+
+        canvas.on('touch:gesture', function (options) {
+          handleEvent(options);
+        });
+
+        canvas.on('object:moving', function (e) {
+          snapToGrid(e.target);
+          checkBoudningBox(e);
+        });
+
+        canvas.on('object:scaling', function (e) {
+          handleScaling(e.target);
+          checkBoudningBox(e);
+        });
+
+        canvas.on('object:modified', function (e) {
+          handleModified(e.target);
+          checkBoudningBox(e);
+        });
+
+        function handleEvent(options) {
+
+          console.log('Event Triggered:', options.e.type); // Log the event type
+          console.log("Options for ", options.e.type, " : ", options)
+          console.log("Options.target for ", options.e.type, " : ", options.target)
+
+
+          if (current_mode === "customer") {
+            if (!options.target) {
+              canvas.discardActiveObject().renderAll();
+              window.parent.postMessage(`table_deselected`, "*");
+              console.log("Deselected")
+            }
+            if (options.target?.type === "rect" || options.target?.type === "circle") {
+              window.parent.postMessage(`selected_table ${options.target.tableName}`, "*");
+            }
           }
         }
-      })
 
-      canvas.on('object:modified', function (e) {
-        e.target.scaleX = e.target.scaleX >= 0.25 ? (Math.round(e.target.scaleX * 2) / 2) : 0.5
-        e.target.scaleY = e.target.scaleY >= 0.25 ? (Math.round(e.target.scaleY * 2) / 2) : 0.5
-
-        snapToGrid(e.target)
-        if (e.target.type === 'table') {
-          canvas.bringToFront(e.target)
+        function handleScaling(target) {
+          if (target.scaleX > 5) {
+            target.scaleX = 5;
+          }
+          if (target.scaleY > 5) {
+            target.scaleY = 5;
+          }
+          if (!target.strokeWidthUnscaled && target.strokeWidth) {
+            target.strokeWidthUnscaled = target.strokeWidth;
+          }
+          if (target.strokeWidthUnscaled) {
+            target.strokeWidth = target.strokeWidthUnscaled / target.scaleX;
+            if (target.strokeWidth === target.strokeWidthUnscaled) {
+              target.strokeWidth = target.strokeWidthUnscaled / target.scaleY;
+            }
+          }
         }
-        else {
-          canvas.sendToBack(e.target)
-        }
-        sendLinesToBack()
-      })
 
-      canvas.observe('object:moving', function (e) {
-        checkBoudningBox(e)
-      })
-      canvas.observe('object:rotating', function (e) {
-        checkBoudningBox(e)
-      })
-      canvas.observe('object:scaling', function (e) {
-        checkBoudningBox(e)
-      })
+        function handleModified(target) {
+          target.scaleX = target.scaleX >= 0.25 ? (Math.round(target.scaleX * 2) / 2) : 0.5;
+          target.scaleY = target.scaleY >= 0.25 ? (Math.round(target.scaleY * 2) / 2) : 0.5;
+
+          snapToGrid(target);
+          if (target.type === 'table') {
+            canvas.bringToFront(target);
+          } else {
+            canvas.sendToBack(target);
+          }
+          sendLinesToBack();
+        }
+      }
+
+      // Call handleCanvasEvents with your canvas object
+      // var canvas = new fabric.Canvas('your-canvas-element-id');
+      handleCanvasEvents(canvas);
+      // ********** // this segment and below code is similar
+
+      // // this has to be inside initCanvas() so that every Newly created canvas has this functionality
+      // // when the blank canvas is clicked and the shapes are deselected, it sends a message to the parent
+      // canvas.on('mouse:down', function (options) {
+      //   // console.log("mouse down")
+      //   // when the target doesn't exist (IE just the canvas)
+      //   if (current_mode === "customer") {
+      //     // console.log(options.target)
+      //     if (!options.target) {
+      //       // console.log("mouse down on canvas")
+      //       canvas.discardActiveObject().renderAll();
+      //       window.parent.postMessage(`table_deselected`, "*");
+      //     }
+      //     if (options.target?.type === "rect" || options.target?.type === "circle") {
+      //       // console.log(options.target.tableName)
+      //       window.parent.postMessage(`selected_table ${options.target.tableName}`, "*");
+      //     }
+      //   }
+      // });
+      // canvas.on('touch:start', function (options) {
+      //   // console.log("mouse down")
+      //   // when the target doesn't exist (IE just the canvas)
+      //   if (current_mode === "customer") {
+      //     // console.log(options.target)
+      //     if (!options.target) {
+      //       // console.log("mouse down on canvas")
+      //       canvas.discardActiveObject().renderAll();
+      //       window.parent.postMessage(`table_deselected`, "*");
+      //     }
+      //     if (options.target?.type === "rect" || options.target?.type === "circle") {
+      //       // console.log(options.target.tableName)
+      //       window.parent.postMessage(`selected_table ${options.target.tableName}`, "*");
+      //     }
+      //   }
+      // });
+      // canvas.on('object:moving', function (e) {
+      //   snapToGrid(e.target)
+      // })
+
+      // canvas.on('object:scaling', function (e) {
+      //   if (e.target.scaleX > 5) {
+      //     e.target.scaleX = 5
+      //   }
+      //   if (e.target.scaleY > 5) {
+      //     e.target.scaleY = 5
+      //   }
+      //   if (!e.target.strokeWidthUnscaled && e.target.strokeWidth) {
+      //     e.target.strokeWidthUnscaled = e.target.strokeWidth
+      //   }
+      //   if (e.target.strokeWidthUnscaled) {
+      //     e.target.strokeWidth = e.target.strokeWidthUnscaled / e.target.scaleX
+      //     if (e.target.strokeWidth === e.target.strokeWidthUnscaled) {
+      //       e.target.strokeWidth = e.target.strokeWidthUnscaled / e.target.scaleY
+      //     }
+      //   }
+      // })
+
+      // canvas.on('object:modified', function (e) {
+      //   e.target.scaleX = e.target.scaleX >= 0.25 ? (Math.round(e.target.scaleX * 2) / 2) : 0.5
+      //   e.target.scaleY = e.target.scaleY >= 0.25 ? (Math.round(e.target.scaleY * 2) / 2) : 0.5
+
+      //   snapToGrid(e.target)
+      //   if (e.target.type === 'table') {
+      //     canvas.bringToFront(e.target)
+      //   }
+      //   else {
+      //     canvas.sendToBack(e.target)
+      //   }
+      //   sendLinesToBack()
+      // })
+
+      // canvas.observe('object:moving', function (e) {
+      //   checkBoudningBox(e)
+      // })
+      // canvas.observe('object:rotating', function (e) {
+      //   checkBoudningBox(e)
+      // })
+      // canvas.observe('object:scaling', function (e) {
+      //   checkBoudningBox(e)
+      // })
     }
     initCanvas()
 
