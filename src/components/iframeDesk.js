@@ -14,6 +14,10 @@ import { data_ } from '../data/data.js'
 import InStore_food from '../pages/inStore_food'
 import InStore_shop_cart from '../pages/inStore_shop_cart'
 import { useUserContext } from "../context/userContext";
+import Dnd_Test from '../pages/dnd_test';
+
+// Create a CSS class to hide overflow
+const bodyOverflowHiddenClass = 'body-overflow-hidden';
 
 function Iframe({ src, width, height, storeName }) {
     const iframeRef = useRef();
@@ -320,6 +324,21 @@ function App({ store, acct }) {
         alert("Updated Successful");
     };
 
+      // for split payment modal
+
+  const [isSplitPaymentModalOpen, setIsSplitPaymentModalOpen] = useState(false);
+
+  const openSplitPaymentModal = () => {
+    setIsSplitPaymentModalOpen(true);
+    // Add a CSS class to disable body scroll
+    document.body.classList.add('bodyOverflowHiddenClass');
+  };
+  
+  const closeSplitPaymentModal = () => {
+    setIsSplitPaymentModalOpen(false);
+    // Remove the CSS class to enable body scroll
+    document.body.classList.remove('bodyOverflowHiddenClass');
+  };
 
     return (
 
@@ -330,6 +349,59 @@ function App({ store, acct }) {
             {true ?
 
                 <>
+{isSplitPaymentModalOpen && (
+  <div
+    id="addDiscountModal"
+    className="modal fade show"
+    role="dialog"
+    style={{
+      display: 'block',
+      position: 'fixed', // Set to 'fixed' to make it stay fixed on the screen
+      top: '0',
+      left: '0',
+      right: '0',
+      bottom: '0',
+      backgroundColor: 'rgba(255,255,255,1)',
+      overflow: 'auto', // Use 'hidden' to prevent the modal itself from scrolling
+      zIndex: '9999',
+    }}
+  >
+    <div
+      className="modal-dialog modal-xl"
+      role="document"
+      style={{
+        height:"80vh",
+        margin: 'auto', // Center the modal on the screen
+        position: 'relative', // Add relative positioning
+      }}
+    >
+      <div className="modal-content" style={{ overflowY: 'hidden' }}>
+        <div className="modal-header">
+          <h5 className="modal-title">Split Payment</h5>
+        </div>
+        <div className="modal-body">
+        <div>Main column will be divided equally between groups, each group sums its items separately</div>
+          {/* Set a maxHeight for the modal body */}
+          <Dnd_Test />
+        </div>
+        <div className="modal-footer">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={closeSplitPaymentModal}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
+                    {/* split_payment modal ends here */}
+
                     <div className='flex flex-col' style={{ alignItems: 'flex-start' }}>
                         {selectedSeatMode === 'admin' ?
                             <div style={buttonStyles} onClick={() => handleFormSubmit(store)} className='mt-3 hover:bg-yellow-700'>{t("Save Layout")}</div>
@@ -338,13 +410,17 @@ function App({ store, acct }) {
 
                         <div style={{ margin: "10px", display: "flex" }}>
 
-                        <div style={{ position: 'relative', width: "540px", height: "800px" }}>
+                        <div style={{ position: 'relative', width: "540px", height: "800px", zIndex:"1"}}>
+
+                            
                                 <Iframe ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" storeName={store} />
 
                                 {/* modal code for when table inside iframe is clicked in customer mode */}
-                                {isModalOpen && (
+
+                                {/* previous code */}
+                                {/* {isModalOpen && (
                                     
-                                    <div  id="addTableModal" className="modal fade show " role="dialog" style={{ display: 'block',position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,1)', zIndex: '10' }}>
+                                    <div  id="addTableModal" className="modal fade show " role="dialog" style={{ display: 'block',position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,1)' }}>
                                         <div className="modal-dialog modal-xl" role="document">
                                             <div className="modal-content">
                                                 <div className="modal-header">
@@ -352,13 +428,30 @@ function App({ store, acct }) {
                                                     <button type="button" className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
                                                 </div>
                                                 <div className="modal-body">
-                                                    {/* in the body of the modal contains the search food items functionality */}
                                                     <InStore_food store={store} selectedTable={selectedTable} ></InStore_food>
                                                 </div>
 
                                             </div>
                                         </div>
                                     </div>
+                                )} */}
+
+                                {/* new modal with scrollbar hidden */}
+                                {isModalOpen && (
+                                <div id="addTableModal" className="modal fade show" role="dialog" style={{ display: 'block', position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,1)', overflow: 'hidden' }}>
+                                    <div className="modal-dialog modal-xl" role="document" style={{ overflowY: 'hidden' }}>
+                                    <div className="modal-content" style={{ overflowY: 'scroll', maxHeight: '80vh', /* Add scrollbar styles inline */ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' }}>
+                                        <div className="modal-header">
+                                        <h5 className="modal-title">{selectedTable}</h5>
+                                        <button type="button" className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
+                                        </div>
+                                        <div className="modal-body">
+                                        {/* in the body of the modal contains the search food items functionality */}
+                                        <InStore_food store={store} selectedTable={selectedTable}></InStore_food>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
                                 )}
                             </div>
 
@@ -366,7 +459,7 @@ function App({ store, acct }) {
                                 <div className="task-wrap" style={{ minHeight: '800px', overflowY: 'scroll' }}>
                                     <div style={{ display: "flex", alignItems: "center" }}>
                                         <div>
-                                            <InStore_shop_cart store={store} acct={acct} selectedTable={selectedTable}  ></InStore_shop_cart>
+                                            <InStore_shop_cart store={store} acct={acct} selectedTable={selectedTable} openSplitPaymentModal={openSplitPaymentModal}  ></InStore_shop_cart>
                                             <hr />
                                         </div>
                                     </div>
