@@ -154,56 +154,56 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
 
   const MerchantReceipt = async () => {
     try {
-        const dateTime = new Date().toISOString();
-        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-        const docRef = await addDoc(collection(db,  "stripe_customers", user.uid, "TitleLogoNameContent", store,"MerchantReceipt"), {
-            date: date,  
-            data:localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
-        });
-        console.log("Document written with ID: ", docRef.id);
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "MerchantReceipt"), {
+        date: date,
+        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
+      });
+      console.log("Document written with ID: ", docRef.id);
     } catch (e) {
-        console.error("Error adding document: ", e);
+      console.error("Error adding document: ", e);
     }
-}
-const CustomerReceipt = async () => {
-  try {
+  }
+  const CustomerReceipt = async () => {
+    try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docRef = await addDoc(collection(db,  "stripe_customers", user.uid, "TitleLogoNameContent", store, "CustomerReceipt"), {
-        date: date,  
-        data:localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "CustomerReceipt"), {
+        date: date,
+        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
       });
       console.log("Document written with ID: ", docRef.id);
-  } catch (e) {
+    } catch (e) {
       console.error("Error adding document: ", e);
+    }
   }
-}
-const SendToKitchen = async () => {
-  try {
+  const SendToKitchen = async () => {
+    try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docRef = await addDoc(collection(db,  "stripe_customers", user.uid, "TitleLogoNameContent", store,"SendToKitchen"), {
-        date: date,  
-        data:localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
+        date: date,
+        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
       });
       console.log("Document written with ID: ", docRef.id);
-  } catch (e) {
+    } catch (e) {
       console.error("Error adding document: ", e);
+    }
   }
-}
-const OpenCashDraw = async () => {
-  try {
+  const OpenCashDraw = async () => {
+    try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docRef = await addDoc(collection(db,  "stripe_customers", user.uid, "TitleLogoNameContent", store,"OpenCashDraw"), {
-        date: date,  
-        data:localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "OpenCashDraw"), {
+        date: date,
+        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : "[]"
       });
       console.log("Document written with ID: ", docRef.id);
-  } catch (e) {
+    } catch (e) {
       console.error("Error adding document: ", e);
+    }
   }
-}
 
 
   // handling the add tips logic + modal
@@ -339,13 +339,13 @@ const OpenCashDraw = async () => {
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
 
 
-            <div>
-                  <div style={{ marginTop: "15px" }}>
-                    <span>
-                      <span>{`Your selected table is ${selectedTable}`}</span>
-                    </span>
-                  </div>
+              <div>
+                <div style={{ marginTop: "15px" }}>
+                  <span>
+                    <span>{`Your selected table is ${selectedTable}`}</span>
+                  </span>
                 </div>
+              </div>
             </div>
           </div>
           <div className="flex flex-col flex-row">
@@ -444,7 +444,7 @@ const OpenCashDraw = async () => {
                   <div className="modal-dialog" role="document">
                     <div className="modal-content">
                       <div className="modal-header">
-                        <h5 className="modal-title">Add Tip</h5>
+                        <h5 className="modal-title">Add Service Fee</h5>
                       </div>
                       <div className="modal-body">
                         <div className="row mb-3">
@@ -501,7 +501,7 @@ const OpenCashDraw = async () => {
                       </div>
                       <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" onClick={() => handleCancelTip()}>Cancel</button>
-                        <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>Add Tip</button>
+                        <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>Add Service Fee</button>
                       </div>
                     </div>
                   </div>
@@ -576,86 +576,96 @@ const OpenCashDraw = async () => {
                 </div>
               )}
 
-<a
-    onClick={handleAddTipClick}
-    className="mt-3 btn btn-sm btn-success mx-1"> 
-    <span className="pe-2">
-        <FontAwesomeIcon icon={faGift} /> &nbsp;
-    </span>
-    <span>{t("Add Service Fee")}</span>
-</a>
 
-<a
-    onClick={handleAddDiscountClick}
-    className="mt-3 btn btn-sm btn-danger mx-1">
-    <span className="pe-2">
-        <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;
-    </span>
-    <span>{t("Add Discount")}</span>
-</a>
+              <a
+                onClick={handleAddTipClick}
+                className="mt-3 btn btn-sm btn-success mx-1">
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faGift} />
+                </span>
+                <span>{t("Add Service Fee")}</span>
+              </a>
 
-<a
-    onClick={() => setMyModalVisible(true)}
-    className="mt-3 btn btn-sm btn-primary mx-1">
-    <span className="pe-2">
-        <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-    </span>
-    <span>{t("Card Pay")}</span>
-</a>
+              <a
+                onClick={handleAddDiscountClick}
+                className="mt-3 btn btn-sm btn-danger mx-1">
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faPencilAlt} />
+                </span>
+                <span>{t("Add Discount")}</span>
+              </a>
 
-<a 
-    onClick={OpenCashDraw}
-    className="mt-3 btn btn-sm btn-primary mx-1">
-    <span className="pe-2">
-        <FontAwesomeIcon icon={faDollarSign} /> &nbsp;
-    </span>
-    <span>{t("Cash Pay")}</span>
-</a>
+              <a
+                onClick={() => setMyModalVisible(true)}
+                className="mt-3 btn btn-sm btn-primary mx-1">
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faCreditCard} />
+                </span>
+                <span>{t("Card Pay")}</span>
+              </a>
+              <div className="MyApp">
 
-<a
-    onClick={(e) => {openSplitPaymentModal()}}
-    className="mt-3 btn btn-sm btn-warning mx-1">
-    <span className="pe-2">
-        <FontAwesomeIcon icon={faUsers} />
-    </span>
-    <span>{t("Split Payment")}</span>
-</a>
+                <div style={myStyles.overlayStyle}>
+                  <div style={myStyles.modalStyle}>
+                    <button style={myStyles.closeBtnStyle} onClick={() => { setMyModalVisible(false); setReceived(false) }}>X</button>
+                    <PaymentComponent2 setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />
+                  </div>
+                </div>
+              </div>
+              <a
+onClick={() => { OpenCashDraw(); handleAddTipClick(); }}
+className="mt-3 btn btn-sm btn-primary mx-1">
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faDollarSign} />
+                </span>
+                <span>{t("Cash Pay")}</span>
+              </a>
 
-<a
-    onClick={SendToKitchen}
-    className="mt-3 btn btn-sm btn-info mx-1">
-    <span className="pe-2">
-        <FontAwesomeIcon icon={faArrowRight} />
-    </span>
-    <span>{t("Send to kitchen")}</span>
-</a>
+              <a
+                onClick={(e) => { }}
+                className="mt-3 btn btn-sm btn-warning mx-1">
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faUsers} />
+                </span>
+                <span>{t("Split Payment")}</span>
+              </a>
 
-<a
-    onClick={MerchantReceipt}
-    className="mt-3 btn btn-sm btn-secondary mx-1">
-    <span className="pe-2">
-        <FontAwesomeIcon icon={faPrint} />
-    </span>
-    <span>{t("Merchant Receipt")}</span>
-</a>
+              <a
+                onClick={SendToKitchen}
+                className="mt-3 btn btn-sm btn-info mx-1">
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faArrowRight} />
+                </span>
+                <span>{t("Send to kitchen")}</span>
+              </a>
 
-<a
-    onClick={CustomerReceipt}
-    className="mt-3 btn btn-sm btn-secondary mx-1">
-    <span className="pe-2">
-        <FontAwesomeIcon icon={faPrint} />
-    </span>
-    <span>{t("Customer Receipt")}</span>
-</a>
+              <a
+                onClick={MerchantReceipt}
+                className="mt-3 btn btn-sm btn-secondary mx-1">
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faPrint} />
+                </span>
+                <span>{t("Merchant Receipt")}</span>
+              </a>
 
-<a
-    onClick={(e) => { }}
-    className="mt-3 btn btn-sm btn-danger mx-1">
-    <span className="pe-2">
-        <FontAwesomeIcon icon={faTimes} />
-    </span>
-    <span>{t("Finish Order")}</span>
-</a>
+              <a
+                onClick={CustomerReceipt}
+                className="mt-3 btn btn-sm btn-secondary mx-1">
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faPrint} />
+                </span>
+                <span>{t("Customer Receipt")}</span>
+              </a>
+
+              <a
+                onClick={(e) => { }}
+                className="mt-3 btn btn-sm btn-danger mx-1">
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faTimes} />
+                </span>
+                <span>{t("Finish Order")}</span>
+              </a>
+
 
               <br></br>
               <>
