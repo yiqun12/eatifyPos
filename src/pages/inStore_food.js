@@ -21,11 +21,21 @@ const Food = ({ store, selectedTable }) => {
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
   const [count, setCount] = useState(0);  // Set up a state
+  const [priceError, setPriceError] = useState("");  // Set up a state
 
-  const handleAttributeSelect = (attributeName, variationType, id, count) => {
+  const handleAttributeSelect = (attributeName, variationType, id, count, updateSelectedAttributes) => {
+    let updatedSelectedAttributes;
+
+    if (Object.keys(updateSelectedAttributes).length === 0) {
+      updatedSelectedAttributes = { ...selectedAttributes };
+
+    }else{
+      updatedSelectedAttributes = { ...updateSelectedAttributes };
+
+    } 
 
     // Create a copy of the selectedAttributes state
-    const updatedSelectedAttributes = { ...selectedAttributes };
+    //const updatedSelectedAttributes = { ...selectedAttributes };
 
     console.log(updatedSelectedAttributes[attributeName])
     if (selectedFoodItem.attributesArr[attributeName].isSingleSelected) {
@@ -66,24 +76,28 @@ const Food = ({ store, selectedTable }) => {
         }
       }
     }
-
-    // Update the state with the new selected attributes
-    setSelectedAttributes(updatedSelectedAttributes);
-
-    // After updating selectedAttributes, recalculate the total price
     const newTotalPrice = TotalAttributePrice(updatedSelectedAttributes, selectedFoodItem.attributesArr);
-    setTotalPrice(newTotalPrice);
     const products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
     const product = products.find((product) => product.id === id && product.count === count);
-    console.log(product)
-    console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
+    console.log(Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)>=0)
+    if(Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)>=0){
+      setTotalPrice(newTotalPrice);
+      // Update the state with the new selected attributes
+      setSelectedAttributes(updatedSelectedAttributes);
+  
+      // After updating selectedAttributes, recalculate the total price
+      console.log(product)
+      console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
+  
+      product.attributeSelected = updatedSelectedAttributes
+      product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
+      localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products))
+    }
 
-    product.attributeSelected = updatedSelectedAttributes
-    product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
-    localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products))
+
     saveId(Math.random());
-  };
 
+  };
 
 
   // Function to calculate the total price based on selected attributes
@@ -117,66 +131,6 @@ const Food = ({ store, selectedTable }) => {
 
     return total;
   };
-  const [customAttributeName, setCustomAttributeName] = useState("");
-  const [customPrice, setCustomPrice] = useState("");
-  const customKey = "Add-On";
-
-  const handleAddCustomAttribute = (id, count) => {
-    if (customAttributeName && customPrice) {
-      const updatedAttributesArr = { ...selectedFoodItem.attributesArr };
-
-      // Check if the "Add-On_" attribute already exists
-      if (updatedAttributesArr[customKey]) {
-        // If it exists, append the new variation
-        updatedAttributesArr[customKey].variations.push({
-          type: customAttributeName,
-          price: parseFloat(customPrice)
-        });
-      } else {
-        // If it doesn't exist, create the attribute with the new variation
-        updatedAttributesArr[customKey] = {
-          isSingleSelected: false,  // This should be false since multiple variations can be selected
-          variations: [{
-            type: customAttributeName,
-            price: parseFloat(customPrice)
-          }]
-        };
-      }
-
-      selectedFoodItem.attributesArr = updatedAttributesArr;
-
-      // Setting the custom attribute variation as selected by default
-      setSelectedAttributes(prevAttributes => {
-        const currentSelected = prevAttributes[customKey] || [];
-        return {
-          ...prevAttributes,
-          [customKey]: [...currentSelected, customAttributeName]
-        };
-      });
-      handleAttributeSelect(customKey, customAttributeName, id, count);
-
-      // Reset the input fields
-      setCustomAttributeName("");
-      setCustomPrice("");
-
-    } else {
-      alert("Both attribute name and price are required!");
-    }
-  };
-
-  const handleResetAllCustomAttributes = () => {
-    const updatedAttributesArr = { ...selectedFoodItem.attributesArr };
-    delete updatedAttributesArr[customKey];  // Remove the "Add-On_" attribute
-    selectedFoodItem.attributesArr = updatedAttributesArr;
-
-    // Remove "Add-On_" from selected attributes
-    setSelectedAttributes(prevAttributes => {
-      const updatedSelectedAttributes = { ...prevAttributes };
-      delete updatedSelectedAttributes[customKey];
-      return updatedSelectedAttributes;
-    });
-  };
-
 
 
   //const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
@@ -621,12 +575,12 @@ const Food = ({ store, selectedTable }) => {
 
   // Function to hide the modal
   const hideModal = () => {
-    handleResetAllCustomAttributes();
     setModalVisibility(false);
-
-    // Remove the CSS class to enable body scroll
+    handleRemoveAllCustomVariants();
+     // Remove the CSS class to enable body scroll
     // document.body.style.overflow = 'auto';
     // document.documentElement.style.overflow = 'auto';
+
   }
 
   useEffect(() => {
@@ -644,8 +598,67 @@ const Food = ({ store, selectedTable }) => {
     // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
+  const [customVariant, setCustomVariant] = useState({ name: '', price: '0' });
 
+  const handleAddCustomVariant = (name, priceString) => {
+    const price = parseFloat(priceString) || 0;  // Convert price to number here
 
+    if (!name || isNaN(priceString)) {
+      alert('Please enter a valid name and price');
+      return;
+    }
+      
+    const updatedFoodItem = { ...selectedFoodItem };
+    const updatedAttributes = { ...selectedAttributes };
+  
+    if (!updatedFoodItem.attributesArr['Customized Option']) {
+      updatedFoodItem.attributesArr['Customized Option'] = {
+        isSingleSelected: false,
+        variations: [],
+      };
+    }
+  
+    const existingVariantIndex = updatedFoodItem.attributesArr['Customized Option'].variations.findIndex(
+      (variation) => variation.type === name
+    );
+  
+    if (existingVariantIndex !== -1) {
+      // Update price if variant already exists
+      updatedFoodItem.attributesArr['Customized Option'].variations[existingVariantIndex].price = price;
+    } else {
+      // Add new variant if it doesn't exist
+      updatedFoodItem.attributesArr['Customized Option'].variations.push({
+        type: name,
+        price: price,
+      });
+    }
+  
+    // Automatically select the new or updated variant
+    updatedAttributes['Customized Option'] = updatedAttributes['Customized Option'] || [];
+    if (!updatedAttributes['Customized Option'].includes(name)) {
+      updatedAttributes['Customized Option'].push(name);
+    }
+  
+    setSelectedFoodItem(updatedFoodItem);
+    setSelectedAttributes(updatedAttributes);
+    setTotalPrice(TotalAttributePrice(updatedAttributes, updatedFoodItem.attributesArr));
+    setCustomVariant({ name: '', price: 0 }); // Reset custom variant input
+  };
+  const handleRemoveAllCustomVariants = () => {
+    const updatedFoodItem = { ...selectedFoodItem };
+    const updatedAttributes = { ...selectedAttributes };
+  
+    if (updatedFoodItem.attributesArr['Customized Option']) {
+      delete updatedFoodItem.attributesArr['Customized Option'];
+      delete updatedAttributes['Customized Option'];
+  
+      setSelectedFoodItem(updatedFoodItem);
+      setSelectedAttributes(updatedAttributes);
+      setTotalPrice(TotalAttributePrice(updatedAttributes, updatedFoodItem.attributesArr));
+    } else {
+      //alert('No custom variants to remove');
+    }
+  };
 
   if (false) {
     return <p>  <div className="pan-loader">
@@ -669,43 +682,57 @@ const Food = ({ store, selectedTable }) => {
                       {sessionStorage.getItem("Google-language")?.includes("Chinese") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
                     </h4>
                   </div>
-                  <div className="cmt-2">
-            <div className="mb-3">If you'd like to adjust the product price, please provide details below:</div>
+                  <div className="mb-3">
+  <label htmlFor="customVariantName" className="form-label">Customized Option (Price Change)</label>
+  <input
+    type="text"
+    className="form-control"
+    id="customVariantName"
+    placeholder="Enter the reason of the price change"
+    value={customVariant.name}
+    onChange={(e) => setCustomVariant({ ...customVariant, name: e.target.value })}
+  />
+  <small id="customVariantNameHelp" className="form-text text-muted">
+    This is the reason of the price change you want to add.
+  </small>
+</div>
 
-            <div className="form-group mb-2">
-                <label>Additional Feature or Variation:</label>
-                <input 
-                    value={customAttributeName}
-                    onChange={(e) => setCustomAttributeName(e.target.value)}
-                    placeholder="E.g. Extra Cheese"
-                    className="form-control"
-                />
-            </div>
-            
-            <div className="form-group mb-2">
-                <label>Additional Cost ($):</label>
-                <input 
-                    type="number"
-                    value={customPrice}
-                    onChange={(e) => setCustomPrice(e.target.value)}
-                    placeholder="E.g. 1.50"
-                    className="form-control"
-                />
-            </div>
+<div className="mb-3">
+  <label htmlFor="customVariantPrice" className="form-label">Price</label>
+  <input
+    type="text"
+    className="form-control"
+    id="customVariantPrice"
+    placeholder="Enter the price of the custom variant (can be negative)"
+    value={customVariant.price}
+    onChange={(e) => setCustomVariant({ ...customVariant, price: e.target.value })}
+  />
+  <small id="customVariantPriceHelp" className="form-text text-muted">
+    Enter a positive or negative number for the price adjustment.
+  </small>
+</div>
 
-            <button 
-                onClick={handleAddCustomAttribute}
-                className="btn btn-primary"
-            >
-                Apply Price Adjustment
-            </button>
-        </div>
+<button
+  className="btn btn-primary mb-3"
+  type="button"
+  onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price)}
+>
+  Add Custom Variant
+</button>
 
-                  {Object.entries(selectedFoodItem.attributesArr).map(([attributeName, attributeDetails]) => (
-                    <div key={attributeName}>
+
+
+        {Object.keys(selectedFoodItem.attributesArr).length > 0 && (
+    <div>
+      Select your add-ons: (Items in green means already selected)
+    </div>
+  )}
+        {Object.entries(selectedFoodItem.attributesArr).map(([attributeName, attributeDetails]) => (
+ 
+                   <div key={attributeName}>
                       <p className="mb-1">
                         <span className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
-                          {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : ""}
+                          {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : "Select All That Apply"}
                         </span>
                       </p>
 
@@ -731,11 +758,14 @@ const Food = ({ store, selectedTable }) => {
         whiteSpace: 'nowrap',
         cursor: 'pointer',
     }}
-    onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count)}
+    onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count,{})}
 >
 
 
-                              {variation.type}({formatPriceDisplay(variation.price)})
+                              {variation.type}
+                              <span class="notranslate">
+                              ({formatPriceDisplay(variation.price)})
+                              </span>
                             </div>
                           </div>
                         ))}
@@ -750,10 +780,13 @@ const Food = ({ store, selectedTable }) => {
                 </div>
                 <div className='p-4 pt-3 flex justify-between'>
                   <div>
+
+
                     <span class="notranslate">
                       ${Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100}
-
                     </span>
+                    {priceError}
+
                   </div>
                   <div>
                     <span class="notranslate">
