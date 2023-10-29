@@ -34,7 +34,9 @@ import cartImage from './shopcart.png';
 import "./inStore_shop_cart.css";
 import PaymentComponent2 from "../pages/PaymentComponent2";
 
-const Navbar = ({ store, selectedTable, acct }) => {
+import Dnd_Test from './dnd_test';
+
+const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   /**listen to localtsorage */
   console.log("products")
@@ -367,6 +369,7 @@ const Navbar = ({ store, selectedTable, acct }) => {
     setSelectedDiscountPercentage(null);
   }
 
+
   const [isMyModalVisible, setMyModalVisible] = useState(false);
   const [received, setReceived] = useState(false)
   const [isPaymentClick, setIsPaymentClick] = useState(false)
@@ -497,6 +500,7 @@ const Navbar = ({ store, selectedTable, acct }) => {
   const toggleCustomAmountVisibility = () => {
     setCustomAmountVisible(!isCustomAmountVisible);
   };
+
 
   return (
 
@@ -748,6 +752,7 @@ const Navbar = ({ store, selectedTable, acct }) => {
                 </div>
               )}
 
+
               <a
                 onClick={handleAddTipClick}
                 className="mt-3 btn btn-sm btn-success mx-1">
@@ -914,6 +919,7 @@ const Navbar = ({ store, selectedTable, acct }) => {
                 </span>
                 <span>{t("Finish Order")}</span>
               </a>
+
 
               <br></br>
               <>
