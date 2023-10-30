@@ -1,0 +1,28 @@
+[debug] [2023-10-30T05:54:23.455Z] ----------------------------------------------------------------------
+[debug] [2023-10-30T05:54:23.459Z] Command:       /home/yix223/.nvm/versions/node/v16.18.0/bin/node /home/yix223/.nvm/versions/node/v16.18.0/bin/firebase deploy
+[debug] [2023-10-30T05:54:23.460Z] CLI Version:   10.0.0
+[debug] [2023-10-30T05:54:23.461Z] Platform:      linux
+[debug] [2023-10-30T05:54:23.462Z] Node Version:  v16.18.0
+[debug] [2023-10-30T05:54:23.462Z] Time:          Mon Oct 30 2023 01:54:23 GMT-0400 (Eastern Daylight Time)
+[debug] [2023-10-30T05:54:23.463Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-10-30T05:54:23.571Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-10-30T05:54:23.572Z] > authorizing via signed-in user (eatify12@gmail.com)
+[debug] [2023-10-30T05:54:23.572Z] [iam] checking project eatify-22231 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2023-10-30T05:54:23.576Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2023-10-30T05:54:23.576Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
+[debug] [2023-10-30T05:58:55.795Z] ----------------------------------------------------------------------
+[debug] [2023-10-30T05:58:55.797Z] Command:       /home/yix223/.nvm/versions/node/v16.18.0/bin/node /home/yix223/.nvm/versions/node/v16.18.0/bin/firebase deploy
+[debug] [2023-10-30T05:58:55.797Z] CLI Version:   10.0.0
+[debug] [2023-10-30T05:58:55.797Z] Platform:      linux
+[debug] [2023-10-30T05:58:55.797Z] Node Version:  v16.18.0
+[debug] [2023-10-30T05:58:55.802Z] Time:          Mon Oct 30 2023 01:58:55 GMT-0400 (Eastern Daylight Time)
+[debug] [2023-10-30T05:58:55.803Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-10-30T05:58:55.848Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-10-30T05:58:55.848Z] > authorizing via signed-in user (eatify12@gmail.com)
+[debug] [2023-10-30T05:58:55.849Z] [iam] checking project eatify-22231 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2023-10-30T05:58:55.851Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2023-10-30T05:58:55.851Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>

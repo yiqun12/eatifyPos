@@ -42,6 +42,9 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   console.log("products")
   console.log(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
   const { user, user_loading } = useUserContext();
+  
+
+
 
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -88,7 +91,7 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
 
   }, [products, width, tips, discount]);
 
-
+   
   const handleDeleteClick = (productId, count) => {
     setProducts((prevProducts) => {
       const productToDelete = prevProducts.find((product) => product.count === count);
@@ -194,24 +197,7 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
     }
   }
   
-function updateOrder(orders, orderId, values) {
-  if (orders[orderId]) {
-    orders[orderId].isSent = values;
-    console.log(`Order ${orderId} has been updated.`);
-  } else {
-    console.log(`Order ${orderId} does not exist.`);
-  }
-}
 
-function resetOrder(orders, orderId) {
-  if (orders[orderId]) {
-    orders[orderId].isPaid = false;
-    orders[orderId].isSent = [];
-    console.log(`Order ${orderId} has been updated.`);
-  } else {
-    console.log(`Order ${orderId} does not exist.`);
-  }
-}
 
 
   const SendToKitchen = async () => {
@@ -225,11 +211,6 @@ function resetOrder(orders, orderId) {
         selectedTable: selectedTable
       });
       console.log("Document written with ID: ", docRef.id);
-      const Orders = JSON.parse(localStorage.getItem('TableState_'+store))
-      console.log("abc",Orders)
-      updateOrder(Orders,selectedTable,localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
-      localStorage.setItem('TableState_'+store,JSON.stringify(Orders))
-      console.log(Orders)
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -1009,7 +990,7 @@ function resetOrder(orders, orderId) {
 
               <a
 
-                onClick={(e) => {}}
+                onClick={(e) => {localStorage.setItem(store + "-" + selectedTable, "[]");setProducts([])}}
                 className="mt-3 btn btn-sm btn-danger mx-1">
                 <span className="pe-2">
                   <FontAwesomeIcon icon={faTimes} />

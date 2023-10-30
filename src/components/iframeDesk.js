@@ -75,39 +75,6 @@ function App({ store, acct }) {
                 console.log(rest.restaurant_seat_arrangement)
                 localStorage.setItem(store + '_restaurant_seat_arrangement', rest.restaurant_seat_arrangement)
 
-                // Check if the table state is available in localStorage
-                const tableState = rest.restaurant_seat_arrangement;
-              
-                  // Table state not found, try to get it from seat arrangement localStorage
-                  const seatArrangementData = rest.restaurant_seat_arrangement;
-              
-                  if (seatArrangementData !== null) {
-                    // Extract tableNames from seatArrangementData (assuming it's in JSON format)
-                    try {
-                      const seatArrangement = JSON.parse(seatArrangementData);
-                      const tables = seatArrangement["table"];
-                      
-                      if (Array.isArray(tables)) {
-                        // Extract all the table names
-                        const tableNames = tables.map(table => table.tableName);
-                        
-                        // Log the table names
-                        console.log("Table Names:", tableNames);
-                        const result = tableNames.reduce((acc, cur) => {
-                          acc[cur] = { isPaid: false, isSent: [] };
-                          return acc;
-                      }, {});
-                        localStorage.setItem('TableState_'+store, JSON.stringify(result))
-
-                      } else {
-                        console.error("Invalid table data in seat arrangement.");
-                      }
-                    } catch (error) {
-                      console.error("Error parsing seat arrangement data:", error);
-                    }
-                  } else {
-                    console.log(`No data found in localStorage`);
-                  }
                 }
                 
         } catch (error) {
