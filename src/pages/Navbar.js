@@ -477,6 +477,7 @@ const Navbar = () => {
             </div>
 
             <div className='flex ml-auto pr-4'>
+               <img src="https://cdn-icons-png.flaticon.com/512/2793/2793765.png" alt="Google Translate" style={{ width: "24px", height: "24px", marginRight: "10px"}} />
               <div id="google_translate_element"></div>
 
 

@@ -44,13 +44,13 @@ function Item({item, updateItems, whole_item_groups}) {
         if (Array.isArray(value)) {
           // If the value is an array, join its elements and add to the result
           const flattenedArray = value.join(" ");
-          return acc + currentKey + " " + flattenedArray + "<br />";
+          return acc + currentKey + " " + flattenedArray + " ";
         } else if (typeof value === "object" && !Array.isArray(value)) {
           // If the value is an object, recursively flatten it
           return acc + flattenObject(value, currentKey);
         } else {
           // If the value is neither an object nor an array, add it to the result
-          return acc + currentKey + " " + value + "<br />";
+          return acc + currentKey + " " + value + " ";
         }
       }, "");
     }
@@ -64,7 +64,7 @@ function Item({item, updateItems, whole_item_groups}) {
       return null; // Return null if there are no attributes
     } else {
       return (
-        <div dangerouslySetInnerHTML={{ __html: attributeString }} />
+        <div dangerouslySetInnerHTML={{ __html: attributeString }} style={{ fontSize: '14px' }} />
       );
     }
   }
@@ -110,7 +110,7 @@ function SortableItem(props) {
 }
 
 function Container(props) {
-  const { containerId, items, handleDelete, checkout, updateItems, whole_item_groups } = props;
+  const { containerId, items, handleDelete, checkout, updateItems, whole_item_groups, totalAmount } = props;
 
   // console.log("container:", whole_item_groups)
   const { setNodeRef } = useDroppable({
@@ -124,11 +124,17 @@ function Container(props) {
       items={items}
       strategy={verticalListSortingStrategy}
     >
-      <div className="flex flex-col gap-4 bg-gray-200 p-4" style={{width:"25%", minWidth:"25%", maxWidth:"25%"}}>
+      <div className={`flex flex-col gap-4 p-4 ${containerId !== "main" ? "bg-gray-200" : "bg-green-200"}`} style={{ width: "22.5%", minWidth: "22.5%", maxWidth: "22.5%" }}>
         {/* <div style={{ maxHeight: "400px", overflowY: "auto", overflowX:"hidden" }}> */}
-        <h1 className="text-center font-black text-4xl text-gray-700">
-          {containerId}
-        </h1>
+        <div style={{    display: "flex", flexDirection: "column"}}>
+            <h1 className="text-center font-black text-4xl text-gray-700">
+              {containerId}
+            </h1>
+            {containerId !== "main" && (
+              <div style={{textAlign:"center", marginTop:"10px"}}>total: ${totalAmount(containerId)}</div>
+            )}
+        </div>
+
         {/* Add an invisible placeholder */}
         <div
           ref={setNodeRef}
@@ -138,7 +144,7 @@ function Container(props) {
           <SortableItem key={item.id} id={item.id} item={item.item} updateItems={updateItems} whole_item_groups={whole_item_groups}  />
         ))}
         {/* </div> */}
-
+        
         <div style={{display:"flex", marginTop:"auto", justifyContent: "space-between"}}>
         {containerId !== "main" && (
           <Button variant="success" style={{ marginTop: "auto", width: "40%" }} onClick={() => checkout(containerId)}>

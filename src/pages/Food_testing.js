@@ -803,7 +803,7 @@ const Food = () => {
         {/* <h2 style={{ fontFamily: 'Helvetica, sans-serif' }}>{category}</h2> */}
         {/* <h2 style={{ fontFamily: 'Arial, sans-serif' }}>{category}</h2> */}
 
-        <div className={isMobile ? 'grid grid-cols-1 gap-3 pt-2' : 'grid lg:grid-cols-2 gap-3'}>
+        <div className={isMobile ? 'grid grid-cols-1 gap-3 pt-2' : 'grid lg:grid-cols-6 gap-3'}>
           {categoryFoods.map((item, index) => (
             <motion.div
               layout
