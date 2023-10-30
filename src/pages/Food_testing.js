@@ -601,6 +601,18 @@ const Food = () => {
   } else {
 
 
+    function groupByCategory(foods) {
+      const grouped = {};
+      for (const item of foods) {
+        const { category } = item;
+        if (!grouped[category]) {
+          grouped[category] = [];
+        }
+        grouped[category].push(item);
+      }
+      return grouped;
+    }
+
     return (
 
       <div>
@@ -779,76 +791,83 @@ const Food = () => {
             </div>
           </div>
         )}
-        <div className='max-w-[1000px] m-auto px-4 '>
+<div className='max-w-[1000px] m-auto px-4 '>
+  {/* Display food */}
+  <AnimatePresence>
+    {Object.entries(groupByCategory(foods)).map(([category, categoryFoods], categoryIndex) => (
+      <div key={categoryIndex}>
+        {/* <h2 style={{ fontFamily: 'Georgia, serif' }}>{category}</h2> */}
+        {/* <h2 style={{ fontFamily: 'Verdana, sans-serif' }}>{category}</h2> */}
+        <br></br>
+        <h2 style={{ fontFamily: 'Times New Roman, serif' }}>{category}</h2>
+        {/* <h2 style={{ fontFamily: 'Helvetica, sans-serif' }}>{category}</h2> */}
+        {/* <h2 style={{ fontFamily: 'Arial, sans-serif' }}>{category}</h2> */}
 
-          {/* diplay food */}
-          <AnimatePresence>
-            <div className={isMobile ? 'grid grid-cols-1 gap-3 pt-2' : 'grid lg:grid-cols-2 gap-3'}>
-              {foods.map((item, index) => (
-                <motion.div
-                  layout
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.1 }}
-                  key={item.id}
-                  className=" rounded-lg cursor-pointer">
-                  <div className='flex'>
-                    <div style={{ width: "40%" }}>
-                      <div class="h-min overflow-hidden rounded-md">
-                        <img loading="lazy" class="w-full h-[80px] hover:scale-125 transition-all cursor-pointer md:h-[95px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
-                      </div>
-                    </div>
-                    <div style={{ width: "60%" }}>
-                      <div className='flex justify-between px-2 pb-1 grid grid-cols-4 w-full'>
-
-                        {/* parent div of title + quantity and button parent div */}
-                        <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                          <div className="col-span-4">
-                            <div>{item?.CHI}</div>
-                          <span class="notranslate">
-{sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
-</span >
-                          </div>
-
-                          {/* parent div of the quantity and buttons */}
-                          <div style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                            marginBottom: "10px"
-                          }}>
-                            <div className="col-span-2" style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "center",
-                              alignItems: "center"
-                            }}>
-                              <p style={{ marginBottom: "0" }}>
-                                <span>
-                                  ${item.subtotal}
-                                </span>
-                              </p>
-
-                            </div>
-
-
-                          </div>
-                          {/* ^ end of parent div of quantity and button */}
-                        </div>
-                        {/* ^ end of parent div of title + quantity and buttons */}
-                      </div>
-                      {/* This is Tony added code */}
-                    </div>
+        <div className={isMobile ? 'grid grid-cols-1 gap-3 pt-2' : 'grid lg:grid-cols-2 gap-3'}>
+          {categoryFoods.map((item, index) => (
+            <motion.div
+              layout
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.1 }}
+              key={item.id}
+              className="rounded-lg cursor-pointer">
+              <div className='flex'>
+                <div style={{ width: "40%" }}>
+                  <div className="h-min overflow-hidden rounded-md">
+                    <img loading="lazy" className="w-full h-[80px] hover:scale-125 transition-all cursor-pointer md:h-[95px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
                   </div>
-
-
-
-                </motion.div>
-              ))}
-            </div>
-          </AnimatePresence>
+                </div>
+                <div style={{ width: "60%" }}>
+                  <div className='flex justify-between px-2 pb-1 grid grid-cols-4 w-full'>
+                    {/* Parent div of title + quantity and button parent div */}
+                    <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                      <div className="col-span-4">
+                        <div style={{ fontFamily: 'Times New Roman, serif' }}>{item?.CHI}</div>
+                        <span className="notranslate" style={{ fontFamily: 'Times New Roman, serif' }}>
+                          {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
+                        </span>
+                      </div>
+                      {/* Parent div of the quantity and buttons */}
+                      <div style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        // marginBottom: "10px"
+                      }}>
+                        <div style={{ marginBottom: "0" }}>
+                          <span style={{ fontFamily: 'Times New Roman, serif' }}>
+                            ${item.subtotal}
+                          </span>
+                        </div>
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: "20px", // Adjust the width and height as needed
+                                height: "20px", // Adjust the width and height as needed
+                                padding: "0", // Remove padding to make it a square
+                                borderRadius: "4px",
+                                borderColor: "black",
+                                borderWidth: "2px",
+                                borderStyle: "solid", // Specify border style as solid
+                              }}
+                            ></span>
+                        </div>
+                      {/* End of parent div of quantity and button */}
+                    </div>
+                    {/* End of parent div of title + quantity and buttons */}
+                  </div>
+                  {/* This is Tony added code */}
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
+      </div>
+    ))}
+  </AnimatePresence>
+</div>
       </div>
     )
   }
