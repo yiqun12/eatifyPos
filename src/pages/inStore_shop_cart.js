@@ -502,6 +502,53 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   };
 
 
+  // handles the delete and updates localStorage
+  // for initialization: Call getItem localStorage to get `${storeID}_restaruant_seat_arrangement`
+  // then grab all the table names and construct an object structure: {A1: {ispaid: boolean, isSent: products }, A2: ....,......}, A1 & A2 are table names from seat arrangement
+  // make a delete functionality...
+  // update the tableState_ storeID
+
+  function init_local_storage_TableState_StoreID(StoreID) {
+    const tableStateKey = `TableState_${StoreID}`;
+    const seatArrangementKey = `${StoreID}_restaurant_seat_arrangement`;
+  
+    // Check if the table state is available in localStorage
+    const tableState = localStorage.getItem(tableStateKey);
+  
+    if (tableState !== null) {
+      // Table state found, return or use it as needed
+      return tableState;
+    } else {
+      // Table state not found, try to get it from seat arrangement localStorage
+      const seatArrangementData = localStorage.getItem(seatArrangementKey);
+  
+      if (seatArrangementData !== null) {
+        // Extract tableNames from seatArrangementData (assuming it's in JSON format)
+        try {
+          const seatArrangement = JSON.parse(seatArrangementData);
+          const tables = seatArrangement["table"];
+          
+          if (Array.isArray(tables)) {
+            // Extract all the table names
+            const tableNames = tables.map(table => table.tableName);
+            
+            // Log the table names
+            console.log("Table Names:", tableNames);
+          } else {
+            console.error("Invalid table data in seat arrangement.");
+          }
+        } catch (error) {
+          console.error("Error parsing seat arrangement data:", error);
+        }
+      } else {
+        console.log(`No data found in localStorage for ${tableStateKey} or ${seatArrangementKey}`);
+      }
+    }
+  }
+
+  init_local_storage_TableState_StoreID(store)
+
+
   return (
 
     <>
@@ -876,7 +923,7 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
 
       </div>
               <a
-                onClick={(e) => { }}
+                onClick={(e) => { openSplitPaymentModal() }}
                 className="mt-3 btn btn-sm btn-warning mx-1">
                 <span className="pe-2">
                   <FontAwesomeIcon icon={faUsers} />
