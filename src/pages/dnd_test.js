@@ -28,6 +28,8 @@ import { ReactComponent as MinusSvg } from './minus.svg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
+import { useMyHook } from './myHook';
+
 // import { Modal } from '@headlessui/react'; // Import Modal from headless UI
 
 
@@ -219,10 +221,20 @@ let main_input = [
 // function createItem(group)
 
 function Dnd_Test() {
-    
+  
+  // const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
     // const groupNames = ["A", "B", "C"];
     // const itemCounts = [4, 5, 4];
+    // const { id, saveId } = useMyHook(null);
+    // useEffect(() => {
+    //   setProducts(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
+    //   //console.log('Component B - ID changed:', id);
+    // }, [id]);
+
+    // console.log("products: ", products)
+    // const created_items = createGroups("main", products);
     const created_items = createGroups("main", main_input);
+
     // const created_items = createGroups(initialItemGroups);
     console.log(created_items)
 
@@ -445,7 +457,7 @@ const handleCloseModal = () => {
     if (prev_container !== overContainer) {
       // opens the modal and lets the user input data
       // setEnd_Container(overContainer)
-      console.log("dragEnd from group: ", prev_container, " to group: ", overContainer)
+      console.log("dragEnd from customer: ", prev_container, " to customer: ", overContainer)
 
     // Check if the End_container already has two similar items
     if (items[overContainer]) {
@@ -510,7 +522,7 @@ const handleCloseModal = () => {
   }
 
   function addEmptyGroup() {
-    const newGroupName = `group${Object.keys(items).length}`;
+    const newGroupName = `customer ${Object.keys(items).length}`;
     setItems((prevItems) => ({
       ...prevItems,
       [newGroupName]: [],
@@ -597,7 +609,7 @@ const handleCloseModal = () => {
   
     // Update the group keys
     groupKeys.forEach((groupKey, index) => {
-      const newGroupKey = `group${index + 1}`;
+      const newGroupKey = `customer ${index + 1}`;
       updatedItemGroups[newGroupKey] = updatedItemGroups[groupKey];
       if (groupKey !== newGroupKey) {
         delete updatedItemGroups[groupKey];
@@ -629,15 +641,65 @@ const handleCloseModal = () => {
     // Calculate the total price
     const totalPrice = averageGroupPrice + totalContainerPrice;
   
-    console.log("items at Checkout: ", items);
+    // console.log("items at Checkout: ", items);
     console.log("Total Price: ", totalPrice);
+    console.log("The current customer's items: ", items[containerId])
+    // console.log("The current main's items: ", items["main"])
+    console.log("The number of groups: ", numberOfGroups)
+
+      // Create a new array of modified main items
+    const modifiedMainItems = items["main"].map((mainItem) => {
+    return {
+      ...mainItem,
+      item: {
+        ...mainItem.item,
+        name: `${mainItem.item.name} / ${numberOfGroups}`,
+        subtotal: Math.round(100 *  mainItem.item.subtotal / numberOfGroups) / 100,
+        itemTotalPrice: Math.round(100 *  mainItem.item.itemTotalPrice / numberOfGroups) / 100
+      },
+    };
+  });
+
+  // Math.round(100 *  mainItem.item.itemTotalPrice / numberOfGroups) / 100
+
+  console.log("The current main changed: ", modifiedMainItems)
+
+
+
+  }, [items]);
+
+  const totalAmount = useCallback((containerId) => {
+    // Calculate the total price for items in main
+    console.log("items: ", items);
+    const mainItems = items["main"];
+    const totalGroup1Price = mainItems.reduce((total, item) => {
+      return total + item.item.itemTotalPrice;
+    }, 0);
+  
+    // Calculate the total price for items in the specified container
+    const containerItems = items[containerId];
+    const totalContainerPrice = containerItems.reduce((total, item) => {
+      return total + item.item.itemTotalPrice;
+    }, 0);
+  
+    // Calculate the average price per group (excluding main)
+    const groupKeys = Object.keys(items);
+    const numberOfGroups = groupKeys.length - 1; // Exclude main
+    const averageGroupPrice = totalGroup1Price / numberOfGroups;
+  
+    // Calculate the total price
+    const totalPrice = Math.round(100 * (averageGroupPrice + totalContainerPrice)) / 100;
+  
+    // console.log("items at Checkout: ", items);
+    console.log("Total Price: ", totalPrice);
+    return totalPrice
   }, [items]);
 
   const containerItems = useMemo(() => {
     return Object.keys(items).map((key) => (
-      <Container key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} />
+      <Container key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} totalAmount={totalAmount} />
     ));
-  }, [items, handleDelete, checkout]);
+  }, [items, handleDelete, checkout, totalAmount]);
 
 
   // state to display the items in modal (used in handle Plus Minus Clicks)
