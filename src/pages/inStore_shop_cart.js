@@ -91,6 +91,10 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
 
   const handleDeleteClick = (productId, count) => {
     setProducts((prevProducts) => {
+      const productToDelete = prevProducts.find((product) => product.count === count);
+      if (productToDelete) {
+        console.log('Product before deletion:', productToDelete);
+      }
       return prevProducts.filter((product) => product.count !== count);
     });
   }
@@ -116,17 +120,26 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId && product.count === targetCount) {
-          // Constrain the quantity of the product to be at least 0
+          const newQuantity = Math.max(product.quantity - 1, 0);
+          console.log({ ...product,
+            quantity: 1,
+            itemTotalPrice: newQuantity > 0 ? Math.round(100 * product.itemTotalPrice / product.quantity) / 100 : 0,          
+          });
+
           return {
             ...product,
-            quantity: Math.max(product.quantity - 1, 1),
-            itemTotalPrice: Math.round(100 * product.itemTotalPrice / (product.quantity) * (Math.max(product.quantity - 1, 1))) / 100,
+            quantity: newQuantity,
+            itemTotalPrice: newQuantity > 0 ? Math.round(100 * product.itemTotalPrice / product.quantity * newQuantity) / 100 : 0,
           };
         }
         return product;
       });
     });
+
   };
+  
+
+
 
   // for translations sake
   const t = useMemo(() => {
@@ -180,7 +193,29 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
       console.error("Error adding document: ", e);
     }
   }
+  
+function updateOrder(orders, orderId, values) {
+  if (orders[orderId]) {
+    orders[orderId].isSent = values;
+    console.log(`Order ${orderId} has been updated.`);
+  } else {
+    console.log(`Order ${orderId} does not exist.`);
+  }
+}
+
+function resetOrder(orders, orderId) {
+  if (orders[orderId]) {
+    orders[orderId].isPaid = false;
+    orders[orderId].isSent = [];
+    console.log(`Order ${orderId} has been updated.`);
+  } else {
+    console.log(`Order ${orderId} does not exist.`);
+  }
+}
+
+
   const SendToKitchen = async () => {
+
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
@@ -190,6 +225,11 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
         selectedTable: selectedTable
       });
       console.log("Document written with ID: ", docRef.id);
+      const Orders = JSON.parse(localStorage.getItem('TableState_'+store))
+      console.log("abc",Orders)
+      updateOrder(Orders,selectedTable,localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
+      localStorage.setItem('TableState_'+store,JSON.stringify(Orders))
+      console.log(Orders)
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -508,6 +548,8 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   // make a delete functionality...
   // update the tableState_ storeID
 
+/**
+ * 
   function init_local_storage_TableState_StoreID(StoreID) {
     const tableStateKey = `TableState_${StoreID}`;
     const seatArrangementKey = `${StoreID}_restaurant_seat_arrangement`;
@@ -534,6 +576,12 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
             
             // Log the table names
             console.log("Table Names:", tableNames);
+            const result = tableNames.reduce((acc, cur) => {
+              acc[cur.toLowerCase()] = { isPaid: false, isSent: [] };
+              return acc;
+          }, {});
+            console.log(result)
+            
           } else {
             console.error("Invalid table data in seat arrangement.");
           }
@@ -547,6 +595,7 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   }
 
   init_local_storage_TableState_StoreID(store)
+ */
 
 
   return (
@@ -922,14 +971,14 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
         </div>
 
       </div>
-              <a
+              {/* <a
                 onClick={(e) => { openSplitPaymentModal() }}
                 className="mt-3 btn btn-sm btn-warning mx-1">
                 <span className="pe-2">
                   <FontAwesomeIcon icon={faUsers} />
                 </span>
                 <span>{t("Split Payment")}</span>
-              </a>
+              </a> */}
 
               <a
                 onClick={SendToKitchen}
@@ -959,7 +1008,8 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
               </a>
 
               <a
-                onClick={(e) => { }}
+
+                onClick={(e) => {}}
                 className="mt-3 btn btn-sm btn-danger mx-1">
                 <span className="pe-2">
                   <FontAwesomeIcon icon={faTimes} />

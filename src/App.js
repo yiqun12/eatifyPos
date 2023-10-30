@@ -56,7 +56,7 @@ import BusinessHoursTestPage from "./pages/BusinessHoursTestPage.js";
 import Test_Notification_Page from "./pages/Test_Notification_Page.js";
 
 // import Droppable from "./pages/droppable.js";
-import Split_Payment from "./pages/Split_Payment";
+//import Split_Payment from "./pages/Split_Payment";
 
 import Dnd_Test from "./pages/dnd_test";
 
@@ -154,7 +154,6 @@ function App() {
 
               <Route exact path="/test_notification_page" element={<Test_Notification_Page />} />
 
-              <Route exact path="/split_payment" element={<Split_Payment/>} />
 
               <Route exact path="dnd" element={<Dnd_Test/>} />
 
