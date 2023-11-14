@@ -35,14 +35,15 @@ import "./inStore_shop_cart.css";
 import PaymentComponent2 from "../pages/PaymentComponent2";
 
 import Dnd_Test from './dnd_test';
+import { isMobile } from 'react-device-detect';
 
 const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   /**listen to localtsorage */
-  console.log("products")
-  console.log(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
+  //console.log("products")
+  //console.log(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
   const { user, user_loading } = useUserContext();
-  
+
 
 
 
@@ -91,7 +92,7 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
 
   }, [products, width, tips, discount]);
 
-   
+
   const handleDeleteClick = (productId, count) => {
     setProducts((prevProducts) => {
       const productToDelete = prevProducts.find((product) => product.count === count);
@@ -124,9 +125,10 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
       return prevProducts.map((product) => {
         if (product.id === productId && product.count === targetCount) {
           const newQuantity = Math.max(product.quantity - 1, 0);
-          console.log({ ...product,
+          console.log({
+            ...product,
             quantity: 1,
-            itemTotalPrice: newQuantity > 0 ? Math.round(100 * product.itemTotalPrice / product.quantity) / 100 : 0,          
+            itemTotalPrice: newQuantity > 0 ? Math.round(100 * product.itemTotalPrice / product.quantity) / 100 : 0,
           });
 
           return {
@@ -140,7 +142,7 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
     });
 
   };
-  
+
 
 
 
@@ -175,7 +177,10 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "MerchantReceipt"), {
         date: date,
         data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
-        selectedTable: selectedTable
+        selectedTable: selectedTable,
+        discount: discount === "" ? 0 : discount,
+        service_fee: tips === "" ? 0 : tips,
+        total: finalPrice,
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
@@ -189,32 +194,130 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "CustomerReceipt"), {
         date: date,
         data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
-        selectedTable: selectedTable
+        selectedTable: selectedTable,
+        discount: discount === "" ? 0 : discount,
+        service_fee: tips === "" ? 0 : tips,
+        total: finalPrice,
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
   }
-  
+
 
 
 
   const SendToKitchen = async () => {
 
     try {
-      const dateTime = new Date().toISOString();
-      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
-        date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
-        selectedTable: selectedTable
-      });
-      console.log("Document written with ID: ", docRef.id);
+      if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
+        if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
+          return
+        } else {
+          compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), [])
+          localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+        }
+      }
+      if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
+        const dateTime = new Date().toISOString();
+        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+        const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
+          date: date,
+          data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+          selectedTable: selectedTable
+        });
+        console.log("Document written with ID: ", docRef.id);
+        localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+      } else {
+        compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
+        localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+
+      }
     } catch (e) {
       console.error("Error adding document: ", e);
     }
   }
+
+  async function compareArrays(array1, array2) {
+    const array1ById = Object.fromEntries(array1.map(item => [item.count, item]));
+    const array2ById = Object.fromEntries(array2.map(item => [item.count, item]));
+
+    for (const [count, item1] of Object.entries(array1ById)) {
+      const item2 = array2ById[count];
+      if (item2) {
+        // If item exists in both arrays
+        if (item1.quantity > item2.quantity) {
+          console.log('Deleted trigger:', {
+            ...item1,
+            quantity: item1.quantity - item2.quantity,
+            itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
+          });
+          const dateTime = new Date().toISOString();
+          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+          const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
+            date: date,
+            data: [{
+              ...item1,
+              quantity: item1.quantity - item2.quantity,
+              itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
+            }],
+            selectedTable: selectedTable
+          });
+          console.log("Document written with ID: ", docRef.id);
+
+        } else if (item1.quantity < item2.quantity) {
+          console.log('Added trigger:', {
+            ...item2,
+            quantity: item2.quantity - item1.quantity,
+            itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
+          });
+          const dateTime = new Date().toISOString();
+          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+          const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
+            date: date,
+            data: [{
+              ...item2,
+              quantity: item2.quantity - item1.quantity,
+              itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
+            }],
+            selectedTable: selectedTable
+          });
+          console.log("Document written with ID: ", docRef.id);
+        }
+      } else {
+        // If item exists in array 1 but not in array 2
+        console.log('Deleted trigger:', item1);
+        const dateTime = new Date().toISOString();
+        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+        const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
+          date: date,
+          data: [item1],
+          selectedTable: selectedTable
+        });
+        console.log("Document written with ID: ", docRef.id);
+
+      }
+    }
+
+    for (const [count, item2] of Object.entries(array2ById)) {
+      const item1 = array1ById[count];
+      if (!item1) {
+        // If item exists in array 2 but not in array 1
+        console.log('Added trigger:', item2);
+        const dateTime = new Date().toISOString();
+        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+        const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
+          date: date,
+          data: [item2],
+          selectedTable: selectedTable
+        });
+        console.log("Document written with ID: ", docRef.id);
+      }
+    }
+  }
+
+
   const OpenCashDraw = async () => {
     try {
       const dateTime = new Date().toISOString();
@@ -231,8 +334,8 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   }
   const CashCheckOut = async (extra) => {
     let extra_tip = 0
-    if(extra !== null){
-      extra_tip=extra.toFixed(2)
+    if (extra !== null) {
+      extra_tip = extra.toFixed(2)
     }
     try {
       const dateTime = new Date().toISOString();
@@ -261,12 +364,12 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
         latest_charge: "ch_none",
         livemode: true,
         metadata: {
-          discount: discount===""?0:discount,
+          discount: discount === "" ? 0 : discount,
           isDine: true,
-          service_fee: tips===""?0:tips,
+          service_fee: tips === "" ? 0 : tips,
           subtotal: Math.round(100 * totalPrice) / 100,
           tax: Math.round(100 * totalPrice * 0.0825) / 100,
-          tips:  Math.round(100 * extra_tip) / 100 ,
+          tips: Math.round(100 * extra_tip) / 100,
           total: finalPrice,
         }, // Assuming an empty map converts to an empty object
         next_action: null,
@@ -444,24 +547,24 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
 
   const calculateResult = () => {
     const x = parseInt(inputValue);
-    if (!isNaN(x) && x > 10) {
-      setResult(x - 10);
+    if (!isNaN(x) && x > finalPrice) {
+      setResult(x - finalPrice);
     } else {
       alert("Please enter a number greater than 10");
     }
   };
 
   const calculateExtra = (percentage) => {
-    const extraAmount = (10 * percentage) / 100;
+    const extraAmount = (finalPrice * percentage) / 100;
     setExtra(extraAmount);
-    setFinalResult(10 + extraAmount);
+    setFinalResult(finalPrice + extraAmount);
   };
 
   const calculateCustomAmount = () => {
     const amount = parseFloat(customAmount);
     if (!isNaN(amount)) {
       setExtra(amount);
-      setFinalResult(10 + amount);
+      setFinalResult(finalPrice + amount);
     } else {
       alert("Please enter a valid number");
     }
@@ -522,121 +625,50 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
     setCustomAmountVisible(!isCustomAmountVisible);
   };
 
+  const isPC = width >= 1024;
 
-  // handles the delete and updates localStorage
-  // for initialization: Call getItem localStorage to get `${storeID}_restaruant_seat_arrangement`
-  // then grab all the table names and construct an object structure: {A1: {ispaid: boolean, isSent: products }, A2: ....,......}, A1 & A2 are table names from seat arrangement
-  // make a delete functionality...
-  // update the tableState_ storeID
-
-/**
- * 
-  function init_local_storage_TableState_StoreID(StoreID) {
-    const tableStateKey = `TableState_${StoreID}`;
-    const seatArrangementKey = `${StoreID}_restaurant_seat_arrangement`;
-  
-    // Check if the table state is available in localStorage
-    const tableState = localStorage.getItem(tableStateKey);
-  
-    if (tableState !== null) {
-      // Table state found, return or use it as needed
-      return tableState;
-    } else {
-      // Table state not found, try to get it from seat arrangement localStorage
-      const seatArrangementData = localStorage.getItem(seatArrangementKey);
-  
-      if (seatArrangementData !== null) {
-        // Extract tableNames from seatArrangementData (assuming it's in JSON format)
-        try {
-          const seatArrangement = JSON.parse(seatArrangementData);
-          const tables = seatArrangement["table"];
-          
-          if (Array.isArray(tables)) {
-            // Extract all the table names
-            const tableNames = tables.map(table => table.tableName);
-            
-            // Log the table names
-            console.log("Table Names:", tableNames);
-            const result = tableNames.reduce((acc, cur) => {
-              acc[cur.toLowerCase()] = { isPaid: false, isSent: [] };
-              return acc;
-          }, {});
-            console.log(result)
-            
-          } else {
-            console.error("Invalid table data in seat arrangement.");
-          }
-        } catch (error) {
-          console.error("Error parsing seat arrangement data:", error);
-        }
-      } else {
-        console.log(`No data found in localStorage for ${tableStateKey} or ${seatArrangementKey}`);
-      }
-    }
-  }
-
-  init_local_storage_TableState_StoreID(store)
- */
 
 
   return (
 
     <>
-      <>
+      <div class=''>
+        <div className="flex w-full">
+        <div className={`flex-grow ${!isMobile ? 'm-6' : 'm-2'}`}>
+            {(Array.isArray(products) ? products : []).map((product) => (
 
-        {/* popup content */}
-        <div className="shopping-cart1" style={{ margin: "auto", height: "fit-content" }}>
-          {/* shoppig cart */}
-          <div className="title " style={{ height: '80px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-
-
+              // the parent div
+              // can make the parent div flexbox
               <div>
-                <div style={{ marginTop: "15px" }}>
-                  <span>
-                    <span>{`Your selected table is ${selectedTable}`}</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col flex-row">
-            <div className='flex flex-col w-2/3' style={width > 575 ? { overflowY: "auto", maxHeight: "500px" } : { overflowY: "auto", maxHeight: "500px" }}>
+                <div className='flex'>
+                  <DeleteSvg className='mt-2 ml-1 mr-2'
+                    onClick={() => {
+                      handleDeleteClick(product.id, product.count)
+                    }}></DeleteSvg>
+                  <div className='flex justify-between w-full'>
+                    <div className={`${!isMobile ? 'text-lg' : ''} notranslate`}>
 
-              {/* generates each food entry */}
-              {(Array.isArray(products) ? products : []).map((product) => (
-                // the parent div
-                // can make the parent div flexbox
-                <div>
-                  <div key={product.count} className="item">
-                    {/* the delete button */}
-                    <div className="buttons">
-                      <DeleteSvg className="delete-btn"
-                        onClick={() => {
-                          handleDeleteClick(product.id, product.count)
-                        }}></DeleteSvg>
-                      {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
+                      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
                     </div>
 
-                    {/* the name + quantity parent div*/}
-                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available" }}>
-                      {/* the name */}
-                      <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
-                        <div style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>
-                          <span class="notranslate">
+                  </div>
 
-                            {sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
-                          </span>
-                        </div>
 
-                        <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
+                </div>
+                <div className='items-center'>
+                  <div>
+                    <span class="notranslate">
+                      {Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}
+                    </span>
+                  </div>
 
-                      </div>
-
-                      <div className="quantity p-0"
+                  <div className="quantity p-0"
                         style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
                         <div>
-                          <div className='notranslate'>${product.itemTotalPrice}</div>
+                          <div className={`${!isMobile ? 'text-lg' : ''} notranslate`}>
+
+                            ${product.itemTotalPrice}
+                            </div>
 
                         </div>
                         {/* the add minus box set up */}
@@ -680,346 +712,385 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
                       </div>
 
                       {/* end of quantity */}
-                    </div>
+                    
 
-                    {/* end of name + quantity parent div*/}
-                  </div>
+
                 </div>
-
-              ))}
-
-            </div>
-            <div className="flex flex-col w-1/3">
-              {/* the modal for tips */}
-              {isTipsModalOpen && (
-                <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                  <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                      <div className="modal-header">
-                        <h5 className="modal-title">Add Service Fee</h5>
-                      </div>
-                      <div className="modal-body">
-                        <div className="row mb-3">
-                          <button
-                            type="button"
-                            className={`btn col ${selectedTipPercentage === 0.15 ? 'btn-primary' : 'btn-outline-primary'}`}
-                            onClick={() => handlePercentageTip(0.15)}
-                          >
-                            15%
-                          </button>
-
-                          <button
-                            type="button"
-                            className={`btn col ${selectedTipPercentage === 0.18 ? 'btn-primary' : 'btn-outline-primary'}`}
-                            onClick={() => handlePercentageTip(0.18)}
-                          >
-                            18%
-                          </button>
-
-                          <button
-                            type="button"
-                            className={`btn col ${selectedTipPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`}
-                            onClick={() => handlePercentageTip(0.20)}
-                          >
-                            20%
-                          </button>
-                          
-                          <div className="col">
-                            <input
-                              type="number"
-                              placeholder="%"
-                              min="0"  // Add this line
-                              value={customPercentage}
-                              onChange={handleCustomPercentageChange}
-                              className="form-control tips-no-spinners"  // Added the 'no-spinners' class
-                            />
-                          </div>
-                        </div>
-                        <input
-                          type="number"
-                          min="0"  // Add this line
-                          placeholder="Enter tip amount"
-                          value={tips}
-                          className="form-control tips-no-spinners"  // Added the 'no-spinners' class
-                          onChange={(e) => {
-                            let value = e.target.value;
-                            if (value < 0) {
-                              value = 0;
-                            }
-                            setTips(value);
-                            setSelectedTipPercentage(null);
-                          }}
-                          onFocus={() => setSelectedTipPercentage(null)}
-                        />
-                      </div>
-                      <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" onClick={() => handleCancelTip()}>Cancel</button>
-                        <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>Add Service Fee</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {isDiscountModalOpen && (
-                <div id="addDiscountModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                  <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                      <div className="modal-header">
-                        <h5 className="modal-title">Add Discount</h5>
-                      </div>
-                      <div className="modal-body">
-                        <div className="row mb-3">
-                          {/* Percentage options */}
-                          <button
-                            type="button"
-                            className={`btn col ${selectedDiscountPercentage === 0.10 ? 'btn-primary' : 'btn-outline-primary'}`}
-                            onClick={() => handleDiscountPercentage(0.10)}
-                          >
-                            10%
-                          </button>
-                          <button
-                            type="button"
-                            className={`btn col ${selectedDiscountPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`}
-                            onClick={() => handleDiscountPercentage(0.20)}
-                          >
-                            20%
-                          </button>
-                          <button
-                            type="button"
-                            className={`btn col ${selectedDiscountPercentage === 0.30 ? 'btn-primary' : 'btn-outline-primary'}`}
-                            onClick={() => handleDiscountPercentage(0.30)}
-                          >
-                            30%
-                          </button>
-                          <div className="col">
-                            <input
-                              type="number"
-                              placeholder="%"
-                              min="0"
-                              value={customDiscountPercentage}
-                              onChange={handleCustomDiscountPercentageChange}
-                              className="form-control discounts-no-spinners"
-                            />
-                          </div>
-                        </div>
-                        {/* Discount amount input */}
-                        <input
-                          type="number"
-                          min="0"
-                          placeholder="Enter discount amount"
-                          value={discount}
-                          className="form-control discounts-no-spinners"
-                          onChange={(e) => {
-                            let value = parseFloat(e.target.value);
-                            if (value < 0 || isNaN(value)) {
-                              value = 0;
-                            }
-                            applyDiscount(value);
-                            setSelectedDiscountPercentage(null);
-                          }}
-                        />
-                      </div>
-                      <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" onClick={handleCancelDiscount}>Cancel</button>
-                        <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>Apply Discount</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-
-              <a
-                onClick={handleAddTipClick}
-                className="mt-3 btn btn-sm btn-success mx-1">
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faGift} />
-                </span>
-                <span>{t("Add Service Fee")}</span>
-              </a>
-
-              <a
-                onClick={handleAddDiscountClick}
-                className="mt-3 btn btn-sm btn-danger mx-1">
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faPencilAlt} />
-                </span>
-                <span>{t("Add Discount")}</span>
-              </a>
-
-              <a
-                onClick={() => setMyModalVisible(true)}
-                className="mt-3 btn btn-sm btn-primary mx-1">
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faCreditCard} />
-                </span>
-                <span>{t("Card Pay")}</span>
-              </a>
-              <div className="MyApp">
-
-                <div style={myStyles.overlayStyle}>
-                  <div style={myStyles.modalStyle}>
-                    <button style={myStyles.closeBtnStyle} onClick={() => { setMyModalVisible(false); setReceived(false) }}>X</button>
-                    <PaymentComponent2 setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
-                  </div>
-                </div>
+                <hr></hr>
               </div>
-              <a
-                onClick={() => { OpenCashDraw();openUniqueModal() }}
-                className="mt-3 btn btn-sm btn-primary mx-1">
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faDollarSign} />
-                </span>
-                <span>{t("Cash Pay")}</span>
-              </a>
-              <div style={uniqueModalStyles.overlayStyle}>
-        <div style={uniqueModalStyles.modalStyle} className="p-4 rounded-lg">
-          <button style={uniqueModalStyles.closeBtnStyle} onClick={closeUniqueModal}>
-            &times;
-          </button>
-          <h2 className="text-2xl font-semibold mb-4">Cash Pay</h2>
-          <p className="mb-2">Cash On Delivery</p>
-          <input
-            type="number"
-            value={inputValue}
-            onChange={handleChange}
-            style={uniqueModalStyles.inputStyle}
-            className="mb-4 p-2 w-full border rounded-md"
-          />
-          <button
-            onClick={calculateResult}
-            style={uniqueModalStyles.buttonStyle}
-            className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
-          >
-            Calculate Give Back Cash
-          </button>
-          {result !== null && (
-  <p className="mb-4">
-    Give Back Cash : {extra !== null ? (result - extra).toFixed(2) : result}
-  </p>
-)}
 
-<p className="mb-4">Gratuity:</p>
-          <div className="flex justify-between mb-4">
-            <button onClick={() => calculateExtra(15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
-              15%
-            </button>
-            <button onClick={() => calculateExtra(18)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mx-1">
-              18%
-            </button>
-            <button onClick={() => calculateExtra(20)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
-              20%
-            </button>
-            <button onClick={toggleCustomAmountVisibility} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
-              Other
-            </button>
+            ))}
           </div>
+          <div className='flex flex-col space-y-2'>
+            <a
+              onClick={handleAddTipClick}
+              className="mt-3 btn btn-sm btn-success mx-1">
+              
+              {isMobile? <></>:
+              <span className="pe-2">
+              <FontAwesomeIcon icon={faGift} />
+              </span>
+              }  
+              
+              <span>{t("Add Service Fee")}</span>
+            </a>
 
-          {isCustomAmountVisible && (
-            <>
-              <p className="mb-2">Custom Gratuity:</p>
-              <div className="flex">
-                <input
-                  type="number"
-                  value={customAmount}
-                  onChange={handleCustomAmountChange}
-                  style={uniqueModalStyles.inputStyle}
-                  className="p-2 w-full border rounded-md mr-2"
-                />
-                <button
-                  onClick={calculateCustomAmount}
-                  className="bg-orange-500 text-white px-4 py-2 rounded-md w-1/3"
-                >
-                  Add
-                </button>
-              </div>
-            </>
-          )}
+            <a
+              onClick={handleAddDiscountClick}
+              className="mt-3 btn btn-sm btn-danger mx-1">
+              
+              {isMobile? <></>:
+              <span className="pe-2">
+              <FontAwesomeIcon icon={faPencilAlt} />
+              </span>
+              }
+                
+              
+              <span>{t("Add Discount")}</span>
+            </a>
 
-          {extra !== null && (
-            <p className="mt-4">Gratuity Amount: {extra.toFixed(2)}</p>
-          )}
-          
-           <button
-                           onClick={() => { CashCheckOut(extra) }}
+            <a
+              onClick={() => setMyModalVisible(true)}
+              className="mt-3 btn btn-sm btn-primary mx-1">
+              
+              {isMobile? <></>:<span className="pe-2">
+                <FontAwesomeIcon icon={faCreditCard} />
+                </span>
+              }
+                
+             
+              <span>{t("Card Pay")}</span>
+            </a>
 
-            style={uniqueModalStyles.buttonStyle}
-            className="mb-4 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
-          >
-            Confirm
-          </button>
+            <a
+              onClick={() => { OpenCashDraw(); openUniqueModal() }}
+              className="mt-3 btn btn-sm btn-primary mx-1">
+              
+              {isMobile? <></>:
+              <span className="pe-2">
+                <FontAwesomeIcon icon={faDollarSign} />
+                </span>
+              }
+                
+              
+              <span>{t("Cash Pay")}</span>
+            </a>
+
+            <a
+              onClick={SendToKitchen}
+              className="mt-3 btn btn-sm btn-info mx-1">
+              
+              {isMobile? <></>:
+              <span className="pe-2">
+              <FontAwesomeIcon icon={faArrowRight} />
+              </span>
+              }
+                
+              
+              <span>{t("Send to kitchen")}</span>
+            </a>
+
+            <a
+              onClick={() => { CustomerReceipt(); MerchantReceipt(); }}
+              className="mt-3 btn btn-sm btn-secondary mx-1">
+              
+              
+              {isMobile? <></>:
+              <span className="pe-2">
+              <FontAwesomeIcon icon={faPrint} />
+              </span>
+              }
+                
+             
+              <span>{t("Customer Receipt")}</span>
+            </a>
+
+            <a
+              onClick={(e) => {
+                localStorage.setItem(store + "-" + selectedTable, "[]"); setProducts([]);
+                localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
+              }}
+              className="mt-3 btn btn-sm btn-danger mx-1">
+              
+              {isMobile? <></>: 
+              <span className="pe-2">
+              <FontAwesomeIcon icon={faTimes} />
+              </span>
+              }
+               
+              
+              <span>{t("Finish Order")}</span>
+            </a>
+            <div className={`text-right ${!isMobile ? 'text-lg' : ''} notranslate`}>Subtotal: ${Math.round(100 * totalPrice) / 100} </div>
+
+            {discount && (
+              <div className={`text-right ${!isMobile ? 'text-lg' : ''} notranslate`}>Discount: -${discount} </div>
+            )}
+
+            {tips && (
+              <div className={`text-right ${!isMobile ? 'text-lg' : ''} notranslate`}>Service Fee: ${tips} </div>
+            )}
+            <div className={`text-right ${!isMobile ? 'text-lg' : ''} notranslate`}>Tax(8.25%): ${(Math.round(100 * totalPrice * 0.0825) / 100)}    </div>
+            <div className={`text-right ${!isMobile ? 'text-lg' : ''} notranslate`}>Total: ${finalPrice} </div>
+          </div>
         </div>
+
+
+
+
+        <div>
+
+
+        </div>
+
 
       </div>
-              {/* <a
-                onClick={(e) => { openSplitPaymentModal() }}
-                className="mt-3 btn btn-sm btn-warning mx-1">
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faUsers} />
-                </span>
-                <span>{t("Split Payment")}</span>
-              </a> */}
+      {/* popup content */}
+      <div style={{ margin: "auto", height: "fit-content" }}>
 
-              <a
-                onClick={SendToKitchen}
-                className="mt-3 btn btn-sm btn-info mx-1">
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faArrowRight} />
-                </span>
-                <span>{t("Send to kitchen")}</span>
-              </a>
+        <div className="flex flex-col flex-row">
+          <div style={uniqueModalStyles.overlayStyle}>
+            <div style={uniqueModalStyles.modalStyle} className="p-4 rounded-lg">
+              <button style={uniqueModalStyles.closeBtnStyle} onClick={closeUniqueModal}>
+                &times;
+              </button>
+              <h2 className="text-2xl font-semibold mb-4">Cash Pay</h2>
+              <p className="mb-2">Cash Received</p>
+              <input
+                type="number"
+                value={inputValue}
+                onChange={handleChange}
+                style={uniqueModalStyles.inputStyle}
+                className="mb-4 p-2 w-full border rounded-md"
+              />
+              <button
+                onClick={calculateResult}
+                style={uniqueModalStyles.buttonStyle}
+                className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
+              >
+                Calculate Give Back Cash
+              </button>
+              {result !== null && (
+                <p className="mb-4">
+                  Give Back Cash : {extra !== null ? (result - extra).toFixed(2) : result}
+                </p>
+              )}
 
-              <a
-                onClick={MerchantReceipt}
-                className="mt-3 btn btn-sm btn-secondary mx-1">
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faPrint} />
-                </span>
-                <span>{t("Merchant Receipt")}</span>
-              </a>
+              <p className="mb-4">Gratuity:</p>
+              <div className="flex justify-between mb-4">
+                <button onClick={() => calculateExtra(15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                  15%
+                </button>
+                <button onClick={() => calculateExtra(18)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                  18%
+                </button>
+                <button onClick={() => calculateExtra(20)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                  20%
+                </button>
+                <button onClick={toggleCustomAmountVisibility} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                  Other
+                </button>
+              </div>
 
-              <a
-                onClick={CustomerReceipt}
-                className="mt-3 btn btn-sm btn-secondary mx-1">
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faPrint} />
-                </span>
-                <span>{t("Customer Receipt")}</span>
-              </a>
+              {isCustomAmountVisible && (
+                <>
+                  <p className="mb-2">Custom Gratuity:</p>
+                  <div className="flex">
+                    <input
+                      type="number"
+                      value={customAmount}
+                      onChange={handleCustomAmountChange}
+                      style={uniqueModalStyles.inputStyle}
+                      className="p-2 w-full border rounded-md mr-2"
+                    />
+                    <button
+                      onClick={calculateCustomAmount}
+                      className="bg-orange-500 text-white px-4 py-2 rounded-md w-1/3"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </>
+              )}
 
-              <a
+              {extra !== null && (
+                <p className="mt-4">Gratuity Amount: {extra.toFixed(2)}</p>
+              )}
 
-                onClick={(e) => {localStorage.setItem(store + "-" + selectedTable, "[]");setProducts([])}}
-                className="mt-3 btn btn-sm btn-danger mx-1">
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faTimes} />
-                </span>
-                <span>{t("Finish Order")}</span>
-              </a>
+              <button
+                onClick={() => { CashCheckOut(extra); closeUniqueModal(); }}
 
-
-              <br></br>
-              <>
-
-                <div class="text-right notranslate">Subtotal: ${Math.round(100 * totalPrice) / 100} </div>
-
-                {discount && (
-                  <div class="text-right notranslate">Discount: -${discount} </div>
-                )}
-
-                {tips && (
-                  <div class="text-right notranslate">Service Fee: ${tips} </div>
-                )}
-                <div class="text-right notranslate">Tax(8.25%): ${(Math.round(100 * totalPrice * 0.0825) / 100)}    </div>
-                <div class="text-right notranslate">Total: ${finalPrice} </div>
-              </>
+                style={uniqueModalStyles.buttonStyle}
+                className="mb-4 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+              >
+                Confirm
+              </button>
             </div>
+
           </div>
 
+          {isMyModalVisible && (
+            <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+              <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Select your POS Machine:</h5>
+                    <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setMyModalVisible(false); setReceived(false) }}>
+                      &times;
+                    </button>
+                  </div>
+                  <div className="modal-body pt-0">
+                    <PaymentComponent2 setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
 
+                  </div>
+                  <div className="modal-footer">
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* the modal for tips */}
+          {isTipsModalOpen && (
+            <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+              <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Add Service Fee</h5>
+                  </div>
+                  <div className="modal-body">
+                    <div className="row mb-3">
+                      <button
+                        type="button"
+                        className={`btn col ${selectedTipPercentage === 0.15 ? 'btn-primary' : 'btn-outline-primary'}`}
+                        onClick={() => handlePercentageTip(0.15)}
+                      >
+                        15%
+                      </button>
+
+                      <button
+                        type="button"
+                        className={`btn col ${selectedTipPercentage === 0.18 ? 'btn-primary' : 'btn-outline-primary'}`}
+                        onClick={() => handlePercentageTip(0.18)}
+                      >
+                        18%
+                      </button>
+
+                      <button
+                        type="button"
+                        className={`btn col ${selectedTipPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`}
+                        onClick={() => handlePercentageTip(0.20)}
+                      >
+                        20%
+                      </button>
+
+                      <div className="col">
+                        <input
+                          type="number"
+                          placeholder="%"
+                          min="0"  // Add this line
+                          value={customPercentage}
+                          onChange={handleCustomPercentageChange}
+                          className="form-control tips-no-spinners"  // Added the 'no-spinners' class
+                        />
+                      </div>
+                    </div>
+                    <input
+                      type="number"
+                      min="0"  // Add this line
+                      placeholder="Enter tip amount"
+                      value={tips}
+                      className="form-control tips-no-spinners"  // Added the 'no-spinners' class
+                      onChange={(e) => {
+                        let value = e.target.value;
+                        if (value < 0) {
+                          value = 0;
+                        }
+                        setTips(value);
+                        setSelectedTipPercentage(null);
+                      }}
+                      onFocus={() => setSelectedTipPercentage(null)}
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary" onClick={() => handleCancelTip()}>Cancel</button>
+                    <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>Add Service Fee</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isDiscountModalOpen && (
+            <div id="addDiscountModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+              <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Add Discount</h5>
+                  </div>
+                  <div className="modal-body">
+                    <div className="row mb-3">
+                      {/* Percentage options */}
+                      <button
+                        type="button"
+                        className={`btn col ${selectedDiscountPercentage === 0.10 ? 'btn-primary' : 'btn-outline-primary'}`}
+                        onClick={() => handleDiscountPercentage(0.10)}
+                      >
+                        10%
+                      </button>
+                      <button
+                        type="button"
+                        className={`btn col ${selectedDiscountPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`}
+                        onClick={() => handleDiscountPercentage(0.20)}
+                      >
+                        20%
+                      </button>
+                      <button
+                        type="button"
+                        className={`btn col ${selectedDiscountPercentage === 0.30 ? 'btn-primary' : 'btn-outline-primary'}`}
+                        onClick={() => handleDiscountPercentage(0.30)}
+                      >
+                        30%
+                      </button>
+                      <div className="col">
+                        <input
+                          type="number"
+                          placeholder="%"
+                          min="0"
+                          value={customDiscountPercentage}
+                          onChange={handleCustomDiscountPercentageChange}
+                          className="form-control discounts-no-spinners"
+                        />
+                      </div>
+                    </div>
+                    {/* Discount amount input */}
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="Enter discount amount"
+                      value={discount}
+                      className="form-control discounts-no-spinners"
+                      onChange={(e) => {
+                        let value = parseFloat(e.target.value);
+                        if (value < 0 || isNaN(value)) {
+                          value = 0;
+                        }
+                        applyDiscount(value);
+                        setSelectedDiscountPercentage(null);
+                      }}
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary" onClick={handleCancelDiscount}>Cancel</button>
+                    <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>Apply Discount</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      </>
+
+
+      </div>
     </>
   )
 }

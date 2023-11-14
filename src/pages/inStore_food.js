@@ -29,10 +29,10 @@ const Food = ({ store, selectedTable }) => {
     if (Object.keys(updateSelectedAttributes).length === 0) {
       updatedSelectedAttributes = { ...selectedAttributes };
 
-    }else{
+    } else {
       updatedSelectedAttributes = { ...updateSelectedAttributes };
 
-    } 
+    }
 
     // Create a copy of the selectedAttributes state
     //const updatedSelectedAttributes = { ...selectedAttributes };
@@ -79,16 +79,16 @@ const Food = ({ store, selectedTable }) => {
     const newTotalPrice = TotalAttributePrice(updatedSelectedAttributes, selectedFoodItem.attributesArr);
     const products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
     const product = products.find((product) => product.id === id && product.count === count);
-    console.log(Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)>=0)
-    if(Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)>=0){
+    console.log(Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100) >= 0)
+    if (Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100) >= 0) {
       setTotalPrice(newTotalPrice);
       // Update the state with the new selected attributes
       setSelectedAttributes(updatedSelectedAttributes);
-  
+
       // After updating selectedAttributes, recalculate the total price
       console.log(product)
       console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
-  
+
       product.attributeSelected = updatedSelectedAttributes
       product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
       localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products))
@@ -317,7 +317,7 @@ const Food = ({ store, selectedTable }) => {
 
   const handleInputChange = (event) => {
     setInput(event.target.value);
-    if (sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中")) {
+    if (sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中")) {
       filternameCHI(event.target.value);
 
     } else {
@@ -567,7 +567,7 @@ const Food = ({ store, selectedTable }) => {
     console.log("hello")
     //const [selectedAttributes, setSelectedAttributes] = useState({});
     //const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
-    
+
     // Add a CSS class to disable body scroll
     // document.body.style.overflow = 'hidden';
     // document.documentElement.style.overflow = 'hidden';
@@ -577,7 +577,7 @@ const Food = ({ store, selectedTable }) => {
   const hideModal = () => {
     setModalVisibility(false);
     handleRemoveAllCustomVariants();
-     // Remove the CSS class to enable body scroll
+    // Remove the CSS class to enable body scroll
     // document.body.style.overflow = 'auto';
     // document.documentElement.style.overflow = 'auto';
 
@@ -607,21 +607,21 @@ const Food = ({ store, selectedTable }) => {
       alert('Please enter a valid name and price');
       return;
     }
-      
+
     const updatedFoodItem = { ...selectedFoodItem };
     const updatedAttributes = { ...selectedAttributes };
-  
+
     if (!updatedFoodItem.attributesArr['Customized Option']) {
       updatedFoodItem.attributesArr['Customized Option'] = {
         isSingleSelected: false,
         variations: [],
       };
     }
-  
+
     const existingVariantIndex = updatedFoodItem.attributesArr['Customized Option'].variations.findIndex(
       (variation) => variation.type === name
     );
-  
+
     if (existingVariantIndex !== -1) {
       // Update price if variant already exists
       updatedFoodItem.attributesArr['Customized Option'].variations[existingVariantIndex].price = price;
@@ -632,13 +632,13 @@ const Food = ({ store, selectedTable }) => {
         price: price,
       });
     }
-  
+
     // Automatically select the new or updated variant
     updatedAttributes['Customized Option'] = updatedAttributes['Customized Option'] || [];
     if (!updatedAttributes['Customized Option'].includes(name)) {
       updatedAttributes['Customized Option'].push(name);
     }
-  
+
     setSelectedFoodItem(updatedFoodItem);
     setSelectedAttributes(updatedAttributes);
     setTotalPrice(TotalAttributePrice(updatedAttributes, updatedFoodItem.attributesArr));
@@ -647,11 +647,11 @@ const Food = ({ store, selectedTable }) => {
   const handleRemoveAllCustomVariants = () => {
     const updatedFoodItem = { ...selectedFoodItem };
     const updatedAttributes = { ...selectedAttributes };
-  
+
     if (updatedFoodItem.attributesArr['Customized Option']) {
       delete updatedFoodItem.attributesArr['Customized Option'];
       delete updatedAttributes['Customized Option'];
-  
+
       setSelectedFoodItem(updatedFoodItem);
       setSelectedAttributes(updatedAttributes);
       setTotalPrice(TotalAttributePrice(updatedAttributes, updatedFoodItem.attributesArr));
@@ -679,57 +679,57 @@ const Food = ({ store, selectedTable }) => {
                 <div className='p-4 pt-3'>
                   <div className='flex justify-between'>
                     <h4 class="notranslate">
-                      {sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
+                      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
                     </h4>
                   </div>
                   <div className="mb-3">
-  <label htmlFor="customVariantName" className="form-label">Customized Option (Price Change)</label>
-  <input
-    type="text"
-    className="form-control"
-    id="customVariantName"
-    placeholder="Enter the reason of the price change"
-    value={customVariant.name}
-    onChange={(e) => setCustomVariant({ ...customVariant, name: e.target.value })}
-  />
-  <small id="customVariantNameHelp" className="form-text text-muted">
-    This is the reason of the price change you want to add.
-  </small>
-</div>
+                    <label htmlFor="customVariantName" className="form-label">Customized Option (Price Change)</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="customVariantName"
+                      placeholder="Enter the reason of the price change"
+                      value={customVariant.name}
+                      onChange={(e) => setCustomVariant({ ...customVariant, name: e.target.value })}
+                    />
+                    <small id="customVariantNameHelp" className="form-text text-muted">
+                      This is the reason of the price change you want to add.
+                    </small>
+                  </div>
 
-<div className="mb-3">
-  <label htmlFor="customVariantPrice" className="form-label">Price</label>
-  <input
-    type="text"
-    className="form-control"
-    id="customVariantPrice"
-    placeholder="Enter the price of the custom variant (can be negative)"
-    value={customVariant.price}
-    onChange={(e) => setCustomVariant({ ...customVariant, price: e.target.value })}
-  />
-  <small id="customVariantPriceHelp" className="form-text text-muted">
-    Enter a positive or negative number for the price adjustment.
-  </small>
-</div>
+                  <div className="mb-3">
+                    <label htmlFor="customVariantPrice" className="form-label">Price</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="customVariantPrice"
+                      placeholder="Enter the price of the custom variant (can be negative)"
+                      value={customVariant.price}
+                      onChange={(e) => setCustomVariant({ ...customVariant, price: e.target.value })}
+                    />
+                    <small id="customVariantPriceHelp" className="form-text text-muted">
+                      Enter a positive or negative number for the price adjustment.
+                    </small>
+                  </div>
 
-<button
-  className="btn btn-primary mb-3"
-  type="button"
-  onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price)}
->
-  Add Custom Variant
-</button>
+                  <button
+                    className="btn btn-primary mb-3"
+                    type="button"
+                    onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price)}
+                  >
+                    Add Custom Variant
+                  </button>
 
 
 
-        {Object.keys(selectedFoodItem.attributesArr).length > 0 && (
-    <div>
-      Select your add-ons: (Items in green means already selected)
-    </div>
-  )}
-        {Object.entries(selectedFoodItem.attributesArr).map(([attributeName, attributeDetails]) => (
- 
-                   <div key={attributeName}>
+                  {Object.keys(selectedFoodItem.attributesArr).length > 0 && (
+                    <div>
+                      Select your add-ons: (Items in green means already selected)
+                    </div>
+                  )}
+                  {Object.entries(selectedFoodItem.attributesArr).map(([attributeName, attributeDetails]) => (
+
+                    <div key={attributeName}>
                       <p className="mb-1">
                         <span className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
                           {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : "Select All That Apply"}
@@ -739,32 +739,32 @@ const Food = ({ store, selectedTable }) => {
                       <div className='flex flex-wrap'>
                         {attributeDetails.variations.map((variation, idx) => (
                           <div key={idx}>
-<div
-    className={`mb-1 mr-1 mt-1 btn btn-light ${attributeDetails.isSingleSelected
-        ? selectedAttributes[attributeName] === variation.type
-            ? 'selected-variation bg-success text-white'
-            : ''
-        : selectedAttributes[attributeName]?.includes(variation.type)
-            ? 'selected-variation bg-success text-white'
-            : ''
-        }`}
-    style={{
-        position: 'relative',
-        fontFamily: "Suisse Int'l",
-        fontStyle: 'normal',
-        fontWeight: 600,
-        letterSpacing: '0.05em',
-        textTransform: 'uppercase',
-        whiteSpace: 'nowrap',
-        cursor: 'pointer',
-    }}
-    onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count,{})}
->
+                            <div
+                              className={`mb-1 mr-1 mt-1 btn btn-light ${attributeDetails.isSingleSelected
+                                ? selectedAttributes[attributeName] === variation.type
+                                  ? 'selected-variation bg-success text-white'
+                                  : ''
+                                : selectedAttributes[attributeName]?.includes(variation.type)
+                                  ? 'selected-variation bg-success text-white'
+                                  : ''
+                                }`}
+                              style={{
+                                position: 'relative',
+                                fontFamily: "Suisse Int'l",
+                                fontStyle: 'normal',
+                                fontWeight: 600,
+                                letterSpacing: '0.05em',
+                                textTransform: 'uppercase',
+                                whiteSpace: 'nowrap',
+                                cursor: 'pointer',
+                              }}
+                              onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count, {})}
+                            >
 
 
                               {variation.type}
                               <span class="notranslate">
-                              ({formatPriceDisplay(variation.price)})
+                                ({formatPriceDisplay(variation.price)})
                               </span>
                             </div>
                           </div>
@@ -782,71 +782,42 @@ const Food = ({ store, selectedTable }) => {
                   <div>
 
 
-                    <span class="notranslate">
+                    <span class="text-lg notranslate">
                       ${Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100}
                     </span>
                     {priceError}
 
                   </div>
                   <div>
-                    <span class="notranslate">
+                    <span>
                       {false ?
                         <></>
                         :
                         <>
-                          <div
-                            className={animationClass}
-                            style={{
-                              margin: '0px',
-                              display: 'flex',
-                              whiteSpace: 'nowrap',
-                              width: '80px',
-                              marginTop: '-18px',
-                              paddingTop: '20px',
-                              height: 'fit-content',
-                            }}
-                          >
-                            <div className="quantity"
-
-                              style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-18px", paddingTop: "20px", height: "fit-content" }}>
-                              <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                                <button
-
-                                  className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                                  onClick={() => {
-                                    deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 1);
-                                    //saveId(Math.random());
-                                  }}
-
-                                >
-                                  <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                                </button>
-                              </div>
-                              <span
-
-                                type="text"
-                                style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                              >
-
-                                <span class="notranslate">
-                                  {searchSpeicalFoodQuantity(selectedFoodItem.id, count)}
-                                </span>
-
-                              </span>
-
-
-                              <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                                <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                                  onClick={() => {
-                                    addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count, selectedFoodItem.CHI);
-                                    saveId(Math.random());
-                                  }}
-                                >
-                                  <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                                </button>
-                              </div>
-                            </div>
+                          <div className="d-flex align-items-center">
+                            <button
+                              className="btn btn-secondary"
+                              onClick={() => {
+                                deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 1);
+                                //saveId(Math.random());
+                              }}
+                            >
+                              Delete
+                            </button>
+                            <span className="mx-4 notranslate text-lg font-bold">
+                              {searchSpeicalFoodQuantity(selectedFoodItem.id, count)}
+                            </span>
+                            <button
+                              className="btn btn-secondary"
+                              onClick={() => {
+                                addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count, selectedFoodItem.CHI);
+                                saveId(Math.random());
+                              }}
+                            >
+                              Add
+                            </button>
                           </div>
+
                         </>
 
                       }
@@ -898,7 +869,7 @@ const Food = ({ store, selectedTable }) => {
                   setFoods(data)
                   setSelectedFoodType(null);
                 }}
-                  className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === null ? 'underline' : ''}`}
+                  className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg ${selectedFoodType === null ? 'underline' : ''}`}
                   style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
 
                 {
@@ -910,7 +881,7 @@ const Food = ({ store, selectedTable }) => {
                           filterTypeCHI(foodType);
                           setSelectedFoodType(foodType);
                         }}
-                        className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
+                        className={`m-0 border-black-600 text-black-600 rounded-xl text-lg px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
                           }`}
                         style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
                       >
@@ -928,7 +899,7 @@ const Food = ({ store, selectedTable }) => {
                           filterType(foodType);
                           setSelectedFoodType(foodType);
                         }}
-                        className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
+                        className={`m-0 border-black-600 text-black-600 text-lg rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
                           }`}
                         style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
                       >
@@ -974,7 +945,7 @@ const Food = ({ store, selectedTable }) => {
                           <div className="col-span-4 ">
                             <p class="notranslate">
 
-                              {sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
+                              {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
                             </p>                          </div>
 
                           {/* parent div of the quantity and buttons */}

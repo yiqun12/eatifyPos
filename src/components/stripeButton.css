@@ -87,3 +87,35 @@
 
   body{ top: 0 !important;}
 .goog-te-banner-frame{display: none !important;}
+
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 200px; /* adjust as needed */
+  height: 100%;
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(-100%); /* hide by default */
+}
+
+.sidebar.show {
+  transform: translateX(0);
+}
+
+.show-on-hover:hover + .sidebar {
+  transform: translateX(0);
+}
+
+.show-on-hover {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 20px; /* adjust as needed */
+  height: 100%;
+  transition: background-color 0.3s;
+}
+
+.show-on-hover:hover {
+  background-color: rgba(0, 0, 0, 0.1); /* optional: change color on hover */
+}

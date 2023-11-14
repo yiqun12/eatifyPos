@@ -16,6 +16,7 @@ import InStore_shop_cart from '../pages/inStore_shop_cart'
 import { useUserContext } from "../context/userContext";
 import Dnd_Test from '../pages/dnd_test';
 
+
 // Create a CSS class to hide overflow
 const bodyOverflowHiddenClass = 'body-overflow-hidden';
 
@@ -52,8 +53,30 @@ function Iframe({ src, width, height, storeName }) {
 
 function App({ store, acct }) {
 
+    const [divWidth, setDivWidth] = useState(0);
+    const divRef = useRef();
 
-      
+    useEffect(() => {
+        const resizeObserver = new ResizeObserver(entries => {
+            // Assuming you are observing only one element
+            const { width } = entries[0].contentRect;
+            setDivWidth(width);
+        });
+
+        if (divRef.current) {
+            resizeObserver.observe(divRef.current);
+        }
+
+        // Clean up function to stop observing the element when the component unmounts
+        return () => {
+            if (divRef.current) {
+                resizeObserver.unobserve(divRef.current);
+            }
+        };
+    }, []); // Empty dependency array means this effect will only run on mount and unmount
+
+
+
     const syncData = async () => {
         console.log("sync data")
 
@@ -75,8 +98,8 @@ function App({ store, acct }) {
                 console.log(rest.restaurant_seat_arrangement)
                 localStorage.setItem(store + '_restaurant_seat_arrangement', rest.restaurant_seat_arrangement)
 
-                }
-                
+            }
+
         } catch (error) {
             console.error("Error fetching the document:", error);
         }
@@ -327,79 +350,104 @@ function App({ store, acct }) {
         alert("Updated Successful");
     };
 
-      // for split payment modal
+    // for split payment modal
 
-  const [isSplitPaymentModalOpen, setIsSplitPaymentModalOpen] = useState(false);
+    const [isSplitPaymentModalOpen, setIsSplitPaymentModalOpen] = useState(false);
 
-  const openSplitPaymentModal = () => {
-    setIsSplitPaymentModalOpen(true);
-    // Add a CSS class to disable body scroll
-    document.body.classList.add('bodyOverflowHiddenClass');
-  };
-  
-  const closeSplitPaymentModal = () => {
-    setIsSplitPaymentModalOpen(false);
-    // Remove the CSS class to enable body scroll
-    document.body.classList.remove('bodyOverflowHiddenClass');
-  };
+    const openSplitPaymentModal = () => {
+        setIsSplitPaymentModalOpen(true);
+        // Add a CSS class to disable body scroll
+        document.body.classList.add('bodyOverflowHiddenClass');
+    };
+
+    const closeSplitPaymentModal = () => {
+        setIsSplitPaymentModalOpen(false);
+        // Remove the CSS class to enable body scroll
+        document.body.classList.remove('bodyOverflowHiddenClass');
+    };
+    // const [currentTime, setCurrentTime] = useState(new Date());
+
+    // useEffect(() => {
+    //     const intervalId = setInterval(() => {
+    //         setCurrentTime(new Date());
+    //     }, 100); // Update every 100 milliseconds
+
+    //     return () => {
+    //         clearInterval(intervalId);
+    //     };
+    // }, []);
+    const [width, setWidth] = useState(window.innerWidth - 64);
+
+    useEffect(() => {
+        function handleResize() {
+            setWidth(window.innerWidth - 64);
+        }
+
+        window.addEventListener("resize", handleResize);
+
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+    const isPC = width >= 1024;
+
+    const [view, setView] = useState(false);
 
     return (
 
-        <div>
+        <div ref={divRef}>
 
             {/* beginning of the other code */}
 
             {true ?
 
                 <>
-{isSplitPaymentModalOpen && (
-  <div
-    id="addDiscountModal"
-    className="modal fade show"
-    role="dialog"
-    style={{
-      display: 'block',
-      position: 'fixed', // Set to 'fixed' to make it stay fixed on the screen
-      top: '0',
-      left: '0',
-      right: '0',
-      bottom: '0',
-      backgroundColor: 'rgba(255,255,255,1)',
-      overflow: 'auto', // Use 'hidden' to prevent the modal itself from scrolling
-      zIndex: '9999',
-    }}
-  >
-    <div
-      className="modal-dialog modal-xl"
-      role="document"
-      style={{
-        height:"80vh",
-        margin: 'auto', // Center the modal on the screen
-        position: 'relative', // Add relative positioning
-      }}
-    >
-      <div className="modal-content" style={{ overflowY: 'hidden' }}>
-        <div className="modal-header">
-          <h5 className="modal-title">Split Payment</h5>
-        </div>
-        <div className="modal-body">
-        <div>Main column will be divided equally between groups, each group sums its items separately</div>
-          {/* Set a maxHeight for the modal body */}
-          <Dnd_Test />
-        </div>
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={closeSplitPaymentModal}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+                    {isSplitPaymentModalOpen && (
+                        <div
+                            id="addDiscountModal"
+                            className="modal fade show"
+                            role="dialog"
+                            style={{
+                                display: 'block',
+                                position: 'fixed', // Set to 'fixed' to make it stay fixed on the screen
+                                top: '0',
+                                left: '0',
+                                right: '0',
+                                bottom: '0',
+                                backgroundColor: 'rgba(255,255,255,1)',
+                                overflow: 'auto', // Use 'hidden' to prevent the modal itself from scrolling
+                                zIndex: '9999',
+                            }}
+                        >
+                            <div
+                                className="modal-dialog modal-xl"
+                                role="document"
+                                style={{
+                                    height: "80vh",
+                                    margin: 'auto', // Center the modal on the screen
+                                    position: 'relative', // Add relative positioning
+                                }}
+                            >
+                                <div className="modal-content" style={{ overflowY: 'hidden' }}>
+                                    <div className="modal-header">
+                                        <h5 className="modal-title">Split Payment</h5>
+                                    </div>
+                                    <div className="modal-body">
+                                        <div>Main column will be divided equally between groups, each group sums its items separately</div>
+                                        {/* Set a maxHeight for the modal body */}
+                                        <Dnd_Test />
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary"
+                                            onClick={closeSplitPaymentModal}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
 
 
@@ -411,63 +459,89 @@ function App({ store, acct }) {
                             : <></>
                         }
 
-                        <div style={{ margin: "10px", display: "flex" }}>
+                        <div style={{ margin: "10px", display: "flex" }} >
+                            <div style={{ position: 'relative' }}>
+                                <Iframe key={divWidth}
+                                    ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width={(divWidth) + "px"} height="800px" storeName={store} />
 
-                        <div style={{ position: 'relative', width: "540px", height: "800px", zIndex:"1"}}>
+                                {isModalOpen && (
+                                    <div id="addTableModal" className="modal fade show" role="dialog" style={{ display: 'block', position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,1)', overflow: 'hidden' }}>
+                                        <div role="document" style={{ overflowY: 'hidden' }}>
+                                            <div className="modal-content" style={{ overflowY: 'hidden', /* Add scrollbar styles inline */ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' }}>
+                                                <div className="modal-header flex p-0 pb-3">
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                        {!isPC ?
+                                                            <a
+                                                                onClick={() => {
+                                                                    setView(true)
+                                                                }}
+                                                                class="btn d-inline-flex btn-sm btn-secondary mx-1">
+                                                                <span>View {selectedTable} Orders</span>
+                                                            </a>
 
-                            
-                                <Iframe ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width="540px" height="800px" storeName={store} />
+                                                            :
+                                                            <div className='text-lg'>Dining table : {selectedTable}</div>
+                                                        }
 
-                                {/* modal code for when table inside iframe is clicked in customer mode */}
+                                                    </div>
+                                                    {!isPC ? <a
+                                                        onClick={() => {
+                                                            if (view === true) {
+                                                                setView(false)
+                                                            } else {
+                                                                setModalOpen(false);
+                                                            }
+                                                        }}
+                                                        class="btn d-inline-flex btn-sm btn-primary mx-1">
+                                                        <span>Back</span>
+                                                    </a> : <a
+                                                        onClick={() => {
+                                                            setModalOpen(false);
+                                                        }}
+                                                        class="btn d-inline-flex btn-sm btn-primary mx-1">
+                                                        <span>Back</span>
+                                                    </a>
 
-                                {/* previous code */}
-                                {/* {isModalOpen && (
-                                    
-                                    <div  id="addTableModal" className="modal fade show " role="dialog" style={{ display: 'block',position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,1)' }}>
-                                        <div className="modal-dialog modal-xl" role="document">
-                                            <div className="modal-content">
-                                                <div className="modal-header">
-                                                    <h5 className="modal-title">{selectedTable}</h5>
-                                                    <button type="button" className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
+                                                    }
+
                                                 </div>
-                                                <div className="modal-body">
-                                                    <InStore_food store={store} selectedTable={selectedTable} ></InStore_food>
-                                                </div>
+                                                {!isPC ?
+                                                    <div key={view} className="modal-body p-0">
+                                                        <div >
+                                                            {view === true ?
+                                                                <InStore_shop_cart
+                                                                    store={store}
+                                                                    acct={acct}
+                                                                    selectedTable={selectedTable}
+                                                                    openSplitPaymentModal={openSplitPaymentModal}
+                                                                />
+                                                                :
+                                                                <InStore_food store={store} selectedTable={selectedTable} />
+                                                            }
+                                                        </div>
+                                                    </div>
+
+
+                                                    :
+                                                    <div className="modal-body flex p-0" >
+
+                                                        <div className='w-1/2'>
+                                                            <InStore_food store={store} selectedTable={selectedTable}></InStore_food>
+                                                        </div>
+                                                        <div className='w-1/2'>
+                                                            <InStore_shop_cart store={store} acct={acct} selectedTable={selectedTable} openSplitPaymentModal={openSplitPaymentModal}  ></InStore_shop_cart>
+                                                        </div>
+                                                    </div>
+                                                }
 
                                             </div>
                                         </div>
                                     </div>
-                                )} */}
-
-                                {/* new modal with scrollbar hidden */}
-                                {isModalOpen && (
-                                <div id="addTableModal" className="modal fade show" role="dialog" style={{ display: 'block', position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,1)', overflow: 'hidden' }}>
-                                    <div className="modal-dialog modal-xl" role="document" style={{ overflowY: 'hidden' }}>
-                                    <div className="modal-content" style={{ overflowY: 'scroll', maxHeight: '80vh', /* Add scrollbar styles inline */ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' }}>
-                                        <div className="modal-header">
-                                        <h5 className="modal-title">{selectedTable}</h5>
-                                        <button type="button" className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
-                                        </div>
-                                        <div className="modal-body">
-                                        {/* in the body of the modal contains the search food items functionality */}
-                                        <InStore_food store={store} selectedTable={selectedTable}></InStore_food>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
                                 )}
                             </div>
-
-                            <section className="task-list" >
-                                <div className="task-wrap" style={{ minHeight: '800px', overflowY: 'scroll' }}>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        <div>
-                                            <InStore_shop_cart store={store} acct={acct} selectedTable={selectedTable} openSplitPaymentModal={openSplitPaymentModal}  ></InStore_shop_cart>
-                                            <hr />
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
+                            {/* 
+                            <div>
+                            </div> */}
                         </div>
                     </div>
 

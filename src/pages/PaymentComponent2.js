@@ -18,7 +18,6 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
 
     try {
       const createPaymentIntentFunction = firebase.functions().httpsCallable('createPaymentIntent');
-
       const response = await createPaymentIntentFunction({
         amount: amount,
         connected_stripe_account_id: connected_stripe_account_id,
@@ -84,45 +83,54 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
 
   const [intent, setIntent] = useState([])
   async function makePayment() {
-    setIsPaymentClick(true)
-    console.log(localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
+    const createPaymentButton = document.getElementById("create-payment-button");
+    const originalButtonText = createPaymentButton.textContent || createPaymentButton.innerText; // Store the original button text
+    createPaymentButton.textContent = "Awaiting for Process"; // Change button text
+    createPaymentButton.className = "loading";
+    createPaymentButton.disabled = true;
+    setIsPaymentClick(true);
+    console.log(localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]");
+    
     try {
       let amount = Math.round(chargeAmount * 100);
-
       const paymentIntent = await createPaymentIntent(amount, localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]");
       console.log("payment intent: ", paymentIntent);
-      paymentIntentId = paymentIntent["id"]
-
+      paymentIntentId = paymentIntent["id"];
       const reader = await processPayment();
       console.log("payment processed at reader: ", reader);
-
+  
       if (simulation_mode == true) {
         // const simulatedPayment = await simulatePayment();
         // console.log("simulated payment at: ", simulatedPayment);
       }
-      console.log("intents" + paymentIntentId)
-      setIntent(paymentIntentId)
-
+      console.log("intents" + paymentIntentId);
+      setIntent(paymentIntentId);
+  
     } catch (error) {
       console.error("Error in makePayment: ", error.message);
     } finally {
-
+      createPaymentButton.className = "btn btn-primary";
+      createPaymentButton.disabled = false;
+      createPaymentButton.textContent = originalButtonText; // Reset button text
     }
   }
-
+  
 
 
 
   async function cancelPayment() {
-
+    const cancelPaymentButton = document.getElementById("cancel-payment-button");
+    cancelPaymentButton.className = "loading";
+    cancelPaymentButton.disabled = true;
     try {
       const reader = await cancel();
       console.log("canceled payment at: ", reader);
     } catch (error) {
       console.error("Error in cancelPayment: ", error.message);
     } finally {
-      // cancelPaymentButton.className = "btn btn-danger";
-    }
+      cancelPaymentButton.className = "btn btn-danger";
+      cancelPaymentButton.disabled = false;
+      }
   }
 
 
@@ -196,18 +204,17 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
   };
 
   return (
-    <div className="container-fluid h-100">
-      <div className="row h-100">
-        <div className="offset h-100">
+    <div className="">
+      <div className="">
+        <div className="">
           {items.length === 0 ?
-            <></>
+            <>No Pos Machine Was Registered</>
             :
             <>
               <div>
-                <label className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
-                  Select your terminal:
+                <label className="text-gray-700 mt-1" htmlFor="storeName">
                 </label>
-                {items.map(item => (
+                {items.map((item, index) => (
                   <div key={item.id}>
                     <label className='flex'>
                       <input
@@ -219,7 +226,7 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
                         checked={selectedId === item.id}
                         onChange={() => setSelectedId(item.id)}
                       />
-                      {item.id}  ({formatDate(item.date)})
+                      POS Machine No.{index + 1} --- Added in {formatDate(item.date)}
                     </label>
                   </div>
                 ))}
@@ -246,12 +253,12 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
 
                 <div class="mt-2 row margin pad">
                       <button id="create-payment-button" className="btn btn-primary" onClick={makePayment}>
-                        Process Payment $ {chargeAmount}
+                        Process Payment
                       </button>
                     </div>
                     <div class="mt-2 row margin pad">
                     <button id="cancel-payment-button" className="btn btn-danger" onClick={cancelPayment}>
-                      Reset Terminal
+                      Reset POS Machine
                     </button>
                   </div>
                   </>

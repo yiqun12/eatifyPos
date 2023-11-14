@@ -45,11 +45,11 @@
       <div class="row">
         <div class="col-sm-2 col-sm-offset-3 form-group">
           <label>Width (px)</label>
-          <input type="number" id="width" class="form-control" value="500" />
+       <input type="number" id="width" class="form-control" />
         </div>
         <div class="col-sm-2 col-sm-offset-3 form-group">
           <label>Height (px)</label>
-          <input type="number" id="height" class="form-control" value="812" />
+          <input type="number" id="height" class="form-control" />
         </div>
       </div>
       <!-- <div class="col-sm-2 form-group" style="display: flex;justify-content: center; align-items: center; width: 100%;"> -->
@@ -77,9 +77,9 @@
       <div id="slider"></div>
       <div id="slider-value"></div>
     </div>
-    <div id="canvas-container" style="overflow: auto; width: 500px; height: 730px;">
+    <div id="canvas-container" style="overflow: auto; ">
 
-      <canvas id="canvas" width="500" height="730"></canvas>
+      <canvas id="canvas"></canvas>
     </div>
 
   </div>
@@ -111,6 +111,10 @@
   <script src='https://cdn.rawgit.com/leongersen/noUiSlider/master/distribute/nouislider.min.js'></script>
   
   <script>
+      // When the page loads
+      document.getElementById('width').value = window.innerWidth;
+      document.getElementById('height').value = window.innerHeight;
+
     let store
     let canvas
     let tableNumber = 1
@@ -252,13 +256,13 @@
       wallNumber = 1
       canvas.backgroundColor = backgroundColor
 
-      for (let i = 0; i < (canvas.height / grid); i++) {
-        const lineX = new fabric.Line([0, i * grid, canvas.height, i * grid], {
+      for (let i = 0; i < (canvas.width / grid); i++) {
+        const lineX = new fabric.Line([0, i * grid, canvas.width, i * grid], {
           stroke: lineStroke,
           selectable: false,
           type: 'line'
         })
-        const lineY = new fabric.Line([i * grid, 0, i * grid, canvas.height], {
+        const lineY = new fabric.Line([i * grid, 0, i * grid, canvas.width], {
           stroke: lineStroke,
           selectable: false,
           type: 'line'
@@ -619,16 +623,6 @@
       })
 
 
-      /* TODO:  Fix the sizes of the text so that it doesn't scale with the shape
-  */
-
-      //       // this on() triggers when the group is scaled
-      // g.on('scaling', function() {
-      //     // Adjust the fontSize of the text inside the group to counteract the group's scaling
-      //     t.fontSize = t.originalFontSize / g.scaleX;
-      //     t.setCoords(); // Refresh text coordinates
-      // });
-
       canvas.add(g)
       object = {
         type: "circle",
@@ -650,7 +644,6 @@
       saveBoard()
       return g
     }
-
 
 
     function addChair(left, top, scaleX = 1, scaleY = 1, id = "xxxx", snapAngle = 45, angle = 0) {
