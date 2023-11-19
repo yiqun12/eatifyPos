@@ -8,6 +8,7 @@ import Home from './pages/Home'
 import ForgotPassword from './pages/ForgotPassword'
 import Reservation from './pages/reservation'
 import Checkout from './pages/Checkout'
+import ErrorBoundary from './ErrorBoundary'; // Import the ErrorBoundary component
 
 import Admin_new from './components/Admin_new'
 import IframeDesk from './components/iframeDesk'
@@ -94,6 +95,7 @@ function App() {
   } else {
 
     return (
+<ErrorBoundary>
 
       <div className="App">
 
@@ -180,7 +182,8 @@ function App() {
           </MyHookProvider>
         </BrowserRouter>
       </div>
-
+  {/* Your entire component tree */}
+  </ErrorBoundary>
     );
   }
 }

@@ -241,7 +241,7 @@ function BusinessHoursTable() {
   }
 
   return (
-    <>
+    <div>
       {/* <BusinessHoursTable></BusinessHoursTable> */}
       {/* the modal that when the button is pressed shows */}
       {/* {storeStatus ?     <Button variant="primary" onClick={handleShow}>
@@ -302,7 +302,7 @@ function BusinessHoursTable() {
           </Button>
         </Modal.Footer>
       </Modal>
-    </>
+    </div>
   );
 }
 

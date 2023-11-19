@@ -132,11 +132,11 @@ function PayFullhistory() {
       {isLoading && user_loading ? (
         <div>{t("Loading...")}</div>
       ) : (
-        <>
+        <div>
           {payments
             .map((order) => (
-              <>
-                <>
+              <div>
+                <div>
                   <div className=' gap-0 pt-0'>
                     <div
 
@@ -236,13 +236,13 @@ function PayFullhistory() {
                       )}
                     </div>
                   </div>
-                </>
+                </div>
 
 
-              </>
+              </div>
 
             ))}
-        </>
+        </div>
 
       )}
     </div>

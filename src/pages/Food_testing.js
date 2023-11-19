@@ -694,7 +694,7 @@ const Food = () => {
                     ${Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100}
                   </div>
                   {searchSpeicalFoodQuantity(selectedFoodItem.id, count) == 0 ?
-                    <>
+                    <div>
                       <div className="quantity"
                         style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
 
@@ -714,9 +714,9 @@ const Food = () => {
                         >
                         </div>
                       </div>
-                    </>
+                    </div>
                     :
-                    <>
+                    <div>
                       <div
                         className={animationClass}
                         style={{
@@ -771,7 +771,7 @@ const Food = () => {
                           </div>
                         </div>
                       </div>
-                    </>
+                    </div>
 
                   }
                 </div>

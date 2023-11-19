@@ -16,7 +16,7 @@ import './float.css';
 import $ from 'jquery';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
-import { faCreditCard, faGift, faDollarSign, faUsers, faPencilAlt, faTimes, faArrowRight, faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard, faGift, faDollarSign, faUsers, faPencilAlt, faTimes, faExchangeAlt, faArrowRight, faPrint } from '@fortawesome/free-solid-svg-icons';
 import logo_transparent from './logo_transparent.png'
 //import { flexbox } from '@mui/system';
 import "./navbar.css";
@@ -33,8 +33,7 @@ import { db } from '../firebase/index';
 import cartImage from './shopcart.png';
 import "./inStore_shop_cart.css";
 import PaymentComponent2 from "../pages/PaymentComponent2";
-
-import Dnd_Test from './dnd_test';
+import Dnd_Test from '../pages/dnd_test';
 import { isMobile } from 'react-device-detect';
 
 const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
@@ -44,8 +43,7 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   //console.log(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
   const { user, user_loading } = useUserContext();
 
-
-
+  const [isSplitPaymentModalOpen, setSplitPaymentModalOpen] = useState(false);
 
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -73,6 +71,8 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   const [finalPrice, setFinalPrice] = useState(0);
 
   const [totalQuant, setTotalQuant] = useState(0);
+  const [extra, setExtra] = useState(null);
+
   //console.log(totalQuant)
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
@@ -84,13 +84,13 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))
 
-      setFinalPrice((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
+      setFinalPrice((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
       //console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
     }
     calculateTotalPrice();;
     localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
 
-  }, [products, width, tips, discount]);
+  }, [products, width, tips, discount, extra]);
 
 
   const handleDeleteClick = (productId, count) => {
@@ -403,6 +403,9 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
         user_email: user.email,
       });
       console.log("Document written with ID: ", docRef.id);
+      localStorage.setItem(store + "-" + selectedTable, "[]"); setProducts([]);
+      localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
+
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -531,7 +534,6 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   const [inputValue, setInputValue] = useState("");
   const [customAmount, setCustomAmount] = useState("");
   const [result, setResult] = useState(null);
-  const [extra, setExtra] = useState(null);
   const [finalResult, setFinalResult] = useState(null);
 
   const openUniqueModal = () => setUniqueModalOpen(true);
@@ -548,9 +550,9 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   const calculateResult = () => {
     const x = parseInt(inputValue);
     if (!isNaN(x) && x > finalPrice) {
-      setResult(x - finalPrice);
+      setResult(x);
     } else {
-      alert("Please enter a number greater than 10");
+      alert("Please enter a number greater than total amount: $" + finalPrice);
     }
   };
 
@@ -631,10 +633,10 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
 
   return (
 
-    <>
+    <div>
       <div class=''>
         <div className="flex w-full">
-        <div className={`flex-grow ${!isMobile ? 'm-6' : 'm-2'}`}>
+          <div className={`flex-grow ${!isMobile ? 'm-6' : 'm-2'}`}>
             {(Array.isArray(products) ? products : []).map((product) => (
 
               // the parent div
@@ -663,56 +665,56 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
                   </div>
 
                   <div className="quantity p-0"
-                        style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
-                        <div>
-                          <div className={`${!isMobile ? 'text-lg' : ''} notranslate`}>
+                    style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
+                    <div>
+                      <div className={`${!isMobile ? 'text-lg' : ''} notranslate`}>
 
-                            ${product.itemTotalPrice}
-                            </div>
-
-                        </div>
-                        {/* the add minus box set up */}
-                        <div style={{ display: "flex" }}>
-
-                          {/* the start of minus button set up */}
-                          <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                            <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                              onClick={() => {
-                                if (product.quantity === 1) {
-                                  handleDeleteClick(product.id, product.count);
-                                } else {
-                                  handleMinusClick(product.id, product.count)
-                                }
-                              }}>
-                              <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                            </button>
-                          </div>
-                          {/* the end of minus button set up */}
-
-                          { /* start of the quantity number */}
-                          <span
-                            className='notranslate'
-                            type="text"
-                            style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                          >{product.quantity}</span>
-                          { /* end of the quantity number */}
-
-                          { /* start of the add button */}
-                          <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                            <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                              onClick={() => {
-                                handlePlusClick(product.id, product.count)
-                              }}>
-                              <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                            </button>
-                          </div>
-                          { /* end of the add button */}
-                        </div>
-                        { /* end of the add minus setup*/}
+                        ${product.itemTotalPrice}
                       </div>
 
-                      {/* end of quantity */}
-                    
+                    </div>
+                    {/* the add minus box set up */}
+                    <div style={{ display: "flex" }}>
+
+                      {/* the start of minus button set up */}
+                      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                        <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                          onClick={() => {
+                            if (product.quantity === 1) {
+                              handleDeleteClick(product.id, product.count);
+                            } else {
+                              handleMinusClick(product.id, product.count)
+                            }
+                          }}>
+                          <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                        </button>
+                      </div>
+                      {/* the end of minus button set up */}
+
+                      { /* start of the quantity number */}
+                      <span
+                        className='notranslate'
+                        type="text"
+                        style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                      >{product.quantity}</span>
+                      { /* end of the quantity number */}
+
+                      { /* start of the add button */}
+                      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                        <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                          onClick={() => {
+                            handlePlusClick(product.id, product.count)
+                          }}>
+                          <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                        </button>
+                      </div>
+                      { /* end of the add button */}
+                    </div>
+                    { /* end of the add minus setup*/}
+                  </div>
+
+                  {/* end of quantity */}
+
 
 
                 </div>
@@ -724,114 +726,123 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
           <div className='flex flex-col space-y-2'>
             <a
               onClick={handleAddTipClick}
-              className="mt-3 btn btn-sm btn-success mx-1">
-              
-              {isMobile? <></>:
-              <span className="pe-2">
-              <FontAwesomeIcon icon={faGift} />
-              </span>
-              }  
-              
+              className="mt-3 btn btn-sm btn-success mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              {isMobile ? <div></div> :
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faPencilAlt} />
+                </span>
+              }
               <span>{t("Add Service Fee")}</span>
             </a>
 
             <a
               onClick={handleAddDiscountClick}
-              className="mt-3 btn btn-sm btn-danger mx-1">
-              
-              {isMobile? <></>:
-              <span className="pe-2">
-              <FontAwesomeIcon icon={faPencilAlt} />
-              </span>
+              className="mt-3 btn btn-sm btn-danger mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              {isMobile ? <div></div> :
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faGift} />
+                </span>
               }
-                
-              
               <span>{t("Add Discount")}</span>
             </a>
 
             <a
-              onClick={() => setMyModalVisible(true)}
-              className="mt-3 btn btn-sm btn-primary mx-1">
-              
-              {isMobile? <></>:<span className="pe-2">
-                <FontAwesomeIcon icon={faCreditCard} />
-                </span>
-              }
-                
-             
-              <span>{t("Card Pay")}</span>
-            </a>
-
-            <a
-              onClick={() => { OpenCashDraw(); openUniqueModal() }}
-              className="mt-3 btn btn-sm btn-primary mx-1">
-              
-              {isMobile? <></>:
-              <span className="pe-2">
-                <FontAwesomeIcon icon={faDollarSign} />
-                </span>
-              }
-                
-              
-              <span>{t("Cash Pay")}</span>
-            </a>
-
-            <a
               onClick={SendToKitchen}
-              className="mt-3 btn btn-sm btn-info mx-1">
-              
-              {isMobile? <></>:
-              <span className="pe-2">
-              <FontAwesomeIcon icon={faArrowRight} />
-              </span>
+              className="mt-3 btn btn-sm btn-light mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              {isMobile ? <div></div> :
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faArrowRight} />
+                </span>
               }
-                
-              
               <span>{t("Send to kitchen")}</span>
             </a>
 
             <a
               onClick={() => { CustomerReceipt(); MerchantReceipt(); }}
-              className="mt-3 btn btn-sm btn-secondary mx-1">
-              
-              
-              {isMobile? <></>:
-              <span className="pe-2">
-              <FontAwesomeIcon icon={faPrint} />
-              </span>
+              className="mt-3 btn btn-sm btn-secondary mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              {isMobile ? <div></div> :
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faPrint} />
+                </span>
               }
-                
-             
-              <span>{t("Customer Receipt")}</span>
+              <span>{t("Print Order")}</span>
             </a>
 
             <a
-              onClick={(e) => {
-                localStorage.setItem(store + "-" + selectedTable, "[]"); setProducts([]);
-                localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
-              }}
-              className="mt-3 btn btn-sm btn-danger mx-1">
-              
-              {isMobile? <></>: 
-              <span className="pe-2">
-              <FontAwesomeIcon icon={faTimes} />
+              onClick={() => { CustomerReceipt(); MerchantReceipt(); }}
+              className="mt-3 btn btn-sm btn-secondary mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              {isMobile ? <div></div> :
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faPrint} />
+                </span>
+              }
+              <span>{t("Merchant Receipt")}</span>
+            </a>
+
+            <a
+              onClick={() => { setSplitPaymentModalOpen(true) }}
+              className="mt-3 btn btn-sm btn-warning mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              {isMobile ? <div></div> :
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faExchangeAlt} />
+                </span>
+              }
+
+
+              <span>{t("Split Payment")}</span>
+            </a>
+
+            <a
+              onClick={() => setMyModalVisible(true)}
+              className="mt-3 btn btn-sm btn-primary mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              {isMobile ? <div></div> : <span className="pe-2">
+                <FontAwesomeIcon icon={faCreditCard} />
               </span>
               }
-               
-              
-              <span>{t("Finish Order")}</span>
+              <span>{t("Card Pay")}</span>
             </a>
-            <div className={`text-right ${!isMobile ? 'text-lg' : ''} notranslate`}>Subtotal: ${Math.round(100 * totalPrice) / 100} </div>
+
+            <a
+              onClick={() => { OpenCashDraw(); openUniqueModal() }}
+              className="mt-3 btn btn-sm btn-info mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              {isMobile ? <div></div> :
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faDollarSign} />
+                </span>
+              }
+              <span>{t("Cash Pay")}</span>
+            </a>
+
+            <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Subtotal: <span className='notranslate'>${Math.round(100 * totalPrice) / 100}</span> </div>
 
             {discount && (
-              <div className={`text-right ${!isMobile ? 'text-lg' : ''} notranslate`}>Discount: -${discount} </div>
+              <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Discount: <span className='notranslate'>-${discount} </span></div>
             )}
 
             {tips && (
-              <div className={`text-right ${!isMobile ? 'text-lg' : ''} notranslate`}>Service Fee: ${tips} </div>
+              <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Service Fee: <span className='notranslate'>${tips}</span> </div>
             )}
-            <div className={`text-right ${!isMobile ? 'text-lg' : ''} notranslate`}>Tax(8.25%): ${(Math.round(100 * totalPrice * 0.0825) / 100)}    </div>
-            <div className={`text-right ${!isMobile ? 'text-lg' : ''} notranslate`}>Total: ${finalPrice} </div>
+            {extra !== null && (
+              <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Gratuity: <span className='notranslate'>{Math.round((extra) * 100) / 100} </span></div>
+            )}
+            <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Tax(8.25%): <span className='notranslate'>${(Math.round(100 * totalPrice * 0.0825) / 100)}</span>    </div>
+            <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Total Amount: <span className='notranslate'>${finalPrice}</span> </div>
           </div>
         </div>
 
@@ -849,85 +860,149 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
       <div style={{ margin: "auto", height: "fit-content" }}>
 
         <div className="flex flex-col flex-row">
-          <div style={uniqueModalStyles.overlayStyle}>
-            <div style={uniqueModalStyles.modalStyle} className="p-4 rounded-lg">
-              <button style={uniqueModalStyles.closeBtnStyle} onClick={closeUniqueModal}>
-                &times;
-              </button>
-              <h2 className="text-2xl font-semibold mb-4">Cash Pay</h2>
-              <p className="mb-2">Cash Received</p>
-              <input
-                type="number"
-                value={inputValue}
-                onChange={handleChange}
-                style={uniqueModalStyles.inputStyle}
-                className="mb-4 p-2 w-full border rounded-md"
-              />
-              <button
-                onClick={calculateResult}
-                style={uniqueModalStyles.buttonStyle}
-                className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
-              >
-                Calculate Give Back Cash
-              </button>
-              {result !== null && (
-                <p className="mb-4">
-                  Give Back Cash : {extra !== null ? (result - extra).toFixed(2) : result}
-                </p>
-              )}
-
-              <p className="mb-4">Gratuity:</p>
-              <div className="flex justify-between mb-4">
-                <button onClick={() => calculateExtra(15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
-                  15%
-                </button>
-                <button onClick={() => calculateExtra(18)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mx-1">
-                  18%
-                </button>
-                <button onClick={() => calculateExtra(20)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                  20%
-                </button>
-                <button onClick={toggleCustomAmountVisibility} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                  Other
-                </button>
-              </div>
-
-              {isCustomAmountVisible && (
-                <>
-                  <p className="mb-2">Custom Gratuity:</p>
-                  <div className="flex">
-                    <input
-                      type="number"
-                      value={customAmount}
-                      onChange={handleCustomAmountChange}
-                      style={uniqueModalStyles.inputStyle}
-                      className="p-2 w-full border rounded-md mr-2"
-                    />
-                    <button
-                      onClick={calculateCustomAmount}
-                      className="bg-orange-500 text-white px-4 py-2 rounded-md w-1/3"
-                    >
-                      Add
+          {isUniqueModalOpen && (
+            <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+              <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h2 className="text-2xl font-semibold mb-4">Cash Pay</h2>
+                    <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setUniqueModalOpen(false); }}>
+                      &times;
                     </button>
                   </div>
-                </>
-              )}
+                  <div className="modal-body pt-0">
+                    <p className="mb-4 mt-4">Gratuity:</p>
+                    <div className="flex justify-between mb-4">
+                      <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                        15%
+                      </button>
+                      <button onClick={() => { calculateExtra(18); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                        18%
+                      </button>
+                      <button onClick={() => { calculateExtra(20); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                        20%
+                      </button>
+                      <button onClick={toggleCustomAmountVisibility} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                        Other
+                      </button>
+                    </div>
 
-              {extra !== null && (
-                <p className="mt-4">Gratuity Amount: {extra.toFixed(2)}</p>
-              )}
+                    {isCustomAmountVisible && (
+                      <div>
+                        <p className="mb-2">Custom Gratuity:</p>
+                        <div className="flex">
+                          <input
+                            type="number"
+                            value={customAmount}
+                            onChange={handleCustomAmountChange}
+                            style={uniqueModalStyles.inputStyle}
+                            className="p-2 w-full border rounded-md mr-2"
+                          />
+                          <button
+                            onClick={calculateCustomAmount}
+                            className="bg-orange-500 text-white p-2 rounded-md w-1/3"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    <p className="mb-2">Enter the Cash Received</p>
+                    <input
+                      type="number"
+                      value={inputValue}
+                      onChange={handleChange}
+                      style={uniqueModalStyles.inputStyle}
+                      className="mb-4 p-2 w-full border rounded-md"
+                    />
+                    <button
+                      onClick={calculateResult}
+                      style={uniqueModalStyles.buttonStyle}
+                      className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
+                    >
+                      Calculate Give Back Cash
+                    </button>
+                    {extra !== null && (
+                      <p className="">Gratuity: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
+                    )}
+                    <p className="mt-1">Final Payment: <span className='notranslate'>${finalPrice}</span> </p>
 
-              <button
-                onClick={() => { CashCheckOut(extra); closeUniqueModal(); }}
+                    {result !== null && (
+                      <p className="mt-1 mb-4 ">
+                        Give Back Cash :
 
-                style={uniqueModalStyles.buttonStyle}
-                className="mb-4 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+                        <span className='notranslate'>${extra !== null ? Math.round((result - finalPrice) * 100) / 100 : result}</span>
+                      </p>
+                    )}
+                    <button
+                      onClick={() => { CashCheckOut(extra); closeUniqueModal(); }}
+                      style={uniqueModalStyles.buttonStyle}
+                      className="mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+                    >
+                      Checkout Order
+                    </button>
+                  </div>
+                  <div className="modal-footer">
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {isSplitPaymentModalOpen && (
+            <div
+              id="addTipsModal"
+              className="modal fade show"
+              role="dialog"
+              style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+            >
+              <div
+                className="modal-dialog"
+                role="document"
+                style={{ maxWidth: '80%', width: '80%', margin: '0 auto' }}
               >
-                Confirm
-              </button>
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Split Payment:</h5>
+                    <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setSplitPaymentModalOpen(false); }}>
+                      &times;
+                    </button>
+                  </div>
+                  <div
+                    className="modal-body pt-0"
+                    style={{ overflowX: 'auto', maxWidth: '100%' }}
+                  >
+                    <Dnd_Test main_input={products} />
+                  </div>
+                  <div className="modal-footer">
+                  </div>
+                </div>
+              </div>
             </div>
 
-          </div>
+          )
+          }
+          {isMyModalVisible && (
+            <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+              <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Select your POS Machine:</h5>
+                    <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setMyModalVisible(false); setReceived(false) }}>
+                      &times;
+                    </button>
+                  </div>
+                  <div className="modal-body pt-0">
+
+                    <PaymentComponent2 setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
+
+                  </div>
+                  <div className="modal-footer">
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
 
           {isMyModalVisible && (
             <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
@@ -940,7 +1015,8 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
                     </button>
                   </div>
                   <div className="modal-body pt-0">
-                    <PaymentComponent2 setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
+
+                    <PaymentComponent2 setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
 
                   </div>
                   <div className="modal-footer">
@@ -958,46 +1034,31 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
                     <h5 className="modal-title">Add Service Fee</h5>
                   </div>
                   <div className="modal-body">
-                    <div className="row mb-3">
-                      <button
-                        type="button"
-                        className={`btn col ${selectedTipPercentage === 0.15 ? 'btn-primary' : 'btn-outline-primary'}`}
-                        onClick={() => handlePercentageTip(0.15)}
-                      >
+
+                    <div className="flex justify-between mb-4">
+                      <button onClick={() => handlePercentageTip(0.15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
                         15%
                       </button>
-
-                      <button
-                        type="button"
-                        className={`btn col ${selectedTipPercentage === 0.18 ? 'btn-primary' : 'btn-outline-primary'}`}
-                        onClick={() => handlePercentageTip(0.18)}
-                      >
+                      <button onClick={() => handlePercentageTip(0.18)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mx-1">
                         18%
                       </button>
-
-                      <button
-                        type="button"
-                        className={`btn col ${selectedTipPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`}
-                        onClick={() => handlePercentageTip(0.20)}
-                      >
+                      <button onClick={() => handlePercentageTip(0.20)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
                         20%
                       </button>
 
-                      <div className="col">
-                        <input
-                          type="number"
-                          placeholder="%"
-                          min="0"  // Add this line
-                          value={customPercentage}
-                          onChange={handleCustomPercentageChange}
-                          className="form-control tips-no-spinners"  // Added the 'no-spinners' class
-                        />
-                      </div>
+                      <input
+                        type="number"
+                        placeholder="Enter percent"
+                        min="0"  // Add this line
+                        value={customPercentage}
+                        onChange={handleCustomPercentageChange}
+                        className="px-4 py-2 ml-2 form-control tips-no-spinners"  // Added the 'no-spinners' class
+                      />
                     </div>
                     <input
                       type="number"
                       min="0"  // Add this line
-                      placeholder="Enter tip amount"
+                      placeholder="Enter serivce fee by amount"
                       value={tips}
                       className="form-control tips-no-spinners"  // Added the 'no-spinners' class
                       onChange={(e) => {
@@ -1028,41 +1089,25 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
                     <h5 className="modal-title">Add Discount</h5>
                   </div>
                   <div className="modal-body">
-                    <div className="row mb-3">
-                      {/* Percentage options */}
-                      <button
-                        type="button"
-                        className={`btn col ${selectedDiscountPercentage === 0.10 ? 'btn-primary' : 'btn-outline-primary'}`}
-                        onClick={() => handleDiscountPercentage(0.10)}
-                      >
+                    <div className="flex justify-between mb-4">
+                      <button onClick={() => handleDiscountPercentage(0.10)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mr-2">
                         10%
                       </button>
-                      <button
-                        type="button"
-                        className={`btn col ${selectedDiscountPercentage === 0.20 ? 'btn-primary' : 'btn-outline-primary'}`}
-                        onClick={() => handleDiscountPercentage(0.20)}
-                      >
+                      <button onClick={() => handleDiscountPercentage(0.20)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mx-1">
                         20%
                       </button>
-                      <button
-                        type="button"
-                        className={`btn col ${selectedDiscountPercentage === 0.30 ? 'btn-primary' : 'btn-outline-primary'}`}
-                        onClick={() => handleDiscountPercentage(0.30)}
-                      >
+                      <button onClick={() => handleDiscountPercentage(0.30)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
                         30%
                       </button>
-                      <div className="col">
-                        <input
-                          type="number"
-                          placeholder="%"
-                          min="0"
-                          value={customDiscountPercentage}
-                          onChange={handleCustomDiscountPercentageChange}
-                          className="form-control discounts-no-spinners"
-                        />
-                      </div>
+                      <input
+                        type="number"
+                        placeholder="Enter percent"
+                        min="0"
+                        value={customDiscountPercentage}
+                        onChange={handleCustomDiscountPercentageChange}
+                        className="px-4 py-2 ml-2 form-control discounts-no-spinners"
+                      />
                     </div>
-                    {/* Discount amount input */}
                     <input
                       type="number"
                       min="0"
@@ -1081,7 +1126,7 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
                   </div>
                   <div className="modal-footer">
                     <button type="button" className="btn btn-secondary" onClick={handleCancelDiscount}>Cancel</button>
-                    <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>Apply Discount</button>
+                    <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>Add Discount</button>
                   </div>
                 </div>
               </div>
@@ -1091,7 +1136,7 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
 
 
       </div>
-    </>
+    </div>
   )
 }
 

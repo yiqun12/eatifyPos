@@ -98,7 +98,7 @@ export default function SignIn() {
           {t("Loading...")}
         </div>
         :
-        <>
+        <div>
           <div>
             <div className="container">
               <div style={width > 768 ? { width: "550px", margin: "0 auto" } : {}}>
@@ -131,7 +131,7 @@ export default function SignIn() {
                           </Typography>
 
                           <div className='error message' style={{ display: errorVisibility, color: 'red' }}>{error}</div>
-                          {user_not_verified ? <div style={{ color: 'red' }}>{user_not_verified}</div> : <></>}
+                          {user_not_verified ? <div style={{ color: 'red' }}>{user_not_verified}</div> : <div></div>}
                           <Box component="form" noValidate sx={{ mt: 1 }}>
                             <Grid container spacing={2}>
                               <TextField
@@ -180,7 +180,7 @@ export default function SignIn() {
 
           </div>
 
-        </>
+        </div>
       }
     </div>
   );

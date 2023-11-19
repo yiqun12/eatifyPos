@@ -1180,8 +1180,8 @@ function PayHistory(props) {
             {t("Place Order, Pay Later")}
           </button>
           
-            : <>
-            </>}
+            : <div>
+            </div>}
         </div>
         <button onClick={() => {
             checkgeolocation();
@@ -1207,8 +1207,8 @@ function PayHistory(props) {
           </div>
         )
       ) : (
-        <>
-        </>
+        <div>
+        </div>
       )}
 
       <ul id="payments-list"></ul>

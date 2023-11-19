@@ -39,45 +39,6 @@ function uuid() {
   });
 }
 
-
-let initialItemGroups = {
-  main: [
-    {
-      id: "267d3107-1532-4084-ab3b-b62ceda0b75c",
-      name: "Porterhouse for Two",
-      subtotal: 1,
-      image:
-        "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
-      quantity: 5,
-      attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
-      count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
-      itemTotalPrice: 30,
-      CHI: "上等腰肉牛排二人份",
-    },
-    {
-      id: "b5fe9fb8-0f83-4b78-8ed5-c9cc3355aa76",
-      name: "Filet Mignon",
-      subtotal: 1,
-      image:
-        "https://img1.baidu.com/it/u=1363595818,3487481938&fm=253&fmt=auto&app=138&f=JPEG?w=891&h=500",
-      quantity: 9,
-      attributeSelected: {size: "big"},
-      count: "939065fe-16b4-441a-8465-b653ae1a0440",
-      itemTotalPrice: 90,
-      CHI: "菲力牛排",
-    },
-  ]
-};
-
-// function createGroups(groups) {
-//   const result = {};
-//   for (const groupName in groups) {
-//     const itemCount = groups[groupName].length;
-//     result[groupName] = createData_group(itemCount, groups[groupName]);
-//   }
-//   return result;
-// }
-
 function createData_group(length, group) {
   return [...new Array(length)].map((_, index) => {
     return {
@@ -87,108 +48,98 @@ function createData_group(length, group) {
   });
 }
 
-// function createGroups(groups) {
-//   const result = {};
-//   for (const groupName in groups) {
-//     const itemCount = groups[groupName].length;
-//     result[groupName] = createData_group(itemCount, groups[groupName]);
-//   }
-//   return result;
-// }
-
-
 function createGroups(groupName, items) {
   const result = {};
   result[groupName] = createData_group(items.length, items);
   return result;
 }
 
-let main_input = [
-  {
-    id: "207d3107-1532-4084-ab3b-b62ceda0b75c",
-    name: "Porterhouse for Two",
-    subtotal: 1,
-    image:
-      "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
-    quantity: 2,
-    attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
-    count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
-    itemTotalPrice: 60,
-    CHI: "上等腰肉牛排二人份",
-  },
-  {
-    id: "277d3107-1532-4084-ab3b-b62ceda0b75c",
-    name: "Porterhouse for Two",
-    subtotal: 1,
-    image:
-      "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
-    quantity: 1,
-    attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
-    count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
-    itemTotalPrice: 30,
-    CHI: "上等腰肉牛排二人份",
-  },
-  {
-    id: "2700d3107-1532-4084-ab3b-b62ceda0b75c",
-    name: "Porterhouse for Two",
-    subtotal: 1,
-    image:
-      "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
-    quantity: 1,
-    attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
-    count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
-    itemTotalPrice: 30,
-    CHI: "上等腰肉牛排二人份",
-  },
-  {
-    id: "27723d3107-1532-4084-ab3b-b62ceda0b75c",
-    name: "Porterhouse for Two",
-    subtotal: 1,
-    image:
-      "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
-    quantity: 1,
-    attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
-    count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
-    itemTotalPrice: 30,
-    CHI: "上等腰肉牛排二人份",
-  },
-  {
-    id: "27723d31232307-1532-4084-ab3b-b62ceda0b75c",
-    name: "Porterhouse for Two",
-    subtotal: 1,
-    image:
-      "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
-    quantity: 1,
-    attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
-    count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
-    itemTotalPrice: 30,
-    CHI: "上等腰肉牛排二人份",
-  },
-  {
-    id: "27723d3232107-1532-4084-ab3b-b62ceda0b75c",
-    name: "Porterhouse for Two",
-    subtotal: 1,
-    image:
-      "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
-    quantity: 1,
-    attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
-    count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
-    itemTotalPrice: 30,
-    CHI: "上等腰肉牛排二人份",
-  },
-  {
-    id: "27723d3107323-1532-4084-ab3b-b62ceda0b75c",
-    name: "Porterhouse for Two",
-    subtotal: 1,
-    image:
-      "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
-    quantity: 1,
-    attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
-    count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
-    itemTotalPrice: 30,
-    CHI: "上等腰肉牛排二人份",
-  },
-]
+// let main_input = [
+//   {
+//     id: "207d3107-1532-4084-ab3b-b62ceda0b75c",
+//     name: "Porterhouse for Two",
+//     subtotal: 1,
+//     image:
+//       "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
+//     quantity: 2,
+//     attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
+//     count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
+//     itemTotalPrice: 60,
+//     CHI: "上等腰肉牛排二人份",
+//   },
+//   {
+//     id: "277d3107-1532-4084-ab3b-b62ceda0b75c",
+//     name: "Porterhouse for Two",
+//     subtotal: 1,
+//     image:
+//       "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
+//     quantity: 1,
+//     attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
+//     count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
+//     itemTotalPrice: 30,
+//     CHI: "上等腰肉牛排二人份",
+//   },
+//   {
+//     id: "2700d3107-1532-4084-ab3b-b62ceda0b75c",
+//     name: "Porterhouse for Two",
+//     subtotal: 1,
+//     image:
+//       "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
+//     quantity: 1,
+//     attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
+//     count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
+//     itemTotalPrice: 30,
+//     CHI: "上等腰肉牛排二人份",
+//   },
+//   {
+//     id: "27723d3107-1532-4084-ab3b-b62ceda0b75c",
+//     name: "Porterhouse for Two",
+//     subtotal: 1,
+//     image:
+//       "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
+//     quantity: 1,
+//     attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
+//     count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
+//     itemTotalPrice: 30,
+//     CHI: "上等腰肉牛排二人份",
+//   },
+//   {
+//     id: "27723d31232307-1532-4084-ab3b-b62ceda0b75c",
+//     name: "Porterhouse for Two",
+//     subtotal: 1,
+//     image:
+//       "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
+//     quantity: 1,
+//     attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
+//     count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
+//     itemTotalPrice: 30,
+//     CHI: "上等腰肉牛排二人份",
+//   },
+//   {
+//     id: "27723d3232107-1532-4084-ab3b-b62ceda0b75c",
+//     name: "Porterhouse for Two",
+//     subtotal: 1,
+//     image:
+//       "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
+//     quantity: 1,
+//     attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
+//     count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
+//     itemTotalPrice: 30,
+//     CHI: "上等腰肉牛排二人份",
+//   },
+//   {
+//     id: "27723d3107323-1532-4084-ab3b-b62ceda0b75c",
+//     name: "Porterhouse for Two",
+//     subtotal: 1,
+//     image:
+//       "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
+//     quantity: 1,
+//     attributeSelected:{"Weight":["18 oz","20oz"],"size":"bg"},
+//     count: "97d41dc1-4530-4ea5-ac05-9d9b97e5fd8b",
+//     itemTotalPrice: 30,
+//     CHI: "上等腰肉牛排二人份",
+//   },
+// ]
 
 // ,
 //   {
@@ -218,8 +169,9 @@ let main_input = [
 
 // function createItem(group)
 
-function Dnd_Test() {
-    
+function Dnd_Test(props) {
+  const main_input = props.main_input;
+
     // const groupNames = ["A", "B", "C"];
     // const itemCounts = [4, 5, 4];
     const created_items = createGroups("main", main_input);

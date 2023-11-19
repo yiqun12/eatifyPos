@@ -842,7 +842,7 @@ const Food = ({ store }) => {
                 </div>
 
 
-                {expandDetails ? <>
+                {expandDetails ? <div>
 
                   <div>
                     <p className="mb-1">
@@ -850,7 +850,7 @@ const Food = ({ store }) => {
                         {" Options:"}
                       </span>
                     </p>
-                    {expandOptions ? <><div className='d-block text-md font-semibold'>
+                    {expandOptions ? <div><div className='d-block text-md font-semibold'>
                       <div className='flex'>
 
                         <span className='text-black'>
@@ -899,7 +899,7 @@ const Food = ({ store }) => {
 
                       </div>
 
-                    </div></> : <></>}
+                    </div></div> : <div></div>}
 
                     <div className='flex'>
                       <a
@@ -938,7 +938,7 @@ const Food = ({ store }) => {
 
                         <div className='flex flex-wrap'>
                           {attributeDetails.variations.map((variation, idx) => (
-                            <>
+                            <div>
                               <div key={idx}>
                                 <div onClick={() => selectVariationForEdit(attributeName, variation)} className='mb-1 mr-1 mt-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
                                   {variation.type}({formatPriceDisplay(variation.price)})
@@ -948,7 +948,7 @@ const Food = ({ store }) => {
                                 </div>
                               </div>
 
-                            </>
+                            </div>
                           ))}
                         </div>
 
@@ -1002,7 +1002,7 @@ const Food = ({ store }) => {
                       </div>
                     </div>
 
-                  </div></> :
+                  </div></div> :
                   <div className='mb-2'></div>}
 
               </div>
@@ -1263,7 +1263,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
 
   return (
-    <>
+    <div>
       {isModalGeneratePicOpen && (
         <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
           <div className="relative w-full max-w-2xl max-h-full ">
@@ -1516,7 +1516,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
 
 
 
-          {expandDetails ? <>
+          {expandDetails ? <div>
 
             <div>
               <p className="mb-1">
@@ -1524,7 +1524,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
                   {" Options:"}
                 </span>
               </p>
-              {expandOptions ? <><div className='d-block text-md font-semibold'>
+              {expandOptions ? <div><div className='d-block text-md font-semibold'>
                 <div className='flex'>
 
                   <span className='text-black'>
@@ -1573,7 +1573,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
 
                 </div>
 
-              </div></> : <></>}
+              </div></div> : <div></div>}
 
               <div className='flex'>
                 <a
@@ -1613,7 +1613,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
 
                   <div className='flex flex-wrap'>
                     {attributeDetails.variations.map((variation, idx) => (
-                      <>
+                      <div>
                         <div key={idx}>
                           <div onClick={() => selectVariationForEdit(attributeName, variation)} className='mb-1 mr-1 mt-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
                             {variation.type}({formatPriceDisplay(variation.price)})
@@ -1623,7 +1623,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
                           </div>
                         </div>
 
-                      </>
+                      </div>
                     ))}
                   </div>
 
@@ -1677,7 +1677,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
                 </div>
               </div>
 
-            </div></> : <div className='mb-2'></div>}
+            </div></div> : <div className='mb-2'></div>}
 
 
 
@@ -1708,7 +1708,7 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
 
       </div>
 
-    </>
+    </div>
 
   );
 };

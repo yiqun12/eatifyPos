@@ -165,14 +165,14 @@ const Item = () => {
           </div>
           <div className="row">
           {payment_data.status === "Paid Online" && (
-  <>
+  <div>
     <div className="col">
       <b> {t("Tips")}:</b>
     </div>
     <div className="col d-flex justify-content-end">
       <b>${payment_data.tips}</b>
     </div>
-  </>
+  </div>
 )}
 
 

@@ -399,7 +399,8 @@ function App({ store, acct }) {
 
             {true ?
 
-                <>
+                <div>
+
                     {isSplitPaymentModalOpen && (
                         <div
                             id="addDiscountModal"
@@ -456,7 +457,7 @@ function App({ store, acct }) {
                     <div className='flex flex-col' style={{ alignItems: 'flex-start' }}>
                         {selectedSeatMode === 'admin' ?
                             <div style={buttonStyles} onClick={() => handleFormSubmit(store)} className='mt-3 hover:bg-yellow-700'>{t("Save Layout")}</div>
-                            : <></>
+                            : <div></div>
                         }
 
                         <div style={{ margin: "10px", display: "flex" }} >
@@ -545,7 +546,7 @@ function App({ store, acct }) {
                         </div>
                     </div>
 
-                </>
+                </div>
                 :
                 null}
         </div>

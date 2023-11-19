@@ -190,7 +190,7 @@ const [expandedOrderId, setExpandedOrderId] = useState(null);
               </thead>
               <tbody>
               {sortedData.map((order, index) => (
-                <>
+                <div>
           <tr key={order.orderId}>
           <td>
           {index + 1} {/* Adding 1 because index starts from 0 */}
@@ -271,7 +271,7 @@ const [expandedOrderId, setExpandedOrderId] = useState(null);
                 </td>
             </tr>
           )}
-          </>
+          </div>
         ))}
               </tbody>
             </table>

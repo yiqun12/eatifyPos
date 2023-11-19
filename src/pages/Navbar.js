@@ -292,12 +292,12 @@ const Navbar = () => {
   });
   
   if (location.pathname.includes('/testing_food')){
-    return (<></>)
+    return (<div></div>)
   }
 
   return (
     
-    <>
+    <div>
       {(location.pathname.includes('/store') || location.pathname.includes('/checkout')) && (
         <a className="float">
           <a
@@ -338,7 +338,7 @@ const Navbar = () => {
                   </div>
                 </div>
                 :
-                <>
+                <div>
                   <button
                     style={{ width: "80%", border: "0px", margin: "auto" }}
                     class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
@@ -349,7 +349,7 @@ const Navbar = () => {
                       {t("Checkout")} </span>
                     <span class="text-right notranslate"> ${Math.round(100 * totalPrice) / 100 } </span>
                   </button>
-                </>
+                </div>
               }
             </div>
           </div>
@@ -483,8 +483,8 @@ const Navbar = () => {
               {!user_loading ?
                 <button className="ml-3" onClick={event => window.location.href = '/account'} style={{ 'cursor': "pointer", 'top': '-10px', fontSize: "16px" }}> {user ? t("Account") : t("Login")}</button>
                 :
-                <>
-                </>}
+                <div>
+                </div>}
             </div>
 
           </div>
@@ -492,7 +492,7 @@ const Navbar = () => {
         </div>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       </div>
-    </>
+    </div>
   )
 }
 

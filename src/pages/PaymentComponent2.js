@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import myImage from '../components/check-mark.png';  // Import the image
 
-const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee }) => {
+const PaymentComponent = ({ setProducts,setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee }) => {
 
   // the three variables we keep track of for payment
   var paymentIntentId;
@@ -85,7 +85,7 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
   async function makePayment() {
     const createPaymentButton = document.getElementById("create-payment-button");
     const originalButtonText = createPaymentButton.textContent || createPaymentButton.innerText; // Store the original button text
-    createPaymentButton.textContent = "Awaiting for Process"; // Change button text
+    createPaymentButton.textContent = "Awaiting for Process. Do not close window."; // Change button text
     createPaymentButton.className = "loading";
     createPaymentButton.disabled = true;
     setIsPaymentClick(true);
@@ -184,6 +184,9 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
           //console.log("newTerminalsData is empty");
         } else {
           setReceived(true)
+          localStorage.setItem(storeID + "-" + selectedTable, "[]"); 
+          setProducts([]);
+          localStorage.setItem(storeID + "-" + selectedTable + "-isSent", "[]")
           // newTerminalsData is not empty
           //console.log("newTerminalsData is not empty");
         }
@@ -206,15 +209,15 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
   return (
     <div className="">
       <div className="">
-        <div className="">
-          {items.length === 0 ?
-            <>No Pos Machine Was Registered</>
+        <div >
+          {items?.length === 0 ?
+            <span>No Pos Machine Was Registered</span>
             :
-            <>
+            <div>
               <div>
                 <label className="text-gray-700 mt-1" htmlFor="storeName">
                 </label>
-                {items.map((item, index) => (
+                {items?.map((item, index) => (
                   <div key={item.id}>
                     <label className='flex'>
                       <input
@@ -235,7 +238,7 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
 
               {(isPaymentClick && received) ?
 
-                <>
+                <div>
 
 
                   <div className='mt-2' style={{ display: 'flex' }}>
@@ -249,7 +252,7 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
                       }}
                     />
                     We have received the payment.</div>
-                </> : <>
+                </div> : <div>
 
                 <div class="mt-2 row margin pad">
                       <button id="create-payment-button" className="btn btn-primary" onClick={makePayment}>
@@ -261,11 +264,11 @@ const PaymentComponent = ({ setIsPaymentClick, isPaymentClick, received, setRece
                       Reset POS Machine
                     </button>
                   </div>
-                  </>
+                  </div>
 
               }
 
-            </>
+            </div>
           }
         </div>
       </div>

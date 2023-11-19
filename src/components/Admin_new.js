@@ -656,7 +656,7 @@ function App() {
                     </section>
                 </nav>
                 <main>
-                    {selectedItem === 'Item' ? <>
+                    {selectedItem === 'Item' ? <div>
 
                         <header className="main-header">
 
@@ -862,11 +862,11 @@ function App() {
                             </div>
                         </section>
 
-                    </> :
+                    </div> :
 
 
 
-                        selectedItem === 'Revenue' ? <>
+                        selectedItem === 'Revenue' ? <div>
                             <b x="20" y="30" fill="#000" style={{ 'fontSize': '17px' }}>
                                 Revenue earned on a daily basis over a period of 31 days
                             </b>
@@ -879,7 +879,7 @@ function App() {
                                 <Legend />
                                 <Bar dataKey="revenue" fill="#8884d8" />
                             </BarChart>
-                        </> :
+                        </div> :
 
 
 
@@ -888,7 +888,7 @@ function App() {
 
                             selectedItem === 'Order' ?
 
-                                <>
+                                <div>
                                     <header className="main-header" style={{ height: "100px" }}>
 
                                         <div className="search-wrap">
@@ -911,9 +911,9 @@ function App() {
                                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "5px" }}>
                                                             <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '10px' }}>
                                                                 {sessionStorage.getItem("tableMode") === "table-NaN" ? (
-                                                                    <>Did not select table</>
+                                                                    <div>Did not select table</div>
                                                                 ) : (
-                                                                    <>{sessionStorage.getItem("tableMode")}</>
+                                                                    <div>{sessionStorage.getItem("tableMode")}</div>
                                                                 )}
                                                             </span>
                                                             <Button variant="contained" onClick={handleAdminCheckout}>
@@ -924,7 +924,7 @@ function App() {
                                                         </div>
                                                         <hr />
 
-                                                        {sessionStorage.getItem(sessionStorage.getItem("tableMode")) == "[]" ? <>Void</> : <></>}
+                                                        {sessionStorage.getItem(sessionStorage.getItem("tableMode")) == "[]" ? <div>Void</div> : <div></div>}
 
                                                         {JSON.parse(sessionStorage.getItem(sessionStorage.getItem("tableMode"))).map((task) => (
                                                             <div
@@ -1042,7 +1042,7 @@ function App() {
                                         </div>
                                     </section>
 
-                                </>
+                                </div>
 
 
 
@@ -1054,7 +1054,7 @@ function App() {
 
 
 
-                                selectedItem === 'History' ? <>
+                                selectedItem === 'History' ? <div>
 
                                     <table
                                         className="shop_table my_account_orders"
@@ -1185,7 +1185,7 @@ function App() {
 
 
 
-                                </> :
+                                </div> :
 
 
 
@@ -1199,7 +1199,7 @@ function App() {
 
 
 
-                                        <>
+                                        <div>
 
 
                                             <div style={{ display: "flex", flexDirection: "column" }}>
@@ -1250,7 +1250,7 @@ function App() {
                                             </div>
 
 
-                                        </> :
+                                        </div> :
 
 
 

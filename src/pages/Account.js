@@ -71,7 +71,7 @@ const Account = () => {
   const isMobile = width <= 768;
   return (
     
-    <>
+    <div>
           {user_loading ?
         <div>
           Loading...
@@ -119,7 +119,7 @@ const Account = () => {
           </div>
         </div>
       }
-    </>
+    </div>
   )
 }
 

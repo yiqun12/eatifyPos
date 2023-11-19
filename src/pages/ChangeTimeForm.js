@@ -87,7 +87,7 @@ function DayTimeSelectors({ day, selectedTimePairs, onAddTime, onTimeChange, onD
 
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                     {!selectedTimePairs.closed && (
-                        <>
+                        <div>
                             {selectedTimePairs.times.map((pair, index) => (
                                 <div className="time-pair" style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", alignItems: 'center' }} key={index}>
                                     <div style={{ display: "flex", alignItems: "center" }}>
@@ -116,7 +116,7 @@ function DayTimeSelectors({ day, selectedTimePairs, onAddTime, onTimeChange, onD
                                     }
                                 </div>
                             ))}
-                        </>
+                        </div>
                     )}
                 </div>
             </div>

@@ -137,7 +137,7 @@ const App = () => {
 
     <div className='max-w-[1000px] mx-auto p-2 '>
       {isLoading ?
-        <>{t("Cart is empty... Redirecting back to home page")}</> :
+        <div>{t("Cart is empty... Redirecting back to home page")}</div> :
 
         <div className="app-container" style={{ height: "100%" }}>
           <div className="row">
@@ -149,7 +149,7 @@ const App = () => {
                 {/* <Checkout totalPrice={totalPrice} /> */}
               </div>
               :
-              <>
+              <div>
                 <div className="col" >
                   <Item products={products} totalPrice={totalPrice} selectedTip={selectedTip} tips={tips} setSelectedTip={setSelectedTip} calculateTip={calculateTip} />
                   {/* <Item products={products} totalPrice={totalPrice} /> */}
@@ -158,7 +158,7 @@ const App = () => {
                   <Checkout totalPrice={totalPrice} tips={tips} calculateTip={calculateTip} />
                   {/* <Checkout totalPrice={totalPrice} /> */}
                 </div>
-              </>
+              </div>
             }
 
           </div>
@@ -453,7 +453,7 @@ const Checkout = (props) => {
   return (
     <div className="checkout ">
       <div className="checkout-container" >
-        {loading ? <h2>{t("Loading Payment")}...</h2> : <> <Dashboard totalPrice={Math.round(100 * (totalPrice * (1 + tax_rate) + tips)) / 100} /> </>}
+        {loading ? <h2>{t("Loading Payment")}...</h2> : <div> <Dashboard totalPrice={Math.round(100 * (totalPrice * (1 + tax_rate) + tips)) / 100} /> </div>}
       </div>
     </div>
   )

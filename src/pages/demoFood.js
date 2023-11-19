@@ -237,7 +237,7 @@ const Food = () => {
               </Button_>
               {(isMobile) &&
                 <div style={{ marginTop: "30px" }}>
-                  {DemoStorename ? <div style={{ marginBottom: "20px" }}>Your QR Code:</div> : <></>}
+                  {DemoStorename ? <div style={{ marginBottom: "20px" }}>Your QR Code:</div> : <div></div>}
 
 
                   <div style={{ display: "flex", justifyContent: "center", width: "100%", marginBottom: "20px", padding: "10px", border: "1px solid #ddd", borderRadius: "4px" }}>
@@ -269,7 +269,7 @@ const Food = () => {
                 boxShadow: !isMobile ? "0px 0px 10px rgba(0,0,0,0.1)" : "none" // Apply boxShadow if isMobile is true, otherwise, set it to "none"
               }}>
               <div style={{ marginTop: "30px" }}>
-                {DemoStorename ? <div style={{ marginBottom: "20px" }}>Your QR Code:</div> : <></>}
+                {DemoStorename ? <div style={{ marginBottom: "20px" }}>Your QR Code:</div> : <div></div>}
                 <div style={{ display: "flex", justifyContent: "center", width: "100%", marginBottom: "20px", padding: "10px", border: "1px solid #ddd", borderRadius: "4px" }}>
                   {DemoStorename ? <QRCode value={`https://eatifylab.com/store?store=${DemoStorename}`} /> : <img src={intro_pic}></img>}
                 </div>

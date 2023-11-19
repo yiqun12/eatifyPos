@@ -201,7 +201,7 @@ async function createReader(payloadReader) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <>
+    <div>
       <label className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
         POS machines:
       </label>
@@ -314,7 +314,7 @@ async function createReader(payloadReader) {
         </form>}
       </div>
 
-    </>
+    </div>
   );
 }
 

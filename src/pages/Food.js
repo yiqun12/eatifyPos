@@ -713,7 +713,7 @@ const Food = () => {
                     ${Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100}
                   </div>
                   {searchSpeicalFoodQuantity(selectedFoodItem.id, count) == 0 ?
-                    <>
+                    <div>
                       <div className="quantity"
                         style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
 
@@ -760,9 +760,9 @@ const Food = () => {
                           </button>
                         </div>
                       </div>
-                    </>
+                    </div>
                     :
-                    <>
+                    <div>
                       <div
                         className={animationClass}
                         style={{
@@ -817,7 +817,7 @@ const Food = () => {
                           </div>
                         </div>
                       </div>
-                    </>
+                    </div>
 
                   }
                 </div>
@@ -833,7 +833,7 @@ const Food = () => {
 
               {/* web mode */}
 
-              <>
+              <div>
                 <div>
                   <div className='max-w-[1240px] mx-auto '>
                     <div className='rounded-lg max-h-[200px] relative'>
@@ -858,7 +858,7 @@ const Food = () => {
                     <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
                   </div>
                 </div>
-              </>
+              </div>
 
               {/* end of the top */}
               <div ref={scrollingWrapperRef} className="mt-2 scrolling-wrapper-filter mb-0">

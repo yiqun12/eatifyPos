@@ -987,7 +987,7 @@ const Account = () => {
 
 
   return (
-    <>
+    <div>
 
       <div>
         <style>
@@ -1002,27 +1002,27 @@ const Account = () => {
         &nbsp;
         {isPC ?
           <button onClick={toggleVisibility}>
-            {isVisible ? <>
+            {isVisible ? <div>
               <button>
                 <i class="bi bi-backspace"> Hide Side Menu </i>
               </button>
-            </> :
+            </div> :
 
-              <>
+              <div>
 
                 <button>
                   <i class="bi bi-bookmarks"> Open Side Menu </i>
                 </button>
-              </>
-              }
+              </div>
+            }
           </button>
           :
-          <></>
+          <div></div>
         }
         <div className="d-flex flex-column flex-lg-row h-lg-full bg-surface-secondary">
 
           {isVisible && (
-            < >
+            <div>
               {isPC ? <nav
                 className="navbar navbar-vertical show z-0 h-lg-screen navbar-expand-lg px-0 py-3 navbar-light bg-white border-bottom border-bottom-lg-0 border-end-lg"
                 id="navbarVertical"
@@ -1035,7 +1035,7 @@ const Account = () => {
                     onClick={(e) => {
                       handleTabClick(e, '#profile')
                       setActiveStoreId("")
-                      window.location.hash = 'person'
+                      window.history.pushState({}, '', '/account');
                     }
                     }
                   >
@@ -1066,7 +1066,7 @@ const Account = () => {
                     </div>
                   </button>
                   {storelist?.map((data, index) => (
-                    <>                <div
+                    <div>                <div
                       className={`mt-2 btn mr-2 ml-2 ${activeTab === `#${data.id}` ? 'border-black' : ''}`}
                       onClick={(e) => {
                         handleTabClick(e, `#${data.id}`);
@@ -1087,7 +1087,7 @@ const Account = () => {
 
                       {activeStoreId === data.id && (
                         <ul className={`nav nav-tabs mt-4 overflow-x border-0 flex flex-col`}>
-                          <>
+                          <div>
                             <li className={`nav-item p-0`} style={{ width: "80%", margin: "auto", borderColor: "transparent !important" }}
                               onClick={() => {
                                 setShowSection('sales')
@@ -1189,14 +1189,14 @@ const Account = () => {
                               </a>
 
                             </li>
-                          </>
+                          </div>
 
 
                         </ul>)
                       }
 
 
-                    </>
+                    </div>
 
 
                   ))}
@@ -1218,8 +1218,8 @@ const Account = () => {
                   </button>
 
                 </div>
-              </nav> : <></>}
-            </>
+              </nav> : <div></div>}
+            </div>
           )}
 
           <div className="h-screen flex-grow-1 overflow-y-lg-auto" style={{
@@ -1310,13 +1310,12 @@ const Account = () => {
                       </a>
                     </div>
 
-
                     <ul className={`nav nav-tabs mt-4 overflow-x border-0 ${isMobile ? 'd-flex justify-content-between' : ''}`}>
                       <li className={`nav-item p-0`}
                         onClick={(e) => {
                           handleTabClick(e, '#profile')
                           setActiveStoreId("")
-                          window.location.hash = 'person'
+                          window.history.pushState({}, '', '/account');
                         }
                         }
                       >
@@ -1331,7 +1330,7 @@ const Account = () => {
                       </li>
                       {activeTab === `#profile` || storeName_ === '' || isPC ?
 
-                        <></> :
+                        <div></div> :
 
                         <>
                           <li className={`nav-item p-0`}
@@ -1358,8 +1357,7 @@ const Account = () => {
                           >
                             <a className={`pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`}>
                               <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-diagram-3" viewBox="0 0 16 16">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{ fill: isPC ? 'white' : 'currentColor' }} class="bi bi-diagram-3" viewBox="0 0 16 16">
                                   <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
                                 </svg>
                               </i>
@@ -1369,11 +1367,11 @@ const Account = () => {
 
                           <li className={`nav-item p-0`} onClick={() => {
                             setShowSection('qrCode')
-                            window.location.hash = `code`;
+                            window.location.hash = `code?store=${storeID}`
                           }}>
                             <a className={`pt-0 nav-link ${showSection === `qrCode` ? 'active' : ''}`}>
                               <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-columns-gap" viewBox="0 0 16 16">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{ fill: isPC ? 'white' : 'currentColor' }} class="bi bi-columns-gap" viewBox="0 0 16 16">
                                   <path d="M6 1v3H1V1h5zM1 0a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1H1zm14 12v3h-5v-3h5zm-5-1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5zM6 8v7H1V8h5zM1 7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H1zm14-6v7h-5V1h5zm-5-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1h-5z" />
                                 </svg>
                               </i>
@@ -1386,7 +1384,7 @@ const Account = () => {
                             }}                      >
                             <a className={`pt-0 nav-link ${showSection === `stripeCard` ? 'active' : ''}`}>
                               <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-right-dots" viewBox="0 0 16 16">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{ fill: isPC ? 'white' : 'currentColor' }} class="bi bi-chat-right-dots" viewBox="0 0 16 16">
                                   <path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z" />
                                   <path d="M5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
                                 </svg>
@@ -1403,7 +1401,7 @@ const Account = () => {
                           >
                             <a className={`pt-0 nav-link ${showSection === `store` ? 'active' : ''}`}>
                               <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{ fill: isPC ? 'white' : 'currentColor' }} class="bi bi-gear" viewBox="0 0 16 16">
                                   <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
                                   <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
                                 </svg>
@@ -1421,7 +1419,7 @@ const Account = () => {
                 </div>
               </header>
               :
-              <></>}
+              <div></div>}
 
             <div style={{ "borderRadius": "0" }}>
 
@@ -1432,7 +1430,7 @@ const Account = () => {
                   <div>
                     Loading...
                   </div>
-                  : <>
+                  : <div>
                     {activeTab === '#profile' || activeTab === '' ? (
 
                       <div className="tab-pane active mt-4" id="profile">
@@ -1474,25 +1472,25 @@ const Account = () => {
                       activeTab === `#${data.id}` ? (
                         <div className="tab-pane-active" id="History">
 
-                          {showSection === 'menu' ? <>
+                          {showSection === 'menu' ? <div>
 
                             <Admin_food store={data.id} />
-                          </> : <></>
+                          </div> : <div></div>
                           }
-                          {showSection === 'qrCode' ? <>
+                          {showSection === 'qrCode' ? <div>
 
                             <IframeDesk store={data.id} acct={data.stripe_store_acct}></IframeDesk>
 
                             {/* <QRCode value={"google.com"} /> */}
                             <hr />
-                          </> : <></>
+                          </div> : <div></div>
                           }
-                          {showSection === 'stripeCard' ? <>
+                          {showSection === 'stripeCard' ? <div>
                             <Test_Notification_Page reviewVar={numberReviewVariable} setReviewVar={setNumberReviewVariable} sortedData={notificationData} setSortedData={setNotificationData} />
-                          </> : <></>
+                          </div> : <div></div>
                           }
 
-                          {showSection === 'store' ? <>
+                          {showSection === 'store' ? <div>
                             <div className=''>
                               <div className='mx-auto '>
                                 <div className='mt-3 rounded-lg w-full  max-h-[200px] relative'>
@@ -1643,16 +1641,16 @@ const Account = () => {
                             <div className=' mb-6' >
 
                               {data?.stripe_store_acct === "" ?
-                                <>
+                                <div>
                                   <div className='mb-1'>Online Payment Options:</div>
 
                                   <div>
                                     <StripeConnectButton store={data.id} user={user.uid}></StripeConnectButton>
 
-                                  </div></>
+                                  </div></div>
 
                                 :
-                                <>
+                                <div>
                                   <div className='mb-1'>Online Payment Options:</div>
 
                                   <div className='mb-1' style={{ display: 'flex' }}>
@@ -1669,7 +1667,7 @@ const Account = () => {
                                   </div>
 
                                   <PaymentComponent storeDisplayName={data?.Name} storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
-                                </>
+                                </div>
                               }
                             </div>
                             <hr />
@@ -1679,11 +1677,11 @@ const Account = () => {
                             <ChangeTimeForm storeID={storeID} storeOpenTime={storeOpenTime} />
 
 
-                          </> : <></>
+                          </div> : <div></div>
                           }
 
 
-                          {showSection === 'sales' ? <>
+                          {showSection === 'sales' ? <div>
                             <div className="flex mt-3">
                               <div className={`w-50 ${isMobile ? 'mobile-class' : 'desktop-class'}`}>
                                 <div className="d-flex align-items-center mb-2">
@@ -1827,7 +1825,7 @@ const Account = () => {
 
                             </div>
                             {showChart ?
-                              <>
+                              <div>
                                 <hr></hr>
                                 <LineChart className="chart" width={width2 - 75} height={250} data={sortedData}>
                                   <CartesianGrid strokeDasharray="3 3" />
@@ -1838,9 +1836,9 @@ const Account = () => {
                                   <Line type="monotone" dataKey="revenue" stroke="#8884d8" />
                                 </LineChart>
 
-                              </> :
+                              </div> :
 
-                              <></>
+                              <div></div>
                             }
                             {isMobile ? <hr class="opacity-50 border-t-2 border-black-1000" /> : <hr class="opacity-50 border-t-2 border-black-1000" />}
 
@@ -1907,8 +1905,8 @@ const Account = () => {
                                 ))}
                               </tbody>
                             </table>
-                          </>
-                            : <></>
+                          </div>
+                            : <div></div>
                           }
 
                         </div>
@@ -1924,7 +1922,7 @@ const Account = () => {
                       </div>
 
                     ) : null}
-                  </>}
+                  </div>}
               </div>
             </div>
           </div>
@@ -1932,7 +1930,7 @@ const Account = () => {
       </div>
 
 
-    </>
+    </div>
   )
 }
 
@@ -1947,7 +1945,7 @@ const renderLegend = (props) => {
   return (
     <ul>
       {revenue !== 0 ? (
-        <>
+        <div>
           <li key="revenue" style={{ fontWeight: 'bold', fontWeight: 'bold', fontSize: '13px' }}>
             Revenue (${revenue.toFixed(2)})
           </li>
@@ -1957,7 +1955,7 @@ const renderLegend = (props) => {
             </li>
           ))}
 
-        </>
+        </div>
       ) : (
         <li key="revenue">
           No Business Data On Selected Date

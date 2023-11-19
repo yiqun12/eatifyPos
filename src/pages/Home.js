@@ -47,7 +47,7 @@ const Account = () => {
       };
     }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
   return (
-    <>
+    <div>
 	<section class = "header">	
 		<div class = "header-text">
     		<h1 style= {{"font-size": "50px", "font-weight":"800", "margin-bottom": "2rem"}}>A Better Solution for Your Restaurants</h1>
@@ -323,7 +323,7 @@ const Account = () => {
         </section>
       </footer>
       
-    </>
+    </div>
   )
 }
 

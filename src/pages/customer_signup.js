@@ -93,7 +93,7 @@ export default function SignUp() {
         </div>
         :
 
-        <>
+        <div>
           <div>
             <div className="container">
               <div style={width > 768 ? { width: "550px", margin: "0 auto" } : {}}>
@@ -186,7 +186,7 @@ export default function SignUp() {
               </div>
             </div>
           </div>
-        </>
+        </div>
       }
     </div>
   );
