@@ -17,30 +17,14 @@ import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 // function Item({ heading, description }) 
 
 
-function Item({item, updateItems, whole_item_groups}) {
-  // console.log(whole_item_groups)
-  // console.log("item inside of Item: ", item)
-
-  // ** below is a representation of the object item ** //
-  // {
-  //   id: "b5fe9fb8-0f83-4b78-8ed5-c9cc3355aa76",
-  //   name: "Filet Mignon",
-  //   subtotal: 1,
-  //   image:
-  //     "https://img1.baidu.com/it/u=1363595818,3487481938&fm=253&fmt=auto&app=138&f=JPEG?w=891&h=500",
-  //   quantity: 9,
-  //   attributeSelected: {},
-  //   count: "939065fe-16b4-441a-8465-b653ae1a0440",
-  //   itemTotalPrice: 9,
-  //   CHI: "菲力牛排",
-  // },
+function Item({ item, updateItems, whole_item_groups }) {
 
   function flattenAttributes(attributes) {
     function flattenObject(obj, prefix = "") {
       return Object.keys(obj).reduce((acc, key) => {
         const value = obj[key];
         const currentKey = prefix ? `${prefix} ${key}` : key;
-  
+
         if (Array.isArray(value)) {
           // If the value is an array, join its elements and add to the result
           const flattenedArray = value.join(" ");
@@ -54,7 +38,7 @@ function Item({item, updateItems, whole_item_groups}) {
         }
       }, "");
     }
-  
+
     return flattenObject(attributes).trim();
   }
 
@@ -70,14 +54,14 @@ function Item({item, updateItems, whole_item_groups}) {
   }
 
   return (
-    <div className="w-full flex flex-col gap-4 rounded-md bg-white p-4 shadow-md">
+    <div className="w-full flex flex-col gap-4 rounded-md bg-white p-4 border-1 border-gray-800">
       {/* <p className="font-bold text-2xl">{heading}</p>
       <p className="text-gra7-700 font-thin">{description}</p> */}
       {/* <p className="font-bold text-2xl">{item.name}</p> */}
       <span>{item.name} x {item.quantity}</span>
       {generateAttributes(item.attributeSelected)}
       {/* <p className="font-bold text-2xl">{item.quantity}</p> */}
-      </div>
+    </div>
   );
 }
 
@@ -95,8 +79,8 @@ function SortableItem(props) {
   const style = {
     transform: transform
       ? `translate3d(${transform.x}px, ${Math.round(
-          transform.y
-        )}px, 0) scaleX(${transform.scaleX})`
+        transform.y
+      )}px, 0) scaleX(${transform.scaleX})`
       : "",
     transition
   };
@@ -119,101 +103,109 @@ function Container(props) {
 
   // console.log("container item: ", items)
   return (
+
     <SortableContext
       id={containerId}
       items={items}
       strategy={verticalListSortingStrategy}
     >
-      <div className="flex flex-col gap-4 bg-gray-200 p-4" style={{width:"25%", minWidth:"25%", maxWidth:"25%"}}>
-        {/* <div style={{ maxHeight: "400px", overflowY: "auto", overflowX:"hidden" }}> */}
-        <h1 className="text-center font-black text-4xl text-gray-700">
-          {containerId}
-        </h1>
-        {/* Add an invisible placeholder */}
-        <div
-          ref={setNodeRef}
-          style={{ opacity: 0, height: 0, pointerEvents: 'none' }}
-        ></div>
-        {items.map((item) => (
-          <SortableItem key={item.id} id={item.id} item={item.item} updateItems={updateItems} whole_item_groups={whole_item_groups}  />
-        ))}
-        {/* </div> */}
 
-        <div style={{display:"flex", marginTop:"auto", justifyContent: "space-between"}}>
-        {containerId !== "main" && (
-          <Button variant="success" style={{ marginTop: "auto", width: "40%" }} onClick={() => checkout(containerId)}>
-            <FontAwesomeIcon icon={faCheckCircle} color="white" size="2x" />
-          </Button>
-        )}
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <div className="text-center font-black text-gray-700 ml-1 mr-1">
+          <div style={{ display: "flex", marginTop: "auto", justifyContent: "space-between" }}>
+            {containerId !== "main" && (
+              <Button variant="success" style={{ marginTop: "auto" }} onClick={() => checkout(containerId)}>
+                <FontAwesomeIcon icon={faCheckCircle} color="white" size="2x" />
+              </Button>
+            )}
+            {containerId}
 
-        {/* Conditionally render the delete button */}
-        {containerId !== "main" && (
-          <Button variant="danger" style={{ marginTop: "auto", width: "40%" }} onClick={() => handleDelete(containerId)}>
-            <FontAwesomeIcon icon={faTimesCircle} color="white" size="2x" />
-          </Button>
-        )}
+            {/* Conditionally render the delete button */}
+            {containerId !== "main" && (
+              <Button variant="danger" style={{ marginTop: "auto" }} onClick={() => handleDelete(containerId)}>
+                <FontAwesomeIcon icon={faTimesCircle} color="white" size="2x" />
+              </Button>
+            )}
+          </div>
         </div>
 
+        <div className="flex ">
+
+          <div className={`m-2`}>
+            <div className="flex flex-col gap-4 p-4 min-w-[250px]" >
+              {/* Add an invisible placeholder */}
+              <div
+                ref={setNodeRef}
+                style={{ opacity: 0, height: 0, pointerEvents: 'none' }}
+              ></div>
+              {items.map((item) => (
+                <SortableItem className="bordered" key={item.id} id={item.id} item={item.item} updateItems={updateItems} whole_item_groups={whole_item_groups} />
+              ))}
+              {/* </div> */}
+
+            </div>
+          </div>
+          <div className='flex flex-col space-y-2'>
+            <a
+              onClick={() => { }}
+              className="mt-3 btn btn-sm btn-success mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              <span>{"Add Service Fee"}</span>
+            </a>
+
+            <a
+              onClick={() => { }}
+              className="mt-3 btn btn-sm btn-danger mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              <span>{"Add Discount"}</span>
+            </a>
+
+            <a
+              onClick={() => { }}
+              className="mt-3 btn btn-sm btn-secondary mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              <span>{"Merchant Receipt"}</span>
+            </a>
+
+            <a
+              onClick={() => { }}
+              className="mt-3 btn btn-sm btn-primary mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              <span>{"Card Pay"}</span>
+            </a>
+
+            <a
+              onClick={() => { }}
+              className="mt-3 btn btn-sm btn-info mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              <span>{"Cash Pay"}</span>
+            </a>
+
+            <div className={`text-right`}>Subtotal: 123 </div>
+
+            <div className={`text-right `}>Discount: 321 </div>
+            <div className={`text-right`}>Service Fee: 123 </div>
+            <div className={`text-right `}>Gratuity: 321</div>
+            <div className={`text-right `}>Tax(8.25%): 123    </div>
+            <div className={`text-right `}>Total Amount: 321 </div>
+          </div>
+        </div>
       </div>
+
+
+
+
+
     </SortableContext>
+
+
   );
 }
 
 export default Container;
 
-
-  //  {/* <p className="text-gra7-700 font-thin">{item.quantity}</p> */}
-
-                  //       {/* start of quantity (quantity = quantity text + buttons div) */}
-                  //       <div className="quantity p-0"
-                  //   style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
-                  //   <div>
-                  //   <div>${10}</div>
-
-                  //   </div>
-                  //   {/* the add minus box set up */}
-                  //   <div style={{ display: "flex" }}>
-
-                  //     {/* the start of minus button set up */}
-                  //     <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                  //       <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                  //         onClick={() => {
-                  //           // if (product.quantity === 1) {
-                  //           if (item.quantity === 1) {
-                  //             // handleDeleteClick(product.id,product.count);
-                  //             console.log("delete 0 item")
-                  //           } else {
-                  //             console.log("delete 1 item")
-                  //             // handleMinusClick(product.id,product.count)
-                  //             //handleMinusClick(product.id);
-                  //           }
-                  //         }}>
-                  //         <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                  //       </button>
-                  //     </div>
-                  //     {/* the end of minus button set up */}
-
-                  //     { /* start of the quantity number */}
-                  //     <span
-                  //     class="notranslate"
-                  //       type="text"
-                  //       style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                  //     >{10}</span>
-                  //     { /* end of the quantity number */}
-
-                  //     { /* start of the add button */}
-                  //     <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                  //       <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                  //         onClick={() => {
-                  //           // handlePlusClick(product.id,product.count)
-                  //           console.log("add 1 item")
-                  //         }}>
-                  //         <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                  //       </button>
-                  //     </div>
-                  //     { /* end of the add button */}
-                  //   </div>
-                  //   { /* end of the add minus setup*/}
-                  // </div>
-
-                  // {/* end of quantity */}
