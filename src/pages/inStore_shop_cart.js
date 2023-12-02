@@ -35,8 +35,9 @@ import "./inStore_shop_cart.css";
 import PaymentComponent2 from "../pages/PaymentComponent2";
 import Dnd_Test from '../pages/dnd_test';
 import { isMobile } from 'react-device-detect';
+import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 
-const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
+const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   /**listen to localtsorage */
   //console.log("products")
@@ -73,6 +74,10 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
   const [totalQuant, setTotalQuant] = useState(0);
   const [extra, setExtra] = useState(null);
 
+  const toggleAllowance = () => {
+    console.log(isAllowed)
+    setIsAllowed(!isAllowed);
+  };
   //console.log(totalQuant)
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
@@ -381,8 +386,8 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
         card_present: {}, // Assuming an empty map converts to an empty object
         request_extended_authorization: false,
         request_incremental_authorization_support: false,
-        payment_method_types: ["Handle_Instore"],
-        powerBy: "Handle Instore",
+        payment_method_types: ["Paid_by_Cash"],
+        powerBy: "Paid by Cash",
         processing: null,
         receiptData: localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]",
         receipt_email: null,
@@ -650,7 +655,7 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
                   <div className='flex justify-between w-full'>
                     <div className={`${!isMobile ? 'text-lg' : ''} notranslate`}>
 
-                      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)} x {product.quantity}
                     </div>
 
                   </div>
@@ -724,6 +729,19 @@ const Navbar = ({ store, selectedTable, acct, openSplitPaymentModal }) => {
             ))}
           </div>
           <div className='flex flex-col space-y-2'>
+            <a
+              onClick={toggleAllowance}
+              className={`mt-3 btn btn-sm ${isAllowed ? 'btn-light' : 'btn-dark'} mx-1`}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              {isMobile ? null : (
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={isAllowed ? faToggleOn : faToggleOff} />
+                </span>
+              )}
+              <span>{isAllowed ? 'Turn off Price Change' : 'Turn on Price Change'}</span>
+            </a>
+
             <a
               onClick={handleAddTipClick}
               className="mt-3 btn btn-sm btn-success mx-1"

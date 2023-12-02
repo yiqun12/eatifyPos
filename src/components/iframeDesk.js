@@ -390,6 +390,7 @@ function App({ store, acct }) {
     const isPC = width >= 1024;
 
     const [view, setView] = useState(false);
+    const [isAllowed, setIsAllowed] = useState(false);
 
     return (
 
@@ -514,10 +515,15 @@ function App({ store, acct }) {
                                                                     store={store}
                                                                     acct={acct}
                                                                     selectedTable={selectedTable}
+                                                                    isAllowed={isAllowed}
+                                                                    setIsAllowed={setIsAllowed}
                                                                     openSplitPaymentModal={openSplitPaymentModal}
                                                                 />
                                                                 :
-                                                                <InStore_food store={store} selectedTable={selectedTable} />
+                                                                <InStore_food
+                                                                    isAllowed={isAllowed}
+                                                                    setIsAllowed={setIsAllowed}
+                                                                    store={store} selectedTable={selectedTable} />
                                                             }
                                                         </div>
                                                     </div>
@@ -527,10 +533,16 @@ function App({ store, acct }) {
                                                     <div className="modal-body flex p-0" >
 
                                                         <div className='w-1/2'>
-                                                            <InStore_food store={store} selectedTable={selectedTable}></InStore_food>
+                                                            <InStore_food
+                                                                isAllowed={isAllowed}
+                                                                setIsAllowed={setIsAllowed}
+                                                                store={store} selectedTable={selectedTable}></InStore_food>
                                                         </div>
                                                         <div className='w-1/2'>
-                                                            <InStore_shop_cart store={store} acct={acct} selectedTable={selectedTable} openSplitPaymentModal={openSplitPaymentModal}  ></InStore_shop_cart>
+                                                            <InStore_shop_cart
+                                                                isAllowed={isAllowed}
+                                                                setIsAllowed={setIsAllowed}
+                                                                store={store} acct={acct} selectedTable={selectedTable} openSplitPaymentModal={openSplitPaymentModal}  ></InStore_shop_cart>
                                                         </div>
                                                     </div>
                                                 }

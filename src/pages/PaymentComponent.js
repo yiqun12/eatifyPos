@@ -6,7 +6,7 @@ import { useUserContext } from "../context/userContext";
 import { doc, collection, setDoc, getDoc } from 'firebase/firestore';
 import firebase from 'firebase/compat/app';
 
-const PaymentComponent = ({ storeDisplayName, storeID, connected_stripe_account_id }) => {
+const PaymentComponent = ({ City,Address,State, ZipCode, storeDisplayName, storeID, connected_stripe_account_id }) => {
   const country = 'US'
   // the three variables we keep track of for payment
   // TODO: Save these two values to somewhere so no need to
@@ -79,13 +79,14 @@ async function createReader(payloadReader) {
     const registerTerminalButton = document.getElementById("register-terminal-button");
     registerTerminalButton.className = "loading";
     registerTerminalButton.disabled = true;
+    registerTerminalButton.textContent = "Awaiting";
     try {
       //const stripeID = document.getElementById("stripeID").value;
-      const nameOfStore = document.getElementById("nameOfStore").value;
-      const streetAddress = document.getElementById("streetAddress").value;
-      const cityName = document.getElementById("cityName").value;
-      const state = document.getElementById("state").value;
-      const zipCode = document.getElementById("zipCode").value;
+      const nameOfStore =  document.getElementById("nameOfStore").value || document.getElementById("nameOfStore").placeholder;
+      const streetAddress =  document.getElementById("streetAddress").value || document.getElementById("streetAddress").placeholder;
+      const cityName = document.getElementById("cityName").value || document.getElementById("cityName").placeholder;
+      const state = document.getElementById("state").value || document.getElementById("state").placeholder;
+      const zipCode = document.getElementById("zipCode").value || document.getElementById("zipCode").placeholder;
       const stripeTerminalRegistrationCode = document.getElementById("stripeTerminalRegistrationCode").value.trim();
 
       const payloadLocation = {
@@ -253,8 +254,8 @@ async function createReader(payloadReader) {
                 <input
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
                   id="streetAddress"
-                  type="text"
-                  placeholder="street sddress"
+                  type="text"  
+                  placeholder={Address}
                 />
               </div>
               <div className="w-full px-3">
@@ -265,7 +266,7 @@ async function createReader(payloadReader) {
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   id="cityName"
                   type="text"
-                  placeholder="city name"
+                  placeholder={City}
                 />
               </div>
               <div className="w-full px-3">
@@ -276,7 +277,7 @@ async function createReader(payloadReader) {
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   id="state"
                   type="text"
-                  placeholder="state"
+                  placeholder={State}
                 />
               </div>
               <div className="w-full px-3">
@@ -287,7 +288,7 @@ async function createReader(payloadReader) {
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   id="zipCode"
                   type="text"
-                  placeholder="zip code"
+                  placeholder={ZipCode}
                 />
               </div>
               <div className="w-full px-3">
@@ -298,7 +299,7 @@ async function createReader(payloadReader) {
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   id="stripeTerminalRegistrationCode"
                   type="text"
-                  placeholder="Unique Stripe Terminal Registration code"
+                  placeholder="Registration code from POS machine."
                 />
               </div>
             </div>

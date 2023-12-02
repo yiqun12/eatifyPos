@@ -90,7 +90,7 @@ function PayFullhistory() {
             date: formattedDate,
             email: item.user_email,
             dineMode: item.metadata.isDine,
-            status: item.status === "succeeded" ? "Paid Online" : "Instore Payment",
+            status: item.powerBy,
             total: parseFloat(item.metadata.total),
             tableNum: item.tableNum,
             metadata: item.metadata,
@@ -137,17 +137,16 @@ function PayFullhistory() {
             .map((order) => (
               <div>
                 <div>
-                  <div className=' gap-0 pt-0'>
-                    <div
-
-                      className={`rounded-lg `}
-                    >
+                  <div>
+                    <div>
                       <div className='flex'>
-                        <img
-                          className="h-[80px]  w-[80px]  mt-3 transition-all object-cover rounded-md"
-                          src={JSON.parse(order.receiptData)[0].image}
-                          loading="lazy"
-                        />
+                        <div className="w-20 h-20 mt-3 overflow-hidden rounded-md">
+                          <img
+                            className="w-full h-full object-cover object-center"
+                            src={JSON.parse(order.receiptData)[0].image}
+                            loading="lazy"
+                          />
+                        </div>
 
                         <div className='w-full ml-3'>
                           <div className="mt-2 flex justify-between">
@@ -202,31 +201,36 @@ function PayFullhistory() {
                               {JSON.parse(order.receiptData).map((item, index) => (
 
                                 <div className="receipt-item" key={item.id}>
-                                  <div className="mt-0 flex justify-between">
+                                  <div>
                                     <div>
-                                      <p className="mb-1 text-black d-block text-sm font-semibold ">{item.name}</p>
-                                      <p className="mb-1 text-gray-500 d-block text-sm font-semibold">
-                                        {item.quantity} x $ {item.subtotal}
-                                      </p>
+                                      <div className='flex justify-between'>
+                                        <p className="mb-1 text-black text-left text-sm font-semibold">
+                                          {item.quantity} x {item.name}
+                                        </p>
+                                        <p className="mb-1 text-black text-right text-sm font-semibold">
+                                          ${Math.round(item.quantity * item.subtotal * 100) / 100}
+                                        </p>
+                                      </div>
+
+                                      <div className="mb-1 text-gray-500 d-block text-sm font-semibold "> {Object.entries(item.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
                                     </div>
-                                    <p className="mb-1 text-orange-700 d-block text-sm font-semibold  ">${Math.round(item.quantity * item.subtotal * 100) / 100}</p>
                                   </div>
                                 </div>
                               ))}
                               <div className=" flex justify-between">
-                                <p className="mb-1 text-black d-block text-sm font-semibold">{t("Subtotal")}</p>
-                                <p className="mb-1 text-black d-block text-sm font-semibold">${order.metadata.subtotal}</p>
+                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">{t("Subtotal")}</p>
+                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">${order.metadata.subtotal}</p>
                               </div>
                               <div className="flex justify-between">
-                                <p className="mb-1 text-black d-block text-sm font-semibold">{t("Tax")}</p>
-                                <p className="mb-1 text-black d-block text-sm font-semibold">${order.metadata.tax}</p>
+                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">{t("Tax")}</p>
+                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">${order.metadata.tax}</p>
                               </div>
                               <div className=" flex justify-between">
-                                <p className="mb-1 text-black d-block text-sm font-semibold">{t("Gratuity")}</p>
-                                <p className="mb-1 text-black d-block text-sm font-semibold">${order.metadata.tips}</p>
+                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">{t("Gratuity")}</p>
+                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">${order.metadata.tips}</p>
                               </div>
                               <div className=" flex justify-between">
-                                <p className="mb-1 text-black d-block text-sm font-semibold">{t("Total")}</p>
+                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">{t("Total")}</p>
                                 <p className="mb-1 text-orange-700 d-block text-sm font-semibold">${order.metadata.total}</p>
                               </div>
                               <hr></hr>

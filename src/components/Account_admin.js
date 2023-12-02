@@ -187,7 +187,7 @@ const Account = () => {
             date: formattedDate,
             email: item.user_email,
             dineMode: item.metadata.isDine,
-            status: item.status === "succeeded" ? "Paid Online" : "Instore Payment",
+            status: item.powerBy,
             total: parseFloat(item.metadata.total),
             tableNum: item.tableNum,
             metadata: item.metadata
@@ -1666,7 +1666,7 @@ const Account = () => {
                                     You already connect with Stripe to receive online payment!
                                   </div>
 
-                                  <PaymentComponent storeDisplayName={data?.Name} storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
+                                  <PaymentComponent City={data?.Address} Address={data?.physical_address} State={data?.State} storeDisplayName={data?.Name} ZipCode={data?.ZipCode}  storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
                                 </div>
                               }
                             </div>

@@ -53,7 +53,7 @@ const Item = () => {
               document_id: doc.id.substring(0, 4),
               time: payment.dateTime,
               email: payment.user_email,
-              status: payment.status === "succeeded" ? "Paid Online" : "Instore Payment",
+              status: payment.powerBy,
               isDinein: payment.metadata.isDine === "TakeOut"?"TakeOut":"Table: "+payment.tableNum,
               tax: payment.metadata.tax,
               tips: payment.metadata.tips,
@@ -164,16 +164,17 @@ const Item = () => {
             </div>
           </div>
           <div className="row">
-          {payment_data.status === "Paid Online" && (
+          {payment_data.tips && payment_data.tips !== 0 && (
   <div>
     <div className="col">
-      <b> {t("Tips")}:</b>
+      <b>{t("Tips")}:</b>
     </div>
     <div className="col d-flex justify-content-end">
       <b>${payment_data.tips}</b>
     </div>
   </div>
 )}
+
 
 
             

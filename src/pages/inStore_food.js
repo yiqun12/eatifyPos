@@ -16,7 +16,7 @@ import { doc, getDoc } from "firebase/firestore";
 
 import { v4 as uuidv4 } from 'uuid';
 
-const Food = ({ store, selectedTable }) => {
+const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
   //const params = new URLSearchParams(window.location.search);
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
@@ -577,9 +577,9 @@ const Food = ({ store, selectedTable }) => {
   const hideModal = () => {
     setModalVisibility(false);
     handleRemoveAllCustomVariants();
-    localStorage.setItem(store + "-" + selectedTable,JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+    localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
     saveId(Math.random)
-  
+
   }
   // const items = [{"id":"9ee84ddc-c91f-47ec-981b-1c5680550837","name":"Garlic A Choy","subtotal":"15","image":"https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500","quantity":2,"attributeSelected":{},"count":"7577acd2-6043-40b3-8f3e-b2245e117759","itemTotalPrice":30,"CHI":"蒜蓉A菜"},{"id":"7779910e-aecc-4e12-9308-a12e9c75f220","name":"Cured Cauliflower","subtotal":"18","image":"https://img0.baidu.com/it/u=1543862718,2735009707&fm=253&fmt=auto&app=138&f=JPEG?w=780&h=496","quantity":3,"attributeSelected":{},"count":"3e13f231-775c-4ae6-9cb3-a7904a1a51b7","itemTotalPrice":54,"CHI":"腊味菜花"},{"id":"9ee84ddc-c91f-47ec-981b-1c5680550837","name":"Garlic A Choy","subtotal":"15","image":"https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500","quantity":2,"attributeSelected":{},"count":"21f3984b-bd96-4920-b862-9a8a8aa7624a","itemTotalPrice":30,"CHI":"蒜蓉A菜"},{"id":"9ee84ddc-c91f-47ec-981b-1c5680550837","name":"Garlic A Choy","subtotal":"15","image":"https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500","quantity":3,"attributeSelected":{},"count":"65503f52-55f9-4264-b2d1-089bf47d0738","itemTotalPrice":45,"CHI":"蒜蓉A菜"},{"id":"9ee84ddc-c91f-47ec-981b-1c5680550837","name":"Garlic A Choy","subtotal":"15","image":"https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500","quantity":1,"attributeSelected":{},"count":"e0ee934c-15db-4242-a636-c692182ced07","itemTotalPrice":15,"CHI":"蒜蓉A菜"},{"id":"7779910e-aecc-4e12-9308-a12e9c75f220","name":"Cured Cauliflower","subtotal":"18","image":"https://img0.baidu.com/it/u=1543862718,2735009707&fm=253&fmt=auto&app=138&f=JPEG?w=780&h=496","quantity":1,"attributeSelected":{},"count":"5e21f1a8-0aa5-40a3-8281-6f7b4b9e2280","itemTotalPrice":18,"CHI":"腊味菜花"},{"id":"9ee84ddc-c91f-47ec-981b-1c5680550837","name":"Garlic A Choy","subtotal":"15","image":"https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500","quantity":6,"attributeSelected":{},"count":"6db0387e-e5ae-454a-9b50-e2a3a9bca630","itemTotalPrice":90,"CHI":"蒜蓉A菜"}] ;
   // const groupedItems = groupAndSumItems(items);
@@ -590,23 +590,23 @@ const Food = ({ store, selectedTable }) => {
     const groupedItems = {};
 
     items.forEach(item => {
-        // Create a unique key based on id and JSON stringified attributes
-        const key = `${item.id}-${JSON.stringify(item.attributeSelected)}`;
+      // Create a unique key based on id and JSON stringified attributes
+      const key = `${item.id}-${JSON.stringify(item.attributeSelected)}`;
 
-        if (!groupedItems[key]) {
-            // If this is the first item of its kind, clone it (to avoid modifying the original item)
-            groupedItems[key] = { ...item };
-        } else {
-            // If this item already exists, sum up the quantity and itemTotalPrice
-            groupedItems[key].quantity += item.quantity;
-            groupedItems[key].itemTotalPrice += item.itemTotalPrice;
-            // The count remains from the first item
-        }
+      if (!groupedItems[key]) {
+        // If this is the first item of its kind, clone it (to avoid modifying the original item)
+        groupedItems[key] = { ...item };
+      } else {
+        // If this item already exists, sum up the quantity and itemTotalPrice
+        groupedItems[key].quantity += item.quantity;
+        groupedItems[key].itemTotalPrice += item.itemTotalPrice;
+        // The count remains from the first item
+      }
     });
 
     // Convert the grouped items object back to an array
     return Object.values(groupedItems);
-}
+  }
 
   useEffect(() => {
     // Function to update the store status
@@ -957,8 +957,25 @@ const Food = ({ store, selectedTable }) => {
                   transition={{ duration: 0.1 }}
                   key={item.id}
                   onClick={() => {
-                    showModal(item);
-                    setSelectedFoodItem(item);;
+
+                    if (!isAllowed) {
+
+                      if (Object.keys(item.attributesArr).length > 0) {
+                        showModal(item);
+                        setSelectedFoodItem(item);
+                      } else {
+                        const randomNum = uuidv4()
+                        setCount(randomNum);  // Increment the count every time the modal is opened
+                        setSelectedAttributes({})
+                        setTotalPrice(0);
+                        addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI)
+                        localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+                        saveId(Math.random)
+                      }
+                    } else {
+                      showModal(item);
+                      setSelectedFoodItem(item);
+                    }
                   }}
                   className=" border border-black rounded cursor-pointer">
                   <div className='flex'>
