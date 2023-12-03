@@ -113,7 +113,7 @@ function Container(props) {
   // whole_item_groups ** is a JSON object consist of the whole dnd_test groups and its objects
   // number of Groups ** is the group divisor number for all the items (IE: food x 1 / 4 or pasta x 2 / 4)
   // dirty ** is a boolean indicator whether or not something has been changed such as an element has been dragged
-  const { containerId, items, handleDelete, checkout, updateItems, whole_item_groups, numberOfGroups, dirty } = props;
+  const { containerId, items, handleDelete, checkout, updateItems, whole_item_groups, numberOfGroups, dirty, activeId } = props;
 
   // console.log("container:", whole_item_groups)
   const { setNodeRef } = useDroppable({
@@ -355,8 +355,6 @@ function Container(props) {
           </div>
         </div>
       </div>
-
-
 
 
 

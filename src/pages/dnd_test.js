@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
   DndContext,
   closestCorners,
@@ -16,7 +16,9 @@ import {
   //   useSensor,
   //   useSensors,
 } from "@dnd-kit/core";
-import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { arrayMove, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
+
+// import { useSortable } from "@dnd-kit/sortable";
 
 import Container from "./dnd_container"
 
@@ -92,6 +94,7 @@ function Dnd_Test(props) {
   const [end_container, setEnd_Container] = useState("")
 
   const [end_index, setEnd_Index] = useState("")
+  
 
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -145,6 +148,7 @@ function Dnd_Test(props) {
   };
 
   function handleDragStart(event) {
+    
     const activeId = event.active.id;
     console.log("start")
     console.log("activeid: ", event.active)
@@ -509,7 +513,7 @@ function Dnd_Test(props) {
 
   const containerItems = useMemo(() => {
     return Object.keys(items).map((key) => (
-      <Container key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} numberOfGroups={numberOfGroups} dirty={dirty} />
+      <Container key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} numberOfGroups={numberOfGroups} dirty={dirty} activeId={activeId}/>
     ));
   }, [items, handleDelete, checkout]);
 
@@ -582,7 +586,87 @@ function Dnd_Test(props) {
   //   // Update the quantity value when current_item changes
   //   setQuantity(current_item.item?.quantity || 0);
   // }, [current_item]);
-  console.log(items)
+  // console.log(items)
+
+  function Item({ item, numberOfGroups }) {
+
+    console.log("In Item for dnd_test: ", item)
+    console.log("In Item for dnd_test numberOfGroups: ", numberOfGroups)
+    function flattenAttributes(attributes) {
+      function flattenObject(obj, prefix = "") {
+        return Object.keys(obj).reduce((acc, key) => {
+          const value = obj[key];
+          const currentKey = prefix ? `${prefix} ${key}` : key;
+  
+          if (Array.isArray(value)) {
+            // If the value is an array, join its elements and add to the result
+            const flattenedArray = value.join(" ");
+            return acc + currentKey + " " + flattenedArray + "<br />";
+          } else if (typeof value === "object" && !Array.isArray(value)) {
+            // If the value is an object, recursively flatten it
+            return acc + flattenObject(value, currentKey);
+          } else {
+            // If the value is neither an object nor an array, add it to the result
+            return acc + currentKey + " " + value + "<br />";
+          }
+        }, "");
+      }
+  
+      return flattenObject(attributes).trim();
+    }
+  
+    function generateAttributes(attributes) {
+      const attributeString = flattenAttributes(attributes);
+      if (attributeString === "") {
+        return null; // Return null if there are no attributes
+      } else {
+        return (
+          <div dangerouslySetInnerHTML={{ __html: attributeString }} />
+        );
+      }
+    }
+  
+    return (
+      <div className="w-full flex flex-col gap-4 rounded-md bg-white p-4 border-1 border-gray-800">
+        {/* <p className="font-bold text-2xl">{heading}</p>
+        <p className="text-gra7-700 font-thin">{description}</p> */}
+        {/* <p className="font-bold text-2xl">{item.name}</p> */}
+        <span>{item.name} x <b>{item.quantity} / {numberOfGroups}</b> </span>
+        {generateAttributes(item.attributeSelected)}
+        {/* <p className="font-bold text-2xl">{item.quantity}</p> */}
+      </div>
+    );
+  }
+  
+  
+  function SortableItem(props) {
+    const { id, item, numberOfGroups } = props;
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition
+    } = useSortable({ id });
+  
+    const style = {
+      transform: transform
+        ? `translate3d(${transform.x}px, ${Math.round(
+          transform.y
+        )}px, 0) scaleX(${transform.scaleX})`
+        : "",
+      transition
+    };
+  
+    // console.log("sortableItem: ", whole_item_groups)
+    return (
+      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <Item id={id} item={item}  numberOfGroups={numberOfGroups}/>
+      </div>
+    );
+  }
+
+
   return (
     <div className="flex flex gap-4 p-2">
       <DndContext
@@ -594,7 +678,18 @@ function Dnd_Test(props) {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
-        autoScroll={{ layoutShiftCompensation: false }}
+        // autoScroll={false}
+        // autoScroll={{
+        //   enabled: true,
+        //   threshold: {
+        //     x: 0.2,
+        //     y: 0.2,
+        //   },
+        //   speed: {
+        //     x: 20,
+        //     y: 10,
+        //   },
+        // }}
       >
         {/* <div style={{width:"100%" ,overflowX:"auto", }}> */}
         {containerItems}
@@ -707,8 +802,10 @@ function Dnd_Test(props) {
           </div>
         </div>
       )}
-
-      {/* <DragOverlay>{activeId ? <span id={activeId} dragOverlay /> : null}</DragOverlay> */}
+           
+      <DragOverlay>
+        {activeId && <SortableItem className="bordered" id={activeId} item={current_item.item} numberOfGroups={numberOfGroups}/>}
+      </DragOverlay>
     
       </DndContext>
       {/* </DndContext> */}
