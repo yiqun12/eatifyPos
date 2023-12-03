@@ -56,7 +56,9 @@ function createGroups(groupName, items) {
 
 
 function Dnd_Test(props) {
-  const main_input = props.main_input;
+  // const main_input = props.main_input;
+
+  const main_input = JSON.parse(JSON.stringify(props.main_input));
 
   // const groupNames = ["A", "B", "C"];
   // const itemCounts = [4, 5, 4];
@@ -73,6 +75,8 @@ function Dnd_Test(props) {
   //   });
   //   console.log(items)
 
+  // setState to check if things are modified
+  const [dirty, setDirty] = useState(false);
 
   const [activeId, setActiveId] = useState(null);
 
@@ -283,6 +287,10 @@ function Dnd_Test(props) {
     if (prev_container !== overContainer) {
       // opens the modal and lets the user input data
       // setEnd_Container(overContainer)
+      
+      // change the dirty to true because something is modified
+      setDirty(true)
+
       console.log("dragEnd from group: ", prev_container, " to group: ", overContainer)
 
       // Check if the End_container already has two similar items
@@ -347,16 +355,36 @@ function Dnd_Test(props) {
     }
   }
 
+  const [numberOfGroups, setNumberOfGroups] = useState(1); // Initialize with the next available group number
+
   function addEmptyGroup() {
     const newGroupName = `group${Object.keys(items).length}`;
-    setItems((prevItems) => ({
-      ...prevItems,
-      [newGroupName]: [],
-    }));
-    // console.log(items)
-  }
+    const main_input = JSON.parse(JSON.stringify(props.main_input));
+    if (dirty === false) {
+      setItems((prevItems) => ({
+        ...prevItems,
+        [newGroupName]: createData_group(main_input.length, main_input),
+        // [newGroupName]: [],
+  
+      }));
+    }
+    
+    if (dirty === true) {
+      setItems((prevItems) => ({
+        ...prevItems,
+        // [newGroupName]: createData_group(main_input.length, main_input),
+        [newGroupName]: [],
 
-  const [nextGroupNumber, setNextGroupNumber] = useState(1); // Initialize with the next available group number
+      }));
+    }
+    // console.log(items)
+    
+    // Increment numberOfGroups by 1
+    if (dirty === false) {
+      setNumberOfGroups(numberOfGroups + 1);
+    }
+    
+  }
 
   // const calculateNextGroupNumber = () => {
   //   const groupKeys = Object.keys(items);
@@ -394,32 +422,35 @@ function Dnd_Test(props) {
 
     const updatedItemGroups = { ...items };
 
-    // Move all items to "main" if it's not the "main" group
-    updatedItemGroups["group0"] = [
-      ...updatedItemGroups["group0"],
-      ...updatedItemGroups[groupIdToDelete],
-    ];
+    // the below code is move all the items from deleted column to main
+    if (dirty === true) {
+      // Move all items to "main" if it's not the "main" group
+      updatedItemGroups["group0"] = [
+        ...updatedItemGroups["group0"],
+        ...updatedItemGroups[groupIdToDelete],
+      ];
 
-    // Combine items in "main" with the same id and count
-    const mainItems = updatedItemGroups["group0"];
-    const combinedMainItems = mainItems.reduce((acc, item) => {
-      const existingItem = acc.find(
-        (combinedItem) =>
-          combinedItem.item.id === item.item.id &&
-          combinedItem.item.count === item.item.count
-      );
+      // Combine items in "main" with the same id and count
+      const mainItems = updatedItemGroups["group0"];
+      const combinedMainItems = mainItems.reduce((acc, item) => {
+        const existingItem = acc.find(
+          (combinedItem) =>
+            combinedItem.item.id === item.item.id &&
+            combinedItem.item.count === item.item.count
+        );
 
-      if (existingItem) {
-        existingItem.item.quantity += item.item.quantity;
-        existingItem.item.itemTotalPrice += item.item.itemTotalPrice;
-      } else {
-        acc.push({ ...item });
-      }
+        if (existingItem) {
+          existingItem.item.quantity += item.item.quantity;
+          existingItem.item.itemTotalPrice += item.item.itemTotalPrice;
+        } else {
+          acc.push({ ...item });
+        }
 
-      return acc;
-    }, []);
+        return acc;
+      }, []);
 
-    updatedItemGroups["group0"] = combinedMainItems;
+      updatedItemGroups["group0"] = combinedMainItems;
+  }
 
     // Delete the group (except for "main")
     delete updatedItemGroups[groupIdToDelete];
@@ -441,6 +472,11 @@ function Dnd_Test(props) {
         delete updatedItemGroups[groupKey];
       }
     });
+    
+    // Decrement the numberOfGroups by 1
+    if (dirty === false) {
+      setNumberOfGroups(numberOfGroups - 1);
+    }
 
     setItems(updatedItemGroups);
   }, [items, setItems]);
@@ -473,7 +509,7 @@ function Dnd_Test(props) {
 
   const containerItems = useMemo(() => {
     return Object.keys(items).map((key) => (
-      <Container key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} />
+      <Container key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} numberOfGroups={numberOfGroups} dirty={dirty} />
     ));
   }, [items, handleDelete, checkout]);
 
@@ -558,11 +594,12 @@ function Dnd_Test(props) {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
+        autoScroll={{ layoutShiftCompensation: false }}
       >
         {/* <div style={{width:"100%" ,overflowX:"auto", }}> */}
         {containerItems}
         {/* </div> */}
-      </DndContext>
+      
 
       {/* Add the Bootstrap button */}
       <Button variant="primary" onClick={addEmptyGroup}>
@@ -585,22 +622,35 @@ function Dnd_Test(props) {
               <div className="modal-body">
                 {/* start of quantity (quantity = quantity text + buttons div) */}
                 <div className="quantity p-0"
-                  style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
-                  <div>
+                  style={{ marginRight: "0px", display: "flex", justifyContent: "center" }}>
+                  {/* <div>
                     <div>${quantity}</div>
 
-                  </div>
+                  </div> */}
                   {/* the add minus box set up */}
                   <div style={{ display: "flex" }}>
 
+                  { /* start of the divide by 2 button */}
+                    <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
+                      <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                        onClick={() => {
+                          handlePlusClick()
+                          // console.log("add 1 item")
+                        }}>
+                        <MinusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
+                      </button>
+                    </div>
+                    { /* end of the divide by 2 button */}
+
+
                     {/* the start of minus button set up */}
-                    <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                      <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                    <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
+                      <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                         onClick={() => {
                           console.log("delete 1 item")
                           handleMinusClick()
                         }}>
-                        <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                        <MinusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
                       </button>
                     </div>
                     {/* the end of minus button set up */}
@@ -609,21 +659,34 @@ function Dnd_Test(props) {
                     <span
                       class="notranslate"
                       type="text"
-                      style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                      style={{ width: '90px', height: '90px', fontSize: '51px', alignItems: 'center', justifyContent: 'center', display: "flex", padding: '0px' }}
                     >{quantity}</span>
                     { /* end of the quantity number */}
 
                     { /* start of the add button */}
-                    <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                      <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                    <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
+                      <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                         onClick={() => {
                           handlePlusClick()
                           // console.log("add 1 item")
                         }}>
-                        <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                        <PlusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
                       </button>
                     </div>
                     { /* end of the add button */}
+
+                    { /* start of the multiply by 2 button */}
+                    <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
+                      <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                        onClick={() => {
+                          handlePlusClick()
+                          // console.log("add 1 item")
+                        }}>
+                        <PlusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
+                      </button>
+                    </div>
+                    { /* end of the multiply by 2 button */}
+
                   </div>
                   { /* end of the add minus setup*/}
                 </div>
@@ -646,6 +709,8 @@ function Dnd_Test(props) {
       )}
 
       {/* <DragOverlay>{activeId ? <span id={activeId} dragOverlay /> : null}</DragOverlay> */}
+    
+      </DndContext>
       {/* </DndContext> */}
     </div>
   );
