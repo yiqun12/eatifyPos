@@ -101,6 +101,9 @@
     <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button>
     <button class="btn btn-primary" onclick="loadBoard()">Load</button> -->
     <button class="btn btn-danger admin-mode" style="text-align: left;">Admin Mode</button>
+    <button class="btn btn-danger change-color-red" style="text-align: left;">Change color of A2 to Red</button>
+
+    <button class="btn btn-danger change-color-original" style="text-align: left;">Change color of A2 to original Brown</button>
   </div>
 
   <!-- partial -->
@@ -542,6 +545,9 @@
         const selectedTable = this.tableName;
         if (current_mode === "customer")
           window.parent.postMessage(`selected_table ${selectedTable}`, "*");
+
+        // highlightTable("A2", 'red'); // This will change the background color of 'Table 1' to red
+        // console.log("The tableName is", tableName.trim(), "hello")
       })
       canvas.add(g)
 
@@ -905,6 +911,32 @@
       })
     }
 
+    
+    // this function allows me to change the color of A2 with a button click
+
+    function highlightTable(tableName, color) {
+      canvas.forEachObject(function(obj) {
+        if ((obj.type === 'rect' || obj.type === 'circle') && obj.tableName === tableName) {
+          // Change the fill color of the table
+          obj.item(0).set('fill', color);
+          canvas.renderAll();
+        }
+      });
+    }
+
+  // this click functions is the event handler for the button that calls the highlightTable to change color to red
+    document.querySelectorAll('.change-color-red')[0].addEventListener('click', function () {
+
+      highlightTable("A2", "red")
+
+    })
+
+    // this click functions is the event handler for the button that calls the highlightTable to change color to brown
+    document.querySelectorAll('.change-color-original')[0].addEventListener('click', function () {
+
+      highlightTable("A2", 'rgba(150, 111, 51, 0.7)')
+
+    })
 
 
     // below is the controller for the add tables buttons (circle and rectangle) and modal controller
@@ -1183,6 +1215,7 @@
       // addWall(120, 510, 60, 60)
     }
     addDefaultObjects()
+
   </script>
 
 </body>
