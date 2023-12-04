@@ -6,7 +6,7 @@ import { useUserContext } from "../context/userContext";
 import { doc, collection, setDoc, getDoc } from 'firebase/firestore';
 import firebase from 'firebase/compat/app';
 
-const PaymentComponent = ({ City,Address,State, ZipCode, storeDisplayName, storeID, connected_stripe_account_id }) => {
+const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, storeID, connected_stripe_account_id }) => {
   const country = 'US'
   // the three variables we keep track of for payment
   // TODO: Save these two values to somewhere so no need to
@@ -24,53 +24,53 @@ const PaymentComponent = ({ City,Address,State, ZipCode, storeDisplayName, store
   // the functions to the server
   async function createLocation(payloadLocation) {
     try {
-        const formattedPayload = {
-            connected_stripe_account_id: connected_stripe_account_id,
-            display_name: payloadLocation.storeDetails.name,
-            address: {
-                line1: payloadLocation.storeDetails.address.street,
-                city: payloadLocation.storeDetails.address.city,
-                state: payloadLocation.storeDetails.address.state,
-                country: country,
-                postal_code: payloadLocation.storeDetails.address.zip,
-            }
-        };
+      const formattedPayload = {
+        connected_stripe_account_id: connected_stripe_account_id,
+        display_name: payloadLocation.storeDetails.name,
+        address: {
+          line1: payloadLocation.storeDetails.address.street,
+          city: payloadLocation.storeDetails.address.city,
+          state: payloadLocation.storeDetails.address.state,
+          country: country,
+          postal_code: payloadLocation.storeDetails.address.zip,
+        }
+      };
 
-        const createLocationFunction = firebase.functions().httpsCallable('createLocation');
-        const result = await createLocationFunction(formattedPayload);
-        
-        console.log("the response was okay:", result.data);
-        return result.data;
+      const createLocationFunction = firebase.functions().httpsCallable('createLocation');
+      const result = await createLocationFunction(formattedPayload);
+
+      console.log("the response was okay:", result.data);
+      return result.data;
 
     } catch (error) {
-        setError("There was an error with createLocation: " + error.message);
-        console.error("There was an error with createLocation:", error.message);
-        throw error; // rethrow to handle it outside of the function or display to user
+      setError("There was an error with createLocation: " + error.message);
+      console.error("There was an error with createLocation:", error.message);
+      throw error; // rethrow to handle it outside of the function or display to user
     }
-}
+  }
 
 
 
-async function createReader(payloadReader) {
-  try {
+  async function createReader(payloadReader) {
+    try {
       const formattedPayload = {
-          location_id: locationId, 
-          terminal_code: payloadReader.terminalRegistrationCode, 
-          connected_stripe_account_id: connected_stripe_account_id
+        location_id: locationId,
+        terminal_code: payloadReader.terminalRegistrationCode,
+        connected_stripe_account_id: connected_stripe_account_id
       };
 
       const registerReaderFunction = firebase.functions().httpsCallable('registerReader');
       const result = await registerReaderFunction(formattedPayload);
-      
+
       console.log("the response was okay:", result.data);
       return result.data;
 
-  } catch (error) {
+    } catch (error) {
       setError("There was an error with createReader: " + error.message);
       console.error("There was an error with createReader:", error.message);
       throw error; // rethrow to handle it outside of the function or display to user
+    }
   }
-}
 
 
   // the onclick reactions
@@ -82,8 +82,8 @@ async function createReader(payloadReader) {
     registerTerminalButton.textContent = "Awaiting";
     try {
       //const stripeID = document.getElementById("stripeID").value;
-      const nameOfStore =  document.getElementById("nameOfStore").value || document.getElementById("nameOfStore").placeholder;
-      const streetAddress =  document.getElementById("streetAddress").value || document.getElementById("streetAddress").placeholder;
+      const nameOfStore = document.getElementById("nameOfStore").value || document.getElementById("nameOfStore").placeholder;
+      const streetAddress = document.getElementById("streetAddress").value || document.getElementById("streetAddress").placeholder;
       const cityName = document.getElementById("cityName").value || document.getElementById("cityName").placeholder;
       const state = document.getElementById("state").value || document.getElementById("state").placeholder;
       const zipCode = document.getElementById("zipCode").value || document.getElementById("zipCode").placeholder;
@@ -201,6 +201,22 @@ async function createReader(payloadReader) {
 
   const [isExpanded, setIsExpanded] = useState(false);
 
+
+  // State for the registration code and error message
+  const [registrationCode, setRegistrationCode] = useState('');
+  const [error_, setError_] = useState('');
+
+  const registerTerminal_ = () => {
+    // Check if the registration code is empty
+    if (!registrationCode.trim()) {
+      setError_('Stripe Terminal Registration code is required');
+    } else {
+      setError_('');
+      registerTerminal()
+      // Your code to handle the registration
+    }
+  };
+
   return (
     <div>
       <label className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
@@ -254,7 +270,7 @@ async function createReader(payloadReader) {
                 <input
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
                   id="streetAddress"
-                  type="text"  
+                  type="text"
                   placeholder={Address}
                 />
               </div>
@@ -300,14 +316,16 @@ async function createReader(payloadReader) {
                   id="stripeTerminalRegistrationCode"
                   type="text"
                   placeholder="Registration code from POS machine."
+                  value={registrationCode}
+                  onChange={e => setRegistrationCode(e.target.value)}
                 />
               </div>
             </div>
-            <div style={{ color: 'red' }}>{error}</div>
+            <div style={{ color: 'red' }}>{error_}</div>
             <div className="flex mt-3">
               <div style={{ width: "50%" }}></div>
               <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
-                <button id="register-terminal-button" onClick={registerTerminal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Register POS Machine</button>
+                <button id="register-terminal-button" onClick={registerTerminal_} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Register POS Machine</button>
 
               </div>
             </div>

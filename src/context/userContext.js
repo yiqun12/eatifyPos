@@ -27,7 +27,6 @@ let customerData = {};
 /**
  * Set up Stripe Elements
  */
-const STRIPE_PUBLISHABLE_KEY = 'pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W';
 
 
 export const UserContext = createContext({});
@@ -190,28 +189,6 @@ const signInWithAdminGoogle = () => {
       setLoading(false);
     }
   };
-
-  // const signInWithGuest = () => {
-  //   setLoading(true);
-  //   setError("");
-  
-  // //   signInAnonymously(auth)
-  // // .then(() => {
-  // //   // Signed in..
-  // // })
-  // // .catch((error) => {
-  // //   const errorCode = error.code;
-  // //   const errorMessage = error.message;
-  // //   // ...
-  // // });
-
-  //   signInAnonymously(auth)
-  //   .then(updateProfile(auth.currentUser, {
-  //     displayName: 'guest',
-  //   }))
-  //   .catch((err) => setError(err.code))
-  //   .finally(() => setLoading(false));
-  // }
 
   const emailVerification = () => {
     setError("");

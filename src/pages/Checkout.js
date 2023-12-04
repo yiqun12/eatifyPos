@@ -61,13 +61,13 @@ const App = () => {
   const isTooSmall = cardidth <= 270;
 
   //fetch data from local stroage products.
-  const [totalPrice, setTotalPrice] = useState(products?.length ? products.reduce((acc, item) =>parseFloat( acc) + (parseFloat(item?.itemTotalPrice) || 0), 0) : 0);
+  const [totalPrice, setTotalPrice] = useState(products?.length ? products.reduce((acc, item) => parseFloat(acc) + (parseFloat(item?.itemTotalPrice) || 0), 0) : 0);
 
 
   useEffect(() => {
     //maybe add a line here...
     const calculateTotalPrice = () => {
-      const total = products?.length ? products.reduce((acc, item) => parseFloat(acc) + ( parseFloat(item?.itemTotalPrice) || 0), 0) : 0
+      const total = products?.length ? products.reduce((acc, item) => parseFloat(acc) + (parseFloat(item?.itemTotalPrice) || 0), 0) : 0
       //console.log(total)
       //console.log(products)
       setTotalPrice(total);
@@ -149,16 +149,14 @@ const App = () => {
                 {/* <Checkout totalPrice={totalPrice} /> */}
               </div>
               :
-              <div>
+              <React.Fragment>
                 <div className="col" >
                   <Item products={products} totalPrice={totalPrice} selectedTip={selectedTip} tips={tips} setSelectedTip={setSelectedTip} calculateTip={calculateTip} />
-                  {/* <Item products={products} totalPrice={totalPrice} /> */}
                 </div>
                 <div className="col no-gutters" style={{ height: "100%" }} >
                   <Checkout totalPrice={totalPrice} tips={tips} calculateTip={calculateTip} />
-                  {/* <Checkout totalPrice={totalPrice} /> */}
                 </div>
-              </div>
+              </React.Fragment>
             }
 
           </div>
@@ -296,7 +294,7 @@ const Item = (props) => {
                 <div className="row d-flex ">
                   <p className='m-0 pb-0'>
                     <b class="notranslate">
-                    {sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
                     </b>
 
                   </p>
@@ -335,7 +333,7 @@ const Item = (props) => {
           </div>
           <div className="row">
             <div className="col" style={{ marginBottom: "5px" }}>
-              <b> {t("Tips")}:</b>
+              <b> {t("Gratuity")}:</b>
             </div>
 
             {/* for the buttons arrangement */}
@@ -350,7 +348,7 @@ const Item = (props) => {
               {showInput && <input
                 type="tel"
                 min="0"
-                className={`tips ${selectedTip?.type === "other" ? 'border border-solid border-black' : ''}`}
+                className={`Gratuity ${selectedTip?.type === "other" ? 'border border-solid border-black' : ''}`}
                 placeholder={t("Other")}
                 value={(parseFloat(selectedTip?.value || 0)).toFixed(2)}
                 onChange={e => {
@@ -361,38 +359,6 @@ const Item = (props) => {
                 }}
                 style={{ textAlign: 'center', width: '20%' }}
               />}
-              {/* <Button type="other" value="5">Other</Button>
-        <input 
-          type="number"
-          min="0"
-          className={`btn ${selectedTip.type === "other" ? 'border border-solid border-black' : ''}`}
-          placeholder="Other" 
-          onChange={e => {
-            // setOtherValue(e.target.value);
-            setSelectedTip({type: "other", value: e.target.value});
-          }}
-          onClick={e => {
-            // setOtherValue(e.target.value);
-            setSelectedTip({type: "other", value: e.target.value});
-          }}
-          style={{textAlign: 'center'}}
-        /> */}
-
-
-              {/* For demonstration, added a fixed value button */}
-
-              {/* <button className="btn border border-solid border-black">
-        15%
-      </button>
-      <button className="btn">
-        18%
-      </button>
-      <button className="btn">
-        20%
-      </button>
-      <button className="btn">
-        other
-      </button> */}
             </div>
 
             <div className="col d-flex justify-content-end">

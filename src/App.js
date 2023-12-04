@@ -55,7 +55,6 @@ import PaymentComponent2 from "./pages/PaymentComponent2";
 import BusinessHoursTestPage from "./pages/BusinessHoursTestPage.js";
 
 import Test_Notification_Page from "./pages/Test_Notification_Page.js";
-import Temp from "./pages/temp.js";
 
 // import Droppable from "./pages/droppable.js";
 //import Split_Payment from "./pages/Split_Payment";
@@ -159,8 +158,6 @@ function App() {
 
 
               <Route exact path="dnd" element={<Dnd_Test/>} />
-
-              <Route exact path="temp" element={<Temp/>} />
 
               {/* <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage/>}/> */}
 

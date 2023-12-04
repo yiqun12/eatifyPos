@@ -324,7 +324,7 @@ const Food = ({ store }) => {
 
   const handleSearchChange = (event) => {
     setInput(event.target.value);
-    if (sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中")) {
+    if (sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中")) {
       filterCHI(event.target.value);
 
     } else {
