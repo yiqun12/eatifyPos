@@ -135,9 +135,9 @@ const Navbar = () => {
     const shoppingCart = document.querySelector('.shopping-cart');
 
     if (shoppingCart && shoppingCart.style) {
-        shoppingCart.style.height = `${height}px`;
+      shoppingCart.style.height = `${height}px`;
     }
-        //maybe add a line here...
+    //maybe add a line here...
     const calculateTotalPrice = () => {
       const total = products?.reduce((acc, item) => item && parseFloat(item.itemTotalPrice) ? parseFloat(acc) + parseFloat(item.itemTotalPrice) : parseFloat(acc), 0);
       //console.log(total)
@@ -155,12 +155,12 @@ const Navbar = () => {
     sessionStorage.setItem(store, JSON.stringify(products));
   }, [products, width]);
 
-  const handleDeleteClick = (productId,count) => {
+  const handleDeleteClick = (productId, count) => {
     setProducts((prevProducts) => {
       return prevProducts.filter((product) => product.count !== count);
     });
   }
-  
+
 
   const handlePlusClick = (productId, targetCount) => {
     setProducts((prevProducts) => {
@@ -168,7 +168,7 @@ const Navbar = () => {
         if (product.id === productId && product.count === targetCount) {
           return {
             ...product,
-            itemTotalPrice:Math.round(100 *  product.itemTotalPrice/(product.quantity)*(Math.min(product.quantity + 1, 99)) ) / 100,
+            itemTotalPrice: Math.round(100 * product.itemTotalPrice / (product.quantity) * (Math.min(product.quantity + 1, 99))) / 100,
             quantity: Math.min(product.quantity + 1, 99),
           };
         }
@@ -176,8 +176,8 @@ const Navbar = () => {
       });
     });
   };
-  
-  const handleMinusClick = (productId,targetCount) => {
+
+  const handleMinusClick = (productId, targetCount) => {
     setProducts((prevProducts) => {
       return prevProducts.map((product) => {
         if (product.id === productId && product.count === targetCount) {
@@ -185,7 +185,7 @@ const Navbar = () => {
           return {
             ...product,
             quantity: Math.max(product.quantity - 1, 1),
-            itemTotalPrice:Math.round(100 *  product.itemTotalPrice/(product.quantity)*(Math.max(product.quantity - 1, 1)) ) / 100,
+            itemTotalPrice: Math.round(100 * product.itemTotalPrice / (product.quantity) * (Math.max(product.quantity - 1, 1))) / 100,
           };
         }
         return product;
@@ -198,7 +198,7 @@ const Navbar = () => {
   const btnRef = useRef(null);
   const spanRef = useRef(null);
   const openModal = () => {
-    setProducts(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : [])
+    setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
     modalRef.current.style.display = 'block';
     // Retrieve the array from local storage
   };
@@ -206,6 +206,8 @@ const Navbar = () => {
   const closeModal = () => {
     //console.log(products)
     modalRef.current.style.display = 'none';
+    setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
+
   };
 
   useEffect(() => {
@@ -233,7 +235,7 @@ const Navbar = () => {
   const tableValue = queryParams.get('table'); // should give "A3"
   if (!sessionStorage.getItem(storeValue)) {
     sessionStorage.setItem(storeValue, JSON.stringify([]));
-}
+  }
   //console.log(storeValue)
   //console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
@@ -264,19 +266,19 @@ const Navbar = () => {
       return text
     }
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")])
-  if(sessionStorage.getItem("Google-language")&& sessionStorage.getItem("Google-language") !== null){
-  }else{
+  if (sessionStorage.getItem("Google-language") && sessionStorage.getItem("Google-language") !== null) {
+  } else {
     sessionStorage.setItem("Google-language", "Select Language");
   }
-  
+
   // the below code checks for language option changes with the google translate widget
-  $(document).ready(function() {
+  $(document).ready(function () {
     function listenToTranslateWidget() {
       if ($('.goog-te-combo').length) {
-        $('.goog-te-combo').on('change', function() {
+        $('.goog-te-combo').on('change', function () {
           let language = $("select.goog-te-combo option:selected").text();
           console.log(language);
-          if(sessionStorage.getItem("Google-language")&& sessionStorage.getItem("Google-language") !== null &&language!==sessionStorage.getItem("Google-language")){
+          if (sessionStorage.getItem("Google-language") && sessionStorage.getItem("Google-language") !== null && language !== sessionStorage.getItem("Google-language")) {
             sessionStorage.setItem("Google-language", language);
             saveId(Math.random());  // generate a new id here
           }
@@ -287,16 +289,40 @@ const Navbar = () => {
         setTimeout(listenToTranslateWidget, 1000); // Try again in 1 second
       }
     }
-  
+
     listenToTranslateWidget();
   });
-  
-  if (location.pathname.includes('/testing_food')){
+
+  if (location.pathname.includes('/testing_food')) {
     return (<div></div>)
   }
 
+  function groupAndSumItems(items) {
+    const groupedItems = {};
+
+    items.forEach(item => {
+      // Create a unique key based on id and JSON stringified attributes
+      const key = `${item.id}-${JSON.stringify(item.attributeSelected)}`;
+
+      if (!groupedItems[key]) {
+        // If this is the first item of its kind, clone it (to avoid modifying the original item)
+        groupedItems[key] = { ...item };
+      } else {
+        // If this item already exists, sum up the quantity and itemTotalPrice
+        groupedItems[key].quantity += item.quantity;
+        groupedItems[key].itemTotalPrice += item.itemTotalPrice;
+        // The count remains from the first item
+      }
+    });
+
+    // Convert the grouped items object back to an array
+    return Object.values(groupedItems);
+  }
+
+
+
   return (
-    
+
     <div>
       {(location.pathname.includes('/store') || location.pathname.includes('/checkout')) && (
         <a className="float">
@@ -333,23 +359,19 @@ const Navbar = () => {
                       <i style={{ fontSize: "35px" }} className="material-icons nav__icon">shopping_cart_checkout</i>
                       <span >&nbsp;{t("Your cart is currently empty.")}</span>
                     </span>
-
-
                   </div>
                 </div>
                 :
-                <div>
-                  <button
-                    style={{ width: "80%", border: "0px", margin: "auto" }}
-                    class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
-                    onClick={HandleCheckout_local_stripe}>
+                <button
+                  style={{ width: "80%", border: "0px", margin: "auto" }}
+                  class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
+                  onClick={HandleCheckout_local_stripe}>
 
-                    <span class="text-left">
-                      <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                      {t("Checkout")} </span>
-                    <span class="text-right notranslate"> ${Math.round(100 * totalPrice) / 100 } </span>
-                  </button>
-                </div>
+                  <span class="text-left">
+                    <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
+                    {t("Checkout")} </span>
+                  <span class="text-right notranslate"> ${Math.round(100 * totalPrice) / 100} </span>
+                </button>
               }
             </div>
           </div>
@@ -365,7 +387,7 @@ const Navbar = () => {
                 <div className="buttons">
                   <DeleteSvg className="delete-btn"
                     onClick={() => {
-                      handleDeleteClick(product.id,product.count)
+                      handleDeleteClick(product.id, product.count)
                     }}></DeleteSvg>
                   {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
                 </div>
@@ -383,10 +405,10 @@ const Navbar = () => {
 
                     <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
                       <div class='notranslate' style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>
-                      <span class="notranslate">
-                      {sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? t(product.CHI) : (product.name)}
-                      </span>
-                        </div>
+                        <span class="notranslate">
+                          {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product.CHI) : (product.name)}
+                        </span>
+                      </div>
 
                       <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
 
@@ -397,7 +419,7 @@ const Navbar = () => {
                   <div className="quantity p-0"
                     style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
                     <div>
-                    <div>${product.itemTotalPrice}</div>
+                      <div>${product.itemTotalPrice}</div>
 
                     </div>
                     {/* the add minus box set up */}
@@ -408,9 +430,9 @@ const Navbar = () => {
                         <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                           onClick={() => {
                             if (product.quantity === 1) {
-                              handleDeleteClick(product.id,product.count);
+                              handleDeleteClick(product.id, product.count);
                             } else {
-                              handleMinusClick(product.id,product.count)
+                              handleMinusClick(product.id, product.count)
                               //handleMinusClick(product.id);
                             }
                           }}>
@@ -421,7 +443,7 @@ const Navbar = () => {
 
                       { /* start of the quantity number */}
                       <span
-                      class="notranslate"
+                        class="notranslate"
                         type="text"
                         style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
                       >{product.quantity}</span>
@@ -431,7 +453,7 @@ const Navbar = () => {
                       <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
                         <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                           onClick={() => {
-                            handlePlusClick(product.id,product.count)
+                            handlePlusClick(product.id, product.count)
                           }}>
                           <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
                         </button>

@@ -814,82 +814,7 @@ const Account = () => {
   }, []);
 
   // passes in the data for the notification child and updates as the value changes (this is to be loaded in as data from cloud)
-  const [notificationData, setNotificationData] = useState([{
-    orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-    items: [{
-      "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-      "name": "肉眼牛排",
-      "subtotal": 1,
-      "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-      "quantity": 5,
-      "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-      "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-      "itemTotalPrice": 90,
-      "cancel": "true"
-    },
-    {
-      "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-      "name": "宫保鸡丁",
-      "subtotal": "1",
-      "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-      "quantity": 4,
-      "attributeSelected": { "size": ["big"] },
-      "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-      "itemTotalPrice": 8
-    }
-    ]
-  },
-  {
-    orderId: "2", date: "10/7/2023", amount: "300", Status: "Review",
-    items: [{
-      "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-      "name": "肉眼牛排",
-      "subtotal": 1,
-      "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-      "quantity": 5,
-      "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-      "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-      "itemTotalPrice": 90,
-      "cancel": "true"
-    },
-    {
-      "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-      "name": "宫保鸡丁",
-      "subtotal": "1",
-      "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-      "quantity": 4,
-      "attributeSelected": { "size": ["big"] },
-      "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-      "itemTotalPrice": 8
-    }
-    ]
-  },
-  {
-    orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid",
-    items: [{
-      "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-      "name": "肉眼牛排",
-      "subtotal": 1,
-      "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-      "quantity": 5,
-      "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-      "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-      "itemTotalPrice": 90,
-      "cancel": "true"
-    },
-    {
-      "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-      "name": "宫保鸡丁",
-      "subtotal": "1",
-      "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-      "quantity": 4,
-      "attributeSelected": { "size": ["big"] },
-      "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-      "itemTotalPrice": 8
-    }
-    ]
-  }
-  ]);
+  const [notificationData, setNotificationData] = useState([]);
 
   // lifting the variable of # under review from the Test_notication_Page component lists
   const [numberReviewVariable, setNumberReviewVariable] = useState(notificationData ? notificationData.filter(item => item.Status === "Review").length : 0);
@@ -903,6 +828,270 @@ const Account = () => {
 
   useEffect(() => {
     setNotificationData([{
+      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },{
+      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },{
+      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },{
+      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },{
+      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },{
+      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },{
+      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },{
+      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },{
+      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },{
+      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },{
+      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
+      items: [{
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "name": "肉眼牛排",
+        "subtotal": 1,
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "quantity": 5,
+        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
+        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
+        "itemTotalPrice": 90,
+        "cancel": "true"
+      },
+      {
+        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
+        "name": "宫保鸡丁",
+        "subtotal": "1",
+        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
+        "quantity": 4,
+        "attributeSelected": { "size": ["big"] },
+        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
+        "itemTotalPrice": 8
+      }
+      ]
+    },{
       orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
       items: [{
         "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
@@ -979,6 +1168,7 @@ const Account = () => {
     }
     ]);
   }, [storeID])
+
   const [isVisible, setIsVisible] = useState(true);
 
   const toggleVisibility = () => {

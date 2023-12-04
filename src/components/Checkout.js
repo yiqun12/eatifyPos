@@ -92,7 +92,7 @@ function Checkout(props) {
       receipt: sessionStorage.getItem(store),
       dateTime: date,
       user_email: user.email,
-      uid:user.uid,
+      uid: user.uid,
       isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
       tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
     };
@@ -160,7 +160,7 @@ function Checkout(props) {
         receipt: sessionStorage.getItem(store),
         dateTime: date,
         user_email: user.email,
-        uid:user.uid,
+        uid: user.uid,
         isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
         tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
       };
@@ -332,7 +332,7 @@ function Checkout(props) {
             receipt: sessionStorage.getItem(store),
             dateTime: date,
             user_email: user.email,
-            uid:user.uid,
+            uid: user.uid,
             isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
             tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
           };
@@ -611,7 +611,7 @@ function CardSection(props) {
       receipt: sessionStorage.getItem(store),
       dateTime: date,
       user_email: user.email,
-      uid:user.uid,
+      uid: user.uid,
       isDinein: sessionStorage.getItem('isDinein') === 'true' ? 'DineIn' : 'TakeOut',
       saveCard: saveCard, // Include the saveCard value in the data
       tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
@@ -817,7 +817,7 @@ function PayHistory(props) {
       receipt: sessionStorage.getItem(store),
       dateTime: date,
       user_email: user.email,
-      uid:user.uid,
+      uid: user.uid,
       isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
       tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
     };
@@ -1085,25 +1085,23 @@ function PayHistory(props) {
   //determine whether the new long and lat fall within the circle's range.
 
   //This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in km)
-  function calcCrow(lat1, lon1, lat2, lon2) {
-    var R = 6371; // km
-    var dLat = toRad(lat2 - lat1);
-    var dLon = toRad(lon2 - lon1);
-    var lat1 = toRad(lat1);
-    var lat2 = toRad(lat2);
+  function isPointInBounds(point, bounds) {
+    const { lat, lng } = point;
+    const { northeast, southwest } = bounds;
 
-    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = R * c;
-    return d;
-  }
+    const isLatInRange = lat >= southwest.lat && lat <= northeast.lat;
+    const isLngInRange = lng >= southwest.lng && lng <= northeast.lng;
 
-  // Converts numeric degrees to radians
-  function toRad(Value) {
-    return Value * Math.PI / 180;
+    return isLatInRange && isLngInRange;
   }
-  const { sendVerificationCode, verifyCode } = useUserContext();
+  const bounds = {
+    northeast: { lat: 37.8011648, lng: -122.4114176 },
+    southwest: { lat: 37.7962271, lng: -122.4057551 }
+  };
+//   const myPoint = {
+//     lat: /* your latitude */,
+//     lng: /* your longitude */
+// };
 
   const [distanceStatus, setDistanceStatus] = useState(null); // 'near' or 'far'
 
@@ -1111,37 +1109,16 @@ function PayHistory(props) {
   //console.log(calcCrow(location.latitude,location.longitude,location.latitude,location.longitude).toFixed(1));
   function checkgeolocation() {
     getLocation().then((newLocation) => {
-      //1公里以内
-      console.log(calcCrow(newLocation.latitude, newLocation.longitude, newLocation.latitude, newLocation.longitude).toFixed(5) * 1000 < 1000)
-      if (calcCrow(newLocation.latitude, newLocation.longitude, newLocation.latitude, newLocation.longitude).toFixed(5) * 1000 <= 1000) {
+      if(isPointInBounds({lat:newLocation.latitude,lng:newLocation.longitude}, bounds)){
         setDistanceStatus('near');
-
-      } else {
-        setDistanceStatus('far');
-      };
+      }else{
+        setDistanceStatus('near');
+        //setDistanceStatus('far');
+      }
     });
   }
 
   const inputs = useRef([]);
-  const [errorMessage, setErrorMessage] = useState('');
-
-  const handleKeyUp = (event, index) => {
-    const key = event.keyCode || event.charCode;
-
-    if (inputs.current[index].value.length === inputs.current[index].size && key !== 32) {
-      if (index < inputs.current.length - 1) {
-        inputs.current[index + 1].focus();
-      }
-    }
-
-    if (key === 8 || key === 47) {
-      if (index !== 0) {
-        inputs.current[index - 1].value = '';
-        inputs.current[index - 1].focus();
-      }
-    }
-  };
-
   const isMobileOrTablet = useMobileAndTabletCheck();
 
 
@@ -1179,31 +1156,25 @@ function PayHistory(props) {
 
             {t("Place Order, Pay Later")}
           </button>
-          
+
             : <div>
             </div>}
         </div>
-        <button onClick={() => {
-            checkgeolocation();
-          }}>
+        {/* <button onClick={() => {
+          checkgeolocation();
+        }}>
 
-            {t("Place Order, Pay Later")}
-          </button>
+          {t("Place Order, Pay Later")}
+        </button> */}
       </div>
       {location ? (
         distanceStatus === 'near' ? (
           <div>
-            <button
-              class="mt-3 text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
-              style={{ "borderRadius": "0.2rem", width: "100%" }}
-            >
-              {t("Confirm Order")}
-            </button>
-
+            <p>{t("Remember to notify the store when placing this order.")}</p>
           </div>
         ) : (
           <div>
-            <p>{t("You are too far from our store")}</p>
+            <p>{t("Order placement is not possible as your location is too distant from our store.")}</p>
           </div>
         )
       ) : (
