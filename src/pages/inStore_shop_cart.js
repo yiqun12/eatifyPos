@@ -600,11 +600,11 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     },
     closeBtnStyle: {
       position: 'absolute',
-      right: '10px',
-      top: '10px',
+      right: '30px',
+      top: '0',
       background: 'none',
       border: 'none',
-      fontSize: '24px',
+      fontSize: '48px',
       cursor: 'pointer',
     },
     inputStyle: {
@@ -635,7 +635,15 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
   const isPC = width >= 1024;
 
 
+  // these dndTestKey allows the dnd_test to reset by switching to a different key
+  const [dndTestKey, setDndTestKey] = useState(0); // initial key set to 0
 
+  const resetDndTest = () => {
+    setDndTestKey(prevKey => prevKey + 1); // increment key to force re-render
+  };
+
+
+  // console.log("Products from instroe_shop_cart", products)
   return (
 
     <div>
@@ -976,11 +984,13 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
               <div
                 className="modal-dialog"
                 role="document"
-                style={{ maxWidth: '80%', width: '80%', margin: '0 auto' }}
+                style={{ maxWidth: '90%', width: '90%', height: "90%", margin: '0 auto' }}
               >
                 <div className="modal-content">
                   <div className="modal-header">
-                    <h5 className="modal-title">Split Payment:</h5>
+                  <Button variant="danger" style={{ marginTop: "auto" }} onClick={resetDndTest}>
+                       Reset
+                    </Button>
                     <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setSplitPaymentModalOpen(false); }}>
                       &times;
                     </button>
@@ -989,7 +999,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                     className="modal-body pt-0"
                     style={{ overflowX: 'auto', maxWidth: '100%' }}
                   >
-                    <Dnd_Test main_input={products} />
+                    <Dnd_Test key={dndTestKey} main_input={products} />
                   </div>
                   <div className="modal-footer">
                   </div>

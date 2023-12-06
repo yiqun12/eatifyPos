@@ -274,7 +274,8 @@ function Test_Notification_Page({ reviewVar, setReviewVar, sortedData, setSorted
                 </React.Fragment>
               ))}
             </tbody>
-          </table>
+            </table>
+
         </div>
         {sortedData.length <= 1
           ?
