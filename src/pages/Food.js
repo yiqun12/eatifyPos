@@ -195,7 +195,6 @@ const Food = () => {
         setFoodTypesCHI([...new Set(JSON.parse(docData.key).map(item => item.categoryCHI))])
         console.log(JSON.parse(docData.key))
         console.log([...new Set(JSON.parse(docData.key).map(item => item.category))])
-        //const foodTypes = [...new Set(JSON.parse(sessionStorage.getItem("Food_arrays")).map(item => item.category))];
 
         // Check if the stored item is empty or non-existent, and handle it
         if (!sessionStorage.getItem("Food_arrays") || sessionStorage.getItem("Food_arrays") === "") {
@@ -301,8 +300,6 @@ const Food = () => {
 
   /**drop food */
 
-  //const data = JSON.parse(sessionStorage.getItem("Food_arrays"))
-
   const [foods, setFoods] = useState([]);
   const [selectedFoodType, setSelectedFoodType] = useState(null);
 
@@ -379,7 +376,7 @@ const Food = () => {
       product.CHI = CHI
     } else {
       // If the product doesn't exist, add it to the array
-      products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: subtotal, CHI: CHI });
+      products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: parseFloat(subtotal), CHI: CHI });
     }
 
     // Update the array in local storage
@@ -466,8 +463,6 @@ const Food = () => {
       return text;
     };
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
-  //const foodTypes = ['burger', 'pizza', 'salad', 'chicken'];
-  //const foodTypes = [...new Set(JSON.parse(sessionStorage.getItem("Food_arrays")).map(item => item.category))];
 
   // for businessHours
   // getting today's date

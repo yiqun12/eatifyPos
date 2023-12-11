@@ -48,8 +48,8 @@ export const UserContextProvider = ({ children }) => {
         const {uid, displayName, email,storelist} = firebaseUser;
         const filteredProperties = Object.assign({}, {uid}, {displayName}, {email});
         if(filteredProperties.uid!=null&&filteredProperties.displayName==null&&email==null){
-          filteredProperties.displayName = "Anonymous"
-          filteredProperties.email = "Anonymous@Yumcha.App"
+          filteredProperties.displayName = "Guest"
+          filteredProperties.email = "Guest@Yumcha.App"
         }
         setUser(filteredProperties);
         currentUser = firebaseUser;

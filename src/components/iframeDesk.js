@@ -15,6 +15,7 @@ import InStore_food from '../pages/inStore_food'
 import InStore_shop_cart from '../pages/inStore_shop_cart'
 import { useUserContext } from "../context/userContext";
 import Dnd_Test from '../pages/dnd_test';
+import { onSnapshot, query } from 'firebase/firestore';
 
 
 // Create a CSS class to hide overflow
@@ -56,6 +57,10 @@ function App({ store, acct }) {
     const [divWidth, setDivWidth] = useState(0);
     const divRef = useRef();
 
+    const [documents, setDocuments] = useState([]);
+
+
+    
     useEffect(() => {
         const resizeObserver = new ResizeObserver(entries => {
             // Assuming you are observing only one element
@@ -391,6 +396,46 @@ function App({ store, acct }) {
 
     const [view, setView] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
+
+    function clearDemoLocalStorage() {
+        // Get all keys in localStorage
+        const keys = Object.keys(localStorage);
+    
+        // Loop through the keys
+        for (let key of keys) {
+            // Check if the key includes 'demo'
+            if (key.includes(store+"-")) {
+                // Remove the item from localStorage
+                localStorage.removeItem(key);
+            }
+        }
+    }
+    
+    useEffect(() => {
+        // Ensure the user is defined
+        if (!user || !user.uid) return;
+  
+        const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table");
+  
+        // Listen for changes in the collection
+        const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+            const docs = [];
+            clearDemoLocalStorage()
+            snapshot.forEach((doc) => {
+                docs.push({ id: doc.id, ...doc.data() });
+                localStorage.setItem(doc.id, doc.data().product);
+            });
+            console.log("docs");
+            console.log(docs);
+            setDocuments(docs);
+        }, (error) => {
+            // Handle any errors
+            console.error("Error getting documents:", error);
+        });
+  
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+    }, []); // Dependencies for useEffect
 
     return (
 

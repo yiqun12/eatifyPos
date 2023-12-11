@@ -781,7 +781,8 @@ function PayHistory(props) {
   const { totalPrice, tips } = props;
 
   let stripe; // Declare stripe variable outside of your function
-
+  
+  //pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W
   const STRIPE_PUBLISHABLE_KEY = 'pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W';
 
   loadStripe(STRIPE_PUBLISHABLE_KEY, {
@@ -1098,10 +1099,10 @@ function PayHistory(props) {
     northeast: { lat: 37.8011648, lng: -122.4114176 },
     southwest: { lat: 37.7962271, lng: -122.4057551 }
   };
-//   const myPoint = {
-//     lat: /* your latitude */,
-//     lng: /* your longitude */
-// };
+  //   const myPoint = {
+  //     lat: /* your latitude */,
+  //     lng: /* your longitude */
+  // };
 
   const [distanceStatus, setDistanceStatus] = useState(null); // 'near' or 'far'
 
@@ -1109,14 +1110,44 @@ function PayHistory(props) {
   //console.log(calcCrow(location.latitude,location.longitude,location.latitude,location.longitude).toFixed(1));
   function checkgeolocation() {
     getLocation().then((newLocation) => {
-      if(isPointInBounds({lat:newLocation.latitude,lng:newLocation.longitude}, bounds)){
+      if (isPointInBounds({ lat: newLocation.latitude, lng: newLocation.longitude }, bounds)) {
         setDistanceStatus('near');
-      }else{
+
+      } else {
         setDistanceStatus('near');
         //setDistanceStatus('far');
       }
     });
   }
+
+  const PendingDineInOrder = async (table,name) => {
+    try {
+      // Create a reference to the Cloud Function
+      const myFunction = firebase.functions().httpsCallable('PendingDineInOrder');
+
+      // Call the function with the provided data
+      const data = {
+        store: store,
+        stripe_account_store_owner: JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).storeOwnerId,
+        items: products,
+        amount: "0", //NO USE
+        status: "Review", //NO USE
+        table:table,
+        username:name,
+      }
+      const result = await myFunction(data);
+
+      // Process the result as needed
+      console.log('Order processed:', result);
+      return result;
+    } catch (error) {
+      console.error('Error while processing order:', error);
+      // Handle the error appropriately
+      // You might want to return an error message or rethrow the error
+      throw error;
+    }
+  };
+
 
   const inputs = useRef([]);
   const isMobileOrTablet = useMobileAndTabletCheck();
@@ -1160,12 +1191,18 @@ function PayHistory(props) {
             : <div>
             </div>}
         </div>
-        {/* <button onClick={() => {
+
+
+/*temporary use*/
+        <button onClick={() => {
           checkgeolocation();
+          PendingDineInOrder(sessionStorage.getItem('table'),user.displayName)
         }}>
 
           {t("Place Order, Pay Later")}
-        </button> */}
+        </button>
+
+
       </div>
       {location ? (
         distanceStatus === 'near' ? (

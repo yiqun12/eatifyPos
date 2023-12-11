@@ -94,7 +94,7 @@ function Dnd_Test(props) {
   const [end_container, setEnd_Container] = useState("")
 
   const [end_index, setEnd_Index] = useState("")
-  
+
 
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -148,7 +148,7 @@ function Dnd_Test(props) {
   };
 
   function handleDragStart(event) {
-    
+
     const activeId = event.active.id;
     console.log("start")
     console.log("activeid: ", event.active)
@@ -291,7 +291,7 @@ function Dnd_Test(props) {
     if (prev_container !== overContainer) {
       // opens the modal and lets the user input data
       // setEnd_Container(overContainer)
-      
+
       // change the dirty to true because something is modified
       setDirty(true)
 
@@ -369,10 +369,10 @@ function Dnd_Test(props) {
         ...prevItems,
         [newGroupName]: createData_group(main_input.length, main_input),
         // [newGroupName]: [],
-  
+
       }));
     }
-    
+
     if (dirty === true) {
       setItems((prevItems) => ({
         ...prevItems,
@@ -382,12 +382,12 @@ function Dnd_Test(props) {
       }));
     }
     // console.log(items)
-    
+
     // Increment numberOfGroups by 1
     if (dirty === false) {
       setNumberOfGroups(numberOfGroups + 1);
     }
-    
+
   }
 
   // const calculateNextGroupNumber = () => {
@@ -454,7 +454,7 @@ function Dnd_Test(props) {
       }, []);
 
       updatedItemGroups["group0"] = combinedMainItems;
-  }
+    }
 
     // Delete the group (except for "main")
     delete updatedItemGroups[groupIdToDelete];
@@ -476,7 +476,7 @@ function Dnd_Test(props) {
         delete updatedItemGroups[groupKey];
       }
     });
-    
+
     // Decrement the numberOfGroups by 1
     if (dirty === false) {
       setNumberOfGroups(numberOfGroups - 1);
@@ -513,7 +513,7 @@ function Dnd_Test(props) {
 
   const containerItems = useMemo(() => {
     return Object.keys(items).map((key) => (
-      <Container key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} numberOfGroups={numberOfGroups} dirty={dirty} activeId={activeId}/>
+      <Container store={props.store} acct = {props.acct} selectedTable={props.selectedTable} key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} numberOfGroups={numberOfGroups} dirty={dirty} activeId={activeId} />
     ));
   }, [items, handleDelete, checkout]);
 
@@ -597,7 +597,7 @@ function Dnd_Test(props) {
         return Object.keys(obj).reduce((acc, key) => {
           const value = obj[key];
           const currentKey = prefix ? `${prefix} ${key}` : key;
-  
+
           if (Array.isArray(value)) {
             // If the value is an array, join its elements and add to the result
             const flattenedArray = value.join(" ");
@@ -611,10 +611,10 @@ function Dnd_Test(props) {
           }
         }, "");
       }
-  
+
       return flattenObject(attributes).trim();
     }
-  
+
     function generateAttributes(attributes) {
       const attributeString = flattenAttributes(attributes);
       if (attributeString === "") {
@@ -625,7 +625,7 @@ function Dnd_Test(props) {
         );
       }
     }
-  
+
     return (
       <div className="w-full flex flex-col gap-4 rounded-md bg-white p-4 border-1 border-gray-800">
         {/* <p className="font-bold text-2xl">{heading}</p>
@@ -637,8 +637,8 @@ function Dnd_Test(props) {
       </div>
     );
   }
-  
-  
+
+
   function SortableItem(props) {
     const { id, item, numberOfGroups } = props;
     const {
@@ -648,7 +648,7 @@ function Dnd_Test(props) {
       transform,
       transition
     } = useSortable({ id });
-  
+
     const style = {
       transform: transform
         ? `translate3d(${transform.x}px, ${Math.round(
@@ -657,11 +657,11 @@ function Dnd_Test(props) {
         : "",
       transition
     };
-  
+
     // console.log("sortableItem: ", whole_item_groups)
     return (
       <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <Item id={id} item={item}  numberOfGroups={numberOfGroups}/>
+        <Item id={id} item={item} numberOfGroups={numberOfGroups} />
       </div>
     );
   }
@@ -678,135 +678,135 @@ function Dnd_Test(props) {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
-        // autoScroll={false}
-        // autoScroll={{
-        //   enabled: true,
-        //   threshold: {
-        //     x: 0.2,
-        //     y: 0.2,
-        //   },
-        //   speed: {
-        //     x: 20,
-        //     y: 10,
-        //   },
-        // }}
+      // autoScroll={false}
+      // autoScroll={{
+      //   enabled: true,
+      //   threshold: {
+      //     x: 0.2,
+      //     y: 0.2,
+      //   },
+      //   speed: {
+      //     x: 20,
+      //     y: 10,
+      //   },
+      // }}
       >
         {/* <div style={{width:"100%" ,overflowX:"auto", }}> */}
         {containerItems}
         {/* </div> */}
-      
 
-      {/* Add the Bootstrap button */}
-      <Button variant="primary" onClick={addEmptyGroup}>
-        <FontAwesomeIcon icon={faPlus} size="2x" />
-      </Button>
 
-      {/* Modal component */}
-      {showModal && (
-        <div
-          id="Modal"
-          className="modal fade show"
-          role="dialog"
-          style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
-        >
-          <div className="modal-dialog modal-lg" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Select Quantity</h5>
-              </div>
-              <div className="modal-body">
-                {/* start of quantity (quantity = quantity text + buttons div) */}
-                <div className="quantity p-0"
-                  style={{ marginRight: "0px", display: "flex", justifyContent: "center" }}>
-                  {/* <div>
+        {/* Add the Bootstrap button */}
+        <Button variant="primary" onClick={addEmptyGroup}>
+          <FontAwesomeIcon icon={faPlus} size="2x" />
+        </Button>
+
+        {/* Modal component */}
+        {showModal && (
+          <div
+            id="Modal"
+            className="modal fade show"
+            role="dialog"
+            style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+          >
+            <div className="modal-dialog modal-lg" role="document">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Select Quantity</h5>
+                </div>
+                <div className="modal-body">
+                  {/* start of quantity (quantity = quantity text + buttons div) */}
+                  <div className="quantity p-0"
+                    style={{ marginRight: "0px", display: "flex", justifyContent: "center" }}>
+                    {/* <div>
                     <div>${quantity}</div>
 
                   </div> */}
-                  {/* the add minus box set up */}
-                  <div style={{ display: "flex" }}>
+                    {/* the add minus box set up */}
+                    <div style={{ display: "flex" }}>
 
-                  { /* start of the divide by 2 button */}
-                    <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
-                      <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                        onClick={() => {
-                          handlePlusClick()
-                          // console.log("add 1 item")
-                        }}>
-                        <MinusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
-                      </button>
+                      { /* start of the divide by 2 button */}
+                      <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
+                        <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                          onClick={() => {
+                            handlePlusClick()
+                            // console.log("add 1 item")
+                          }}>
+                          <MinusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
+                        </button>
+                      </div>
+                      { /* end of the divide by 2 button */}
+
+
+                      {/* the start of minus button set up */}
+                      <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
+                        <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                          onClick={() => {
+                            console.log("delete 1 item")
+                            handleMinusClick()
+                          }}>
+                          <MinusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
+                        </button>
+                      </div>
+                      {/* the end of minus button set up */}
+
+                      { /* start of the quantity number */}
+                      <span
+                        class="notranslate"
+                        type="text"
+                        style={{ width: '90px', height: '90px', fontSize: '51px', alignItems: 'center', justifyContent: 'center', display: "flex", padding: '0px' }}
+                      >{quantity}</span>
+                      { /* end of the quantity number */}
+
+                      { /* start of the add button */}
+                      <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
+                        <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                          onClick={() => {
+                            handlePlusClick()
+                            // console.log("add 1 item")
+                          }}>
+                          <PlusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
+                        </button>
+                      </div>
+                      { /* end of the add button */}
+
+                      { /* start of the multiply by 2 button */}
+                      <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
+                        <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                          onClick={() => {
+                            handlePlusClick()
+                            // console.log("add 1 item")
+                          }}>
+                          <PlusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
+                        </button>
+                      </div>
+                      { /* end of the multiply by 2 button */}
+
                     </div>
-                    { /* end of the divide by 2 button */}
-
-
-                    {/* the start of minus button set up */}
-                    <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
-                      <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                        onClick={() => {
-                          console.log("delete 1 item")
-                          handleMinusClick()
-                        }}>
-                        <MinusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
-                      </button>
-                    </div>
-                    {/* the end of minus button set up */}
-
-                    { /* start of the quantity number */}
-                    <span
-                      class="notranslate"
-                      type="text"
-                      style={{ width: '90px', height: '90px', fontSize: '51px', alignItems: 'center', justifyContent: 'center', display: "flex", padding: '0px' }}
-                    >{quantity}</span>
-                    { /* end of the quantity number */}
-
-                    { /* start of the add button */}
-                    <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
-                      <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                        onClick={() => {
-                          handlePlusClick()
-                          // console.log("add 1 item")
-                        }}>
-                        <PlusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
-                      </button>
-                    </div>
-                    { /* end of the add button */}
-
-                    { /* start of the multiply by 2 button */}
-                    <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
-                      <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                        onClick={() => {
-                          handlePlusClick()
-                          // console.log("add 1 item")
-                        }}>
-                        <PlusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
-                      </button>
-                    </div>
-                    { /* end of the multiply by 2 button */}
-
+                    { /* end of the add minus setup*/}
                   </div>
-                  { /* end of the add minus setup*/}
+
+                  {/* end of quantity */}
                 </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => handleCloseModal()}
+                  >
+                    confirm
+                  </button>
 
-                {/* end of quantity */}
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => handleCloseModal()}
-                >
-                  confirm
-                </button>
-
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-           
-      <DragOverlay>
-        {activeId && <SortableItem className="bordered" id={activeId} item={current_item.item} numberOfGroups={numberOfGroups}/>}
-      </DragOverlay>
-    
+        )}
+
+        <DragOverlay>
+          {activeId && <SortableItem className="bordered" id={activeId} item={current_item.item} numberOfGroups={numberOfGroups} />}
+        </DragOverlay>
+
       </DndContext>
       {/* </DndContext> */}
     </div>

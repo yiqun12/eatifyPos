@@ -36,10 +36,10 @@ const Food = () => {
       if (updatedSelectedAttributes[attributeName] === null) {
         updatedSelectedAttributes[attributeName] = variationType;
       }
-      if(updatedSelectedAttributes[attributeName] === variationType){
+      if (updatedSelectedAttributes[attributeName] === variationType) {
         delete updatedSelectedAttributes[attributeName];
 
-      }else{
+      } else {
         updatedSelectedAttributes[attributeName] = variationType;
       }
 
@@ -135,13 +135,13 @@ const Food = () => {
 
 
 
-    if (!sessionStorage.getItem(store)) {
-        // If 'abc' doesn't exist, set a default value
-        sessionStorage.setItem(store, '[]');
-    }
-    if (sessionStorage.getItem(store)===null) {
-      // If 'abc' doesn't exist, set a default value
-      sessionStorage.setItem(store, '[]');
+  if (!sessionStorage.getItem(store)) {
+    // If 'abc' doesn't exist, set a default value
+    sessionStorage.setItem(store, '[]');
+  }
+  if (sessionStorage.getItem(store) === null) {
+    // If 'abc' doesn't exist, set a default value
+    sessionStorage.setItem(store, '[]');
   }
   //console.log(user_loading)
   if (tableValue === "") {
@@ -320,7 +320,7 @@ const Food = () => {
 
   const handleInputChange = (event) => {
     setInput(event.target.value);
-    if (sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中")) {
+    if (sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中")) {
       filternameCHI(event.target.value);
 
     } else {
@@ -360,7 +360,7 @@ const Food = () => {
       product.CHI = CHI
     } else {
       // If the product doesn't exist, add it to the array
-      products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: subtotal,CHI:CHI });
+      products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: subtotal, CHI: CHI });
     }
 
     // Update the array in local storage
@@ -398,7 +398,7 @@ const Food = () => {
             $('#cart').attr("data-totalitems", total);
           }
           calculateTotalQuant();
-      
+
           saveId(Math.random());
           hideModal()
           return
@@ -625,10 +625,10 @@ const Food = () => {
                 </div>
                 <div className='p-4 pt-3'>
                   <div>
-                  <span class="notranslate">
+                    <span class="notranslate">
 
-                  {sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
-                  </span>
+                      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
+                    </span>
                   </div>
                   {Object.entries(selectedFoodItem?.attributesArr)?.map(([attributeName, attributeDetails]) => (
                     <div key={attributeName}>
@@ -762,7 +762,7 @@ const Food = () => {
                             <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                               onClick={() => {
                                 handleDropFood();
-                                addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count,selectedFoodItem.CHI );
+                                addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count, selectedFoodItem.CHI);
                                 //saveId(Math.random());
                               }}
                             >
@@ -806,9 +806,9 @@ const Food = () => {
                         <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                           <div className="col-span-4">
                             <div>{item?.CHI}</div>
-                          <span class="notranslate">
-{sessionStorage.getItem("Google-language")?.includes("Chinese")||sessionStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
-</span >
+                            <span class="notranslate">
+                              {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
+                            </span >
                           </div>
 
                           {/* parent div of the quantity and buttons */}

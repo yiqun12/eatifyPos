@@ -11,7 +11,8 @@ import moment from 'moment';
 import { useState, useEffect } from 'react';
 import { useMyHook } from '../pages/myHook';
 import { motion, AnimatePresence } from "framer-motion"
-
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/index';
 
 
 function PayFullhistory() {
@@ -57,33 +58,59 @@ function PayFullhistory() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('payments')
-      .orderBy("dateTime", "desc")
-      .onSnapshot((snapshot) => {
-        console.log('read card');
-        //setPayments(newItems);
-        const newPayments = [];
-        let payment;
-        snapshot.forEach((doc) => {
-          payment = doc.data();
+    setIsLoading(true); // Set loading to true when component mounts or dependencies change
+    const fetchCollectionAsMap = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'TitleLogoNameContent'));
+        const tempStoreMap = {};
 
-          if (payment.status === 'succeeded' || payment.status === 'instore_pay') {
-            console.log(doc.id)
-            payment.id = doc.id
-            console.log(payment)
-            newPayments.push(payment);
-          }
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          // Using the document ID as the key for the hash map
+          tempStoreMap[doc.id] = {
+            storeName: data.Name, 
+            storeNameCHI: data.storeNameCHI ,
+          };
         });
-        const newItems = []; // Declare an empty array to hold the new items
+        return tempStoreMap
+      } catch (error) {
+        return{}
+      }
+    };
+
+    const unsubscribe = firebase
+    .firestore()
+    .collection('stripe_customers')
+    .doc(user.uid)
+    .collection('payments')
+    .orderBy("dateTime", "desc")
+    .onSnapshot((snapshot) => {
+      console.log('read card');
+      //setPayments(newItems);
+      const newPayments = [];
+      let payment;
+      snapshot.forEach((doc) => {
+        payment = doc.data();
+
+        if (payment.status === 'succeeded') {
+          console.log(doc.id)
+          payment.id = doc.id
+          console.log(payment)
+          newPayments.push(payment);
+        }
+      });
+
+      const newItems = []; // Declare an empty array to hold the new items
+      fetchCollectionAsMap().then(tempStoreMap => {
+        console.log(tempStoreMap);
         newPayments.forEach((item) => {
           const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
             .subtract(4, "hours")
             .format("M/D/YYYY h:mma");
+        
           const newItem = {
+            storeName: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store)? tempStoreMap[payment.store].storeName : payment.store,
+            storeNameCHI: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store)? tempStoreMap[payment.store].storeNameCHI: payment.store,
             store: payment.store,
             id: item.id.substring(0, 4), // use only the first 4 characters of item.id as the value for the id property
             receiptData: item.receiptData,
@@ -99,9 +126,15 @@ function PayFullhistory() {
         });
         setPayments(newItems); // Update the state with the new payments
         setIsLoading(false); // Data has been loaded
-
+  
         console.log(newItems)
       });
+
+
+
+    });
+;
+    return () => unsubscribe(); // Cleanup the subscription on unmount
 
   }, []); // Make sure to update the dependencies array if you have other dependencies
 
@@ -154,8 +187,7 @@ function PayFullhistory() {
                               onClick={() => { window.location.href = `/store?store=${order.store}`; }}
                               style={{ cursor: 'pointer' }}
                             >
-
-                              <span>{order.store}</span>
+                              <span>{order.storeName}</span>
                             </p>
 
                           </div>
@@ -190,7 +222,7 @@ function PayFullhistory() {
                           <div style={{ paddingTop: "0px", paddingBottom: "10px" }}>
                             <div className="mt-1 flex justify-between mb-1">
                               <div className='text-black d-block text-sm font-semibold '>
-                                Order Id: {order.id.substring(0, 3)}
+                                Order Id: {order.id.substring(0, 4)}
                               </div>
 
 

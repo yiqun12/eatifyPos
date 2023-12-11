@@ -5,14 +5,17 @@ import { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import myImage from '../components/check-mark.png';  // Import the image
 
-const PaymentComponent = ({ setProducts,setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee }) => {
+const PaymentComponent = ({ setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee }) => {
+    // State to store the error message
+    const [error, setError] = useState(null);
+
 
   // the three variables we keep track of for payment
   var paymentIntentId;
   const { user, user_loading } = useUserContext();
 
   var simulation_mode;
-
+ 
   async function createPaymentIntent(amount, receipt_JSON) {
     console.log("createPaymentIntent");
 
@@ -35,9 +38,11 @@ const PaymentComponent = ({ setProducts,setIsPaymentClick, isPaymentClick, recei
 
     } catch (error) {
       console.error("There was an error with createPaymentIntent:", error.message);
+      setError("There was an error with createPaymentIntent:", error.message);
       throw error; // rethrow to handle it outside of the function or display to user
     }
   }
+  //To Do: set Error
 
   async function processPayment() {
     console.log("processPayment");
@@ -54,6 +59,7 @@ const PaymentComponent = ({ setProducts,setIsPaymentClick, isPaymentClick, recei
       console.log("the response was okay");
       return response.data;
     } catch (error) {
+      setError("There was an error with processPayment:", error.message);
       console.error("There was an error with processPayment:", error.message);
       throw error; // rethrow to handle it outside of the function or display to user
     }
@@ -76,6 +82,7 @@ const PaymentComponent = ({ setProducts,setIsPaymentClick, isPaymentClick, recei
       return response.data;
 
     } catch (error) {
+      setError("There was an error with cancel:", error.message);
       console.error("There was an error with cancel:", error.message);
       throw error; // rethrow to handle it outside of the function or display to user
     }
@@ -90,7 +97,7 @@ const PaymentComponent = ({ setProducts,setIsPaymentClick, isPaymentClick, recei
     createPaymentButton.disabled = true;
     setIsPaymentClick(true);
     console.log(localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]");
-    
+
     try {
       let amount = Math.round(chargeAmount * 100);
       const paymentIntent = await createPaymentIntent(amount, localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]");
@@ -98,23 +105,25 @@ const PaymentComponent = ({ setProducts,setIsPaymentClick, isPaymentClick, recei
       paymentIntentId = paymentIntent["id"];
       const reader = await processPayment();
       console.log("payment processed at reader: ", reader);
-  
+
       if (simulation_mode == true) {
         // const simulatedPayment = await simulatePayment();
         // console.log("simulated payment at: ", simulatedPayment);
       }
       console.log("intents" + paymentIntentId);
       setIntent(paymentIntentId);
-  
+
     } catch (error) {
       console.error("Error in makePayment: ", error.message);
+      setError("Error in makePayment: ", error.message);
+
     } finally {
       createPaymentButton.className = "btn btn-primary";
       createPaymentButton.disabled = false;
       createPaymentButton.textContent = originalButtonText; // Reset button text
     }
   }
-  
+
 
 
 
@@ -126,11 +135,13 @@ const PaymentComponent = ({ setProducts,setIsPaymentClick, isPaymentClick, recei
       const reader = await cancel();
       console.log("canceled payment at: ", reader);
     } catch (error) {
+      setError("Error in cancelPayment: ", error.message);
+
       console.error("Error in cancelPayment: ", error.message);
     } finally {
       cancelPaymentButton.className = "btn btn-danger";
       cancelPaymentButton.disabled = false;
-      }
+    }
   }
 
 
@@ -184,7 +195,7 @@ const PaymentComponent = ({ setProducts,setIsPaymentClick, isPaymentClick, recei
           //console.log("newTerminalsData is empty");
         } else {
           setReceived(true)
-          localStorage.setItem(storeID + "-" + selectedTable, "[]"); 
+          localStorage.setItem(storeID + "-" + selectedTable, "[]");
           setProducts([]);
           localStorage.setItem(storeID + "-" + selectedTable + "-isSent", "[]")
           // newTerminalsData is not empty
@@ -254,20 +265,21 @@ const PaymentComponent = ({ setProducts,setIsPaymentClick, isPaymentClick, recei
                     We have received the payment.</div>
                 </div> : <div>
 
-                <div class="mt-2 row margin pad">
-                      <button id="create-payment-button" className="btn btn-primary" onClick={makePayment}>
-                        Process Payment
-                      </button>
-                    </div>
-                    <div class="mt-2 row margin pad">
+                  <div class="mt-2 row margin pad">
+                    <button id="create-payment-button" className="btn btn-primary" onClick={makePayment}>
+                      Process Payment
+                    </button>
+                  </div>
+                  <div class="mt-2 row margin pad">
                     <button id="cancel-payment-button" className="btn btn-danger" onClick={cancelPayment}>
                       Reset POS Machine
                     </button>
                   </div>
-                  </div>
+                </div>
+              
 
               }
-
+              {error && <p style={{color: 'red'}}>Read this carefully and retry: {error}</p>}
             </div>
           }
         </div>

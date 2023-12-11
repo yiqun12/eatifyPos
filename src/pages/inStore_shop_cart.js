@@ -28,7 +28,8 @@ import { ReactComponent as MinusSvg } from './minus.svg';
 import logo_fork from './logo_fork.png'
 import Hero from './Hero'
 import cuiyuan from './cuiyuan.png'
-import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+
 import { db } from '../firebase/index';
 import cartImage from './shopcart.png';
 import "./inStore_shop_cart.css";
@@ -39,9 +40,6 @@ import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 
 const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
-  /**listen to localtsorage */
-  //console.log("products")
-  //console.log(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
   const { user, user_loading } = useUserContext();
 
   const [isSplitPaymentModalOpen, setSplitPaymentModalOpen] = useState(false);
@@ -49,8 +47,8 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
     setProducts(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
-    //console.log('Component B - ID changed:', id);
   }, [id]);
+
 
 
   /**check if its mobile/browser */
@@ -78,9 +76,53 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     console.log(isAllowed)
     setIsAllowed(!isAllowed);
   };
-  //console.log(totalQuant)
+  const [tableProductInfo, setTableProductInfo] = useState('[]');
+  const SetTableInfo = async (table_name, product) => {
+    try {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docData = { product: product, date: date };
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
+      await setDoc(docRef, docData);
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
+  
+
+  const GetTableProductInfo = async (table_name) => {
+    try {
+      // Create a reference to the specific document in the Table collection
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
+
+      // Get the document
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        // Extract the data from the document
+        const docData = docSnap.data();
+        console.log("Document data:", docData);
+        // Return the product information
+        setTableProductInfo(docData?.product)
+        console.log(docData?.product)
+      } else {
+        // Handle the case where the document does not exist
+        console.log("No such document!");
+        setTableProductInfo("[]")
+        console.log("[]")
+        SetTableInfo(table_name, "[]")
+      }
+    } catch (error) {
+      console.error("Error getting document: ", error);
+      setTableProductInfo("[]")
+      console.log("[]")
+      SetTableInfo(table_name, "[]")
+    }
+  };
+
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
+    
     //maybe add a line here...
     const calculateTotalPrice = () => {
       const total = (Array.isArray(products) ? products : []).reduce((acc, item) => item && parseFloat(item.itemTotalPrice) ? parseFloat(acc) + parseFloat(item.itemTotalPrice) : parseFloat(acc), 0);
@@ -92,9 +134,13 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       setFinalPrice((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
       //console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
     }
-    calculateTotalPrice();;
+    calculateTotalPrice();
+    console.log("change price")
+    console.log(tableProductInfo)
+    //TO DO: get a better sync. this would write in database twice and this code is not working in mobile unless you get in the shopping cart.
+    GetTableProductInfo(store + "-" + selectedTable)
     localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
-
+    SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
   }, [products, width, tips, discount, extra]);
 
 
@@ -323,6 +369,9 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
   }
 
 
+
+
+
   const OpenCashDraw = async () => {
     try {
       const dateTime = new Date().toISOString();
@@ -409,6 +458,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       });
       console.log("Document written with ID: ", docRef.id);
       localStorage.setItem(store + "-" + selectedTable, "[]"); setProducts([]);
+      SetTableInfo(store + "-" + selectedTable, "[]")
       localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
 
     } catch (e) {
@@ -988,8 +1038,8 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
               >
                 <div className="modal-content">
                   <div className="modal-header">
-                  <Button variant="danger" style={{ marginTop: "auto" }} onClick={resetDndTest}>
-                       Reset
+                    <Button variant="danger" style={{ marginTop: "auto" }} onClick={resetDndTest}>
+                      Reset
                     </Button>
                     <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setSplitPaymentModalOpen(false); }}>
                       &times;
@@ -999,7 +1049,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                     className="modal-body pt-0"
                     style={{ overflowX: 'auto', maxWidth: '100%' }}
                   >
-                    <Dnd_Test key={dndTestKey} main_input={products} />
+                    <Dnd_Test store={store} acct = {acct} selectedTable={selectedTable} key={dndTestKey} main_input={products} />
                   </div>
                   <div className="modal-footer">
                   </div>
@@ -1031,28 +1081,6 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             </div>
           )}
 
-
-          {isMyModalVisible && (
-            <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              <div className="modal-dialog" role="document">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">Select your POS Machine:</h5>
-                    <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setMyModalVisible(false); setReceived(false) }}>
-                      &times;
-                    </button>
-                  </div>
-                  <div className="modal-body pt-0">
-
-                    <PaymentComponent2 setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
-
-                  </div>
-                  <div className="modal-footer">
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
           {/* the modal for tips */}
           {isTipsModalOpen && (
             <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>

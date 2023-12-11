@@ -13,6 +13,8 @@ import { useCallback } from 'react';
 import { collection, doc, addDoc, getDocs, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useRef } from "react";
+import { onSnapshot, query } from "firebase/firestore";
+
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } from 'recharts';
 import { data_ } from '../data/data.js'
 import { PieChart, Pie, Cell } from 'recharts';
@@ -52,6 +54,7 @@ import styled from '@emotion/styled';
 
 
 const Account = () => {
+
 
   const [width2, setWidth2] = useState(0);
   const elementRef = useRef(null);
@@ -176,11 +179,13 @@ const Account = () => {
           moment(a.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf()
         );
         const newItems = []; // Declare an empty array to hold the new items
-
+        
         newData.forEach((item) => {
           const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
             .subtract(4, "hours")
             .format("M/D/YYYY h:mma");
+          console.log("formattedDate")
+          console.log(formattedDate)
           const newItem = {
             id: item.id.substring(0, 4), // use only the first 4 characters of item.id as the value for the id property
             receiptData: item.receiptData,
@@ -424,6 +429,8 @@ const Account = () => {
 
   };
 
+  
+  
   // using the below to control if suboption popping and popping out depending on which store is selected on the side bar
   const [activeStoreId, setActiveStoreId] = useState(null);
   // Rename function for form submission
@@ -448,6 +455,40 @@ const Account = () => {
     });
     alert("Updated Successful");
   };
+  const [documents, setDocuments] = useState([]);
+  useEffect(() => {
+    setNotificationData([
+    ]);
+  }, [storeID])
+
+
+  useEffect(() => {
+    // Ensure the user is defined
+    if (!user || !user.uid) return;
+    if (!storeID) return;
+    const collectionRef = collection(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', storeID, 'PendingDineInOrder');
+
+    // Listen for changes in the collection
+    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+        const docs = [];
+        snapshot.forEach((doc) => {
+            docs.push({ orderId: doc.id, ...doc.data() });
+        });
+        
+        console.log("PendingDineInOrder");
+        console.log(docs);
+
+        setNotificationData(docs)
+        setDocuments(docs);
+    }, (error) => {
+        // Handle any errors
+        console.error("Error getting documents:", error);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+}, [storeID]); // Dependencies for useEffect
+
 
   // for the hashtage # check in URL and then redirect to correct location
   useEffect(() => {
@@ -826,348 +867,7 @@ const Account = () => {
     setNumberReviewVariable(notificationData.filter(item => item.Status === "Review").length);
   }, [notificationData]);
 
-  useEffect(() => {
-    setNotificationData([{
-      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },{
-      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },{
-      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },{
-      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },{
-      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },{
-      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },{
-      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },{
-      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },{
-      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },{
-      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },{
-      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },{
-      orderId: "1", date: "10/7/2023", amount: "100", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },
-    {
-      orderId: "2", date: "10/7/2023", amount: "300", Status: "Review",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    },
-    {
-      orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid",
-      items: [{
-        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-        "name": "肉眼牛排",
-        "subtotal": 1,
-        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-        "quantity": 5,
-        "attributeSelected": { "Weight": ["18 oz", "20oz"], "size": "bg" },
-        "count": "9224d939-2223-4820-b802-f61ddd9b2879",
-        "itemTotalPrice": 90,
-        "cancel": "true"
-      },
-      {
-        "id": "3f3b415b-88cd-4f5b-8683-591fa3391d46",
-        "name": "宫保鸡丁",
-        "subtotal": "1",
-        "image": "https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-        "quantity": 4,
-        "attributeSelected": { "size": ["big"] },
-        "count": "81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-        "itemTotalPrice": 8
-      }
-      ]
-    }
-    ]);
-  }, [storeID])
+
 
   const [isVisible, setIsVisible] = useState(true);
 
@@ -1270,7 +970,7 @@ const Account = () => {
                       }}
                     >
                       <div style={{ alignItems: 'center', justifyContent: 'center' }}>
-                        <i class="bi bi-house"> {data.Name}</i>
+                        <i class="bi bi-house"> {data.id}</i>
 
                       </div>
                     </div>
@@ -1282,8 +982,7 @@ const Account = () => {
                               onClick={() => {
                                 setShowSection('sales')
                                 window.location.hash = `charts?store=${data.id}`;
-                              }}
-                            >
+                              }}>
                               <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `sales` ? 'active' : ''}`} style={{ marginLeft: "0", border: "0px" }}>
                                 <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
                                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
@@ -1292,7 +991,6 @@ const Account = () => {
                                 </i>
                                 <span style={{ marginLeft: "5%" }}>Daily Revenue</span>
                               </a>
-
                             </li>
                             <li className={`nav-item p-0`}
                               onClick={() => {
@@ -1474,7 +1172,7 @@ const Account = () => {
                                     window.location.hash = `charts?store=${data.id}`;
                                   }}
                                 >
-                                  {data.Name}
+                                  {data.id}
                                 </Dropdown.Item>
                               )) :
                               <Dropdown.Item onClick={(e) => e.preventDefault()}>No Store Available</Dropdown.Item>
@@ -1676,7 +1374,7 @@ const Account = () => {
                           </div> : <div></div>
                           }
                           {showSection === 'stripeCard' ? <div>
-                            <Test_Notification_Page reviewVar={numberReviewVariable} setReviewVar={setNumberReviewVariable} sortedData={notificationData} setSortedData={setNotificationData} />
+                            <Test_Notification_Page storeID={data.id} reviewVar={numberReviewVariable} setReviewVar={setNumberReviewVariable} sortedData={notificationData} setSortedData={setNotificationData} />
                           </div> : <div></div>
                           }
 

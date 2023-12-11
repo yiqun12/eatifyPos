@@ -41,11 +41,12 @@
 
   <!-- partial:index.partial.html -->
   <div class="container-fluid text-center" style="padding: 0; overflow: hidden; height: 100%;">
-      <div class="form-group admin-menu" style="display: none;height: 100%; overflow-y: scroll; padding-right: 17px; box-sizing: content-box;">
+    <div class="form-group admin-menu"
+      style="display: none;height: 100%; overflow-y: scroll; padding-right: 17px; box-sizing: content-box;">
       <div class="row">
         <div class="col-sm-2 col-sm-offset-3 form-group">
           <label>Width (px)</label>
-       <input type="number" id="width" class="form-control" />
+          <input type="number" id="width" class="form-control" />
         </div>
         <div class="col-sm-2 col-sm-offset-3 form-group">
           <label>Height (px)</label>
@@ -101,9 +102,6 @@
     <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button>
     <button class="btn btn-primary" onclick="loadBoard()">Load</button> -->
     <button class="btn btn-danger admin-mode" style="text-align: left;">Admin Mode</button>
-    <button class="btn btn-danger change-color-red" style="text-align: left;">Change color of A2 to Red</button>
-
-    <button class="btn btn-danger change-color-original" style="text-align: left;">Change color of A2 to original Brown</button>
   </div>
 
   <!-- partial -->
@@ -112,11 +110,11 @@
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
   <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
   <script src='https://cdn.rawgit.com/leongersen/noUiSlider/master/distribute/nouislider.min.js'></script>
-  
+
   <script>
-      // When the page loads
-      document.getElementById('width').value = window.innerWidth;
-      document.getElementById('height').value = window.innerHeight;
+    // When the page loads
+    document.getElementById('width').value = window.innerWidth;
+    document.getElementById('height').value = window.innerHeight;
 
     let store
     let canvas
@@ -161,8 +159,10 @@
     window.addEventListener('message', function (event) {
       if (event.data.includes("_restaurant_seat_arrangement")) {
         store = event.data
-        loadBoard()
 
+        loadBoard()
+        console.log("sasssssssssssssssssssssssssssss")
+        readDemoItems();
         canvas.getObjects().map(o => {
           o.hasControls = false
           o.lockMovementX = true
@@ -181,7 +181,7 @@
         canvas.renderAll()
         document.querySelectorAll('.admin-menu')[0].style.display = 'none'
         document.querySelectorAll('.customer-menu')[0].style.display = 'block'
-        
+
         current_mode = "customer"
         window.parent.postMessage(`customer mode active`, "*");
         //console.log('Received "hello" from parent');
@@ -202,6 +202,8 @@
       console.log("load board")
       console.log(board)
       clearBoard()
+
+
       // this is where you read external (previously saved board data and load it in)
 
       let arrangement = JSON.parse(window.localStorage.getItem(store))
@@ -911,11 +913,11 @@
       })
     }
 
-    
+
     // this function allows me to change the color of A2 with a button click
 
     function highlightTable(tableName, color) {
-      canvas.forEachObject(function(obj) {
+      canvas.forEachObject(function (obj) {
         if ((obj.type === 'rect' || obj.type === 'circle') && obj.tableName === tableName) {
           // Change the fill color of the table
           obj.item(0).set('fill', color);
@@ -924,19 +926,43 @@
       });
     }
 
-  // this click functions is the event handler for the button that calls the highlightTable to change color to red
-    document.querySelectorAll('.change-color-red')[0].addEventListener('click', function () {
+    // Function to check if a key starts with "demo "
+    function startsWithDemo(key) {
+      return key.startsWith(store.slice(0, -"_restaurant_seat_arrangement".length) + "-");
+    }
 
-      highlightTable("A2", "red")
+    // Function to read all localStorage items that start with "demo "
 
-    })
+    function readDemoItems() {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (startsWithDemo(key)) {
+          console.log(`Initial read - Key: ${key}, Value: ${localStorage.getItem(key)}`);
+          if (localStorage.getItem(key) !== "[]" && localStorage.getItem(key) !== null) {
+            console.log("true")
+            console.log(localStorage.getItem(key) !== "[]")
 
-    // this click functions is the event handler for the button that calls the highlightTable to change color to brown
-    document.querySelectorAll('.change-color-original')[0].addEventListener('click', function () {
-
-      highlightTable("A2", 'rgba(150, 111, 51, 0.7)')
-
-    })
+            highlightTable(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(0, 0, 139, 0.7)')//rich blue
+          } else {
+            console.log("false")
+            highlightTable(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(150, 111, 51, 0.7)')//original brown
+          }
+        }
+      }
+    }
+    // Event listener for localStorage changes
+    window.addEventListener('storage', (event) => {
+      if (startsWithDemo(event.key)) {
+        console.log(`Change detected - Key: ${event.key}, New Value: ${event.newValue}`);
+        if (event.newValue !== "[]" && event.newValue !== null && JSON.stringify(event.newValue) !== "[]") {
+          console.log("true")
+          highlightTable(event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(0, 0, 139, 0.7)')
+        } else {
+          console.log("false")
+          highlightTable(event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(150, 111, 51, 0.7)')
+        }
+      }
+    });
 
 
     // below is the controller for the add tables buttons (circle and rectangle) and modal controller
@@ -1075,7 +1101,7 @@
       canvas.hoverCursor = 'move'
       canvas.discardActiveObject()
       canvas.renderAll()
-      
+
       document.querySelectorAll('.admin-menu')[0].style.display = 'block'
       document.querySelectorAll('.customer-menu')[0].style.display = 'none'
       document.querySelectorAll('.admin_hello')[0].style.display = 'none'

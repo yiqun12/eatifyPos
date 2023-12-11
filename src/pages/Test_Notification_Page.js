@@ -1,67 +1,12 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState, useEffect } from 'react';
+import { collection, doc, addDoc, getDocs, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { db } from '../firebase/index';
+import { useUserContext } from "../context/userContext";
 
-// const exampleJSON = [  {orderId: "1", date: "10/7/2023", amount: "100", Status: "Review", 
-// items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-// "name":"肉眼牛排",
-// "subtotal":1,
-// "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-// "quantity":5,
-// "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
-// "count":"9224d939-2223-4820-b802-f61ddd9b2879",
-// "itemTotalPrice":90,
-// "cancel":"true"},
-// {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
-// "name":"宫保鸡丁",
-// "subtotal":"1",
-// "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-// "quantity":4,
-// "attributeSelected":{"size":["big"]},
-// "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-// "itemTotalPrice":8}
-// ]},
-//   {orderId: "2", date: "10/7/2023", amount: "300", Status: "Review",  
-//   items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-//   "name":"肉眼牛排",
-//   "subtotal":1,
-//   "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-//   "quantity":5,
-//   "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
-//   "count":"9224d939-2223-4820-b802-f61ddd9b2879",
-//   "itemTotalPrice":90,
-//   "cancel":"true"},
-//   {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
-//   "name":"宫保鸡丁",
-//   "subtotal":"1",
-//   "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-//   "quantity":4,
-//   "attributeSelected":{"size":["big"]},
-//   "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-//   "itemTotalPrice":8}
-// ]},
-//   {orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid",
-//   items: [{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-//   "name":"肉眼牛排",
-//   "subtotal":1,
-//   "image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-//   "quantity":5,
-//   "attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},
-//   "count":"9224d939-2223-4820-b802-f61ddd9b2879",
-//   "itemTotalPrice":90,
-//   "cancel":"true"},
-//   {"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46",
-//   "name":"宫保鸡丁",
-//   "subtotal":"1",
-//   "image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666",
-//   "quantity":4,
-//   "attributeSelected":{"size":["big"]},
-//   "count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f",
-//   "itemTotalPrice":8}
-// ]}
-// ];
 
-function Test_Notification_Page({ reviewVar, setReviewVar, sortedData, setSortedData }) {
+function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, setSortedData }) {
 
   // const exampleJSON = [{orderId: "1", date: "10/7/2023", amount: "100", Status: "Review"},{orderId: "2", date: "10/7/2023", amount: "300", Status: "Review"},{orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid"}]
 
@@ -78,6 +23,7 @@ function Test_Notification_Page({ reviewVar, setReviewVar, sortedData, setSorted
   };
 
   const [triggerSort, setTriggerSort] = useState(false);
+  const { user, user_loading } = useUserContext();
 
   function clickConfirm(orderId) {
     const updatedData = sortedData.map(item => {
@@ -121,23 +67,16 @@ function Test_Notification_Page({ reviewVar, setReviewVar, sortedData, setSorted
     }
   }
 
+  const deleteDocument = async (orderId) => {
+    try {
 
-  function deleteItem(orderId) {
-    const updatedData = sortedData.filter(item => item.orderId !== orderId);
-    setSortedData(updatedData);
-    setTriggerSort(prev => !prev); // flip the value to trigger sorting
-  }
-
-
-  //   function clickConfirm(orderId) {
-  //     const updatedData = sortedData.map(item => {
-  //         if (item.orderId === orderId && item.Status === "Review") {
-  //             return { ...item, Status: "Pending" };
-  //         }
-  //         return item;
-  //     });
-  //     setSortedData(updatedData);
-  // }
+      const docRef = doc(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', storeID, 'PendingDineInOrder', orderId);
+      await deleteDoc(docRef);
+      console.log("Document successfully deleted!");
+    } catch (error) {
+      console.error("Error deleting document: ", error);
+    }
+  };
 
   const [expandedOrderId, setExpandedOrderId] = useState(null);
 
@@ -179,11 +118,12 @@ function Test_Notification_Page({ reviewVar, setReviewVar, sortedData, setSorted
           <table class="table table-hover table-nowrap">
             <thead class="table-light">
               <tr>
-                <th scope="col">Number</th>
                 <th scope="col">OrderID</th>
+                <th scope="col">Status</th>
+                <th scope="col">Name</th>
+                <th scope="col">Table</th>
                 <th scope="col">Date</th>
                 <th scope="col">Amount</th>
-                <th scope="col">Status</th>
                 {/* <th scope="col">Meeting</th> */}
                 <th></th>
               </tr>
@@ -193,24 +133,29 @@ function Test_Notification_Page({ reviewVar, setReviewVar, sortedData, setSorted
                 <React.Fragment key={order.orderId}>
                   <tr key={order.orderId}>
                     <td>
-                      {index + 1} {/* Adding 1 because index starts from 0 */}
-                    </td>
-                    <td>
-                      <a className="text-heading font-semibold" href="#">
-                        {order.orderId}
-                      </a>
-                    </td>
-                    <td>
-                      {order.date}
-                    </td>
-                    <td>
-                      ${order.amount}
+                    {order.orderId.substring(0, 4)}
                     </td>
                     <td>
                       <span className="badge badge-lg badge-dot">
                         <i className={`bg-${getBadgeColor(order.Status)}`}></i>{order.Status}
                       </span>
                     </td>
+                    <td>
+                      <a className="text-heading font-semibold">
+                        {order.username}
+                      </a>
+                    </td>
+                    <td>
+                        {order.table}
+                    </td>
+
+                    <td>
+                      {order.date}
+                    </td>
+                    <td>
+                      ${order.amount}
+                    </td>
+
                     <td className="text-end">
                       <button className="btn btn-sm btn-neutral" onClick={() => clickConfirm(order.orderId)}>Confirm</button>
                       <button className="btn btn-sm btn-neutral" onClick={() => {
@@ -220,7 +165,7 @@ function Test_Notification_Page({ reviewVar, setReviewVar, sortedData, setSorted
                           setExpandedOrderId(order.orderId);
                         }
                       }}>View</button>
-                      <button type="button" className="btn btn-sm btn-neutral text-danger-hover" onClick={() => deleteItem(order.orderId)}>
+                      <button type="button" className="btn btn-sm btn-neutral text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
                         Delete
                       </button>
                     </td>
@@ -256,7 +201,7 @@ function Test_Notification_Page({ reviewVar, setReviewVar, sortedData, setSorted
                         <div style={{ padding: '10px', backgroundColor: '#f8f9fa' }}>
                           {order.items && order.items.map(item => (
                             <div key={item.id}>
-                              Name: {item.name} | Quantity: {item.quantity} | Price: {item.itemTotalPrice}
+                              {item.name} | Quantity: {item.quantity} | Price: {item.itemTotalPrice}
                               {item.attributeSelected && Object.keys(item.attributeSelected).map(attributeKey => (
                                 <div key={attributeKey}>
                                   {attributeKey}: {Array.isArray(item.attributeSelected[attributeKey])
@@ -277,7 +222,7 @@ function Test_Notification_Page({ reviewVar, setReviewVar, sortedData, setSorted
             </table>
 
         </div>
-        {sortedData.length <= 1
+        {sortedData.length <= 0
           ?
           <div class="card-footer border-0 py-5">
             <span class="text-muted text-sm">There is no pending dine in order at this moment.</span>

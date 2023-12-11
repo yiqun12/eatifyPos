@@ -66,6 +66,11 @@ function App() {
 
   const [loading, setLoading] = useState(true);
 
+  const [dndTestKey, setDndTestKey] = useState(0); // initial key set to 0
+  const resetDndTest = () => {
+    setDndTestKey(prevKey => prevKey + 1); // increment key to force re-render
+  };
+  
   useEffect(() => {
     // Added line to grab translation file (can use the same method as food_data to grab translations file)
     sessionStorage.setItem("translations", JSON.stringify(translations))
@@ -94,93 +99,85 @@ function App() {
   } else {
 
     return (
-<ErrorBoundary>
+      <ErrorBoundary>
 
-      <div className="App">
+        <div className="App">
 
-        <BrowserRouter>
-          <MyHookProvider>
+          <BrowserRouter>
+            <MyHookProvider>
 
-            <Navbar />
-            <Routes>
+              <Navbar />
+              <Routes>
 
-              <Route path="QRcode" element={
-                user != null &&
-                  user.uid === process.env.REACT_APP_ADMIN_UID ?
-                  <Html /> :
-                  <LogIn />} />
+                <Route path="QRcode" element={
+                  user != null &&
+                    user.uid === process.env.REACT_APP_ADMIN_UID ?
+                    <Html /> :
+                    <LogIn />} />
 
-              <Route path="Admin" element={
-                user != null &&
-                  user.uid === process.env.REACT_APP_ADMIN_UID ?
-                  <Admin_new /> :
-                  <LogIn />} />
+                <Route path="Admin" element={
+                  user != null &&
+                    user.uid === process.env.REACT_APP_ADMIN_UID ?
+                    <Admin_new /> :
+                    <LogIn />} />
 
 
-              <Route path="orders" element={<Receipt />} />
-              <Route path="Reservation" element={<Reservation />} />
-              {user ? <Route path="/checkout" element={<Checkout />}></Route> : <Route path="/checkout" element={<LogIn />}></Route>}
-              {user ? <Route path="/DemoFood" element={<DemoFood />}></Route> : <Route path="/DemoFood" element={<LogIn />}></Route>}
+                <Route path="orders" element={<Receipt />} />
+                <Route path="Reservation" element={<Reservation />} />
+                {user ? <Route path="/checkout" element={<Checkout />}></Route> : <Route path="/checkout" element={<LogIn />}></Route>}
+                {user ? <Route path="/DemoFood" element={<DemoFood />}></Route> : <Route path="/DemoFood" element={<LogIn />}></Route>}
 
-              <Route path="Dashboard" element={<Dashboard />} />
-              {user ?
-                <Route path="Account" element=
-                  {
-                    user != null &&
-                      user.uid === process.env.REACT_APP_ADMIN_UID ?
+                <Route path="Dashboard" element={<Dashboard />} />
+                {user ?
+                  <Route path="Account" element=
+                    {
+                      user != null &&
+                        user.uid === process.env.REACT_APP_ADMIN_UID ?
+                        <Account_admin /> :
+                        <Account_admin />}
+                  ></Route> : <Route path="Account" element={<LogIn />}></Route>
+                }
+                {user ?
+                  <Route path="LogIn" element={
+                    user.uid === process.env.REACT_APP_ADMIN_UID ?
                       <Account_admin /> :
-                      <Account_admin />}
-                ></Route> : <Route path="Account" element={<LogIn />}></Route>
-              }
-              {user ?
-                <Route path="LogIn" element={
-                  user.uid === process.env.REACT_APP_ADMIN_UID ?
-                    <Account_admin /> :
-                    <Account_admin />}></Route> :
-                <Route path="LogIn" element={<LogIn />}></Route>
-              }
+                      <Account_admin />}></Route> :
+                  <Route path="LogIn" element={<LogIn />}></Route>
+                }
 
-              <Route path="SignUp" element={<SignUp />}></Route>
+                <Route path="SignUp" element={<SignUp />}></Route>
 
-              {/*testing from tony change Time menu */}
-              <Route exact path="/change_time" element={<ChangeTimeForm />} />
+                {/*testing from tony change Time menu */}
+                <Route exact path="/change_time" element={<ChangeTimeForm />} />
 
-              {/* testing from tony */}
-              <Route exact path="/testing_admin" element={<Account_admin />} />
-              <Route exact path="/testing_food" element={<Food_testing />} />
+                {/* testing from tony */}
+                <Route exact path="/testing_admin" element={<Account_admin />} />
+                <Route exact path="/testing_food" element={<Food_testing />} />
+                <Route exact path="/terminal_page" element={<PaymentComponent storeDisplayName={"display"} storeID={"demo"} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />} />
+                <Route exact path="/terminal_page2" element={<PaymentComponent2 storeID={"demo"} chargeAmount={"100"} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />} />
+                <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage />} />
+                <Route exact path="/test_notification_page" element={<Test_Notification_Page />} />
+                <Route exact path="dnd" element={<Dnd_Test store={"demo"} acct = {"acct_1NhfrBD7rxr1kqtN"} selectedTable={"A2"} key={dndTestKey} main_input={[{"id":"9ee84ddc-c91f-47ec-981b-1c5680550837","name":"Garlic A Choy","subtotal":"15","image":"https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500","quantity":5,"attributeSelected":{},"count":"3c50ff94-49e1-4563-ac99-990efc15b0e9","itemTotalPrice":75,"CHI":"蒜蓉A菜"},{"id":"c315164b-5afb-4330-b24a-238caf766cc4","name":"Beef And Broccoli","subtotal":"18","image":"https://img2.baidu.com/it/u=3582338435,3937177930&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500","quantity":1,"attributeSelected":{},"count":"9e72ec1f-9941-45be-ac26-369792e69f78","itemTotalPrice":18,"CHI":"牛肉西兰花"}]} />} />
+                {/* <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage/>}/> */}
+                <Route exact path="/test_admin_new" element={<Admin_new />} />
+                <Route exact path="/test_iframeDesk" element={<IframeDesk store={"demo"} />} />
+                {user ? <Route path="ForgotPassword" element={<Account_admin />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
+                <Route exact path="/store" element={<Food />} />
+                <Route exact path="/DemoFood" element={<DemoFood />} />
+                <Route exact path="/AdminFood" element={<Admin_food />} />
+                <Route exact path="/Refresh" element={<Refresh />} />
 
-              <Route exact path="/terminal_page" element={<PaymentComponent storeDisplayName = {"display"} storeID = {"demo"} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"}  />} />
-              <Route exact path="/terminal_page2" element={<PaymentComponent2  storeID = {"demo"} chargeAmount={"100"}  connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />} />
+                <Route path='*' exact={true} element={<Home />} />
+                <Route exact path="/" element={<Home />} />
+                <Route exact path="/Checklist" element={<Checklist />} />
 
-              <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage />} />
+              </Routes>
 
-              <Route exact path="/test_notification_page" element={<Test_Notification_Page />} />
-
-
-              <Route exact path="dnd" element={<Dnd_Test/>} />
-
-              {/* <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage/>}/> */}
-
-              <Route exact path="/test_admin_new" element={<Admin_new />} />
-              <Route exact path="/test_iframeDesk" element={<IframeDesk store={"demo"} />} />
-
-              {user ? <Route path="ForgotPassword" element={<Account_admin />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
-              <Route exact path="/store" element={<Food />} />
-              <Route exact path="/DemoFood" element={<DemoFood />} />
-              <Route exact path="/AdminFood" element={<Admin_food />} />
-              <Route exact path="/Refresh" element={<Refresh />} />
-
-              <Route path='*' exact={true} element={<Home />} />
-              <Route exact path="/" element={<Home />} />
-              <Route exact path="/Checklist" element={<Checklist />} />
-
-            </Routes>
-
-          </MyHookProvider>
-        </BrowserRouter>
-      </div>
-  {/* Your entire component tree */}
-  </ErrorBoundary>
+            </MyHookProvider>
+          </BrowserRouter>
+        </div>
+        {/* Your entire component tree */}
+      </ErrorBoundary>
     );
   }
 }

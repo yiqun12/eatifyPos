@@ -13,6 +13,8 @@ import { ReactComponent as MinusSvg } from './minus.svg';
 import { FiSearch } from 'react-icons/fi';
 import { db } from '../firebase/index';
 import { doc, getDoc } from "firebase/firestore";
+import { useUserContext } from "../context/userContext";
+import { setDoc } from "firebase/firestore";
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -178,7 +180,6 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
         setFoodTypesCHI([...new Set(JSON.parse(docData.key).map(item => item.categoryCHI))])
         console.log(JSON.parse(docData.key))
         console.log([...new Set(JSON.parse(docData.key).map(item => item.category))])
-        //const foodTypes = [...new Set(JSON.parse(sessionStorage.getItem("Food_arrays")).map(item => item.category))];
 
         // Check if the stored item is empty or non-existent, and handle it
         if (!sessionStorage.getItem("Food_arrays") || sessionStorage.getItem("Food_arrays") === "") {
@@ -187,12 +188,9 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
         // window.location.reload();
       } else {
         sessionStorage.setItem("Food_arrays", "[]");
-
-
         // window.location.reload();
         setData([])
         setFoods([])
-
         console.log("No document found with the given name.");
       }
     } catch (error) {
@@ -279,8 +277,6 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
 
   /**drop food */
 
-  //const data = JSON.parse(sessionStorage.getItem("Food_arrays"))
-
   const [foods, setFoods] = useState([]);
   const [selectedFoodType, setSelectedFoodType] = useState(null);
 
@@ -332,6 +328,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
   const divStyle = {
     color: 'black',
   };
+  const { user, user_loading } = useUserContext();
 
   const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI) => {
 
@@ -442,8 +439,6 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
     };
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
   //const foodTypes = ['burger', 'pizza', 'salad', 'chicken'];
-  //const foodTypes = [...new Set(JSON.parse(sessionStorage.getItem("Food_arrays")).map(item => item.category))];
-
   // for businessHours
   // getting today's date
   const tempDate = new Date();
@@ -946,8 +941,10 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
           <AnimatePresence>
             <div className='grid grid-cols-1 gap-3 pt-2' style={{
               gridTemplateRows: `repeat(1, 1fr)`,
-              gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)'
-            }}>
+              gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
+              overflowY:'scroll',
+              maxHeight:'600px'
+           }}>
               {foods.map((item, index) => (
                 <motion.div
                   layout

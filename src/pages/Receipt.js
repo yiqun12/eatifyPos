@@ -115,7 +115,7 @@ const Item = () => {
         </div>
         <b className="block text-black text-sm">{payment_data.isDinein} ({payment_data.status})</b>
 
-        <b className="block text-black text-sm">{t("Order ID")}: {payment_data.document_id.substring(0, 3)}</b>
+        <b className="block text-black text-sm">{t("Order ID")}: {payment_data.document_id.substring(0, 4)}</b>
 
         <span className="block text-black text-sm">{moment(payment_data.time, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-8).format("MMMM D, YYYY h:mm a")}</span>
 
