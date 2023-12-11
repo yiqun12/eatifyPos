@@ -56,6 +56,9 @@ import BusinessHoursTestPage from "./pages/BusinessHoursTestPage.js";
 
 import Test_Notification_Page from "./pages/Test_Notification_Page.js";
 
+import SoundButtonNewOrderChinese from "./pages/new_order_sound_chinese.js";
+
+import SoundButtonNewOrderEnglish from "./pages/new_order_sound_english.js";
 // import Droppable from "./pages/droppable.js";
 //import Split_Payment from "./pages/Split_Payment";
 
@@ -149,6 +152,10 @@ function App() {
 
                 {/*testing from tony change Time menu */}
                 <Route exact path="/change_time" element={<ChangeTimeForm />} />
+
+                {/* sound button chinese for new order */}
+                <Route exact path="/sound_button" element={<div><SoundButtonNewOrderChinese /> <SoundButtonNewOrderEnglish/> </div>} />
+
 
                 {/* testing from tony */}
                 <Route exact path="/testing_admin" element={<Account_admin />} />
