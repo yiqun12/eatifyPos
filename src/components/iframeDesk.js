@@ -60,7 +60,7 @@ function App({ store, acct }) {
     const [documents, setDocuments] = useState([]);
 
 
-    
+
     useEffect(() => {
         const resizeObserver = new ResizeObserver(entries => {
             // Assuming you are observing only one element
@@ -400,23 +400,28 @@ function App({ store, acct }) {
     function clearDemoLocalStorage() {
         // Get all keys in localStorage
         const keys = Object.keys(localStorage);
-    
+
         // Loop through the keys
         for (let key of keys) {
             // Check if the key includes 'demo'
-            if (key.includes(store+"-")) {
+            if (key.includes(store + "-")) {
                 // Remove the item from localStorage
-                localStorage.removeItem(key);
+                if (key.includes("-isSent")) {
+
+                } else {
+                    localStorage.removeItem(key);
+                }
+
             }
         }
     }
-    
+
     useEffect(() => {
         // Ensure the user is defined
         if (!user || !user.uid) return;
-  
+
         const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table");
-  
+
         // Listen for changes in the collection
         const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
             const docs = [];
@@ -432,7 +437,7 @@ function App({ store, acct }) {
             // Handle any errors
             console.error("Error getting documents:", error);
         });
-  
+
         // Cleanup subscription on unmount
         return () => unsubscribe();
     }, []); // Dependencies for useEffect

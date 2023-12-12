@@ -298,6 +298,7 @@ const Navbar = () => {
   }
 
   function groupAndSumItems(items) {
+    items.reverse();
     const groupedItems = {};
 
     items.forEach(item => {
@@ -316,7 +317,7 @@ const Navbar = () => {
     });
 
     // Convert the grouped items object back to an array
-    return Object.values(groupedItems);
+    return Object.values(groupedItems).reverse();
   }
 
 

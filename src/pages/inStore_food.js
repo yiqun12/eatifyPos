@@ -583,7 +583,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
 
   function groupAndSumItems(items) {
     const groupedItems = {};
-
+    items.reverse();
     items.forEach(item => {
       // Create a unique key based on id and JSON stringified attributes
       const key = `${item.id}-${JSON.stringify(item.attributeSelected)}`;
@@ -600,7 +600,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
     });
 
     // Convert the grouped items object back to an array
-    return Object.values(groupedItems);
+    return Object.values(groupedItems).reverse();
   }
 
   useEffect(() => {
