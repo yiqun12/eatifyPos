@@ -30,6 +30,9 @@ import { ReactComponent as MinusSvg } from './minus.svg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
+import _ from 'lodash'; // Ensure lodash is imported
+
+
 // import { Modal } from '@headlessui/react'; // Import Modal from headless UI
 
 
@@ -486,30 +489,42 @@ function Dnd_Test(props) {
   }, [items, setItems]);
 
   const checkout = useCallback((containerId) => {
-    // Calculate the total price for items in main
-    console.log("items: ", items);
-    const mainItems = items["group0"];
-    const totalGroup1Price = mainItems.reduce((total, item) => {
-      return total + item.item.itemTotalPrice;
-    }, 0);
+   // returns the JSON Object of the specific containerId
 
-    // Calculate the total price for items in the specified container
-    const containerItems = items[containerId];
-    const totalContainerPrice = containerItems.reduce((total, item) => {
-      return total + item.item.itemTotalPrice;
-    }, 0);
+   console.log(items[containerId]);
+   console.log(numberOfGroups);
+ 
+   // Extracting and creating a deep copy of all 'item' fields from the items[containerId]
+   const itemsArray = items[containerId] ? Object.values(items[containerId]).map(obj => _.cloneDeep(obj.item)) : [];
+ 
+    // Modifying 'CHI' and 'name' fields in each item of itemsArray
+    const updatedItemsArray = itemsArray.map(item => {
+      if (numberOfGroups > 1) {
+        if (item.CHI) {
+          item.CHI += ` / ${numberOfGroups}`;
+        }
+        if (item.name) {
+          item.name += ` / ${numberOfGroups}`;
+        }
+  
+        // Divide itemTotalPrice and subtotal by numberOfGroups and fix to 2 decimal places
+        if (item.itemTotalPrice) {
+          item.itemTotalPrice = (item.itemTotalPrice / numberOfGroups).toFixed(2);
+        }
+        if (item.subtotal) {
+          item.subtotal = (item.subtotal / numberOfGroups).toFixed(2);
+        }
+      }
+      return item;
+    });
 
-    // Calculate the average price per group (excluding main)
-    const groupKeys = Object.keys(items);
-    const numberOfGroups = groupKeys.length - 1; // Exclude main
-    const averageGroupPrice = totalGroup1Price / numberOfGroups;
-
-    // Calculate the total price
-    const totalPrice = averageGroupPrice + totalContainerPrice;
-
-    console.log("items at Checkout: ", items);
-    console.log("Total Price: ", totalPrice);
-  }, [items]);
+   // Log the new array to see the result
+   console.log(JSON.stringify(updatedItemsArray));
+ 
+   // Optionally, you can return the updatedItemsArray if needed
+  //  return updatedItemsArray;
+    
+  }, [items, numberOfGroups]); // Add numberOfGroups to the dependency array
 
   const containerItems = useMemo(() => {
     return Object.keys(items).map((key) => (
@@ -725,18 +740,6 @@ function Dnd_Test(props) {
                     {/* the add minus box set up */}
                     <div style={{ display: "flex" }}>
 
-                      { /* start of the divide by 2 button */}
-                      <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
-                        <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                          onClick={() => {
-                            handlePlusClick()
-                            // console.log("add 1 item")
-                          }}>
-                          <MinusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
-                        </button>
-                      </div>
-                      { /* end of the divide by 2 button */}
-
 
                       {/* the start of minus button set up */}
                       <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
@@ -769,18 +772,6 @@ function Dnd_Test(props) {
                         </button>
                       </div>
                       { /* end of the add button */}
-
-                      { /* start of the multiply by 2 button */}
-                      <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
-                        <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                          onClick={() => {
-                            handlePlusClick()
-                            // console.log("add 1 item")
-                          }}>
-                          <PlusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
-                        </button>
-                      </div>
-                      { /* end of the multiply by 2 button */}
 
                     </div>
                     { /* end of the add minus setup*/}
