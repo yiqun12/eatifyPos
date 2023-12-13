@@ -105,7 +105,49 @@ const Account = () => {
   const [storeName_, setStoreName_] = useState('');
   const [storeID, setStoreID] = useState('');
   const [storeOpenTime, setStoreOpenTime] = useState('');
+  useEffect(() => {
+    // Ensure the user is defined
+    if (!user || !user.uid) return;
+    if (!storeID) return;
+    const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "Table");
 
+    // Listen for changes in the collection
+    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+      const docs = [];
+      clearDemoLocalStorage()
+      snapshot.forEach((doc) => {
+        docs.push({ id: doc.id, ...doc.data() });
+        localStorage.setItem(doc.id, doc.data().product);
+      });
+      console.log("docs");
+      console.log(docs);
+      setDocuments(docs);
+    }, (error) => {
+      // Handle any errors
+      console.error("Error getting documents:", error);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [storeID]); // Dependencies for useEffect
+  function clearDemoLocalStorage() {
+    // Get all keys in localStorage
+    const keys = Object.keys(localStorage);
+
+    // Loop through the keys
+    for (let key of keys) {
+      // Check if the key includes 'demo'
+      if (key.includes(storeID + "-")) {
+        // Remove the item from localStorage
+        if (key.includes("-isSent")) {
+
+        } else {
+          localStorage.removeItem(key);
+        }
+
+      }
+    }
+  }
   const handleTabClick = (e, tabHref) => {
     e.preventDefault();
     setActiveTab(tabHref);
@@ -179,10 +221,10 @@ const Account = () => {
           moment(a.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf()
         );
         const newItems = []; // Declare an empty array to hold the new items
-        
+
         newData.forEach((item) => {
           const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
-            .subtract(4, "hours")
+            .subtract(8, "hours")
             .format("M/D/YYYY h:mma");
           console.log("formattedDate")
           console.log(formattedDate)
@@ -429,8 +471,8 @@ const Account = () => {
 
   };
 
-  
-  
+
+
   // using the below to control if suboption popping and popping out depending on which store is selected on the side bar
   const [activeStoreId, setActiveStoreId] = useState(null);
   // Rename function for form submission
@@ -470,24 +512,24 @@ const Account = () => {
 
     // Listen for changes in the collection
     const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-        const docs = [];
-        snapshot.forEach((doc) => {
-            docs.push({ orderId: doc.id, ...doc.data() });
-        });
-        
-        console.log("PendingDineInOrder");
-        console.log(docs);
+      const docs = [];
+      snapshot.forEach((doc) => {
+        docs.push({ orderId: doc.id, ...doc.data() });
+      });
 
-        setNotificationData(docs)
-        setDocuments(docs);
+      console.log("PendingDineInOrder");
+      console.log(docs);
+
+      setNotificationData(docs)
+      setDocuments(docs);
     }, (error) => {
-        // Handle any errors
-        console.error("Error getting documents:", error);
+      // Handle any errors
+      console.error("Error getting documents:", error);
     });
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-}, [storeID]); // Dependencies for useEffect
+  }, [storeID]); // Dependencies for useEffect
 
 
   // for the hashtage # check in URL and then redirect to correct location
@@ -858,13 +900,13 @@ const Account = () => {
   const [notificationData, setNotificationData] = useState([]);
 
   // lifting the variable of # under review from the Test_notication_Page component lists
-  const [numberReviewVariable, setNumberReviewVariable] = useState(notificationData ? notificationData.filter(item => item.Status === "Review").length : 0);
+  const [numberReviewVariable, setNumberReviewVariable] = useState(notificationData ? notificationData.length : 0);
 
 
   useEffect(() => {
     // console.log("numberReviewVariable has been updated:", numberReviewVariable);
     // Perform any additional logic in the parent component when the number changes
-    setNumberReviewVariable(notificationData.filter(item => item.Status === "Review").length);
+    setNumberReviewVariable(notificationData.length);
   }, [notificationData]);
 
 
@@ -1554,7 +1596,7 @@ const Account = () => {
                                     You already connect with Stripe to receive online payment!
                                   </div>
 
-                                  <PaymentComponent City={data?.Address} Address={data?.physical_address} State={data?.State} storeDisplayName={data?.Name} ZipCode={data?.ZipCode}  storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
+                                  <PaymentComponent City={data?.Address} Address={data?.physical_address} State={data?.State} storeDisplayName={data?.Name} ZipCode={data?.ZipCode} storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
                                 </div>
                               }
                             </div>
@@ -1740,8 +1782,8 @@ const Account = () => {
                             >
                               <thead>
                                 <tr>
-                                  <th className="order-number" style={isMobile ? {} : { width: "10%" }}>Order</th>
-                                  <th className="order-name" style={isMobile ? {} : { width: "10%" }}>Table</th>
+                                  <th className="order-number" style={isMobile ? {} : { width: "10%" }}>Order ID</th>
+                                  <th className="order-name" style={isMobile ? {} : { width: "10%" }}>Dining Table</th>
                                   <th className="order-status" style={isMobile ? {} : { width: "30%" }}>Status</th>
                                   <th className="order-total" style={isMobile ? {} : { width: "10%" }}>Total</th>
                                   <th className="order-date" style={isMobile ? {} : { width: "25%" }}>Time</th>
@@ -1754,8 +1796,8 @@ const Account = () => {
                                   <React.Fragment key={order.id}>
 
                                     <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
-                                      <td className="order-number" data-title="OrderID"><a >{order.id}</a></td>
-                                      <td className="order-name" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum === "" ? "Takeout" : order.tableNum}</td>
+                                      <td className="order-number notranslate" data-title="OrderID"><a >{order.id}</a></td>
+                                      <td className="order-name notranslate" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum === "" ? "Takeout" : order.tableNum}</td>
                                       <td className="order-status" data-title="Status" style={{ whiteSpace: "nowrap" }}>{order.status}</td>
                                       <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="amount">{"$" + order.total}</span></td>
                                       <td className="order-date" data-title="Time" style={{ whiteSpace: "nowrap" }}>
@@ -1778,7 +1820,9 @@ const Account = () => {
                                             <p>{order.date}</p>
                                             {JSON.parse(order.receiptData).map((item, index) => (
                                               <div className="receipt-item" key={item.id}>
-                                                <p>{item.name} x {item.quantity} @ $ {item.subtotal} each = $ {Math.round(item.quantity * item.subtotal * 100) / 100}</p>
+                                                <p>
+                                                {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
+                                                 x {item.quantity} @ ${item.subtotal} each = ${Math.round(item.quantity * item.subtotal * 100) / 100}</p>
                                               </div>
                                             ))}
                                             <p>Subtotal: $ {order.metadata.subtotal}</p>

@@ -397,50 +397,9 @@ function App({ store, acct }) {
     const [view, setView] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
 
-    function clearDemoLocalStorage() {
-        // Get all keys in localStorage
-        const keys = Object.keys(localStorage);
 
-        // Loop through the keys
-        for (let key of keys) {
-            // Check if the key includes 'demo'
-            if (key.includes(store + "-")) {
-                // Remove the item from localStorage
-                if (key.includes("-isSent")) {
 
-                } else {
-                    localStorage.removeItem(key);
-                }
 
-            }
-        }
-    }
-
-    useEffect(() => {
-        // Ensure the user is defined
-        if (!user || !user.uid) return;
-
-        const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table");
-
-        // Listen for changes in the collection
-        const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-            const docs = [];
-            clearDemoLocalStorage()
-            snapshot.forEach((doc) => {
-                docs.push({ id: doc.id, ...doc.data() });
-                localStorage.setItem(doc.id, doc.data().product);
-            });
-            console.log("docs");
-            console.log(docs);
-            setDocuments(docs);
-        }, (error) => {
-            // Handle any errors
-            console.error("Error getting documents:", error);
-        });
-
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
-    }, []); // Dependencies for useEffect
 
     return (
 

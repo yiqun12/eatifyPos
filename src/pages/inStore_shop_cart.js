@@ -84,6 +84,8 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       const docData = { product: product, date: date };
       const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
       await setDoc(docRef, docData);
+      localStorage.setItem(table_name,product)
+
     } catch (error) {
       console.error("Error adding document: ", error);
     }
@@ -181,7 +183,6 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             quantity: 1,
             itemTotalPrice: newQuantity > 0 ? Math.round(100 * product.itemTotalPrice / product.quantity) / 100 : 0,
           });
-
           return {
             ...product,
             quantity: newQuantity,
@@ -191,7 +192,6 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
         return product;
       });
     });
-
   };
 
 

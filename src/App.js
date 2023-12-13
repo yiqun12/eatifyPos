@@ -24,6 +24,8 @@ import React, { useState, useEffect } from 'react'
 
 import { MyHookProvider, useMyHook } from './pages/myHook';
 import Receipt from './pages/Receipt'
+import OrderHasReceived from './pages/OrderHasReceived'
+
 import Html from './components/Html'
 import { Navigate } from 'react-router-dom';
 import Admin_food from './components/admin_food'
@@ -123,6 +125,8 @@ function App() {
 
 
                 <Route path="orders" element={<Receipt />} />
+                <Route path="orderhasreceived" element={<OrderHasReceived />} />
+
                 <Route path="Reservation" element={<Reservation />} />
                 {user ? <Route path="/checkout" element={<Checkout />}></Route> : <Route path="/checkout" element={<LogIn />}></Route>}
                 {user ? <Route path="/DemoFood" element={<DemoFood />}></Route> : <Route path="/DemoFood" element={<LogIn />}></Route>}

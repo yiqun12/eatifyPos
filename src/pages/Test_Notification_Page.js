@@ -13,7 +13,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
 
   // const [sortedData, setSortedData] = useState(exampleJSON);
 
-  var reviewCount = sortedData.filter(item => item.Status === "Review").length;
+  var reviewCount = sortedData.length;
   setReviewVar(reviewCount)
 
   const statusPriority = {
@@ -29,6 +29,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
   const [checkProduct, setCheckProduct] = useState([]);
   const [awaitingMergeProduct, setAwaitingMergeProduct] = useState("[]");
   const [awaitingMergeProductIncoming, setAwaitingMergeProductIncoming] = useState("[]");
+
 
   useEffect(() => {
     // Ensure the user is defined
@@ -56,27 +57,139 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []); // Dependencies for useEffect
-  const SetTableInfo = async (table_name, product,id) => {
+  const SetTableInfo = async (table_name, product, id) => {
     try {
+
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docData = { product: product, date: date };
       const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "Table", table_name);
       await setDoc(docRef, docData);
-      //deleteDocument(id)
+      localStorage.setItem(table_name, product)
+      SendToKitchen(table_name.slice((storeID + "-").length))
+      deleteDocument(id)
     } catch (error) {
       console.error("Error adding document: ", error);
     }
   };
+
+  const SendToKitchen = async (selectedTable) => {
+
+    try {
+      if (localStorage.getItem(storeID + "-" + selectedTable) === null || localStorage.getItem(storeID + "-" + selectedTable) === "[]") {
+        if (localStorage.getItem(storeID + "-" + selectedTable + "-isSent") === null || localStorage.getItem(storeID + "-" + selectedTable + "-isSent") === "[]") {
+          return
+        } else {//delete item
+          compareArrays(JSON.parse(localStorage.getItem(storeID + "-" + selectedTable + "-isSent")), [], selectedTable)
+          localStorage.setItem(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
+        }
+      }
+      if (localStorage.getItem(storeID + "-" + selectedTable + "-isSent") === null || localStorage.getItem(storeID + "-" + selectedTable + "-isSent") === "[]") {
+        const dateTime = new Date().toISOString();
+        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+        const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "SendToKitchen"), {
+          date: date,
+          data: localStorage.getItem(storeID + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(storeID + "-" + selectedTable)) : [],
+          selectedTable: selectedTable
+        });
+        console.log("Document written with ID: ", docRef.id);
+        localStorage.setItem(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
+      } else {
+        compareArrays(JSON.parse(localStorage.getItem(storeID + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(storeID + "-" + selectedTable)), selectedTable)
+        localStorage.setItem(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
+      }
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
+
+  async function compareArrays(array1, array2, selectedTable) {
+    const array1ById = Object.fromEntries(array1.map(item => [item.count, item]));
+    const array2ById = Object.fromEntries(array2.map(item => [item.count, item]));
+
+    for (const [count, item1] of Object.entries(array1ById)) {
+      const item2 = array2ById[count];
+      if (item2) {
+        // If item exists in both arrays
+        if (item1.quantity > item2.quantity) {
+          console.log('Deleted trigger:', {
+            ...item1,
+            quantity: item1.quantity - item2.quantity,
+            itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
+          });
+          const dateTime = new Date().toISOString();
+          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+          const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "DeletedSendToKitchen"), {
+            date: date,
+            data: [{
+              ...item1,
+              quantity: item1.quantity - item2.quantity,
+              itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
+            }],
+            selectedTable: selectedTable
+          });
+          console.log("Document written with ID: ", docRef.id);
+
+        } else if (item1.quantity < item2.quantity) {
+          console.log('Added trigger:', {
+            ...item2,
+            quantity: item2.quantity - item1.quantity,
+            itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
+          });
+          const dateTime = new Date().toISOString();
+          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+          const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "SendToKitchen"), {
+            date: date,
+            data: [{
+              ...item2,
+              quantity: item2.quantity - item1.quantity,
+              itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
+            }],
+            selectedTable: selectedTable
+          });
+          console.log("Document written with ID: ", docRef.id);
+        }
+      } else {
+        // If item exists in array 1 but not in array 2
+        console.log('Deleted trigger:', item1);
+        const dateTime = new Date().toISOString();
+        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+        const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "DeletedSendToKitchen"), {
+          date: date,
+          data: [item1],
+          selectedTable: selectedTable
+        });
+        console.log("Document written with ID: ", docRef.id);
+
+      }
+    }
+
+    for (const [count, item2] of Object.entries(array2ById)) {
+      const item1 = array1ById[count];
+      if (!item1) {
+        // If item exists in array 2 but not in array 1
+        console.log('Added trigger:', item2);
+        const dateTime = new Date().toISOString();
+        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+        const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "SendToKitchen"), {
+          date: date,
+          data: [item2],
+          selectedTable: selectedTable
+        });
+        console.log("Document written with ID: ", docRef.id);
+      }
+    }
+  }
+
+
   const mergeProduct = async (table_name) => {
-    console.log("groupAndSumItemsgroupAndSumItems")
-    console.log(groupAndSumItems(awaitingMergeProduct))
-    SetTableInfo(table_name, JSON.stringify(awaitingMergeProduct),idForDelete)
+    SetTableInfo(table_name, JSON.stringify(groupAndSumItems(awaitingMergeProduct)), idForDelete)
     setModalOpen2(false)
+
   };
   const addToEmptyTable = async (table_name) => {
-    
-    SetTableInfo(table_name, awaitingMergeProductIncoming,idForDelete)
+
+    SetTableInfo(table_name, awaitingMergeProductIncoming, idForDelete)
     setModalOpen2(false)
   };
 
@@ -110,7 +223,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
           console.log(JSON.parse(product))
           console.log("itemsForChange")
           console.log(item.items)//exissting product
-          const mergedArray = [...JSON.parse(product), ...item.items];
+          const mergedArray = [...item.items, ...JSON.parse(product)];
           console.log(mergedArray)
           setAwaitingMergeProduct(mergedArray)//for merge
           setAwaitingMergeProductIncoming(product)//this is for the incoming product
@@ -118,7 +231,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
             setModalOpen(true)
             console.log("empty table")
             setTableSelected(item.table)
-            SetTableInfo(storeID + "-" + item.table, JSON.stringify(mergedArray),orderId)
+            SetTableInfo(storeID + "-" + item.table, JSON.stringify(mergedArray), orderId)
 
           } else {
             setModalOpen2(true)
@@ -135,7 +248,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
       return item;
     });
 
-    reviewCount = sortedData.filter(item => item.Status === "Review").length;
+    reviewCount = sortedData.length;
     setReviewVar(reviewCount);
 
     console.log(sortedData)
@@ -147,7 +260,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
 
   function reversed(array) {
     return [...array].reverse();
-}
+  }
 
   function groupAndSumItems(items) {
     const groupedItems = {};
@@ -208,7 +321,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
       console.error("Error deleting document: ", error);
     }
   };
-  
+
 
   return (
     // <div>Hello</div>
@@ -280,7 +393,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
       )}
       <div class="card mb-7">
         <div class="card-header">
-          <h5 class="mb-0">Applications <span
+          <h5 class="mb-0">Notification <span
             style={{
               display: 'inline-flex', // changed from 'flex' to 'inline-flex'
               alignItems: 'center',
@@ -315,16 +428,17 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
               {sortedData.map((order, index) => (
                 <React.Fragment key={order.orderId}>
                   <tr key={order.orderId}>
-                    <td>
+                    <td className='notranslate'>
                       {order.orderId.substring(0, 4)}
                     </td>
                     <td>
                       <span className="badge badge-lg badge-dot">
+                        
                         <i className={`bg-${getBadgeColor(order.Status)}`}></i>{order.Status}
                       </span>
                     </td>
                     <td>
-                      <a className="text-heading font-semibold">
+                      <a className="text-heading font-semibold notranslate">
                         {order.username}
                       </a>
                     </td>
@@ -340,11 +454,21 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                     </td>
 
                     <td className="text-end">
-                      <button className="btn btn-sm btn-primary mr-2" onClick={() => clickConfirm(order.orderId)}>Confirm</button>
+                      {order.Status === "Paid" ?
+                        <div>
+                          <button type="button" className="btn btn-sm btn-primary text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
+                            Confirm delivery
+                          </button>
+                        </div>
+                        : <div>
+                          <button className="btn btn-sm btn-primary mr-2" onClick={() => clickConfirm(order.orderId)}>Add to Dining Table</button>
 
-                      <button type="button" className="btn btn-sm btn-danger text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
-                        Delete
-                      </button>
+                          <button type="button" className="btn btn-sm btn-danger text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
+                            Delete
+                          </button>
+                        </div>
+                      }
+
                     </td>
 
 
@@ -378,7 +502,8 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                         <div style={{ padding: '10px', backgroundColor: '#f8f9fa' }}>
                           {order.items && order.items.map(item => (
                             <div key={item.id}>
-                              {item.name} | Quantity: {item.quantity} | Price: {item.itemTotalPrice}
+                              {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}
+                              &nbsp;| &nbsp; Quantity: &nbsp; {item.quantity} &nbsp; | &nbsp; Price: {item.itemTotalPrice}
                               {item.attributeSelected && Object.keys(item.attributeSelected).map(attributeKey => (
                                 <div key={attributeKey}>
                                   {attributeKey}: {Array.isArray(item.attributeSelected[attributeKey])

@@ -974,6 +974,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                       setSelectedFoodItem(item);
                     }
                   }}
+                  
                   className=" border border-black rounded cursor-pointer">
                   <div className='flex'>
                     <div style={{ width: "100%" }}>

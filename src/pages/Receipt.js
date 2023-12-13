@@ -36,6 +36,37 @@ const Item = () => {
   const receiptToken = urlParams.get('order');  // '12345'
   const { user, user_loading } = useUserContext();
 
+  const [documentData, setDocumentData] = useState("");
+
+  useEffect(() => {
+    if (!payment_data) return;
+
+    const fetchData = async () => {
+      const db = firebase.firestore();
+      try {
+        const docRef = db.collection('TitleLogoNameContent').doc(payment_data.store);
+        const doc = await docRef.get();
+        if (doc.exists) {
+          console.log("12333333333")
+          console.log(doc.data().Name)
+          if (sessionStorage.getItem("Google-language")?.includes("中")||sessionStorage.getItem("Google-language")?.includes("Chinese")){
+            setDocumentData(doc.data().storeNameCHI);
+
+          }else{
+            setDocumentData(doc.data().Name);
+
+          }
+        } else {
+          console.log('No such document!');
+        }
+      } catch (error) {
+        console.error('Error getting document:', error);
+      }
+    };
+
+    fetchData();
+  }, [payment_data]);
+
   useEffect(() => {
     if (receiptToken && receiptToken.length === 20) {
       const unsubscribe = firebase
@@ -111,13 +142,13 @@ const Item = () => {
           &lt; Back to store
         </a>
         <div className='mt-1 mb-2' >
-          <b className="text-black text-2xl">{payment_data.store}</b>
+          <b className="text-black text-2xl">{documentData}</b>
         </div>
         <b className="block text-black text-sm">{payment_data.isDinein} ({payment_data.status})</b>
 
-        <b className="block text-black text-sm">{t("Order ID")}: {payment_data.document_id.substring(0, 4)}</b>
+        <b className="block text-black text-sm notranslate">{t("Order ID")}: {payment_data.document_id.substring(0, 4)}</b>
 
-        <span className="block text-black text-sm">{moment(payment_data.time, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-8).format("MMMM D, YYYY h:mm a")}</span>
+        <span className="block text-black text-sm">{moment(payment_data.time, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-13).format("MMMM D, YYYY h:mm a")}</span>
 
 
       </div>
@@ -131,7 +162,9 @@ const Item = () => {
             <div className="row row-main" key={index}>
               <div className="col-9">
                 <div className="row d-flex">
-                  <b>{index + 1}.{t(product.name)}</b>
+                  <b>
+                  {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                  </b>
                 </div>
                 <div className="row d-flex">
                   <p className="text-muted  mb-0 pb-0">@ ${product.subtotal} {t("each")} x {product.quantity}</p>
@@ -163,9 +196,8 @@ const Item = () => {
               <b>${payment_data.tax}</b>
             </div>
           </div>
-          <div className="row">
             {payment_data.tips && payment_data.tips !== 0 && (
-              <div>
+              <div className="row">
                 <div className="col">
                   <b>{t("Gratuity")}:</b>
                 </div>
@@ -174,11 +206,6 @@ const Item = () => {
                 </div>
               </div>
             )}
-
-
-
-
-          </div>
           <div className="row">
             <div className="col">
               <b> {t("Total")}:</b>

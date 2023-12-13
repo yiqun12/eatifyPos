@@ -68,72 +68,72 @@ function PayFullhistory() {
           const data = doc.data();
           // Using the document ID as the key for the hash map
           tempStoreMap[doc.id] = {
-            storeName: data.Name, 
-            storeNameCHI: data.storeNameCHI ,
+            storeName: data.Name,
+            storeNameCHI: data.storeNameCHI,
           };
         });
         return tempStoreMap
       } catch (error) {
-        return{}
+        return {}
       }
     };
 
     const unsubscribe = firebase
-    .firestore()
-    .collection('stripe_customers')
-    .doc(user.uid)
-    .collection('payments')
-    .orderBy("dateTime", "desc")
-    .onSnapshot((snapshot) => {
-      console.log('read card');
-      //setPayments(newItems);
-      const newPayments = [];
-      let payment;
-      snapshot.forEach((doc) => {
-        payment = doc.data();
+      .firestore()
+      .collection('stripe_customers')
+      .doc(user.uid)
+      .collection('payments')
+      .orderBy("dateTime", "desc")
+      .onSnapshot((snapshot) => {
+        console.log('read card');
+        //setPayments(newItems);
+        const newPayments = [];
+        let payment;
+        snapshot.forEach((doc) => {
+          payment = doc.data();
 
-        if (payment.status === 'succeeded') {
-          console.log(doc.id)
-          payment.id = doc.id
-          console.log(payment)
-          newPayments.push(payment);
-        }
-      });
-
-      const newItems = []; // Declare an empty array to hold the new items
-      fetchCollectionAsMap().then(tempStoreMap => {
-        console.log(tempStoreMap);
-        newPayments.forEach((item) => {
-          const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
-            .subtract(4, "hours")
-            .format("M/D/YYYY h:mma");
-        
-          const newItem = {
-            storeName: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store)? tempStoreMap[payment.store].storeName : payment.store,
-            storeNameCHI: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store)? tempStoreMap[payment.store].storeNameCHI: payment.store,
-            store: payment.store,
-            id: item.id.substring(0, 4), // use only the first 4 characters of item.id as the value for the id property
-            receiptData: item.receiptData,
-            date: formattedDate,
-            email: item.user_email,
-            dineMode: item.metadata.isDine,
-            status: item.powerBy,
-            total: parseFloat(item.metadata.total),
-            tableNum: item.tableNum,
-            metadata: item.metadata,
-          };
-          newItems.push(newItem); // Push the new item into the array
+          if (payment.status === 'succeeded') {
+            console.log(doc.id)
+            payment.id = doc.id
+            console.log(payment)
+            newPayments.push(payment);
+          }
         });
-        setPayments(newItems); // Update the state with the new payments
-        setIsLoading(false); // Data has been loaded
-  
-        console.log(newItems)
+
+        const newItems = []; // Declare an empty array to hold the new items
+        fetchCollectionAsMap().then(tempStoreMap => {
+          console.log(tempStoreMap);
+          newPayments.forEach((item) => {
+            const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
+              .subtract(8, "hours")
+              .format("M/D/YYYY h:mma");
+
+            const newItem = {
+              storeName: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store) ? tempStoreMap[payment.store].storeName : payment.store,
+              storeNameCHI: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store) ? tempStoreMap[payment.store].storeNameCHI : payment.store,
+              store: payment.store,
+              id: item.id.substring(0, 4), // use only the first 4 characters of item.id as the value for the id property
+              receiptData: item.receiptData,
+              date: formattedDate,
+              email: item.user_email,
+              dineMode: item.metadata.isDine,
+              status: item.powerBy,
+              total: parseFloat(item.metadata.total),
+              tableNum: item.tableNum,
+              metadata: item.metadata,
+            };
+            newItems.push(newItem); // Push the new item into the array
+          });
+          setPayments(newItems); // Update the state with the new payments
+          setIsLoading(false); // Data has been loaded
+
+          console.log(newItems)
+        });
+
+
+
       });
-
-
-
-    });
-;
+    ;
     return () => unsubscribe(); // Cleanup the subscription on unmount
 
   }, []); // Make sure to update the dependencies array if you have other dependencies
@@ -187,7 +187,11 @@ function PayFullhistory() {
                               onClick={() => { window.location.href = `/store?store=${order.store}`; }}
                               style={{ cursor: 'pointer' }}
                             >
-                              <span>{order.storeName}</span>
+                              <span>
+                                {
+                                  sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(order?.storeNameCHI) : (order?.Name)
+                                }
+                              </span>
                             </p>
 
                           </div>
@@ -221,7 +225,7 @@ function PayFullhistory() {
                         <div className="p-0 p-0 rounded-b-lg">
                           <div style={{ paddingTop: "0px", paddingBottom: "10px" }}>
                             <div className="mt-1 flex justify-between mb-1">
-                              <div className='text-black d-block text-sm font-semibold '>
+                              <div className=' notranslate text-black d-block text-sm font-semibold '>
                                 Order Id: {order.id.substring(0, 4)}
                               </div>
 
@@ -237,7 +241,10 @@ function PayFullhistory() {
                                     <div>
                                       <div className='flex justify-between'>
                                         <p className="mb-1 text-black text-left text-sm font-semibold">
-                                          {item.quantity} x {item.name}
+                                          {item.quantity} x&nbsp; 
+                                          {
+                                            sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)
+                                          }
                                         </p>
                                         <p className="mb-1 text-black text-right text-sm font-semibold">
                                           ${Math.round(item.quantity * item.subtotal * 100) / 100}

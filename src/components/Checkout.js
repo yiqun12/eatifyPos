@@ -782,8 +782,9 @@ function PayHistory(props) {
 
   let stripe; // Declare stripe variable outside of your function
   
+  //pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS
   //pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W
-  const STRIPE_PUBLISHABLE_KEY = 'pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W';
+  const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
 
   loadStripe(STRIPE_PUBLISHABLE_KEY, {
     stripeAccount: JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).stripe_store_acct
@@ -1139,6 +1140,9 @@ function PayHistory(props) {
 
       // Process the result as needed
       console.log('Order processed:', result);
+      window.location.href = '/orderhasreceived?store=' + store;
+
+      
       return result;
     } catch (error) {
       console.error('Error while processing order:', error);
@@ -1183,6 +1187,8 @@ function PayHistory(props) {
         <div>
           {isMobileOrTablet && !(sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "") ? <button onClick={() => {
             checkgeolocation();
+            PendingDineInOrder(sessionStorage.getItem('table'),user.displayName)
+
           }}>
 
             {t("Place Order, Pay Later")}
@@ -1193,7 +1199,6 @@ function PayHistory(props) {
         </div>
 
 
-/*temporary use*/
         <button onClick={() => {
           checkgeolocation();
           PendingDineInOrder(sessionStorage.getItem('table'),user.displayName)
@@ -1201,7 +1206,6 @@ function PayHistory(props) {
 
           {t("Place Order, Pay Later")}
         </button>
-
 
       </div>
       {location ? (
