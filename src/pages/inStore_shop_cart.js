@@ -133,7 +133,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))
 
-      setFinalPrice((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
+      setFinalPrice((Math.round(100 * (total * 1.08625 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
       //console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
     }
     calculateTotalPrice();

@@ -379,7 +379,7 @@ function Container(props) {
       newSubtotal += pricePerGroup;
     });
     setSubtotal(newSubtotal);
-    setFinalPrice((Math.round(100 * (newSubtotal * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
+    setFinalPrice((Math.round(100 * (newSubtotal * 1.08625 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
   }, [items, numberOfGroups, tips, discount, extra]); // Dependency array includes 'items'
   const CustomerReceipt = async () => {
     try {
