@@ -1838,7 +1838,7 @@ const Account = () => {
                                             <p>{order.date}</p>
                                             {JSON.parse(order.receiptData).map((item, index) => (
                                               <div className="receipt-item" key={item.id}>
-                                                <p>
+                                                <p className='notranslate'>
                                                 {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
                                                  x {item.quantity} @ ${item.subtotal} each = ${Math.round(item.quantity * item.subtotal * 100) / 100}</p>
                                               </div>

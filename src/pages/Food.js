@@ -769,9 +769,11 @@ const Food = () => {
                   <div className='max-w-[1240px] mx-auto '>
                     <div className='rounded-lg max-h-[200px] relative'>
                       <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
-                        <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className=''>{storeInfo.Name}</span></h1>
-                        <h1 className='px-4 font-bold text-orange-500'>@{storeInfo.Address}</h1>
-                        <BusinessHoursTable></BusinessHoursTable>
+                        <h1 className='notranslate px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className=''>
+                          {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
+                          </span></h1>
+                        <h1 className='px-4 font-bold text-orange-500 notranslate'>@{storeInfo.Address}</h1>
+                        {/* <BusinessHoursTable></BusinessHoursTable> */}
                       </div>
                       <img className='rounded-lg w-full max-h-[200px] object-cover' src={storeInfo?.Image !== null && storeInfo?.Image !== '' ? storeInfo.Image : (data?.[0]?.image || '')} alt="#" />
                     </div>

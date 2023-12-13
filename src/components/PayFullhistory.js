@@ -187,7 +187,7 @@ function PayFullhistory() {
                               onClick={() => { window.location.href = `/store?store=${order.store}`; }}
                               style={{ cursor: 'pointer' }}
                             >
-                              <span>
+                              <span className='notranslate'>
                                 {
                                   sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(order?.storeNameCHI) : (order?.Name)
                                 }
@@ -240,7 +240,7 @@ function PayFullhistory() {
                                   <div>
                                     <div>
                                       <div className='flex justify-between'>
-                                        <p className="mb-1 text-black text-left text-sm font-semibold">
+                                        <p className="notranslate mb-1 text-black text-left text-sm font-semibold">
                                           {item.quantity} x&nbsp; 
                                           {
                                             sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)

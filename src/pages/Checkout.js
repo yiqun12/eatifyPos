@@ -348,7 +348,7 @@ const Item = (props) => {
               {showInput && <input
                 type="tel"
                 min="0"
-                className={`Gratuity ${selectedTip?.type === "other" ? 'border border-solid border-black' : ''}`}
+                className={`notranslate Gratuity ${selectedTip?.type === "other" ? 'border border-solid border-black' : ''}`}
                 placeholder={t("Other")}
                 value={(parseFloat(selectedTip?.value || 0)).toFixed(2)}
                 onChange={e => {
@@ -361,7 +361,7 @@ const Item = (props) => {
               />}
             </div>
 
-            <div className="col d-flex justify-content-end">
+            <div className="notranslate col d-flex justify-content-end">
               <b>$ {calculateTip()}</b>
               {/* <b>$ {Math.round(100*totalPrice*0.15)/100}</b> */}
             </div>
@@ -370,7 +370,7 @@ const Item = (props) => {
             <div className="col">
               <b> {t("Total")}:</b>
             </div>
-            <div className="col d-flex justify-content-end">
+            <div className="notranslate col d-flex justify-content-end">
               <b>$ {Math.round(100 * (totalPrice * (1 + tax_rate) + tips)) / 100}</b>
             </div>
             <div style={{ display: 'flex', marginTop: "10px" }}>
