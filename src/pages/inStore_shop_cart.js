@@ -422,7 +422,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
           isDine: true,
           service_fee: tips === "" ? 0 : tips,
           subtotal: Math.round(100 * totalPrice) / 100,
-          tax: Math.round(100 * totalPrice * 0.0825) / 100,
+          tax: Math.round(100 * totalPrice * 0.08625) / 100,
           tips: Math.round(100 * extra_tip) / 100,
           total: finalPrice,
         }, // Assuming an empty map converts to an empty object
@@ -917,7 +917,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             {extra !== null && (
               <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Gratuity: <span className='notranslate'>{Math.round((extra) * 100) / 100} </span></div>
             )}
-            <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Tax(8.25%): <span className='notranslate'>${(Math.round(100 * totalPrice * 0.0825) / 100)}</span>    </div>
+            <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Tax(8.625%): <span className='notranslate'>${(Math.round(100 * totalPrice * 0.08625) / 100)}</span>    </div>
             <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Total Amount: <span className='notranslate'>${finalPrice}</span> </div>
           </div>
         </div>
