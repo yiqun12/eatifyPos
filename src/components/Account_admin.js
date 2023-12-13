@@ -14,6 +14,8 @@ import { collection, doc, addDoc, getDocs, getDoc, updateDoc, deleteDoc } from "
 import { db } from '../firebase/index';
 import { useRef } from "react";
 import { onSnapshot, query } from "firebase/firestore";
+import mySound from '../pages/new_order_english.mp3'; // Replace with your sound file's path
+import mySound_CHI from '../pages/new_order_chinese.mp3'; // Replace with your sound file's path
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } from 'recharts';
 import { data_ } from '../data/data.js'
@@ -54,6 +56,17 @@ import styled from '@emotion/styled';
 
 
 const Account = () => {
+
+  // This function plays the sound
+  const playSound = () => {
+    const sound = new Audio(mySound);
+    sound.play();
+  };
+
+  const playSound_CHI = () => {
+    const sound = new Audio(mySound_CHI);
+    sound.play();
+  };
 
 
   const [width2, setWidth2] = useState(0);
@@ -519,7 +532,12 @@ const Account = () => {
 
       console.log("PendingDineInOrder");
       console.log(docs);
-
+      if(sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中")){
+        playSound_CHI()
+      }else{
+        playSound()
+      }
+      
       setNotificationData(docs)
       setDocuments(docs);
     }, (error) => {

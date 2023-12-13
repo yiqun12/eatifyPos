@@ -379,7 +379,7 @@ function Container(props) {
       newSubtotal += pricePerGroup;
     });
     setSubtotal(newSubtotal);
-    setFinalPrice((Math.round(100 * (newSubtotal * 1.08625 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
+    setFinalPrice((Math.round(100 * (newSubtotal * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
   }, [items, numberOfGroups, tips, discount, extra]); // Dependency array includes 'items'
   const CustomerReceipt = async () => {
     try {
@@ -468,7 +468,7 @@ function Container(props) {
           isDine: true,
           service_fee: tips === "" ? 0 : tips,
           subtotal: Math.round(100 * subtotal) / 100,
-          tax: Math.round(100 * subtotal * 0.08625) / 100,
+          tax: Math.round(100 * subtotal * 0.0825) / 100,
           tips: Math.round(100 * extra_tip) / 100,
           total: finalPrice,
         }, // Assuming an empty map converts to an empty object
@@ -889,7 +889,7 @@ function Container(props) {
             {extra !== null && (
               <div className={`text-right`}>Gratuity: <span className='notranslate'>{Math.round((extra) * 100) / 100} </span></div>
             )}
-            <div className={`text-right `}>Tax(8.625%): ${Math.round(subtotal * 0.08625 * 100) / 100} </div>
+            <div className={`text-right `}>Tax(8.25%): ${Math.round(subtotal * 0.0825 * 100) / 100} </div>
             <div className={`text-right `}>Total: ${finalPrice} </div>
             
           </div>
