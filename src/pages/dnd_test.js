@@ -17,6 +17,7 @@ import {
   //   useSensors,
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
+import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 // import { useSortable } from "@dnd-kit/sortable";
 
@@ -58,6 +59,7 @@ function createGroups(groupName, items) {
   result[groupName] = createData_group(items.length, items);
   return result;
 }
+
 
 
 function Dnd_Test(props) {
@@ -489,14 +491,14 @@ function Dnd_Test(props) {
   }, [items, setItems]);
 
   const checkout = useCallback((containerId) => {
-   // returns the JSON Object of the specific containerId
+    // returns the JSON Object of the specific containerId
 
-   console.log(items[containerId]);
-   console.log(numberOfGroups);
- 
-   // Extracting and creating a deep copy of all 'item' fields from the items[containerId]
-   const itemsArray = items[containerId] ? Object.values(items[containerId]).map(obj => _.cloneDeep(obj.item)) : [];
- 
+    console.log(items[containerId]);
+    console.log(numberOfGroups);
+
+    // Extracting and creating a deep copy of all 'item' fields from the items[containerId]
+    const itemsArray = items[containerId] ? Object.values(items[containerId]).map(obj => _.cloneDeep(obj.item)) : [];
+
     // Modifying 'CHI' and 'name' fields in each item of itemsArray
     const updatedItemsArray = itemsArray.map(item => {
       if (numberOfGroups > 1) {
@@ -504,9 +506,9 @@ function Dnd_Test(props) {
           item.CHI += ` / ${numberOfGroups}`;
         }
         if (item.name) {
-          item.name += ` / ${numberOfGroups}`;
+          item.name = `1/${numberOfGroups} ` + item.name;
         }
-  
+
         // Divide itemTotalPrice and subtotal by numberOfGroups and fix to 2 decimal places
         if (item.itemTotalPrice) {
           item.itemTotalPrice = (item.itemTotalPrice / numberOfGroups).toFixed(2);
@@ -517,18 +519,18 @@ function Dnd_Test(props) {
       }
       return item;
     });
+    return (updatedItemsArray)
+    // Log the new array to see the result
+    //console.log(JSON.stringify(updatedItemsArray));
 
-   // Log the new array to see the result
-   console.log(JSON.stringify(updatedItemsArray));
- 
-   // Optionally, you can return the updatedItemsArray if needed
-  //  return updatedItemsArray;
-    
+    // Optionally, you can return the updatedItemsArray if needed
+    //  return updatedItemsArray;
+
   }, [items, numberOfGroups]); // Add numberOfGroups to the dependency array
 
   const containerItems = useMemo(() => {
     return Object.keys(items).map((key) => (
-      <Container store={props.store} acct = {props.acct} selectedTable={props.selectedTable} key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} numberOfGroups={numberOfGroups} dirty={dirty} activeId={activeId} />
+      <Container store={props.store} acct={props.acct} selectedTable={props.selectedTable} key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} numberOfGroups={numberOfGroups} dirty={dirty} activeId={activeId} />
     ));
   }, [items, handleDelete, checkout]);
 

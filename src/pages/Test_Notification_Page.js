@@ -65,7 +65,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
       const docData = { product: product, date: date };
       const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "Table", table_name);
       await setDoc(docRef, docData);
-      localStorage.setItem(table_name, product)
+      //localStorage.setItem(table_name, product)
       SendToKitchen(table_name.slice((storeID + "-").length))
       deleteDocument(id)
     } catch (error) {
@@ -426,14 +426,14 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
             </thead>
             <tbody>
               {sortedData.map((order, index) => (
-                <React.Fragment key={order.orderId}>
+                <div style={{ display: 'contents' }} >
                   <tr key={order.orderId}>
                     <td className='notranslate'>
                       {order.orderId.substring(0, 4)}
                     </td>
                     <td>
                       <span className="badge badge-lg badge-dot">
-                        
+
                         <i className={`bg-${getBadgeColor(order.Status)}`}></i>{order.Status}
                       </span>
                     </td>
@@ -456,11 +456,20 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                     <td className="text-end">
                       {order.Status === "Paid" ?
                         <div>
+
                           <button type="button" className="btn btn-sm btn-primary text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
                             Confirm delivery
                           </button>
                         </div>
                         : <div>
+                          <button className="btn btn-sm btn-primary mr-2"
+
+                            onClick={() => {
+                              console.log("helllllllllllo");
+                              console.log(order);
+                            }}
+                          >Print Merchant Receipt</button>
+
                           <button className="btn btn-sm btn-primary mr-2" onClick={() => clickConfirm(order.orderId)}>Add to Dining Table</button>
 
                           <button type="button" className="btn btn-sm btn-danger text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
@@ -503,7 +512,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                           {order.items && order.items.map(item => (
                             <div key={item.id}>
                               <p className='notranslate'>
-                              {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}
+                                {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}
                               </p>
                               &nbsp;| &nbsp; Quantity: &nbsp; {item.quantity} &nbsp; | &nbsp; Price: {item.itemTotalPrice}
                               {item.attributeSelected && Object.keys(item.attributeSelected).map(attributeKey => (
@@ -520,7 +529,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                       </td>
                     </tr>
                   )}
-                </React.Fragment>
+                </div>
               ))}
             </tbody>
           </table>

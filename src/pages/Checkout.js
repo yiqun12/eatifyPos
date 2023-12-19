@@ -32,10 +32,12 @@ const App = () => {
 
   /**re-render everytime button clicked from shopping cart */
   const { id, saveId } = useMyHook(null);
-  let products = JSON.parse(sessionStorage.getItem(store));
+  const [products, setProducts] = useState(JSON.parse(sessionStorage.getItem(store)));
+
+  //let products = JSON.parse(sessionStorage.getItem(store));
   useEffect(() => {
-    products = JSON.parse(sessionStorage.getItem(store));
-    console.log(JSON.parse(sessionStorage.getItem(store)))
+    setProducts(JSON.parse(sessionStorage.getItem(store)))
+    //console.log(JSON.parse(sessionStorage.getItem(store)))
   }, [id]);
   /**check if its mobile/browser */
   const [width, setWidth] = useState(window.innerWidth);
@@ -80,7 +82,7 @@ const App = () => {
   // tips calculation: in the parent App since needs to be carried in Item() and Checkout() 
 
   // Add state for tip selection and calculation
-  const [selectedTip, setSelectedTip] = useState({ type: "percent", value: "15%" });
+  const [selectedTip, setSelectedTip] = useState({ type: "percent", value: "0%" });
   const [tips, setTips] = useState(null);
 
   // Calculate the tip amount
@@ -135,7 +137,7 @@ const App = () => {
 
   return (
 
-    <div className='max-w-[1000px] mx-auto p-2 '>
+    <div className='mx-auto p-2 '>
       {isLoading ?
         <div>{t("Cart is empty... Redirecting back to home page")}</div> :
 
@@ -150,10 +152,10 @@ const App = () => {
               </div>
               :
               <React.Fragment>
-                <div className="col" >
+                <div className="ml-5 col" >
                   <Item products={products} totalPrice={totalPrice} selectedTip={selectedTip} tips={tips} setSelectedTip={setSelectedTip} calculateTip={calculateTip} />
                 </div>
-                <div className="col no-gutters" style={{ height: "100%" }} >
+                <div className="mr-5 col no-gutters" style={{ height: "100%" }} >
                   <Checkout totalPrice={totalPrice} tips={tips} calculateTip={calculateTip} />
                 </div>
               </React.Fragment>
@@ -176,7 +178,10 @@ const Item = (props) => {
   const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
   console.log(store)
 
-  let products = JSON.parse(sessionStorage.getItem(store));
+  //let products = JSON.parse(sessionStorage.getItem(store));
+  const [products, setProducts] = useState(JSON.parse(sessionStorage.getItem(store)));
+
+
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
   }, [id]);
@@ -267,12 +272,12 @@ const Item = (props) => {
 
             {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
               <b >
-                <b style={{ backgroundColor: "red", borderRadius: "3px", padding: "3px", color: "white", }}>
-                  Table:  {sessionStorage.getItem('table')}
+                <b classname="notranslate" style={{ borderRadius: "3px", padding: "3px" }}>
+                {sessionStorage.getItem('table')} have scanned 
                 </b>
                 &nbsp;
               </b> :
-              <b> {t("Summary")}
+              <b> {t("TakeOut Only - No QR Code")}
               </b>
             }
 
@@ -331,15 +336,34 @@ const Item = (props) => {
               <b>$ {Math.round(100 * totalPrice * tax_rate) / 100}</b>
             </div>
           </div>
+          {sessionStorage.getItem("isDinein") == "true" ?
+            <div>
+              <div className="row">
+                <div className="col">
+                  <b> {t("Service Fee: (15%)")}</b>
+                </div>
+                <div className="col d-flex justify-end">
+                  <b>$ {Math.round(100 * totalPrice * 0.15) / 100}</b>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col">
+                  <div> {t("A service charge is applied only for dining in.")}</div>
+                </div>
+              </div>
+            </div>
+
+            : <div></div>
+          }
           <div className="row">
             <div className="col" style={{ marginBottom: "5px" }}>
-              <b> {t("Gratuity")}:</b>
+              <b> {t("Gratuity:")}</b>
             </div>
 
             {/* for the buttons arrangement */}
             <div className="flex justify-between">
 
-
+              <Button type="percent" value="0%">0%</Button>
               <Button type="percent" value="15%">15%</Button>
               <Button type="percent" value="18%">18%</Button>
               <Button type="percent" value="20%">20%</Button>
@@ -358,12 +382,15 @@ const Item = (props) => {
                   setSelectedTip({ type: "other", value: centValue.toString() });
                 }}
                 style={{ textAlign: 'center', width: '20%' }}
+                translate="no"
               />}
             </div>
 
+          </div>
+
+          <div className="row">
             <div className="notranslate col d-flex justify-content-end">
               <b>$ {calculateTip()}</b>
-              {/* <b>$ {Math.round(100*totalPrice*0.15)/100}</b> */}
             </div>
           </div>
           <div className="row">
@@ -371,7 +398,7 @@ const Item = (props) => {
               <b> {t("Total")}:</b>
             </div>
             <div className="notranslate col d-flex justify-content-end">
-              <b>$ {Math.round(100 * (totalPrice * (1 + tax_rate) + tips)) / 100}</b>
+              <b>$ {Math.round(100 * (totalPrice * (1 + tax_rate) + tips+(sessionStorage.getItem("isDinein") == "true"?totalPrice*0.15:0))) / 100}</b>
             </div>
             <div style={{ display: 'flex', marginTop: "10px" }}>
               <img style={{ height: '35px', width: 'auto' }} src={discover} alt="Discover" />
@@ -394,7 +421,7 @@ const Checkout = (props) => {
   const { loading } = useUserContext();
   // const { totalPrice } = props;
   const { totalPrice, tips } = props;
-  const tax_rate = 0.06;
+  const tax_rate = 0.0825;
 
   // for translations sake
   const trans = JSON.parse(sessionStorage.getItem("translations"))
@@ -419,7 +446,7 @@ const Checkout = (props) => {
   return (
     <div className="checkout ">
       <div className="checkout-container" >
-        {loading ? <h2>{t("Loading Payment")}...</h2> : <div> <Dashboard totalPrice={Math.round(100 * (totalPrice * (1 + tax_rate) + tips)) / 100} /> </div>}
+        {loading ? <h2>{t("Loading Payment")}...</h2> : <div> <Dashboard totalPrice={Math.round(100 * (totalPrice * (1 + tax_rate) + tips+(sessionStorage.getItem("isDinein") == "true"?totalPrice*0.15:0))) / 100} /> </div>}
       </div>
     </div>
   )
@@ -429,7 +456,7 @@ const Input = (props) => (
   <div className="input">
     <label>{props.label}</label>
     <div className="input-field">
-      <input type={props.type} name={props.name} />
+      <input type={props.type} name={props.name} translate="no" />
       <img src={props.imgSrc} />
     </div>
   </div>

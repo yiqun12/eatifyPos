@@ -72,6 +72,7 @@ function DayTimeSelectors({ day, selectedTimePairs, onAddTime, onTimeChange, onD
                         style={{ marginRight: "5px" }}
                         checked={selectedTimePairs.closed}
                         onChange={() => toggleClosed(day)}
+                        translate="no" 
                     />
                     <label >
                         {selectedTimePairs.closed ? t('Closed') : t('Closed')}

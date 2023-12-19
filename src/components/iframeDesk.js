@@ -1,7 +1,7 @@
 import React from 'react';
 import './style.css';
 import { useCallback, useState, useEffect } from 'react';
-import { collection, doc, getDoc, addDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useMyHook } from '../pages/myHook';
 import Button from '@mui/material/Button';
@@ -201,7 +201,22 @@ function App({ store, acct }) {
 
     const [src, setSrc] = useState(window.PUBLIC_URL + "/seat.html");
     const iframeRef = useRef(null);
-
+    const SetTableInfo = async (table_name, product) => {
+        try {
+          const dateTime = new Date().toISOString();
+          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+    
+          const docData = { product: product, date: date };
+    
+          const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
+          await setDoc(docRef, docData);
+          //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(product))))
+          //localStorage.setItem(table_name, product)
+    
+        } catch (error) {
+          console.error("Error adding document: ", error);
+        }
+      };
 
     // the selectedTable variable allows you to keep track which table you have selected
     const [selectedTable, setSelectedTable] = useState("null");
@@ -220,7 +235,16 @@ function App({ store, acct }) {
             console.log(tableNumber);
             setModalOpen(true);
 
-
+            if (localStorage.getItem(store + "-" + tableNumber) === null) {
+                // If it doesn't exist, set the value to an empty array
+                //localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
+                SetTableInfo(store + "-" + tableNumber, JSON.stringify([]))
+              }
+              if (!localStorage.getItem(store + "-" + tableNumber)) {
+                // If it doesn't exist, set the value to an empty array
+                //localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
+                SetTableInfo(store + "-" + tableNumber, JSON.stringify([]))
+              }
         } else if (event.data === "admin mode active") {
             setSelectedSeatMode("admin");
         } else if (event.data === "customer mode active") {
@@ -472,7 +496,7 @@ function App({ store, acct }) {
 
                         <div style={{ margin: "10px", display: "flex" }} >
                             <div style={{ position: 'relative' }}>
-                                <Iframe key={divWidth}
+                                <Iframe className = "notranslate" key={divWidth}
                                     ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width={(divWidth) + "px"} height="800px" storeName={store} />
 
                                 {isModalOpen && (

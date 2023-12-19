@@ -671,6 +671,7 @@ function App() {
                                             style={{ marginLeft: "5%", height: '50px', width: "150%" }}
                                             onChange={(e) => setInputData(e.target.value)}
                                             value={inputData}
+                                            translate="no" 
                                         />
                                         <Button
                                             fullWidth
@@ -1012,6 +1013,7 @@ function App() {
                                                 setSearchData(e.target.value);
                                             }}
                                             value={searchData}
+                                            translate="no" 
                                         />
 
                                         <div className="task-wrap" style={{ minHeight: '400px', maxHeight: '400px', overflowY: 'scroll' }}>

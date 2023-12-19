@@ -16,22 +16,46 @@ const App = () => {
 
     return (
 
-        <div className='max-w-[500px] mx-auto p-4 '>
-            <div className="app-container" style={{ height: "100%" }}>
-                <div className="row">
-                    <div className="col">
-                        <Item />
-                    </div>
-                </div>
-            </div>
+        <div className='mx-auto'>
+            <Item />
         </div>
     );
 };
 
 const Item = () => {
     const params = new URLSearchParams(window.location.search);
-
+    const { user, user_loading } = useUserContext();
+    const [documentData, setDocumentData] = useState([]);
     const store = params.get('store') ? params.get('store').toLowerCase() : "";
+    const urlParams = new URLSearchParams(window.location.search);
+    const receiptToken = urlParams.get('docId');  // '12345'
+    console.log(receiptToken)
+    useEffect(() => {
+        if (receiptToken && receiptToken.length === 20) {
+            const unsubscribe = firebase
+                .firestore()
+                .collection("stripe_customers")
+                .doc(user.uid)
+                .collection("payments")
+                .doc(receiptToken)
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const payment = doc.data();
+                        const paymentData = payment;
+                        setDocumentData(paymentData)
+                        console.log("Document data:", paymentData);
+                    } else {
+                        console.log("No such document!");
+                    }
+                }, (error) => {
+                    console.log("Error getting document:", error);
+                });
+
+            return () => unsubscribe(); // Clean up the listener when the component is unmounted
+        } else {
+            console.log("null");
+        }
+    }, [receiptToken]); // useEffect will run when receiptToken changes
 
     // for translations sake
     const trans = JSON.parse(sessionStorage.getItem("translations"))
@@ -50,24 +74,55 @@ const Item = () => {
         };
     }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
 
-    if (!store) return <div>Loading...</div>; // Render a loading state if payment_data is not fetched
+    if (!store||!receiptToken) return <div></div>; // Render a loading state if payment_data is not fetched
 
     return (
-        <div className="card2 mb-50" >
+        <div className="" >
             <div className="col d-flex">
-                {/** 
-        <span className="text-muted" id="orderno">
-          order #546924
-        </span>*/}
+
             </div>
             <div className="gap">
                 <div className="col-2 d-flex mx-auto" />
-                <a href={`./store?store=${store}`} style={{ color: "blue" }}>
-                    &lt; Back to store
-                </a>
-                <div>
-                We have received your order. Please contact the seller to confirm your order.
-                </div>
+                {documentData?.receipt && (
+                    <div >
+                        <div>
+
+                            <b>
+                                We have received your unpaid order. 
+                                Please contact the seller to confirm your order.
+                            </b>
+                        </div>
+
+                        <div>
+                            <b className="block text-black notranslate">{t("Order ID")}: {receiptToken?.substring(0, 4)}</b>
+                        </div>
+                        <span className="block text-black text-sm">{moment(documentData?.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-13).format("MMMM D, YYYY h:mm a")}</span>
+                    </div>
+                )
+                }
+
+
+                {documentData?.receipt && JSON.parse(documentData.receipt || '[]').map((product, index) => {
+                    return (
+                        <div className="row row-main" key={index}>
+                            <div className="col-9">
+                                <div className="row d-flex">
+                                    <b>
+                                        {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                                    </b>
+                                </div>
+                                <div className="row d-flex">
+                                    <p className="text-muted  mb-0 pb-0">@ ${product.subtotal} {t("each")} x {product.quantity}</p>
+                                </div>
+                            </div>
+                            <div className="col-3 d-flex justify-content-end">
+                                <p>
+                                    <b>${Math.round(100 * product.subtotal * product.quantity) / 100}</b>
+                                </p>
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     )

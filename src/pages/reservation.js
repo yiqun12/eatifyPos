@@ -94,6 +94,7 @@ const ReservationForm = () => {
         style={label_style}
         htmlFor="name">{t("Your Name")}</label>
         <input
+         translate="no" 
         style={input_style}
           type="text"
           id="name"
@@ -106,6 +107,7 @@ const ReservationForm = () => {
       <div className="elem-group">
         <label style={label_style} htmlFor="email">{t("Your E-mail")}</label>
         <input
+         translate="no" 
         style={input_style}
           type="email"
           id="email"
@@ -117,6 +119,7 @@ const ReservationForm = () => {
       <div className="elem-group">
         <label style={label_style} htmlFor="phone">{t("Your Phone")}</label>
         <input
+         translate="no" 
         style={input_style}
           type="tel"
           id="phone"
@@ -129,6 +132,7 @@ const ReservationForm = () => {
       <div className="elem-group inlined">
         <label style={label_style} htmlFor="adult">{t("Adults")}</label>
         <input
+         translate="no" 
         style={input_style}
           type="number"
           id="adult"
@@ -141,6 +145,7 @@ const ReservationForm = () => {
       <div className="elem-group inlined">
         <label style={label_style} htmlFor="child">{t("Children")}</label>
         <input
+         translate="no" 
         style={input_style}
           type="number"
           id="child"
@@ -153,6 +158,7 @@ const ReservationForm = () => {
       <div style = {{width:"100%"}}className="elem-group inlined">
         <label style={label_style} htmlFor="checkin-date">{t("Check-in Date")}</label>
         <input
+         translate="no" 
         style={input_style}
           placeholder = "mm/dd/yyyy"
           type="date"

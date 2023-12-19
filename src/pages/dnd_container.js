@@ -15,7 +15,7 @@ import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
-import PaymentComponent2 from "../pages/PaymentComponent2";
+import PaymentComponent2 from "../pages/PaymentComponent3";
 
 // function Item({ heading, description }) 
 
@@ -151,8 +151,13 @@ function Container(props) {
     setFinalResult(finalPrice + extraAmount);
   };
 
-  const calculateCustomAmount = () => {
-    const amount = parseFloat(customAmount);
+  const calculateCustomAmount = (customAmoun_t) => {
+    let amount;
+    if (!customAmoun_t) {
+      amount = parseFloat(customAmount);
+    } else {
+      amount = customAmoun_t
+    }
     if (!isNaN(amount)) {
       setExtra(amount);
       setFinalResult(finalPrice + amount);
@@ -216,7 +221,7 @@ function Container(props) {
     setCustomAmountVisible(!isCustomAmountVisible);
   };
 
-  const [extra, setExtra] = useState(null);
+  const [extra, setExtra] = useState(0);
 
 
   const [finalPrice, setFinalPrice] = useState(0);
@@ -387,7 +392,7 @@ function Container(props) {
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "CustomerReceipt"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: checkout(containerId),
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -405,7 +410,7 @@ function Container(props) {
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "MerchantReceipt"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: checkout(containerId),
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -435,7 +440,7 @@ function Container(props) {
   const CashCheckOut = async (extra) => {
     let extra_tip = 0
     if (extra !== null) {
-      extra_tip = extra.toFixed(2)
+      extra_tip = Math.round(extra * 100) / 100
     }
     try {
       const dateTime = new Date().toISOString();
@@ -502,6 +507,10 @@ function Container(props) {
         uid: user.uid,
         user_email: user.email,
       });
+      setExtra(0)
+      setInputValue("")
+      setDiscount("")
+      setTips("")
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -520,11 +529,7 @@ function Container(props) {
       <div style={{ display: "flex", flexDirection: "column" }}>
         <div className="text-center font-black text-gray-700 ml-1 mr-1">
           <div style={{ display: "flex", marginTop: "auto", justifyContent: "space-between" }}>
-            {containerId !== "main" && (
-              <Button variant="success" style={{ marginTop: "auto" }} onClick={() => checkout(containerId)}>
-                <FontAwesomeIcon icon={faCheckCircle} color="white" size="2x" />
-              </Button>
-            )}
+
             {containerId}
 
             <Button variant="danger" style={{ marginTop: "auto" }} onClick={() => openPopup(containerId)}>
@@ -663,6 +668,7 @@ function Container(props) {
                           value={customPercentage}
                           onChange={handleCustomPercentageChange}
                           className="px-4 py-2 ml-2 form-control tips-no-spinners"  // Added the 'no-spinners' class
+                          translate="no"
                         />
                       </div>
                       <input
@@ -680,6 +686,7 @@ function Container(props) {
                           setSelectedTipPercentage(null);
                         }}
                         onFocus={() => setSelectedTipPercentage(null)}
+                        translate="no"
                       />
                     </div>
                     <div className="modal-footer">
@@ -723,6 +730,7 @@ function Container(props) {
                           value={customDiscountPercentage}
                           onChange={handleCustomDiscountPercentageChange}
                           className="px-4 py-2 ml-2 form-control discounts-no-spinners"
+                          translate="no"
                         />
                       </div>
                       <input
@@ -739,6 +747,7 @@ function Container(props) {
                           applyDiscount(value);
                           setSelectedDiscountPercentage(null);
                         }}
+                        translate="no"
                       />
                     </div>
                     <div className="modal-footer">
@@ -776,7 +785,7 @@ function Container(props) {
                     </div>
                     <div className="modal-body pt-0">
 
-                      <PaymentComponent2 setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
+                      <PaymentComponent2 setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
 
                     </div>
                     <div className="modal-footer">
@@ -828,9 +837,10 @@ function Container(props) {
                               onChange={handleCustomAmountChange}
                               style={uniqueModalStyles.inputStyle}
                               className="p-2 w-full border rounded-md mr-2"
+                              translate="no"
                             />
                             <button
-                              onClick={calculateCustomAmount}
+                              onClick={() => calculateCustomAmount(customAmount)}
                               className="bg-orange-500 text-white p-2 rounded-md w-1/3"
                             >
                               Add
@@ -845,6 +855,7 @@ function Container(props) {
                         onChange={handleChange}
                         style={uniqueModalStyles.inputStyle}
                         className="mb-4 p-2 w-full border rounded-md"
+                        translate="no"
                       />
                       <button
                         onClick={calculateResult}
@@ -853,18 +864,33 @@ function Container(props) {
                       >
                         Calculate Give Back Cash
                       </button>
-                      {extra !== null && (
+                      {(extra !== null && extra !== 0) && (
                         <p className="">Gratuity: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
                       )}
                       <p className="mt-1">Final Payment: <span className='notranslate'>${finalPrice}</span> </p>
 
                       {result !== null && (
-                        <p className="mt-1 mb-4 ">
-                          Give Back Cash :
+                        <div>
+                          <p className="mt-1 mb-4 ">
+                            Give Back Cash :
 
-                          <span className='notranslate'>${extra !== null ? Math.round((result - finalPrice) * 100) / 100 : result}</span>
-                        </p>
+                            <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
+                          </p>
+                          <button
+                            onClick={() => {
+                              setCustomAmount(Math.round((result - finalPrice) * 100) / 100); calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
+                              CashCheckOut(Math.round((result - finalPrice) * 100) / 100);
+                              closeUniqueModal();
+                            }}
+                            style={uniqueModalStyles.buttonStyle}
+                            className="mt-2 mb-2 bg-green-500 text-white px-4 py-2 rounded-md w-full"
+                          >
+                            Put give back cash as Gratuity and Checkout Order
+                          </button>
+
+                        </div>
                       )}
+
                       <button
                         onClick={() => { CashCheckOut(extra); closeUniqueModal(); }}
                         style={uniqueModalStyles.buttonStyle}
@@ -879,19 +905,19 @@ function Container(props) {
                 </div>
               </div>
             )}
-            <div className={`text-right`}>Subtotal: ${subtotal} </div>
+            <div className={`text-right`}>Subtotal: <span className='notranslate'>${Math.round(subtotal * 100) / 100}</span> </div>
             {discount && (
               <div className={`text-right`}>Discount: <span className='notranslate'>-${discount} </span></div>
             )}
             {tips && (
               <div className={`text-right`}>Service Fee: <span className='notranslate'>${tips}</span> </div>
             )}
-            {extra !== null && (
+            {(extra !== null && extra !== 0) && (
               <div className={`text-right`}>Gratuity: <span className='notranslate'>{Math.round((extra) * 100) / 100} </span></div>
             )}
-            <div className={`text-right `}>Tax(8.25%): ${Math.round(subtotal * 0.0825 * 100) / 100} </div>
-            <div className={`text-right `}>Total: ${finalPrice} </div>
-            
+            <div className={`text-right `}>Tax(8.25%):<span className='notranslate'>${Math.round(subtotal * 0.0825 * 100) / 100}</span>  </div>
+            <div className={`text-right `}>Total: <span className='notranslate'>${finalPrice}</span>  </div>
+
           </div>
         </div>
       </div>

@@ -70,7 +70,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
   const [finalPrice, setFinalPrice] = useState(0);
 
   const [totalQuant, setTotalQuant] = useState(0);
-  const [extra, setExtra] = useState(null);
+  const [extra, setExtra] = useState(0);
 
   const toggleAllowance = () => {
     console.log(isAllowed)
@@ -84,47 +84,17 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       const docData = { product: product, date: date };
       const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
       await setDoc(docRef, docData);
-      localStorage.setItem(table_name,product)
+      //localStorage.setItem(table_name, product)
 
     } catch (error) {
       console.error("Error adding document: ", error);
     }
   };
-  
 
-  const GetTableProductInfo = async (table_name) => {
-    try {
-      // Create a reference to the specific document in the Table collection
-      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
-
-      // Get the document
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        // Extract the data from the document
-        const docData = docSnap.data();
-        console.log("Document data:", docData);
-        // Return the product information
-        setTableProductInfo(docData?.product)
-        console.log(docData?.product)
-      } else {
-        // Handle the case where the document does not exist
-        console.log("No such document!");
-        setTableProductInfo("[]")
-        console.log("[]")
-        SetTableInfo(table_name, "[]")
-      }
-    } catch (error) {
-      console.error("Error getting document: ", error);
-      setTableProductInfo("[]")
-      console.log("[]")
-      SetTableInfo(table_name, "[]")
-    }
-  };
 
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
-    
+
     //maybe add a line here...
     const calculateTotalPrice = () => {
       const total = (Array.isArray(products) ? products : []).reduce((acc, item) => item && parseFloat(item.itemTotalPrice) ? parseFloat(acc) + parseFloat(item.itemTotalPrice) : parseFloat(acc), 0);
@@ -140,58 +110,66 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     console.log("change price")
     console.log(tableProductInfo)
     //TO DO: get a better sync. this would write in database twice and this code is not working in mobile unless you get in the shopping cart.
-    GetTableProductInfo(store + "-" + selectedTable)
-    localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
-    SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
+    //GetTableProductInfo(store + "-" + selectedTable)
+    //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
   }, [products, width, tips, discount, extra]);
 
 
   const handleDeleteClick = (productId, count) => {
-    setProducts((prevProducts) => {
-      const productToDelete = prevProducts.find((product) => product.count === count);
-      if (productToDelete) {
-        console.log('Product before deletion:', productToDelete);
-      }
-      return prevProducts.filter((product) => product.count !== count);
-    });
-  }
+    // Assuming prevProducts is available in this scope, otherwise, you need to get it from your state
+    // Optional: Logging the product to be deleted
+    const productToDelete = products.find((product) => product.id === productId && product.count === count);
+    if (productToDelete) {
+      console.log('Product before deletion:', productToDelete);
+    }
 
+    // Filter out the product to be deleted
+    const updatedProducts = products.filter((product) => !(product.id === productId && product.count === count));
 
-
-  const handlePlusClick = (productId, targetCount) => {
-    setProducts((prevProducts) => {
-      return prevProducts.map((product) => {
-        if (product.id === productId && product.count === targetCount) {
-          return {
-            ...product,
-            quantity: Math.min(product.quantity + 1, 99),
-            itemTotalPrice: Math.round(100 * product.itemTotalPrice / (product.quantity) * (Math.min(product.quantity + 1, 99))) / 100,
-          };
-        }
-        return product;
-      });
-    });
+    // Update the table information with the new set of products
+    SetTableInfo(store + "-" + selectedTable, JSON.stringify(updatedProducts));
   };
 
-  const handleMinusClick = (productId, targetCount) => {
-    setProducts((prevProducts) => {
-      return prevProducts.map((product) => {
-        if (product.id === productId && product.count === targetCount) {
-          const newQuantity = Math.max(product.quantity - 1, 0);
-          console.log({
-            ...product,
-            quantity: 1,
-            itemTotalPrice: newQuantity > 0 ? Math.round(100 * product.itemTotalPrice / product.quantity) / 100 : 0,
-          });
-          return {
-            ...product,
-            quantity: newQuantity,
-            itemTotalPrice: newQuantity > 0 ? Math.round(100 * product.itemTotalPrice / product.quantity * newQuantity) / 100 : 0,
-          };
-        }
-        return product;
-      });
+  const handlePlusClick = (productId, targetCount) => {
+    // Assuming prevProducts is available in this scope, otherwise, you need to get it from your state
+    const updatedProducts = products.map((product) => {
+      if (product.id === productId && product.count === targetCount) {
+        const newQuantity = product.quantity + 1;
+        const newTotalPrice = Math.round(100 * product.itemTotalPrice / product.quantity * newQuantity) / 100;
+
+        return {
+          ...product,
+          quantity: newQuantity,
+          itemTotalPrice: newTotalPrice,
+        };
+      }
+      return product;
     });
+
+    // Call SetTableInfo with updated information
+    SetTableInfo(store + "-" + selectedTable, JSON.stringify(updatedProducts));
+
+  };
+
+
+  const handleMinusClick = (productId, targetCount) => {
+    // Assuming prevProducts is available in this scope, otherwise, you need to get it from your state
+    const updatedProducts = products.map((product) => {
+      if (product.id === productId && product.count === targetCount) {
+        const newQuantity = Math.max(product.quantity - 1, 0);
+        const newTotalPrice = newQuantity > 0 ? Math.round(100 * product.itemTotalPrice / product.quantity * newQuantity) / 100 : 0;
+
+        return {
+          ...product,
+          quantity: newQuantity,
+          itemTotalPrice: newTotalPrice,
+        };
+      }
+      return product;
+    });
+
+    // Call SetTableInfo with updated information
+    SetTableInfo(store + "-" + selectedTable, JSON.stringify(updatedProducts));
   };
 
 
@@ -256,7 +234,23 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     }
   }
 
-
+  const listOrder = async () => {
+    try {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "listOrder"), {
+        date: date,
+        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        selectedTable: selectedTable,
+        discount: discount === "" ? 0 : discount,
+        service_fee: tips === "" ? 0 : tips,
+        total: finalPrice,
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
 
 
   const SendToKitchen = async () => {
@@ -264,13 +258,14 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     try {
       if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
         if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
-          return
-        } else {//delete item
+          return //no item in the array no item isSent.
+        } else {//delete all items
+
           compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), [])
           localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
         }
       }
-      if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
+      if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {//nothing isSent
         const dateTime = new Date().toISOString();
         const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
         const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
@@ -280,7 +275,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
         });
         console.log("Document written with ID: ", docRef.id);
         localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
-      } else {
+      } else {//partially is sent
         compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
         localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
 
@@ -290,10 +285,11 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     }
   }
 
-  async function compareArrays(array1, array2) {
+  async function compareArrays(array1, array2) {//array1 isSent array2 is full array
     const array1ById = Object.fromEntries(array1.map(item => [item.count, item]));
     const array2ById = Object.fromEntries(array2.map(item => [item.count, item]));
-
+    const add_array = []
+    const delete_array = []
     for (const [count, item1] of Object.entries(array1ById)) {
       const item2 = array2ById[count];
       if (item2) {
@@ -304,18 +300,23 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             quantity: item1.quantity - item2.quantity,
             itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
           });
-          const dateTime = new Date().toISOString();
-          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-          const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
-            date: date,
-            data: [{
-              ...item1,
-              quantity: item1.quantity - item2.quantity,
-              itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
-            }],
-            selectedTable: selectedTable
-          });
-          console.log("Document written with ID: ", docRef.id);
+          delete_array.push({
+            ...item1,
+            quantity: item1.quantity - item2.quantity,
+            itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
+          })
+          // const dateTime = new Date().toISOString();
+          // const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+          // const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
+          //   date: date,
+          //   data: [{
+          //     ...item1,
+          //     quantity: item1.quantity - item2.quantity,
+          //     itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
+          //   }],
+          //   selectedTable: selectedTable
+          // });
+          // console.log("Document written with ID: ", docRef.id);
 
         } else if (item1.quantity < item2.quantity) {
           console.log('Added trigger:', {
@@ -323,30 +324,36 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             quantity: item2.quantity - item1.quantity,
             itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
           });
-          const dateTime = new Date().toISOString();
-          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-          const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
-            date: date,
-            data: [{
-              ...item2,
-              quantity: item2.quantity - item1.quantity,
-              itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
-            }],
-            selectedTable: selectedTable
-          });
-          console.log("Document written with ID: ", docRef.id);
+          add_array.push({
+            ...item2,
+            quantity: item2.quantity - item1.quantity,
+            itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
+          })
+          // const dateTime = new Date().toISOString();
+          // const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+          // const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
+          //   date: date,
+          //   data: [{
+          //     ...item2,
+          //     quantity: item2.quantity - item1.quantity,
+          //     itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
+          //   }],
+          //   selectedTable: selectedTable
+          // });
+          // console.log("Document written with ID: ", docRef.id);
         }
       } else {
         // If item exists in array 1 but not in array 2
         console.log('Deleted trigger:', item1);
-        const dateTime = new Date().toISOString();
-        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-        const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
-          date: date,
-          data: [item1],
-          selectedTable: selectedTable
-        });
-        console.log("Document written with ID: ", docRef.id);
+        delete_array.push(item1)
+        // const dateTime = new Date().toISOString();
+        // const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+        // const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
+        //   date: date,
+        //   data: [item1],
+        //   selectedTable: selectedTable
+        // });
+        // console.log("Document written with ID: ", docRef.id);
 
       }
     }
@@ -356,15 +363,37 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       if (!item1) {
         // If item exists in array 2 but not in array 1
         console.log('Added trigger:', item2);
-        const dateTime = new Date().toISOString();
-        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-        const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
-          date: date,
-          data: [item2],
-          selectedTable: selectedTable
-        });
-        console.log("Document written with ID: ", docRef.id);
+        add_array.push(item2)
+        // const dateTime = new Date().toISOString();
+        // const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+        // const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
+        //   date: date,
+        //   data: [item2],
+        //   selectedTable: selectedTable
+        // });
+        // console.log("Document written with ID: ", docRef.id);
       }
+    }
+    if (add_array.length !== 0) {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
+        date: date,
+        data: add_array,
+        selectedTable: selectedTable
+      });
+      console.log("Document written with ID: ", docRef.id);
+    }
+
+    if (delete_array.length !== 0) {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
+        date: date,
+        data: delete_array,
+        selectedTable: selectedTable
+      });
+      console.log("Document written with ID: ", docRef.id);
     }
   }
 
@@ -389,7 +418,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
   const CashCheckOut = async (extra) => {
     let extra_tip = 0
     if (extra !== null) {
-      extra_tip = extra.toFixed(2)
+      extra_tip = Math.round(extra * 100) / 100
     }
     try {
       const dateTime = new Date().toISOString();
@@ -457,10 +486,15 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
         user_email: user.email,
       });
       console.log("Document written with ID: ", docRef.id);
-      localStorage.setItem(store + "-" + selectedTable, "[]"); setProducts([]);
+      //localStorage.setItem(store + "-" + selectedTable, "[]"); 
+      setProducts([]);
+      setExtra(0)
+      setInputValue("")
+      setDiscount("")
+      setTips("")
+
       SetTableInfo(store + "-" + selectedTable, "[]")
       localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
-
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -603,7 +637,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
   };
 
   const calculateResult = () => {
-    const x = parseInt(inputValue);
+    const x = parseFloat(inputValue);
     if (!isNaN(x) && x > finalPrice) {
       setResult(x);
     } else {
@@ -611,14 +645,16 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     }
   };
 
+
   const calculateExtra = (percentage) => {
     const extraAmount = (finalPrice * percentage) / 100;
     setExtra(extraAmount);
     setFinalResult(finalPrice + extraAmount);
   };
 
-  const calculateCustomAmount = () => {
-    const amount = parseFloat(customAmount);
+  const calculateCustomAmount = (customAmoun_t) => {
+    let amount;
+    amount = parseFloat(customAmoun_t)
     if (!isNaN(amount)) {
       setExtra(amount);
       setFinalResult(finalPrice + amount);
@@ -699,9 +735,8 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     <div>
       <div class=''>
         <div className="flex w-full">
-          <div className={`flex-grow ${!isMobile ? 'm-6' : 'm-2'}`}>
+          <div style={{ overflowY: 'auto', maxHeight: '700px' }} className={`flex-grow  ${!isMobile ? 'm-6' : 'm-2'}`}>
             {(Array.isArray(products) ? products : []).map((product) => (
-
               // the parent div
               // can make the parent div flexbox
               <div>
@@ -840,7 +875,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             </a>
 
             <a
-              onClick={() => { CustomerReceipt(); MerchantReceipt(); }}
+              onClick={() => { listOrder(); }}
               className="mt-3 btn btn-sm btn-secondary mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -914,23 +949,15 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             {tips && (
               <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Service Fee: <span className='notranslate'>${tips}</span> </div>
             )}
-            {extra !== null && (
+            {(extra !== null && extra !== 0) && (
               <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Gratuity: <span className='notranslate'>{Math.round((extra) * 100) / 100} </span></div>
             )}
             <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Tax(8.25%): <span className='notranslate'>${(Math.round(100 * totalPrice * 0.0825) / 100)}</span>    </div>
             <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Total Amount: <span className='notranslate'>${finalPrice}</span> </div>
           </div>
         </div>
-
-
-
-
         <div>
-
-
         </div>
-
-
       </div>
       {/* popup content */}
       <div style={{ margin: "auto", height: "fit-content" }}>
@@ -947,6 +974,22 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                     </button>
                   </div>
                   <div className="modal-body pt-0">
+                    <p className="mb-2">Enter the Cash Received</p>
+                    <input
+                      type="number"
+                      value={inputValue}
+                      onChange={handleChange}
+                      style={uniqueModalStyles.inputStyle}
+                      className="mb-4 p-2 w-full border rounded-md"
+                      translate="no"
+                    />
+                    <button
+                      onClick={calculateResult}
+                      style={uniqueModalStyles.buttonStyle}
+                      className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
+                    >
+                      Calculate Give Back Cash
+                    </button>
                     <p className="mb-4 mt-4">Gratuity:</p>
                     <div className="flex justify-between mb-4">
                       <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
@@ -957,6 +1000,9 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                       </button>
                       <button onClick={() => { calculateExtra(20); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
                         20%
+                      </button>
+                      <button onClick={() => { calculateExtra(0); setCustomAmountVisible(false) }} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                        0
                       </button>
                       <button onClick={toggleCustomAmountVisibility} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
                         Other
@@ -975,7 +1021,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                             className="p-2 w-full border rounded-md mr-2"
                           />
                           <button
-                            onClick={calculateCustomAmount}
+                            onClick={() => calculateCustomAmount(customAmount)}
                             className="bg-orange-500 text-white p-2 rounded-md w-1/3"
                           >
                             Add
@@ -983,32 +1029,32 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                         </div>
                       </div>
                     )}
-                    <p className="mb-2">Enter the Cash Received</p>
-                    <input
-                      type="number"
-                      value={inputValue}
-                      onChange={handleChange}
-                      style={uniqueModalStyles.inputStyle}
-                      className="mb-4 p-2 w-full border rounded-md"
-                    />
-                    <button
-                      onClick={calculateResult}
-                      style={uniqueModalStyles.buttonStyle}
-                      className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
-                    >
-                      Calculate Give Back Cash
-                    </button>
-                    {extra !== null && (
+
+                    {(extra !== null && extra !== 0) && (
                       <p className="">Gratuity: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
                     )}
-                    <p className="mt-1">Final Payment: <span className='notranslate'>${finalPrice}</span> </p>
+                    <p className="mt-1">Receivable Payment: <span className='notranslate'>${finalPrice}</span> </p>
 
                     {result !== null && (
-                      <p className="mt-1 mb-4 ">
-                        Give Back Cash :
+                      <div>
+                        <p className="mt-1 mb-4 ">
+                          Give Back Cash :
 
-                        <span className='notranslate'>${extra !== null ? Math.round((result - finalPrice) * 100) / 100 : result}</span>
-                      </p>
+                          <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
+                        </p>
+                        <button
+                          onClick={() => {
+                            setCustomAmount(Math.round((result - finalPrice) * 100) / 100); calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
+                            CashCheckOut(Math.round((result - finalPrice) * 100) / 100);
+                            closeUniqueModal();
+                          }}
+                          style={uniqueModalStyles.buttonStyle}
+                          className="mt-2 mb-2 bg-green-500 text-white px-4 py-2 rounded-md w-full"
+                        >
+                          Put give back cash as Gratuity and Checkout Order
+                        </button>
+
+                      </div>
                     )}
                     <button
                       onClick={() => { CashCheckOut(extra); closeUniqueModal(); }}
@@ -1049,7 +1095,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                     className="modal-body pt-0"
                     style={{ overflowX: 'auto', maxWidth: '100%' }}
                   >
-                    <Dnd_Test store={store} acct = {acct} selectedTable={selectedTable} key={dndTestKey} main_input={products} />
+                    <Dnd_Test store={store} acct={acct} selectedTable={selectedTable} key={dndTestKey} main_input={products} />
                   </div>
                   <div className="modal-footer">
                   </div>
@@ -1071,7 +1117,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                   </div>
                   <div className="modal-body pt-0">
 
-                    <PaymentComponent2 setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
+                    <PaymentComponent2 setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
 
                   </div>
                   <div className="modal-footer">
@@ -1101,15 +1147,18 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                       <button onClick={() => handlePercentageTip(0.20)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
                         20%
                       </button>
-
-                      <input
+                      <button onClick={() => handlePercentageTip(0.25)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                        25%
+                      </button>
+                      {/* <input
                         type="number"
                         placeholder="Enter percent"
                         min="0"  // Add this line
                         value={customPercentage}
                         onChange={handleCustomPercentageChange}
                         className="px-4 py-2 ml-2 form-control tips-no-spinners"  // Added the 'no-spinners' class
-                      />
+                        translate="no" 
+                      /> */}
                     </div>
                     <input
                       type="number"
@@ -1126,6 +1175,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                         setSelectedTipPercentage(null);
                       }}
                       onFocus={() => setSelectedTipPercentage(null)}
+                      translate="no"
                     />
                   </div>
                   <div className="modal-footer">
@@ -1149,20 +1199,15 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                       <button onClick={() => handleDiscountPercentage(0.10)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mr-2">
                         10%
                       </button>
-                      <button onClick={() => handleDiscountPercentage(0.20)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                      <button onClick={() => handleDiscountPercentage(0.15)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                        15%
+                      </button>
+                      <button onClick={() => handleDiscountPercentage(0.20)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
                         20%
                       </button>
-                      <button onClick={() => handleDiscountPercentage(0.30)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        30%
+                      <button onClick={() => handleDiscountPercentage(0.25)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                        25%
                       </button>
-                      <input
-                        type="number"
-                        placeholder="Enter percent"
-                        min="0"
-                        value={customDiscountPercentage}
-                        onChange={handleCustomDiscountPercentageChange}
-                        className="px-4 py-2 ml-2 form-control discounts-no-spinners"
-                      />
                     </div>
                     <input
                       type="number"
@@ -1170,6 +1215,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                       placeholder="Enter discount amount"
                       value={discount}
                       className="form-control discounts-no-spinners"
+                      translate="no"
                       onChange={(e) => {
                         let value = parseFloat(e.target.value);
                         if (value < 0 || isNaN(value)) {

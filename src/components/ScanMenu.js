@@ -233,6 +233,7 @@ const GoogleVisionDemo = ({ reload,store, setFoods }) => {
         type="file"
         onChange={handleFileChangeAndUpload}
         style={{ display: 'none' }} // hides the input
+        translate="no" 
       />
       <div className="btn d-inline-flex btn-sm btn-secondary mx-1">
         <span className="pe-2">

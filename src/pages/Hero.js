@@ -66,6 +66,7 @@ const Hero = () => {
           checked={plan === 'TakeOut'}
           onChange={handleSwitchChange}
           disabled={sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === ""}
+          translate="no" 
         />
         <input
           type="radio"
@@ -75,6 +76,7 @@ const Hero = () => {
           checked={plan === 'DineIn'}
           onChange={handleSwitchChange}
           disabled={sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === ""}
+          translate="no" 
         />
         <label htmlFor="switchTakeOut" style={{ "fontSize": "14px" }}>{t("TakeOut")}</label>
         <label htmlFor="switchDineIn" style={{ "fontSize": "143x" }}>{t("DineIn")}</label>

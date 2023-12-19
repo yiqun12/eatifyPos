@@ -15,7 +15,7 @@ import { db } from '../firebase/index';
 import { doc, getDoc } from "firebase/firestore";
 import { useUserContext } from "../context/userContext";
 import { setDoc } from "firebase/firestore";
-
+//setModalVisibility
 import { v4 as uuidv4 } from 'uuid';
 
 const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
@@ -24,6 +24,23 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
   const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
   const [count, setCount] = useState(0);  // Set up a state
   const [priceError, setPriceError] = useState("");  // Set up a state
+  const SetTableInfo = async (table_name, product) => {
+    try {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+
+      const docData = { product: product, date: date };
+
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
+      await setDoc(docRef, docData);
+      //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(product))))
+      //localStorage.setItem(table_name, product)
+
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
+
 
   const handleAttributeSelect = (attributeName, variationType, id, count, updateSelectedAttributes) => {
     let updatedSelectedAttributes;
@@ -82,7 +99,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
     const products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
     const product = products.find((product) => product.id === id && product.count === count);
     console.log(Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100) >= 0)
-    if (Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100) >= 0) {
+    if (Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100 >= 0) {
       setTotalPrice(newTotalPrice);
       // Update the state with the new selected attributes
       setSelectedAttributes(updatedSelectedAttributes);
@@ -92,8 +109,9 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
       console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
 
       product.attributeSelected = updatedSelectedAttributes
-      product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
-      localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products))
+      product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
+      //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products))
+      SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
     }
 
 
@@ -330,16 +348,18 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
   };
   const { user, user_loading } = useUserContext();
 
-  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI) => {
+  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI, item) => {
 
     // Check if the array exists in local storage
     if (localStorage.getItem(store + "-" + selectedTable) === null) {
       // If it doesn't exist, set the value to an empty array
-      localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
+      //localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
+      SetTableInfo(store + "-" + selectedTable, JSON.stringify([]))
     }
     if (!localStorage.getItem(store + "-" + selectedTable)) {
       // If it doesn't exist, set the value to an empty array
-      localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
+      //localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
+      SetTableInfo(store + "-" + selectedTable, JSON.stringify([]))
     }
     // Retrieve the array from local storage
     console.log('bbbbb')
@@ -361,16 +381,28 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
       product.quantity++;
       product.attributeSelected = attributeSelected;
       product.count = count;
-      product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100);
+      product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100;
       product.CHI = CHI;
     } else {
       // If the product doesn't exist, add it to the array
-      products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: Math.round(100 * subtotal / 100), CHI: CHI });
+      products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: Math.round(100 * subtotal) / 100, CHI: CHI });
     }
     //product.itemTotalPrice= Math.round(100 *((parseFloat(totalPrice)+parseFloat(product.subtotal))*parseFloat(product.quantity))/ 100)
     console.log(product)
     // Update the array in local storage
-    localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+    //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+    //SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
+    if (!item || !item.attributesArr) {
+      SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
+      return;
+    }
+    if (!isAllowed && Object.keys(item?.attributesArr).length === 0) {
+      console.log("groupup since no modal")
+      SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(products)));
+    } else {
+      SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
+    }
+
   };
 
 
@@ -389,25 +421,33 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
         if (isDelete === 0) {//0 means false
           console.log("delete now")
           products.splice(productIndex, 1);
-          localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+          //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+          SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
           saveId(Math.random());
-          hideModal()
+          setModalVisibility(false);
+          handleRemoveAllCustomVariants();
+          return
+          //hideModal()
         }
         // If the quantity becomes 0, remove the product from the array
         if (products[productIndex].quantity <= 0) {
           console.log("delete now")
           products.splice(productIndex, 1);
-          localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+          //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+          SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
           saveId(Math.random());
-          hideModal()
+          setModalVisibility(false);
+          handleRemoveAllCustomVariants();
+          //hideModal()
           return
         }
         const product = products.find((product) => product.id === id && product.count === count);
         console.log(products[productIndex])
         console.log(product)
-        product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
+        product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
         // Save the updated array in local storage
-        localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+        //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
+        SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
       }
 
     }
@@ -416,7 +456,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
   const searchSpeicalFoodQuantity = (id, count) => {
     // Retrieve the array from local storage
     let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
-    const product = products.find((product) => product.id === id && product.count === count);
+    const product = products?.find((product) => product.id === id && product.count === count);
     // If the product is not found or the quantity is less than or equal to 0, return 0
     return product ? product.quantity : 0;
   };
@@ -557,6 +597,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
     setModalVisibility(true);
     setSelectedAttributes({})
     setTotalPrice(0);
+
     addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI)
     saveId(Math.random());
     console.log("hello")
@@ -572,7 +613,8 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
   const hideModal = () => {
     setModalVisibility(false);
     handleRemoveAllCustomVariants();
-    localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+    //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+    SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
     saveId(Math.random)
 
   }
@@ -594,7 +636,9 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
       } else {
         // If this item already exists, sum up the quantity and itemTotalPrice
         groupedItems[key].quantity += item.quantity;
-        groupedItems[key].itemTotalPrice += item.itemTotalPrice;
+        //groupedItems[key].itemTotalPrice += item.itemTotalPrice;
+        groupedItems[key].itemTotalPrice = Math.round((groupedItems[key].itemTotalPrice + item.itemTotalPrice) * 100) / 100;
+
         // The count remains from the first item
       }
     });
@@ -618,9 +662,9 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
     // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
-  const [customVariant, setCustomVariant] = useState({ name: '', price: '0' });
+  const [customVariant, setCustomVariant] = useState({ name: '外卖TakeOut', price: '0' });
 
-  const handleAddCustomVariant = (name, priceString) => {
+  const handleAddCustomVariant = (name, priceString, count, id) => {
     const price = parseFloat(priceString) || 0;  // Convert price to number here
 
     if (!name || isNaN(priceString)) {
@@ -657,13 +701,18 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
     updatedAttributes['Customized Option'] = updatedAttributes['Customized Option'] || [];
     if (!updatedAttributes['Customized Option'].includes(name)) {
       updatedAttributes['Customized Option'].push(name);
-    }
 
+    }
+    console.log("handleAttributeSelecthandleAttributeSelecthandleAttributeSelecthandleAttributeSelect")
+    console.log('Customized Option', name, id, count, {})
+    handleAttributeSelect('Customized Option', name, id, count, {})
     setSelectedFoodItem(updatedFoodItem);
     setSelectedAttributes(updatedAttributes);
     setTotalPrice(TotalAttributePrice(updatedAttributes, updatedFoodItem.attributesArr));
-    setCustomVariant({ name: '', price: 0 }); // Reset custom variant input
+    setCustomVariant({ name: '外卖TakeOut', price: 0 }); // Reset custom variant input
+
   };
+
   const handleRemoveAllCustomVariants = () => {
     const updatedFoodItem = { ...selectedFoodItem };
     const updatedAttributes = { ...selectedAttributes };
@@ -680,6 +729,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
     }
   };
 
+
   if (false) {
     return <p>  <div className="pan-loader">
       Loading...
@@ -692,6 +742,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
       <div>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
         {isModalVisible && (
+
           <div id={count} className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
             <div className="relative w-full max-w-2xl max-h-full ">
               <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
@@ -711,6 +762,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                       placeholder="Enter the reason of the price change"
                       value={customVariant.name}
                       onChange={(e) => setCustomVariant({ ...customVariant, name: e.target.value })}
+                      translate="no"
                     />
                     <small id="customVariantNameHelp" className="form-text text-muted">
                       This is the reason of the price change you want to add.
@@ -726,6 +778,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                       placeholder="Enter the price of the custom variant (can be negative)"
                       value={customVariant.price}
                       onChange={(e) => setCustomVariant({ ...customVariant, price: e.target.value })}
+                      translate="no"
                     />
                     <small id="customVariantPriceHelp" className="form-text text-muted">
                       Enter a positive or negative number for the price adjustment.
@@ -735,9 +788,10 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                   <button
                     className="btn btn-primary mb-3"
                     type="button"
-                    onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price)}
+                    onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
                   >
-                    Add Custom Variant
+                    Add Variant (Default:<span
+                     className='notranslate'>{customVariant.name}</span> )
                   </button>
 
 
@@ -781,8 +835,9 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                               onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count, {})}
                             >
 
-
-                              {variation.type}
+                              <span class="notranslate">
+                                {variation.type}
+                              </span>
                               <span class="notranslate">
                                 ({formatPriceDisplay(variation.price)})
                               </span>
@@ -876,6 +931,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                       className='flex bg-transparent p-2 w-full focus:outline-none text-black'
                       placeholder={t('Search Food Item')}
                       onChange={handleInputChange}
+                      translate="no"
                     />
                     <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
                   </div>
@@ -939,12 +995,12 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
 
           {/* diplay food */}
           <AnimatePresence>
-            <div className='grid grid-cols-1 gap-3 pt-2' style={{
+            <div className='grid grid-cols-1 gap-3 pt-2 ' style={{
               gridTemplateRows: `repeat(1, 1fr)`,
               gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
-              overflowY:'scroll',
-              maxHeight:'600px'
-           }}>
+              overflowY: 'auto',
+              maxHeight: '600px'
+            }}>
               {foods.map((item, index) => (
                 <motion.div
                   layout
@@ -965,16 +1021,18 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                         setCount(randomNum);  // Increment the count every time the modal is opened
                         setSelectedAttributes({})
                         setTotalPrice(0);
-                        addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI)
-                        localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
-                        saveId(Math.random)
+                        addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item)
+                        //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+                        //console.log("helllllllllllllllllllllllllllllllllllllo")
+                        //console.log(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable))))
+                        //SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
                       }
                     } else {
                       showModal(item);
                       setSelectedFoodItem(item);
                     }
                   }}
-                  
+
                   className=" border border-black rounded cursor-pointer">
                   <div className='flex'>
                     <div style={{ width: "100%" }}>

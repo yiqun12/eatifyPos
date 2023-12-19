@@ -132,9 +132,11 @@ const Account = () => {
         docs.push({ id: doc.id, ...doc.data() });
         localStorage.setItem(doc.id, doc.data().product);
       });
-      console.log("docs");
+
+      console.log("listen to docs changed");
       console.log(docs);
       setDocuments(docs);
+      saveId(Math.random());
     }, (error) => {
       // Handle any errors
       console.error("Error getting documents:", error);
@@ -353,7 +355,7 @@ const Account = () => {
   const [selectedDate, setSelectedDate] = useState(new Date(dateNow));
   const [showChart, setShowChart] = useState(false);
 
-  const COLORS = ['#0088FE', '#00C49F', '#FF8042', '#FF8042'];
+  const COLORS = ['#0088FE', '#00C49F', '#FF8042', '#FFCC33'];
 
   const RADIAN = Math.PI / 180;
 
@@ -532,12 +534,19 @@ const Account = () => {
 
       console.log("PendingDineInOrder");
       console.log(docs);
-      if(sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中")){
-        playSound_CHI()
-      }else{
-        playSound()
-      }
-      
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added" || change.type === "modified") {
+          if (sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中")) {
+            playSound_CHI()
+          } else {
+            playSound()
+          }
+        } else {
+
+        }
+      });
+
+
       setNotificationData(docs)
       setDocuments(docs);
     }, (error) => {
@@ -995,7 +1004,7 @@ const Account = () => {
                           <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
                         </svg>
                       </i>
-                      Account
+                      {" Account"}
                     </div>
                   </button>
                   <button
@@ -1016,24 +1025,25 @@ const Account = () => {
                     </div>
                   </button>
                   {storelist?.map((data, index) => (
-                    <div>                <div
-                      className={`mt-2 btn mr-2 ml-2 ${activeTab === `#${data.id}` ? 'border-black' : ''}`}
-                      onClick={(e) => {
-                        handleTabClick(e, `#${data.id}`);
-                        setActiveStoreTab(data.id);
-                        setShowSection('sales');
-                        setStoreName_(data.Name);
-                        setStoreID(data.id);
-                        setActiveStoreId(data.id)
-                        setStoreOpenTime(data.Open_time)
-                        window.location.hash = `charts?store=${data.id}`;
-                      }}
-                    >
-                      <div style={{ alignItems: 'center', justifyContent: 'center' }}>
-                        <i class="bi bi-house"> {data.id}</i>
+                    <div style={{ display: 'contents' }}>
+                      <button
+                        className={`mt-2 btn mr-2 ml-2 ${activeTab === `#${data.id}` ? 'border-black' : ''}`}
+                        onClick={(e) => {
+                          handleTabClick(e, `#${data.id}`);
+                          setActiveStoreTab(data.id);
+                          setShowSection('sales');
+                          setStoreName_(data.Name);
+                          setStoreID(data.id);
+                          setActiveStoreId(data.id)
+                          setStoreOpenTime(data.Open_time)
+                          window.location.hash = `charts?store=${data.id}`;
+                        }}
+                      >
+                        <div style={{ alignItems: 'center', justifyContent: 'center' }}>
+                          <i class="bi bi-house"> {data.id}</i>
 
-                      </div>
-                    </div>
+                        </div>
+                      </button>
 
                       {activeStoreId === data.id && (
                         <ul className={`nav nav-tabs mt-4 overflow-x border-0 flex flex-col`}>
@@ -1180,7 +1190,7 @@ const Account = () => {
                     <div className="d-flex align-items-center justify-content-between">
                       <div className="mb-0 mt-2" style={{ "cursor": "pointer" }}>
                         <h1 className="h2 ls-tight active">
-                          {activeTab === `#profile` || storeName_ === '' ? 'Account' : storeName_}
+                          {activeTab === `#profile` || storeName_ === '' ? 'Account' : <span className='notranslate'>ID: {storeName_}</span>}
 
                         </h1>
                       </div>
@@ -1443,7 +1453,11 @@ const Account = () => {
                               <div className='mx-auto '>
                                 <div className='mt-3 rounded-lg w-full  max-h-[200px] relative'>
                                   <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
-                                    <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className='text-orange-500'>{data.Name}</span></h1>
+                                    <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className='text-orange-500'>
+                                      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(data?.storeNameCHI) : (data?.Name)}
+
+                                    </span>
+                                    </h1>
                                     <h1 className='px-4 text-white font-bold'>@{data.Address}</h1>
                                   </div>
                                   <img
@@ -1468,6 +1482,7 @@ const Account = () => {
                                     value={formValues.storeName}
                                     onChange={handleInputChange}
                                     placeholder={data?.Name}
+                                    translate="no"
                                   />
                                 </div>
                                 <div className="w-full px-3">
@@ -1482,7 +1497,9 @@ const Account = () => {
                                     value={formValues.storeNameCHI}
                                     onChange={handleInputChange}
                                     placeholder={data?.storeNameCHI}
+                                    translate="no"
                                   />
+
                                 </div>
                                 <div className="w-full px-3">
                                   <label className="text-gray-700 mt-3 mb-2" htmlFor="physical_address">
@@ -1490,13 +1507,14 @@ const Account = () => {
                                   </label>
                                   <input
                                     className=
-                                    "appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                     id="physical_address"
                                     type="text"
                                     name="physical_address"
                                     value={formValues.physical_address}
                                     onChange={handleInputChange}
                                     placeholder={data?.physical_address}
+                                    translate="no"
                                   />
                                 </div>
                                 <div className="w-full px-3">
@@ -1504,13 +1522,14 @@ const Account = () => {
                                     Display City
                                   </label>
                                   <input
-                                    className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    className="no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                     id="city"
                                     type="text"
                                     name="city"
                                     value={formValues.city}
                                     onChange={handleInputChange}
                                     placeholder={data?.Address}
+                                    translate="no"
                                   />
                                 </div>
 
@@ -1520,13 +1539,14 @@ const Account = () => {
                                   </label>
                                   <input
                                     className=
-                                    "appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                     id="State"
                                     type="text"
                                     name="State"
                                     value={formValues.State}
                                     onChange={handleInputChange}
                                     placeholder={data?.State}
+                                    translate="no"
                                   />
                                 </div>
                                 <div className="w-full px-3">
@@ -1535,13 +1555,14 @@ const Account = () => {
                                   </label>
                                   <input
                                     className=
-                                    "appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                     id="ZipCode"
                                     type="text"
                                     name="ZipCode"
                                     value={formValues.ZipCode}
                                     onChange={handleInputChange}
                                     placeholder={data?.ZipCode}
+                                    translate="no"
                                   />
                                 </div>
                                 <div className="w-full px-3">
@@ -1550,13 +1571,14 @@ const Account = () => {
                                   </label>
                                   <input
                                     className=
-                                    "appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                     id="Phone"
                                     type="text"
                                     name="Phone"
                                     value={formValues.Phone}
                                     onChange={handleInputChange}
                                     placeholder={data?.Phone}
+                                    translate="no"
                                   />
                                 </div>
                               </div>
@@ -1570,6 +1592,7 @@ const Account = () => {
                                   type="file"
                                   accept="image/*"
                                   onChange={handleFileInputChange}
+                                  translate="no"
                                 />
                               </div>
 
@@ -1640,6 +1663,7 @@ const Account = () => {
                                   type="date"
                                   className="form-control form-control-sm mb-2"
                                   value={selectedDate ? selectedDate.toISOString().slice(0, 10) : ''}
+                                  translate="no"
                                   onChange={(event) => {
                                     setSelectedDate(
                                       new Date(event.target.value.replace(/(\d{4})-(\d{2})-(\d{2})/, '$2/$3/$1'))
@@ -1681,37 +1705,52 @@ const Account = () => {
                                         name: 'Subtotal', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
+                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                             accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
-                                          { tips: 0, tax: 0, subtotal: 0, total: 0 }
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                         ).subtotal * 100) / 100
                                       },
-
                                       {
                                         name: 'Tax', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
+                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                             accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
-                                          { tips: 0, tax: 0, subtotal: 0, total: 0 }
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                         ).tax * 100) / 100
                                       }, {
                                         name: 'Gratuity', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
+                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                             accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
-                                          { tips: 0, tax: 0, subtotal: 0, total: 0 }
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                         ).tips * 100) / 100
+                                      },
+                                      {
+                                        name: 'Service Fee', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                          (accumulator, receipt) => {
+                                            accumulator.tips += parseFloat(receipt.metadata.tips);
+                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                            accumulator.tax += parseFloat(receipt.metadata.tax);
+                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                            accumulator.total += parseFloat(receipt.total);
+                                            return accumulator;
+                                          },
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
+                                        ).service_fee * 100) / 100
                                       },
                                     ]}
                                     labelLine={false}
@@ -1727,35 +1766,51 @@ const Account = () => {
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
+                                              accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                               accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
-                                            { tips: 0, tax: 0, subtotal: 0, total: 0 }
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                           ).tips * 100) / 100
+                                        },
+                                        {
+                                          name: 'Service Fee', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                            (accumulator, receipt) => {
+                                              accumulator.tips += parseFloat(receipt.metadata.tips);
+                                              accumulator.tax += parseFloat(receipt.metadata.tax);
+                                              accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                              accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                              accumulator.total += parseFloat(receipt.total);
+                                              return accumulator;
+                                            },
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
+                                          ).service_fee * 100) / 100
                                         },
                                         {
                                           name: 'Tax', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
+                                              accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                               accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
-                                            { tips: 0, tax: 0, subtotal: 0, total: 0 }
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                           ).tax * 100) / 100
                                         },
                                         {
                                           name: 'Subtotal', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
+                                              accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                               accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
-                                            { tips: 0, tax: 0, subtotal: 0, total: 0 }
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                           ).subtotal * 100) / 100
                                         }].map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
                                     }
@@ -1811,7 +1866,7 @@ const Account = () => {
                               <tbody>
                                 {orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true)?.map((order) => (
 
-                                  <React.Fragment key={order.id}>
+                                  <div style={{ display: 'contents' }}>
 
                                     <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
                                       <td className="order-number notranslate" data-title="OrderID"><a >{order.id}</a></td>
@@ -1839,11 +1894,12 @@ const Account = () => {
                                             {JSON.parse(order.receiptData).map((item, index) => (
                                               <div className="receipt-item" key={item.id}>
                                                 <p className='notranslate'>
-                                                {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
-                                                 x {item.quantity} @ ${item.subtotal} each = ${Math.round(item.quantity * item.subtotal * 100) / 100}</p>
+                                                  {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
+                                                  x {item.quantity} @ ${item.subtotal} each = ${Math.round(item.quantity * item.subtotal * 100) / 100}</p>
                                               </div>
                                             ))}
                                             <p>Subtotal: $ {order.metadata.subtotal}</p>
+                                            <p>Service fee: $ {order.metadata.service_fee}</p>
                                             <p>Tax: $ {order.metadata.tax}</p>
                                             <p>Gratuity: $ {order.metadata.tips}</p>
                                             <p>Total: $ {order.metadata.total}</p>
@@ -1851,7 +1907,7 @@ const Account = () => {
                                         </td>
                                       </tr>
                                     )}
-                                  </React.Fragment>
+                                  </div>
                                 ))}
                               </tbody>
                             </table>

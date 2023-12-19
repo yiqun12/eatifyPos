@@ -7,11 +7,11 @@ import myImage from '../components/check-mark.png';  // Import the image
 import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 
-const PaymentComponent = ({setDiscount,setTips,setExtra,setInputValue,setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee }) => {
+const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee }) => {
     // State to store the error message
     const [error, setError] = useState(null);
 
-//setDiscount,setTips,setExtra(null),setExtra,setInputValue 
+
   // the three variables we keep track of for payment
   var paymentIntentId;
   const { user, user_loading } = useUserContext();
@@ -201,10 +201,6 @@ const PaymentComponent = ({setDiscount,setTips,setExtra,setInputValue,setProduct
           setInputValue("")
           setDiscount("")
           setTips("")
-          //setDiscount,setTips,setExtra(null),setExtra,setInputValue 
-
-          SetTableInfo(storeID + "-" + selectedTable, "[]")
-          //localStorage.setItem(storeID + "-" + selectedTable, "[]");
           setProducts([]);
           localStorage.setItem(storeID + "-" + selectedTable + "-isSent", "[]")
           // newTerminalsData is not empty
@@ -216,19 +212,7 @@ const PaymentComponent = ({setDiscount,setTips,setExtra,setInputValue,setProduct
     return () => unsubscribe();
   }, [intent]); // Remove the empty dependency array to listen to real-time changes
 
-  const SetTableInfo = async (table_name, product) => {
-    try {
-      const dateTime = new Date().toISOString();
-      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docData = { product: product, date: date };
-      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "Table", table_name);
-      await setDoc(docRef, docData);
-      //localStorage.setItem(table_name,product)
 
-    } catch (error) {
-      console.error("Error adding document: ", error);
-    }
-  };
   const [selectedId, setSelectedId] = useState("");
 
   // Function to format date string into human-readable format

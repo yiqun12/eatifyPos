@@ -28,7 +28,8 @@ import { ReactComponent as MinusSvg } from './minus.svg';
 import logo_fork from './logo_fork.png'
 import Hero from './Hero'
 import cuiyuan from './cuiyuan.png'
-
+import Receipt from '../pages/Receipt'
+import OrderHasReceived from '../pages/OrderHasReceived'
 import cartImage from './shopcart.png';
 
 const Navbar = () => {
@@ -209,6 +210,13 @@ const Navbar = () => {
     setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
 
   };
+  const modalRef2 = useRef(null);
+  const btnRef2 = useRef(null);
+  const spanRef2 = useRef(null);
+  const queryParams = new URLSearchParams(location.search);
+
+  const storeFromURL_modal = params.get('modal') ? params.get('modal').toLowerCase() : "";
+  const [openModal2, setOpenModal2] = useState(storeFromURL_modal==='true');
 
   useEffect(() => {
     // Get the modal
@@ -230,7 +238,6 @@ const Navbar = () => {
   //This will ensure that the useEffect hook is re-run every time the products value changes, and the latest value will be saved to local storage.
   //google login button functions
 
-  const queryParams = new URLSearchParams(location.search);
   const storeValue = params.get('store') ? params.get('store').toLowerCase() : ""; // should give "parkasia"
   const tableValue = queryParams.get('table'); // should give "A3"
   if (!sessionStorage.getItem(storeValue)) {
@@ -320,12 +327,18 @@ const Navbar = () => {
     return Object.values(groupedItems).reverse();
   }
 
-
+  const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
 
   return (
 
     <div>
-      {(location.pathname.includes('/store') || location.pathname.includes('/checkout')) && (
+      <style>
+        {`
+          /* Bootstrap Icons */
+          @import url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.4.0/font/bootstrap-icons.min.css");
+        `}
+      </style>
+      {((location.pathname.includes('/store') && isMobile)) && (
         <a className="float">
           <a
             style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
@@ -340,6 +353,33 @@ const Navbar = () => {
           </a>
         </a>
       )}
+      {openModal2 &&
+        <div id="addTipsModal" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content bg-white p-4 rounded-lg shadow-lg">
+              <div className="modal-body pt-0" >
+                <div className='flex justify-between'>
+                  You can view latest order here:
+                  <DeleteSvg
+                    className="cursor-pointer"
+                    ref={spanRef2}
+                    onClick={() => setOpenModal2(false)}
+                  />
+                </div>
+              </div>
+              <div className="modal-footer" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                <OrderHasReceived />
+                <Receipt/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+      }
+
+
+
       <div ref={modalRef} className="foodcart-modal modal">
 
 
@@ -477,10 +517,17 @@ const Navbar = () => {
       </div>
       {/**navbar */}
       <div className={"mx-auto sticky top-0 bg-white z-10"}>
-        <div className={!isMobile ? "max-w-[1000px] mx-auto justify-between sticky top-0 bg-white z-10" : "sticky top-0 z-10 justify-between bg-white"}>
+        <div className={!isMobile ? "mx-auto justify-between sticky top-0 bg-white z-10" : "sticky top-0 z-10 justify-between bg-white"}>
 
           <div className="col-span-4 pl-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
-            <img onClick={event => window.location.href = '/'}
+            <img
+              onClick={event => {
+                if (storeFromURL !== '' && storeFromURL !== null) {
+                  window.location.href = `/store?store=${storeFromURL}`;
+                } else {
+                  window.location.href = '/';
+                }
+              }}
               src="https://media.discordapp.net/attachments/1127948915870814271/1155545800542277662/image.png?width=183&height=181"
               alt=""
               style={{
@@ -494,7 +541,15 @@ const Navbar = () => {
             <div className='flex' style={{ flexDirection: "column" }}>
               <h1 className='text-orange-500' style={{
                 fontStyle: 'italic'
-              }} onClick={event => window.location.href = '/'}>
+              }} onClick={event => {
+                if (storeFromURL !== '' && storeFromURL !== null) {
+                  window.location.href = `/store?store=${storeFromURL}`;
+                } else {
+                  window.location.href = '/';
+                }
+              }}
+
+              >
               </h1>
 
             </div>
@@ -504,10 +559,37 @@ const Navbar = () => {
 
 
               {!user_loading ?
-                <button className="ml-3" onClick={event => window.location.href = '/account'} style={{ 'cursor': "pointer", 'top': '-10px', fontSize: "16px" }}> {user ? t("Account") : t("Login")}</button>
+                <button className="ml-3" onClick={event => {
+                  if (storeFromURL !== '' && storeFromURL !== null) {
+                    window.location.href = `/account?store=${storeFromURL}`;
+                  } else {
+                    window.location.href = '/account';
+                  }
+                }} style={{ 'cursor': "pointer", 'top': '-10px', fontSize: "16px" }}> <i className="bi bi-person"></i> {user ? "Account" : "Login"}</button>
                 :
                 <div>
                 </div>}
+              {((location.pathname.includes('/store') && !isMobile)) && (
+                <button
+                  className="ml-3"
+                  onClick={openModal}
+                  style={{ cursor: "pointer", top: '-10px', fontSize: "16px" }}
+                >
+                  <i className="bi bi-cart"></i>
+                  {"Shopping Cart"}
+                </button>
+              )}
+              {((location.pathname.includes('/store')) || (location.pathname.includes('/Checkout'))) && (
+
+                <button
+                  className="ml-3"
+                  onClick={() => setOpenModal2(true)}
+                  style={{ cursor: "pointer", top: '-10px', fontSize: "16px" }}
+                >
+                  <i className="bi bi-file-earmark-text"></i>
+                  {"Notes"}
+                </button>
+              )}
             </div>
 
           </div>

@@ -16,14 +16,8 @@ const App = () => {
 
   return (
 
-    <div className='max-w-[500px] mx-auto p-4 '>
-      <div className="app-container" style={{ height: "100%" }}>
-        <div className="row">
-          <div className="col">
-            <Item />
-          </div>
-        </div>
-      </div>
+    <div className='mx-auto'>
+      <Item />
     </div>
   );
 };
@@ -49,10 +43,10 @@ const Item = () => {
         if (doc.exists) {
           console.log("12333333333")
           console.log(doc.data().Name)
-          if (sessionStorage.getItem("Google-language")?.includes("中")||sessionStorage.getItem("Google-language")?.includes("Chinese")){
+          if (sessionStorage.getItem("Google-language")?.includes("中") || sessionStorage.getItem("Google-language")?.includes("Chinese")) {
             setDocumentData(doc.data().storeNameCHI);
 
-          }else{
+          } else {
             setDocumentData(doc.data().Name);
 
           }
@@ -126,10 +120,10 @@ const Item = () => {
     };
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
 
-  if (!payment_data) return <div>Loading...</div>; // Render a loading state if payment_data is not fetched
+  if (!payment_data||!receiptToken) return <div></div>; // Render a loading state if payment_data is not fetched
 
   return (
-    <div className="card2 mb-50" >
+    <div className="" >
       <div className="col d-flex">
         {/** 
         <span className="text-muted" id="orderno">
@@ -138,15 +132,13 @@ const Item = () => {
       </div>
       <div className="gap">
         <div className="col-2 d-flex mx-auto" />
-        <a href={`./store?store=${payment_data.store}`} style={{ color: "blue" }}>
-          &lt; Back to store
-        </a>
+
         <div className='mt-1 mb-2' >
           <b className="text-black text-2xl">{documentData}</b>
         </div>
         <b className="block text-black text-sm">{payment_data.isDinein} ({payment_data.status})</b>
 
-        <b className="block text-black text-sm notranslate">{t("Order ID")}: {payment_data.document_id.substring(0, 4)}</b>
+        <b className="block text-black notranslate">{t("Order ID")}: {payment_data.document_id?.substring(0, 4)}</b>
 
         <span className="block text-black text-sm">{moment(payment_data.time, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-13).format("MMMM D, YYYY h:mm a")}</span>
 
@@ -163,11 +155,11 @@ const Item = () => {
               <div className="col-9">
                 <div className="row d-flex">
                   <b>
-                  {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                    {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
                   </b>
                 </div>
                 <div className="row d-flex">
-                  <p className="text-muted  mb-0 pb-0">@ ${product.subtotal} {t("each")} x {product.quantity}</p>
+                  <p className="text-muted mb-0 pb-0">@ ${product.subtotal} {t("each")} x {product.quantity}</p>
                 </div>
               </div>
               <div className="col-3 d-flex justify-content-end">
@@ -196,16 +188,16 @@ const Item = () => {
               <b>${payment_data.tax}</b>
             </div>
           </div>
-            {payment_data.tips && payment_data.tips !== 0 && (
-              <div className="row">
-                <div className="col">
-                  <b>{t("Gratuity")}:</b>
-                </div>
-                <div className="col d-flex justify-content-end">
-                  <b>${payment_data.tips}</b>
-                </div>
+          {payment_data.tips && payment_data.tips !== 0 && (
+            <div className="row">
+              <div className="col">
+                <b>{t("Gratuity")}:</b>
               </div>
-            )}
+              <div className="col d-flex justify-content-end">
+                <b>${payment_data.tips}</b>
+              </div>
+            </div>
+          )}
           <div className="row">
             <div className="col">
               <b> {t("Total")}:</b>

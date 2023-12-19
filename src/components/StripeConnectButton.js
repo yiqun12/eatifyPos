@@ -25,7 +25,7 @@ function StripeOnboardingButton(props) {
         <div>
 
             <a style={{cursor:"pointer"}}onClick={createLink} class="stripe-connect">
-                <span>Connect with</span></a>
+                <span className='notranslate'>Connect with</span></a>
         </div>
     );
 }

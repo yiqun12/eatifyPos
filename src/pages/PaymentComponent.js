@@ -260,6 +260,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
                   id="nameOfStore"
                   type="text"
+                  translate="no" 
                   placeholder={storeDisplayName}
                 />
               </div>
@@ -271,6 +272,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
                   id="streetAddress"
                   type="text"
+                  translate="no" 
                   placeholder={Address}
                 />
               </div>
@@ -282,6 +284,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   id="cityName"
                   type="text"
+                  translate="no" 
                   placeholder={City}
                 />
               </div>
@@ -293,6 +296,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   id="state"
                   type="text"
+                  translate="no" 
                   placeholder={State}
                 />
               </div>
@@ -304,6 +308,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   id="zipCode"
                   type="text"
+                  translate="no" 
                   placeholder={ZipCode}
                 />
               </div>
@@ -317,6 +322,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                   type="text"
                   placeholder="Registration code from POS machine."
                   value={registrationCode}
+                  translate="no" 
                   onChange={e => setRegistrationCode(e.target.value)}
                 />
               </div>

@@ -94,7 +94,7 @@ function Checkout(props) {
       user_email: user.email,
       uid: user.uid,
       isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
-      tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
+      tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut"
     };
     // send to db
     await firebase
@@ -162,7 +162,7 @@ function Checkout(props) {
         user_email: user.email,
         uid: user.uid,
         isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
-        tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
+        tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut"
       };
       // send to db
       await firebase
@@ -334,7 +334,7 @@ function Checkout(props) {
             user_email: user.email,
             uid: user.uid,
             isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
-            tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
+            tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut"
           };
           //send to db
           await firebase
@@ -614,7 +614,7 @@ function CardSection(props) {
       uid: user.uid,
       isDinein: sessionStorage.getItem('isDinein') === 'true' ? 'DineIn' : 'TakeOut',
       saveCard: saveCard, // Include the saveCard value in the data
-      tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
+      tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut"
 
     };
 
@@ -686,6 +686,7 @@ function CardSection(props) {
                           placeholder={t("First Name")}
                           value={firstName}
                           onChange={handleFirstNameChange}
+                          translate="no" 
                         />
                       </label>
                     </div>
@@ -699,6 +700,7 @@ function CardSection(props) {
                           placeholder={t("Last Name")}
                           value={lastName}
                           onChange={handleLastNameChange}
+                          translate="no" 
                         />
                       </label>
                     </div>
@@ -784,7 +786,7 @@ function PayHistory(props) {
   
   //pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS
   //pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W
-  const STRIPE_PUBLISHABLE_KEY = 'pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS';
+  const STRIPE_PUBLISHABLE_KEY = 'pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W';
 
   loadStripe(STRIPE_PUBLISHABLE_KEY, {
     stripeAccount: JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).stripe_store_acct
@@ -821,7 +823,7 @@ function PayHistory(props) {
       user_email: user.email,
       uid: user.uid,
       isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
-      tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : ""
+      tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut"
     };
     // send to db
     await firebase
@@ -924,12 +926,14 @@ function PayHistory(props) {
   const dateTime = new Date().toISOString();
   const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
   const { id, saveId } = useMyHook(null);
-  let products = JSON.parse(sessionStorage.getItem(store));
+  const [products, setProducts] = useState(sessionStorage.getItem(store));
 
+  //let products = JSON.parse(sessionStorage.getItem(store));
   useEffect(() => {
-    products = JSON.parse(sessionStorage.getItem(store));
+    setProducts(JSON.parse(sessionStorage.getItem(store)))
+    //console.log(JSON.parse(sessionStorage.getItem(store)))
   }, [id]);
-
+  
   useEffect(() => {
     if (props.receiptToken != "") {
       firebase
@@ -961,7 +965,7 @@ function PayHistory(props) {
 
           } else if (payment.status === 'succeeded') {
             sessionStorage.removeItem(store);
-            window.location.href = '/orders?order=' + doc.id;
+            window.location.href = '/store?store='+store+ '&order=' + doc.id+'&modal=true';
 
           } else if (payment.status === 'requires_action') {
             content = `🚨 ` + t("Payment status: ") + `${payment.status}`;
@@ -1071,8 +1075,8 @@ function PayHistory(props) {
         //const card = payment.charges.data[0].payment_method_details.card;
         if (payment.status === "succeeded") {
           sessionStorage.removeItem(store);
+          window.location.href = '/store?store='+store+ '&order=' + docId+'&modal=true';
 
-          window.location.href = '/orders?order=' + docId
         }
 
       });
@@ -1122,6 +1126,9 @@ function PayHistory(props) {
   }
 
   const PendingDineInOrder = async (table,name) => {
+    document
+    .querySelectorAll('button')
+    .forEach((button) => (button.disabled = true));
     try {
       // Create a reference to the Cloud Function
       const myFunction = firebase.functions().httpsCallable('PendingDineInOrder');
@@ -1139,12 +1146,19 @@ function PayHistory(props) {
       const result = await myFunction(data);
 
       // Process the result as needed
-      console.log('Order processed:', result);
-      window.location.href = '/orderhasreceived?store=' + store;
+      console.log('Order processed:', result.data.docId);
 
+      document
+      .querySelectorAll('button')
+      .forEach((button) => (button.disabled = false));
+      sessionStorage.removeItem(store)
+      window.location.href = '/store?'+'docId='+result.data.docId+'&store=' + store+'&modal=true';
       
       return result;
     } catch (error) {
+      document
+      .querySelectorAll('button')
+      .forEach((button) => (button.disabled = false));
       console.error('Error while processing order:', error);
       // Handle the error appropriately
       // You might want to return an error message or rethrow the error
@@ -1185,10 +1199,10 @@ function PayHistory(props) {
         style={{ "borderRadius": "0.2rem", width: "100%" }}
       >
         <div>
-          {isMobileOrTablet && !(sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "") ? <button onClick={() => {
+          {isMobileOrTablet && !(sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "") ? 
+          <button onClick={() => {
             checkgeolocation();
             PendingDineInOrder(sessionStorage.getItem('table'),user.displayName)
-
           }}>
 
             {t("Place Order, Pay Later")}

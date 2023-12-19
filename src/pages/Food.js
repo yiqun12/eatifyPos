@@ -265,6 +265,7 @@ const Food = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
   const isMobile = width <= 768;
+  const isPC = width >= 1280;
   const handleDropFood = (category) => {
     //console.log("hello")
     /**shake */
@@ -756,7 +757,7 @@ const Food = () => {
             </div>
           </div>
         )}
-        <div className='max-w-[1000px] m-auto px-4 '>
+        <div className='m-auto px-4 '>
           <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
             {/* Filter Type */}
             <div className='Type' >
@@ -766,12 +767,12 @@ const Food = () => {
 
               <div>
                 <div>
-                  <div className='max-w-[1240px] mx-auto '>
+                  <div className='mx-auto '>
                     <div className='rounded-lg max-h-[200px] relative'>
                       <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
                         <h1 className='notranslate px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className=''>
                           {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
-                          </span></h1>
+                        </span></h1>
                         <h1 className='px-4 font-bold text-orange-500 notranslate'>@{storeInfo.Address}</h1>
                         {/* <BusinessHoursTable></BusinessHoursTable> */}
                       </div>
@@ -787,6 +788,7 @@ const Food = () => {
                       className='flex bg-transparent p-2 w-full focus:outline-none text-black'
                       placeholder={t('Search Food Item')}
                       onChange={handleInputChange}
+                      translate="no" 
                     />
                     <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
                   </div>
@@ -850,8 +852,12 @@ const Food = () => {
 
           {/* diplay food */}
           <AnimatePresence>
-            <div className={isMobile ? 'grid grid-cols-1 gap-3 pt-2' : 'grid lg:grid-cols-2 gap-3'}>
-              {foods.map((item, index) => (
+            <div className={
+              isMobile ? 'grid grid-cols-1 gap-3 pt-2' :
+                isPC ? 'grid lg:grid-cols-3 gap-3' :
+                  'grid lg:grid-cols-2 gap-3'
+            }> {/* group food by category */}
+              {Object.values(foods.reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().map((item, index) => (
                 <motion.div
                   layout
                   initial={{ opacity: 0 }}
@@ -859,6 +865,12 @@ const Food = () => {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.1 }}
                   key={item.id}
+                  onClick={() => {
+                      console.log("item")
+                      console.log(item)
+                      setSelectedFoodItem(item);;
+                      showModal(item);
+                  }}
                   className=" rounded-lg cursor-pointer">
                   <div className='flex'>
                     <div style={{ width: "40%" }}>
@@ -929,11 +941,13 @@ const Food = () => {
                                       display: "flex",
                                     }}
                                     onClick={() => {
-                                      console.log("item")
-                                      console.log(item)
-                                      setSelectedFoodItem(item);;
-                                      showModal(item);
-
+                                      if (!isMobile) {
+                                      } else {
+                                        console.log("item")
+                                        console.log(item)
+                                        setSelectedFoodItem(item);;
+                                        showModal(item);
+                                      }
                                     }}
                                   >
                                     <PlusSvg
