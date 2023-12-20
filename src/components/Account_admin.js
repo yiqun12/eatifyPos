@@ -352,6 +352,7 @@ const Account = () => {
 
 
   const dateNow = (new Date().getMonth() + 1).toString().padStart(2, '0') + '/' + new Date().getDate().toString().padStart(2, '0') + '/' + new Date().getFullYear()
+  // Existing state for the selected date
   const [selectedDate, setSelectedDate] = useState(new Date(dateNow));
   const [showChart, setShowChart] = useState(false);
 

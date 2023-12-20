@@ -774,7 +774,7 @@ const Food = () => {
                           {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
                         </span></h1>
                         <h1 className='px-4 font-bold text-orange-500 notranslate'>@{storeInfo.Address}</h1>
-                        {/* <BusinessHoursTable></BusinessHoursTable> */}
+                         <BusinessHoursTable></BusinessHoursTable> 
                       </div>
                       <img className='rounded-lg w-full max-h-[200px] object-cover' src={storeInfo?.Image !== null && storeInfo?.Image !== '' ? storeInfo.Image : (data?.[0]?.image || '')} alt="#" />
                     </div>
@@ -788,7 +788,7 @@ const Food = () => {
                       className='flex bg-transparent p-2 w-full focus:outline-none text-black'
                       placeholder={t('Search Food Item')}
                       onChange={handleInputChange}
-                      translate="no" 
+                      translate="no"
                     />
                     <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
                   </div>
@@ -866,10 +866,10 @@ const Food = () => {
                   transition={{ duration: 0.1 }}
                   key={item.id}
                   onClick={() => {
-                      console.log("item")
-                      console.log(item)
-                      setSelectedFoodItem(item);;
-                      showModal(item);
+                    console.log("item")
+                    console.log(item)
+                    setSelectedFoodItem(item);;
+                    showModal(item);
                   }}
                   className=" rounded-lg cursor-pointer">
                   <div className='flex'>

@@ -210,13 +210,27 @@ function ChangeTimeForm({ storeID, storeOpenTime }) {
     };
 
     const toggleClosed = (day) => {
-        setFormData(prev => ({
-            ...prev,
-            [day]: {
-                ...prev[day],
-                closed: !prev[day].closed
-            }
-        }));
+        console.log("closeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+        console.log(formData[day].closed)
+        if(formData[day].closed){//was closed
+            setFormData(prev => ({
+                ...prev,
+                [day]: {
+                    ...prev[day],
+                    closed: !prev[day].closed,
+                    times:[{open:"00:00",close:"23:59"}]
+                }
+            }));
+        }else{//Was opened
+            setFormData(prev => ({
+                ...prev,
+                [day]: {
+                    ...prev[day],
+                    closed: !prev[day].closed
+                }
+            }));
+        }
+
     };
 
     const handleSubmit = async (e) => {

@@ -192,7 +192,7 @@ function BusinessHoursTable() {
     const dayNames = ["Sun", "Mon", "Tues", "Weds", "Thurs", "Fri", "Sat"];
 
     if (dayTimeObject == null) {
-      return "Null";
+      return "The store is temporarily closed";
     }
 
     const dayName = dayNames[dayTimeObject["day"]];
@@ -250,7 +250,7 @@ function BusinessHoursTable() {
       Closed
       </Button> } */}
 
-      <h1 onClick={handleShow} className="responsive-text px-4 font-bold" style={{ cursor: "pointer", color: 'gray'}}>
+      <h1 onClick={handleShow} className="responsive-text px-4 font-bold" style={{ cursor: "pointer", color: 'orange'}}>
         {isOpen ? grabDayTime(getNextCloseTimeRange())  : grabDayTime(getNextOpenTimeRange())}
       </h1>
       {/* <Button variant="primary" onClick={handleShow}>
