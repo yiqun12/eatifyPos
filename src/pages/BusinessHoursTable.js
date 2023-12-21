@@ -57,16 +57,15 @@ function convertTo12HourFormat(timeStr) {
 
 
 function BusinessHoursTable() {
-  const storeOpenTime = sessionStorage.getItem('TitleLogoNameContent') !== null ? JSON.parse(JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).Open_time) : { "0": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "1": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "2": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "3": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "4": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "5": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "6": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "7": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" } }
-  const [businessHours, setBusinessHours] = useState({});
+
+
+  const storeOpenTime = (sessionStorage.getItem('TitleLogoNameContent') !== null ? JSON.parse(JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).Open_time) : { "0": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "1": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "2": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "3": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "4": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "5": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "6": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "7": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" } });
+
+  const businessHours = (getBusinessHours((sessionStorage.getItem('TitleLogoNameContent') !== null ? JSON.parse(JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).Open_time) : { "0": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "1": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "2": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "3": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "4": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "5": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "6": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "7": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" } }), convertTo12HourFormat));
   const [timezone, setTimezone] = useState("PDT");
 
-  const businessHoursData = storeOpenTime;
-
-  useEffect(() => {
-    const businessHoursData = storeOpenTime;
-
-
+  //const businessHoursData = storeOpenTime;
+  function getBusinessHours(storeOpenTime, convertTo12HourFormat) {
     const dayOfWeek = {
       1: "Monday",
       2: "Tuesday",
@@ -78,16 +77,15 @@ function BusinessHoursTable() {
     };
 
     const newBusinessHours = {};
-    
-    for (let day in businessHoursData) {
-      // skip day = 0 (sunday duplicate) if removed will print out undefined duplicate sunday
+
+    for (let day in storeOpenTime) {
+      // Skip day = 0 (sunday duplicate) if removed will print out undefined duplicate sunday
       if (day == 0) {
         continue;
       }
-      const timeRanges = (businessHoursData[day])["timeRanges"]
+      const timeRanges = storeOpenTime[day].timeRanges;
 
       var businessHoursRangesDaily = [];
-      // const timeRanges = data[day].timeRanges;
       for (const range of timeRanges) {
         const openTime = convertTo12HourFormat(range.openTime);
         const closeTime = convertTo12HourFormat(range.closeTime);
@@ -100,9 +98,13 @@ function BusinessHoursTable() {
       }
       newBusinessHours[dayOfWeek[day]] = businessHoursRangesDaily;
     }
-    console.log(newBusinessHours)
-    setBusinessHours(newBusinessHours);
-    setTimezone((businessHoursData[1])["timezone"])
+
+    return newBusinessHours;
+  }
+
+
+  useEffect(() => {
+    setTimezone((storeOpenTime[1])["timezone"])
   }, []);
 
   // modal for the business hours
@@ -140,7 +142,7 @@ function BusinessHoursTable() {
   function getNextCloseTimeRange() {
     const currentDayIndex = getCurrentDayIndex();
     const currentTime = getCurrentTime();
-    const ranges = businessHoursData[currentDayIndex].timeRanges;
+    const ranges = storeOpenTime[currentDayIndex].timeRanges;
 
     for (const range of ranges) {
       if (range.openTime <= currentTime && currentTime <= range.closeTime) {
@@ -167,7 +169,7 @@ function BusinessHoursTable() {
     let currentTime = getCurrentTime();
 
     for (let i = 0; i < 7; i++) {
-      const ranges = businessHoursData[currentDayIndex].timeRanges;
+      const ranges = storeOpenTime[currentDayIndex].timeRanges;
 
       for (const range of ranges) {
         if (range.openTime !== "xxxx" && range.openTime >= currentTime) {
@@ -219,7 +221,7 @@ function BusinessHoursTable() {
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
   function getCurrentDayTimeRanges() {
     const currentDayIndex = getCurrentDayIndex();
-    const ranges = businessHoursData[currentDayIndex].timeRanges;
+    const ranges = storeOpenTime[currentDayIndex].timeRanges;
     return ranges.map((range, index) => {
       if (range.openTime === "xxxx") {
         return t("Closed");
@@ -236,7 +238,7 @@ function BusinessHoursTable() {
   var isOpen = false;
   if (getNextCloseTimeRange() === null) {
     isOpen = false;
-  }else {
+  } else {
     isOpen = true;
   }
 
@@ -250,8 +252,8 @@ function BusinessHoursTable() {
       Closed
       </Button> } */}
 
-      <h1 onClick={handleShow} className="responsive-text px-4 font-bold" style={{ cursor: "pointer", color: 'orange'}}>
-        {isOpen ? grabDayTime(getNextCloseTimeRange())  : grabDayTime(getNextOpenTimeRange())}
+      <h1 onClick={handleShow} className="responsive-text px-4 font-bold" style={{ cursor: "pointer", color: 'orange' }}>
+        {isOpen ? grabDayTime(getNextCloseTimeRange()) : grabDayTime(getNextOpenTimeRange())}
       </h1>
       {/* <Button variant="primary" onClick={handleShow}>
       Business Hours
