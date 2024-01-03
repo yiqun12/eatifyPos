@@ -1717,4 +1717,3 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
 
 export default Food
 
-

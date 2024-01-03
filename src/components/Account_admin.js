@@ -36,6 +36,10 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DemoFood from '../pages/demoFood'
 import StripeConnectButton from '../components/StripeConnectButton'
 import PaymentComponent from "../pages/PaymentComponent";
+import DatePicker from 'react-datepicker';
+import { format, addDays } from 'date-fns';
+import "react-datepicker/dist/react-datepicker.css";
+import { startOfMonth, endOfMonth } from 'date-fns';
 
 import barchar_logo from './file_barchar.png';
 import files_icon from './files_icon.png';
@@ -52,10 +56,12 @@ import { ReactComponent as Todo_icon } from './todo_icon.svg';
 import { ReactComponent as Menu_icon } from './menu_icon.svg';
 import file_icon from './file_icon.png';
 import styled from '@emotion/styled';
+import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate } from '../comonFunctions';
 
 
 
 const Account = () => {
+
 
   // This function plays the sound
   const playSound = () => {
@@ -203,19 +209,153 @@ const Account = () => {
   const [revenueData, setRevenueData] = useState([
     { date: '1/1/1900', revenue: 1 }
   ]);
+  const epochDate = parseDate(format12Oclock((new Date("2023-11-30T00:00:00")).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })));
+  const [startDate, setStartDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
+  const [endDate, setEndDate] = useState(parseDate(addOneDayAndFormat(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+  useEffect(() => {
+    getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
+  }, []);
 
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [isPickerOpen2, setIsPickerOpen2] = useState(false);
+
+  const getMonthDates = (inputDate) => {
+    function formatDate_(year, month, day) {
+      const date = new Date(year, month, day);
+      const formattedYear = date.getFullYear();
+      const formattedMonth = (date.getMonth() + 1).toString().padStart(2, '0');
+      const formattedDay = date.getDate().toString().padStart(2, '0');
+      const hours = '00';
+      const minutes = '00';
+      const seconds = '00';
+      // Parse the custom date format
+      const date_ = moment.tz(`${formattedYear}${formattedMonth}${formattedDay}${hours}${minutes}${seconds}`, "YYYYMMDDHHmmss", "America/Los_Angeles");
+
+      // Format the date in the desired output
+      const losAngelesDate = date_.format('ddd MMM DD YYYY HH:mm:ss [GMT]Z (zz)');
+      // console.log(new Date(losAngelesDate))
+      return new Date(losAngelesDate);
+    }
+    // Parse the input date string
+    const year = parseInt(inputDate.substring(0, 4), 10);
+    const month = parseInt(inputDate.substring(5, 7), 10) - 1; // Subtract 1 because months are 0-indexed in JavaScript Date
+    // console.log("getMonthDates")
+    // console.log(formatDate_(year, month, 1))
+    // console.log(formatDate_(year, month + 1, 0))
+    // console.log(year, month, 1)
+
+    // Create a new date object for the first day of the month
+    const firstDayOfMonth = new Date(year, month, 1);
+
+    // Create a new date object for the last day of the month
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+    //2024-01-31T05:00:00.000Z
+
+    setStartDate(formatDate_(year, month, 1).toISOString());
+    //console.log(firstDayOfMonth.toISOString())
+    setEndDate(formatDate_(year, month + 1, 0).toISOString());
+    //console.log(lastDayOfMonth.toISOString())
+  };
+
+  const wrapperRef = useRef(null);
+
+  const handleChange = (dates) => {
+    const [start, end] = dates;
+    setStartDate(start);
+    setEndDate(end);
+  };
+  const handleMonthChange = (date) => {
+    getMonthDates(((format12Oclock((new Date(date.getFullYear(), date.getMonth(), 2)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
+  };
+
+  const formatDate = (date) => {
+    if (!date) return '';
+    return format(date, "yyyy-MM-dd'-00-00-00-00'");
+  };
+
+  const getOutput = () => {
+    const formattedStartDate = formatDate(startDate);
+    const formattedEndDate = endDate ? formatDate(addDays(endDate, 1)) : formatDate(addDays(startDate, 1));
+    //setEndDate(endDate ? addDays(endDate, 1) : addDays(startDate, 1))
+    return `from ${formattedStartDate} to ${formattedEndDate}`;
+  };
+
+  // Click outside logic
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setIsPickerOpen(false);
+        setIsPickerOpen2(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [wrapperRef]);
 
   const moment = require('moment');
   const [storelist, setStorelist] = useState([]);
   // console.log(orders)
+  function subtractHours(dateStr, hours) {
+    let parts = dateStr.split('-');
+    let date = new Date(parts[0], parts[1] - 1, parts[2], parts[3], parts[4], parts[5]);
+    date.setHours(date.getHours() - hours);
 
-  const fetchPost = async () => {
+    return date.getFullYear() + '-' +
+      ('0' + (date.getMonth() + 1)).slice(-2) + '-' +
+      ('0' + date.getDate()).slice(-2) + '-' +
+      ('0' + date.getHours()).slice(-2) + '-' +
+      ('0' + date.getMinutes()).slice(-2) + '-' +
+      ('0' + date.getSeconds()).slice(-2) + '-00';
+  }
+
+  const fetchPostAll = async () => {
     if (activeStoreTab !== '') {
       console.log(activeStoreTab)
       console.log(user.uid)
     } else {
       return
     }
+    // firebase
+    //   .firestore()
+    //   .collection('stripe_customers')
+    //   .doc(user.uid)
+    //   .collection('TitleLogoNameContent')
+    //   .doc(activeStoreTab)
+    //   .collection('success_payment')
+    //   // .where('dateTime', '>=', subtractHours("2023-12-31-00-00-00-00", -16))//actually 17
+    //   // .where('dateTime', '<', subtractHours("2024-01-02-00-00-00-00", -16))//actually 18
+    //   .get()
+    //   .then(async (snapshot) => {
+    //     for (const doc of snapshot.docs) {
+    //       const newData = { ...doc.data(), id: doc.id};
+
+    //       try {
+    //         // Update document here
+    //         await firebase
+    //           .firestore().collection('stripe_customers')
+    //           .doc(user.uid)
+    //           .collection('TitleLogoNameContent')
+    //           .doc(activeStoreTab)
+    //           .collection('success_payment')
+    //           .doc(doc.id)
+    //           .update({ amount: Math.round((Math.round(newData.metadata.subtotal* 100) / 100+Math.round(newData.metadata.service_fee* 100) / 100+Math.round(newData.metadata.tips* 100) / 100+Math.round(newData.metadata.tax* 100) / 100-Math.round(newData.metadata.discount* 100) / 100)*100),amount_received:Math.round((Math.round(newData.metadata.subtotal* 100) / 100+Math.round(newData.metadata.service_fee* 100) / 100+Math.round(newData.metadata.tips* 100) / 100+Math.round(newData.metadata.tax* 100) / 100-Math.round(newData.metadata.discount* 100) / 100)*100),'metadata.total':  Math.round((Math.round(newData.metadata.subtotal* 100) / 100+Math.round(newData.metadata.service_fee* 100) / 100+Math.round(newData.metadata.tips* 100) / 100+Math.round(newData.metadata.tax* 100) / 100-Math.round(newData.metadata.discount* 100) / 100)*100)/100});
+
+    //         // Log success with document ID and latest data
+    //         console.log(`Success: Document ${doc.id} updated with data:`, newData);
+
+    //         // Wait a bit after each update
+    //         await new Promise(resolve => setTimeout(resolve, 1000)); // waits for 1 second
+    //       } catch (error) {
+    //         // Log failure with document ID and error
+    //         console.error(`Failed: Document ${doc.id} update error:`, error);
+    //       }
+    //     }
+    //   })
+    //   .catch(error => {
+    //     console.error("Error getting documents: ", error);
+    //   });
 
     firebase
       .firestore()
@@ -224,12 +364,17 @@ const Account = () => {
       .collection('TitleLogoNameContent')
       .doc(activeStoreTab)
       .collection('success_payment')
+
+      .where('dateTime', '>=', convertDateFormat(startDate))
+      .where('dateTime', '<', convertDateFormat(endDate ? (addDays(endDate, 1)) : (addDays(startDate, 1))))
       .onSnapshot((snapshot) => {
 
         const newData = snapshot.docs.map((doc) => ({
           ...doc.data(),
           id: doc.id,
         }));
+
+
         console.log(newData)
         newData.sort((a, b) =>
           moment(b.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf() -
@@ -241,10 +386,10 @@ const Account = () => {
           const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
             .subtract(8, "hours")
             .format("M/D/YYYY h:mma");
-          console.log("formattedDate")
-          console.log(formattedDate)
+          //  console.log("formattedDate")
+          // console.log(formattedDate)
           const newItem = {
-            id: item.id.substring(0, 4), // use only the first 4 characters of item.id as the value for the id property
+            id: item.id, // use only the first 4 characters of item.id as the value for the id property
             receiptData: item.receiptData,
             date: formattedDate,
             email: item.user_email,
@@ -252,15 +397,16 @@ const Account = () => {
             status: item.powerBy,
             total: parseFloat(item.metadata.total),
             tableNum: item.tableNum,
-            metadata: item.metadata
+            metadata: item.metadata,
+
           };
           newItems.push(newItem); // Push the new item into the array
         });
-        console.log("hello")
-        console.log(newItems)
+        // console.log("hello")
+        // console.log(newItems)
         setOrders(newItems)
         saveId(Math.random())
-        console.log(orders)
+        //  console.log(orders)
         // Create an object to store daily revenue totals
         const dailyRevenue = {};
         // Loop through each receipt and sum up the total revenue for each date
@@ -295,10 +441,10 @@ const Account = () => {
 
   useEffect(() => {
     if (activeStoreTab !== '') {
-      fetchPost();
+      fetchPostAll();
     }
 
-  }, [activeStoreTab])
+  }, [activeStoreTab, endDate, startDate])
 
 
   useEffect(() => {
@@ -319,6 +465,31 @@ const Account = () => {
   }, [])
 
   const [expandedOrderIds, setExpandedOrderIds] = useState([]);
+  function daysBetweenDates(dateString1, dateString2) {
+    // Parse the date strings into Date objects
+    const date1 = new Date(dateString1);
+    const date2 = new Date(dateString2);
+
+    // Calculate the difference in time in milliseconds
+    let timeDiff = Math.abs(date2.getTime() - date1.getTime());
+
+    // Constants for one day and forty days in milliseconds
+    const oneDayInMillis = 1000 * 3600 * 24;
+    const fortyDaysInMillis = oneDayInMillis * 40;
+
+    // Ensure the time difference is at least one day but no more than forty days
+    if (timeDiff < oneDayInMillis) {
+      timeDiff = oneDayInMillis;
+    } else if (timeDiff > fortyDaysInMillis) {
+      timeDiff = fortyDaysInMillis;
+    }
+
+    // Convert the time difference from milliseconds to days
+    const daysDiff = timeDiff / oneDayInMillis;
+
+    return daysDiff;
+  }
+
 
   const toggleExpandedOrderId = (orderId) => {
     if (expandedOrderIds.includes(orderId)) {
@@ -328,9 +499,11 @@ const Account = () => {
     }
   };
   //REVENUE CHART 31 DAYS FROM NOW
-  const today = new Date();
-  const oneWeekAgo = new Date(today.getTime() - 31 * 24 * 60 * 60 * 1000); // 7 days ago
+  //const today = new Date("2023-12-19"); 
+  const today = new Date(endDate ? endDate : startDate);
 
+  const oneWeekAgo = new Date(today.getTime() - daysBetweenDates(startDate, endDate) * 24 * 60 * 60 * 1000); // 31 days ago
+  console.log("utc")
   const filteredData = revenueData?.filter((dataPoint) => {
     const dataPointDate = new Date(dataPoint.date);
     return dataPointDate >= oneWeekAgo && dataPointDate <= today;
@@ -353,8 +526,7 @@ const Account = () => {
 
   const dateNow = (new Date().getMonth() + 1).toString().padStart(2, '0') + '/' + new Date().getDate().toString().padStart(2, '0') + '/' + new Date().getFullYear()
   // Existing state for the selected date
-  const [selectedDate, setSelectedDate] = useState(new Date(dateNow));
-  const [showChart, setShowChart] = useState(false);
+  const [showChart, setShowChart] = useState(true);
 
   const COLORS = ['#0088FE', '#00C49F', '#FF8042', '#FFCC33'];
 
@@ -944,6 +1116,18 @@ const Account = () => {
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
   };
+
+  function deleteDocument(docId) {
+    firebase
+      .firestore()
+      .collection("stripe_customers").doc(user.uid).collection("TitleLogoNameContent").doc(storeID).collection("success_payment").doc(docId).delete()
+      .then(() => {
+        console.log("Document successfully deleted!");
+      })
+      .catch((error) => {
+        console.error("Error removing document: ", error);
+      });
+  }
 
 
   return (
@@ -1656,43 +1840,105 @@ const Account = () => {
                           {showSection === 'sales' ? <div>
                             <div className="flex mt-3">
                               <div className={`w-50 ${isMobile ? 'mobile-class' : 'desktop-class'}`}>
-                                <div className="d-flex align-items-center mb-2">
-                                  <div className="ms-2" style={{ fontWeight: 'bold', fontSize: '13px' }}>Select a date (e.g. today)</div>
-                                </div>
-                                <input
-                                  style={{ width: "150px" }}
-                                  type="date"
-                                  className="form-control form-control-sm mb-2"
-                                  value={selectedDate ? selectedDate.toISOString().slice(0, 10) : ''}
-                                  translate="no"
-                                  onChange={(event) => {
-                                    setSelectedDate(
-                                      new Date(event.target.value.replace(/(\d{4})-(\d{2})-(\d{2})/, '$2/$3/$1'))
-                                    );
-                                  }}
-                                />
                                 <div>
+                                  <div style={{ fontWeight: 'bold' }}>Select Date Range</div>
+                                  <button className="mt-1 mb-1" style={{
+                                    border: '1px solid #ccc',
+                                    padding: '2px 5px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    fontSize: '16px', // Example font size
+                                    // Add other styles as needed
+                                  }} onClick={() => {
+                                    setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                    setIsPickerOpen2(false);
+                                    setIsPickerOpen(!isPickerOpen);
+
+                                  }}>
+                                    <i class="bi-calendar-range"></i>
+                                    &nbsp;
+                                    {startDate ? format(startDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
+
+                                  </button>
+                                  <div style={{ fontWeight: 'bold' }}>Select Specific Month</div>
+
+                                  <button className="mt-1 mb-1" style={{
+                                    border: '1px solid #ccc',
+                                    padding: '2px 5px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    fontSize: '16px', // Example font size
+                                    // Add other styles as needed
+                                  }} onClick={() => {
+                                    getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
+                                    setIsPickerOpen(false)
+                                    setIsPickerOpen2(!isPickerOpen2);
+                                  }}>
+                                    <i class="bi-calendar3"></i>
+                                    &nbsp;
+                                    {startDate ? format(startDate, "MMMM yyyy") : "Month Year"}
+
+                                  </button>
+                                  <div ref={wrapperRef} style={{ position: 'relative' }}>
+
+                                    {isPickerOpen && (
+                                      <div style={{
+                                        position: 'absolute',
+                                        zIndex: 1000,
+                                        top: '100%', // Position right below the button
+                                        left: 0
+                                      }}>
+                                        <DatePicker
+                                          selected={startDate}
+                                          onChange={handleChange}
+                                          startDate={startDate}
+                                          endDate={endDate}
+                                          selectsRange
+                                          inline
+                                        />
+                                      </div>
+                                    )}
+
+                                    {isPickerOpen2 && (
+                                      <div style={{
+                                        position: 'absolute',
+                                        zIndex: 1000,
+                                        top: '100%', // Position right below the button
+                                        left: 0
+                                      }}>
+                                        <DatePicker
+                                          onChange={handleMonthChange}
+                                          showMonthYearPicker
+                                          inline
+                                        />
+                                      </div>
+                                    )}
+                                    <div>
+                                    </div>
+                                  </div>
                                   <button
-                                    onClick={() => setSelectedDate(new Date(dateNow))}
-                                    className="btn btn-sm btn-primary d-flex align-items-center mx-1 mb-2"
+                                    onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                    className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
                                   >
                                     <i className="bi bi-calendar2-check pe-2"></i>
                                     <span>Today's Orders</span>
                                   </button>
+                                  {/* {JSON.stringify(startDate)}
+                                  {JSON.stringify(endDate)} */}
                                   <button
-                                    onClick={() => setSelectedDate(null)}
+                                    onClick={() => { setStartDate(epochDate); setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
                                     className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
                                   >
-                                    <i className="bi bi-calendar-range pe-2"></i>
+                                    <i className="bi bi-calendar pe-2"></i>
                                     <span>List All Orders</span>
                                   </button>
-                                  <button
+                                  {/* <button
                                     onClick={() => setShowChart(!showChart)}
                                     className="btn btn-sm btn-info d-flex align-items-center mx-1 mb-2"
                                   >
                                     <i className={`bi ${!showChart ? 'bi-bar-chart' : 'bi-eye-slash'} pe-2`}></i>
                                     <span>{!showChart ? 'Show Chart' : 'Hide Chart'}</span>
-                                  </button>
+                                  </button> */}
                                 </div>
                               </div>
 
@@ -1703,51 +1949,51 @@ const Account = () => {
                                     cx={80} // Move the pie to the left by adjusting the cx value
                                     data={[
                                       {
-                                        name: 'Subtotal', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                        name: 'Subtotal', value: Math.round(orders?.reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                            accumulator.total += parseFloat(receipt.total);
+                                            //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
                                           { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                         ).subtotal * 100) / 100
                                       },
                                       {
-                                        name: 'Tax', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                        name: 'Tax', value: Math.round(orders?.reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                            accumulator.total += parseFloat(receipt.total);
+                                            //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
                                           { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                         ).tax * 100) / 100
                                       }, {
-                                        name: 'Gratuity', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                        name: 'Gratuity', value: Math.round(orders?.reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                            accumulator.total += parseFloat(receipt.total);
+                                            //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
                                           { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                         ).tips * 100) / 100
                                       },
                                       {
-                                        name: 'Service Fee', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                        name: 'Service Fee', value: Math.round(orders?.reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                            accumulator.total += parseFloat(receipt.total);
+                                            //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
                                           { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
@@ -1763,52 +2009,52 @@ const Account = () => {
                                     {
                                       [
                                         {
-                                          name: 'Gratuity', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                          name: 'Gratuity', value: Math.round(orders?.reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                              accumulator.total += parseFloat(receipt.total);
+                                              //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
                                             { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                           ).tips * 100) / 100
                                         },
                                         {
-                                          name: 'Service Fee', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                          name: 'Service Fee', value: Math.round(orders?.reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                              accumulator.total += parseFloat(receipt.total);
+                                              //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
                                             { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                           ).service_fee * 100) / 100
                                         },
                                         {
-                                          name: 'Tax', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                          name: 'Tax', value: Math.round(orders?.reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                              accumulator.total += parseFloat(receipt.total);
+                                              //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
                                             { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                           ).tax * 100) / 100
                                         },
                                         {
-                                          name: 'Subtotal', value: Math.round(orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true).reduce(
+                                          name: 'Subtotal', value: Math.round(orders?.reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                              accumulator.total += parseFloat(receipt.total);
+                                              //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
                                             { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
@@ -1859,51 +2105,53 @@ const Account = () => {
                                   <th className="order-number" style={isMobile ? {} : { width: "10%" }}>Order ID</th>
                                   <th className="order-name" style={isMobile ? {} : { width: "10%" }}>Dining Table</th>
                                   <th className="order-status" style={isMobile ? {} : { width: "30%" }}>Status</th>
-                                  <th className="order-total" style={isMobile ? {} : { width: "10%" }}>Total</th>
+                                  <th className="order-total" style={isMobile ? {} : { width: "10%" }}>Total Price</th>
                                   <th className="order-date" style={isMobile ? {} : { width: "25%" }}>Time</th>
                                   <th className="order-details" style={isMobile ? {} : { width: "15%" }}>Detail</th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {orders?.filter(order => selectedDate ? new Date(order.date.split(' ')[0]).getTime() == selectedDate.getTime() : true)?.map((order) => (
+                                {orders?.map((order) => (
 
                                   <div style={{ display: 'contents' }}>
 
                                     <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
-                                      <td className="order-number notranslate" data-title="OrderID"><a >{order.id}</a></td>
+                                      <td className="order-number notranslate" data-title="OrderID"><a >{order.id.substring(0, 4)}</a></td>
                                       <td className="order-name notranslate" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum === "" ? "Takeout" : order.tableNum}</td>
                                       <td className="order-status" data-title="Status" style={{ whiteSpace: "nowrap" }}>{order.status}</td>
-                                      <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="amount">{"$" + order.total}</span></td>
+                                      <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="notranslate amount">{"$" + order.total}</span></td>
                                       <td className="order-date" data-title="Time" style={{ whiteSpace: "nowrap" }}>
                                         <time dateTime={order.date} title={order.date} nowrap>
-                                          {order.date.replace(/\/\d{4}/, '')}
+                                          <span className='notranslate'>{order.date.replace(/\/\d{4}/, '')}</span>
                                         </time>
                                       </td>
                                       <td className="order-details" style={{ whiteSpace: "nowrap" }} data-title="Details">
                                         <button onClick={() => toggleExpandedOrderId(order.id)} style={{ cursor: "pointer" }}>
                                           {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
                                         </button>
+                                        {/* <button onClick={() => deleteDocument(order.id)}>
+                                          Delete Document
+                                        </button> */}
                                       </td>
                                     </tr>
                                     {expandedOrderIds.includes(order.id) && (
                                       <tr>
                                         <td colSpan={8} style={{ padding: "10px" }}>
                                           <div className="receipt">
-                                            <p>{order.name}</p>
-                                            <p>{order.email}</p>
-                                            <p>{order.date}</p>
+                                            <p><span className='notranslate'>{order.name}</span></p>
+                                            {/* <p>{order.email}</p> */}
+                                            <p><span className='notranslate'>{order.date}</span></p>
                                             {JSON.parse(order.receiptData).map((item, index) => (
                                               <div className="receipt-item" key={item.id}>
                                                 <p className='notranslate'>
-                                                  {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
-                                                  x {item.quantity} @ ${item.subtotal} each = ${Math.round(item.quantity * item.subtotal * 100) / 100}</p>
+                                                  {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} x {item.quantity} @ ${item.subtotal} each = ${Math.round(item.quantity * item.subtotal * 100) / 100}</p>
                                               </div>
                                             ))}
-                                            <p>Subtotal: $ {order.metadata.subtotal}</p>
-                                            <p>Service fee: $ {order.metadata.service_fee}</p>
-                                            <p>Tax: $ {order.metadata.tax}</p>
-                                            <p>Gratuity: $ {order.metadata.tips}</p>
-                                            <p>Total: $ {order.metadata.total}</p>
+                                            <p>Subtotal: $ <span className='notranslate'>{order.metadata.subtotal}</span> </p>
+                                            <p>Service fee: $ <span className='notranslate'>{order.metadata.service_fee}</span></p>
+                                            <p>Tax: $ <span className='notranslate'>{order.metadata.tax}</span></p>
+                                            <p>Gratuity: $ <span className='notranslate'>{order.metadata.tips}</span></p>
+                                            <p>Total: $ <span className='notranslate'>{order.metadata.total}</span></p>
                                           </div>
                                         </td>
                                       </tr>
@@ -1954,11 +2202,11 @@ const renderLegend = (props) => {
       {revenue !== 0 ? (
         <div>
           <li key="revenue" style={{ fontWeight: 'bold', fontWeight: 'bold', fontSize: '13px' }}>
-            Revenue (${revenue.toFixed(2)})
+            Revenue<span class='notranslate'> (${revenue.toFixed(2)})</span>
           </li>
           {payload.map((entry, index) => (
             <li key={`item-${index}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }} >
-              {entry.value} (${entry.payload.value.toFixed(2)})
+              {entry.value} <span class='notranslate'>(${entry.payload.value.toFixed(2)})</span>
             </li>
           ))}
 

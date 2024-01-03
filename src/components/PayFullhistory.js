@@ -42,8 +42,6 @@ function PayFullhistory() {
   /**
  * Get all payments for the logged in customer
  */
-  const dateTime = new Date().toISOString();
-  const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
   const [payments, setPayments] = useState([]);
   const [expandedOrderIds, setExpandedOrderIds] = useState([]);
 

@@ -424,10 +424,10 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
-        amount: Math.round(finalPrice * 100),
+        amount: Math.round(Math.round((Math.round(100 * finalPrice) / 100  +Math.round(100 * extra_tip) / 100)*100)/100 * 100),
         amount_capturable: 0,
         amount_details: { tip: { amount: 0 } },
-        amount_received: Math.round(finalPrice * 100),
+        amount_received: Math.round(Math.round((Math.round(100 * finalPrice) / 100  +Math.round(100 * extra_tip) / 100)*100)/100 * 100),
         application: "",
         application_fee_amount: 0,
         automatic_payment_methods: null,
@@ -453,7 +453,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
           subtotal: Math.round(100 * totalPrice) / 100,
           tax: Math.round(100 * totalPrice * 0.0825) / 100,
           tips: Math.round(100 * extra_tip) / 100,
-          total: finalPrice,
+          total: Math.round((Math.round(100 * finalPrice) / 100  +Math.round(100 * extra_tip) / 100)*100)/100,
         }, // Assuming an empty map converts to an empty object
         next_action: null,
         object: "payment_intent",

@@ -7,17 +7,17 @@ import myImage from '../components/check-mark.png';  // Import the image
 import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 
-const PaymentComponent = ({setDiscount,setTips,setExtra,setInputValue,setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee }) => {
-    // State to store the error message
-    const [error, setError] = useState(null);
+const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee }) => {
+  // State to store the error message
+  const [error, setError] = useState(null);
 
-//setDiscount,setTips,setExtra(null),setExtra,setInputValue 
+  //setDiscount,setTips,setExtra(null),setExtra,setInputValue 
   // the three variables we keep track of for payment
   var paymentIntentId;
   const { user, user_loading } = useUserContext();
 
   var simulation_mode;
- 
+
   async function createPaymentIntent(amount, receipt_JSON) {
     console.log("createPaymentIntent");
 
@@ -172,8 +172,6 @@ const PaymentComponent = ({setDiscount,setTips,setExtra,setInputValue,setProduct
   }, [])
 
 
-
-
   useEffect(() => {
     const unsubscribe = firebase
       .firestore()
@@ -184,7 +182,7 @@ const PaymentComponent = ({setDiscount,setTips,setExtra,setInputValue,setProduct
       .collection('success_payment')
       .where('id', '==', intent)
       .where('status', '==', 'succeeded')
-      .onSnapshot((snapshot) => {
+      .onSnapshot({includeMetadataChanges: true},(snapshot) => {
         const newTerminalsData = snapshot.docs.map((doc) => ({
           ...doc.data(),
         }));
@@ -215,7 +213,7 @@ const PaymentComponent = ({setDiscount,setTips,setExtra,setInputValue,setProduct
     // Return a cleanup function to unsubscribe from the snapshot listener when the component unmounts
     return () => unsubscribe();
   }, [intent]); // Remove the empty dependency array to listen to real-time changes
-
+  
   const SetTableInfo = async (table_name, product) => {
     try {
       const dateTime = new Date().toISOString();
@@ -259,7 +257,7 @@ const PaymentComponent = ({setDiscount,setTips,setExtra,setInputValue,setProduct
                         style={{ marginRight: "5px" }}
                         value={item.id}
                         checked={selectedId === item.id}
-                        translate="no" 
+                        translate="no"
                         onChange={() => setSelectedId(item.id)}
                       />
                       POS Machine No.{index + 1} --- Added in {formatDate(item.date)}
@@ -298,10 +296,10 @@ const PaymentComponent = ({setDiscount,setTips,setExtra,setInputValue,setProduct
                     </button>
                   </div>
                 </div>
-              
+
 
               }
-              {error && <p style={{color: 'red'}}>Read this carefully and retry: {error}</p>}
+              {error && <p style={{ color: 'red' }}>Read this carefully and retry: {error}</p>}
             </div>
           }
         </div>

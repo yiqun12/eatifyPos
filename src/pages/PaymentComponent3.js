@@ -172,8 +172,6 @@ const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProduc
   }, [])
 
 
-
-
   useEffect(() => {
     const unsubscribe = firebase
       .firestore()

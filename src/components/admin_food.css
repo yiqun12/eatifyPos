@@ -1,68 +1,83 @@
 .setup-picture label {
-    margin-top: 20px !important;
-    width: 100%;
-    margin: auto;
-  }
-  .setup-picture label img {
-    width: 400px;
-    height: 350px;
-    margin: auto;
-  }
-  .setup-picture label .picture {
-    transition: 0.3s;
-    position: relative;
-    text-align: center;
-    padding: 10px 30px;
-    border: 3px dashed #ddd;
-    background-color: #f1f1f1;
-    border-radius: 5px;
-  }
-  .setup-picture label .picture:hover {
-    background-color: #263238;
-    color: #aaa;
-    border: 3px solid #263238;
-  }
-  .setup-picture label .picture:hover i {
-    color: #aaa;
-  }
-  .setup-picture label .picture input {
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-  .setup-picture label .picture h3, .setup-picture label .picture i {
-    float: left;
-  }
-  .setup-picture label .picture i {
-    font-size: 2.5em;
-    margin-right: 15px;
-    color: #263238;
-  }
-  .setup-picture label .picture h3 {
-    margin-top: 10px;
-    font-weight: 100;
-  }
-  .setup-picture label button {
-    font-family: "PT Sans", sans-serif;
-    border: 2px solid #3498db;
-    padding: 10px 25px;
-    color: #3498db;
-    background-color: transparent;
-    font-weight: bold;
-    border-radius: 50px;
-  }
-  .setup-picture label button:hover {
-    background-color: rgba(52, 152, 219, 0.2);
-  }
-  
-  body > iframe[style*='2147483647']{
-    display: none;
-  }
+  margin-top: 20px !important;
+  width: 100%;
+  margin: auto;
+}
+
+.setup-picture label img {
+  width: 400px;
+  height: 350px;
+  margin: auto;
+}
+
+.setup-picture label .picture {
+  transition: 0.3s;
+  position: relative;
+  text-align: center;
+  padding: 10px 30px;
+  border: 3px dashed #ddd;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+}
+
+.setup-picture label .picture:hover {
+  background-color: #263238;
+  color: #aaa;
+  border: 3px solid #263238;
+}
+
+.setup-picture label .picture:hover i {
+  color: #aaa;
+}
+
+.setup-picture label .picture input {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.setup-picture label .picture h3,
+.setup-picture label .picture i {
+  float: left;
+}
+
+.setup-picture label .picture i {
+  font-size: 2.5em;
+  margin-right: 15px;
+  color: #263238;
+}
+
+.setup-picture label .picture h3 {
+  margin-top: 10px;
+  font-weight: 100;
+}
+
+.setup-picture label button {
+  font-family: "PT Sans", sans-serif;
+  border: 2px solid #3498db;
+  padding: 10px 25px;
+  color: #3498db;
+  background-color: transparent;
+  font-weight: bold;
+  border-radius: 50px;
+}
+
+.setup-picture label button:hover {
+  background-color: rgba(52, 152, 219, 0.2);
+}
+
+body>iframe[style*='2147483647'] {
+  display: none;
+}
 
 
-  /*search food*/
+/*hide google onload*/
 
-  
+
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf {
+  display:none !important;
+  visibility:hidden !important;
+}
