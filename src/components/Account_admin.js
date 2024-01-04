@@ -37,9 +37,11 @@ import DemoFood from '../pages/demoFood'
 import StripeConnectButton from '../components/StripeConnectButton'
 import PaymentComponent from "../pages/PaymentComponent";
 import DatePicker from 'react-datepicker';
+import zhCN from 'date-fns/locale/zh-CN'; // for Simplified Chinese
 import { format, addDays } from 'date-fns';
 import "react-datepicker/dist/react-datepicker.css";
 import { startOfMonth, endOfMonth } from 'date-fns';
+import { registerLocale, setDefaultLocale } from "react-datepicker";
 
 import barchar_logo from './file_barchar.png';
 import files_icon from './files_icon.png';
@@ -58,6 +60,7 @@ import file_icon from './file_icon.png';
 import styled from '@emotion/styled';
 import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate } from '../comonFunctions';
 
+registerLocale('zh-CN', zhCN);
 
 
 const Account = () => {
@@ -116,7 +119,6 @@ const Account = () => {
   const isMobile = width <= 768;
 
   const isPC = width >= 1024;
-  console.log(isPC)
   const { promise, logoutUser } = useUserContext();
 
   const [activeTab, setActiveTab] = useState('');
@@ -169,6 +171,26 @@ const Account = () => {
       }
     }
   }
+  const MerchantReceipt = async (store, stringify_JSON, discount, selectedTable, service_fee, finalPrice) => {
+    console.log(store, stringify_JSON, discount, selectedTable, service_fee, finalPrice)
+    try {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "MerchantReceipt"), {
+        date: date,
+        //data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: JSON.parse(stringify_JSON),
+        selectedTable: selectedTable,
+        discount: discount,
+        service_fee: service_fee,
+        total: finalPrice,
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
+
   const handleTabClick = (e, tabHref) => {
     e.preventDefault();
     setActiveTab(tabHref);
@@ -212,9 +234,9 @@ const Account = () => {
   const epochDate = parseDate(format12Oclock((new Date("2023-11-30T00:00:00")).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })));
   const [startDate, setStartDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
   const [endDate, setEndDate] = useState(parseDate(addOneDayAndFormat(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
-  useEffect(() => {
-    getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
-  }, []);
+  // useEffect(() => {
+  //   getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
+  // }, []);
 
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [isPickerOpen2, setIsPickerOpen2] = useState(false);
@@ -398,7 +420,7 @@ const Account = () => {
             total: parseFloat(item.metadata.total),
             tableNum: item.tableNum,
             metadata: item.metadata,
-
+            store: item.store
           };
           newItems.push(newItem); // Push the new item into the array
         });
@@ -406,7 +428,7 @@ const Account = () => {
         // console.log(newItems)
         setOrders(newItems)
         saveId(Math.random())
-        //  console.log(orders)
+        console.log(orders)
         // Create an object to store daily revenue totals
         const dailyRevenue = {};
         // Loop through each receipt and sum up the total revenue for each date
@@ -430,7 +452,7 @@ const Account = () => {
             revenue: Math.round(dailyRevenue[date] * 100) / 100
           };
         });
-        //  console.log("hello", dailyRevenueArray)
+        // console.log("hello", dailyRevenueArray)
         // Example output: [{date: '3/14/2023', revenue: 10}, {date: '3/13/2023', revenue: 10}, {date: '3/4/2023', revenue: 10}]
         setRevenueData(dailyRevenueArray)
 
@@ -473,15 +495,10 @@ const Account = () => {
     // Calculate the difference in time in milliseconds
     let timeDiff = Math.abs(date2.getTime() - date1.getTime());
 
-    // Constants for one day and forty days in milliseconds
+    // Ensure the time difference is at least one day
     const oneDayInMillis = 1000 * 3600 * 24;
-    const fortyDaysInMillis = oneDayInMillis * 40;
-
-    // Ensure the time difference is at least one day but no more than forty days
     if (timeDiff < oneDayInMillis) {
       timeDiff = oneDayInMillis;
-    } else if (timeDiff > fortyDaysInMillis) {
-      timeDiff = fortyDaysInMillis;
     }
 
     // Convert the time difference from milliseconds to days
@@ -489,7 +506,6 @@ const Account = () => {
 
     return daysDiff;
   }
-
 
   const toggleExpandedOrderId = (orderId) => {
     if (expandedOrderIds.includes(orderId)) {
@@ -500,17 +516,9 @@ const Account = () => {
   };
   //REVENUE CHART 31 DAYS FROM NOW
   //const today = new Date("2023-12-19"); 
-  const today = new Date(endDate ? endDate : startDate);
 
-  const oneWeekAgo = new Date(today.getTime() - daysBetweenDates(startDate, endDate) * 24 * 60 * 60 * 1000); // 31 days ago
-  console.log("utc")
-  const filteredData = revenueData?.filter((dataPoint) => {
-    const dataPointDate = new Date(dataPoint.date);
-    return dataPointDate >= oneWeekAgo && dataPointDate <= today;
-  });
-  const sortedData = filteredData.sort((a, b) => new Date(a.date) - new Date(b.date)).map(item => ({ ...item, date: (new Date(item.date).getMonth() + 1) + '/' + new Date(item.date).getDate() }));
+  const sortedData = revenueData.sort((a, b) => new Date(a.date) - new Date(b.date)).map(item => ({ ...item, date: (new Date(item.date).getMonth() + 1) + '/' + new Date(item.date).getDate() }));
 
-  // console.log(sortedData)
 
   if (!sessionStorage.getItem("tableMode")) {
     sessionStorage.setItem("tableMode", "table-NaN");
@@ -1109,6 +1117,11 @@ const Account = () => {
     setNumberReviewVariable(notificationData.length);
   }, [notificationData]);
 
+  const [isSplitPaymentModalOpen, setSplitPaymentModalOpen] = useState(false);
+  const [modalStore, setModalStore] = useState('');
+  const [modalID, setModalID] = useState('');
+  const [modalTips, setModalTips] = useState('');
+  const [modalTotal, setModalTotal] = useState('');
 
 
   const [isVisible, setIsVisible] = useState(true);
@@ -1128,6 +1141,93 @@ const Account = () => {
         console.error("Error removing document: ", error);
       });
   }
+  const uniqueModalStyles = {
+    modalStyle: {
+      backgroundColor: '#fff',
+      padding: '20px',
+      borderRadius: '8px',
+      width: '100%',
+      maxWidth: '400px',
+      position: 'relative',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    },
+    closeBtnStyle: {
+      position: 'absolute',
+      right: '30px',
+      top: '0',
+      background: 'none',
+      border: 'none',
+      fontSize: '48px',
+      cursor: 'pointer',
+    },
+    inputStyle: {
+      width: '100%',
+      padding: '12px',
+      boxSizing: 'border-box',
+      marginBottom: '10px',
+      borderRadius: '4px',
+      border: '1px solid #ccc',
+    },
+    buttonStyle: {
+      backgroundColor: '#007bff',
+      color: '#fff',
+      padding: '12px 15px',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      width: '100%',
+      marginBottom: '10px',
+    },
+  };
+  const [tipAmount, setTipAmount] = useState('');
+
+  // Function to handle the change in input
+  const handleTipChange = (event) => {
+    setTipAmount(event.target.value);
+  };
+  function roundToTwoDecimals(n) {
+    return Math.round(n * 100) / 100;
+  }
+  // Function to handle the confirm action
+  const handleConfirm = async () => {
+    console.log(modalStore)
+    console.log(modalID)
+    // Here you can use the tipAmount for whatever you need
+    console.log('tipAmount amount is:', tipAmount);
+    console.log('Tip amount is:', modalTips);
+    console.log('total amount is:', modalTotal);
+    let tipsUpdated = roundToTwoDecimals(roundToTwoDecimals(tipAmount) + roundToTwoDecimals(modalTips))
+    let totalUpdated = roundToTwoDecimals(roundToTwoDecimals(modalTotal) - roundToTwoDecimals(modalTips) + roundToTwoDecimals(tipsUpdated))
+    // Add additional actions here
+    console.log(tipsUpdated)
+    console.log(totalUpdated)
+    try {
+      // Update document here
+      await firebase
+        .firestore().collection('stripe_customers')
+        .doc(user.uid)
+        .collection('TitleLogoNameContent')
+        .doc(modalStore)
+        .collection('success_payment')
+        .doc(modalID)
+        .update({ amount: totalUpdated * 100, amount_received: totalUpdated * 100, 'metadata.total': totalUpdated, 'metadata.tips': tipsUpdated });
+
+      // Log success with document ID and latest data
+      console.log(`Success: Document ${modalID} updated with data:`);
+
+      // Wait a bit after each update
+      await new Promise(resolve => setTimeout(resolve, 1000)); // waits for 1 second
+    } catch (error) {
+      // Log failure with document ID and error
+      console.error(`Failed: Document ${modalID} update error:`, error);
+    }
+    setModalStore(''); setModalID(''); setModalTips(''); setModalTotal('')
+    setTipAmount('')
+    setSplitPaymentModalOpen(false)
+  };
+
+  const [order_status, setOrder_status] = useState("");
+  const [order_table, setOrder_table] = useState("");
 
 
   return (
@@ -1842,7 +1942,7 @@ const Account = () => {
                               <div className={`w-50 ${isMobile ? 'mobile-class' : 'desktop-class'}`}>
                                 <div>
                                   <div style={{ fontWeight: 'bold' }}>Select Date Range</div>
-                                  <button className="mt-1 mb-1" style={{
+                                  <button className="mt-1 mb-1 notranslate" style={{
                                     border: '1px solid #ccc',
                                     padding: '2px 5px',
                                     display: 'inline-flex',
@@ -1850,7 +1950,7 @@ const Account = () => {
                                     fontSize: '16px', // Example font size
                                     // Add other styles as needed
                                   }} onClick={() => {
-                                    setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                    setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
                                     setIsPickerOpen2(false);
                                     setIsPickerOpen(!isPickerOpen);
 
@@ -1862,7 +1962,7 @@ const Account = () => {
                                   </button>
                                   <div style={{ fontWeight: 'bold' }}>Select Specific Month</div>
 
-                                  <button className="mt-1 mb-1" style={{
+                                  <button className="mt-1 mb-1 notranslate" style={{
                                     border: '1px solid #ccc',
                                     padding: '2px 5px',
                                     display: 'inline-flex',
@@ -1870,13 +1970,13 @@ const Account = () => {
                                     fontSize: '16px', // Example font size
                                     // Add other styles as needed
                                   }} onClick={() => {
-                                    getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
+                                    getMonthDates(((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
                                     setIsPickerOpen(false)
                                     setIsPickerOpen2(!isPickerOpen2);
                                   }}>
                                     <i class="bi-calendar3"></i>
                                     &nbsp;
-                                    {startDate ? format(startDate, "MMMM yyyy") : "Month Year"}
+                                    {startDate ? format(startDate, "MM/yyyy") : "Month Year"}
 
                                   </button>
                                   <div ref={wrapperRef} style={{ position: 'relative' }}>
@@ -1888,14 +1988,26 @@ const Account = () => {
                                         top: '100%', // Position right below the button
                                         left: 0
                                       }}>
-                                        <DatePicker
-                                          selected={startDate}
-                                          onChange={handleChange}
-                                          startDate={startDate}
-                                          endDate={endDate}
-                                          selectsRange
-                                          inline
-                                        />
+                                        {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ?
+                                          <DatePicker
+                                            selected={startDate}
+                                            onChange={handleChange}
+                                            startDate={startDate}
+                                            endDate={endDate}
+                                            selectsRange
+                                            inline
+                                            locale="zh-CN"
+                                          /> :
+
+                                          <DatePicker
+                                            selected={startDate}
+                                            onChange={handleChange}
+                                            startDate={startDate}
+                                            endDate={endDate}
+                                            selectsRange
+                                            inline
+                                          />}
+
                                       </div>
                                     )}
 
@@ -1906,11 +2018,21 @@ const Account = () => {
                                         top: '100%', // Position right below the button
                                         left: 0
                                       }}>
-                                        <DatePicker
-                                          onChange={handleMonthChange}
-                                          showMonthYearPicker
-                                          inline
-                                        />
+
+                                        {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ?
+                                          <DatePicker
+                                            onChange={handleMonthChange}
+                                            showMonthYearPicker
+                                            inline
+                                            locale="zh-CN"
+                                          /> :
+
+                                          <DatePicker
+                                            onChange={handleMonthChange}
+                                            showMonthYearPicker
+                                            inline
+                                          />}
+
                                       </div>
                                     )}
                                     <div>
@@ -1920,8 +2042,15 @@ const Account = () => {
                                     onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
                                     className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
                                   >
-                                    <i className="bi bi-calendar2-check pe-2"></i>
+                                    <i className="bi bi-calendar-event pe-2"></i>
                                     <span>Today's Orders</span>
+                                  </button>
+                                  <button
+                                    onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                    className="btn btn-sm btn-warning d-flex align-items-center mx-1 mb-2"
+                                  >
+                                    <i className="bi bi-calendar3 pe-2"></i>
+                                    <span>List This Month</span>
                                   </button>
                                   {/* {JSON.stringify(startDate)}
                                   {JSON.stringify(endDate)} */}
@@ -1932,6 +2061,7 @@ const Account = () => {
                                     <i className="bi bi-calendar pe-2"></i>
                                     <span>List All Orders</span>
                                   </button>
+
                                   {/* <button
                                     onClick={() => setShowChart(!showChart)}
                                     className="btn btn-sm btn-info d-flex align-items-center mx-1 mb-2"
@@ -1949,7 +2079,7 @@ const Account = () => {
                                     cx={80} // Move the pie to the left by adjusting the cx value
                                     data={[
                                       {
-                                        name: 'Subtotal', value: Math.round(orders?.reduce(
+                                        name: 'Subtotal', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -1962,7 +2092,7 @@ const Account = () => {
                                         ).subtotal * 100) / 100
                                       },
                                       {
-                                        name: 'Tax', value: Math.round(orders?.reduce(
+                                        name: 'Tax', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -1974,7 +2104,7 @@ const Account = () => {
                                           { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                         ).tax * 100) / 100
                                       }, {
-                                        name: 'Gratuity', value: Math.round(orders?.reduce(
+                                        name: 'Gratuity', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -1987,7 +2117,7 @@ const Account = () => {
                                         ).tips * 100) / 100
                                       },
                                       {
-                                        name: 'Service Fee', value: Math.round(orders?.reduce(
+                                        name: 'Service Fee', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -2009,7 +2139,7 @@ const Account = () => {
                                     {
                                       [
                                         {
-                                          name: 'Gratuity', value: Math.round(orders?.reduce(
+                                          name: 'Gratuity', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -2022,7 +2152,7 @@ const Account = () => {
                                           ).tips * 100) / 100
                                         },
                                         {
-                                          name: 'Service Fee', value: Math.round(orders?.reduce(
+                                          name: 'Service Fee', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -2035,7 +2165,7 @@ const Account = () => {
                                           ).service_fee * 100) / 100
                                         },
                                         {
-                                          name: 'Tax', value: Math.round(orders?.reduce(
+                                          name: 'Tax', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -2048,7 +2178,7 @@ const Account = () => {
                                           ).tax * 100) / 100
                                         },
                                         {
-                                          name: 'Subtotal', value: Math.round(orders?.reduce(
+                                          name: 'Subtotal', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -2091,7 +2221,24 @@ const Account = () => {
                               <div></div>
                             }
                             {isMobile ? <hr class="opacity-50 border-t-2 border-black-1000" /> : <hr class="opacity-50 border-t-2 border-black-1000" />}
-
+                            {isMobile ? <div >
+                              <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
+                                <option value="">Select Payment Status</option>
+                                {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
+                                  <option key={index} value={option}>{option}</option>
+                                ))}
+                                {/* The options will be dynamically created here */}
+                              </select>
+                              &nbsp; 
+                              <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
+                                <option value="">Select Dining Table</option>
+                                {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
+                                  <option key={index} value={option}>{option}</option>
+                                ))}
+                                {/* The options will be dynamically created here */}
+                              </select>
+                            </div> : <></>
+                            }
                             <table
                               className="shop_table my_account_orders"
                               style={{
@@ -2100,18 +2247,35 @@ const Account = () => {
                                 borderSpacing: "6px", // added CSS
                               }}
                             >
+
                               <thead>
                                 <tr>
                                   <th className="order-number" style={isMobile ? {} : { width: "10%" }}>Order ID</th>
-                                  <th className="order-name" style={isMobile ? {} : { width: "10%" }}>Dining Table</th>
-                                  <th className="order-status" style={isMobile ? {} : { width: "30%" }}>Status</th>
+                                  <th className="order-name" style={isMobile ? {} : { width: "10%" }}>
+                                    <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
+                                      <option value="">Select Dining Table</option>
+                                      {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
+                                        <option key={index} value={option}>{option}</option>
+                                      ))}
+                                      {/* The options will be dynamically created here */}
+                                    </select>
+
+                                  </th>
+                                  <th className="order-status" style={isMobile ? {} : { width: "30%" }}>
+                                    <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
+                                      <option value="">Select Payment Status</option>
+                                      {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
+                                        <option key={index} value={option}>{option}</option>
+                                      ))}
+                                      {/* The options will be dynamically created here */}
+                                    </select>
+                                  </th>
                                   <th className="order-total" style={isMobile ? {} : { width: "10%" }}>Total Price</th>
                                   <th className="order-date" style={isMobile ? {} : { width: "25%" }}>Time</th>
-                                  <th className="order-details" style={isMobile ? {} : { width: "15%" }}>Detail</th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {orders?.map((order) => (
+                                {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).map((order) => (
 
                                   <div style={{ display: 'contents' }}>
 
@@ -2125,28 +2289,234 @@ const Account = () => {
                                           <span className='notranslate'>{order.date.replace(/\/\d{4}/, '')}</span>
                                         </time>
                                       </td>
-                                      <td className="order-details" style={{ whiteSpace: "nowrap" }} data-title="Details">
-                                        <button onClick={() => toggleExpandedOrderId(order.id)} style={{ cursor: "pointer" }}>
-                                          {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
-                                        </button>
-                                        {/* <button onClick={() => deleteDocument(order.id)}>
+
+                                      {isMobile ?
+                                        <div className="order-details" style={{ whiteSpace: "nowrap" }} data-title="Details">
+                                          <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
+
+                                          >
+                                            {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
+                                          </button>
+                                          <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total)} style={{ cursor: "pointer", border: "1px solid black" }}>
+                                            {"MerchantReceipt"}
+                                          </button>
+
+                                          {order?.status === 'Paid by Cash' ? (
+                                            <button
+                                              className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalTotal(order.metadata.total) }}
+                                            >
+                                              Add Gratuity
+                                            </button>
+                                          ) : null}
+                                          {isSplitPaymentModalOpen && (
+                                            <div style={{
+                                              position: 'fixed',
+                                              zIndex: 1000,
+                                              top: '50%',
+                                              left: '50%',
+                                              transform: 'translate(-50%, -50%)',
+                                              backgroundColor: '#fff',
+                                              border: '1px solid #ccc',
+                                              borderRadius: '10px',
+                                              padding: '20px',
+                                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                              width: '300px',
+                                              boxSizing: 'border-box',
+                                            }}>
+                                              <div style={{
+                                                marginBottom: '20px',
+                                                textAlign: 'center',
+                                                fontSize: '18px',
+                                                fontWeight: 'bold'
+                                              }}>
+                                                Add Extra Gratuity
+                                              </div>
+
+                                              <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                marginBottom: '20px'
+                                              }}>
+                                                <label htmlFor="tipAmount" style={{ marginRight: '10px' }}>Gratuity Amount: </label>
+                                                <input
+                                                  type="number"
+                                                  id="tipAmount"
+                                                  name="tipAmount"
+                                                  value={tipAmount}
+                                                  onChange={handleTipChange}
+                                                  style={{
+                                                    padding: '5px',
+                                                    border: '1px solid #ccc',
+                                                    borderRadius: '4px',
+                                                    width: '60%',
+                                                  }}
+                                                />
+                                              </div>
+
+                                              <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between'
+                                              }}>
+                                                <button
+                                                  onClick={() => setSplitPaymentModalOpen(false)}
+                                                  style={{
+                                                    background: '#f44336', // Red background for cancel
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    padding: '10px 15px',
+                                                    borderRadius: '5px',
+                                                    cursor: 'pointer',
+                                                  }}
+                                                >
+                                                  Cancel
+                                                </button>
+                                                <button
+                                                  onClick={() => handleConfirm()}
+                                                  style={{
+                                                    background: '#4CAF50', // Green background for confirm
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    padding: '10px 15px',
+                                                    borderRadius: '5px',
+                                                    cursor: 'pointer',
+                                                  }}>
+                                                  Confirm
+                                                </button>
+                                              </div>
+                                            </div>
+
+                                          )}
+
+                                          {/* 
+                                        <button onClick={() => deleteDocument(order.id)}>
                                           Delete Document
                                         </button> */}
-                                      </td>
+                                        </div>
+                                        :
+                                        <td className="order-details" style={{ whiteSpace: "nowrap", textAlign: "right" }}
+                                          data-title="Details">
+                                          {order?.status === 'Paid by Cash' ? (
+                                            <button
+                                              className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalTotal(order.metadata.total) }}
+                                            >
+                                              Add Gratuity
+                                            </button>
+                                          ) : null}
+                                          <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total)} style={{ cursor: "pointer", border: "1px solid black" }}>
+                                            {"MerchantReceipt"}
+                                          </button>
+
+                                          {isSplitPaymentModalOpen && (
+                                            <div style={{
+                                              position: 'fixed',
+                                              zIndex: 1000,
+                                              top: '50%',
+                                              left: '50%',
+                                              transform: 'translate(-50%, -50%)',
+                                              backgroundColor: '#fff',
+                                              border: '1px solid #ccc',
+                                              borderRadius: '10px',
+                                              padding: '20px',
+                                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                              width: '300px',
+                                              boxSizing: 'border-box',
+                                            }}>
+                                              <div style={{
+                                                marginBottom: '20px',
+                                                textAlign: 'center',
+                                                fontSize: '18px',
+                                                fontWeight: 'bold'
+                                              }}>
+                                                Add Extra Gratuity
+                                              </div>
+
+                                              <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                marginBottom: '20px'
+                                              }}>
+                                                <label htmlFor="tipAmount" style={{ marginRight: '10px' }}>Gratuity Amount: </label>
+                                                <input
+                                                  type="number"
+                                                  id="tipAmount"
+                                                  name="tipAmount"
+                                                  value={tipAmount}
+                                                  onChange={handleTipChange}
+                                                  style={{
+                                                    padding: '5px',
+                                                    border: '1px solid #ccc',
+                                                    borderRadius: '4px',
+                                                    width: '60%',
+                                                  }}
+                                                />
+                                              </div>
+
+                                              <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between'
+                                              }}>
+                                                <button
+                                                  onClick={() => setSplitPaymentModalOpen(false)}
+                                                  style={{
+                                                    background: '#f44336', // Red background for cancel
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    padding: '10px 15px',
+                                                    borderRadius: '5px',
+                                                    cursor: 'pointer',
+                                                  }}
+                                                >
+                                                  Cancel
+                                                </button>
+                                                <button
+                                                  onClick={() => handleConfirm()}
+                                                  style={{
+                                                    background: '#4CAF50', // Green background for confirm
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    padding: '10px 15px',
+                                                    borderRadius: '5px',
+                                                    cursor: 'pointer',
+                                                  }}>
+                                                  Confirm
+                                                </button>
+                                              </div>
+                                            </div>
+
+                                          )}
+                                          <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
+
+                                          >
+                                            {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
+                                          </button>
+                                          {/* 
+                                      <button onClick={() => deleteDocument(order.id)}>
+                                        Delete Document
+                                      </button> */}
+                                        </td>
+                                      }
                                     </tr>
+
+
+
                                     {expandedOrderIds.includes(order.id) && (
                                       <tr>
                                         <td colSpan={8} style={{ padding: "10px" }}>
                                           <div className="receipt">
                                             <p><span className='notranslate'>{order.name}</span></p>
                                             {/* <p>{order.email}</p> */}
-                                            <p><span className='notranslate'>{order.date}</span></p>
+                                            {/* <p><span className='notranslate'>{order.date}</span></p> */}
                                             {JSON.parse(order.receiptData).map((item, index) => (
                                               <div className="receipt-item" key={item.id}>
                                                 <p className='notranslate'>
                                                   {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} x {item.quantity} @ ${item.subtotal} each = ${Math.round(item.quantity * item.subtotal * 100) / 100}</p>
                                               </div>
                                             ))}
+                                            <p>Discount: $ <span className='notranslate'>{order.metadata.discount}</span> </p>
                                             <p>Subtotal: $ <span className='notranslate'>{order.metadata.subtotal}</span> </p>
                                             <p>Service fee: $ <span className='notranslate'>{order.metadata.service_fee}</span></p>
                                             <p>Tax: $ <span className='notranslate'>{order.metadata.tax}</span></p>
@@ -2213,7 +2583,7 @@ const renderLegend = (props) => {
         </div>
       ) : (
         <li key="revenue">
-          No Business Data On Selected Date
+          No Business Data On Date Range
         </li>
       )}
 

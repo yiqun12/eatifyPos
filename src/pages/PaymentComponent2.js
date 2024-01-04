@@ -260,7 +260,7 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
                         translate="no"
                         onChange={() => setSelectedId(item.id)}
                       />
-                      POS Machine No.{index + 1} --- Added in {formatDate(item.date)}
+                      POS Machine No.{items.length - index} --- Added in {formatDate(item.date)}
                     </label>
                   </div>
                 ))}
