@@ -164,7 +164,7 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
           id: doc.id,
         }));
 
-
+        
         setItems(terminalsData.sort((a, b) => b.date.localeCompare(a.date)))
         console.log(terminalsData)
         setSelectedId(terminalsData[0].id)
@@ -182,7 +182,7 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
       .collection('success_payment')
       .where('id', '==', intent)
       .where('status', '==', 'succeeded')
-      .onSnapshot({includeMetadataChanges: true},(snapshot) => {
+      .onSnapshot({ includeMetadataChanges: true }, (snapshot) => {
         const newTerminalsData = snapshot.docs.map((doc) => ({
           ...doc.data(),
         }));
@@ -202,9 +202,9 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
           //setDiscount,setTips,setExtra(null),setExtra,setInputValue 
 
           SetTableInfo(storeID + "-" + selectedTable, "[]")
-          //localStorage.setItem(storeID + "-" + selectedTable, "[]");
           setProducts([]);
-          localStorage.setItem(storeID + "-" + selectedTable + "-isSent", "[]")
+          SetTableIsSent(storeID + "-" + selectedTable + "-isSent", "[]")
+          //localStorage.setItem(storeID + "-" + selectedTable + "-isSent", "[]")
           // newTerminalsData is not empty
           //console.log("newTerminalsData is not empty");
         }
@@ -213,7 +213,23 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
     // Return a cleanup function to unsubscribe from the snapshot listener when the component unmounts
     return () => unsubscribe();
   }, [intent]); // Remove the empty dependency array to listen to real-time changes
-  
+  const SetTableIsSent = async (table_name, product) => {
+    try {
+      if(localStorage.getItem(table_name)===product){
+        return
+      }
+
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docData = { product: product, date: date };
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "TableIsSent", table_name);
+      await setDoc(docRef, docData);
+
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
+
   const SetTableInfo = async (table_name, product) => {
     try {
       const dateTime = new Date().toISOString();
@@ -221,7 +237,6 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
       const docData = { product: product, date: date };
       const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "Table", table_name);
       await setDoc(docRef, docData);
-      //localStorage.setItem(table_name,product)
 
     } catch (error) {
       console.error("Error adding document: ", error);

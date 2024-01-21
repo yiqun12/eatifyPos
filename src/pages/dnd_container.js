@@ -61,7 +61,12 @@ function Item({ item, updateItems, whole_item_groups, numberOfGroups }) {
       {/* <p className="font-bold text-2xl">{heading}</p>
       <p className="text-gra7-700 font-thin">{description}</p> */}
       {/* <p className="font-bold text-2xl">{item.name}</p> */}
-      <span>{item.name} x <b>{item.quantity} / {numberOfGroups}</b> </span>
+      <span className="notranslate">
+        
+      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
+      <b>{
+      Math.round( (Math.round(item.quantity) / Math.round(numberOfGroups))*100  )/100
+      }</b> </span>
       {generateAttributes(item.attributeSelected)}
       {/* <p className="font-bold text-2xl">{item.quantity}</p> */}
     </div>
@@ -317,6 +322,7 @@ function Container(props) {
   const { containerId, items, handleDelete, checkout, updateItems, whole_item_groups, numberOfGroups, dirty, activeId } = props;
 
   // console.log("container:", whole_item_groups)
+
   const { setNodeRef } = useDroppable({
     id: containerId
   });
@@ -489,7 +495,7 @@ function Container(props) {
         payment_method_types: ["Paid_by_Cash"],
         powerBy: "Paid by Cash",
         processing: null,
-        receiptData: localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]",
+        receiptData: JSON.stringify(checkout(containerId)),
         receipt_email: null,
         review: null,
         setup_future_usage: null,
@@ -785,7 +791,7 @@ function Container(props) {
                     </div>
                     <div className="modal-body pt-0">
 
-                      <PaymentComponent2 setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
+                      <PaymentComponent2 setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} checkout_JSON={checkout(containerId)} />
 
                     </div>
                     <div className="modal-footer">
@@ -915,7 +921,7 @@ function Container(props) {
             {(extra !== null && extra !== 0) && (
               <div className={`text-right`}>Gratuity: <span className='notranslate'>{Math.round((extra) * 100) / 100} </span></div>
             )}
-            <div className={`text-right `}>Tax(8.25%):<span className='notranslate'>${Math.round(subtotal * 0.0825 * 100) / 100}</span>  </div>
+            <div className={`text-right `}>Tax: <span className='notranslate'>${Math.round(subtotal * 0.0825 * 100) / 100}</span>  </div>
             <div className={`text-right `}>Total: <span className='notranslate'>${finalPrice}</span>  </div>
 
           </div>

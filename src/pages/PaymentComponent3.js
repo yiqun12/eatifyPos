@@ -7,7 +7,7 @@ import myImage from '../components/check-mark.png';  // Import the image
 import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 
-const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee }) => {
+const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee,checkout_JSON }) => {
     // State to store the error message
     const [error, setError] = useState(null);
 
@@ -102,7 +102,7 @@ const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProduc
 
     try {
       let amount = Math.round(chargeAmount * 100);
-      const paymentIntent = await createPaymentIntent(amount, localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]");
+      const paymentIntent = await createPaymentIntent(amount, JSON.stringify(checkout_JSON));
       console.log("payment intent: ", paymentIntent);
       paymentIntentId = paymentIntent["id"];
       const reader = await processPayment();
@@ -200,7 +200,6 @@ const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProduc
           setDiscount("")
           setTips("")
           setProducts([]);
-          localStorage.setItem(storeID + "-" + selectedTable + "-isSent", "[]")
           // newTerminalsData is not empty
           //console.log("newTerminalsData is not empty");
         }

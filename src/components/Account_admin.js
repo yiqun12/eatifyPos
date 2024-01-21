@@ -63,8 +63,8 @@ import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate } from
 registerLocale('zh-CN', zhCN);
 
 
-const Account = () => {
 
+const Account = () => {
 
   // This function plays the sound
   const playSound = () => {
@@ -153,6 +153,33 @@ const Account = () => {
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
+
+  useEffect(() => {
+    // Ensure the user is defined
+    if (!user || !user.uid) return;
+    if (!storeID) return;
+    const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "TableIsSent");
+
+    // Listen for changes in the collection
+    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+      const docs = [];
+      //clearDemoIsSentLocalStorage()
+      snapshot.forEach((doc) => {
+        docs.push({ id: doc.id, ...doc.data() });
+        localStorage.setItem(doc.id, doc.data().product);
+      });
+      saveId(Math.random());
+    }, (error) => {
+      // Handle any errors
+      console.error("Error getting documents:", error);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [storeID]); // Dependencies for useEffect
+  function round2digt(n) {
+    return Math.round(n * 100) / 100
+  }
   function clearDemoLocalStorage() {
     // Get all keys in localStorage
     const keys = Object.keys(localStorage);
@@ -171,7 +198,25 @@ const Account = () => {
       }
     }
   }
-  const MerchantReceipt = async (store, stringify_JSON, discount, selectedTable, service_fee, finalPrice) => {
+  function clearDemoIsSentLocalStorage() {
+    // Get all keys in localStorage
+    const keys = Object.keys(localStorage);
+
+    // Loop through the keys
+    for (let key of keys) {
+      // Check if the key includes 'demo'
+      if (key.includes(storeID + "-")) {
+        // Remove the item from localStorage
+        if (key.includes("-isSent")) {
+          localStorage.removeItem(key);
+
+        } else {
+        }
+
+      }
+    }
+  }
+  const MerchantReceipt = async (store, stringify_JSON, discount, selectedTable, service_fee, finalPrice, tips) => {
     console.log(store, stringify_JSON, discount, selectedTable, service_fee, finalPrice)
     try {
       const dateTime = new Date().toISOString();
@@ -183,7 +228,7 @@ const Account = () => {
         selectedTable: selectedTable,
         discount: discount,
         service_fee: service_fee,
-        total: finalPrice,
+        total: roundToTwoDecimals(roundToTwoDecimals(finalPrice) - roundToTwoDecimals(tips)),
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
@@ -390,9 +435,12 @@ const Account = () => {
       .where('dateTime', '>=', convertDateFormat(startDate))
       .where('dateTime', '<', convertDateFormat(endDate ? (addDays(endDate, 1)) : (addDays(startDate, 1))))
       .onSnapshot((snapshot) => {
+        console.log("hebbbbbbbbbb")
+        //console.log(snapshot.docs[0].data().id);
 
         const newData = snapshot.docs.map((doc) => ({
           ...doc.data(),
+          intent_ID: doc.data().id,
           id: doc.id,
         }));
 
@@ -407,7 +455,7 @@ const Account = () => {
         newData.forEach((item) => {
           const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
             .subtract(8, "hours")
-            .format("M/D/YYYY h:mma");
+            .format("M/D/YY HH:mm");
           //  console.log("formattedDate")
           // console.log(formattedDate)
           const newItem = {
@@ -420,7 +468,10 @@ const Account = () => {
             total: parseFloat(item.metadata.total),
             tableNum: item.tableNum,
             metadata: item.metadata,
-            store: item.store
+            store: item.store,
+            intent_ID: item?.intent_ID,
+            Charge_ID: item?.latest_charge
+
           };
           newItems.push(newItem); // Push the new item into the array
         });
@@ -552,10 +603,6 @@ const Account = () => {
     );
   };
   //modal
-  const [TitleLogoNameContent, setTitleLogoNameContent] = useState(JSON.parse(sessionStorage.getItem("TitleLogoNameContent" || "[]")));
-  useEffect(() => {
-    setTitleLogoNameContent(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")))
-  }, [id]);
 
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -1122,6 +1169,7 @@ const Account = () => {
   const [modalID, setModalID] = useState('');
   const [modalTips, setModalTips] = useState('');
   const [modalTotal, setModalTotal] = useState('');
+  const [modalSubtotal, setModalSubtotal] = useState('');
 
 
   const [isVisible, setIsVisible] = useState(true);
@@ -1149,7 +1197,6 @@ const Account = () => {
       width: '100%',
       maxWidth: '400px',
       position: 'relative',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     },
     closeBtnStyle: {
       position: 'absolute',
@@ -1180,6 +1227,23 @@ const Account = () => {
     },
   };
   const [tipAmount, setTipAmount] = useState('');
+  async function bankReceipt(Charge_ID, id, date) {
+    console.log(Charge_ID);
+    const bankReceiptFunction = firebase.functions().httpsCallable('bankReceipt');
+    console.log(JSON.parse(localStorage.getItem("TitleLogoNameContent" || "[]"))?.stripe_store_acct)
+    try {
+      const result = await bankReceiptFunction({ Charge_ID: Charge_ID, docId: id, displayDate: date, acct: JSON.parse(localStorage.getItem("TitleLogoNameContent" || "[]"))?.stripe_store_acct });
+      console.log('Result:', result.data.paymentCharge);
+      console.log('data:', result.data.paymentCharge);
+
+      // Handle the successful response here
+      return result.data.Charge_ID;
+    } catch (error) {
+      console.error('Error calling bankReceipt:', error);
+      // Handle errors here
+      throw error;
+    }
+  }
 
   // Function to handle the change in input
   const handleTipChange = (event) => {
@@ -1214,16 +1278,16 @@ const Account = () => {
 
       // Log success with document ID and latest data
       console.log(`Success: Document ${modalID} updated with data:`);
-
+      setModalStore(''); setModalID(''); setModalTips(''); setModalTotal('')
+      setTipAmount('')
+      setSplitPaymentModalOpen(false)
       // Wait a bit after each update
-      await new Promise(resolve => setTimeout(resolve, 1000)); // waits for 1 second
+      //await new Promise(resolve => setTimeout(resolve, 1000)); // waits for 1 second
     } catch (error) {
       // Log failure with document ID and error
       console.error(`Failed: Document ${modalID} update error:`, error);
     }
-    setModalStore(''); setModalID(''); setModalTips(''); setModalTotal('')
-    setTipAmount('')
-    setSplitPaymentModalOpen(false)
+
   };
 
   const [order_status, setOrder_status] = useState("");
@@ -2229,7 +2293,7 @@ const Account = () => {
                                 ))}
                                 {/* The options will be dynamically created here */}
                               </select>
-                              &nbsp; 
+                              &nbsp;
                               <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
                                 <option value="">Select Dining Table</option>
                                 {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
@@ -2237,7 +2301,7 @@ const Account = () => {
                                 ))}
                                 {/* The options will be dynamically created here */}
                               </select>
-                            </div> : <></>
+                            </div> : null
                             }
                             <table
                               className="shop_table my_account_orders"
@@ -2250,7 +2314,8 @@ const Account = () => {
 
                               <thead>
                                 <tr>
-                                  <th className="order-number" style={isMobile ? {} : { width: "10%" }}>Order ID</th>
+                                  {isMobile ? null : <th className="notranslate" style={{ width: "6%" }}>Number.</th>}
+                                  <th className="order-number" style={isMobile ? {} : { width: "7%" }}>Order ID</th>
                                   <th className="order-name" style={isMobile ? {} : { width: "10%" }}>
                                     <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
                                       <option value="">Select Dining Table</option>
@@ -2270,23 +2335,116 @@ const Account = () => {
                                       {/* The options will be dynamically created here */}
                                     </select>
                                   </th>
-                                  <th className="order-total" style={isMobile ? {} : { width: "10%" }}>Total Price</th>
+                                  <th className="order-total" style={isMobile ? {} : { width: "7%" }}>Total Price</th>
                                   <th className="order-date" style={isMobile ? {} : { width: "25%" }}>Time</th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).map((order) => (
+                                {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).map((order, index) => (
 
                                   <div style={{ display: 'contents' }}>
+                                    {isSplitPaymentModalOpen && (
+                                      <div style={{
+                                        position: 'fixed',
+                                        zIndex: 1000,
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        backgroundColor: '#fff',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '10px',
+                                        padding: '20px',
+                                        width: '300px',
+                                        boxSizing: 'border-box',
+                                      }}>
+                                        <div style={{
+                                          marginBottom: '20px',
+                                          textAlign: 'center',
+                                          fontSize: '18px',
+                                          fontWeight: 'bold'
+                                        }}>
+                                          Add Extra Gratuity
+                                        </div>
 
+                                        <div style={{
+                                          alignItems: 'center',
+                                          marginBottom: '20px'
+                                        }}>
+                                          <label htmlFor="tipAmount" style={{ marginRight: '10px' }}>Gratuity Amount: </label>
+                                          <input
+                                            className='mb-2'
+                                            type="number"
+                                            id="tipAmount"
+                                            name="tipAmount"
+                                            value={tipAmount}
+                                            onChange={handleTipChange}
+                                            min="0"
+                                            style={{
+                                              padding: '5px',
+                                              border: '1px solid #ccc',
+                                              borderRadius: '4px',
+                                              width: '100%',
+                                            }}
+                                          />
+                                          <div className="flex justify-between mb-4">
+                                            <button onClick={() => { setTipAmount(roundToTwoDecimals(roundToTwoDecimals(modalSubtotal) * 0.15)) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                                              15%
+                                            </button>
+                                            <button onClick={() => { setTipAmount(roundToTwoDecimals(roundToTwoDecimals(modalSubtotal) * 0.18)) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                                              18%
+                                            </button>
+                                            <button onClick={() => { setTipAmount(roundToTwoDecimals(roundToTwoDecimals(modalSubtotal) * 0.20)) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                                              20%
+                                            </button>
+                                          </div>
+
+                                        </div>
+
+                                        <div style={{
+                                          display: 'flex',
+                                          justifyContent: 'space-between'
+                                        }}>
+                                          <button
+                                            onClick={() => setSplitPaymentModalOpen(false)}
+                                            style={{
+                                              background: '#f44336', // Red background for cancel
+                                              color: 'white',
+                                              border: 'none',
+                                              padding: '10px 15px',
+                                              borderRadius: '5px',
+                                              cursor: 'pointer',
+                                            }}
+                                          >
+                                            Cancel
+                                          </button>
+                                          <button
+                                            onClick={() => handleConfirm()}
+                                            style={{
+                                              background: '#4CAF50', // Green background for confirm
+                                              color: 'white',
+                                              border: 'none',
+                                              padding: '10px 15px',
+                                              borderRadius: '5px',
+                                              cursor: 'pointer',
+                                            }}>
+                                            Confirm
+                                          </button>
+                                        </div>
+                                      </div>
+
+                                    )}
+                                    {isMobile ? <div># {orders.length - index}</div> :
+                                      null
+                                    }
                                     <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
-                                      <td className="order-number notranslate" data-title="OrderID"><a >{order.id.substring(0, 4)}</a></td>
+                                      {isMobile ? null : <td className='notranslate'># {orders.length - index}</td>}
+                                      <td className="order-number notranslate" data-title="OrderID"><a>{order.id.substring(0, 4)}</a></td>
                                       <td className="order-name notranslate" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum === "" ? "Takeout" : order.tableNum}</td>
-                                      <td className="order-status" data-title="Status" style={{ whiteSpace: "nowrap" }}>{order.status}</td>
+                                      <td className="order-status" data-title="Status" style={{ whiteSpace: "nowrap" }}>{order.status} </td>
                                       <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="notranslate amount">{"$" + order.total}</span></td>
                                       <td className="order-date" data-title="Time" style={{ whiteSpace: "nowrap" }}>
                                         <time dateTime={order.date} title={order.date} nowrap>
-                                          <span className='notranslate'>{order.date.replace(/\/\d{4}/, '')}</span>
+                                          <span className='notranslate'>{order.date}</span>
                                         </time>
                                       </td>
 
@@ -2297,102 +2455,24 @@ const Account = () => {
                                           >
                                             {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
                                           </button>
-                                          <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total)} style={{ cursor: "pointer", border: "1px solid black" }}>
+                                          <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)} style={{ cursor: "pointer", border: "1px solid black" }}>
                                             {"MerchantReceipt"}
                                           </button>
-
                                           {order?.status === 'Paid by Cash' ? (
                                             <button
                                               className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalTotal(order.metadata.total) }}
+                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
                                             >
                                               Add Gratuity
                                             </button>
-                                          ) : null}
-                                          {isSplitPaymentModalOpen && (
-                                            <div style={{
-                                              position: 'fixed',
-                                              zIndex: 1000,
-                                              top: '50%',
-                                              left: '50%',
-                                              transform: 'translate(-50%, -50%)',
-                                              backgroundColor: '#fff',
-                                              border: '1px solid #ccc',
-                                              borderRadius: '10px',
-                                              padding: '20px',
-                                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                              width: '300px',
-                                              boxSizing: 'border-box',
-                                            }}>
-                                              <div style={{
-                                                marginBottom: '20px',
-                                                textAlign: 'center',
-                                                fontSize: '18px',
-                                                fontWeight: 'bold'
-                                              }}>
-                                                Add Extra Gratuity
-                                              </div>
+                                          ) :
+                                            <button
+                                              className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                              onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
+                                            >
+                                              Bank Receipt
+                                            </button>}
 
-                                              <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                marginBottom: '20px'
-                                              }}>
-                                                <label htmlFor="tipAmount" style={{ marginRight: '10px' }}>Gratuity Amount: </label>
-                                                <input
-                                                  type="number"
-                                                  id="tipAmount"
-                                                  name="tipAmount"
-                                                  value={tipAmount}
-                                                  onChange={handleTipChange}
-                                                  style={{
-                                                    padding: '5px',
-                                                    border: '1px solid #ccc',
-                                                    borderRadius: '4px',
-                                                    width: '60%',
-                                                  }}
-                                                />
-                                              </div>
-
-                                              <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between'
-                                              }}>
-                                                <button
-                                                  onClick={() => setSplitPaymentModalOpen(false)}
-                                                  style={{
-                                                    background: '#f44336', // Red background for cancel
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    padding: '10px 15px',
-                                                    borderRadius: '5px',
-                                                    cursor: 'pointer',
-                                                  }}
-                                                >
-                                                  Cancel
-                                                </button>
-                                                <button
-                                                  onClick={() => handleConfirm()}
-                                                  style={{
-                                                    background: '#4CAF50', // Green background for confirm
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    padding: '10px 15px',
-                                                    borderRadius: '5px',
-                                                    cursor: 'pointer',
-                                                  }}>
-                                                  Confirm
-                                                </button>
-                                              </div>
-                                            </div>
-
-                                          )}
-
-                                          {/* 
-                                        <button onClick={() => deleteDocument(order.id)}>
-                                          Delete Document
-                                        </button> */}
                                         </div>
                                         :
                                         <td className="order-details" style={{ whiteSpace: "nowrap", textAlign: "right" }}
@@ -2400,103 +2480,29 @@ const Account = () => {
                                           {order?.status === 'Paid by Cash' ? (
                                             <button
                                               className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalTotal(order.metadata.total) }}
+                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
                                             >
                                               Add Gratuity
                                             </button>
-                                          ) : null}
-                                          <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total)} style={{ cursor: "pointer", border: "1px solid black" }}>
+                                          ) :
+                                            <button
+                                              className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                              onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
+                                            >
+                                              Bank Receipt
+                                            </button>}
+                                          <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)} style={{ cursor: "pointer", border: "1px solid black" }}>
                                             {"MerchantReceipt"}
                                           </button>
+                                          {/* <button onClick={() => deleteDocument(order.id)}>
+                                            Delete Document
+                                          </button> */}
 
-                                          {isSplitPaymentModalOpen && (
-                                            <div style={{
-                                              position: 'fixed',
-                                              zIndex: 1000,
-                                              top: '50%',
-                                              left: '50%',
-                                              transform: 'translate(-50%, -50%)',
-                                              backgroundColor: '#fff',
-                                              border: '1px solid #ccc',
-                                              borderRadius: '10px',
-                                              padding: '20px',
-                                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                              width: '300px',
-                                              boxSizing: 'border-box',
-                                            }}>
-                                              <div style={{
-                                                marginBottom: '20px',
-                                                textAlign: 'center',
-                                                fontSize: '18px',
-                                                fontWeight: 'bold'
-                                              }}>
-                                                Add Extra Gratuity
-                                              </div>
-
-                                              <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                marginBottom: '20px'
-                                              }}>
-                                                <label htmlFor="tipAmount" style={{ marginRight: '10px' }}>Gratuity Amount: </label>
-                                                <input
-                                                  type="number"
-                                                  id="tipAmount"
-                                                  name="tipAmount"
-                                                  value={tipAmount}
-                                                  onChange={handleTipChange}
-                                                  style={{
-                                                    padding: '5px',
-                                                    border: '1px solid #ccc',
-                                                    borderRadius: '4px',
-                                                    width: '60%',
-                                                  }}
-                                                />
-                                              </div>
-
-                                              <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between'
-                                              }}>
-                                                <button
-                                                  onClick={() => setSplitPaymentModalOpen(false)}
-                                                  style={{
-                                                    background: '#f44336', // Red background for cancel
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    padding: '10px 15px',
-                                                    borderRadius: '5px',
-                                                    cursor: 'pointer',
-                                                  }}
-                                                >
-                                                  Cancel
-                                                </button>
-                                                <button
-                                                  onClick={() => handleConfirm()}
-                                                  style={{
-                                                    background: '#4CAF50', // Green background for confirm
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    padding: '10px 15px',
-                                                    borderRadius: '5px',
-                                                    cursor: 'pointer',
-                                                  }}>
-                                                  Confirm
-                                                </button>
-                                              </div>
-                                            </div>
-
-                                          )}
                                           <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
 
                                           >
                                             {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
                                           </button>
-                                          {/* 
-                                      <button onClick={() => deleteDocument(order.id)}>
-                                        Delete Document
-                                      </button> */}
                                         </td>
                                       }
                                     </tr>
@@ -2513,7 +2519,11 @@ const Account = () => {
                                             {JSON.parse(order.receiptData).map((item, index) => (
                                               <div className="receipt-item" key={item.id}>
                                                 <p className='notranslate'>
-                                                  {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} x {item.quantity} @ ${item.subtotal} each = ${Math.round(item.quantity * item.subtotal * 100) / 100}</p>
+                                                  {(/^#@%\d+#@%/.test(item?.name)) ? sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
+                                                    : sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
+                                                  &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
+                                                  &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((round2digt(item.quantity * item.subtotal)) / round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) : item.subtotal}
+                                                  &nbsp;each = ${round2digt(item.quantity * item.subtotal)}</p>
                                               </div>
                                             ))}
                                             <p>Discount: $ <span className='notranslate'>{order.metadata.discount}</span> </p>

@@ -16,7 +16,7 @@ import './float.css';
 import $ from 'jquery';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
-import { faCreditCard, faGift, faDollarSign, faUsers, faPencilAlt, faTimes, faExchangeAlt, faArrowRight, faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard, faGift, faDollarSign, faShare, faPencilAlt, faTimes, faExchangeAlt, faArrowRight, faPrint } from '@fortawesome/free-solid-svg-icons';
 import logo_transparent from './logo_transparent.png'
 //import { flexbox } from '@mui/system';
 import "./navbar.css";
@@ -29,6 +29,7 @@ import logo_fork from './logo_fork.png'
 import Hero from './Hero'
 import cuiyuan from './cuiyuan.png'
 import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { onSnapshot, query } from 'firebase/firestore';
 
 import { db } from '../firebase/index';
 import cartImage from './shopcart.png';
@@ -84,7 +85,6 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       const docData = { product: product, date: date };
       const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
       await setDoc(docRef, docData);
-      //localStorage.setItem(table_name, product)
 
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -111,7 +111,6 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     console.log(tableProductInfo)
     //TO DO: get a better sync. this would write in database twice and this code is not working in mobile unless you get in the shopping cart.
     //GetTableProductInfo(store + "-" + selectedTable)
-    //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
   }, [products, width, tips, discount, extra]);
 
 
@@ -251,7 +250,21 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       console.error("Error adding document: ", e);
     }
   }
+  const SetTableIsSent = async (table_name, product) => {
+    try {
+      if(localStorage.getItem(table_name)===product){
+        return
+      }
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docData = { product: product, date: date };
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "TableIsSent", table_name);
+      await setDoc(docRef, docData);
 
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
 
   const SendToKitchen = async () => {
 
@@ -262,7 +275,8 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
         } else {//delete all items
 
           compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), [])
-          localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+          SetTableIsSent(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+          //localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
         }
       }
       if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {//nothing isSent
@@ -274,16 +288,46 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
           selectedTable: selectedTable
         });
         console.log("Document written with ID: ", docRef.id);
-        localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+        SetTableIsSent(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+        //localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
       } else {//partially is sent
         compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
-        localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+        SetTableIsSent(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+        //localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
 
       }
     } catch (e) {
       console.error("Error adding document: ", e);
     }
   }
+  const [arr, setArr] = useState([]);
+
+  useEffect(() => {
+    // Ensure the user is defined
+    if (!user || !user.uid) return;
+    console.log("docs");
+
+    const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table");
+
+    // Listen for changes in the collection
+    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+      const docs = [];
+      snapshot.forEach((doc) => {
+        docs.push({ id: doc.id, ...doc.data() });
+
+      });
+      //setCheckProduct(docs)
+      setArr(docs.map(element => element.id.slice((store + "-").length)))
+
+
+    }, (error) => {
+      // Handle any errors
+      console.error("Error getting documents:", error);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []); // Dependencies for useEffect
 
   async function compareArrays(array1, array2) {//array1 isSent array2 is full array
     const array1ById = Object.fromEntries(array1.map(item => [item.count, item]));
@@ -424,10 +468,10 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
-        amount: Math.round(Math.round((Math.round(100 * finalPrice) / 100  +Math.round(100 * extra_tip) / 100)*100)/100 * 100),
+        amount: Math.round(Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100 * 100),
         amount_capturable: 0,
         amount_details: { tip: { amount: 0 } },
-        amount_received: Math.round(Math.round((Math.round(100 * finalPrice) / 100  +Math.round(100 * extra_tip) / 100)*100)/100 * 100),
+        amount_received: Math.round(Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100 * 100),
         application: "",
         application_fee_amount: 0,
         automatic_payment_methods: null,
@@ -453,7 +497,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
           subtotal: Math.round(100 * totalPrice) / 100,
           tax: Math.round(100 * totalPrice * 0.0825) / 100,
           tips: Math.round(100 * extra_tip) / 100,
-          total: Math.round((Math.round(100 * finalPrice) / 100  +Math.round(100 * extra_tip) / 100)*100)/100,
+          total: Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100,
         }, // Assuming an empty map converts to an empty object
         next_action: null,
         object: "payment_intent",
@@ -486,7 +530,6 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
         user_email: user.email,
       });
       console.log("Document written with ID: ", docRef.id);
-      //localStorage.setItem(store + "-" + selectedTable, "[]"); 
       setProducts([]);
       setExtra(0)
       setInputValue("")
@@ -494,7 +537,8 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       setTips("")
 
       SetTableInfo(store + "-" + selectedTable, "[]")
-      localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
+      SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]")
+      //localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -619,11 +663,14 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       cursor: 'pointer',
     }
   };
+
+
   const [isUniqueModalOpen, setUniqueModalOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [customAmount, setCustomAmount] = useState("");
   const [result, setResult] = useState(null);
   const [finalResult, setFinalResult] = useState(null);
+  const [isChangeTableModal, setChangeTableModal] = useState(false);
 
   const openUniqueModal = () => setUniqueModalOpen(true);
   const closeUniqueModal = () => setUniqueModalOpen(false);
@@ -727,7 +774,53 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
   const resetDndTest = () => {
     setDndTestKey(prevKey => prevKey + 1); // increment key to force re-render
   };
+  function groupAndSumItems(items) {
+    const groupedItems = {};
+    items.reverse();
+    items.forEach(item => {
+      // Create a unique key based on id and JSON stringified attributes
+      const key = `${item.id}-${JSON.stringify(item.attributeSelected)}`;
 
+      if (!groupedItems[key]) {
+        // If this is the first item of its kind, clone it (to avoid modifying the original item)
+        groupedItems[key] = { ...item };
+      } else {
+        // If this item already exists, sum up the quantity and itemTotalPrice
+        groupedItems[key].quantity += item.quantity;
+        groupedItems[key].itemTotalPrice += item.itemTotalPrice;
+        // The count remains from the first item
+      }
+    });
+
+    // Convert the grouped items object back to an array
+    return Object.values(groupedItems).reverse();
+  }
+
+  const mergeProduct = async (table_name) => {
+    SetTableInfo_(`${store}-${table_name}`, JSON.stringify(groupAndSumItems(
+      [...JSON.parse(localStorage.getItem(`${store}-${selectedTable}`)), ...JSON.parse(localStorage.getItem(`${store}-${table_name}`))]
+    )))
+    SetTableInfo_(`${store}-${selectedTable}`, JSON.stringify([]))
+    SetTableIsSent(`${store}-${table_name}-isSent`,JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")),JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent")))))
+    //localStorage.setItem(`${store}-${table_name}-isSent`,JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")),JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent")))))
+    SetTableIsSent(`${store}-${selectedTable}-isSent`,JSON.stringify([]))
+    //localStorage.setItem(`${store}-${selectedTable}-isSent`,JSON.stringify([]))
+  
+  };
+
+  const SetTableInfo_ = async (table_name, product, id) => {
+    try {
+
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docData = { product: product, date: date };
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
+      await setDoc(docRef, docData);
+
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
 
   // console.log("Products from instroe_shop_cart", products)
   return (
@@ -823,6 +916,18 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
           </div>
           <div className='flex flex-col space-y-2'>
             <a
+              onClick={() => {setChangeTableModal(true) }}
+              className="mt-3 btn btn-sm btn-link mx-1 border-black"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              {isMobile ? <div></div> :
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faShare} />
+                </span>
+              }
+              <span>{t("Change Dining Desk")}</span>
+            </a>
+            <a
               onClick={toggleAllowance}
               className={`mt-3 btn btn-sm ${isAllowed ? 'btn-light' : 'btn-dark'} mx-1`}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
@@ -901,7 +1006,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             </a>
 
             <a
-              onClick={() => { setSplitPaymentModalOpen(true) }}
+              onClick={() => { setSplitPaymentModalOpen(true); SendToKitchen() }}
               className="mt-3 btn btn-sm btn-warning mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -916,7 +1021,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             </a>
 
             <a
-              onClick={() => setMyModalVisible(true)}
+              onClick={() => {setMyModalVisible(true); SendToKitchen()}}
               className="mt-3 btn btn-sm btn-primary mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -928,7 +1033,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             </a>
 
             <a
-              onClick={() => { OpenCashDraw(); openUniqueModal() }}
+              onClick={() => { OpenCashDraw(); openUniqueModal(); SendToKitchen() }}
               className="mt-3 btn btn-sm btn-info mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -1096,6 +1201,38 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                     style={{ overflowX: 'auto', maxWidth: '100%' }}
                   >
                     <Dnd_Test store={store} acct={acct} selectedTable={selectedTable} key={dndTestKey} main_input={products} />
+                  </div>
+                  <div className="modal-footer">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          )
+          }
+
+          {isChangeTableModal && (
+            <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+              <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Select Dining Desk to Merge</h5>
+                    <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setChangeTableModal(false); }}>
+                      &times;
+                    </button>
+                  </div>
+                  <div className="modal-body pt-0">
+                    {arr.map((option) => (
+
+                      <button
+                        type="button"
+                        className="btn btn-primary mb-2 mr-2 notranslate"
+                        onClick={() => { mergeProduct(option) }}
+                      >
+                        {option}
+                      </button>
+
+                    ))}
                   </div>
                   <div className="modal-footer">
                   </div>

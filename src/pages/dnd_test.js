@@ -502,11 +502,11 @@ function Dnd_Test(props) {
     // Modifying 'CHI' and 'name' fields in each item of itemsArray
     const updatedItemsArray = itemsArray.map(item => {
       if (numberOfGroups > 1) {
-        if (item.CHI) {
-          item.CHI += ` / ${numberOfGroups}`;
-        }
+        // if (item.CHI) {
+        //   item.CHI += ` / ${numberOfGroups}`;
+        // }
         if (item.name) {
-          item.name = `1/${numberOfGroups} ` + item.name;
+          item.name = `#@%${numberOfGroups}#@%` + item.name;
         }
 
         // Divide itemTotalPrice and subtotal by numberOfGroups and fix to 2 decimal places
@@ -519,9 +519,12 @@ function Dnd_Test(props) {
       }
       return item;
     });
+    console.log("hellllllllllllllo")
+    console.log(JSON.stringify(updatedItemsArray));
+
     return (updatedItemsArray)
     // Log the new array to see the result
-    //console.log(JSON.stringify(updatedItemsArray));
+    console.log(JSON.stringify(updatedItemsArray));
 
     // Optionally, you can return the updatedItemsArray if needed
     //  return updatedItemsArray;
@@ -648,7 +651,10 @@ function Dnd_Test(props) {
         {/* <p className="font-bold text-2xl">{heading}</p>
         <p className="text-gra7-700 font-thin">{description}</p> */}
         {/* <p className="font-bold text-2xl">{item.name}</p> */}
-        <span>{item.name} x <b>{item.quantity} / {numberOfGroups}</b> </span>
+        <span className="notranslate">
+
+          {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
+          <b>{Math.round( (Math.round(item.quantity) / Math.round(numberOfGroups))*100  )/100}</b> </span>
         {generateAttributes(item.attributeSelected)}
         {/* <p className="font-bold text-2xl">{item.quantity}</p> */}
       </div>
@@ -760,7 +766,9 @@ function Dnd_Test(props) {
                         class="notranslate"
                         type="text"
                         style={{ width: '90px', height: '90px', fontSize: '51px', alignItems: 'center', justifyContent: 'center', display: "flex", padding: '0px' }}
-                      >{quantity}</span>
+                      >{
+                      Math.round( (Math.round(quantity) / Math.round(numberOfGroups))*100  )/100
+                      }</span>
                       { /* end of the quantity number */}
 
                       { /* start of the add button */}

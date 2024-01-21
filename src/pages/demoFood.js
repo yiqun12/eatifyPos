@@ -41,89 +41,89 @@ const Food = () => {
     const storeName = DemoStorename;
     const address = "San Francisco";
     const Open_time = "null";
-    const data = JSON.stringify( [
+    const data = JSON.stringify([
       {
-          "name": "Filet Mignon",
-          "category": "Steak Cuts",
-          "CHI": "菲力牛排",
-          "image": "https://img1.baidu.com/it/u=1363595818,3487481938&fm=253&fmt=auto&app=138&f=JPEG?w=891&h=500",
-          "id": "b5fe9fb8-0f83-4b78-8ed5-c9cc3355aa76",
-          "subtotal": 1,
-          "attributes": [],
-          "attributes2": [],
-          "attributesArr": {},
-          "availability": [
-              "Morning",
-              "Afternoon",
-              "Evening"
-          ]
+        "name": "Filet Mignon",
+        "category": "Steak Cuts",
+        "CHI": "菲力牛排",
+        "image": "https://img1.baidu.com/it/u=1363595818,3487481938&fm=253&fmt=auto&app=138&f=JPEG?w=891&h=500",
+        "id": "b5fe9fb8-0f83-4b78-8ed5-c9cc3355aa76",
+        "subtotal": 1,
+        "attributes": [],
+        "attributes2": [],
+        "attributesArr": {},
+        "availability": [
+          "Morning",
+          "Afternoon",
+          "Evening"
+        ]
       },
       {
-          "name": "Rib Eye Steak",
-          "category": "Steak Cuts",
-          "CHI": "肋眼牛排",
-          "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-          "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
-          "subtotal": 1,
-          "attributes": [],
-          "attributes2": [],
-          "attributesArr": {},
-          "availability": [
-              "Morning",
-              "Afternoon",
-              "Evening"
-          ]
+        "name": "Rib Eye Steak",
+        "category": "Steak Cuts",
+        "CHI": "肋眼牛排",
+        "image": "https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+        "id": "8d2579fc-bd3a-4df0-bde5-8884bcbd2919",
+        "subtotal": 1,
+        "attributes": [],
+        "attributes2": [],
+        "attributesArr": {},
+        "availability": [
+          "Morning",
+          "Afternoon",
+          "Evening"
+        ]
       },
       {
-          "name": "Porterhouse for Two",
-          "category": "Steak Cuts",
-          "CHI": "上等腰肉牛排二人份",
-          "image": "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
-          "id": "267d3107-1532-4084-ab3b-b62ceda0b75c",
-          "subtotal": 1,
-          "attributes": [],
-          "attributes2": [],
-          "attributesArr": {},
-          "availability": [
-              "Morning",
-              "Afternoon",
-              "Evening"
-          ]
+        "name": "Porterhouse for Two",
+        "category": "Steak Cuts",
+        "CHI": "上等腰肉牛排二人份",
+        "image": "https://img2.baidu.com/it/u=1076400451,2339714653&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
+        "id": "267d3107-1532-4084-ab3b-b62ceda0b75c",
+        "subtotal": 1,
+        "attributes": [],
+        "attributes2": [],
+        "attributesArr": {},
+        "availability": [
+          "Morning",
+          "Afternoon",
+          "Evening"
+        ]
       }
-  ])
-   const clock = {"0":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"1":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"2":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"3":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"4":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"5":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"6":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"7":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"}}
-  const restaurant_seat_arrangement = {
-    "table": [
+    ])
+    const clock = { "0": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "1": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "2": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "3": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "4": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "5": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "6": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "7": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" } }
+    const restaurant_seat_arrangement = {
+      "table": [
         {
-            "type": "rect",
-            "left": 45,
-            "top": 75,
-            "width": 60,
-            "height": 60,
-            "scaleX": 1,
-            "scaleY": 1,
-            "tableName": "A12",
-            "id": "j57opywg",
-            "snapAngle": 45,
-            "angle": 0
+          "type": "rect",
+          "left": 45,
+          "top": 75,
+          "width": 60,
+          "height": 60,
+          "scaleX": 1,
+          "scaleY": 1,
+          "tableName": "A12",
+          "id": "j57opywg",
+          "snapAngle": 45,
+          "angle": 0
         },
         {
-            "type": "rect",
-            "left": 165,
-            "top": 75,
-            "width": 60,
-            "height": 60,
-            "scaleX": 1,
-            "scaleY": 1,
-            "tableName": "A3",
-            "id": "spkjh6o6",
-            "snapAngle": 45,
-            "angle": 0
+          "type": "rect",
+          "left": 165,
+          "top": 75,
+          "width": 60,
+          "height": 60,
+          "scaleX": 1,
+          "scaleY": 1,
+          "tableName": "A3",
+          "id": "spkjh6o6",
+          "snapAngle": 45,
+          "angle": 0
         }
-    ],
-    "chair": [],
-    "wall": []
-}
+      ],
+      "chair": [],
+      "wall": []
+    }
     let docRef;
 
     try {
@@ -145,21 +145,22 @@ const Food = () => {
           Image: "https://s3-media0.fl.yelpcdn.com/bphoto/byOMYO520SGEYxKAbK_PYw/l.jpg",
           stripe_store_acct: "",
           storeOwnerId: user.uid,
-          restaurant_seat_arrangement:JSON.stringify(restaurant_seat_arrangement),
-          storeNameCHI:'',
-          ZipCode:'90011',
-          State:'CA',
-          Phone:'4155551234',
-          physical_address:'123 Main Street',
+          restaurant_seat_arrangement: JSON.stringify(restaurant_seat_arrangement),
+          storeNameCHI: '',
+          ZipCode: '90011',
+          State: 'CA',
+          Phone: '4155551234',
+          physical_address: '123 Main Street',
         };
-    
+
         try {
           await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
-    
+
           console.log("Document added successfully!");
         } catch (error) {
           console.error("Error adding document: ", error);
-        }      }
+        }
+      }
     } catch (error) {
       alert(error.message); // Displays the error message in an alert popup
     }
@@ -183,7 +184,7 @@ const Food = () => {
   const handleButtonClick = () => {
     // Append "#123" to the URL
     window.location.hash = `${DemoStorename}`;
-};
+  };
 
   return (
 
@@ -214,17 +215,17 @@ const Food = () => {
               </div>
 
               <TextField
-      margin="normal"
-      required
-      fullWidth
-      id="name"
-      label="Store Name"
-      name="name"
-      autoComplete="name"
-      autoFocus
-      value={DemoStorename}
-      onChange={handleDemoStoreNameChange}
-    />
+                margin="normal"
+                required
+                fullWidth
+                id="name"
+                label="Store Name"
+                name="name"
+                autoComplete="name"
+                autoFocus
+                value={DemoStorename}
+                onChange={handleDemoStoreNameChange}
+              />
               <Button_
                 fullWidth
                 type="submit"

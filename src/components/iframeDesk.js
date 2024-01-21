@@ -1,7 +1,7 @@
 import React from 'react';
 import './style.css';
 import { useCallback, useState, useEffect } from 'react';
-import { collection, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useMyHook } from '../pages/myHook';
 import Button from '@mui/material/Button';
@@ -16,14 +16,24 @@ import InStore_shop_cart from '../pages/inStore_shop_cart'
 import { useUserContext } from "../context/userContext";
 import Dnd_Test from '../pages/dnd_test';
 import { onSnapshot, query } from 'firebase/firestore';
+import { forwardRef, useImperativeHandle } from 'react';
 
 
 // Create a CSS class to hide overflow
 const bodyOverflowHiddenClass = 'body-overflow-hidden';
 
-function Iframe({ src, width, height, storeName }) {
+const Iframe = forwardRef(({ src, width, height, storeName }, ref) => {
     const iframeRef = useRef();
     console.log(storeName)
+    const sendMessage = () => {
+        if (iframeRef.current) {
+            iframeRef.current.contentWindow.postMessage(storeName + '_restaurant_seat_arrangement', '*');
+        }
+    };
+
+    useImperativeHandle(ref, () => ({
+        sendMessage,
+    }));
 
     useEffect(() => {
         // existing fetchHtml logic...
@@ -50,7 +60,7 @@ function Iframe({ src, width, height, storeName }) {
     }, [src]);
 
     return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
-}
+});
 
 function App({ store, acct }) {
 
@@ -201,22 +211,30 @@ function App({ store, acct }) {
 
     const [src, setSrc] = useState(window.PUBLIC_URL + "/seat.html");
     const iframeRef = useRef(null);
+    const [changeEvent, setChangeEvent] = useState("seat");
+
+
+    const handleClick = () => {
+        iframeRef.current.sendMessage();
+        //setChangeEvent(changeEvent+1)
+    };
+
     const SetTableInfo = async (table_name, product) => {
         try {
-          const dateTime = new Date().toISOString();
-          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-    
-          const docData = { product: product, date: date };
-    
-          const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
-          await setDoc(docRef, docData);
-          //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(product))))
-          //localStorage.setItem(table_name, product)
-    
+            const dateTime = new Date().toISOString();
+            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+
+            const docData = { product: product, date: date };
+
+            const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
+            await setDoc(docRef, docData);
+            //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(product))))
+            //localStorage.setItem(table_name, product)
+
         } catch (error) {
-          console.error("Error adding document: ", error);
+            console.error("Error adding document: ", error);
         }
-      };
+    };
 
     // the selectedTable variable allows you to keep track which table you have selected
     const [selectedTable, setSelectedTable] = useState("null");
@@ -239,24 +257,28 @@ function App({ store, acct }) {
                 // If it doesn't exist, set the value to an empty array
                 //localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
                 SetTableInfo(store + "-" + tableNumber, JSON.stringify([]))
-              }
-              if (!localStorage.getItem(store + "-" + tableNumber)) {
+            }
+            if (!localStorage.getItem(store + "-" + tableNumber)) {
                 // If it doesn't exist, set the value to an empty array
                 //localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
                 SetTableInfo(store + "-" + tableNumber, JSON.stringify([]))
-              }
+            }
         } else if (event.data === "admin mode active") {
             setSelectedSeatMode("admin");
         } else if (event.data === "customer mode active") {
             setSelectedSeatMode("customer");
+            //synOldLayOut(store)
+        } else if (event.data === "save mode active") {
+            setSelectedSeatMode("customer");
+            handleFormSubmit(store)
         } else if (event.data === "table_deselected") {
             setSelectedTable("null");
             saveId(Math.random());
             console.log(event.data)
             console.log("Table deselected");
         }
-        else if (event.data === 'buttonClicked') {
-            console.log('Button clicked2!');
+        else if (event.data === 'reload') {
+            synOldLayOut(store)
         }
     }, []);
 
@@ -366,11 +388,49 @@ function App({ store, acct }) {
     }
 
     const [isModalOpen, setModalOpen] = useState(false);
+    function compareLayouts(layout1, layout2) {
+        const getTableNames = (layout) => layout.table.map(t => t.tableName);
+        const tableNames1 = getTableNames(layout1);
+        const tableNames2 = getTableNames(layout2);
+
+        const added = tableNames2.filter(name => !tableNames1.includes(name)).map(name => ({ name, change: 'added' }));
+        const deleted = tableNames1.filter(name => !tableNames2.includes(name)).map(name => ({ name, change: 'deleted' }));
+
+        return [...added, ...deleted];
+    }
+
+    const synOldLayOut = async (store) => {
+        const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
+        const old_layout = await getDoc(docRef)
+        //console.log("hello")
+        localStorage.setItem(store + "_restaurant_seat_arrangement", old_layout.data().restaurant_seat_arrangement)
+        handleClick()
+
+    }
 
     const handleFormSubmit = async (store) => {
 
         const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
-        console.log(JSON.parse(localStorage.getItem(store + "_restaurant_seat_arrangement")))
+        const old_layout = await getDoc(docRef)
+        //console.log(old_layout.data().restaurant_seat_arrangement)
+        //console.log(JSON.parse(localStorage.getItem(store + "_restaurant_seat_arrangement")))
+        const combined = compareLayouts(JSON.parse(old_layout.data().restaurant_seat_arrangement), JSON.parse(localStorage.getItem(store + "_restaurant_seat_arrangement")))
+        console.log(combined)
+        combined.forEach(async (item) => {
+            if (item.change === 'added') {
+                console.log("added")
+                const docRefTable_ = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", store + "-" + item.name)
+                // Corrected the syntax for concatenating `store` and `item.id`
+                await setDoc(docRefTable_, { product: "[]" }, { merge: true });
+                console.log(`Added: ${item.name}`);
+            } else if (item.change === 'deleted') {
+                // Corrected the syntax here as well
+                await deleteDoc(doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", store + "-" + item.name));
+                console.log(`Deleted: ${item.name}`);
+            }
+        });
+        //console.log(compareLayouts(JSON.parse(old_layout.data().restaurant_seat_arrangement), JSON.parse(localStorage.getItem(store + "_restaurant_seat_arrangement"))))
+
         // Update the 'key' field to the value retrieved from localStorage
         await updateDoc(docRef, {
             restaurant_seat_arrangement: localStorage.getItem(store + "_restaurant_seat_arrangement")
@@ -429,6 +489,12 @@ function App({ store, acct }) {
 
         <div ref={divRef}>
 
+            <style>
+                {`
+          /* Bootstrap Icons */
+          @import url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.4.0/font/bootstrap-icons.min.css");
+        `}
+            </style>
             {/* beginning of the other code */}
 
             {true ?
@@ -489,14 +555,10 @@ function App({ store, acct }) {
                     {/* split_payment modal ends here */}
 
                     <div className='flex flex-col' style={{ alignItems: 'flex-start' }}>
-                        {selectedSeatMode === 'admin' ?
-                            <div style={buttonStyles} onClick={() => handleFormSubmit(store)} className='mt-3 hover:bg-yellow-700'>{t("Save Layout")}</div>
-                            : <div></div>
-                        }
 
                         <div style={{ margin: "10px", display: "flex" }} >
                             <div style={{ position: 'relative' }}>
-                                <Iframe className = "notranslate" key={divWidth}
+                                <Iframe className="notranslate" key={changeEvent}
                                     ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width={(divWidth) + "px"} height="800px" storeName={store} />
 
                                 {isModalOpen && (

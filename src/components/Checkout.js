@@ -1225,7 +1225,7 @@ function PayHistory(props) {
       {location ? (
         distanceStatus === 'near' ? (
           <div>
-            <p>{t("Remember to notify the store when placing this order.")}</p>
+            <p>{t("Awaiting... Do not forgot to notify the store when placing this order.")}</p>
           </div>
         ) : (
           <div>

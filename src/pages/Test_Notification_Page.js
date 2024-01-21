@@ -43,7 +43,6 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
       const docs = [];
       snapshot.forEach((doc) => {
         docs.push({ id: doc.id, ...doc.data() });
-
       });
       setCheckProduct(docs)
       setArr(docs.map(element => element.id.slice((storeID + "-").length)))
@@ -65,14 +64,27 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
       const docData = { product: product, date: date };
       const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "Table", table_name);
       await setDoc(docRef, docData);
-      //localStorage.setItem(table_name, product)
       SendToKitchen(table_name.slice((storeID + "-").length))
       deleteDocument(id)
     } catch (error) {
       console.error("Error adding document: ", error);
     }
   };
+  const SetTableIsSent = async (table_name, product) => {
+    try {
+      if(localStorage.getItem(table_name)===product){
+        return
+      }
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docData = { product: product, date: date };
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "TableIsSent", table_name);
+      await setDoc(docRef, docData);
 
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
   const SendToKitchen = async (selectedTable) => {
 
     try {
@@ -81,7 +93,8 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
           return
         } else {//delete item
           compareArrays(JSON.parse(localStorage.getItem(storeID + "-" + selectedTable + "-isSent")), [], selectedTable)
-          localStorage.setItem(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
+          SetTableIsSent(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
+          //localStorage.setItem(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
         }
       }
       if (localStorage.getItem(storeID + "-" + selectedTable + "-isSent") === null || localStorage.getItem(storeID + "-" + selectedTable + "-isSent") === "[]") {
@@ -93,10 +106,12 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
           selectedTable: selectedTable
         });
         console.log("Document written with ID: ", docRef.id);
-        localStorage.setItem(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
+        SetTableIsSent(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
+        //localStorage.setItem(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
       } else {
         compareArrays(JSON.parse(localStorage.getItem(storeID + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(storeID + "-" + selectedTable)), selectedTable)
-        localStorage.setItem(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
+        SetTableIsSent(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
+        //localStorage.setItem(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
       }
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -198,12 +213,12 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
   const [idForDelete, setIdForDelete] = useState("");
 
   function clickConfirm(orderId) {
-    const updatedData = sortedData.map(item => {
-      if (item.orderId === orderId && item.Status === "Review") {
-        return { ...item, Status: "Pending" };
-      }
-      return item;
-    });
+    // const updatedData = sortedData.map(item => {
+    //   if (item.orderId === orderId && item.Status === "Review") {
+    //     return { ...item, Status: "Pending" };
+    //   }
+    //   return item;
+    // });
 
     const itemsForChange = sortedData.map(item => {
       if (item.orderId === orderId && arr.includes(item.table)) {
@@ -227,9 +242,10 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
           console.log(mergedArray)
           setAwaitingMergeProduct(mergedArray)//for merge
           setAwaitingMergeProductIncoming(product)//this is for the incoming product
-          if (product === '[]') {
+          if (product === '[]') {//empty just merge
             setModalOpen(true)
             console.log("empty table")
+
             setTableSelected(item.table)
             SetTableInfo(storeID + "-" + item.table, JSON.stringify(mergedArray), orderId)
 
@@ -243,7 +259,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
         }
 
 
-        return { ...item, Status: "Paid" };
+        return item
       }
       return item;
     });
@@ -358,7 +374,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
           <div className="modal-dialog" role="document">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Warning: {TableSelected} has been occupied</h5>
+                <h5 className="modal-title">Warning: <span className='notranslate'>{TableSelected}</span> has been occupied</h5>
               </div>
               <div className="modal-body">
                 <div>
@@ -374,7 +390,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
 
                       <button
                         type="button"
-                        className="btn btn-primary mb-2 mr-2"
+                        className="btn btn-primary mb-2 mr-2 notranslate"
                         onClick={() => addToEmptyTable(option)}
                       >
                         {option.slice((storeID + "-").length)}
@@ -540,7 +556,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
           <div class="card-footer border-0 py-5">
             <span class="text-muted text-sm">There is no pending dine in order at this moment.</span>
           </div> :
-          <></>
+          null
 
         }
 

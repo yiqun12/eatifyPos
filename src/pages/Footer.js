@@ -10,10 +10,7 @@ import './home.css';
 
 const Account = () => {
     return (
-        <>
-    
-
-</>
+        null
   )
 }
 

@@ -7,6 +7,7 @@
   <title> Restaurant reservation system</title>
   <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
   <link rel='stylesheet' href='https://cdn.rawgit.com/leongersen/noUiSlider/master/distribute/nouislider.min.css'>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="./style.css">
   <style>
     .col-sm-2.col-sm-offset-3.form-group {
@@ -21,15 +22,21 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Add Table</h5>
+          <h5 class="modal-title">Add Dining Table</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          <label for="tableName">Table Name:</label>
+          <label for="tableName">Dining Table Name:</label>
           <input type="text" id="tableName" class="form-control">
           <!-- You can add more content/form here related to adding table -->
+        </div>
+        <div id="modalAlert" class="alert alert-warning" style="display: none; margin-top: 10px;">
+          <span id="emptyNameAlert" style="display: none;">Dining Table name cannot be empty!</span>
+          <span id="duplicateNameAlert" style="display: none;">Dining Table name already exists on the board. Please
+            choose
+            another name.</span>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" id="addTableBtn">Add</button>
@@ -59,16 +66,22 @@
       <!-- </div> -->
       <div class="btn-group" style="width: 100%;">
         <!-- float: left will make these buttons align to the left -->
-        <button class="btn btn-primary rectangle" style="float: left;">+ &#9647; Table</button>
-        <button class="btn btn-primary circle" style="float: left;">+ &#9711; Table</button>
-        <button class="btn btn-primary chair" style="float: left;">+ Chair</button>
+        <button class="btn btn-primary rectangle" style="float: left;"> <i class="bi bi-square-fill"></i></i> &nbsp;Add
+          Square Dining Table</button>
+        <button class="btn btn-primary circle" style="float: left;"> <i class="bi bi-circle-half"></i> &nbsp;Add
+          Circular Dining Table</button>
+        <button class="btn btn-primary chair hide" style="float: left;">+ Chair</button>
         <!-- float: left will make these buttons align to the left -->
         <!-- <button class="btn btn-primary bar" style="float: left;">+ Bar</button> -->
-        <button class="btn btn-default wall" style="float: left;">+ Wall</button>
+        <button class="btn btn-default wall hide" style="float: left;">+ Wall</button>
 
         <!-- float: right will make these buttons align to the right -->
-        <button class="btn btn-danger remove" style="float: left;">Remove</button>
-        <button class="btn btn-success customer-mode" style="float: right;">Go Back</button>
+        <button class="btn btn-danger remove" style="float: left;"><i class="bi bi-trash-fill"></i></i>
+          &nbsp;Delete</button>
+        <button class="btn btn-success save-mode" style="float: right; "><i class="bi bi-cloud-upload-fill"></i></i>
+          &nbsp;Save Change</button>
+        <button class="btn btn-info customer-mode" style="float: right; margin-right: 5px;"><i class="bi bi-shield-exclamation"></i></i>
+          &nbsp;Discard Changes</button>
       </div>
 
     </div>
@@ -101,7 +114,8 @@
   <div class="btn-group admin_hello" style="width: 100%; margin-top: 20px;">
     <!-- <button class="btn btn-primary" onclick="saveBoard()">Save</button>
     <button class="btn btn-primary" onclick="loadBoard()">Load</button> -->
-    <button class="btn btn-danger admin-mode" style="text-align: left;">Admin Mode</button>
+    <button class="btn btn-danger admin-mode" style="text-align: left;"><i class="bi bi-person-circle"></i></i>
+      &nbsp;Admin Mode</button>
   </div>
 
   <!-- partial -->
@@ -109,6 +123,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
   <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+
   <script src='https://cdn.rawgit.com/leongersen/noUiSlider/master/distribute/nouislider.min.js'></script>
 
   <script>
@@ -185,6 +200,8 @@
         current_mode = "customer"
         window.parent.postMessage(`customer mode active`, "*");
         //console.log('Received "hello" from parent');
+      }else if(event.data.includes("load_board")){
+        
       }
     });
 
@@ -985,13 +1002,15 @@
       const isDuplicate = board.table.some(table => table.tableName === tableName);
 
       if (tableName.trim() === "") {
-        alert("Table name cannot be empty!");
+        emptyNameAlert.style.display = 'block';
+        modalAlert.style.display = 'block';
       } else if (isDuplicate) {
-        alert("Table name already exists on the board. Please choose another name.");
+        duplicateNameAlert.style.display = 'block';
+        modalAlert.style.display = 'block';
         document.getElementById('tableName').value = ""; // Clear the input for the next usage
       } else {
         $('#addTableModal').modal('hide');
-
+        modalAlert.style.display = 'none'; // Hide alert
         if (shapeToAdd === "rectangle") {
           const o = addRect(0, 0, 60, 60, 1, 1, tableName);
           canvas.setActiveObject(o);
@@ -1043,7 +1062,7 @@
         console.log(o.id)
         console.log(board)
         removeObjectFromBoard(o.id);
-
+        console.log(o)
         o.remove()
         canvas.remove(o)
         canvas.discardActiveObject()
@@ -1082,8 +1101,36 @@
       current_mode = "customer"
       console.log(`customer mode active`, "*")
       window.parent.postMessage(`customer mode active`, "*");
-    })
+      window.parent.postMessage(`reload`, "*");
 
+      //location.reload()
+    })
+    document.querySelectorAll('.save-mode')[0].addEventListener('click', function () {
+      //loadBoard()
+
+      canvas.getObjects().map(o => {
+        o.hasControls = false
+        o.lockMovementX = true
+        o.lockMovementY = true
+        // if (o.type === 'chair' || o.type === 'bar' || o.type === 'wall') {
+        if (o.type === 'chair' || o.type === 'wall') {
+
+          o.selectable = false
+        }
+        o.borderColor = '#38A62E'
+        o.borderScaleFactor = 2.5
+      })
+      canvas.selection = false
+      canvas.hoverCursor = 'pointer'
+      canvas.discardActiveObject()
+      canvas.renderAll()
+      document.querySelectorAll('.admin-menu')[0].style.display = 'none'
+      document.querySelectorAll('.customer-menu')[0].style.display = 'block'
+      document.querySelectorAll('.admin_hello')[0].style.display = 'block'
+      current_mode = "customer"
+      console.log(`save mode active`, "*")
+      window.parent.postMessage(`save mode active`, "*");
+    })
     document.querySelectorAll('.admin-mode')[0].addEventListener('click', function () {
       canvas.getObjects().map(o => {
         o.hasControls = true
