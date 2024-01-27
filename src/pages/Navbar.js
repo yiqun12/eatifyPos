@@ -528,7 +528,7 @@ const Navbar = () => {
                   window.location.href = '/';
                 }
               }}
-              src="https://media.discordapp.net/attachments/1127948915870814271/1155545800542277662/image.png?width=183&height=181"
+              src="https://cdn.discordapp.com/attachments/759102082849833000/1199718338683748534/new_logo-removebg-preview.png?ex=65c38fc5&is=65b11ac5&hm=263867d26289d9c635ebeca098af1bd20e8c543e7881431f263011622dc519a1&"
               alt=""
               style={{
                 maxHeight: '50px',

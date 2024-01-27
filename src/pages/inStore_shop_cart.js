@@ -252,7 +252,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
   }
   const SetTableIsSent = async (table_name, product) => {
     try {
-      if(localStorage.getItem(table_name)===product){
+      if (localStorage.getItem(table_name) === product) {
         return
       }
       const dateTime = new Date().toISOString();
@@ -273,10 +273,6 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
         if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
           return //no item in the array no item isSent.
         } else {//delete all items
-
-          compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), [])
-          SetTableIsSent(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
-          //localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
         }
       }
       if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {//nothing isSent
@@ -349,18 +345,6 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             quantity: item1.quantity - item2.quantity,
             itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
           })
-          // const dateTime = new Date().toISOString();
-          // const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-          // const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
-          //   date: date,
-          //   data: [{
-          //     ...item1,
-          //     quantity: item1.quantity - item2.quantity,
-          //     itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
-          //   }],
-          //   selectedTable: selectedTable
-          // });
-          // console.log("Document written with ID: ", docRef.id);
 
         } else if (item1.quantity < item2.quantity) {
           console.log('Added trigger:', {
@@ -373,32 +357,11 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             quantity: item2.quantity - item1.quantity,
             itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
           })
-          // const dateTime = new Date().toISOString();
-          // const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-          // const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
-          //   date: date,
-          //   data: [{
-          //     ...item2,
-          //     quantity: item2.quantity - item1.quantity,
-          //     itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
-          //   }],
-          //   selectedTable: selectedTable
-          // });
-          // console.log("Document written with ID: ", docRef.id);
         }
       } else {
         // If item exists in array 1 but not in array 2
         console.log('Deleted trigger:', item1);
         delete_array.push(item1)
-        // const dateTime = new Date().toISOString();
-        // const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-        // const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
-        //   date: date,
-        //   data: [item1],
-        //   selectedTable: selectedTable
-        // });
-        // console.log("Document written with ID: ", docRef.id);
-
       }
     }
 
@@ -408,14 +371,6 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
         // If item exists in array 2 but not in array 1
         console.log('Added trigger:', item2);
         add_array.push(item2)
-        // const dateTime = new Date().toISOString();
-        // const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-        // const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
-        //   date: date,
-        //   data: [item2],
-        //   selectedTable: selectedTable
-        // });
-        // console.log("Document written with ID: ", docRef.id);
       }
     }
     if (add_array.length !== 0) {
@@ -437,7 +392,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
         data: delete_array,
         selectedTable: selectedTable
       });
-      console.log("Document written with ID: ", docRef.id);
+      console.log("DeleteSendToKitchen Document written with ID: ", docRef.id);
     }
   }
 
@@ -801,11 +756,11 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       [...JSON.parse(localStorage.getItem(`${store}-${selectedTable}`)), ...JSON.parse(localStorage.getItem(`${store}-${table_name}`))]
     )))
     SetTableInfo_(`${store}-${selectedTable}`, JSON.stringify([]))
-    SetTableIsSent(`${store}-${table_name}-isSent`,JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")),JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent")))))
+    SetTableIsSent(`${store}-${table_name}-isSent`, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent")))))
     //localStorage.setItem(`${store}-${table_name}-isSent`,JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")),JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent")))))
-    SetTableIsSent(`${store}-${selectedTable}-isSent`,JSON.stringify([]))
+    SetTableIsSent(`${store}-${selectedTable}-isSent`, JSON.stringify([]))
     //localStorage.setItem(`${store}-${selectedTable}-isSent`,JSON.stringify([]))
-  
+
   };
 
   const SetTableInfo_ = async (table_name, product, id) => {
@@ -916,7 +871,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
           </div>
           <div className='flex flex-col space-y-2'>
             <a
-              onClick={() => {setChangeTableModal(true) }}
+              onClick={() => { setChangeTableModal(true) }}
               className="mt-3 btn btn-sm btn-link mx-1 border-black"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -967,7 +922,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             </a>
 
             <a
-              onClick={SendToKitchen}
+              onClick={() => { SendToKitchen(); }}
               className="mt-3 btn btn-sm btn-light mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -1021,7 +976,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
             </a>
 
             <a
-              onClick={() => {setMyModalVisible(true); SendToKitchen()}}
+              onClick={() => { setMyModalVisible(true); SendToKitchen() }}
               className="mt-3 btn btn-sm btn-primary mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -1180,12 +1135,15 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
               id="addTipsModal"
               className="modal fade show"
               role="dialog"
-              style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+              style={{
+                display: 'block',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              }}
             >
               <div
                 className="modal-dialog"
                 role="document"
-                style={{ maxWidth: '90%', width: '90%', height: "90%", margin: '0 auto' }}
+                style={{ maxWidth: '90%', width: '90%', height: "90%", margin: '0 auto', marginTop: '20px' }}
               >
                 <div className="modal-content">
                   <div className="modal-header">
@@ -1254,7 +1212,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                   </div>
                   <div className="modal-body pt-0">
 
-                    <PaymentComponent2 setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} />
+                    <PaymentComponent2 setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice*100)} />
 
                   </div>
                   <div className="modal-footer">

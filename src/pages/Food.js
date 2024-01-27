@@ -18,8 +18,21 @@ import { query, where, limit, doc, getDoc } from "firebase/firestore";
 
 import BusinessHoursTable from './BusinessHoursTable.js'
 import { v4 as uuidv4 } from 'uuid';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
+import 'leaflet/dist/leaflet.css';
+const customMarkerIcon = L.icon({
+  iconUrl: 'http://simpleicon.com/wp-content/uploads/map-marker-1.png',
+  iconSize: [40, 40], // making the icon a square of 40x40 pixels
+  iconAnchor: [20, 40], // adjust based on the actual anchor point of your icon
+  popupAnchor: [0, -40] // adjust based on where you want the popup to appear
+});
 
 const Food = () => {
+  const position = [40.597826, -73.992173]; // Latitude and longitude for 168 28th Avenue, Brooklyn, NY 11214
+
   //const params = new URLSearchParams(window.location.search);
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
@@ -348,6 +361,13 @@ const Food = () => {
   // timesClicked is an object that stores the number of times a item is clicked
   //const timesClicked = new Map();
 
+  const markerRef = useRef(null);
+
+  useEffect(() => {
+    if (markerRef.current) {
+      markerRef.current.openPopup();
+    }
+  }, []);
 
   const divStyle = {
     color: 'black',
@@ -757,6 +777,7 @@ const Food = () => {
             </div>
           </div>
         )}
+
         <div className='m-auto px-4 '>
           <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
             {/* Filter Type */}
@@ -768,13 +789,13 @@ const Food = () => {
               <div>
                 <div>
                   <div className='mx-auto '>
-                    <div className='rounded-lg max-h-[200px] relative'>
+                    <div className='rounded-lg max-h-[220px] relative'>
                       <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
-                        <h1 className='notranslate px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className=''>
+                        <h1 className='notranslate px-4 text-4xl sm:text-2xl md:text-6xl lg:text-7xl font-bold text-justify'><span className=''>
                           {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
                         </span></h1>
-                        <h1 className='px-4 font-bold text-orange-500 notranslate'>@{storeInfo.Address}</h1>
-                         <BusinessHoursTable></BusinessHoursTable> 
+                        <h1 className='px-4 font-bold text-white-500 text-2xl notranslate'>@{storeInfo.Address}</h1>
+                        <BusinessHoursTable></BusinessHoursTable>
                       </div>
                       <img className='rounded-lg w-full max-h-[200px] object-cover' src={storeInfo?.Image !== null && storeInfo?.Image !== '' ? storeInfo.Image : (data?.[0]?.image || '')} alt="#" />
                     </div>
@@ -854,7 +875,7 @@ const Food = () => {
           <AnimatePresence>
             <div className={
               isMobile ? 'grid grid-cols-1 gap-3 pt-2' :
-                isPC ? 'grid lg:grid-cols-3 gap-3' :
+                isPC ? 'grid lg:grid-cols-4 gap-3' :
                   'grid lg:grid-cols-2 gap-3'
             }> {/* group food by category */}
               {Object.values(foods.reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().map((item, index) => (
@@ -871,13 +892,9 @@ const Food = () => {
                     setSelectedFoodItem(item);;
                     showModal(item);
                   }}
-                  className=" rounded-lg cursor-pointer">
+                  className="border rounded-lg cursor-pointer">
                   <div className='flex'>
-                    <div style={{ width: "40%" }}>
-                      <div class="h-min overflow-hidden rounded-md">
-                        <img loading="lazy" class="w-full h-[80px] hover:scale-125 transition-all cursor-pointer md:h-[95px] object-cover rounded-t-lg" src={item.image} alt={item.name} />
-                      </div>
-                    </div>
+
                     <div style={{ width: "60%" }}>
                       <div className='flex justify-between px-2 pb-1 grid grid-cols-4 w-full'>
 
@@ -909,59 +926,6 @@ const Food = () => {
                               </p>
 
                             </div>
-                            <div className="col-span-2 flex justify-end">
-
-                              <div className="quantity"
-                                style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
-
-                                <div
-                                  className="black_hover"
-                                  style={{
-                                    padding: '4px',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    display: "flex",
-                                    border: "1px solid", // Adjust the border
-                                    borderRadius: "50%", // Set borderRadius to 50% for a circle
-                                    width: "30px", // Make sure width and height are equal
-                                    height: "30px",
-
-                                  }}
-                                >
-                                  <button
-                                    className="minus-btn"
-                                    type="button"
-                                    name="button"
-                                    style={{
-                                      marginTop: '0px',
-                                      width: '20px',
-                                      height: '20px',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      display: "flex",
-                                    }}
-                                    onClick={() => {
-                                      if (!isMobile) {
-                                      } else {
-                                        console.log("item")
-                                        console.log(item)
-                                        setSelectedFoodItem(item);;
-                                        showModal(item);
-                                      }
-                                    }}
-                                  >
-                                    <PlusSvg
-                                      style={{
-                                        margin: '0px',
-                                        width: '10px',
-                                        height: '10px',
-                                      }}
-                                      alt=""
-                                    />
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
 
                           </div>
                           {/* ^ end of parent div of quantity and button */}
@@ -969,6 +933,53 @@ const Food = () => {
                         {/* ^ end of parent div of title + quantity and buttons */}
                       </div>
                       {/* This is Tony added code */}
+                    </div>
+                    <div style={{ width: "40%" }} class="h-min overflow-hidden rounded-md flex justify-end">
+
+                      <div className='rounded-lg max-h-[220px] relative'>
+                        <div className='absolute w-[80px] h-[80px] flex flex-col justify-end items-end'>
+                          <div
+                            className="black_hover "
+                            style={{
+                              padding: '4px',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              display: "flex",
+                              border: "1px solid", // Adjust the border
+                              borderRadius: "50%", // Set borderRadius to 50% for a circle
+                              width: "30px", // Make sure width and height are equal
+                              height: "30px",
+                              backgroundColor: 'white' // Set the background color to white
+                            }}
+                          >
+                            <button
+                              className="minus-btn"
+                              type="button"
+                              name="button"
+                              style={{
+                                marginTop: '0px',
+                                width: '20px',
+                                height: '20px',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                display: "flex",
+                              }}
+                            >
+                              <PlusSvg
+                                style={{
+                                  margin: '0px',
+                                  width: '10px',
+                                  height: '10px',
+                                }}
+                                alt=""
+                              />
+                            </button>
+                          </div>
+                        </div>
+
+                        <img loading="lazy" class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={item.image} />
+                      </div>
+
                     </div>
                   </div>
 

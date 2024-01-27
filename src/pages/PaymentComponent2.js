@@ -7,7 +7,7 @@ import myImage from '../components/check-mark.png';  // Import the image
 import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 
-const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee }) => {
+const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee,totalPrice }) => {
   // State to store the error message
   const [error, setError] = useState(null);
 
@@ -46,7 +46,7 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
   }
   //To Do: set Error
 
-  async function processPayment() {
+  async function processPayment(amount) {
     console.log("processPayment");
 
     try {
@@ -55,7 +55,8 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
       const response = await processPaymentFunction({
         reader_id: items.find(item => item.id === selectedId).readerId,
         payment_intent_id: paymentIntentId,
-        connected_stripe_account_id: connected_stripe_account_id
+        connected_stripe_account_id: connected_stripe_account_id,
+        amount:amount
       });
 
       console.log("the response was okay");
@@ -105,7 +106,8 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
       const paymentIntent = await createPaymentIntent(amount, localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]");
       console.log("payment intent: ", paymentIntent);
       paymentIntentId = paymentIntent["id"];
-      const reader = await processPayment();
+      //const reader = await processPayment(amount);
+      const reader = await processPayment(totalPrice);
       console.log("payment processed at reader: ", reader);
 
       if (simulation_mode == true) {

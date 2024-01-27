@@ -191,16 +191,22 @@ function BusinessHoursTable() {
   }
 
   function grabDayTime(dayTimeObject) {
-    const dayNames = ["Sun", "Mon", "Tues", "Weds", "Thurs", "Fri", "Sat"];
-
-    if (dayTimeObject == null) {
-      return "The store is temporarily closed";
+    const currentDayIndex = new Date().getDay(); // This will return a number from 0 (Sunday) to 6 (Saturday)
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    
+    const currentDayName = daysOfWeek[currentDayIndex]; // This will give you the current day's name
+    
+    const hoursForToday = businessHours[currentDayName];
+    if (hoursForToday) {
+      let hoursString = hoursForToday.map((hour, index) => {
+        return hour === "Closed" ? t("Closed") : hour;
+      }).join('\n');
+    
+      return(`${t(currentDayName)}: \n${hoursString}`);
+    } else {
+      return(`${t(currentDayName)}: \nNot defined in business hours`);
     }
-
-    const dayName = dayNames[dayTimeObject["day"]];
-    // return `${dayName} ${convertTo12HourFormat(dayTimeObject["time"])}`;
-    return `${isOpen ? "Open until" : "Close until"} ${dayName} ${convertTo12HourFormat(dayTimeObject["time"])}`;
-
+    //return `hello world`;
   }
 
   // for translations sake
@@ -252,9 +258,9 @@ function BusinessHoursTable() {
       Closed
       </Button> } */}
 
-      <h1 onClick={handleShow} className="responsive-text px-4 font-bold" style={{ cursor: "pointer", color: 'orange' }}>
-        {isOpen ? grabDayTime(getNextCloseTimeRange()) : grabDayTime(getNextOpenTimeRange())}
-      </h1>
+      <pre onClick={handleShow} className="responsive-text notranslate text-2xl font-bold text-justify px-4 font-bold" style={{ cursor: "pointer" }}>
+      {grabDayTime()}
+      </pre>
       {/* <Button variant="primary" onClick={handleShow}>
       Business Hours
       </Button> */}

@@ -176,7 +176,7 @@
         store = event.data
 
         loadBoard()
-        console.log("sasssssssssssssssssssssssssssss")
+        // console.log("sasssssssssssssssssssssssssssss")
         readDemoItems();
         canvas.getObjects().map(o => {
           o.hasControls = false
@@ -855,8 +855,8 @@
       else if (target.type == 'chair') {
         // grab the number (the number - 1 is the index in chair list)
         let index = target.number - 1
-        console.log(board.chair)
-        console.log(board.chair)
+        //console.log(board.chair)
+        //console.log(board.chair)
         board.chair[index].left = target.left
         board.chair[index].top = target.top
         board.chair[index].scaleX = target.scaleX
@@ -956,12 +956,12 @@
         if (startsWithDemo(key)) {
           console.log(`Initial read - Key: ${key}, Value: ${localStorage.getItem(key)}`);
           if (localStorage.getItem(key) !== "[]" && localStorage.getItem(key) !== null) {
-            console.log("true")
+            //console.log("true")
             console.log(localStorage.getItem(key) !== "[]")
 
             highlightTable(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(0, 0, 139, 0.7)')//rich blue
           } else {
-            console.log("false")
+            //console.log("false")
             highlightTable(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(150, 111, 51, 0.7)')//original brown
           }
         }
@@ -970,12 +970,12 @@
     // Event listener for localStorage changes
     window.addEventListener('storage', (event) => {
       if (startsWithDemo(event.key)) {
-        console.log(`Change detected - Key: ${event.key}, New Value: ${event.newValue}`);
+       // console.log(`Change detected - Key: ${event.key}, New Value: ${event.newValue}`);
         if (event.newValue !== "[]" && event.newValue !== null && JSON.stringify(event.newValue) !== "[]") {
-          console.log("true")
+          //console.log("true")
           highlightTable(event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(0, 0, 139, 0.7)')
         } else {
-          console.log("false")
+          //console.log("false")
           highlightTable(event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(150, 111, 51, 0.7)')
         }
       }
@@ -1059,15 +1059,15 @@
     document.querySelectorAll('.remove')[0].addEventListener('click', function () {
       const o = canvas.getActiveObject()
       if (o) {
-        console.log(o.id)
-        console.log(board)
+        // console.log(o.id)
+        // console.log(board)
         removeObjectFromBoard(o.id);
-        console.log(o)
+        // console.log(o)
         o.remove()
         canvas.remove(o)
         canvas.discardActiveObject()
         canvas.renderAll()
-        console.log("remove")
+        // console.log("remove")
 
         // saving the board after object deletion
         saveBoard()

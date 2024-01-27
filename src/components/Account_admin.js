@@ -131,19 +131,21 @@ const Account = () => {
     if (!user || !user.uid) return;
     if (!storeID) return;
     const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "Table");
-
+    // clearDemoLocalStorage();
     // Listen for changes in the collection
     const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-      const docs = [];
-      clearDemoLocalStorage()
-      snapshot.forEach((doc) => {
-        docs.push({ id: doc.id, ...doc.data() });
-        localStorage.setItem(doc.id, doc.data().product);
+      // 
+      snapshot.docChanges().forEach((change) => {
+        const doc = change.doc;
+        if (change.type === "added" || change.type === "modified") {
+          console.log("Document changed:", doc.data().product);
+          localStorage.setItem(doc.id, doc.data().product);
+        } else if (change.type === "removed") {
+          // console.log("Document removed:", doc.id);
+          // localStorage.removeItem(doc.id);
+        }
       });
 
-      console.log("listen to docs changed");
-      console.log(docs);
-      setDocuments(docs);
       saveId(Math.random());
     }, (error) => {
       // Handle any errors
@@ -154,29 +156,37 @@ const Account = () => {
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
 
+  
   useEffect(() => {
     // Ensure the user is defined
     if (!user || !user.uid) return;
     if (!storeID) return;
     const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "TableIsSent");
-
+  
     // Listen for changes in the collection
     const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-      const docs = [];
-      //clearDemoIsSentLocalStorage()
-      snapshot.forEach((doc) => {
-        docs.push({ id: doc.id, ...doc.data() });
-        localStorage.setItem(doc.id, doc.data().product);
+      snapshot.docChanges().forEach((change) => {
+        const doc = change.doc;
+        if (change.type === "added" || change.type === "modified") {
+          console.log("Document changed:", doc.data().product);
+          localStorage.setItem(doc.id, doc.data().product);
+        } else if (change.type === "removed") {
+          console.log("Document removed:", doc.id);
+          localStorage.removeItem(doc.id);
+        }
       });
-      saveId(Math.random());
+      // Uncomment the following line if necessary
+      // saveId(Math.random());
     }, (error) => {
       // Handle any errors
       console.error("Error getting documents:", error);
     });
-
+  
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
+  
+  
   function round2digt(n) {
     return Math.round(n * 100) / 100
   }
@@ -679,7 +689,7 @@ const Account = () => {
   const handleFileInputChange = async (e) => {
     //const file = e.target.files[0];
     setPreviewUrl("https://media3.giphy.com/media/MydKZ8HdiPWALc0Lqf/giphy.gif")
-
+    console.log("hehe")
     const selectedFile = e.target.files[0];
     if (!selectedFile) {
       //setUploadStatus('No file selected.');
@@ -709,6 +719,7 @@ const Account = () => {
       } else {
       }
     } catch (error) {
+      console.log(error)
     }
 
 

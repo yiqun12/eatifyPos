@@ -91,7 +91,6 @@ function App({ store, acct }) {
     }, []); // Empty dependency array means this effect will only run on mount and unmount
 
 
-
     const syncData = async () => {
         console.log("sync data")
 
@@ -112,7 +111,7 @@ function App({ store, acct }) {
                 console.log("rest")
                 console.log(rest.restaurant_seat_arrangement)
                 localStorage.setItem(store + '_restaurant_seat_arrangement', rest.restaurant_seat_arrangement)
-
+                saveId(Math.random());
             }
 
         } catch (error) {
@@ -404,8 +403,9 @@ function App({ store, acct }) {
         const old_layout = await getDoc(docRef)
         //console.log("hello")
         localStorage.setItem(store + "_restaurant_seat_arrangement", old_layout.data().restaurant_seat_arrangement)
+        
         handleClick()
-
+        saveId(Math.random());
     }
 
     const handleFormSubmit = async (store) => {
@@ -558,9 +558,8 @@ function App({ store, acct }) {
 
                         <div style={{ margin: "10px", display: "flex" }} >
                             <div style={{ position: 'relative' }}>
-                                <Iframe className="notranslate" key={changeEvent}
-                                    ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width={(divWidth) + "px"} height="800px" storeName={store} />
-
+                                    <Iframe className="notranslate" key={changeEvent}
+                                        ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width={(divWidth) + "px"} height="800px" storeName={store} />
                                 {isModalOpen && (
                                     <div id="addTableModal" className="modal fade show" role="dialog" style={{ display: 'block', position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,1)', overflow: 'hidden' }}>
                                         <div role="document" style={{ overflowY: 'hidden' }}>
