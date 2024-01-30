@@ -288,13 +288,14 @@ const Account = () => {
   ]);
   const epochDate = parseDate(format12Oclock((new Date("2023-11-30T00:00:00")).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })));
   const [startDate, setStartDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
-  const [endDate, setEndDate] = useState(parseDate(addOneDayAndFormat(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+  const [endDate, setEndDate] = useState(null);
   // useEffect(() => {
   //   getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
   // }, []);
+  const [isPickerOpenEndDay, setIsPickerOpenEndDay] = useState(false);
 
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const [isPickerOpen2, setIsPickerOpen2] = useState(false);
+  const [isPickerOpenStartDay, setIsPickerOpenStartDay] = useState(false);
+  const [isPickerOpenMonth, setIsPickerOpenMonth] = useState(false);
 
   const getMonthDates = (inputDate) => {
     function formatDate_(year, month, day) {
@@ -336,11 +337,14 @@ const Account = () => {
 
   const wrapperRef = useRef(null);
 
-  const handleChange = (dates) => {
-    const [start, end] = dates;
-    setStartDate(start);
-    setEndDate(end);
+  const handleChangeStartDay = (date) => {
+    setStartDate(date);
   };
+  
+  const handleChangeEndDay = (date) => {
+    setEndDate(date);
+  };
+  
   const handleMonthChange = (date) => {
     getMonthDates(((format12Oclock((new Date(date.getFullYear(), date.getMonth(), 2)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
   };
@@ -361,8 +365,9 @@ const Account = () => {
   useEffect(() => {
     function handleClickOutside(event) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-        setIsPickerOpen(false);
-        setIsPickerOpen2(false)
+        setIsPickerOpenStartDay(false);
+        setIsPickerOpenEndDay(false);
+        setIsPickerOpenMonth(false)
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -2017,6 +2022,37 @@ const Account = () => {
                               <div className={`w-50 ${isMobile ? 'mobile-class' : 'desktop-class'}`}>
                                 <div>
                                   <div style={{ fontWeight: 'bold' }}>Select Date Range</div>
+                                  <div style={{ display: 'flex' }}>
+                                  <div>
+                <div>Start Date:</div>
+                                  <button className="mt-1 mb-1 mr-2 notranslate" style={{
+                                    border: '1px solid #ccc',
+                                    padding: '2px 5px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    fontSize: '16px', // Example font size
+                                    // Add other styles as needed
+                                  }} onClick={() => {
+                                    setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
+                                    if(endDate === null){
+                                      setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) ;
+                                    }else{
+                                      setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                    }
+                                    setIsPickerOpenMonth(false);
+                                    setIsPickerOpenEndDay(false);
+                                    setIsPickerOpenStartDay(!isPickerOpenStartDay);
+
+                                  }}>
+                                    <i class="bi-calendar-range"></i>
+                                    &nbsp;
+                                    {startDate ? format(startDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
+
+                                  </button>
+                                  </div>
+                                  <div>
+                <div>End Date:</div>
+
                                   <button className="mt-1 mb-1 notranslate" style={{
                                     border: '1px solid #ccc',
                                     padding: '2px 5px',
@@ -2025,16 +2061,25 @@ const Account = () => {
                                     fontSize: '16px', // Example font size
                                     // Add other styles as needed
                                   }} onClick={() => {
-                                    setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
-                                    setIsPickerOpen2(false);
-                                    setIsPickerOpen(!isPickerOpen);
+                                    setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); 
+                                    if(endDate === null){
+                                      setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) ;
+                                    }else{
+                                      setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                    }
+                                    setIsPickerOpenMonth(false);
+                                    setIsPickerOpenStartDay(false);
+                                    setIsPickerOpenEndDay(!isPickerOpenEndDay);
 
                                   }}>
                                     <i class="bi-calendar-range"></i>
                                     &nbsp;
-                                    {startDate ? format(startDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
+                                    {endDate ? format(endDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
 
                                   </button>
+                                            </div>
+
+        </div>
                                   <div style={{ fontWeight: 'bold' }}>Select Specific Month</div>
 
                                   <button className="mt-1 mb-1 notranslate" style={{
@@ -2046,8 +2091,9 @@ const Account = () => {
                                     // Add other styles as needed
                                   }} onClick={() => {
                                     getMonthDates(((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
-                                    setIsPickerOpen(false)
-                                    setIsPickerOpen2(!isPickerOpen2);
+                                    setIsPickerOpenStartDay(false)
+                                    setIsPickerOpenEndDay(false)
+                                    setIsPickerOpenMonth(!isPickerOpenMonth);
                                   }}>
                                     <i class="bi-calendar3"></i>
                                     &nbsp;
@@ -2056,7 +2102,7 @@ const Account = () => {
                                   </button>
                                   <div ref={wrapperRef} style={{ position: 'relative' }}>
 
-                                    {isPickerOpen && (
+                                    {isPickerOpenStartDay && (
                                       <div style={{
                                         position: 'absolute',
                                         zIndex: 1000,
@@ -2066,27 +2112,43 @@ const Account = () => {
                                         {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ?
                                           <DatePicker
                                             selected={startDate}
-                                            onChange={handleChange}
-                                            startDate={startDate}
-                                            endDate={endDate}
-                                            selectsRange
+                                            onChange={handleChangeStartDay}
                                             inline
                                             locale="zh-CN"
                                           /> :
 
                                           <DatePicker
                                             selected={startDate}
-                                            onChange={handleChange}
-                                            startDate={startDate}
-                                            endDate={endDate}
-                                            selectsRange
+                                            onChange={handleChangeStartDay}
                                             inline
                                           />}
 
                                       </div>
                                     )}
+                                    {isPickerOpenEndDay && (
+                                      <div style={{
+                                        position: 'absolute',
+                                        zIndex: 1000,
+                                        top: '100%', // Position right below the button
+                                        left: 0
+                                      }}>
+                                        {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ?
+                                          <DatePicker
+                                            selected={endDate}
+                                            onChange={handleChangeEndDay}
+                                            inline
+                                            locale="zh-CN"
+                                          /> :
 
-                                    {isPickerOpen2 && (
+                                          <DatePicker
+                                            selected={endDate}
+                                            onChange={handleChangeEndDay}
+                                            inline
+                                          />}
+
+                                      </div>
+                                    )}
+                                    {isPickerOpenMonth && (
                                       <div style={{
                                         position: 'absolute',
                                         zIndex: 1000,
@@ -2114,7 +2176,7 @@ const Account = () => {
                                     </div>
                                   </div>
                                   <button
-                                    onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                    onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(null) }}
                                     className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
                                   >
                                     <i className="bi bi-calendar-event pe-2"></i>
@@ -2298,7 +2360,7 @@ const Account = () => {
                             {isMobile ? <hr class="opacity-50 border-t-2 border-black-1000" /> : <hr class="opacity-50 border-t-2 border-black-1000" />}
                             {isMobile ? <div >
                               <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
-                                <option value="">Select Payment Status</option>
+                                <option value="">Select Other Payment Status</option>
                                 {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
                                   <option key={index} value={option}>{option}</option>
                                 ))}
@@ -2306,7 +2368,7 @@ const Account = () => {
                               </select>
                               &nbsp;
                               <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
-                                <option value="">Select Dining Table</option>
+                                <option value="">Select Other Dining Table</option>
                                 {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
                                   <option key={index} value={option}>{option}</option>
                                 ))}
@@ -2329,7 +2391,7 @@ const Account = () => {
                                   <th className="order-number" style={isMobile ? {} : { width: "7%" }}>Order ID</th>
                                   <th className="order-name" style={isMobile ? {} : { width: "10%" }}>
                                     <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
-                                      <option value="">Select Dining Table</option>
+                                      <option value="">Select Other Dining Table</option>
                                       {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
                                         <option key={index} value={option}>{option}</option>
                                       ))}
@@ -2339,7 +2401,7 @@ const Account = () => {
                                   </th>
                                   <th className="order-status" style={isMobile ? {} : { width: "30%" }}>
                                     <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
-                                      <option value="">Select Payment Status</option>
+                                      <option value="">Select Other Payment Status</option>
                                       {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
                                         <option key={index} value={option}>{option}</option>
                                       ))}

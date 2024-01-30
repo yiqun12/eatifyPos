@@ -17,6 +17,14 @@ import { useUserContext } from "../context/userContext";
 import { setDoc } from "firebase/firestore";
 //setModalVisibility
 import { v4 as uuidv4 } from 'uuid';
+import pinyin from "pinyin";
+
+
+function convertToPinyin(text) {
+  return pinyin(text, {
+    style: pinyin.STYLE_NORMAL,
+  }).join('');
+}
 
 const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
   //const params = new URLSearchParams(window.location.search);
@@ -323,9 +331,13 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
   const filternameCHI = (CHI) => {
     setFoods(
       data.filter((item) => {
-        return item.CHI.includes(CHI);
+        if (CHI === "") {
+          return true;
+        }
+        const pinyinCHI = convertToPinyin(item.CHI).toLowerCase();
+        return item.CHI.includes(CHI) || pinyinCHI.includes(CHI.toLowerCase());
       })
-    )
+    );
   }
   const [input, setInput] = useState("");
 

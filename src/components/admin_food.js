@@ -17,6 +17,14 @@ import { Helmet } from 'react-helmet';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import useDynamicAttributes from './useDynamicAttributes';
+import pinyin from "pinyin";
+
+
+function convertToPinyin(text) {
+  return pinyin(text, {
+    style: pinyin.STYLE_NORMAL,
+  }).join('');
+}
 
 const Food = ({ store }) => {
 
@@ -102,7 +110,17 @@ const Food = ({ store }) => {
 
 
   const params = new URLSearchParams(window.location.search);
-  const [selectedFoodType, setSelectedFoodType] = useState(null);
+  const [selectedFoodType, setSelectedFoodType] = useState("");
+  const [selectedName, setSelectedName] = useState('');
+  const [selectedCHI, setSelectedCHI] = useState('');
+  const handleNameChange = (event) => {
+    setSelectedName(event.target.value);
+  };
+
+  // Function to handle the change in the CHI input
+  const handleCHIChange = (event) => {
+    setSelectedCHI(event.target.value);
+  };
   const { user, user_loading } = useUserContext();
 
   const scrollingWrapperRef = useRef(null);
@@ -291,47 +309,6 @@ const Food = ({ store }) => {
   }
 
 
-  const filterType = (category) => {
-    setFoods(
-      data.filter((item) => {
-        return item.category === category;
-      })
-    )
-  }
-  const filtername = (name) => {
-    setFoods(
-      data.filter((item) => {
-        return item.name.toLowerCase().includes(name.toLowerCase());
-      })
-    )
-  }
-  const filterCHI = (CHI) => {
-    setFoods(
-      data.filter((item) => {
-        return item.CHI.includes(CHI);
-      })
-    )
-  }
-  const filterTypeCHI = (categoryCHI) => {
-    setFoods(
-      data.filter((item) => {
-        return item.categoryCHI === categoryCHI;
-      })
-    )
-  }
-
-  const [input, setInput] = useState("");
-
-  const handleSearchChange = (event) => {
-    setInput(event.target.value);
-    if (sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中")) {
-      filterCHI(event.target.value);
-
-    } else {
-      filtername(event.target.value);
-
-    }
-  }
   // timesClicked is an object that stores the number of times a item is clicked
   //const timesClicked = new Map();
 
@@ -395,13 +372,6 @@ const Food = ({ store }) => {
     attributesArr: ""
   });
   console.log(newItem)
-  //modal
-  const [TitleLogoNameContent, setTitleLogoNameContent] = useState(JSON.parse(localStorage.getItem("TitleLogoNameContent" || "[]")));
-  useEffect(() => {
-
-    setTitleLogoNameContent(JSON.parse(localStorage.getItem("TitleLogoNameContent")))
-  }, [id]);
-
 
 
   const [arr, setArr] = useState(JSON.parse(localStorage.getItem(store) || "[]"));
@@ -481,17 +451,7 @@ const Food = ({ store }) => {
       return item;
     });
     reload(newItems)
-    if (categoryState === null) {
 
-    } else {
-      setFoods(
-        newItems.filter((item) => {
-          return item.category === target_category;
-        })
-      )
-    }
-    //filterType(target_category)
-    //console.log(target_category)
   };
 
   function reload(updatedArr) {
@@ -556,7 +516,6 @@ const Food = ({ store }) => {
     }
   };
 
-
   const translateToEnglish = async (text) => {
     try {
       const response = await axios.post('https://translation.googleapis.com/language/translate/v2', {}, {
@@ -572,15 +531,6 @@ const Food = ({ store }) => {
       return ('Failed to translate text');
     }
   };
-  const [isModalOpen, setModalOpen] = useState(false);
-  const handleEditShopInfoModalOpen = () => {
-    setModalOpen(true);
-  };
-
-  const handleEditShopInfoModalClose = () => {
-    setModalOpen(false);
-  };
-
   /**scanner */
 
   //Instruction:
@@ -588,7 +538,6 @@ const Food = ({ store }) => {
   //
   useEffect(() => {
     //console.log("hellooooooooooooooooooooo")
-    syncData();
     syncData();
   }, []);
   return (
@@ -618,7 +567,6 @@ const Food = ({ store }) => {
       </div>
       <div onClick={() => {
         syncData();
-        syncData();
       }}
         className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-neutral">
 
@@ -634,8 +582,27 @@ const Food = ({ store }) => {
               <span className='input-group-text pe-2 rounded-start-pill'>
                 <i className='bi bi-search'></i>
               </span>
-              <input  translate="no"  class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..." onChange={handleSearchChange}>
-              </input>
+              {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中")?
+      <input
+      translate="no" 
+      class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
+      type="text"
+      value={selectedCHI}
+      onChange={handleCHIChange}
+    />
+              :
+              <input
+              translate="no" 
+              class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
+              type="text"
+              value={selectedName}
+              onChange={handleNameChange}
+            />   
+              }
+
+
+              {/* <input  translate="no"  class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..." onChange={handleSearchChange}>
+              </input> */}
             </div>
           </form >
         </div>
@@ -648,19 +615,16 @@ const Food = ({ store }) => {
             <div ref={scrollingWrapperRef} className="mt-2 scrolling-wrapper-filter mb-0">
 
               <button onClick={() => {
-                setFoods(data)
-                setSelectedFoodType(null);
+                setSelectedFoodType("");
               }}
-                className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === null ? 'underline' : ''}`}
+                className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === "" ? 'underline' : ''}`}
                 style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
               {
                 foodTypes.map((foodType) => (
                   <button
                     key={foodType}
                     onClick={() => {
-                      filterType(foodType);
                       setSelectedFoodType(foodType);
-                      filterType(foodType);
                     }}
                     className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
                       }`}
@@ -1011,7 +975,7 @@ const Food = ({ store }) => {
                 <div>
 
 
-                  <a onClick={handleAddNewItem} className="btn d-inline-flex btn-sm btn-success">
+                  <a onClick={() => handleAddNewItem(!expandDetails)} className="btn d-inline-flex btn-sm btn-success">
                     <span className="pe-2">
                       <i class="bi bi-pencil"></i>
                     </span>
@@ -1026,9 +990,23 @@ const Food = ({ store }) => {
 
             </div>
           </div>
-          {foods.map((item, index) => (
-            <div style={itemStyle}>
-              <Item key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} />
+          {foods
+        // Filter by selected food category
+        .filter(food => selectedFoodType === "" || food.category === selectedFoodType)
+        // Filter by name, if provided
+        .filter(food => selectedName === "" || food.name.toLowerCase().includes(selectedName.toLowerCase()))
+        // Filter by CHI, if provided
+        .filter(food => {
+          if (selectedCHI === "") {
+            return true;
+          }
+          const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
+          return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
+        })
+        .map((item, index) => (
+
+<div style={itemStyle}>
+              <Item selectedFoodType = {selectedFoodType} key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} />
 
             </div>
           ))}
@@ -1042,7 +1020,7 @@ const Food = ({ store }) => {
 
 
 
-const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEnglish, translateToChinese }) => {
+const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id, translateToEnglish, translateToChinese }) => {
 
   const {
     attributes,
@@ -1716,4 +1694,3 @@ const Item = ({ item, updateItem, deleteFood_array, saveId, id, translateToEngli
 
 
 export default Food
-

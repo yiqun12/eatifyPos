@@ -23,6 +23,16 @@ import L from 'leaflet';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import 'leaflet/dist/leaflet.css';
+import pinyin from "pinyin";
+
+
+function convertToPinyin(text) {
+  return pinyin(text, {
+    style: pinyin.STYLE_NORMAL,
+  }).join('');
+}
+
+
 const customMarkerIcon = L.icon({
   iconUrl: 'http://simpleicon.com/wp-content/uploads/map-marker-1.png',
   iconSize: [40, 40], // making the icon a square of 40x40 pixels
@@ -342,9 +352,14 @@ const Food = () => {
   const filternameCHI = (CHI) => {
     setFoods(
       data.filter((item) => {
-        return item.CHI.includes(CHI);
+        // Convert the item's CHI to Pinyin
+        const pinyinCHI = convertToPinyin(item.CHI).toLowerCase();
+    
+        // Check if the input CHI matches either the original CHI or its Pinyin
+        return item.CHI.includes(CHI) || pinyinCHI.includes(CHI.toLowerCase());
       })
-    )
+    );
+    
   }
   const [input, setInput] = useState("");
 

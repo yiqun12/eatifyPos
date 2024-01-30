@@ -22,9 +22,10 @@ import { forwardRef, useImperativeHandle } from 'react';
 // Create a CSS class to hide overflow
 const bodyOverflowHiddenClass = 'body-overflow-hidden';
 
-const Iframe = forwardRef(({ src, width, height, storeName }, ref) => {
+const Iframe = forwardRef(({ src, width, height, storeName, title }, ref) => {
     const iframeRef = useRef();
-    console.log(storeName)
+    console.log("title", title)
+
     const sendMessage = () => {
         if (iframeRef.current) {
             iframeRef.current.contentWindow.postMessage(storeName + '_restaurant_seat_arrangement', '*');
@@ -34,14 +35,9 @@ const Iframe = forwardRef(({ src, width, height, storeName }, ref) => {
     useImperativeHandle(ref, () => ({
         sendMessage,
     }));
-
     useEffect(() => {
-        // existing fetchHtml logic...
-
-        iframeRef.current.onload = () => {
-            iframeRef.current.contentWindow.postMessage(storeName + '_restaurant_seat_arrangement', '*');
-        };
-    }, [src]);
+        iframeRef.current.contentWindow.postMessage(storeName + '_restaurant_seat_arrangement', '*');
+    }, [title]);
 
     useEffect(() => {
         const fetchHtml = async () => {
@@ -57,7 +53,14 @@ const Iframe = forwardRef(({ src, width, height, storeName }, ref) => {
         };
 
         fetchHtml();
-    }, [src]);
+    }, []);
+    useEffect(() => {
+        // existing fetchHtml logic...
+
+        iframeRef.current.onload = () => {
+            iframeRef.current.contentWindow.postMessage(storeName + '_restaurant_seat_arrangement', '*');
+        };
+    }, []);
 
     return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
 });
@@ -67,7 +70,7 @@ function App({ store, acct }) {
     const [divWidth, setDivWidth] = useState(0);
     const divRef = useRef();
 
-    const [documents, setDocuments] = useState([]);
+    const [title, setTitle] = useState(0);
 
 
 
@@ -111,6 +114,7 @@ function App({ store, acct }) {
                 console.log("rest")
                 console.log(rest.restaurant_seat_arrangement)
                 localStorage.setItem(store + '_restaurant_seat_arrangement', rest.restaurant_seat_arrangement)
+                setTitle(Math.random())
                 saveId(Math.random());
             }
 
@@ -336,7 +340,12 @@ function App({ store, acct }) {
     }
 
     /**admin shopping cart */
+    const [count, setCount] = useState(0);
 
+    // Function to update the state
+    const reRenderDiv = () => {
+        setCount(prevCount => prevCount + 1); // This will trigger a re-render
+    };
 
     const clickedAdd = (id) => {
         if (sessionStorage.getItem("tableMode") == "table-NaN") {
@@ -403,7 +412,7 @@ function App({ store, acct }) {
         const old_layout = await getDoc(docRef)
         //console.log("hello")
         localStorage.setItem(store + "_restaurant_seat_arrangement", old_layout.data().restaurant_seat_arrangement)
-        
+        setTitle(Math.random())
         handleClick()
         saveId(Math.random());
     }
@@ -412,8 +421,6 @@ function App({ store, acct }) {
 
         const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
         const old_layout = await getDoc(docRef)
-        //console.log(old_layout.data().restaurant_seat_arrangement)
-        //console.log(JSON.parse(localStorage.getItem(store + "_restaurant_seat_arrangement")))
         const combined = compareLayouts(JSON.parse(old_layout.data().restaurant_seat_arrangement), JSON.parse(localStorage.getItem(store + "_restaurant_seat_arrangement")))
         console.log(combined)
         combined.forEach(async (item) => {
@@ -558,8 +565,9 @@ function App({ store, acct }) {
 
                         <div style={{ margin: "10px", display: "flex" }} >
                             <div style={{ position: 'relative' }}>
-                                    <Iframe className="notranslate" key={changeEvent}
-                                        ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width={(divWidth) + "px"} height="800px" storeName={store} />
+                                <Iframe className="notranslate" key={changeEvent}
+                                    ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width={(divWidth) + "px"} height="800px" storeName={store}
+                                    title={title} />
                                 {isModalOpen && (
                                     <div id="addTableModal" className="modal fade show" role="dialog" style={{ display: 'block', position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,1)', overflow: 'hidden' }}>
                                         <div role="document" style={{ overflowY: 'hidden' }}>
