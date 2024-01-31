@@ -187,7 +187,7 @@ function PayFullhistory() {
                             >
                               <span className='notranslate'>
                                 {
-                                  sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(order?.storeNameCHI) : (order?.Name)
+                                  localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(order?.storeNameCHI) : (order?.Name)
                                 }
                               </span>
                             </p>
@@ -241,7 +241,7 @@ function PayFullhistory() {
                                         <p className="notranslate mb-1 text-black text-left text-sm font-semibold">
                                           {item.quantity} x&nbsp; 
                                           {
-                                            sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)
+                                            localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)
                                           }
                                         </p>
                                         <p className="mb-1 text-black text-right text-sm font-semibold">

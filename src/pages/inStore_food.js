@@ -343,7 +343,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
 
   const handleInputChange = (event) => {
     setInput(event.target.value);
-    if (sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中")) {
+    if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
       filternameCHI(event.target.value);
 
     } else {
@@ -762,7 +762,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                 <div className='p-4 pt-3'>
                   <div className='flex justify-between'>
                     <h4 class="notranslate">
-                      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
+                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
                     </h4>
                   </div>
                   <div className="mb-3">
@@ -803,7 +803,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                     onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
                   >
                     Add Variant (Default:<span
-                     className='notranslate'>{customVariant.name}</span> )
+                      className='notranslate'>{customVariant.name}</span> )
                   </button>
 
 
@@ -951,7 +951,9 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
               </div>
 
               {/* end of the top */}
-              <div ref={scrollingWrapperRef} className="mt-2 scrolling-wrapper-filter mb-0">
+              <div ref={scrollingWrapperRef} className={`mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''} mb-0`}
+
+              >
 
                 <button onClick={() => {
                   setFoods(data)
@@ -1009,7 +1011,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
           <AnimatePresence>
             <div className='grid grid-cols-1 gap-3 pt-2 ' style={{
               gridTemplateRows: `repeat(1, 1fr)`,
-              gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
+              gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
               overflowY: 'auto',
               maxHeight: '600px'
             }}>
@@ -1055,7 +1057,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                           <div className="col-span-4 ">
                             <p class="notranslate">
 
-                              {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
+                              {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
                             </p>                          </div>
 
                           {/* parent div of the quantity and buttons */}

@@ -299,7 +299,7 @@ const Item = (props) => {
                 <div className="row d-flex ">
                   <p className='m-0 pb-0'>
                     <b class="notranslate">
-                      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
                     </b>
 
                   </p>

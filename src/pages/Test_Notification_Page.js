@@ -528,7 +528,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                           {order.items && order.items.map(item => (
                             <div key={item.id}>
                               <p className='notranslate'>
-                                {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}
+                                {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}
                               </p>
                               &nbsp;| &nbsp; Quantity: &nbsp; {item.quantity} &nbsp; | &nbsp; Price: {item.itemTotalPrice}
                               {item.attributeSelected && Object.keys(item.attributeSelected).map(attributeKey => (

@@ -61,7 +61,7 @@ const Iframe = forwardRef(({ src, width, height, storeName, title }, ref) => {
             iframeRef.current.contentWindow.postMessage(storeName + '_restaurant_seat_arrangement', '*');
         };
     }, []);
-
+//width
     return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
 });
 
@@ -78,6 +78,7 @@ function App({ store, acct }) {
         const resizeObserver = new ResizeObserver(entries => {
             // Assuming you are observing only one element
             const { width } = entries[0].contentRect;
+            console.log(width)
             setDivWidth(width);
         });
 

@@ -43,7 +43,7 @@ const Item = () => {
         if (doc.exists) {
           console.log("12333333333")
           console.log(doc.data().Name)
-          if (sessionStorage.getItem("Google-language")?.includes("中") || sessionStorage.getItem("Google-language")?.includes("Chinese")) {
+          if (localStorage.getItem("Google-language")?.includes("中") || localStorage.getItem("Google-language")?.includes("Chinese")) {
             setDocumentData(doc.data().storeNameCHI);
 
           } else {
@@ -155,7 +155,7 @@ const Item = () => {
               <div className="col-9">
                 <div className="row d-flex">
                   <b>
-                    {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                    {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
                   </b>
                 </div>
                 <div className="row d-flex">

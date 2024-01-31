@@ -63,7 +63,7 @@ function Item({ item, updateItems, whole_item_groups, numberOfGroups }) {
       {/* <p className="font-bold text-2xl">{item.name}</p> */}
       <span className="notranslate">
         
-      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
+      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
       <b>{
       Math.round( (Math.round(item.quantity) / Math.round(numberOfGroups))*100  )/100
       }</b> </span>

@@ -38,6 +38,7 @@ import PaymentComponent2 from "../pages/PaymentComponent2";
 import Dnd_Test from '../pages/dnd_test';
 import { isMobile } from 'react-device-detect';
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
+import { faExclamation } from '@fortawesome/free-solid-svg-icons'; // Import the exclamation mark icon
 
 const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
@@ -296,7 +297,8 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       console.error("Error adding document: ", e);
     }
   }
-  const [arr, setArr] = useState([]);
+  const [arrEmpty, setArrEmpty] = useState([]);
+  const [arrOccupied, setArrOccupied] = useState([]);
 
   useEffect(() => {
     // Ensure the user is defined
@@ -312,8 +314,15 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
         docs.push({ id: doc.id, ...doc.data() });
 
       });
+      setArrEmpty(docs
+        .filter(element => element.product === "[]")
+        .map(element => element.id.slice((store + "-").length)))
+      setArrOccupied(docs
+        .filter(element => element.product !== "[]")
+        .map(element => element.id.slice((store + "-").length)))
       //setCheckProduct(docs)
-      setArr(docs.map(element => element.id.slice((store + "-").length)))
+      //console.log()
+      //setArr(docs.map(element => element.id.slice((store + "-").length)))
 
 
     }, (error) => {
@@ -414,6 +423,90 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       console.error("Error adding document: ", e);
     }
   }
+
+  const MarkAsUnPaid = async () => {
+    let extra_tip = 0
+    try {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
+        amount: Math.round(Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100 * 100),
+        amount_capturable: 0,
+        amount_details: { tip: { amount: 0 } },
+        amount_received: Math.round(Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100 * 100),
+        application: "",
+        application_fee_amount: 0,
+        automatic_payment_methods: null,
+        canceled_at: null,
+        cancellation_reason: null,
+        capture_method: "automatic",
+        client_secret: "pi_none",
+        confirmation_method: "automatic",
+        created: 0,
+        currency: "usd",
+        customer: null,
+        dateTime: date,
+        description: null,
+        id: "pi_none",
+        invoice: null,
+        last_payment_error: null,
+        latest_charge: "ch_none",
+        livemode: true,
+        metadata: {
+          discount: discount === "" ? 0 : discount,
+          isDine: true,
+          service_fee: tips === "" ? 0 : tips,
+          subtotal: Math.round(100 * totalPrice) / 100,
+          tax: Math.round(100 * totalPrice * 0.0825) / 100,
+          tips: Math.round(100 * extra_tip) / 100,
+          total: Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100,
+        }, // Assuming an empty map converts to an empty object
+        next_action: null,
+        object: "payment_intent",
+        on_behalf_of: null,
+        payment_method: "pm_none",
+        payment_method_configuration_details: null,
+        payment_method_options: {}, // Assuming an empty map converts to an empty object
+        card_present: {}, // Assuming an empty map converts to an empty object
+        request_extended_authorization: false,
+        request_incremental_authorization_support: false,
+        payment_method_types: ["Mark_as_Unpaid"],
+        powerBy: "Unpaid",
+        processing: null,
+        receiptData: localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]",
+        receipt_email: null,
+        review: null,
+        setup_future_usage: null,
+        shipping: null,
+        source: null,
+        statement_descriptor: null,
+        statement_descriptor_suffix: null,
+        status: "succeeded",
+        store: store,
+        storeOwnerId: user.uid,
+        stripe_store_acct: acct,
+        tableNum: selectedTable,
+        transfer_data: null,
+        transfer_group: null,
+        uid: user.uid,
+        user_email: user.email,
+      });
+      console.log("Document written with ID: ", docRef.id);
+      setProducts([]);
+      setExtra(0)
+      setInputValue("")
+      setDiscount("")
+      setTips("")
+
+      SetTableInfo(store + "-" + selectedTable, "[]")
+      SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]")
+      //localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
+
+
   const CashCheckOut = async (extra) => {
     let extra_tip = 0
     if (extra !== null) {
@@ -796,7 +889,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                   <div className='flex justify-between w-full'>
                     <div className={`${!isMobile ? 'text-lg' : ''} notranslate`}>
 
-                      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)} x {product.quantity}
+                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)} x {product.quantity}
                     </div>
 
                   </div>
@@ -974,7 +1067,18 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
 
               <span>{t("Split Payment")}</span>
             </a>
-
+            <a
+              onClick={() => { MarkAsUnPaid(); SendToKitchen() }}
+              className="mt-3 btn btn-sm btn-outline-danger mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+              {isMobile ? <div></div> :
+                <span className="pe-2">
+                  <FontAwesomeIcon icon={faExclamation} />
+                </span>
+              }
+              <span>{t("Mark as Unpaid")}</span>
+            </a>
             <a
               onClick={() => { setMyModalVisible(true); SendToKitchen() }}
               className="mt-3 btn btn-sm btn-primary mx-1"
@@ -1180,7 +1284,22 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                     </button>
                   </div>
                   <div className="modal-body pt-0">
-                    {arr.map((option) => (
+                   <div>Empty Dining Desk(s):</div>
+                    {arrEmpty.map((option) => (
+
+                      <button
+                        type="button"
+                        className="btn btn-primary mb-2 mr-2 notranslate"
+                        onClick={() => { mergeProduct(option) }}
+                        style={{ backgroundColor: '#966f33' }}
+                      >
+                        {option}
+                      </button>
+
+                    ))}
+                    <hr></hr>
+                    <div>Dining Desk(s) in Use:</div>
+                    {arrOccupied.map((option) => (
 
                       <button
                         type="button"
@@ -1212,7 +1331,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                   </div>
                   <div className="modal-body pt-0">
 
-                    <PaymentComponent2 setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice*100)} />
+                    <PaymentComponent2 setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} />
 
                   </div>
                   <div className="modal-footer">

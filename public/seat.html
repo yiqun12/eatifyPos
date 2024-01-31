@@ -80,7 +80,8 @@
           &nbsp;Delete</button>
         <button class="btn btn-success save-mode" style="float: right; "><i class="bi bi-cloud-upload-fill"></i></i>
           &nbsp;Save Change</button>
-        <button class="btn btn-info customer-mode" style="float: right; margin-right: 5px;"><i class="bi bi-shield-exclamation"></i></i>
+        <button class="btn btn-info customer-mode" style="float: right; margin-right: 5px;"><i
+            class="bi bi-shield-exclamation"></i></i>
           &nbsp;Discard Changes</button>
       </div>
 
@@ -128,8 +129,17 @@
 
   <script>
     // When the page loads
-    document.getElementById('width').value = window.innerWidth;
-    document.getElementById('height').value = window.innerHeight;
+    function updateDimensions() {
+      document.getElementById('width').value = window.innerWidth;
+      document.getElementById('height').value = window.innerHeight;
+    }
+
+    // Update dimensions on load
+    window.onload = updateDimensions;
+
+    // Update dimensions whenever the window is resized
+    window.onresize = updateDimensions;
+
 
     let store
     let canvas
@@ -200,8 +210,8 @@
         current_mode = "customer"
         window.parent.postMessage(`customer mode active`, "*");
         //console.log('Received "hello" from parent');
-      }else if(event.data.includes("load_board")){
-        
+      } else if (event.data.includes("load_board")) {
+
       }
     });
 
@@ -465,8 +475,8 @@
     function resizeCanvas() {
       widthEl = document.getElementById('width')
       heightEl = document.getElementById('height')
-      canvasEl.width = widthEl.value ? widthEl.value : 500
-      canvasEl.height = heightEl.value ? heightEl.value : 812
+      canvasEl.width = 2000
+      canvasEl.height = 812
       const canvasContainerEl = document.querySelectorAll('.canvas-container')[0]
       canvasContainerEl.style.width = canvasEl.width
       canvasContainerEl.style.height = canvasEl.height
@@ -970,7 +980,7 @@
     // Event listener for localStorage changes
     window.addEventListener('storage', (event) => {
       if (startsWithDemo(event.key)) {
-       // console.log(`Change detected - Key: ${event.key}, New Value: ${event.newValue}`);
+        // console.log(`Change detected - Key: ${event.key}, New Value: ${event.newValue}`);
         if (event.newValue !== "[]" && event.newValue !== null && JSON.stringify(event.newValue) !== "[]") {
           //console.log("true")
           highlightTable(event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(0, 0, 139, 0.7)')

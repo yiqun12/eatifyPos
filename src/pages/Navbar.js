@@ -273,9 +273,10 @@ const Navbar = () => {
       return text
     }
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")])
-  if (sessionStorage.getItem("Google-language") && sessionStorage.getItem("Google-language") !== null) {
+  
+  if (localStorage.getItem("Google-language") && localStorage.getItem("Google-language") !== null) {
   } else {
-    sessionStorage.setItem("Google-language", "Select Language");
+    localStorage.setItem("Google-language", "Select Language");
   }
 
   // the below code checks for language option changes with the google translate widget
@@ -285,8 +286,8 @@ const Navbar = () => {
         $('.goog-te-combo').on('change', function () {
           let language = $("select.goog-te-combo option:selected").text();
           console.log(language);
-          if (sessionStorage.getItem("Google-language") && sessionStorage.getItem("Google-language") !== null && language !== sessionStorage.getItem("Google-language")) {
-            sessionStorage.setItem("Google-language", language);
+          if (localStorage.getItem("Google-language") && localStorage.getItem("Google-language") !== null && language !== localStorage.getItem("Google-language")) {
+            localStorage.setItem("Google-language", language);
             saveId(Math.random());  // generate a new id here
           }
 
@@ -447,7 +448,7 @@ const Navbar = () => {
                     <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
                       <div class='notranslate' style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>
                         <span class="notranslate">
-                          {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product.CHI) : (product.name)}
+                          {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product.CHI) : (product.name)}
                         </span>
                       </div>
 

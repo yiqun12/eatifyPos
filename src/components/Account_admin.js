@@ -156,13 +156,13 @@ const Account = () => {
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
 
-  
+
   useEffect(() => {
     // Ensure the user is defined
     if (!user || !user.uid) return;
     if (!storeID) return;
     const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "TableIsSent");
-  
+
     // Listen for changes in the collection
     const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
       snapshot.docChanges().forEach((change) => {
@@ -181,12 +181,12 @@ const Account = () => {
       // Handle any errors
       console.error("Error getting documents:", error);
     });
-  
+
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
-  
-  
+
+
   function round2digt(n) {
     return Math.round(n * 100) / 100
   }
@@ -340,11 +340,11 @@ const Account = () => {
   const handleChangeStartDay = (date) => {
     setStartDate(date);
   };
-  
+
   const handleChangeEndDay = (date) => {
     setEndDate(date);
   };
-  
+
   const handleMonthChange = (date) => {
     getMonthDates(((format12Oclock((new Date(date.getFullYear(), date.getMonth(), 2)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
   };
@@ -450,7 +450,6 @@ const Account = () => {
       .where('dateTime', '>=', convertDateFormat(startDate))
       .where('dateTime', '<', convertDateFormat(endDate ? (addDays(endDate, 1)) : (addDays(startDate, 1))))
       .onSnapshot((snapshot) => {
-        console.log("hebbbbbbbbbb")
         //console.log(snapshot.docs[0].data().id);
 
         const newData = snapshot.docs.map((doc) => ({
@@ -780,7 +779,7 @@ const Account = () => {
       console.log(docs);
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added" || change.type === "modified") {
-          if (sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中")) {
+          if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
             playSound_CHI()
           } else {
             playSound()
@@ -1348,8 +1347,10 @@ const Account = () => {
           {isVisible && (
             <div>
               {isPC ? <nav
+                style={{ minWidth: '180px' }}
                 className="navbar navbar-vertical show z-0 h-lg-screen navbar-expand-lg px-0 py-3 navbar-light bg-white border-bottom border-bottom-lg-0 border-end-lg"
                 id="navbarVertical"
+
               >
 
                 <div className="container-fluid" style={{ minHeight: "0px" }}>
@@ -1819,7 +1820,7 @@ const Account = () => {
                                 <div className='mt-3 rounded-lg w-full  max-h-[200px] relative'>
                                   <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
                                     <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className='text-orange-500'>
-                                      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(data?.storeNameCHI) : (data?.Name)}
+                                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(data?.storeNameCHI) : (data?.Name)}
 
                                     </span>
                                     </h1>
@@ -2023,63 +2024,63 @@ const Account = () => {
                                 <div>
                                   <div style={{ fontWeight: 'bold' }}>Select Date Range</div>
                                   <div style={{ display: 'flex' }}>
-                                  <div>
-                <div>Start Date:</div>
-                                  <button className="mt-1 mb-1 mr-2 notranslate" style={{
-                                    border: '1px solid #ccc',
-                                    padding: '2px 5px',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    fontSize: '16px', // Example font size
-                                    // Add other styles as needed
-                                  }} onClick={() => {
-                                    setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
-                                    if(endDate === null){
-                                      setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) ;
-                                    }else{
-                                      setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
-                                    }
-                                    setIsPickerOpenMonth(false);
-                                    setIsPickerOpenEndDay(false);
-                                    setIsPickerOpenStartDay(!isPickerOpenStartDay);
+                                    <div>
+                                      <div>Start Date:</div>
+                                      <button className="mt-1 mb-1 mr-2 notranslate" style={{
+                                        border: '1px solid #ccc',
+                                        padding: '2px 5px',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        fontSize: '16px', // Example font size
+                                        // Add other styles as needed
+                                      }} onClick={() => {
+                                        setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
+                                        if (endDate === null) {
+                                          setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                        } else {
+                                          setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                        }
+                                        setIsPickerOpenMonth(false);
+                                        setIsPickerOpenEndDay(false);
+                                        setIsPickerOpenStartDay(!isPickerOpenStartDay);
 
-                                  }}>
-                                    <i class="bi-calendar-range"></i>
-                                    &nbsp;
-                                    {startDate ? format(startDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
+                                      }}>
+                                        <i class="bi-calendar-range"></i>
+                                        &nbsp;
+                                        {startDate ? format(startDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
 
-                                  </button>
+                                      </button>
+                                    </div>
+
+                                    <div>
+                                      <div>End Date:</div>
+                                      <button className="mt-1 mb-1 notranslate" style={{
+                                        border: '1px solid #ccc',
+                                        padding: '2px 5px',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        fontSize: '16px', // Example font size
+                                        // Add other styles as needed
+                                      }} onClick={() => {
+                                        setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
+                                        if (endDate === null) {
+                                          setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                        } else {
+                                          setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                        }
+                                        setIsPickerOpenMonth(false);
+                                        setIsPickerOpenStartDay(false);
+                                        setIsPickerOpenEndDay(!isPickerOpenEndDay);
+
+                                      }}>
+                                        <i class="bi-calendar-range"></i>
+                                        &nbsp;
+                                        {endDate ? format(endDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
+
+                                      </button>
+                                    </div>
+
                                   </div>
-                                  <div>
-                <div>End Date:</div>
-
-                                  <button className="mt-1 mb-1 notranslate" style={{
-                                    border: '1px solid #ccc',
-                                    padding: '2px 5px',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    fontSize: '16px', // Example font size
-                                    // Add other styles as needed
-                                  }} onClick={() => {
-                                    setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); 
-                                    if(endDate === null){
-                                      setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) ;
-                                    }else{
-                                      setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
-                                    }
-                                    setIsPickerOpenMonth(false);
-                                    setIsPickerOpenStartDay(false);
-                                    setIsPickerOpenEndDay(!isPickerOpenEndDay);
-
-                                  }}>
-                                    <i class="bi-calendar-range"></i>
-                                    &nbsp;
-                                    {endDate ? format(endDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
-
-                                  </button>
-                                            </div>
-
-        </div>
                                   <div style={{ fontWeight: 'bold' }}>Select Specific Month</div>
 
                                   <button className="mt-1 mb-1 notranslate" style={{
@@ -2109,7 +2110,7 @@ const Account = () => {
                                         top: '100%', // Position right below the button
                                         left: 0
                                       }}>
-                                        {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ?
+                                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                                           <DatePicker
                                             selected={startDate}
                                             onChange={handleChangeStartDay}
@@ -2132,7 +2133,7 @@ const Account = () => {
                                         top: '100%', // Position right below the button
                                         left: 0
                                       }}>
-                                        {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ?
+                                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                                           <DatePicker
                                             selected={endDate}
                                             onChange={handleChangeEndDay}
@@ -2156,7 +2157,7 @@ const Account = () => {
                                         left: 0
                                       }}>
 
-                                        {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ?
+                                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                                           <DatePicker
                                             onChange={handleMonthChange}
                                             showMonthYearPicker
@@ -2592,8 +2593,8 @@ const Account = () => {
                                             {JSON.parse(order.receiptData).map((item, index) => (
                                               <div className="receipt-item" key={item.id}>
                                                 <p className='notranslate'>
-                                                  {(/^#@%\d+#@%/.test(item?.name)) ? sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
-                                                    : sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
+                                                  {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
+                                                    : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
                                                   &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
                                                   &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((round2digt(item.quantity * item.subtotal)) / round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) : item.subtotal}
                                                   &nbsp;each = ${round2digt(item.quantity * item.subtotal)}</p>

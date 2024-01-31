@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/functions';
 import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
@@ -9,7 +9,7 @@ import imageCompression from 'browser-image-compression';
 import loadingGif from './loading.gif'; // Assuming it's in the same directory
 import { useUserContext } from "../context/userContext";
 
-const GoogleVisionDemo = ({ reload,store, setFoods }) => {
+const GoogleVisionDemo = ({ reload, store, setFoods }) => {
   const [imageUrl, setImageUrl] = useState('');
   const [extractedText, setExtractedText] = useState('');
   /**listen to localtsorage */
@@ -143,7 +143,7 @@ const GoogleVisionDemo = ({ reload,store, setFoods }) => {
           item.attributesArr = {};
           item.availability = ['Morning', 'Afternoon', 'Evening'];
         });
-        const mergedArray =  jsonWithImage.concat(JSON.parse(localStorage.getItem(store)));
+        const mergedArray = jsonWithImage.concat(JSON.parse(localStorage.getItem(store)));
 
         //localStorage.setItem(store, JSON.stringify(mergedArray))
         //setFoods(mergedArray)
@@ -170,22 +170,22 @@ const GoogleVisionDemo = ({ reload,store, setFoods }) => {
     }
     setUploadStatus('loading');
 
-   // setPreviewUrl("https://img.zcool.cn/community/012d625a55b18da80120121f12e55d.gif")
+    // setPreviewUrl("https://img.zcool.cn/community/012d625a55b18da80120121f12e55d.gif")
 
-      // 压缩选项
-  const options = {
-    maxSizeMB: 1, // 最大输出文件大小
-    maxWidthOrHeight: 1920, // 最大输出图片尺寸
-    useWebWorker: true
-  };
+    // 压缩选项
+    const options = {
+      maxSizeMB: 1, // 最大输出文件大小
+      maxWidthOrHeight: 1920, // 最大输出图片尺寸
+      useWebWorker: true
+    };
 
-  try {
-    const selectedFile = await imageCompression(selectedFile, options);
-    // 你可以在这里上传或保存压缩后的文件
-    console.log('压缩后的图片大小:', selectedFile.size / 1024 / 1024, 'MB');
-  } catch (error) {
-    console.error('图片压缩失败:', error);
-  }
+    try {
+      const selectedFile = await imageCompression(selectedFile, options);
+      // 你可以在这里上传或保存压缩后的文件
+      console.log('压缩后的图片大小:', selectedFile.size / 1024 / 1024, 'MB');
+    } catch (error) {
+      console.error('图片压缩失败:', error);
+    }
 
     // Show a preview of the selected file
 
@@ -228,29 +228,29 @@ const GoogleVisionDemo = ({ reload,store, setFoods }) => {
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
 
       <div >
-    <label style={{ cursor: 'pointer' }}>
-      <input
-        type="file"
-        onChange={handleFileChangeAndUpload}
-        style={{ display: 'none' }} // hides the input
-        translate="no" 
-      />
-      <div className="btn d-inline-flex btn-sm btn-secondary mx-1">
-        <span className="pe-2">
-          { 
-            uploadStatus === 'loading' ? 
+        <label style={{ cursor: 'pointer' }}>
+          <input
+            type="file"
+            onChange={handleFileChangeAndUpload}
+            style={{ display: 'none' }} // hides the input
+            translate="no"
+          />
+          <div className="btn d-inline-flex btn-sm btn-secondary mx-1">
+            <span className="pe-2">
+              {
+                uploadStatus === 'loading' ?
 
-            (<img className=" scale-150"style={{width:"17px",height:"17px",padding:"0px"}} src={loadingGif} alt="Loading..."/>) :
-            uploadStatus === 'success' ?
-            (<i className="bi bi-check-circle"></i>) :  // Check icon when upload succeeds
-            (<i className="bi bi-camera"></i>)
-          }
-        </span>
-        <span>
-          {"Scan Menu"}
-        </span>
-      </div>
-    </label>
+                  (<img className=" scale-150" style={{ width: "17px", height: "17px", padding: "0px" }} src={loadingGif} alt="Loading..." />) :
+                  uploadStatus === 'success' ?
+                    (<i className="bi bi-check-circle"></i>) :  // Check icon when upload succeeds
+                    (<i className="bi bi-camera"></i>)
+              }
+            </span>
+            <span>
+              {"Scan Menu"}
+            </span>
+          </div>
+        </label>
 
       </div>
 

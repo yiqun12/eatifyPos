@@ -365,7 +365,7 @@ const Food = () => {
 
   const handleInputChange = (event) => {
     setInput(event.target.value);
-    if (sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中")) {
+    if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
       filternameCHI(event.target.value);
 
     } else {
@@ -650,7 +650,7 @@ const Food = () => {
                   <div>
                     <span class="notranslate">
 
-                      {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
+                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
                     </span>
                   </div>
                   {Object.entries(selectedFoodItem?.attributesArr)?.map(([attributeName, attributeDetails]) => (
@@ -807,7 +807,7 @@ const Food = () => {
                     <div className='rounded-lg max-h-[220px] relative'>
                       <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
                         <h1 className='notranslate px-4 text-4xl sm:text-2xl md:text-6xl lg:text-7xl font-bold text-justify'><span className=''>
-                          {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
+                          {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
                         </span></h1>
                         <h1 className='px-4 font-bold text-white-500 text-2xl notranslate'>@{storeInfo.Address}</h1>
                         <BusinessHoursTable></BusinessHoursTable>
@@ -917,7 +917,7 @@ const Food = () => {
                         <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                           <div className="col-span-4">
                             <span class="notranslate">
-                              {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
+                              {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
                             </span >
                           </div>
 

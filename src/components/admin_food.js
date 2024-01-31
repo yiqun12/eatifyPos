@@ -582,22 +582,22 @@ const Food = ({ store }) => {
               <span className='input-group-text pe-2 rounded-start-pill'>
                 <i className='bi bi-search'></i>
               </span>
-              {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中")?
-      <input
-      translate="no" 
-      class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
-      type="text"
-      value={selectedCHI}
-      onChange={handleCHIChange}
-    />
-              :
-              <input
-              translate="no" 
-              class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
-              type="text"
-              value={selectedName}
-              onChange={handleNameChange}
-            />   
+              {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                <input
+                  translate="no"
+                  class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
+                  type="text"
+                  value={selectedCHI}
+                  onChange={handleCHIChange}
+                />
+                :
+                <input
+                  translate="no"
+                  class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
+                  type="text"
+                  value={selectedName}
+                  onChange={handleNameChange}
+                />
               }
 
 
@@ -676,7 +676,7 @@ const Food = ({ store }) => {
                       type="file"
                       onChange={handleFileChangeAndUpload}
                       style={{ display: 'none' }} // hides the input
-                      translate="no" 
+                      translate="no"
                     />
 
                     <img
@@ -704,7 +704,7 @@ const Food = ({ store }) => {
                         placeholder={t("Blank")}
                         value={newItem.name}
                         onChange={handleInputChange}
-                        translate="no" 
+                        translate="no"
                       />
                       <span onClick={async () => {  //Auto Fill Chinese
                         let translatedText = "Blank";
@@ -735,7 +735,7 @@ const Food = ({ store }) => {
                         placeholder={"空白的"}
                         value={newItem.CHI}
                         onChange={handleInputChange}
-                        translate="no" 
+                        translate="no"
                       />
 
                       <span onClick={async () => {  // Auto Fill English
@@ -768,8 +768,8 @@ const Food = ({ store }) => {
                       <input
                         className='text-md font-semibold'
                         style={{ width: "50%" }}
-                        type="text" name="category" placeholder={(categoryState === null ? "Classic" : categoryState)} value={newItem.category} onChange={handleInputChange} 
-                        
+                        type="text" name="category" placeholder={(categoryState === null ? "Classic" : categoryState)} value={newItem.category} onChange={handleInputChange}
+
                         translate="no" />
 
                     </div>
@@ -786,7 +786,7 @@ const Food = ({ store }) => {
                         placeholder={"1"}
                         value={newItem.subtotal}
                         onChange={handleInputChange}
-                        translate="no" 
+                        translate="no"
                       />
                     </div>
                   </div>
@@ -815,7 +815,7 @@ const Food = ({ store }) => {
                           value={currentAttribute}
                           onChange={(e) => setCurrentAttribute(e.target.value)}
                           placeholder=" Size"
-                          translate="no" 
+                          translate="no"
                         />                </div>
 
                       <div className='flex'>
@@ -830,7 +830,7 @@ const Food = ({ store }) => {
                           value={currentVariation.type}
                           onChange={(e) => setCurrentVariation({ ...currentVariation, type: e.target.value })}
                           placeholder=" Big"
-                          translate="no" 
+                          translate="no"
                         />                </div>
 
                       <div className='flex'>
@@ -846,7 +846,7 @@ const Food = ({ store }) => {
                           value={currentVariation.price}
                           onChange={(e) => setCurrentVariation({ ...currentVariation, price: e.target.value })}
                           placeholder="1"
-                          translate="no" 
+                          translate="no"
                         />
                       </div>
                       <div className='text-red-700'>
@@ -886,7 +886,7 @@ const Food = ({ store }) => {
                               style={{ marginRight: "5px" }}
                               checked={!attributeDetails.isSingleSelected}
                               onChange={(e) => handleToggle(attributeName, !e.target.checked)}
-                              translate="no" 
+                              translate="no"
                             />
                           </div>
                           {" Multi-Select"} { }
@@ -991,25 +991,25 @@ const Food = ({ store }) => {
             </div>
           </div>
           {foods
-        // Filter by selected food category
-        .filter(food => selectedFoodType === "" || food.category === selectedFoodType)
-        // Filter by name, if provided
-        .filter(food => selectedName === "" || food.name.toLowerCase().includes(selectedName.toLowerCase()))
-        // Filter by CHI, if provided
-        .filter(food => {
-          if (selectedCHI === "") {
-            return true;
-          }
-          const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
-          return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
-        })
-        .map((item, index) => (
+            // Filter by selected food category
+            .filter(food => selectedFoodType === "" || food.category === selectedFoodType)
+            // Filter by name, if provided
+            .filter(food => selectedName === "" || food.name.toLowerCase().includes(selectedName.toLowerCase()))
+            // Filter by CHI, if provided
+            .filter(food => {
+              if (selectedCHI === "") {
+                return true;
+              }
+              const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
+              return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
+            })
+            .map((item, index) => (
 
-<div style={itemStyle}>
-              <Item selectedFoodType = {selectedFoodType} key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} />
+              <div style={itemStyle}>
+                <Item selectedFoodType={selectedFoodType} key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} />
 
-            </div>
-          ))}
+              </div>
+            ))}
 
         </div>
 
@@ -1274,7 +1274,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                       type="file"
                       onChange={handleFileChangeAndUpload}
                       style={{ display: 'none' }} // hides the input
-                      translate="no" 
+                      translate="no"
                     />
                     <img
                       className=" h-[80px] w-[80px] hover:scale-125 transition-all cursor-pointer object-cover rounded-t-lg"
@@ -1384,7 +1384,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                   onChange={(e) => {
                     updateItem(item.id, { ...item, name: e.target.value })
                   }}
-                  translate="no"  />
+                  translate="no" />
 
 
 
@@ -1417,7 +1417,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                   onChange={(e) => {
                     updateItem(item.id, { ...item, CHI: e.target.value })
                   }}
-                  translate="no" 
+                  translate="no"
                 />
 
 
@@ -1463,7 +1463,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                   onChange={(e) => {
                     updateItem(item.id, { ...item, category: e.target.value })
                   }}
-                  translate="no" 
+                  translate="no"
                 />
 
               </div>
@@ -1482,7 +1482,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                   onChange={(e) => {//To do: 这里需要一些防呆验证 for cases like说enter-1 或者2.33333 或者abc 或者空白
                     updateItem(item.id, { ...item, subtotal: e.target.value })
                   }}
-                  translate="no" 
+                  translate="no"
                 />
               </div>
             </div>
@@ -1512,7 +1512,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     value={currentAttribute}
                     onChange={(e) => setCurrentAttribute(e.target.value)}
                     placeholder="Size"
-                    translate="no" 
+                    translate="no"
                   />                </div>
 
                 <div className='flex'>
@@ -1527,7 +1527,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     value={currentVariation.type}
                     onChange={(e) => setCurrentVariation({ ...currentVariation, type: e.target.value })}
                     placeholder="BG"
-                    translate="no" 
+                    translate="no"
                   />                </div>
 
                 <div className='flex'>
@@ -1543,7 +1543,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     value={currentVariation.price}
                     onChange={(e) => setCurrentVariation({ ...currentVariation, price: e.target.value })}
                     placeholder="1"
-                    translate="no" 
+                    translate="no"
                   />
                 </div>
                 <div className='text-red-700'>
@@ -1584,7 +1584,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                         style={{ marginRight: "5px" }}
                         checked={!attributeDetails.isSingleSelected}
                         onChange={(e) => handleToggle(attributeName, !e.target.checked)}
-                        translate="no" 
+                        translate="no"
                       />
                     </div>
                     {" Multi-Select"} { }

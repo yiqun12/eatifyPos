@@ -108,7 +108,7 @@ const Item = () => {
                             <div className="col-9">
                                 <div className="row d-flex">
                                     <b>
-                                        {sessionStorage.getItem("Google-language")?.includes("Chinese") || sessionStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
                                     </b>
                                 </div>
                                 <div className="row d-flex">
