@@ -10,12 +10,9 @@ import loadingGif from './loading.gif'; // Assuming it's in the same directory
 import { useUserContext } from "../context/userContext";
 
 const GoogleVisionDemo = ({ reload, store, setFoods }) => {
-  const [imageUrl, setImageUrl] = useState('');
-  const [extractedText, setExtractedText] = useState('');
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   const [uploadStatus, setUploadStatus] = useState('idle');  // Possible values: 'idle', 'loading', 'success'
-  const { user, user_loading } = useUserContext();
 
 
   useEffect(() => {
@@ -23,69 +20,22 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
   }, []);
   const GOOGLE_CLOUD_VISION_API_KEY = 'AIzaSyCw8WmZfhBIuYJVw34gTE6LlEfOE0e1Dqo';
 
-  const handleImageChange = (e) => {
-    setImageUrl(e.target.value);
-  };
-  async function translate(text) {
-    const apiKey = 'AIzaSyCw8WmZfhBIuYJVw34gTE6LlEfOE0e1Dqo';  // Your API Key
-
-    const apiUrl = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`;
-
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        q: text,
-        target: 'zh-CN',
-        format: 'text'
-      })
-    });
-
-    const data = await response.json();
-    if (data.error) {
-      throw new Error(data.error.message);
-    }
-
-    return data.data.translations[0].translatedText;
-  }
-
-  const generateOnePicForArray = async (jsonArray) => {
+  const generateJSON = async (ocr_scan, url, LanMode, imgBool) => {
     try {
-      const myFunction = firebase.functions().httpsCallable('generateOnePicForArray');
-      const result = await myFunction(jsonArray);
-      return result.data.result
-      //console.log(result.data.result)
-    } catch (error) {
-      //return []
-    }
-  };
-
-  const formJson = async (pic_name) => {
-    //console.log(isGenChi)
-    //console.log(pic_name)
-    try {
-      const myFunction = firebase.functions().httpsCallable('format_text');
-      return await myFunction(pic_name)
-    } catch (error) {
-      //return []
-    }
-  };
-  function stringToJson(str) {
-    const items = str.split(' N: ');
-    const result = [];
-
-    for (let i = 1; i < items.length; i++) {
-      const parts = items[i].split(' C: ');
-      result.push({
-        name: parts[0],
-        category: parts[1]
+      const myFunction = firebase.functions().httpsCallable('generateJSON');
+      const response = await myFunction({
+        url,
+        ocr_scan,
+        LanMode,
+        imgBool,
       });
+      //console.log(response.data.result)
+      setUploadStatus('success')
+      return response.data.result
+    } catch (error) {
+      //return []
     }
-
-    return result;
-  }
+  };
 
   const extractTextFromImage = async (img) => {
     const response = await fetch('https://vision.googleapis.com/v1/images:annotate?key=' + GOOGLE_CLOUD_VISION_API_KEY, {
@@ -108,59 +58,14 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
     const data = await response.json();
     if (data.responses && data.responses[0] && data.responses[0].textAnnotations) {
       const extractedTextData = data.responses[0].textAnnotations[0].description;
-      console.log(extractedTextData.replace(/[\s\r\n]+/g, ' '))
-      const result = await formJson(extractedTextData.replace(/[\s\r\n]+/g, ' '))
-      console.log(result.data.replace(/[\s\r\n]+/g, ' '))
-      setExtractedText(result.data.replace(/[\s\r\n]+/g, ' '));
-      const jsonOutput = stringToJson(result.data.replace(/[\s\r\n]+/g, ' '));
-      console.log(jsonOutput)
-      translate(jsonOutput.map(item => item.name).join('@')).then(async (translatedText) => { // Mark this function as async
-        const translatedNames = translatedText.split('@');
-
-        const translatedMenuItems = jsonOutput.map((item, index) => ({
-          ...item,
-          CHI: translatedNames[index]
-        }));
-
-        console.log(translatedMenuItems);
-        const jsonWithImage = await generateOnePicForArray(translatedMenuItems); // This is now inside an async function
-        console.log(jsonWithImage);
-
-        const generatedUUIDs = new Set(); // To keep track of generated UUIDs and ensure uniqueness
-
-        jsonWithImage.forEach((item) => {
-          let id;
-          do {
-            id = uuidv4();
-          } while (generatedUUIDs.has(id));
-
-          generatedUUIDs.add(id);
-
-          item.id = id;
-          item.subtotal = 1;
-          item.attributes = [];
-          item.attributes2 = [];
-          item.attributesArr = {};
-          item.availability = ['Morning', 'Afternoon', 'Evening'];
-        });
-        const mergedArray = jsonWithImage.concat(JSON.parse(localStorage.getItem(store)));
-
-        //localStorage.setItem(store, JSON.stringify(mergedArray))
-        //setFoods(mergedArray)
-        console.log(mergedArray);
-        //setPreviewUrl(img)
-        reload(mergedArray)
-        setUploadStatus('success');
-        saveId(Math.random());
-
-      });
-
-    } else {
-      console.error("Unexpected API response:", data);
+      let scann_json = await generateJSON(extractedTextData.replace(/[\s\r\n]+/g, ' '), img, "other", "no")
+      const mergedArray = scann_json.concat(JSON.parse(localStorage.getItem(store)))
+      reload(mergedArray)
     }
 
+    //console.log(await generateJSON())
+
   };
-  const [previewUrl, setPreviewUrl] = useState("")
   const handleFileChangeAndUpload = async (event) => {
     console.log("scanning")
     const selectedFile = event.target.files[0];
@@ -169,23 +74,6 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
       return;
     }
     setUploadStatus('loading');
-
-    // setPreviewUrl("https://img.zcool.cn/community/012d625a55b18da80120121f12e55d.gif")
-
-    // 压缩选项
-    const options = {
-      maxSizeMB: 1, // 最大输出文件大小
-      maxWidthOrHeight: 1920, // 最大输出图片尺寸
-      useWebWorker: true
-    };
-
-    try {
-      const selectedFile = await imageCompression(selectedFile, options);
-      // 你可以在这里上传或保存压缩后的文件
-      console.log('压缩后的图片大小:', selectedFile.size / 1024 / 1024, 'MB');
-    } catch (error) {
-      console.error('图片压缩失败:', error);
-    }
 
     // Show a preview of the selected file
 
@@ -201,19 +89,8 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
       const data = await response.json();
 
       if (data.success) {
-        //console.log(data.result.variants[0])
-        //setPreviewUrl(data.result.variants[0])
-        //setPreviewUrl("https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExcW9lZDRyMG9tdGw2a3B5cDVrNWpneWJhOHJuaHZvcW9kNTUydDU5cSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oEjI6SIIHBdRxXI40/giphy.gif")
-        //setUploadStatus('loading');
-
-        setImageUrl(data.result.variants[0])
+        console.log(data.result.variants[0])
         extractTextFromImage(data.result.variants[0])
-        //setUploadStatus('success');
-
-        //setInputData({ ...inputData, image: data.result.variants[0] })
-        //console.log(item)
-        //updateItem(item.id, { ...inputData, image: data.result.variants[0] })
-        //setUploadStatus('Image uploaded successfully.');
       } else {
         //setUploadStatus(`Failed to upload image: ${JSON.stringify(data.errors)}`);
       }

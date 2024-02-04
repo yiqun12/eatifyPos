@@ -41,6 +41,22 @@ const customMarkerIcon = L.icon({
 });
 
 const Food = () => {
+  const [divHeight, setDivHeight] = useState('calc(100vh - 100px)');
+
+  useEffect(() => {
+    const updateHeight = () => {
+      const screenHeight = window.innerHeight;
+      const newHeight = `${screenHeight - 100}px`;
+      setDivHeight(newHeight);
+    };
+
+    // Call updateHeight on mount and add resize event listener
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+
+    // Cleanup event listener on component unmount
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
   const position = [40.597826, -73.992173]; // Latitude and longitude for 168 28th Avenue, Brooklyn, NY 11214
 
   //const params = new URLSearchParams(window.location.search);
@@ -354,12 +370,12 @@ const Food = () => {
       data.filter((item) => {
         // Convert the item's CHI to Pinyin
         const pinyinCHI = convertToPinyin(item.CHI).toLowerCase();
-    
+
         // Check if the input CHI matches either the original CHI or its Pinyin
         return item.CHI.includes(CHI) || pinyinCHI.includes(CHI.toLowerCase());
       })
     );
-    
+
   }
   const [input, setInput] = useState("");
 
@@ -644,7 +660,12 @@ const Food = () => {
             <div className="relative w-full max-w-2xl max-h-full ">
               <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
                 <div className='flex justify-between'>
-                  <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg" src={selectedFoodItem.image} alt={selectedFoodItem.name} />
+                  {selectedFoodItem.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
+                    <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg" src={selectedFoodItem.image} alt={selectedFoodItem.name} />
+                    :
+                    <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg" src={'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/AAAAAgBAQEPkHIxAAAAAElFTkSuQmCC'} alt="White placeholder" />
+
+                  }
                 </div>
                 <div className='p-4 pt-3'>
                   <div>
@@ -792,8 +813,10 @@ const Food = () => {
             </div>
           </div>
         )}
-
-        <div className='m-auto px-4 '>
+        <div className='m-auto px-4 flex-grow-1 overflow-y-auto' style={{
+          backgroundColor: 'white', // Set the background color to white
+          height: divHeight, // Use the dynamically calculated height
+        }}>
           <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
             {/* Filter Type */}
             <div className='Type' >
@@ -832,7 +855,7 @@ const Food = () => {
               </div>
 
               {/* end of the top */}
-              <div ref={scrollingWrapperRef} className="mt-2 scrolling-wrapper-filter mb-0">
+              <div ref={scrollingWrapperRef} className={`mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''} mb-0`}>
 
                 <button onClick={() => {
                   setFoods(data)
@@ -937,6 +960,7 @@ const Food = () => {
                               <p style={{ marginBottom: "0" }}>
                                 <span>
                                   ${item.subtotal}
+
                                 </span>
                               </p>
 
@@ -991,8 +1015,12 @@ const Food = () => {
                             </button>
                           </div>
                         </div>
+                        {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
+                          <img loading="lazy" class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={item.image} />
+                          :
+                          <img class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/AAAAAgBAQEPkHIxAAAAAElFTkSuQmCC'} alt="White placeholder" />
 
-                        <img loading="lazy" class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={item.image} />
+                        }
                       </div>
 
                     </div>

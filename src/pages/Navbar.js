@@ -216,7 +216,7 @@ const Navbar = () => {
   const queryParams = new URLSearchParams(location.search);
 
   const storeFromURL_modal = params.get('modal') ? params.get('modal').toLowerCase() : "";
-  const [openModal2, setOpenModal2] = useState(storeFromURL_modal==='true');
+  const [openModal2, setOpenModal2] = useState(storeFromURL_modal === 'true');
 
   useEffect(() => {
     // Get the modal
@@ -273,7 +273,7 @@ const Navbar = () => {
       return text
     }
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")])
-  
+
   if (localStorage.getItem("Google-language") && localStorage.getItem("Google-language") !== null) {
   } else {
     localStorage.setItem("Google-language", "Select Language");
@@ -370,7 +370,7 @@ const Navbar = () => {
               </div>
               <div className="modal-footer" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                 <OrderHasReceived />
-                <Receipt/>
+                <Receipt />
               </div>
             </div>
           </div>
@@ -517,9 +517,9 @@ const Navbar = () => {
         </div>
       </div>
       {/**navbar */}
-      <div className={"mx-auto sticky top-0 bg-white z-10"}>
-        <div className={!isMobile ? "mx-auto justify-between sticky top-0 bg-white z-10" : "sticky top-0 z-10 justify-between bg-white"}>
-
+      <div className={`pb-2 sticky top-0 z-20 bg-white ${!isMobile ? "mx-auto justify-between" : "justify-between"}`}>
+        <div >
+          {/* Your navbar content here */}
           <div className="col-span-4 pl-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
             <img
               onClick={event => {
@@ -555,10 +555,33 @@ const Navbar = () => {
 
             </div>
 
-            <div className='flex ml-auto pr-4'>
-              <div id="google_translate_element"></div>
+            <div className='flex ml-auto pr-4 '>
+              <div className='mt-1' id="google_translate_element"></div>
 
 
+
+
+              {((location.pathname.includes('/store')) || (location.pathname.includes('/Checkout'))) && (
+
+                <button
+                  className="ml-3"
+                  onClick={() => setOpenModal2(true)}
+                  style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
+                >
+                  <i className="bi bi-file-earmark-text"></i>
+                  {"Notes"}
+                </button>
+              )}
+              {((location.pathname.includes('/store') && !isMobile)) && (
+                <button
+                  className="ml-3"
+                  onClick={openModal}
+                  style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
+                >
+                  <i className="bi bi-cart"></i>
+                  {"Shopping Cart"}
+                </button>
+              )}
               {!user_loading ?
                 <button className="ml-3" onClick={event => {
                   if (storeFromURL !== '' && storeFromURL !== null) {
@@ -566,31 +589,10 @@ const Navbar = () => {
                   } else {
                     window.location.href = '/account';
                   }
-                }} style={{ 'cursor': "pointer", 'top': '-10px', fontSize: "16px" }}> <i className="bi bi-person"></i> {user ? "Account" : "Login"}</button>
+                }} style={{ 'cursor': "pointer", 'top': '-10px', fontSize: "20px" }}> <i className="bi bi-person"></i> {user ? "Account" : "Login"}</button>
                 :
                 <div>
                 </div>}
-              {((location.pathname.includes('/store') && !isMobile)) && (
-                <button
-                  className="ml-3"
-                  onClick={openModal}
-                  style={{ cursor: "pointer", top: '-10px', fontSize: "16px" }}
-                >
-                  <i className="bi bi-cart"></i>
-                  {"Shopping Cart"}
-                </button>
-              )}
-              {((location.pathname.includes('/store')) || (location.pathname.includes('/Checkout'))) && (
-
-                <button
-                  className="ml-3"
-                  onClick={() => setOpenModal2(true)}
-                  style={{ cursor: "pointer", top: '-10px', fontSize: "16px" }}
-                >
-                  <i className="bi bi-file-earmark-text"></i>
-                  {"Notes"}
-                </button>
-              )}
             </div>
 
           </div>

@@ -26,7 +26,7 @@ function convertToPinyin(text) {
   }).join('');
 }
 
-const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
+const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable }) => {
   //const params = new URLSearchParams(window.location.search);
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
@@ -359,8 +359,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
     color: 'black',
   };
   const { user, user_loading } = useUserContext();
-
-  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI, item) => {
+  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI, item, availability, attributesArr) => {
 
     // Check if the array exists in local storage
     if (localStorage.getItem(store + "-" + selectedTable) === null) {
@@ -395,9 +394,11 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
       product.count = count;
       product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100;
       product.CHI = CHI;
+      product.availability = availability
+      product.attributesArr = attributesArr
     } else {
       // If the product doesn't exist, add it to the array
-      products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: Math.round(100 * subtotal) / 100, CHI: CHI });
+      products?.unshift({ attributesArr: attributesArr, availability: availability, id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: Math.round(100 * subtotal) / 100, CHI: CHI });
     }
     //product.itemTotalPrice= Math.round(100 *((parseFloat(totalPrice)+parseFloat(product.subtotal))*parseFloat(product.quantity))/ 100)
     console.log(product)
@@ -408,12 +409,8 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
       SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
       return;
     }
-    if (!isAllowed && Object.keys(item?.attributesArr).length === 0) {
-      console.log("groupup since no modal")
-      SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(products)));
-    } else {
-      SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
-    }
+    SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(products)));
+
 
   };
 
@@ -601,18 +598,34 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
   const [selectedFoodItem, setSelectedFoodItem] = useState('')
   const [isOpen, setIsOpen] = useState(false);
   const [isModalVisible, setModalVisibility] = useState(false);
+  //const [isModalVisible, setModalVisibility] = useState(false);
+
+  useEffect(() => {
+    // Place your side-effect logic here.
+    // For example, if OpenChangeAttributeModal is a function you want to call:
+    if (OpenChangeAttributeModal === false) {
+      //close
+    } else {
+      showModal(OpenChangeAttributeModal)
+      //open
+    }
+
+  }, [OpenChangeAttributeModal]); // An empty dependency array means this effect runs once after the initial render
 
   // Function to show the modal
   const showModal = (item) => {
     const randomNum = uuidv4()
+    console.log("bbbbbbbbb", JSON.stringify(item))
+    setSelectedFoodItem(item);
     setCount(randomNum);  // Increment the count every time the modal is opened
-    setModalVisibility(true);
     setSelectedAttributes({})
     setTotalPrice(0);
 
-    addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI)
+    addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, null, item.availability, item.attributesArr)
+    setModalVisibility(true);
     saveId(Math.random());
     console.log("hello")
+
     //const [selectedAttributes, setSelectedAttributes] = useState({});
     //const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
 
@@ -630,7 +643,6 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
     saveId(Math.random)
 
   }
-  // const items = [{"id":"9ee84ddc-c91f-47ec-981b-1c5680550837","name":"Garlic A Choy","subtotal":"15","image":"https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500","quantity":2,"attributeSelected":{},"count":"7577acd2-6043-40b3-8f3e-b2245e117759","itemTotalPrice":30,"CHI":"蒜蓉A菜"},{"id":"7779910e-aecc-4e12-9308-a12e9c75f220","name":"Cured Cauliflower","subtotal":"18","image":"https://img0.baidu.com/it/u=1543862718,2735009707&fm=253&fmt=auto&app=138&f=JPEG?w=780&h=496","quantity":3,"attributeSelected":{},"count":"3e13f231-775c-4ae6-9cb3-a7904a1a51b7","itemTotalPrice":54,"CHI":"腊味菜花"},{"id":"9ee84ddc-c91f-47ec-981b-1c5680550837","name":"Garlic A Choy","subtotal":"15","image":"https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500","quantity":2,"attributeSelected":{},"count":"21f3984b-bd96-4920-b862-9a8a8aa7624a","itemTotalPrice":30,"CHI":"蒜蓉A菜"},{"id":"9ee84ddc-c91f-47ec-981b-1c5680550837","name":"Garlic A Choy","subtotal":"15","image":"https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500","quantity":3,"attributeSelected":{},"count":"65503f52-55f9-4264-b2d1-089bf47d0738","itemTotalPrice":45,"CHI":"蒜蓉A菜"},{"id":"9ee84ddc-c91f-47ec-981b-1c5680550837","name":"Garlic A Choy","subtotal":"15","image":"https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500","quantity":1,"attributeSelected":{},"count":"e0ee934c-15db-4242-a636-c692182ced07","itemTotalPrice":15,"CHI":"蒜蓉A菜"},{"id":"7779910e-aecc-4e12-9308-a12e9c75f220","name":"Cured Cauliflower","subtotal":"18","image":"https://img0.baidu.com/it/u=1543862718,2735009707&fm=253&fmt=auto&app=138&f=JPEG?w=780&h=496","quantity":1,"attributeSelected":{},"count":"5e21f1a8-0aa5-40a3-8281-6f7b4b9e2280","itemTotalPrice":18,"CHI":"腊味菜花"},{"id":"9ee84ddc-c91f-47ec-981b-1c5680550837","name":"Garlic A Choy","subtotal":"15","image":"https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500","quantity":6,"attributeSelected":{},"count":"6db0387e-e5ae-454a-9b50-e2a3a9bca630","itemTotalPrice":90,"CHI":"蒜蓉A菜"}] ;
   // const groupedItems = groupAndSumItems(items);
   // console.log("groupedItems:")
   // console.log(groupedItems);
@@ -740,7 +752,26 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
       //alert('No custom variants to remove');
     }
   };
+  const [dynamicHeight, setDynamicHeight] = useState('55vh');
 
+  useEffect(() => {
+    // Function to calculate the dynamic height
+    const updateHeight = () => {
+      if (scrollingWrapperRef.current) {
+        const wrapperHeight = scrollingWrapperRef.current.offsetHeight; // Get the height of the scrolling wrapper
+        const viewportHeight = window.innerHeight; // Get the viewport height
+        const dynamicHeightValue = `calc(55vh - ${wrapperHeight}px)`; // Calculate the dynamic height
+        setDynamicHeight(dynamicHeightValue); // Set the dynamic height
+      }
+    };
+
+    // Call updateHeight initially and also on window resize
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+
+    // Cleanup function to remove the event listener
+    return () => window.removeEventListener('resize', updateHeight);
+  }, [scrollingWrapperRef, isMobile]); // Add isMobile to the dependency array if the layout changes with it
 
   if (false) {
     return <p>  <div className="pan-loader">
@@ -808,12 +839,12 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
 
 
 
-                  {Object.keys(selectedFoodItem.attributesArr).length > 0 && (
+                  {Object.keys(selectedFoodItem?.attributesArr).length > 0 && (
                     <div>
                       Select your add-ons: (Items in green means already selected)
                     </div>
                   )}
-                  {Object.entries(selectedFoodItem.attributesArr).map(([attributeName, attributeDetails]) => (
+                  {Object.entries(selectedFoodItem?.attributesArr).map(([attributeName, attributeDetails]) => (
 
                     <div key={attributeName}>
                       <p className="mb-1">
@@ -870,7 +901,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
 
 
                     <span class="text-lg notranslate">
-                      ${Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100}
+                      ${(Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100).toFixed(2)}
                     </span>
                     {priceError}
 
@@ -897,7 +928,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                             <button
                               className="btn btn-secondary"
                               onClick={() => {
-                                addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count, selectedFoodItem.CHI);
+                                addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count, selectedFoodItem.CHI, null, selectedFoodItem.availability, selectedFoodItem.attributesArr);
                                 saveId(Math.random());
                               }}
                             >
@@ -1011,9 +1042,9 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
           <AnimatePresence>
             <div className='grid grid-cols-1 gap-3 pt-2 ' style={{
               gridTemplateRows: `repeat(1, 1fr)`,
-              gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+              gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
               overflowY: 'auto',
-              maxHeight: '600px'
+              maxHeight: dynamicHeight
             }}>
               {foods.map((item, index) => (
                 <motion.div
@@ -1029,13 +1060,12 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
 
                       if (Object.keys(item.attributesArr).length > 0) {
                         showModal(item);
-                        setSelectedFoodItem(item);
                       } else {
                         const randomNum = uuidv4()
                         setCount(randomNum);  // Increment the count every time the modal is opened
                         setSelectedAttributes({})
                         setTotalPrice(0);
-                        addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item)
+                        addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item, item.availability, item.attributesArr)
                         //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
                         //console.log("helllllllllllllllllllllllllllllllllllllo")
                         //console.log(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable))))
@@ -1043,7 +1073,7 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                       }
                     } else {
                       showModal(item);
-                      setSelectedFoodItem(item);
+
                     }
                   }}
 
@@ -1076,8 +1106,8 @@ const Food = ({ setIsAllowed, isAllowed, store, selectedTable }) => {
                             alignItems: "center"
                           }}>
                             <p style={{ marginBottom: "0" }}>
-                              <span>
-                                ${item.subtotal}
+                              <span className='notranslate'>
+                                ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}
                               </span>
                             </p>
 

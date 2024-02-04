@@ -40,7 +40,7 @@ import { isMobile } from 'react-device-detect';
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faExclamation } from '@fortawesome/free-solid-svg-icons'; // Import the exclamation mark icon
 
-const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal }) => {
+const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal,setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   const { user, user_loading } = useUserContext();
 
@@ -91,7 +91,9 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       console.error("Error adding document: ", error);
     }
   };
-
+  function stringTofixed(n) {
+    return (Math.round(n * 100) / 100).toFixed(2)
+  }
 
   useEffect(() => {
     // Calculate the height of the shopping cart based on the number of products
@@ -405,10 +407,6 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     }
   }
 
-
-
-
-
   const OpenCashDraw = async () => {
     try {
       const dateTime = new Date().toISOString();
@@ -429,6 +427,14 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
+        setProducts([]);
+        setExtra(0)
+        setInputValue("")
+        setDiscount("")
+        setTips("")
+        return
+      }
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
         amount: Math.round(Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100 * 100),
         amount_capturable: 0,
@@ -497,7 +503,8 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
       setInputValue("")
       setDiscount("")
       setTips("")
-
+      localStorage.setItem(store + "-" + selectedTable, "[]")
+      localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
       SetTableInfo(store + "-" + selectedTable, "[]")
       SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]")
       //localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
@@ -511,6 +518,14 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     let extra_tip = 0
     if (extra !== null) {
       extra_tip = Math.round(extra * 100) / 100
+    }
+    if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
+      setProducts([]);
+      setExtra(0)
+      setInputValue("")
+      setDiscount("")
+      setTips("")
+      return
     }
     try {
       const dateTime = new Date().toISOString();
@@ -876,7 +891,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
     <div>
       <div class=''>
         <div className="flex w-full">
-          <div style={{ overflowY: 'auto', maxHeight: '700px' }} className={`flex-grow  ${!isMobile ? 'm-6' : 'm-2'}`}>
+          <div style={{ overflowY: 'auto', maxHeight: '800px' }} className={`flex-grow  ${!isMobile ? 'm-6' : 'm-2'}`}>
             {(Array.isArray(products) ? products : []).map((product) => (
               // the parent div
               // can make the parent div flexbox
@@ -907,8 +922,8 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                     style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
                     <div>
                       <div className={`${!isMobile ? 'text-lg' : ''} notranslate`}>
-
-                        ${product.itemTotalPrice}
+                        ${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}
+                        <button className='btn btn-danger' onClick={()=>{setOpenChangeAttributeModal(product)}}>hello</button>
                       </div>
 
                     </div>
@@ -1104,20 +1119,20 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
               <span>{t("Cash Pay")}</span>
             </a>
 
-            <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Subtotal: <span className='notranslate'>${Math.round(100 * totalPrice) / 100}</span> </div>
+            <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Subtotal: <span className='notranslate'>${stringTofixed(Math.round(100 * totalPrice) / 100)}</span> </div>
 
             {discount && (
-              <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Discount: <span className='notranslate'>-${discount} </span></div>
+              <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Discount: <span className='notranslate'>-${stringTofixed(discount)} </span></div>
             )}
 
             {tips && (
-              <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Service Fee: <span className='notranslate'>${tips}</span> </div>
+              <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Service Fee: <span className='notranslate'>${stringTofixed(tips)}</span> </div>
             )}
             {(extra !== null && extra !== 0) && (
-              <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Gratuity: <span className='notranslate'>{Math.round((extra) * 100) / 100} </span></div>
+              <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Gratuity: <span className='notranslate'>${stringTofixed(Math.round((extra) * 100) / 100)}</span></div>
             )}
-            <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Tax(8.25%): <span className='notranslate'>${(Math.round(100 * totalPrice * 0.0825) / 100)}</span>    </div>
-            <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Total Amount: <span className='notranslate'>${finalPrice}</span> </div>
+            <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Tax(8.25%): <span className='notranslate'>${stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))}</span>    </div>
+            <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Total Amount: <span className='notranslate'>${stringTofixed(finalPrice)}</span> </div>
           </div>
         </div>
         <div>
@@ -1284,13 +1299,13 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                     </button>
                   </div>
                   <div className="modal-body pt-0">
-                   <div>Empty Dining Desk(s):</div>
+                    <div>Empty Dining Desk(s):</div>
                     {arrEmpty.map((option) => (
 
                       <button
                         type="button"
                         className="btn btn-primary mb-2 mr-2 notranslate"
-                        onClick={() => { mergeProduct(option) }}
+                        onClick={() => { mergeProduct(option); setChangeTableModal(false); }}
                         style={{ backgroundColor: '#966f33' }}
                       >
                         {option}
@@ -1304,7 +1319,7 @@ const Navbar = ({ setIsAllowed, isAllowed, store, selectedTable, acct, openSplit
                       <button
                         type="button"
                         className="btn btn-primary mb-2 mr-2 notranslate"
-                        onClick={() => { mergeProduct(option) }}
+                        onClick={() => { mergeProduct(option); setChangeTableModal(false); }}
                       >
                         {option}
                       </button>

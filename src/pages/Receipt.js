@@ -41,7 +41,6 @@ const Item = () => {
         const docRef = db.collection('TitleLogoNameContent').doc(payment_data.store);
         const doc = await docRef.get();
         if (doc.exists) {
-          console.log("12333333333")
           console.log(doc.data().Name)
           if (localStorage.getItem("Google-language")?.includes("中") || localStorage.getItem("Google-language")?.includes("Chinese")) {
             setDocumentData(doc.data().storeNameCHI);

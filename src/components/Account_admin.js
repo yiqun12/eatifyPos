@@ -288,7 +288,16 @@ const Account = () => {
   ]);
   const epochDate = parseDate(format12Oclock((new Date("2023-11-30T00:00:00")).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })));
   const [startDate, setStartDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
-  const [endDate, setEndDate] = useState(null);
+  const [endDate, setEndDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
+  useEffect(() => {
+    // Ensure endDate is defined and startDate is before endDate
+    if (endDate && startDate < endDate) {
+      setShowChart(true);
+    } else {
+      setShowChart(false);
+    }
+  }, [startDate, endDate]); // Depend on both startDate and endDate
+
   // useEffect(() => {
   //   getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
   // }, []);
@@ -379,6 +388,7 @@ const Account = () => {
   const moment = require('moment');
   const [storelist, setStorelist] = useState([]);
   // console.log(orders)
+
   function subtractHours(dateStr, hours) {
     let parts = dateStr.split('-');
     let date = new Date(parts[0], parts[1] - 1, parts[2], parts[3], parts[4], parts[5]);
@@ -599,7 +609,9 @@ const Account = () => {
 
   const dateNow = (new Date().getMonth() + 1).toString().padStart(2, '0') + '/' + new Date().getDate().toString().padStart(2, '0') + '/' + new Date().getFullYear()
   // Existing state for the selected date
-  const [showChart, setShowChart] = useState(true);
+  const [showChart, setShowChart] = useState(false);
+
+
 
   const COLORS = ['#0088FE', '#00C49F', '#FF8042', '#FFCC33'];
 
@@ -800,7 +812,44 @@ const Account = () => {
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
+  const [previousHash, setPreviousHash] = useState(window.location.hash);
+  const [alertModal, setAlertModal] = useState(false);
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      const currentHash = window.location.hash;
+
+      // Check if the previous hash was '#cards' and the current hash is different
+      if (previousHash.includes('#book') && currentHash !== '#book') {
+        setAlertModal(true)
+        //alert('You have navigated away from #book');
+      }
+
+      // Update the previous hash state
+      setPreviousHash(currentHash);
+    };
+
+    // Add event listener for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, [previousHash, storeID]);
+
+  const updateKey = async () => {
+    console.log("updateKey");
+    // Reference to the specific document
+    const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID);
+
+    // Update the 'key' field to the value retrieved from localStorage
+    await updateDoc(docRef, {
+      key: localStorage.getItem(storeID)
+    });
+    alert("Saved Successful");
+
+  };
 
   // for the hashtage # check in URL and then redirect to correct location
   useEffect(() => {
@@ -839,6 +888,7 @@ const Account = () => {
           break;
         case '#code':
           redirectCode(partAfterQuestionMark);
+          //setIsVisible(false)
           break;
         case '#cards':
           redirectCards(partAfterQuestionMark);
@@ -879,7 +929,6 @@ const Account = () => {
 
     // these redirects are to simulate the click of the 6 tab options of each store
     function redirectPerson() {
-
       setShowSection('')
     }
 
@@ -1192,7 +1241,22 @@ const Account = () => {
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
   };
+  const [divHeight, setDivHeight] = useState('calc(100vh - 100px)');
 
+  useEffect(() => {
+    const updateHeight = () => {
+      const screenHeight = window.innerHeight;
+      const newHeight = `${screenHeight - 100}px`;
+      setDivHeight(newHeight);
+    };
+
+    // Call updateHeight on mount and add resize event listener
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+
+    // Cleanup event listener on component unmount
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
   function deleteDocument(docId) {
     firebase
       .firestore()
@@ -1307,7 +1371,20 @@ const Account = () => {
 
   const [order_status, setOrder_status] = useState("");
   const [order_table, setOrder_table] = useState("");
-
+  const OpenCashDraw = async () => {
+    try {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "OpenCashDraw"), {
+        date: date,
+        data: [],
+        selectedTable: 'Cash Drawer'
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
 
   return (
     <div>
@@ -1322,23 +1399,259 @@ const Account = () => {
           @import url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.4.0/font/bootstrap-icons.min.css");
         `}
         </style>
-        &nbsp;
+        {isSplitPaymentModalOpen && (
+          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+
+            <div style={{
+              position: 'fixed',
+              zIndex: 1000,
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: '#fff',
+              boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
+              border: 'none',
+              borderRadius: '15px',
+              padding: '40px',
+              boxSizing: 'border-box',
+              maxWidth: '500px',
+              width: '80%'
+            }}>
+              <div style={{
+                marginBottom: '30px',
+                textAlign: 'center',
+                fontSize: '20px',
+                fontWeight: 'bold',
+                color: '#333'
+              }}>
+                Add Extra Gratuity
+              </div>
+              <label htmlFor="tipAmount" style={{
+                marginRight: '10px',
+                marginBottom: '10px',
+                fontSize: '17px',
+                fontWeight: '500',
+                color: '#555'
+              }}>Gratuity Amount:</label>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                marginBottom: '30px'
+              }}>
+
+                <input
+                  type="number"
+                  id="tipAmount"
+                  name="tipAmount"
+                  value={tipAmount}
+                  onChange={handleTipChange}
+                  min="0"
+                  style={{
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    borderRadius: '6px',
+                    width: '100%',
+                    fontSize: '16px'
+                  }}
+                />
+                <div className="flex justify-between mt-4 w-100">
+                  <button onClick={() => { setTipAmount(roundToTwoDecimals(roundToTwoDecimals(modalSubtotal) * 0.15)) }} style={{
+                    background: 'purple',
+                    color: 'white',
+                    border: 'none',
+                    padding: '10px 0',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    width: '32%',
+                    fontSize: '16px',
+                    fontWeight: '500'
+                  }}>
+                    15%
+                  </button>
+                  <button onClick={() => { setTipAmount(roundToTwoDecimals(roundToTwoDecimals(modalSubtotal) * 0.18)) }} style={{
+                    background: 'purple',
+                    color: 'white',
+                    border: 'none',
+                    padding: '10px 0',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    width: '32%',
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    margin: '0 4%'
+                  }}>
+                    18%
+                  </button>
+                  <button onClick={() => { setTipAmount(roundToTwoDecimals(roundToTwoDecimals(modalSubtotal) * 0.20)) }} style={{
+                    background: 'purple',
+                    color: 'white',
+                    border: 'none',
+                    padding: '10px 0',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    width: '32%',
+                    fontSize: '16px',
+                    fontWeight: '500'
+                  }}>
+                    20%
+                  </button>
+                </div>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between'
+              }}>
+                <button
+                  onClick={() => {
+                    setTipAmount('');
+                    setSplitPaymentModalOpen(false);
+                  }} style={{
+                    background: '#f44336', // Red background for cancel
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleConfirm()}
+                  style={{
+                    background: '#4CAF50', // Green background for confirm
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    fontWeight: '500'
+                  }}>
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+
+        )}
+        {alertModal && (
+          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+
+            <div style={{
+              position: 'fixed',
+              zIndex: 1000,
+              top: '30%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: '#fff',
+              boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
+              border: 'none',
+              borderRadius: '15px',
+              padding: '40px',
+              boxSizing: 'border-box',
+              maxWidth: '500px',
+              width: '80%'
+            }}>
+              <div style={{
+                marginBottom: '30px',
+                textAlign: 'center',
+                fontSize: '28px',
+                fontWeight: '600',
+                color: '#333'
+              }}>
+                Warning from Menu Settings:
+              </div>
+              <div style={{
+                fontSize: '20px',
+                textAlign: 'center',
+                marginBottom: '40px',
+                color: '#555',
+                lineHeight: '1.5'
+              }}>
+                You may have unsaved changes in the Menu Settings. Do you want to save your changes?
+              </div>
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+              }}>
+                <button
+                  onClick={() => { setAlertModal(false) }}
+                  style={{
+                    background: '#f44336', // Red background for cancel
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Discard Changes
+                </button>
+                <button
+                  onClick={() => { setAlertModal(false); updateKey() }}
+                  style={{
+                    background: '#4CAF50', // Green background for confirm
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    fontWeight: '500'
+                  }}>
+                  Save Changes
+                </button>
+              </div>
+            </div>
+
+          </div>
+        )}
         {isPC ?
-          <button onClick={toggleVisibility}>
-            {isVisible ? <div>
+          <div className="d-flex justify-content-between mx-3 ">
+            {/* <button onClick={toggleVisibility}>
+            {isVisible ? 
+            <div>
               <button>
-                <i class="bi bi-backspace"> Hide Side Menu </i>
+                <i class="bi bi-backspace">  </i>
+                Hide Side Menu
               </button>
+              
             </div> :
 
               <div>
 
                 <button>
-                  <i class="bi bi-bookmarks"> Open Side Menu </i>
+                  <i class="bi bi-bookmarks">  </i>
+                  Open Side Menu
                 </button>
               </div>
             }
-          </button>
+          </button> */}
+            {/* {//
+              (previousHash.includes('#charts') && storeID !== '') || (previousHash.includes('#code') && storeID !== '') ?
+                <div>
+                  <button
+                    onClick={(e) => {
+                      OpenCashDraw()
+                    }}
+                    className="btn btn-sm btn-info mr-5">
+                    <i className="bi bi-cash-stack pe-2"></i>
+                    Open Cash Drawer
+                  </button>
+                </div>
+                :
+                null
+            } */}
+
+          </div>
           :
           <div></div>
         }
@@ -1347,10 +1660,9 @@ const Account = () => {
           {isVisible && (
             <div>
               {isPC ? <nav
-                style={{ minWidth: '180px' }}
-                className="navbar navbar-vertical show z-0 h-lg-screen navbar-expand-lg px-0 py-3 navbar-light bg-white border-bottom border-bottom-lg-0 border-end-lg"
+                className="navbar navbar-vertical show z-0 navbar-expand-lg px-0 py-3 navbar-light bg-white border-bottom border-bottom-lg-0 border-end-lg"
                 id="navbarVertical"
-
+                style={{ minWidth: '180px', height: divHeight }}
               >
 
                 <div className="container-fluid" style={{ minHeight: "0px" }}>
@@ -1359,7 +1671,12 @@ const Account = () => {
                     className={`mt-2 btn mr-2 ml-2 ${activeTab === '#profile' ? 'border-black' : ''}`}
                     onClick={(e) => {
                       handleTabClick(e, '#profile')
-                      setActiveStoreId("")
+                      setActiveStoreTab('');
+                      setShowSection('');
+                      setStoreName_('');
+                      setStoreID('');
+                      setActiveStoreId('')
+                      setStoreOpenTime('')
                       window.history.pushState({}, '', '/account');
                     }
                     }
@@ -1376,10 +1693,13 @@ const Account = () => {
                   <button
                     className={`mt-2 btn mr-2 ml-2 ${activeTab === '#Revenue_Chart' ? 'border-black' : ''}`}
                     onClick={(e) => {
+                      setActiveStoreTab('');
                       setShowSection('');
-                      handleTabClick(e, '#Revenue_Chart');
                       setStoreName_('');
+                      setStoreID('');
                       setActiveStoreId('')
+                      setStoreOpenTime('')
+                      setActiveTab('#profile')
                       window.location.hash = 'createStore'
 
                     }}
@@ -1428,28 +1748,12 @@ const Account = () => {
                                 <span style={{ marginLeft: "5%" }}>Daily Revenue</span>
                               </a>
                             </li>
-                            <li className={`nav-item p-0`}
-                              onClick={() => {
-                                setShowSection('menu')
-                                window.location.hash = `book?store=${data.id}`;
-                              }}
-                              style={{ width: "80%", margin: "auto" }}
-                            >
-                              <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`} style={{ border: "0px" }}>
-                                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-diagram-3" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
-                                  </svg>
-                                </i>
-                                <span style={{ marginLeft: "5%" }}>Menu Settings</span>
 
-                              </a>
-
-                            </li>
 
                             <li className={`nav-item p-0`} onClick={() => {
                               setShowSection('qrCode')
                               window.location.hash = `code?store=${data.id}`
+                              //setIsVisible(false)
                             }} style={{ width: "80%", margin: "auto" }}>
                               <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `qrCode` ? 'active' : ''}`} style={{ border: "0px" }}>
                                 <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
@@ -1460,6 +1764,7 @@ const Account = () => {
                                 <span style={{ marginLeft: "5%" }}>Dine In Ordering</span>
                               </a>
                             </li>
+
                             <li className={`nav-item p-0`}
                               onClick={() => {
                                 setShowSection('stripeCard')
@@ -1490,6 +1795,24 @@ const Account = () => {
                                 >
                                   {numberReviewVariable}
                                 </span> </span>
+                              </a>
+
+                            </li>
+                            <li className={`nav-item p-0`}
+                              onClick={() => {
+                                setShowSection('menu')
+                                window.location.hash = `book?store=${data.id}`;
+                              }}
+                              style={{ width: "80%", margin: "auto" }}
+                            >
+                              <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`} style={{ border: "0px" }}>
+                                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-diagram-3" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
+                                  </svg>
+                                </i>
+                                <span style={{ marginLeft: "5%" }}>Menu Settings</span>
+
                               </a>
 
                             </li>
@@ -1527,17 +1850,17 @@ const Account = () => {
 
 
                   <button
-                    className={`mt-2 btn mr-2 ml-2`}
+                    className={`btn btn-sm btn-danger d-flex align-items-center mx-1 mt-1 mb-2`}
                     onClick={(e) => {
                       logoutUser();
                       removeFromLocalStorage();
                     }
                     }
                   >
-                    <div style={{ alignItems: 'center', justifyContent: 'center' }}>
-                      <i className="bi bi-box-arrow-left"></i>
-
-                      {" Sign Out"}
+                    <div >
+                      <i className="bi bi-exclamation-triangle"></i>
+                      &#160;
+                      {"Sign Out"}
                     </div>
                   </button>
 
@@ -1546,8 +1869,9 @@ const Account = () => {
             </div>
           )}
 
-          <div className="h-screen flex-grow-1 overflow-y-lg-auto" style={{
+          <div className="flex-grow-1 overflow-y-auto" style={{
             backgroundColor: 'white', // Set the background color to white
+            height: divHeight, // Use the dynamically calculated height
           }}>
             {!isPC ?
               <header className="bg-surface-primary border-bottom pt-0">
@@ -1563,9 +1887,9 @@ const Account = () => {
                       <div className="text-sm-end">
                         <div className="mx-n1">
 
-                          <a className="btn d-inline-flex btn-sm btn-outline-primary mx-1">
+                          <a className="btn d-inline-flex btn-sm btn-outline-danger mx-1">
                             <span className="pe-2">
-                              <i className="bi bi-box-arrow-left"></i>
+                            <i className="bi bi-exclamation-triangle"></i>
                             </span>
                             <span
                               onClick={() => {
@@ -1619,10 +1943,13 @@ const Account = () => {
 
                       <a
                         onClick={(e) => {
+                          setActiveStoreTab('');
                           setShowSection('');
-                          handleTabClick(e, '#Revenue_Chart');
                           setStoreName_('');
+                          setStoreID('');
                           setActiveStoreId('')
+                          setStoreOpenTime('')
+                          setActiveTab('#profile')
                           window.location.hash = 'createStore'
                         }}
                         class="btn d-inline-flex btn-sm btn-primary mx-1">
@@ -1638,7 +1965,12 @@ const Account = () => {
                       <li className={`nav-item p-0`}
                         onClick={(e) => {
                           handleTabClick(e, '#profile')
-                          setActiveStoreId("")
+                          setActiveStoreTab('');
+                          setShowSection('');
+                          setStoreName_('');
+                          setStoreID('');
+                          setActiveStoreId('')
+                          setStoreOpenTime('')
                           window.history.pushState({}, '', '/account');
                         }
                         }
@@ -1672,22 +2004,7 @@ const Account = () => {
                             </a>
 
                           </li>
-                          <li className={`nav-item p-0`}
-                            onClick={() => {
-                              setShowSection('menu')
-                              window.location.hash = `book?store=${storeID}`;
-                            }}
 
-                          >
-                            <a className={`pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`}>
-                              <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{ fill: isPC ? 'white' : 'currentColor' }} class="bi bi-diagram-3" viewBox="0 0 16 16">
-                                  <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
-                                </svg>
-                              </i>
-                            </a>
-
-                          </li>
 
                           <li className={`nav-item p-0`} onClick={() => {
                             setShowSection('qrCode')
@@ -1711,6 +2028,22 @@ const Account = () => {
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{ fill: isPC ? 'white' : 'currentColor' }} class="bi bi-chat-right-dots" viewBox="0 0 16 16">
                                   <path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z" />
                                   <path d="M5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                </svg>
+                              </i>
+                            </a>
+
+                          </li>
+                          <li className={`nav-item p-0`}
+                            onClick={() => {
+                              setShowSection('menu')
+                              window.location.hash = `book?store=${storeID}`;
+                            }}
+
+                          >
+                            <a className={`pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`}>
+                              <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{ fill: isPC ? 'white' : 'currentColor' }} class="bi bi-diagram-3" viewBox="0 0 16 16">
+                                  <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
                                 </svg>
                               </i>
                             </a>
@@ -1749,7 +2082,7 @@ const Account = () => {
 
               <div id="card_element" style={{
                 backgroundColor: 'white', // Set the background color to white
-              }} className={`card-body tab-content pt-0`} ref={elementRef}>
+              }} className={`card-body tab-content pt-0 pb-0`} ref={elementRef}>
                 {user_loading ?
                   <div>
                     Loading...
@@ -1806,7 +2139,6 @@ const Account = () => {
                             <IframeDesk store={data.id} acct={data.stripe_store_acct}></IframeDesk>
 
                             {/* <QRCode value={"google.com"} /> */}
-                            <hr />
                           </div> : <div></div>
                           }
                           {showSection === 'stripeCard' ? <div>
@@ -2036,7 +2368,7 @@ const Account = () => {
                                       }} onClick={() => {
                                         setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
                                         if (endDate === null) {
-                                          setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                          setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
                                         } else {
                                           setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
                                         }
@@ -2064,7 +2396,7 @@ const Account = () => {
                                       }} onClick={() => {
                                         setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
                                         if (endDate === null) {
-                                          setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                          setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
                                         } else {
                                           setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
                                         }
@@ -2082,7 +2414,6 @@ const Account = () => {
 
                                   </div>
                                   <div style={{ fontWeight: 'bold' }}>Select Specific Month</div>
-
                                   <button className="mt-1 mb-1 notranslate" style={{
                                     border: '1px solid #ccc',
                                     padding: '2px 5px',
@@ -2101,6 +2432,7 @@ const Account = () => {
                                     {startDate ? format(startDate, "MM/yyyy") : "Month Year"}
 
                                   </button>
+
                                   <div ref={wrapperRef} style={{ position: 'relative' }}>
 
                                     {isPickerOpenStartDay && (
@@ -2177,7 +2509,7 @@ const Account = () => {
                                     </div>
                                   </div>
                                   <button
-                                    onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(null) }}
+                                    onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))) }}
                                     className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
                                   >
                                     <i className="bi bi-calendar-event pe-2"></i>
@@ -2193,13 +2525,19 @@ const Account = () => {
                                   {/* {JSON.stringify(startDate)}
                                   {JSON.stringify(endDate)} */}
                                   <button
-                                    onClick={() => { setStartDate(epochDate); setEndDate(parseDate(addOneDayAndFormat(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                    onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
                                     className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
                                   >
                                     <i className="bi bi-calendar pe-2"></i>
                                     <span>List All Orders</span>
                                   </button>
-
+                                  <button
+                                    onClick={() => { OpenCashDraw() }}
+                                    className="btn btn-sm btn-info d-flex align-items-center mx-1 mt-1 mb-2"
+                                  >
+                                    <i className="bi bi-cash-stack pe-2"></i> 
+                                    <span>Cash Drawer</span>
+                                  </button>
                                   {/* <button
                                     onClick={() => setShowChart(!showChart)}
                                     className="btn btn-sm btn-info d-flex align-items-center mx-1 mb-2"
@@ -2415,98 +2753,8 @@ const Account = () => {
                               </thead>
                               <tbody>
                                 {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).map((order, index) => (
-
                                   <div style={{ display: 'contents' }}>
-                                    {isSplitPaymentModalOpen && (
-                                      <div style={{
-                                        position: 'fixed',
-                                        zIndex: 1000,
-                                        top: '50%',
-                                        left: '50%',
-                                        transform: 'translate(-50%, -50%)',
-                                        backgroundColor: '#fff',
-                                        border: '1px solid #ccc',
-                                        borderRadius: '10px',
-                                        padding: '20px',
-                                        width: '300px',
-                                        boxSizing: 'border-box',
-                                      }}>
-                                        <div style={{
-                                          marginBottom: '20px',
-                                          textAlign: 'center',
-                                          fontSize: '18px',
-                                          fontWeight: 'bold'
-                                        }}>
-                                          Add Extra Gratuity
-                                        </div>
 
-                                        <div style={{
-                                          alignItems: 'center',
-                                          marginBottom: '20px'
-                                        }}>
-                                          <label htmlFor="tipAmount" style={{ marginRight: '10px' }}>Gratuity Amount: </label>
-                                          <input
-                                            className='mb-2'
-                                            type="number"
-                                            id="tipAmount"
-                                            name="tipAmount"
-                                            value={tipAmount}
-                                            onChange={handleTipChange}
-                                            min="0"
-                                            style={{
-                                              padding: '5px',
-                                              border: '1px solid #ccc',
-                                              borderRadius: '4px',
-                                              width: '100%',
-                                            }}
-                                          />
-                                          <div className="flex justify-between mb-4">
-                                            <button onClick={() => { setTipAmount(roundToTwoDecimals(roundToTwoDecimals(modalSubtotal) * 0.15)) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
-                                              15%
-                                            </button>
-                                            <button onClick={() => { setTipAmount(roundToTwoDecimals(roundToTwoDecimals(modalSubtotal) * 0.18)) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mx-1">
-                                              18%
-                                            </button>
-                                            <button onClick={() => { setTipAmount(roundToTwoDecimals(roundToTwoDecimals(modalSubtotal) * 0.20)) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                                              20%
-                                            </button>
-                                          </div>
-
-                                        </div>
-
-                                        <div style={{
-                                          display: 'flex',
-                                          justifyContent: 'space-between'
-                                        }}>
-                                          <button
-                                            onClick={() => setSplitPaymentModalOpen(false)}
-                                            style={{
-                                              background: '#f44336', // Red background for cancel
-                                              color: 'white',
-                                              border: 'none',
-                                              padding: '10px 15px',
-                                              borderRadius: '5px',
-                                              cursor: 'pointer',
-                                            }}
-                                          >
-                                            Cancel
-                                          </button>
-                                          <button
-                                            onClick={() => handleConfirm()}
-                                            style={{
-                                              background: '#4CAF50', // Green background for confirm
-                                              color: 'white',
-                                              border: 'none',
-                                              padding: '10px 15px',
-                                              borderRadius: '5px',
-                                              cursor: 'pointer',
-                                            }}>
-                                            Confirm
-                                          </button>
-                                        </div>
-                                      </div>
-
-                                    )}
                                     {isMobile ? <div># {orders.length - index}</div> :
                                       null
                                     }
@@ -2535,7 +2783,7 @@ const Account = () => {
                                           {order?.status === 'Paid by Cash' ? (
                                             <button
                                               className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                              onClick={() => {setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
                                             >
                                               Add Gratuity
                                             </button>
@@ -2554,7 +2802,7 @@ const Account = () => {
                                           {order?.status === 'Paid by Cash' ? (
                                             <button
                                               className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                              onClick={() => {setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
                                             >
                                               Add Gratuity
                                             </button>

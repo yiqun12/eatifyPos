@@ -61,7 +61,7 @@ const Iframe = forwardRef(({ src, width, height, storeName, title }, ref) => {
             iframeRef.current.contentWindow.postMessage(storeName + '_restaurant_seat_arrangement', '*');
         };
     }, []);
-//width
+    //width
     return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
 });
 
@@ -489,6 +489,7 @@ function App({ store, acct }) {
     const [view, setView] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
 
+    const [OpenChangeAttributeModal, setOpenChangeAttributeModal] = useState(false);
 
 
 
@@ -615,6 +616,8 @@ function App({ store, acct }) {
                                                         <div >
                                                             {view === true ?
                                                                 <InStore_shop_cart
+                                                                    OpenChangeAttributeModal={OpenChangeAttributeModal}
+                                                                    setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                     store={store}
                                                                     acct={acct}
                                                                     selectedTable={selectedTable}
@@ -624,6 +627,8 @@ function App({ store, acct }) {
                                                                 />
                                                                 :
                                                                 <InStore_food
+                                                                    OpenChangeAttributeModal={OpenChangeAttributeModal}
+                                                                    setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                     isAllowed={isAllowed}
                                                                     setIsAllowed={setIsAllowed}
                                                                     store={store} selectedTable={selectedTable} />
@@ -637,12 +642,16 @@ function App({ store, acct }) {
 
                                                         <div className='w-1/2'>
                                                             <InStore_food
+                                                                OpenChangeAttributeModal={OpenChangeAttributeModal}
+                                                                setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                 isAllowed={isAllowed}
                                                                 setIsAllowed={setIsAllowed}
                                                                 store={store} selectedTable={selectedTable}></InStore_food>
                                                         </div>
                                                         <div className='w-1/2'>
                                                             <InStore_shop_cart
+                                                                OpenChangeAttributeModal={OpenChangeAttributeModal}
+                                                                setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                 isAllowed={isAllowed}
                                                                 setIsAllowed={setIsAllowed}
                                                                 store={store} acct={acct} selectedTable={selectedTable} openSplitPaymentModal={openSplitPaymentModal}  ></InStore_shop_cart>
@@ -663,8 +672,9 @@ function App({ store, acct }) {
 
                 </div>
                 :
-                null}
-        </div>
+                null
+            }
+        </div >
 
     );
 }

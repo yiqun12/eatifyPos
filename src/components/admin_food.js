@@ -292,11 +292,16 @@ const Food = ({ store }) => {
         const { key, ...rest } = docSnapshot.data();
         localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
         //alert("refreshed successfully")
-        localStorage.setItem(store, sessionData);
+
+        //setData(JSON.parse(sessionData)); // Update state
+        //setFoods(JSON.parse(sessionData))
+        //saveId(Math.random());
+        setArr(JSON.parse(sessionData));
+        setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
         setData(JSON.parse(sessionData)); // Update state
         setFoods(JSON.parse(sessionData))
         saveId(Math.random());
-        setArr(JSON.parse(sessionData));
+        //setArr(JSON.parse(sessionData));
         setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
 
       } else {
@@ -349,15 +354,7 @@ const Food = ({ store }) => {
     let updatedArr = deleteById(JSON.parse(localStorage.getItem(store) || "[]"), id)
 
     reload(updatedArr)
-    if (categoryState === null) {
 
-    } else {
-      setFoods(
-        updatedArr.filter((item) => {
-          return item.category === categoryState;
-        })
-      )
-    }
   }
 
   const [newItem, setNewItem] = useState({
@@ -400,7 +397,7 @@ const Food = ({ store }) => {
       name: newItem.name || "Blank",
       CHI: newItem.CHI || "空白的",
       subtotal: newItem.subtotal || "1",
-      category: newItem.category || (categoryState === null ? "Classic" : categoryState),
+      category: newItem.category || selectedFoodType === "" ? "classic" : selectedFoodType,
       categoryCHI: newItem.categoryCHI || "类别",
       availability: newItem.availability || ['Morning', 'Afternoon', 'Evening'],
       attributes: newItem.attributes || [],
@@ -413,15 +410,7 @@ const Food = ({ store }) => {
     reload(updatedArr)
     setSelectedOptions(['Morning', 'Afternoon', 'Evening']);
     resetAttributes(transformJsonToInitialState({}))
-    if (categoryState === null) {
 
-    } else {
-      setFoods(
-        updatedArr.filter((item) => {
-          return item.category === categoryState;
-        })
-      )
-    }
 
     console.log(updatedArr)
     // Clear the input fields
@@ -438,7 +427,6 @@ const Food = ({ store }) => {
       attributesArr: ""
     });
   };
-  const [categoryState, setCategoryState] = useState(null);
 
   const updateItem = (id, updatedFields) => {
     let target_category = null;
@@ -539,7 +527,28 @@ const Food = ({ store }) => {
   useEffect(() => {
     //console.log("hellooooooooooooooooooooo")
     syncData();
+
   }, []);
+  const [ChangeCategoryName, setChangeCategoryName] = useState(false);
+  const [SelectChangeCategoryName, setSelectChangeCategoryName] = useState('');
+  const [categoryName, setCategoryName] = useState(''); // Initialize with an empty string
+
+  const ChangeCategoryNameSubmit = () => {
+    // Use the categoryName state variable here
+    console.log('New category name:', categoryName)
+    console.log(SelectChangeCategoryName)
+    console.log(JSON.parse(localStorage.getItem(store)))
+
+    const updatedData = JSON.parse(localStorage.getItem(store)).map((item) => {
+      if (item.category === SelectChangeCategoryName) {
+        return { ...item, category: categoryName };
+      }
+      return item;
+    });
+    //console.log(updatedData)
+    reload(updatedData)
+  };
+
   return (
 
     <div className='max-w-[1597px] '>
@@ -553,8 +562,14 @@ const Food = ({ store }) => {
       <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
       </link>
       <div className="mr-1 flex justify-between mt-3">
-        <Scanner reload={reload} setFoods={setFoods} store={store} />
+        <div onClick={() => {
+          syncData();
+        }}
+          className="mb-2 btn d-inline-flex btn-sm btn-neutral">
 
+          <span>
+            <i class="fa fa-refresh"></i> Refresh Data</span>
+        </div>
         <div onClick={updateKey} className="mb-2 btn d-inline-flex btn-sm btn-primary">
           <span className="pe-2">
             <i class="bi bi-bookmarks"></i>
@@ -565,14 +580,21 @@ const Food = ({ store }) => {
           </span>
         </div>
       </div>
-      <div onClick={() => {
-        syncData();
-      }}
-        className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-neutral">
+      <div className="mr-1 flex justify-between mt-1">
+        <Scanner reload={reload} setFoods={setFoods} store={store} />
 
-        <span>
-          <i class="fa fa-refresh"></i> Refresh Data                     </span>
+        <div onClick={() => { setChangeCategoryName(true) }} className="mb-2 btn d-inline-flex btn-sm btn-info">
+          <span className="pe-2">
+            <i class="bi bi-bookmarks"></i>
+          </span>
+          <span
+          >
+            {"Rename Category"}
+          </span>
+        </div>
       </div>
+
+
 
 
       <div className='m-auto '>
@@ -606,13 +628,68 @@ const Food = ({ store }) => {
             </div>
           </form >
         </div>
+        {ChangeCategoryName && (
+          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+            <div className="relative w-full max-w-2xl max-h-full mt-20">
+              <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
+                <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+                  <h3 className="text-l font-semibold text-gray-900 dark:text-white">
+                    {t("Please choose the food category you want to rename:")}
+                  </h3>
+                  <button onClick={() => { setChangeCategoryName(false) }} style={{ fontSize: '24px', lineHeight: '1', color: 'black', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', position: 'absolute', top: '15px', right: '20px' }}>
+                    &times;
+                  </button>
+                </div>
+                <div className='p-4 pt-3 flex flex-row flex-wrap'>
+                  {foodTypes.map((foodType) => (
+                    <button
+                      onClick={() => { setSelectChangeCategoryName(foodType) }}
+                      key={foodType}
+                      className={`m-2 btn border-black text-black-600 rounded-xl px-2 py-2`}
+                      style={{ display: 'inline-flex', textUnderlineOffset: '0.5em' }}
+                    >
+                      <div>
+                        {foodType && foodType.length > 1
+                          ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                          : ''}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <h3 className=" p-4 text-l font-semibold text-gray-900 dark:text-white">
+                  {t("Please provide the new name for the food category:")}
+                </h3>
+                <div>
+                  <input
+                    className="m-4 shadow appearance-none border rounded w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="foodCategory"
+                    type="text"
+                    placeholder="Enter the new category name"
+                    value={categoryName}
+                    onChange={(e) => setCategoryName(e.target.value)}
+                  />
+                  <a
+                    onClick={() => {
+                      ChangeCategoryNameSubmit();
+                      // You can pass categoryName or use it in your ChangeCategoryName function
 
+                    }}
+                    className="btn d-inline-flex btn-sm btn-primary"
+                  >
+                    <span>{t("Confirm")}</span>
+                  </a>
+                </div>
+                <br></br>
+              </div>
+            </div>
+          </div>
+        )}
         <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
           {/* Filter Type */}
           <div className='Type' >
 
             {/* end of the top */}
-            <div ref={scrollingWrapperRef} className="mt-2 scrolling-wrapper-filter mb-0">
+            <div ref={scrollingWrapperRef} className={`mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''} mb-0`}>
 
               <button onClick={() => {
                 setSelectedFoodType("");
@@ -638,8 +715,8 @@ const Food = ({ store }) => {
                   </button>
                 ))
               }
-
             </div>
+
           </div>
 
         </div>
@@ -768,10 +845,8 @@ const Food = ({ store }) => {
                       <input
                         className='text-md font-semibold'
                         style={{ width: "50%" }}
-                        type="text" name="category" placeholder={(categoryState === null ? "Classic" : categoryState)} value={newItem.category} onChange={handleInputChange}
-
+                        type="text" name="category" placeholder={selectedFoodType === "" ? "classic" : selectedFoodType} value={selectedFoodType} onChange={handleInputChange}
                         translate="no" />
-
                     </div>
                     <div>
                       <span className='text-black'>
@@ -1006,7 +1081,7 @@ const Food = ({ store }) => {
             .map((item, index) => (
 
               <div style={itemStyle}>
-                <Item selectedFoodType={selectedFoodType} key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} />
+                <Item selectedFoodType={selectedFoodType} key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} foodTypes={foodTypes} />
 
               </div>
             ))}
@@ -1020,7 +1095,7 @@ const Food = ({ store }) => {
 
 
 
-const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id, translateToEnglish, translateToChinese }) => {
+const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id, translateToEnglish, translateToChinese, foodTypes }) => {
 
   const {
     attributes,
@@ -1231,12 +1306,48 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
       return text;
     };
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
+  const [isCategoryModalOpen, setCategoryModalOpen] = useState(false);
 
   return (
     <div>
+      {isCategoryModalOpen && (
+        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+          <div className="relative w-full max-w-2xl max-h-full mt-20">
+            <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
+              <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {t("Select the category that you would like to change into")}
+                </h3>
+                <button onClick={() => { setCategoryModalOpen(false) }} style={{ fontSize: '24px', lineHeight: '1', color: 'black', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', position: 'absolute', top: '15px', right: '20px' }}>
+                  &times;
+                </button>
+              </div>
+              <div className='p-4 pt-3 flex flex-row flex-wrap'>
+                {foodTypes.map((foodType) => (
+                  <button
+                    key={foodType}
+                    onClick={() => {
+                      updateItem(item.id, { ...item, category: foodType })
+                    }}
+                    className={`m-2 btn border-black text-black-600 rounded-xl px-2 py-2`}
+                    style={{ display: 'inline-flex', textUnderlineOffset: '0.5em' }}
+                  >
+                    <div>
+                      {foodType && foodType.length > 1
+                        ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                        : ''}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      )}
       {isModalGeneratePicOpen && (
         <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
-          <div className="relative w-full max-w-2xl max-h-full ">
+          <div className="relative w-full max-w-2xl max-h-full mt-20">
             <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
               <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -1453,18 +1564,25 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                 <span className='text-black'>
                   {t("Category: ")}
                 </span>
-                <input
-                  className='text-md font-semibold'
-                  style={{ width: "50%" }}
-                  type="text"
-                  name="category"
-                  placeholder={item.category}
-                  value={item?.category}
-                  onChange={(e) => {
-                    updateItem(item.id, { ...item, category: e.target.value })
-                  }}
-                  translate="no"
-                />
+                {selectedFoodType === "" ?
+                  <input
+                    className='text-md font-semibold'
+                    style={{ width: "50%" }}
+                    type="text"
+                    name="category"
+                    placeholder={item.category}
+                    value={item?.category}
+                    onChange={(e) => {
+                      updateItem(item.id, { ...item, category: e.target.value })
+                    }}
+                    translate="no"
+                  />
+                  :
+                  <span onClick={(e) => {
+                    setCategoryModalOpen(true)
+                  }} className='text-md font-semibold text-black' style={{ width: "50%" }} >{item.category}</span>
+                }
+
 
               </div>
               <div>
@@ -1691,6 +1809,8 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
 
   );
 };
+
+
 
 
 export default Food
