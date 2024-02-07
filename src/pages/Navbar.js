@@ -31,6 +31,7 @@ import cuiyuan from './cuiyuan.png'
 import Receipt from '../pages/Receipt'
 import OrderHasReceived from '../pages/OrderHasReceived'
 import cartImage from './shopcart.png';
+import ringBell from './ringBell.png';
 
 const Navbar = () => {
 
@@ -123,7 +124,7 @@ const Navbar = () => {
         if (products.length < 4) {
           height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
         } else {
-          height = 3 * 123 + 140; // set height to show only the first 3 items and the shopping cart header
+          height = 5 * 123 + 140; // set height to show only the first 5 items and the shopping cart header
         }
       }
     } else {
@@ -247,9 +248,22 @@ const Navbar = () => {
   //console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
     sessionStorage.setItem(store, JSON.stringify(products));
-    window.location.href = '/Checkout' + "?store=" + storeValue + "&" + "table=" + sessionStorage.getItem("table")
-  };
+    if (sessionStorage.getItem("table") !== null || sessionStorage.getItem("table") !== "") {
+      window.location.href = '/Checkout' + "?store=" + storeValue
 
+    } else {
+      window.location.href = '/Checkout' + "?store=" + storeValue + "&" + "table=" + sessionStorage.getItem("table")
+
+    }
+  };
+  const [isVisible, setIsVisible] = useState(false);
+
+  const handleClick = () => {
+    setIsVisible(true);
+    setTimeout(() => {
+      setIsVisible(false);
+    }, 3000); // Change this to control how long the text stays visible before fading out
+  };
   // for translations sake
   const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = useMemo(() => {
@@ -259,6 +273,7 @@ const Navbar = () => {
     return (text) => {
       //console.log(trans)
       //console.log(translationsMode)
+
 
       if (trans != null) {
         if (translationsMode != null) {
@@ -328,7 +343,9 @@ const Navbar = () => {
     return Object.values(groupedItems).reverse();
   }
 
+
   const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
+
 
   return (
 
@@ -339,7 +356,8 @@ const Navbar = () => {
           @import url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.4.0/font/bootstrap-icons.min.css");
         `}
       </style>
-      {((location.pathname.includes('/store') && isMobile)) && (
+
+      {((location.pathname.includes('/store')) && isMobile) && (
         <a className="float">
           <a
             style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
@@ -349,6 +367,21 @@ const Navbar = () => {
               className="cart" data-totalitems={totalQuant} >
 
               <img src={cartImage} alt="Shopping Cart" />
+
+            </div>
+          </a>
+        </a>
+      )}
+      {(/\/account/.test(location.pathname) && new URLSearchParams(location.hash.split('?')[1]).has('store')) && (
+        <a className="float ">
+          <a
+            style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
+
+            <div id="ringbell"
+              style={{ width: "60px", height: "60px", 'color': '#444444' }}
+              className="ringbell" data-totalitems={totalQuant} >
+
+              <img src={ringBell} alt="ringBell" />
 
             </div>
           </a>
@@ -396,9 +429,9 @@ const Navbar = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               {totalPrice === 0 ?
                 <div>
-                  <div style={{ marginTop: "15px" }}>
+                  <div style={{ marginTop: "5px", }}>
                     <span>
-                      <i style={{ fontSize: "35px" }} className="material-icons nav__icon">shopping_cart_checkout</i>
+                      <i style={{ fontSize: "35px" }} className="bi bi-cart-check"></i>
                       <span >&nbsp;{t("Your cart is currently empty.")}</span>
                     </span>
                   </div>
@@ -411,7 +444,7 @@ const Navbar = () => {
 
                   <span class="text-left">
                     <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                    {t("Checkout")} </span>
+                    {t("Checkout Order")} </span>
                   <span class="text-right notranslate"> ${Math.round(100 * totalPrice) / 100} </span>
                 </button>
               }
@@ -434,11 +467,11 @@ const Navbar = () => {
                   {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
                 </div>
                 {/* the image */}
-                <div className="image">
+                {/* <div className="image">
                   <div class="image-container" >
                     <img style={{ marginLeft: '-7px' }} src={product.image} alt="" />
                   </div>
-                </div>
+                </div> */}
 
                 {/* the name + quantity parent div*/}
                 <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available" }}>
@@ -446,15 +479,14 @@ const Navbar = () => {
                   <div className="description" style={{ width: "-webkit-fill-available" }}>
 
                     <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
-                      <div class='notranslate' style={{ fontWeight: "bold", color: "black", width: "-webkit-fill-available" }}>
-                        <span class="notranslate">
-                          {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product.CHI) : (product.name)}
-                        </span>
+                      <div class='notranslate text-black text-lg ' style={{ color: "black", width: "-webkit-fill-available" }}>
+                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product.CHI) : (product.name)}
                       </div>
 
                       <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
 
-                    </div>                  </div>
+                    </div>
+                  </div>
 
                   {/* <div className="theset"> */}
                   {/* start of quantity (quantity = quantity text + buttons div) */}
@@ -520,7 +552,7 @@ const Navbar = () => {
       <div className={`pb-2 sticky top-0 z-20 bg-white ${!isMobile ? "mx-auto justify-between" : "justify-between"}`}>
         <div >
           {/* Your navbar content here */}
-          <div className="col-span-4 pl-4" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
+          <div className="col-span-4 pl-4 lg:ml-10 lg:mr-10" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
             <img
               onClick={event => {
                 if (storeFromURL !== '' && storeFromURL !== null) {
@@ -556,10 +588,7 @@ const Navbar = () => {
             </div>
 
             <div className='flex ml-auto pr-4 '>
-              <div className='mt-1' id="google_translate_element"></div>
-
-
-
+              <div className='mt-2' id="google_translate_element"></div>
 
               {((location.pathname.includes('/store')) || (location.pathname.includes('/Checkout'))) && (
 
@@ -573,14 +602,22 @@ const Navbar = () => {
                 </button>
               )}
               {((location.pathname.includes('/store') && !isMobile)) && (
-                <button
-                  className="ml-3"
-                  onClick={openModal}
-                  style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
-                >
-                  <i className="bi bi-cart"></i>
-                  {"Shopping Cart"}
-                </button>
+                <>              <div id="cart"
+                  style={{ position: 'relative', width: "", height: "", 'color': '#444444' }}
+                  className="cart" data-totalitems={totalQuant} onClick={openModal} >
+
+                  <div
+
+                    style={{ fontSize: "20px" }}
+                  >
+                    <i className="bi bi-cart"></i>
+                  </div>
+                </div>
+                  <div onClick={openModal} style={{ fontSize: "20px", marginTop: "10px", marginleft: "-28px" }} > {"Shopping Cart"}</div>
+
+                </>
+
+
               )}
               {!user_loading ?
                 <button className="ml-3" onClick={event => {

@@ -137,7 +137,7 @@ const App = () => {
 
   return (
 
-    <div className='mx-auto p-2 '>
+    <div className='mx-auto p-2 max-w-[1200px] '>
       {isLoading ?
         <div>{t("Cart is empty... Redirecting back to home page")}</div> :
 
@@ -277,7 +277,7 @@ const Item = (props) => {
                 </b>
                 &nbsp;
               </b> :
-              <b> {t("TakeOut Only - No QR Code")}
+              <b> {t("TakeOut - No QR Code was Sacnned")}
               </b>
             }
 
@@ -290,12 +290,12 @@ const Item = (props) => {
         {products.map((product, index) => {
           return (
             <div className="row row-main my-2" key={index}>
-              <div className="col-3">
+              {/* <div className="col-3">
                 <div style={{ width: '65px', height: '65px' }} class="image-container">
                   <img src={product.image} alt="" />
                 </div>
-              </div>
-              <div className="col-9">
+              </div> */}
+              <div className="col-12">
                 <div className="row d-flex ">
                   <p className='m-0 pb-0'>
                     <b class="notranslate">
@@ -310,8 +310,8 @@ const Item = (props) => {
                 </div>
 
                 <div className="d-flex justify-between">
-                  <div className="text-muted">@ ${Math.round(100 * (product.itemTotalPrice / product.quantity)) / 100} {t("each")} x {product.quantity}</div>
-                  <div><b>$ {Math.round(100 * (product.itemTotalPrice)) / 100} </b></div>
+                  <div className="text-muted notranslate">@ ${Math.round(100 * (product.itemTotalPrice / product.quantity)) / 100} {t("each")} x {product.quantity}</div>
+                  <div className='notranslate'><b>$ {Math.round(100 * (product.itemTotalPrice)) / 100} </b></div>
                 </div>
 
               </div>
@@ -324,7 +324,7 @@ const Item = (props) => {
             <div className="col">
               <b> {t("Subtotal")}:</b>
             </div>
-            <div className="col d-flex justify-content-end">
+            <div className="col d-flex justify-content-end notranslate">
               <b>$ {Math.round(100 * totalPrice) / 100}</b>
             </div>
           </div>
@@ -332,7 +332,7 @@ const Item = (props) => {
             <div className="col">
               <b> {t("Tax")} 	&#40;8.25%&#41;:</b>
             </div>
-            <div className="col d-flex justify-content-end">
+            <div className="col d-flex justify-content-end notranslate">
               <b>$ {Math.round(100 * totalPrice * tax_rate) / 100}</b>
             </div>
           </div>
@@ -342,7 +342,7 @@ const Item = (props) => {
                 <div className="col">
                   <b> {t("Service Fee: (15%)")}</b>
                 </div>
-                <div className="col d-flex justify-end">
+                <div className="col d-flex justify-end notranslate">
                   <b>$ {Math.round(100 * totalPrice * 0.15) / 100}</b>
                 </div>
               </div>

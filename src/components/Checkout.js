@@ -877,7 +877,6 @@ function PayHistory(props) {
     sessionStorage.setItem('docid', docId)
     const { error, paymentIntent } = await stripe.confirmAlipayPayment(
       payment.client_secret, {
-      //http://localhost:3000/store?store=parkasia&table=A3&return=true
       return_url: `${window.location.origin}/Checkout?store=${payment.store}&return=true`,
     })
 

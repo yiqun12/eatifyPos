@@ -202,9 +202,9 @@ function BusinessHoursTable() {
         return hour === "Closed" ? t("Closed") : hour;
       }).join('\n');
     
-      return(`${t(currentDayName)}: \n${hoursString}`);
+      return(`${hoursString}`);
     } else {
-      return(`${t(currentDayName)}: \nNot defined in business hours`);
+      return(`Not defined in business hours`);
     }
     //return `hello world`;
   }

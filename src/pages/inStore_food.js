@@ -359,7 +359,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     color: 'black',
   };
   const { user, user_loading } = useUserContext();
-  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI, item, availability, attributesArr) => {
+  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI, item, availability, attributesArr, quant) => {
 
     // Check if the array exists in local storage
     if (localStorage.getItem(store + "-" + selectedTable) === null) {
@@ -396,15 +396,17 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
       product.CHI = CHI;
       product.availability = availability
       product.attributesArr = attributesArr
-    } else {
+    }
+    else {
       // If the product doesn't exist, add it to the array
-      products?.unshift({ attributesArr: attributesArr, availability: availability, id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: Math.round(100 * subtotal) / 100, CHI: CHI });
+      products?.unshift({ attributesArr: attributesArr, availability: availability, id: id, name: name, subtotal: subtotal, image: image, quantity: quant ? quant : 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: Math.round(100 * subtotal) / 100, CHI: CHI });
     }
     //product.itemTotalPrice= Math.round(100 *((parseFloat(totalPrice)+parseFloat(product.subtotal))*parseFloat(product.quantity))/ 100)
     console.log(product)
     // Update the array in local storage
     //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
     //SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
+
     if (!item || !item.attributesArr) {
       SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
       return;
@@ -460,6 +462,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
       }
 
     }
+    //SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
     saveId(Math.random());
   };
   const searchSpeicalFoodQuantity = (id, count) => {
@@ -598,16 +601,18 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
   const [selectedFoodItem, setSelectedFoodItem] = useState('')
   const [isOpen, setIsOpen] = useState(false);
   const [isModalVisible, setModalVisibility] = useState(false);
-  //const [isModalVisible, setModalVisibility] = useState(false);
+  const [OpenChangeAttributeTrigger, setOpenChangeAttributeTrigger] = useState(false);
 
   useEffect(() => {
     // Place your side-effect logic here.
     // For example, if OpenChangeAttributeModal is a function you want to call:
     if (OpenChangeAttributeModal === false) {
-      //close
+      //init
     } else {
       showModal(OpenChangeAttributeModal)
-      //open
+      setOpenChangeAttributeTrigger(true)
+      
+      //open one
     }
 
   }, [OpenChangeAttributeModal]); // An empty dependency array means this effect runs once after the initial render
@@ -615,13 +620,12 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
   // Function to show the modal
   const showModal = (item) => {
     const randomNum = uuidv4()
-    console.log("bbbbbbbbb", JSON.stringify(item))
     setSelectedFoodItem(item);
     setCount(randomNum);  // Increment the count every time the modal is opened
     setSelectedAttributes({})
     setTotalPrice(0);
 
-    addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, null, item.availability, item.attributesArr)
+    addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, null, item.availability, item.attributesArr, item.quantity)
     setModalVisibility(true);
     saveId(Math.random());
     console.log("hello")
@@ -797,7 +801,8 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                     </h4>
                   </div>
                   <div className="mb-3">
-                    <label htmlFor="customVariantName" className="form-label">Customized Option (Price Change)</label>
+                    <label htmlFor="customVariantName" className="form-label">Explanation for the Updated Ingredients of the Dish
+                    </label>
                     <input
                       type="text"
                       className="form-control"
@@ -808,7 +813,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                       translate="no"
                     />
                     <small id="customVariantNameHelp" className="form-text text-muted">
-                      This is the reason of the price change you want to add.
+                      Indicate any change in the dish's price, for example, if no price change then enter 0
                     </small>
                   </div>
 
@@ -833,7 +838,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                     type="button"
                     onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
                   >
-                    Add Variant (Default:<span
+                    Add Dish Revise (Default:<span
                       className='notranslate'>{customVariant.name}</span> )
                   </button>
 
@@ -841,7 +846,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
                   {Object.keys(selectedFoodItem?.attributesArr).length > 0 && (
                     <div>
-                      Select your add-ons: (Items in green means already selected)
+                      Choose the Revise: (Green-highlighted revise are already chosen)
                     </div>
                   )}
                   {Object.entries(selectedFoodItem?.attributesArr).map(([attributeName, attributeDetails]) => (
@@ -908,8 +913,8 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                   </div>
                   <div>
                     <span>
-                      {false ?
-                        <div></div>
+                      {OpenChangeAttributeTrigger ?
+                        null
                         :
                         <div>
                           <div className="d-flex align-items-center">
@@ -947,15 +952,50 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
                   <button type="button" onClick={() => {
                     deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 0);
-                    //saveId(Math.random());
+                    setOpenChangeAttributeTrigger(false);
+                    setOpenChangeAttributeModal(false)
                   }} className="btn btn-danger">Cancel</button>
-                  <button type="button" className="btn btn-success" onClick={hideModal}>Confirm</button>
+                  <button type="button" className="btn btn-success" onClick={() => {
+                    if (OpenChangeAttributeTrigger === false) {
+                      hideModal();
+                    } else {
+                      function sortObject(obj) {
+                        return Object.keys(obj).sort().reduce((result, key) => {
+                          result[key] = obj[key];
+                          return result;
+                        }, {});
+                      }
 
+                      function compareObjects(obj1, obj2) {
+                        const sortedObj1 = sortObject(obj1);
+                        const sortedObj2 = sortObject(obj2);
+
+                        const serializedObj1 = JSON.stringify(sortedObj1);
+                        const serializedObj2 = JSON.stringify(sortedObj2);
+
+                        return serializedObj1 === serializedObj2;
+                      }
+
+                      if (compareObjects(selectedFoodItem.attributeSelected, selectedAttributes)) {//no attr changes
+                        deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 0);
+                        setOpenChangeAttributeTrigger(false);
+                        setOpenChangeAttributeModal(false)
+                        
+                      } else {
+                        deleteSpecialFood(selectedFoodItem.id, selectedFoodItem.count, selectedAttributes, 0);//delete old one
+                        setOpenChangeAttributeTrigger(false);
+                        setOpenChangeAttributeModal(false)
+                      }
+                    }
+
+
+                  }}>Confirm</button>
                 </div>
               </div>
             </div>
           </div>
-        )}
+        )
+        }
         <div className='m-auto '>
           <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
             {/* Filter Type */}
@@ -1171,7 +1211,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
             </div>
           </AnimatePresence>
         </div>
-      </div>
+      </div >
     )
   }
 }

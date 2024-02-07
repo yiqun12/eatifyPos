@@ -269,6 +269,7 @@ const Food = ({ store }) => {
     await updateDoc(docRef, {
       key: localStorage.getItem(store)
     });
+    localStorage.setItem("Old_TitleLogoNameContent", localStorage.getItem(store));
     alert("Saved Successful");
 
   };
@@ -291,6 +292,7 @@ const Food = ({ store }) => {
         sessionData = docSnapshot.data().key;
         const { key, ...rest } = docSnapshot.data();
         localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
+        localStorage.setItem("Old_TitleLogoNameContent", sessionData);
         //alert("refreshed successfully")
 
         //setData(JSON.parse(sessionData)); // Update state
@@ -881,9 +883,10 @@ const Food = ({ store }) => {
                       <div className='flex'>
 
                         <span className='text-black'>
-                          {t("Attributes Type: ")}
+                          Dish Revise Category:&nbsp;
 
                         </span>
+
                         <input
                           className='text-md font-semibold'
                           style={{ width: "50%" }}
@@ -891,14 +894,15 @@ const Food = ({ store }) => {
                           onChange={(e) => setCurrentAttribute(e.target.value)}
                           placeholder=" Size"
                           translate="no"
-                        />                </div>
-
+                        />
+                      </div>
+                      <small>E.g.: Portion Size</small>
                       <div className='flex'>
 
                         <span className='text-black'>
-                          {t("Variation Type: ")}
-
+                          Dish Revise Details:&nbsp;
                         </span>
+
                         <input
                           className='text-md font-semibold'
                           style={{ width: "50%" }}
@@ -906,8 +910,9 @@ const Food = ({ store }) => {
                           onChange={(e) => setCurrentVariation({ ...currentVariation, type: e.target.value })}
                           placeholder=" Big"
                           translate="no"
-                        />                </div>
-
+                        />
+                      </div>
+                      <small>E.g.: Big</small>
                       <div className='flex'>
 
                         <span className='text-black'>
@@ -943,7 +948,7 @@ const Food = ({ store }) => {
                         className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light"
                       >
                         <span>
-                          {"Add or Update Option"}
+                          {!expandOptions ? "Add or Update Option" : "Confirm"}
                         </span>
                       </a>
                     </div>
@@ -993,7 +998,7 @@ const Food = ({ store }) => {
                     <p className="mb-1">
                       <span className='text-black'>
 
-                        {"Availability:"}
+                        Time Range Availability:
                       </span>
 
                     </p>
@@ -1112,7 +1117,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
   } = useDynamicAttributes();
 
   useEffect(() => {
-    console.log('Attributes updated:', item);
+    //console.log('Attributes updated:', item);
     updateItem(item.id, { ...item, attributesArr: attributes })
   }, [attributes]); // Add attributes as a dependency
 
@@ -1209,7 +1214,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
       updateItem(item.id, { ...item, availability: item.availability.filter((item) => item !== option) })
 
     } else {
-      console.log(option)
+      //console.log(option)
       // If the option is not selected, add it
       //setSelectedOptions([...selectedOptions, option]);
 
@@ -1621,7 +1626,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                 <div className='flex'>
 
                   <span className='text-black'>
-                    {t("Attributes Type: ")}
+                    Dish Revise Category:&nbsp;
 
                   </span>
                   <input
@@ -1631,14 +1636,17 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     onChange={(e) => setCurrentAttribute(e.target.value)}
                     placeholder="Size"
                     translate="no"
-                  />                </div>
+                  />
+                </div>
+                <small>E.g.: Portion Size</small>
 
                 <div className='flex'>
 
                   <span className='text-black'>
-                    {t("Variation Type: ")}
+                    Dish Revise Details:&nbsp;
 
                   </span>
+
                   <input
                     className='text-md font-semibold'
                     style={{ width: "50%" }}
@@ -1646,7 +1654,9 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     onChange={(e) => setCurrentVariation({ ...currentVariation, type: e.target.value })}
                     placeholder="BG"
                     translate="no"
-                  />                </div>
+                  />
+                </div>
+                <small>E.g.: Big</small>
 
                 <div className='flex'>
 
@@ -1683,7 +1693,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                   className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light"
                 >
                   <span>
-                    {"Add or Update Option"}
+                    {!expandOptions ? "Add or Update Option" : "Confirm"}
                   </span>
                 </a>
               </div>
@@ -1734,7 +1744,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
               <p className="mb-1">
                 <span className='text-black'>
 
-                  {"Availability:"}
+                  Time Range Availability:
                 </span>
 
               </p>

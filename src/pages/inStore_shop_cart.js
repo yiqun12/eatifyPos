@@ -40,7 +40,7 @@ import { isMobile } from 'react-device-detect';
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faExclamation } from '@fortawesome/free-solid-svg-icons'; // Import the exclamation mark icon
 
-const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal,setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal }) => {
+const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   const { user, user_loading } = useUserContext();
 
@@ -901,13 +901,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal,setIsAll
                     onClick={() => {
                       handleDeleteClick(product.id, product.count)
                     }}></DeleteSvg>
-                  <div className='flex justify-between w-full'>
-                    <div className={`${!isMobile ? 'text-lg' : ''} notranslate`}>
-
-                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)} x {product.quantity}
-                    </div>
-
+                  <div className={`flex justify-between w-full mb-1 ${!isMobile ? 'text-lg' : ''} notranslate`}>
+                    <span>
+                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                    </span>
+                    <span>${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}</span>
                   </div>
+
 
 
                 </div>
@@ -920,13 +920,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal,setIsAll
 
                   <div className="quantity p-0"
                     style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
-                    <div>
-                      <div className={`${!isMobile ? 'text-lg' : ''} notranslate`}>
-                        ${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}
-                        <button className='btn btn-danger' onClick={()=>{setOpenChangeAttributeModal(product)}}>hello</button>
-                      </div>
-
-                    </div>
+                    <a
+                      onClick={() => {
+                        setOpenChangeAttributeModal(product)
+                      }}
+                      class="btn d-inline-flex btn-sm btn-outline-dark mx-1">
+                      <span>Dish Revise</span>
+                    </a>
                     {/* the add minus box set up */}
                     <div style={{ display: "flex" }}>
 
@@ -999,8 +999,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal,setIsAll
                 <span className="pe-2">
                   <FontAwesomeIcon icon={isAllowed ? faToggleOn : faToggleOff} />
                 </span>
-              )}
-              <span>{isAllowed ? 'Turn off Price Change' : 'Turn on Price Change'}</span>
+              )} 
+              <span>{isAllowed ? 'Turn off Dish Revise' : 'Turn on Dish Revise'}</span>
             </a>
 
             <a

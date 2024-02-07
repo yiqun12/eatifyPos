@@ -72,7 +72,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
   };
   const SetTableIsSent = async (table_name, product) => {
     try {
-      if(localStorage.getItem(table_name)===product){
+      if (localStorage.getItem(table_name) === product) {
         return
       }
       const dateTime = new Date().toISOString();
@@ -117,6 +117,20 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
       console.error("Error adding document: ", e);
     }
   }
+  const [width, setWidth] = useState(window.innerWidth);
+
+  function handleWindowSizeChange() {
+    console.log(window.innerWidth)
+    setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowSizeChange);
+    return () => {
+      window.removeEventListener('resize', handleWindowSizeChange);
+    }
+  }, []);
+
+  const isMobile = width <= 600;
 
   async function compareArrays(array1, array2, selectedTable) {
     const array1ById = Object.fromEntries(array1.map(item => [item.count, item]));
@@ -345,12 +359,11 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
       <style>
         {`
           /* Webpixels CSS */
-          @import url("https://unpkg.com/@webpixels/css@1.1.5/dist/index.css");
-        
-          /* Webpixels CSS */
-          @import url(https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.4.0/font/bootstrap-icons.min.css");
-        `
-        }
+          @import url(https://unpkg.com/@webpixels/css@1.1.5/dist/index.css);
+
+          /* Bootstrap Icons */
+          @import url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.4.0/font/bootstrap-icons.min.css");
+        `}
       </style>
       {isModalOpen && (
         <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
@@ -407,9 +420,12 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
           </div>
         </div>
       )}
-      <div class="card mb-7">
+
+
+
+      <div class="">
         <div class="card-header">
-          <h5 class="mb-0">Notification <span
+          <h5 class="mb-0">Notification&nbsp;<span
             style={{
               display: 'inline-flex', // changed from 'flex' to 'inline-flex'
               alignItems: 'center',
@@ -423,133 +439,9 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
               verticalAlign: 'middle' // added to vertically center the circle
             }}
           >
-            {reviewVar}
+            <span className='notranslate'>{reviewVar}</span>
+
           </span></h5>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-hover table-nowrap">
-            <thead class="table-light">
-              <tr>
-                <th scope="col">OrderID</th>
-                <th scope="col">State</th>
-                <th scope="col">Name</th>
-                <th scope="col">Table</th>
-                <th scope="col">Date</th>
-                <th scope="col">Total Price</th>
-                {/* <th scope="col">Meeting</th> */}
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedData.map((order, index) => (
-                <div style={{ display: 'contents' }} >
-                  <tr key={order.orderId}>
-                    <td className='notranslate'>
-                      {order.orderId.substring(0, 4)}
-                    </td>
-                    <td>
-                      <span className="badge badge-lg badge-dot">
-
-                        <i className={`bg-${getBadgeColor(order.Status)}`}></i>{order.Status}
-                      </span>
-                    </td>
-                    <td>
-                      <a className="text-heading font-semibold notranslate">
-                        {order.username}
-                      </a>
-                    </td>
-                    <td>
-                      {order.table}
-                    </td>
-
-                    <td>
-                      {order.date}
-                    </td>
-                    <td>
-                      ${order.amount}
-                    </td>
-
-                    <td className="text-end">
-                      {order.Status === "Paid" ?
-                        <div>
-
-                          <button type="button" className="btn btn-sm btn-primary text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
-                            Confirm delivery
-                          </button>
-                        </div>
-                        : <div>
-                          <button className="btn btn-sm btn-primary mr-2"
-
-                            onClick={() => {
-                              console.log("helllllllllllo");
-                              console.log(order);
-                            }}
-                          >Print Merchant Receipt</button>
-
-                          <button className="btn btn-sm btn-primary mr-2" onClick={() => clickConfirm(order.orderId)}>Add to Dining Table</button>
-
-                          <button type="button" className="btn btn-sm btn-danger text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
-                            Delete
-                          </button>
-                        </div>
-                      }
-
-                    </td>
-
-
-                    {/* Check if the current order should have its items shown
-        {order.orderId === expandedOrderId && (
-            <td colSpan="5">
-                <div style={{padding: '10px', backgroundColor: '#f8f9fa'}}>
-                    {order.items && order.items.map(item => (
-                      <div key={item.id}>
-                          Name: {item.name} | Quantity: {item.quantity} | Price: {item.itemTotalPrice}
-                          {item.attributeSelected && Object.keys(item.attributeSelected).map(attributeKey => (
-                              <div key={attributeKey}>
-                                  {attributeKey}: {Array.isArray(item.attributeSelected[attributeKey]) 
-                                      ? item.attributeSelected[attributeKey].join(', ') 
-                                      : item.attributeSelected[attributeKey]
-                                  }
-                              </div>
-                          ))}
-                      </div>
-                    ))}
-                </div>
-            </td>
-        )} */}
-
-
-                  </tr>
-
-                  {(
-                    <tr>
-                      <td colSpan="5">
-                        <div style={{ padding: '10px', backgroundColor: '#f8f9fa' }}>
-                          {order.items && order.items.map(item => (
-                            <div key={item.id}>
-                              <p className='notranslate'>
-                                {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}
-                              </p>
-                              &nbsp;| &nbsp; Quantity: &nbsp; {item.quantity} &nbsp; | &nbsp; Price: {item.itemTotalPrice}
-                              {item.attributeSelected && Object.keys(item.attributeSelected).map(attributeKey => (
-                                <div key={attributeKey}>
-                                  {attributeKey}: {Array.isArray(item.attributeSelected[attributeKey])
-                                    ? item.attributeSelected[attributeKey].join(', ')
-                                    : item.attributeSelected[attributeKey]
-                                  }
-                                </div>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </div>
-              ))}
-            </tbody>
-          </table>
-
         </div>
         {sortedData.length <= 0
           ?
@@ -559,9 +451,132 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
           null
 
         }
+        <div class="table-responsive">
+
+          <table
+            className="shop_table my_account_orders"
+            style={{
+              borderCollapse: "collapse",
+              width: "100%",
+              borderSpacing: "6px", // added CSS
+            }}
+          >
+
+            <thead>
+              <tr>
+                <th style={{ "font-size": "16px" }} scope="col">Order ID</th>
+                <th style={{ "font-size": "16px" }} scope="col">State</th>
+                <th style={{ "font-size": "16px" }} scope="col">Name</th>
+                <th style={{ "font-size": "16px" }} scope="col">Dining Table</th>
+                <th style={{ "font-size": "16px" }} scope="col">Date</th>
+                <th style={{ "font-size": "16px" }} scope="col">Total Price</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              {sortedData.map((order, index) => (
+                <div style={{ display: 'contents' }}>
+
+                  <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
+                    <td className="rder-number notranslate" data-title="OrderID">{order.orderId.substring(0, 4)}</td>
+                    <td className="order-status notranslate" data-title="status" style={{ whiteSpace: "nowrap" }}> {order.Status}</td>
+                    <td className="order-name notranslate" data-title="name" style={{ whiteSpace: "nowrap" }}>{order.username}</td>
+                    <td className="order-Table notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>{order.table ? order.table : "no table"}</td>
+                    <td className="order-date notranslate" data-title="Time" style={{ whiteSpace: "nowrap" }}>
+                      {order.date}
+                    </td>
+                    <td className="order-Total notranslate" data-title="Total" style={{ whiteSpace: "nowrap" }}>
+                      ${order.amount}
+                    </td>
+                    {isMobile ? null :
+                      <td className="pr-2 text-end">
+                        {order.Status === "Paid" ?
+                          <div>
+
+                            <button type="button" className="btn btn-sm btn-primary text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
+                              Confirm delivery
+                            </button>
+                          </div>
+                          : <div>
+                            <button className="btn btn-sm btn-primary mr-2"
+
+                              onClick={() => {
+                                console.log(order);
+                              }}
+                            >Print Merchant Receipt</button>
+
+                            <button className="btn btn-sm btn-primary mr-2" onClick={() => clickConfirm(order.orderId)}>Add to Dining Table</button>
+
+                            <button type="button" className="btn btn-sm btn-danger text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
+                              Delete
+                            </button>
+                          </div>
+                        }
+
+                      </td>
+                    }
+                    {isMobile ?
+                      <div className="pr-2 text-end">
+                        {order.Status === "Paid" ?
+                          <div>
+
+                            <button type="button" className="mb-1 btn btn-sm btn-primary text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
+                              Confirm delivery
+                            </button>
+                          </div>
+                          : <div>
+                            <button className="mb-1 btn btn-sm btn-primary mr-2"
+
+                              onClick={() => {
+                                console.log(order);
+                              }}
+                            >Print Merchant Receipt</button>
+
+                            <button className="mb-1 btn btn-sm btn-primary mr-2" onClick={() => clickConfirm(order.orderId)}>Add to Dining Table</button>
+
+                            <button type="button" className="mb-1 btn btn-sm btn-danger text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
+                              Delete
+                            </button>
+                          </div>
+                        }
+
+                      </div> : null
+                    }
+                  </tr>
+
+                  <tr style={{ backgroundColor: '#f8f9fa' }}>
+                    <td colSpan={8} style={{ padding: "10px" }}>
+                      <div className="receipt">
+                        {order.items && order.items.map(item => (
+                          <div key={item.id}>
+                            <p className='notranslate'>
+                              {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}x{item.quantity}@$?each={item.itemTotalPrice}
+                            </p>
+
+                            {item.attributeSelected && Object.keys(item.attributeSelected).map(attributeKey => (
+                              <div key={attributeKey}>
+                                {attributeKey}: {Array.isArray(item.attributeSelected[attributeKey])
+                                  ? item.attributeSelected[attributeKey].join(', ')
+                                  : item.attributeSelected[attributeKey]
+                                }
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                </div>
+
+              ))}
+
+
+            </tbody>
+          </table>
+        </div>
 
       </div>
-    </div>
+    </div >
   );
 }
 

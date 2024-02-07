@@ -24,12 +24,6 @@ import {
   LineChart,
   Line,
 } from 'recharts';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import QRCode from 'qrcode.react';
 import firebase from 'firebase/compat/app';
 import ChangeTimeForm from "../pages/ChangeTimeForm"
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -59,13 +53,23 @@ import { ReactComponent as Menu_icon } from './menu_icon.svg';
 import file_icon from './file_icon.png';
 import styled from '@emotion/styled';
 import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate } from '../comonFunctions';
+import { el } from 'date-fns/locale';
 
 registerLocale('zh-CN', zhCN);
 
 
 
 const Account = () => {
-
+  const translations = [
+    { input: "Paid by Cash", output: "现金支付" },
+    { input: "POS Machine", output: "POS机" },
+    { input: "Unpaid", output: "未付" },
+    { input: "Online App", output: "在线应用程序" }
+  ];
+  function translate(input) {
+    const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
+    return translation ? translation.output : "Translation not found";
+  }
   // This function plays the sound
   const playSound = () => {
     const sound = new Audio(mySound);
@@ -288,7 +292,7 @@ const Account = () => {
   ]);
   const epochDate = parseDate(format12Oclock((new Date("2023-11-30T00:00:00")).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })));
   const [startDate, setStartDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
-  const [endDate, setEndDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
+  const [endDate, setEndDate] = useState(null);
   useEffect(() => {
     // Ensure endDate is defined and startDate is before endDate
     if (endDate && startDate < endDate) {
@@ -497,7 +501,13 @@ const Account = () => {
             Charge_ID: item?.latest_charge
 
           };
-          newItems.push(newItem); // Push the new item into the array
+
+          if (newItem.total === 0 && newItem.receiptData === "[]") {
+            console.log("empty total and empty receiptdata", newItem.receiptData)
+          } else {
+            newItems.push(newItem); // Push the new item into the array
+
+          }
         });
         // console.log("hello")
         // console.log(newItems)
@@ -632,53 +642,7 @@ const Account = () => {
 
   const [isModalOpen, setModalOpen] = useState(false);
 
-  const handleEditShopInfoModalOpen = () => {
-    setModalOpen(true);
-  };
 
-  const handleEditShopInfoModalClose = () => {
-    setModalOpen(false);
-  };
-
-  const handleClickName = async (e) => {
-    e.preventDefault();
-    console.log(e.target.name.value);
-    const querySnapshot = await getDocs(collection(db, "TitleLogoNameContent"));
-    const docSnapshot = querySnapshot.docs[0];
-    const docRef = doc(db, 'TitleLogoNameContent', docSnapshot.id);
-    updateDoc(docRef, { Name: e.target.name.value })
-      .then(() => {
-        const newData = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        console.log(newData)
-        newData[0].Name = e.target.name.value
-        sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
-        saveId(Math.random());
-      })
-      .catch((error) => {
-        console.error("Error updating document: ", error);
-      });
-
-  }
-  const handleClickAddress = async (e) => {
-    e.preventDefault();
-    console.log(e.target.address.value);
-    const querySnapshot = await getDocs(collection(db, "TitleLogoNameContent"));
-    const docSnapshot = querySnapshot.docs[0];
-    const docRef = doc(db, 'TitleLogoNameContent', docSnapshot.id);
-    updateDoc(docRef, { Address: e.target.address.value })
-      .then(() => {
-        const newData = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-        console.log(newData)
-        newData[0].Address = e.target.address.value
-        sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(newData));
-        saveId(Math.random());
-      })
-      .catch((error) => {
-        console.error("Error updating document: ", error);
-      });
-
-
-  }
   // Rename state variables
   const [formValues, setFormValues] = useState({
     storeName: '',
@@ -821,7 +785,12 @@ const Account = () => {
 
       // Check if the previous hash was '#cards' and the current hash is different
       if (previousHash.includes('#book') && currentHash !== '#book') {
-        setAlertModal(true)
+        if (localStorage.getItem("Old_TitleLogoNameContent") === localStorage.getItem(storeID)) {
+
+        } else {
+          setAlertModal(true)
+
+        }
         //alert('You have navigated away from #book');
       }
 
@@ -1268,43 +1237,7 @@ const Account = () => {
         console.error("Error removing document: ", error);
       });
   }
-  const uniqueModalStyles = {
-    modalStyle: {
-      backgroundColor: '#fff',
-      padding: '20px',
-      borderRadius: '8px',
-      width: '100%',
-      maxWidth: '400px',
-      position: 'relative',
-    },
-    closeBtnStyle: {
-      position: 'absolute',
-      right: '30px',
-      top: '0',
-      background: 'none',
-      border: 'none',
-      fontSize: '48px',
-      cursor: 'pointer',
-    },
-    inputStyle: {
-      width: '100%',
-      padding: '12px',
-      boxSizing: 'border-box',
-      marginBottom: '10px',
-      borderRadius: '4px',
-      border: '1px solid #ccc',
-    },
-    buttonStyle: {
-      backgroundColor: '#007bff',
-      color: '#fff',
-      padding: '12px 15px',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      width: '100%',
-      marginBottom: '10px',
-    },
-  };
+
   const [tipAmount, setTipAmount] = useState('');
   async function bankReceipt(Charge_ID, id, date) {
     console.log(Charge_ID);
@@ -1330,6 +1263,9 @@ const Account = () => {
   };
   function roundToTwoDecimals(n) {
     return Math.round(n * 100) / 100;
+  }
+  function roundToTwoDecimalsTofix(n) {
+    return (Math.round(n * 100) / 100).toFixed(2);
   }
   // Function to handle the confirm action
   const handleConfirm = async () => {
@@ -1581,7 +1517,7 @@ const Account = () => {
                 justifyContent: 'space-between',
               }}>
                 <button
-                  onClick={() => { setAlertModal(false) }}
+                  onClick={() => { setAlertModal(false); localStorage.setItem(storeID, localStorage.getItem("Old_TitleLogoNameContent")) }}
                   style={{
                     background: '#f44336', // Red background for cancel
                     color: 'white',
@@ -1779,7 +1715,7 @@ const Account = () => {
                                     <path d="M5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
                                   </svg>
                                 </i>
-                                <span style={{ marginLeft: "5%" }}>Notification <span
+                                <span style={{ marginLeft: "5%" }}>Notification&nbsp;<span
                                   style={{
                                     display: 'inline-flex', // changed from 'flex' to 'inline-flex'
                                     alignItems: 'center',
@@ -1793,8 +1729,11 @@ const Account = () => {
                                     verticalAlign: 'middle' // added to vertically center the circle
                                   }}
                                 >
-                                  {numberReviewVariable}
-                                </span> </span>
+                                  <span className='notranslate'>
+                                    {numberReviewVariable}
+                                  </span>
+                                </span>
+                                </span>
                               </a>
 
                             </li>
@@ -1889,7 +1828,7 @@ const Account = () => {
 
                           <a className="btn d-inline-flex btn-sm btn-outline-danger mx-1">
                             <span className="pe-2">
-                            <i className="bi bi-exclamation-triangle"></i>
+                              <i className="bi bi-exclamation-triangle"></i>
                             </span>
                             <span
                               onClick={() => {
@@ -2355,20 +2294,18 @@ const Account = () => {
                               <div className={`w-50 ${isMobile ? 'mobile-class' : 'desktop-class'}`}>
                                 <div>
                                   <div style={{ fontWeight: 'bold' }}>Select Date Range</div>
-                                  <div style={{ display: 'flex' }}>
-                                    <div>
+                                  <div className={`${isMobile ? '' : 'flex'}`} >
+                                    <div >
                                       <div>Start Date:</div>
-                                      <button className="mt-1 mb-1 mr-2 notranslate" style={{
+                                      <button className=" btn btn-sm mt-1 mb-1 mr-2 notranslate " style={{
                                         border: '1px solid #ccc',
-                                        padding: '2px 5px',
                                         display: 'inline-flex',
                                         alignItems: 'center',
-                                        fontSize: '16px', // Example font size
                                         // Add other styles as needed
                                       }} onClick={() => {
                                         setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
                                         if (endDate === null) {
-                                          setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                          setEndDate(null);
                                         } else {
                                           setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
                                         }
@@ -2386,40 +2323,60 @@ const Account = () => {
 
                                     <div>
                                       <div>End Date:</div>
-                                      <button className="mt-1 mb-1 notranslate" style={{
-                                        border: '1px solid #ccc',
-                                        padding: '2px 5px',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        fontSize: '16px', // Example font size
-                                        // Add other styles as needed
-                                      }} onClick={() => {
-                                        setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
-                                        if (endDate === null) {
-                                          setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
-                                        } else {
-                                          setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
-                                        }
-                                        setIsPickerOpenMonth(false);
-                                        setIsPickerOpenStartDay(false);
-                                        setIsPickerOpenEndDay(!isPickerOpenEndDay);
+                                      {(endDate === null) ?
+                                        <button onClick={() => setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))}
+                                          className="btn btn-sm btn-success mt-1 mb-1 notranslate" style={{
+                                            border: '1px solid #ccc',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            // Add other styles as needed
+                                          }}>
+                                          <i className="bi bi-calendar-plus"></i>
+                                          &nbsp;
+                                          Add End Date
+                                        </button>
+                                        : <div className='flex'>
+                                          <button className="btn btn-sm mt-1 mb-1 notranslate" style={{
+                                            border: '1px solid #ccc',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            // Add other styles as needed
+                                          }} onClick={() => {
+                                            setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
+                                            if (endDate === null) {
+                                              setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                            } else {
+                                              setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                            }
+                                            setIsPickerOpenMonth(false);
+                                            setIsPickerOpenStartDay(false);
+                                            setIsPickerOpenEndDay(!isPickerOpenEndDay);
 
-                                      }}>
-                                        <i class="bi-calendar-range"></i>
-                                        &nbsp;
-                                        {endDate ? format(endDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
+                                          }}>
+                                            <i class="bi-calendar-range"></i>
+                                            &nbsp;
+                                            {endDate ? format(endDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
 
-                                      </button>
+                                          </button>
+                                          <button onClick={() => setEndDate(null)} className="btn btn-sm btn-danger mt-1 mb-1 notranslate" style={{
+                                            border: '1px solid #ccc',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            // Add other styles as needed
+                                          }}>
+                                            <i className="bi bi-trash"></i>
+                                          </button>
+                                        </div>
+                                      }
+
                                     </div>
 
                                   </div>
                                   <div style={{ fontWeight: 'bold' }}>Select Specific Month</div>
-                                  <button className="mt-1 mb-1 notranslate" style={{
+                                  <button className=" btn btn-sm mt-1 mb-1 mr-2 notranslate " style={{
                                     border: '1px solid #ccc',
-                                    padding: '2px 5px',
                                     display: 'inline-flex',
                                     alignItems: 'center',
-                                    fontSize: '16px', // Example font size
                                     // Add other styles as needed
                                   }} onClick={() => {
                                     getMonthDates(((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
@@ -2509,7 +2466,7 @@ const Account = () => {
                                     </div>
                                   </div>
                                   <button
-                                    onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))) }}
+                                    onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(null) }}
                                     className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
                                   >
                                     <i className="bi bi-calendar-event pe-2"></i>
@@ -2524,20 +2481,7 @@ const Account = () => {
                                   </button>
                                   {/* {JSON.stringify(startDate)}
                                   {JSON.stringify(endDate)} */}
-                                  <button
-                                    onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
-                                    className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
-                                  >
-                                    <i className="bi bi-calendar pe-2"></i>
-                                    <span>List All Orders</span>
-                                  </button>
-                                  <button
-                                    onClick={() => { OpenCashDraw() }}
-                                    className="btn btn-sm btn-info d-flex align-items-center mx-1 mt-1 mb-2"
-                                  >
-                                    <i className="bi bi-cash-stack pe-2"></i> 
-                                    <span>Cash Drawer</span>
-                                  </button>
+
                                   {/* <button
                                     onClick={() => setShowChart(!showChart)}
                                     className="btn btn-sm btn-info d-flex align-items-center mx-1 mb-2"
@@ -2679,10 +2623,34 @@ const Account = () => {
 
                               </div>
 
+
+                            </div>
+                            <div className={`${isMobile ? 'flex' : ''}`} >
+                              <button
+                                onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
+                              >
+                                <i className="bi bi-calendar pe-2"></i>
+                                <span>List All Orders</span>
+                              </button>
+                              <button
+                                onClick={() => { OpenCashDraw() }}
+                                className="btn btn-sm btn-info d-flex align-items-center mx-1 mt-1 mb-2"
+                              >
+                                <i className="bi bi-cash-stack pe-2"></i>
+                                <span>Cash Drawer</span>
+                              </button>
                             </div>
                             {showChart ?
                               <div>
-                                <hr></hr>
+                                <button onClick={() => setShowChart(false)} className="btn btn-sm mt-1 mb-1 notranslate" style={{
+                                  float: "right",
+                                  border: '1px solid #ccc',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  // Add other styles as needed
+                                }}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path fill="currentColor" d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" /></svg>                                </button>
                                 <LineChart className="chart" width={width2 - 75} height={250} data={sortedData}>
                                   <CartesianGrid strokeDasharray="3 3" />
                                   <XAxis dataKey="date" />
@@ -2692,16 +2660,14 @@ const Account = () => {
                                   <Line type="monotone" dataKey="revenue" stroke="#8884d8" />
                                 </LineChart>
 
-                              </div> :
-
-                              <div></div>
+                              </div> : null
                             }
                             {isMobile ? <hr class="opacity-50 border-t-2 border-black-1000" /> : <hr class="opacity-50 border-t-2 border-black-1000" />}
                             {isMobile ? <div >
                               <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
                                 <option value="">Select Other Payment Status</option>
                                 {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
-                                  <option key={index} value={option}>{option}</option>
+                                  <option key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
                                 ))}
                                 {/* The options will be dynamically created here */}
                               </select>
@@ -2742,7 +2708,7 @@ const Account = () => {
                                     <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
                                       <option value="">Select Other Payment Status</option>
                                       {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
-                                        <option key={index} value={option}>{option}</option>
+                                        <option key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
                                       ))}
                                       {/* The options will be dynamically created here */}
                                     </select>
@@ -2762,7 +2728,7 @@ const Account = () => {
                                       {isMobile ? null : <td className='notranslate'># {orders.length - index}</td>}
                                       <td className="order-number notranslate" data-title="OrderID"><a>{order.id.substring(0, 4)}</a></td>
                                       <td className="order-name notranslate" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum === "" ? "Takeout" : order.tableNum}</td>
-                                      <td className="order-status" data-title="Status" style={{ whiteSpace: "nowrap" }}>{order.status} </td>
+                                      <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
                                       <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="notranslate amount">{"$" + order.total}</span></td>
                                       <td className="order-date" data-title="Time" style={{ whiteSpace: "nowrap" }}>
                                         <time dateTime={order.date} title={order.date} nowrap>
@@ -2783,7 +2749,7 @@ const Account = () => {
                                           {order?.status === 'Paid by Cash' ? (
                                             <button
                                               className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                              onClick={() => {setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
                                             >
                                               Add Gratuity
                                             </button>
@@ -2802,7 +2768,7 @@ const Account = () => {
                                           {order?.status === 'Paid by Cash' ? (
                                             <button
                                               className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                              onClick={() => {setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
                                             >
                                               Add Gratuity
                                             </button>
@@ -2832,7 +2798,7 @@ const Account = () => {
 
 
                                     {expandedOrderIds.includes(order.id) && (
-                                      <tr>
+                                      <tr style={{ backgroundColor: '#f8f9fa' }}>
                                         <td colSpan={8} style={{ padding: "10px" }}>
                                           <div className="receipt">
                                             <p><span className='notranslate'>{order.name}</span></p>
@@ -2844,16 +2810,16 @@ const Account = () => {
                                                   {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
                                                     : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
                                                   &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
-                                                  &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((round2digt(item.quantity * item.subtotal)) / round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) : item.subtotal}
-                                                  &nbsp;each = ${round2digt(item.quantity * item.subtotal)}</p>
+                                                  &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.quantity * item.subtotal)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) : item.subtotal}
+                                                  &nbsp;each = ${roundToTwoDecimalsTofix(item.quantity * item.subtotal)}</p>
                                               </div>
                                             ))}
-                                            <p>Discount: $ <span className='notranslate'>{order.metadata.discount}</span> </p>
-                                            <p>Subtotal: $ <span className='notranslate'>{order.metadata.subtotal}</span> </p>
-                                            <p>Service fee: $ <span className='notranslate'>{order.metadata.service_fee}</span></p>
-                                            <p>Tax: $ <span className='notranslate'>{order.metadata.tax}</span></p>
-                                            <p>Gratuity: $ <span className='notranslate'>{order.metadata.tips}</span></p>
-                                            <p>Total: $ <span className='notranslate'>{order.metadata.total}</span></p>
+                                            <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.discount)}</span> </p>
+                                            <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.subtotal)}</span> </p>
+                                            <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.service_fee)}</span></p>
+                                            <p>Tax: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tax)}</span></p>
+                                            <p>Gratuity: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tips)}</span></p>
+                                            <p>Total: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.total)}</span></p>
                                           </div>
                                         </td>
                                       </tr>
@@ -2887,7 +2853,7 @@ const Account = () => {
       </div>
 
 
-    </div>
+    </div >
   )
 }
 
