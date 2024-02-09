@@ -15,6 +15,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useParams } from 'react-router-dom';
 import { query, where, limit, doc, getDoc } from "firebase/firestore";
+import LazyLoad from 'react-lazy-load';
 
 import BusinessHoursTable from './BusinessHoursTable.js'
 import { v4 as uuidv4 } from 'uuid';
@@ -186,6 +187,7 @@ const Food = () => {
   //console.log(user_loading)
   if (tableValue === "") {
     if (sessionStorage.getItem('table')) {//存在过
+      sessionStorage.setItem('table', tableValue)
       sessionStorage.setItem('isDinein', true)
     } else {//不存在
       sessionStorage.setItem('table', tableValue)
@@ -658,11 +660,14 @@ const Food = () => {
 
       <div>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
+
         {isModalVisible && (
-          <div id={count} className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
-            <div className="relative w-full max-w-2xl max-h-full ">
-              <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
-                <div className='flex justify-between'>
+          <div className="fixed inset-0 z-50 flex justify-center bg-black bg-opacity-50 p-4 overflow-x-hidden overflow-y-auto">
+            <div className="relative w-full max-w-2xl max-h-full">
+              <div className="bg-white rounded-lg border border-gray-200 shadow-lg dark:bg-gray-700">
+
+                <div className="flex justify-between">
+                  {/* Conditional rendering for image with a more relevant placeholder */}
                   {selectedFoodItem.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
                     <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg" src={selectedFoodItem.image} alt={selectedFoodItem.name} />
                     :
@@ -670,162 +675,124 @@ const Food = () => {
 
                   }
                 </div>
-                <div className='p-4 pt-3'>
-                  <div>
-                    <span class="notranslate">
 
-                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
-                    </span>
-                  </div>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold">
+                    {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : selectedFoodItem?.name}
+                  </h3>
+
+                  {/* Attributes Section */}
                   {Object.entries(selectedFoodItem?.attributesArr)?.map(([attributeName, attributeDetails]) => (
                     <div key={attributeName}>
-                      <p className="mb-1">
-                        <span className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
-                          {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : ""}
-                        </span>
-                      </p>
-
                       <div className='flex flex-wrap'>
-                        {attributeDetails.variations.map((variation, idx) => (
-                          <div key={idx}>
-                            <div
-                              className={`mb-1 mr-1 mt-1 ${attributeDetails.isSingleSelected
-                                ? selectedAttributes[attributeName] === variation.type
-                                  ? 'selected-variation'
-                                  : ''
-                                : selectedAttributes[attributeName]?.includes(variation.type)
-                                  ? 'selected-variation'
-                                  : ''
-                                }`}
-                              style={{
-                                position: 'relative',
-                                background: attributeDetails.isSingleSelected
-                                  ? selectedAttributes[attributeName] === variation.type
-                                    ? 'rgb(207, 238, 227)' // Selected background color
-                                    : 'white' // Not selected background color (white)
-                                  : selectedAttributes[attributeName]?.includes(variation.type)
-                                    ? 'rgb(207, 238, 227)' // Selected background color
-                                    : 'white', // Not selected background color (white)
-                                border: attributeDetails.isSingleSelected ||
-                                  (selectedAttributes[attributeName]?.includes(variation.type))
-                                  ? '1px solid black' // Add a black border when background is white
-                                  : '1px solid black', // No border when background is colored
-                                borderRadius: '8px',
-                                padding: '10px 10px 10px 10px',
-                                height: '32px',
-                                fontFamily: "Suisse Int'l",
-                                fontStyle: 'normal',
-                                fontWeight: 600,
-                                fontSize: '12px',
-                                lineHeight: '12px',
-                                letterSpacing: '0.05em',
-                                textTransform: 'uppercase',
-                                color: 'black',
-                                whiteSpace: 'nowrap',
-                                cursor: 'pointer',
-                              }}
-                              onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count)}
-                            >
-                              {variation.type}({formatPriceDisplay(variation.price)})
+                        {Object.entries(selectedFoodItem?.attributesArr)?.map(([attributeName, attributeDetails]) => (
+                          <div key={attributeName} className="my-2">
+                            <p className="mb-1 font-medium">
+                              {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : ""}
+                            </p>
+                            <div className="flex flex-wrap">
+                              {attributeDetails.variations.map((variation, idx) => (
+                                <div key={idx} className={`mb-1 mr-1 mt-1 p-2 border rounded-lg cursor-pointer ${attributeDetails.isSingleSelected ? (selectedAttributes[attributeName] === variation.type ? 'bg-green-300 border-green-300' : 'bg-white border-gray-300') : (selectedAttributes[attributeName]?.includes(variation.type) ? 'bg-green-300 border-green-300' : 'bg-white border-green-300')} hover:bg-green-300`} onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id)}>
+                                  {variation.type}({formatPriceDisplay(variation.price)})
+                                </div>
+                              ))}
                             </div>
                           </div>
                         ))}
+
                       </div>
                     </div>
                   ))}
-                  {/* <pre>{JSON.stringify(selectedAttributes, null, 2)}</pre>
-                  <div>{searchSpeicalFoodQuantity(selectedFoodItem.id, count)}</div> */}
-                </div>
-                <div className='p-4 pt-3 flex justify-between'>
-                  <div class="notranslate">
-                    ${Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100}
-                  </div>
-                  <div>
-                    <div
-                      className={animationClass}
-                      style={{
-                        margin: '0px',
-                        display: 'flex',
-                        whiteSpace: 'nowrap',
-                        width: '80px',
-                        marginTop: '-18px',
-                        paddingTop: '20px',
-                        height: 'fit-content',
-                      }}
-                    >
-                      <div className="quantity"
 
-                        style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-18px", paddingTop: "20px", height: "fit-content" }}>
-                        <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                          <button
+                  <div className="flex justify-between mt-4">
+                    <span class="notranslate font-medium">
+                      ${Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100}
+                    </span>
+                    {/* Quantity Selector */}
+                    <div>
+                      <div
+                        className={animationClass}
+                        style={{
+                          margin: '0px',
+                          display: 'flex',
+                          whiteSpace: 'nowrap',
+                          width: '80px',
+                          marginTop: '-18px',
+                          paddingTop: '20px',
+                          height: 'fit-content',
+                        }}
+                      >
+                        <div className="quantity"
 
-                            className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                            onClick={() => {
-                              deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 1);
-                              //saveId(Math.random());
-                            }}
+                          style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-18px", paddingTop: "20px", height: "fit-content" }}>
+                          <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                            <button
 
+                              className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                              onClick={() => {
+                                deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 1);
+                                //saveId(Math.random());
+                              }}
+
+                            >
+                              <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                            </button>
+                          </div>
+                          <span
+
+                            type="text"
+                            style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
                           >
-                            <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                          </button>
-                        </div>
-                        <span
 
-                          type="text"
-                          style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                        >
+                            <span class="notranslate">
+                              {searchSpeicalFoodQuantity(selectedFoodItem.id, count)}
+                            </span>
 
-                          <span class="notranslate">
-                            {searchSpeicalFoodQuantity(selectedFoodItem.id, count)}
                           </span>
 
-                        </span>
 
+                          <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                            <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                              onClick={() => {
 
-                        <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                          <button className="minus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                            onClick={() => {
-
-                              addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count, selectedFoodItem.CHI);
-                              //saveId(Math.random());
-                            }}
-                          >
-                            <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                          </button>
+                                addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count, selectedFoodItem.CHI);
+                                //saveId(Math.random());
+                              }}
+                            >
+                              <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                </div>
-                <div className="flex justify-between pl-4 pr-4 pb-2">
-                  <button
-                    onClick={() => { deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 0); }}
-                    className="btn btn-sm btn-secondary d-flex align-items-center mx-2 mb-2"
-                  >
-                    <span>Cancel</span>
+                <div className="flex justify-end space-x-2 p-4">
+                  <button onClick={() => { deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 0); }} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-800">
+                    Cancel
                   </button>
-                  <button
-                    onClick={hideModal}  // Updated to use hideModal
-                    className="btn btn-sm btn-primary d-flex align-items-center mx-2 mb-2"
-                  >
-                    <span>Confirm</span>
+                  <button onClick={hideModal}  // Updated to use hideModal
+                    className="px-4 py-2 bg-blue-500 rounded hover:bg-blue-600 text-white">
+                    Confirm
                   </button>
                 </div>
+
               </div>
             </div>
           </div>
         )}
-        <div className='m-auto px-4 flex-grow-1 overflow-y-auto relative min-h-screen w-full'>
+        <div style={{ backgroundImage: `url(${storeInfo?.Image})` }
 
-          <div
+        }
+          className='m-auto px-4 flex-grow-1 overflow-y-auto relative min-h-screen w-full'>
+
+          {/* <div
             className="absolute inset-0 bg-cover bg-center "
-            style={{ backgroundImage: `url(${storeInfo?.Image})` }}
+
           >
 
-          </div>
-
-          <div className="absolute inset-0 bg-white opacity-30"></div>
+          </div> */}
 
           <div className='relative flex flex-col lg:flex-row justify-between lg:ml-10 lg:mr-10' style={{ flexDirection: "column" }}>
             {/* Filter Type */}
@@ -913,136 +880,141 @@ const Food = () => {
 
           </div>
           {/* diplay food */}
-          <div className='lg:ml-10 lg:mr-10'>          <AnimatePresence
+          <div className='lg:ml-10 lg:mr-10'>
+            <LazyLoad height={762}>
+              <AnimatePresence>
+                <div className={
+                  isMobile ? 'grid grid-cols-1 gap-3 pt-2' :
+                    isPC ? 'grid lg:grid-cols-4 gap-3' :
+                      'grid lg:grid-cols-2 gap-3'
+                }
 
-          >
-            <div className={
-              isMobile ? 'grid grid-cols-1 gap-3 pt-2' :
-                isPC ? 'grid lg:grid-cols-4 gap-3' :
-                  'grid lg:grid-cols-2 gap-3'
-            }
 
 
+                > {/* group food by category */}
+                  {Object.values(foods.reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().map((item, index) => (
 
-            > {/* group food by category */}
-              {Object.values(foods.reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().map((item, index) => (
-                <motion.div
 
-                  layout
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.1 }}
-                  key={item.id}
-                  onClick={() => {
-                    setSelectedFoodItem(item);;
-                    showModal(item);
-                    handleDropFood();
-                  }}
-                  style={{
-                    background: 'rgba(255,255,255,0.9)',
-                  }} className=" border rounded-lg cursor-pointer">
-                  <div className=' flex'>
+                    <motion.div
 
-                    <div style={{ width: "60%" }}>
-                      <div className='flex justify-between px-2 pb-1 grid grid-cols-4 w-full z-20'>
+                      layout
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.1 }}
+                      key={item.id}
+                      onClick={() => {
+                        setSelectedFoodItem(item);;
+                        showModal(item);
+                        handleDropFood();
+                      }}
+                      style={{
+                        background: 'rgba(255,255,255,0.9)',
+                      }} className="z-200 border rounded-lg cursor-pointer">
+                      <div className=' flex'>
 
-                        {/* parent div of title + quantity and button parent div */}
-                        <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                          <div className="col-span-4">
-                            <span class="notranslate text-xl bold">
-                              {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
-                            </span >
-                          </div>
+                        <div style={{ width: "60%" }}>
+                          <div className='flex justify-between px-2 pb-1 grid grid-cols-4 w-full z-20'>
 
-                          {/* parent div of the quantity and buttons */}
-                          <div style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                            marginBottom: "10px"
-                          }}>
-                            <div className="col-span-2 text-lg" style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "center",
-                              alignItems: "center"
-                            }}>
-                              <p style={{ marginBottom: "0" }}>
-                                <span>
-                                  ${item.subtotal}
+                            {/* parent div of title + quantity and button parent div */}
+                            <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                              <div className="col-span-4">
+                                <span class="notranslate text-xl bold">
+                                  {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
+                                </span >
+                              </div>
 
-                                </span>
-                              </p>
-
-                            </div>
-
-                          </div>
-                          {/* ^ end of parent div of quantity and button */}
-                        </div>
-                        {/* ^ end of parent div of title + quantity and buttons */}
-                      </div>
-                      {/* This is Tony added code */}
-                    </div>
-                    <div style={{ width: "40%" }} class="h-min overflow-hidden rounded-md flex justify-end">
-
-                      <div className='m-2 rounded-lg max-h-[220px] relative'>
-                        <div className='absolute w-[80px] h-[80px] flex flex-col justify-end items-end'>
-                          <div
-                            className="black_hover "
-                            style={{
-                              padding: '4px',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              display: "flex",
-                              border: "1px solid", // Adjust the border
-                              borderRadius: "50%", // Set borderRadius to 50% for a circle
-                              width: "30px", // Make sure width and height are equal
-                              height: "30px",
-                              backgroundColor: 'white' // Set the background color to white
-                            }}
-                          >
-                            <button
-                              className="minus-btn"
-                              type="button"
-                              name="button"
-                              style={{
-                                marginTop: '0px',
-                                width: '20px',
-                                height: '20px',
-                                alignItems: 'center',
-                                justifyContent: 'center',
+                              {/* parent div of the quantity and buttons */}
+                              <div style={{
                                 display: "flex",
-                              }}
-                            >
-                              <PlusSvg
-                                style={{
-                                  margin: '0px',
-                                  width: '10px',
-                                  height: '10px',
-                                }}
-                                alt=""
-                              />
-                            </button>
-                          </div>
-                        </div>
-                        {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
-                          <img loading="lazy" class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={item.image} />
-                          :
-                          <img class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/AAAAAgBAQEPkHIxAAAAAElFTkSuQmCC'} alt="White placeholder" />
+                                flexDirection: "row",
+                                justifyContent: "space-between",
+                                marginBottom: "10px"
+                              }}>
+                                <div className="col-span-2 text-lg" style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  justifyContent: "center",
+                                  alignItems: "center"
+                                }}>
+                                  <p style={{ marginBottom: "0" }}>
+                                    <span>
+                                      ${item.subtotal}
 
-                        }
+                                    </span>
+                                  </p>
+
+                                </div>
+
+                              </div>
+                              {/* ^ end of parent div of quantity and button */}
+                            </div>
+                            {/* ^ end of parent div of title + quantity and buttons */}
+                          </div>
+                          {/* This is Tony added code */}
+                        </div>
+                        <div style={{ width: "40%" }} class="h-min overflow-hidden rounded-md flex justify-end">
+
+                          <div className='m-2 rounded-lg max-h-[220px] relative'>
+                            <div className='absolute w-[80px] h-[80px] flex flex-col justify-end items-end'>
+                              <div
+                                className="black_hover "
+                                style={{
+                                  padding: '4px',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  display: "flex",
+                                  border: "1px solid", // Adjust the border
+                                  borderRadius: "50%", // Set borderRadius to 50% for a circle
+                                  width: "30px", // Make sure width and height are equal
+                                  height: "30px",
+                                  backgroundColor: 'white' // Set the background color to white
+                                }}
+                              >
+                                <button
+                                  className="minus-btn"
+                                  type="button"
+                                  name="button"
+                                  style={{
+                                    marginTop: '0px',
+                                    width: '20px',
+                                    height: '20px',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    display: "flex",
+                                  }}
+                                >
+                                  <PlusSvg
+                                    style={{
+                                      margin: '0px',
+                                      width: '10px',
+                                      height: '10px',
+                                    }}
+                                    alt=""
+                                  />
+                                </button>
+                              </div>
+                            </div>
+                            {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
+                              <img loading="lazy" class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={item.image} />
+                              :
+                              <img class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/AAAAAgBAQEPkHIxAAAAAElFTkSuQmCC'} alt="White placeholder" />
+
+                            }
+                          </div>
+
+                        </div>
                       </div>
 
-                    </div>
-                  </div>
 
 
+                    </motion.div>
 
-                </motion.div>
-              ))}
-            </div>
-          </AnimatePresence>
+                  ))}
+                </div>
+              </AnimatePresence>
+            </LazyLoad>
+
           </div>
 
         </div>

@@ -121,7 +121,7 @@ const Navbar = () => {
     let height = 100;
     if (width > 575) {
       if (products && products.length > 0) {
-        if (products.length < 4) {
+        if (products.length < 5) {
           height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
         } else {
           height = 5 * 123 + 140; // set height to show only the first 5 items and the shopping cart header
@@ -387,11 +387,14 @@ const Navbar = () => {
           </a>
         </a>
       )}
-      {openModal2 &&
-        <div id="addTipsModal" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="modal-dialog" role="document">
-            <div className="modal-content bg-white p-4 rounded-lg shadow-lg">
-              <div className="modal-body pt-0" >
+
+      {openModal2 && (
+        <div className="fixed inset-0 z-50 flex justify-center bg-black bg-opacity-50 p-4">
+          <div className="relative w-full max-w-2xl max-h-full">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-lg dark:bg-gray-700">
+
+
+              <div className="p-4">
                 <div className='flex justify-between'>
                   You can view latest order here:
                   <DeleteSvg
@@ -400,17 +403,23 @@ const Navbar = () => {
                     onClick={() => setOpenModal2(false)}
                   />
                 </div>
-              </div>
-              <div className="modal-footer" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                 <OrderHasReceived />
                 <Receipt />
               </div>
+
+              <div className="flex justify-end space-x-2 p-4">
+
+                <button onClick={() => setOpenModal2(false)}
+                  // Updated to use hideModal
+                  className="px-4 py-2 bg-blue-500 rounded hover:bg-blue-600 text-white">
+                  Confirm
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
-
-
-      }
+      )}
 
 
 

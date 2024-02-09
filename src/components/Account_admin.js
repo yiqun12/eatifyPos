@@ -16,6 +16,7 @@ import { useRef } from "react";
 import { onSnapshot, query } from "firebase/firestore";
 import mySound from '../pages/new_order_english.mp3'; // Replace with your sound file's path
 import mySound_CHI from '../pages/new_order_chinese.mp3'; // Replace with your sound file's path
+import $ from 'jquery';
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } from 'recharts';
 import { data_ } from '../data/data.js'
@@ -46,6 +47,7 @@ import IframeDesk from '../components/iframeDesk'
 import Test_Notification_Page from "../pages/Test_Notification_Page.js";
 
 import myImage from './check-mark.png';  // Import the image
+import LazyLoad from 'react-lazy-load';
 
 import { ReactComponent as Dashboard_chart } from './dashboard_chart.svg';
 import { ReactComponent as Todo_icon } from './todo_icon.svg';
@@ -54,12 +56,17 @@ import file_icon from './file_icon.png';
 import styled from '@emotion/styled';
 import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate } from '../comonFunctions';
 import { el } from 'date-fns/locale';
+import e from 'cors';
 
 registerLocale('zh-CN', zhCN);
 
 
 
 const Account = () => {
+  const params = new URLSearchParams(window.location.search);
+
+  const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
+
   const translations = [
     { input: "Paid by Cash", output: "现金支付" },
     { input: "POS Machine", output: "POS机" },
@@ -776,6 +783,7 @@ const Account = () => {
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
+
   const [previousHash, setPreviousHash] = useState(window.location.hash);
   const [alertModal, setAlertModal] = useState(false);
 
@@ -1189,12 +1197,45 @@ const Account = () => {
 
   // lifting the variable of # under review from the Test_notication_Page component lists
   const [numberReviewVariable, setNumberReviewVariable] = useState(notificationData ? notificationData.length : 0);
+  // Initialize state with 0 seconds
+  const [seconds, setSeconds] = useState(0);
 
+  useEffect(() => {
+    // Set up an interval that updates the `seconds` state every second
+    const interval = setInterval(() => {
+      console.log(numberReviewVariable)
+      const ringbell = $('#ringbell');
+      if (numberReviewVariable === 0) {
+
+      } else {
+        setTimeout(() => {
+          $('#ringbell').addClass('shake');
+        }, 200);
+
+        setTimeout(() => {
+          ringbell.removeClass('shake');
+        }, 0);
+        if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
+          playSound_CHI()
+        } else {
+          playSound()
+        }
+      }
+
+
+      setSeconds(prevSeconds => prevSeconds + 1);
+    }, 2000);
+
+    // Cleanup the interval on component unmount
+    return () => clearInterval(interval);
+  }, [numberReviewVariable]); // Empty dependency array means this effect runs only once on mount
 
   useEffect(() => {
     // console.log("numberReviewVariable has been updated:", numberReviewVariable);
     // Perform any additional logic in the parent component when the number changes
     setNumberReviewVariable(notificationData.length);
+    $('#ringbell').attr("data-totalitems", notificationData.length);
+
   }, [notificationData]);
 
   const [isSplitPaymentModalOpen, setSplitPaymentModalOpen] = useState(false);
@@ -1613,7 +1654,14 @@ const Account = () => {
                       setStoreID('');
                       setActiveStoreId('')
                       setStoreOpenTime('')
-                      window.history.pushState({}, '', '/account');
+
+                      if (storeFromURL !== '' && storeFromURL !== null) {
+                        // Use pushState to change the URL without reloading the page
+                        window.history.pushState(null, '', `/account?store=${storeFromURL}`);
+                      } else {
+                        window.history.pushState(null, '', '/account');
+                      }
+                      //window.history.pushState({}, '', '/account');
                     }
                     }
                   >
@@ -1910,7 +1958,12 @@ const Account = () => {
                           setStoreID('');
                           setActiveStoreId('')
                           setStoreOpenTime('')
-                          window.history.pushState({}, '', '/account');
+                          if (storeFromURL !== '' && storeFromURL !== null) {
+                            // Use pushState to change the URL without reloading the page
+                            window.history.pushState(null, '', `/account?store=${storeFromURL}`);
+                          } else {
+                            window.history.pushState(null, '', '/account');
+                          }
                         }
                         }
                       >
@@ -2681,155 +2734,161 @@ const Account = () => {
                               </select>
                             </div> : null
                             }
-                            <table
-                              className="shop_table my_account_orders"
-                              style={{
-                                borderCollapse: "collapse",
-                                width: "100%",
-                                borderSpacing: "6px", // added CSS
-                              }}
-                            >
 
-                              <thead>
-                                <tr>
-                                  {isMobile ? null : <th className="notranslate" style={{ width: "6%" }}>Number.</th>}
-                                  <th className="order-number" style={isMobile ? {} : { width: "7%" }}>Order ID</th>
-                                  <th className="order-name" style={isMobile ? {} : { width: "10%" }}>
-                                    <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
-                                      <option value="">Select Other Dining Table</option>
-                                      {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
-                                        <option key={index} value={option}>{option}</option>
-                                      ))}
-                                      {/* The options will be dynamically created here */}
-                                    </select>
+                            <LazyLoad height={762}>
 
-                                  </th>
-                                  <th className="order-status" style={isMobile ? {} : { width: "30%" }}>
-                                    <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
-                                      <option value="">Select Other Payment Status</option>
-                                      {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
-                                        <option key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
-                                      ))}
-                                      {/* The options will be dynamically created here */}
-                                    </select>
-                                  </th>
-                                  <th className="order-total" style={isMobile ? {} : { width: "7%" }}>Total Price</th>
-                                  <th className="order-date" style={isMobile ? {} : { width: "25%" }}>Time</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).map((order, index) => (
-                                  <div style={{ display: 'contents' }}>
+                              <table
+                                className="shop_table my_account_orders"
+                                style={{
+                                  borderCollapse: "collapse",
+                                  width: "100%",
+                                  borderSpacing: "6px", // added CSS
+                                }}
+                              >
 
-                                    {isMobile ? <div># {orders.length - index}</div> :
-                                      null
-                                    }
-                                    <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
-                                      {isMobile ? null : <td className='notranslate'># {orders.length - index}</td>}
-                                      <td className="order-number notranslate" data-title="OrderID"><a>{order.id.substring(0, 4)}</a></td>
-                                      <td className="order-name notranslate" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum === "" ? "Takeout" : order.tableNum}</td>
-                                      <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
-                                      <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="notranslate amount">{"$" + order.total}</span></td>
-                                      <td className="order-date" data-title="Time" style={{ whiteSpace: "nowrap" }}>
-                                        <time dateTime={order.date} title={order.date} nowrap>
-                                          <span className='notranslate'>{order.date}</span>
-                                        </time>
-                                      </td>
+                                <thead>
+                                  <tr>
+                                    {isMobile ? null : <th className="notranslate" style={{ width: "6%" }}>Number.</th>}
+                                    <th className="order-number" style={isMobile ? {} : { width: "7%" }}>Order ID</th>
+                                    <th className="order-name" style={isMobile ? {} : { width: "10%" }}>
+                                      <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
+                                        <option value="">Select Other Dining Table</option>
+                                        {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
+                                          <option key={index} value={option}>{option}</option>
+                                        ))}
+                                        {/* The options will be dynamically created here */}
+                                      </select>
 
-                                      {isMobile ?
-                                        <div className="order-details" style={{ whiteSpace: "nowrap" }} data-title="Details">
-                                          <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
+                                    </th>
+                                    <th className="order-status" style={isMobile ? {} : { width: "30%" }}>
+                                      <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
+                                        <option value="">Select Other Payment Status</option>
+                                        {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
+                                          <option key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
+                                        ))}
+                                        {/* The options will be dynamically created here */}
+                                      </select>
+                                    </th>
+                                    <th className="order-total" style={isMobile ? {} : { width: "7%" }}>Total Price</th>
+                                    <th className="order-date" style={isMobile ? {} : { width: "25%" }}>Time</th>
+                                  </tr>
+                                </thead>
 
-                                          >
-                                            {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
-                                          </button>
-                                          <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)} style={{ cursor: "pointer", border: "1px solid black" }}>
-                                            {"MerchantReceipt"}
-                                          </button>
-                                          {order?.status === 'Paid by Cash' ? (
-                                            <button
-                                              className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                <tbody>
+                                  {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).map((order, index) => (
+                                    <div style={{ display: 'contents' }}>
+
+                                      {isMobile ? <div># {orders.length - index}</div> :
+                                        null
+                                      }
+                                      <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
+                                        {isMobile ? null : <td className='notranslate'># {orders.length - index}</td>}
+                                        <td className="order-number notranslate" data-title="OrderID"><a>{order.id.substring(0, 4)}</a></td>
+                                        <td className="order-name notranslate" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum === "" ? "Takeout" : order.tableNum}</td>
+                                        <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
+                                        <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="notranslate amount">{"$" + roundToTwoDecimalsTofix(order.total)}</span></td>
+                                        <td className="order-date" data-title="Time" style={{ whiteSpace: "nowrap" }}>
+                                          <time dateTime={order.date} title={order.date} nowrap>
+                                            <span className='notranslate'>{order.date}</span>
+                                          </time>
+                                        </td>
+
+                                        {isMobile ?
+                                          <div className="order-details" style={{ whiteSpace: "nowrap" }} data-title="Details">
+                                            <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
+
                                             >
-                                              Add Gratuity
+                                              {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
                                             </button>
-                                          ) :
-                                            <button
-                                              className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                              onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
-                                            >
-                                              Bank Receipt
-                                            </button>}
-
-                                        </div>
-                                        :
-                                        <td className="order-details" style={{ whiteSpace: "nowrap", textAlign: "right" }}
-                                          data-title="Details">
-                                          {order?.status === 'Paid by Cash' ? (
-                                            <button
-                                              className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                            >
-                                              Add Gratuity
+                                            <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)} style={{ cursor: "pointer", border: "1px solid black" }}>
+                                              {"MerchantReceipt"}
                                             </button>
-                                          ) :
-                                            <button
-                                              className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                              onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
-                                            >
-                                              Bank Receipt
-                                            </button>}
-                                          <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)} style={{ cursor: "pointer", border: "1px solid black" }}>
-                                            {"MerchantReceipt"}
-                                          </button>
-                                          {/* <button onClick={() => deleteDocument(order.id)}>
+                                            {order?.status === 'Paid by Cash' ? (
+                                              <button
+                                                className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                              >
+                                                Add Gratuity
+                                              </button>
+                                            ) :
+                                              <button
+                                                className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
+                                              >
+                                                Bank Receipt
+                                              </button>}
+
+                                          </div>
+                                          :
+                                          <td className="order-details" style={{ whiteSpace: "nowrap", textAlign: "right" }}
+                                            data-title="Details">
+                                            {order?.status === 'Paid by Cash' ? (
+                                              <button
+                                                className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                              >
+                                                Add Gratuity
+                                              </button>
+                                            ) :
+                                              <button
+                                                className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
+                                              >
+                                                Bank Receipt
+                                              </button>}
+                                            <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)} style={{ cursor: "pointer", border: "1px solid black" }}>
+                                              {"MerchantReceipt"}
+                                            </button>
+                                            {/* <button onClick={() => deleteDocument(order.id)}>
                                             Delete Document
                                           </button> */}
 
-                                          <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
+                                            <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
 
-                                          >
-                                            {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
-                                          </button>
-                                        </td>
-                                      }
-                                    </tr>
-
-
-
-                                    {expandedOrderIds.includes(order.id) && (
-                                      <tr style={{ backgroundColor: '#f8f9fa' }}>
-                                        <td colSpan={8} style={{ padding: "10px" }}>
-                                          <div className="receipt">
-                                            <p><span className='notranslate'>{order.name}</span></p>
-                                            {/* <p>{order.email}</p> */}
-                                            {/* <p><span className='notranslate'>{order.date}</span></p> */}
-                                            {JSON.parse(order.receiptData).map((item, index) => (
-                                              <div className="receipt-item" key={item.id}>
-                                                <p className='notranslate'>
-                                                  {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
-                                                    : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
-                                                  &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
-                                                  &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.quantity * item.subtotal)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) : item.subtotal}
-                                                  &nbsp;each = ${roundToTwoDecimalsTofix(item.quantity * item.subtotal)}</p>
-                                              </div>
-                                            ))}
-                                            <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.discount)}</span> </p>
-                                            <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.subtotal)}</span> </p>
-                                            <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.service_fee)}</span></p>
-                                            <p>Tax: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tax)}</span></p>
-                                            <p>Gratuity: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tips)}</span></p>
-                                            <p>Total: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.total)}</span></p>
-                                          </div>
-                                        </td>
+                                            >
+                                              {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
+                                            </button>
+                                          </td>
+                                        }
                                       </tr>
-                                    )}
-                                  </div>
-                                ))}
-                              </tbody>
-                            </table>
+
+
+
+                                      {expandedOrderIds.includes(order.id) && (
+                                        <tr style={{ backgroundColor: '#f8f9fa' }}>
+                                          <td colSpan={8} style={{ padding: "10px" }}>
+                                            <div className="receipt">
+                                              <p><span className='notranslate'>{order.name}</span></p>
+                                              {/* <p>{order.email}</p> */}
+                                              {/* <p><span className='notranslate'>{order.date}</span></p> */}
+                                              {JSON.parse(order.receiptData).map((item, index) => (
+                                                <div className="receipt-item" key={item.id}>
+                                                  <p className='notranslate'>
+                                                    {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
+                                                      : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
+                                                    &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
+                                                    &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.quantity * item.subtotal)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) : item.subtotal}
+                                                    &nbsp;each = ${roundToTwoDecimalsTofix(item.quantity * item.subtotal)}</p>
+                                                </div>
+                                              ))}
+                                              <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.discount)}</span> </p>
+                                              <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.subtotal)}</span> </p>
+                                              <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.service_fee)}</span></p>
+                                              <p>Tax: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tax)}</span></p>
+                                              <p>Gratuity: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tips)}</span></p>
+                                              <p>Total: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.total)}</span></p>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      )}
+                                    </div>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </LazyLoad>
+
                           </div>
-                            : <div></div>
+                            : null
                           }
 
                         </div>

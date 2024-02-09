@@ -55,6 +55,8 @@
         "react-helmet": "^6.1.0",
         "react-icons": "^4.7.1",
         "react-image-crop": "^10.1.5",
+        "react-lazy-load": "^4.0.1",
+        "react-lazy-load-image-component": "^1.6.0",
         "react-leaflet": "^4.2.1",
         "react-modal": "^3.16.1",
         "react-resize-detector": "^9.1.0",

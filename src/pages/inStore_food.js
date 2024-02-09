@@ -18,6 +18,7 @@ import { setDoc } from "firebase/firestore";
 //setModalVisibility
 import { v4 as uuidv4 } from 'uuid';
 import pinyin from "pinyin";
+import LazyLoad from 'react-lazy-load';
 
 
 function convertToPinyin(text) {
@@ -1077,6 +1078,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
             </div>
 
           </div>
+          <LazyLoad height={762}>
 
           {/* diplay food */}
           <AnimatePresence>
@@ -1210,6 +1212,8 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
               ))}
             </div>
           </AnimatePresence>
+          </LazyLoad>
+
         </div>
       </div >
     )

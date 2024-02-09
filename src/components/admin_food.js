@@ -18,6 +18,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import useDynamicAttributes from './useDynamicAttributes';
 import pinyin from "pinyin";
+import LazyLoad from 'react-lazy-load';
 
 
 function convertToPinyin(text) {
@@ -722,7 +723,7 @@ const Food = ({ store }) => {
           </div>
 
         </div>
-
+        <LazyLoad height={762}>  
 
 
         {/* diplay food */}
@@ -847,7 +848,10 @@ const Food = ({ store }) => {
                       <input
                         className='text-md font-semibold'
                         style={{ width: "50%" }}
-                        type="text" name="category" placeholder={selectedFoodType === "" ? "classic" : selectedFoodType} value={selectedFoodType} onChange={handleInputChange}
+                        type="text" name="category" 
+                        placeholder={selectedFoodType === "" ? "classic" : selectedFoodType} 
+                        value={selectedFoodType === "" ? newItem.category : selectedFoodType} 
+                        onChange={handleInputChange}
                         translate="no" />
                     </div>
                     <div>
@@ -1002,41 +1006,26 @@ const Food = ({ store }) => {
                       </span>
 
                     </p>
-                    <div className='flex'>
+                    <div className="flex">
+  {['Morning', 'Afternoon', 'Evening'].map((timeOfDay) => (
+    <div
+      key={timeOfDay}
+      className={`mr-1 cursor-pointer relative rounded-lg px-2.5 h-8 flex items-center justify-center font-semibold text-xs leading-none tracking-wider text-uppercase text-black whitespace-nowrap ${
+        selectedOptions.includes(timeOfDay) ? 'bg-blue-200' : 'bg-white'
+      }`}
+      onClick={() => toggleOption(timeOfDay)}
+    >
+      {timeOfDay}
+      {selectedOptions.includes(timeOfDay) && (
+        <span className="absolute top-0 right-0 cursor-pointer">
+          {/* Ensure FontAwesomeIcon component is correctly imported to use it here */}
+          <FontAwesomeIcon icon={faTimes} />
+        </span>
+      )}
+    </div>
+  ))}
+</div>
 
-                      <div className='mr-1 cursor-pointer'
-                        onClick={() => toggleOption('Morning')}
-                        style={{ position: 'relative', background: selectedOptions.includes('Morning') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                        Morning
-                        {selectedOptions.includes('Morning') && (
-                          <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                            <FontAwesomeIcon icon={faTimes} />
-                          </span>
-                        )}
-                      </div>
-                      <div className='mr-1 cursor-pointer'
-                        onClick={() => toggleOption('Afternoon')}
-
-                        style={{ position: 'relative', background: selectedOptions.includes('Afternoon') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                        Afternoon
-                        {selectedOptions.includes('Afternoon') && (
-                          <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                            <FontAwesomeIcon icon={faTimes} />
-                          </span>
-                        )}
-                      </div>
-
-                      <div className='mr-1 cursor-pointer'
-                        onClick={() => toggleOption('Evening')}
-                        style={{ position: 'relative', background: selectedOptions.includes('Evening') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                        Evening
-                        {selectedOptions.includes('Evening') && (
-                          <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                            <FontAwesomeIcon icon={faTimes} />
-                          </span>
-                        )}
-                      </div>
-                    </div>
 
                   </div></div> :
                   <div className='mb-2'></div>}
@@ -1070,6 +1059,8 @@ const Food = ({ store }) => {
 
             </div>
           </div>
+
+          <React.Fragment>
           {foods
             // Filter by selected food category
             .filter(food => selectedFoodType === "" || food.category === selectedFoodType)
@@ -1086,12 +1077,17 @@ const Food = ({ store }) => {
             .map((item, index) => (
 
               <div style={itemStyle}>
+                          
+
                 <Item selectedFoodType={selectedFoodType} key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} foodTypes={foodTypes} />
 
               </div>
             ))}
+    </React.Fragment>
+
 
         </div>
+        </LazyLoad>
 
       </div>
     </div >
@@ -1748,41 +1744,26 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                 </span>
 
               </p>
-              <div className='flex'>
+              <div className="flex">
+  {['Morning', 'Afternoon', 'Evening'].map((period) => (
+    <div
+      key={period}
+      className={`mr-1 cursor-pointer relative rounded-lg px-2.5 h-8 flex items-center justify-center font-semibold text-xs leading-none tracking-wider uppercase text-black whitespace-nowrap ${
+        item.availability.includes(period) ? 'bg-blue-200' : 'bg-white'
+      }`}
+      onClick={() => toggleOption(period)}
+    >
+      {period}
+      {item.availability.includes(period) && (
+        <span className="absolute top-0 right-0 cursor-pointer">
+          {/* Ensure FontAwesomeIcon component is correctly imported to use it here */}
+          <FontAwesomeIcon icon={faTimes} />
+        </span>
+      )}
+    </div>
+  ))}
+</div>
 
-                <div className='mr-1 cursor-pointer'
-                  onClick={() => toggleOption('Morning')}
-                  style={{ position: 'relative', background: item.availability.includes('Morning') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                  Morning
-                  {item.availability.includes('Morning') && (
-                    <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                      <FontAwesomeIcon icon={faTimes} />
-                    </span>
-                  )}
-                </div>
-                <div className='mr-1 cursor-pointer'
-                  onClick={() => toggleOption('Afternoon')}
-
-                  style={{ position: 'relative', background: item.availability.includes('Afternoon') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                  Afternoon
-                  {item.availability.includes('Afternoon') && (
-                    <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                      <FontAwesomeIcon icon={faTimes} />
-                    </span>
-                  )}
-                </div>
-
-                <div className='mr-1 cursor-pointer'
-                  onClick={() => toggleOption('Evening')}
-                  style={{ position: 'relative', background: item.availability.includes('Evening') ? 'rgb(208, 229, 253)' : 'white', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                  Evening
-                  {item.availability.includes('Evening') && (
-                    <span style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                      <FontAwesomeIcon icon={faTimes} />
-                    </span>
-                  )}
-                </div>
-              </div>
 
             </div></div> : <div className='mb-2'></div>}
 
