@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState, useEffect } from 'react';
 import { db } from '../firebase/index'; // Make sure to import necessary functions
 import { useUserContext } from "../context/userContext";
-import { doc, collection, setDoc, getDoc } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion, collection, setDoc, getDoc } from 'firebase/firestore';
 import firebase from 'firebase/compat/app';
 
 const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, storeID, connected_stripe_account_id }) => {
@@ -51,12 +51,13 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
 
 
 
-  async function createReader(payloadReader) {
+  async function createReader(payloadReader,mode) {
     try {
       const formattedPayload = {
         location_id: locationId,
         terminal_code: payloadReader.terminalRegistrationCode,
-        connected_stripe_account_id: connected_stripe_account_id
+        connected_stripe_account_id: connected_stripe_account_id,
+        mode:mode
       };
 
       const registerReaderFunction = firebase.functions().httpsCallable('registerReader');
@@ -75,8 +76,15 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
 
   // the onclick reactions
 
-  async function registerTerminal() {
-    const registerTerminalButton = document.getElementById("register-terminal-button");
+  async function registerTerminal(mode) {
+
+    let registerTerminalButton;
+    if (mode === "cashier") {
+      registerTerminalButton = document.getElementById("register-terminal-button");
+    }
+    if (mode === "kiosk") {
+      registerTerminalButton = document.getElementById("register-kiosk-button");
+    }
     registerTerminalButton.className = "loading";
     registerTerminalButton.disabled = true;
     registerTerminalButton.textContent = "Awaiting";
@@ -118,44 +126,82 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
       } else {
         simulation_mode = false;
       }
-      const reader = await createReader(payloadReader);
+      const reader = await createReader(payloadReader,mode);
       //console.log("registered reader: ", reader);
       readerId = reader["id"]
       let docRef;
-
-      try {
-        docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals", stripeTerminalRegistrationCode)
-        const doc_ = await getDoc(docRef);
-
-        if (doc_.exists()) {
-          console.log("Document exists!");
-          throw new Error('Document already exists!');
-        } else {
+      if (mode === "cashier") {
+        try {
           docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals", stripeTerminalRegistrationCode)
+          const doc_ = await getDoc(docRef);
 
-          // If the document doesn't exist, add a new one
-          const dateTime = new Date().toISOString();
-          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+          if (doc_.exists()) {
+            console.log("Document exists!");
+            throw new Error('Document already exists!');
+          } else {
+            docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals", stripeTerminalRegistrationCode)
 
-          const newDoc = {
-            locationId: locationId,
-            readerId: readerId,
-            isActive: true,
-            date: date
-          };
+            // If the document doesn't exist, add a new one
+            const dateTime = new Date().toISOString();
+            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
 
-          try {
-            await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
-            alert("Terminal registers successfully");
-            setIsExpanded(false)
-          } catch (error) {
-            setError("Error adding document: ");
-            throw new Error("")
+            const newDoc = {
+              locationId: locationId,
+              readerId: readerId,
+              isActive: true,
+              date: date
+            };
+
+            try {
+              await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
+              alert("Terminal registers successfully");
+              setIsExpanded(false)
+            } catch (error) {
+              setError("Error adding document: ");
+              throw new Error("")
+            }
           }
+        } catch (error) {
+          setError(`Error`);
+          console.error(error);
         }
-      } catch (error) {
-        setError(`Error`);
-        console.error(error);
+      }
+
+      if (mode === "kiosk") {
+        try {
+          docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "kiosk", stripeTerminalRegistrationCode)
+          const doc_ = await getDoc(docRef);
+
+          if (doc_.exists()) {
+            console.log("Document exists!");
+            throw new Error('Document already exists!');
+          } else {
+            docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "kiosk", stripeTerminalRegistrationCode)
+
+            // If the document doesn't exist, add a new one
+            const dateTime = new Date().toISOString();
+            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+
+            const newDoc = {
+              locationId: locationId,
+              readerId: readerId,
+              isActive: true,
+              date: date
+            };
+
+            try {
+              await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
+              alert("Terminal registers successfully");
+              setIsExpanded(false)
+            } catch (error) {
+              setError("Error adding document: ");
+              throw new Error("")
+            }
+          }
+        } catch (error) {
+          setError(`Error`);
+          console.error(error);
+        }
       }
 
 
@@ -193,6 +239,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
         console.log(terminalsData)
       });
   }, [])
+  
   const formatDate = (dateString) => {
     const dateParts = dateString.split('-');
     const formattedDate = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`;
@@ -206,13 +253,13 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
   const [registrationCode, setRegistrationCode] = useState('');
   const [error_, setError_] = useState('');
 
-  const registerTerminal_ = () => {
+  const registerTerminal_ = (mode) => {
     // Check if the registration code is empty
     if (!registrationCode.trim()) {
       setError_('Stripe Terminal Registration code is required');
     } else {
       setError_('');
-      registerTerminal()
+      registerTerminal(mode)
       // Your code to handle the registration
     }
   };
@@ -242,7 +289,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 onClick={() => setIsExpanded(true)}
               >
-                Registrater New POS Machine
+                Register New POS Machine
               </button>
             )}
 
@@ -260,7 +307,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
                   id="nameOfStore"
                   type="text"
-                  translate="no" 
+                  translate="no"
                   placeholder={storeDisplayName}
                 />
               </div>
@@ -272,7 +319,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
                   id="streetAddress"
                   type="text"
-                  translate="no" 
+                  translate="no"
                   placeholder={Address}
                 />
               </div>
@@ -284,7 +331,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   id="cityName"
                   type="text"
-                  translate="no" 
+                  translate="no"
                   placeholder={City}
                 />
               </div>
@@ -296,7 +343,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   id="state"
                   type="text"
-                  translate="no" 
+                  translate="no"
                   placeholder={State}
                 />
               </div>
@@ -308,7 +355,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                   className="form-control appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   id="zipCode"
                   type="text"
-                  translate="no" 
+                  translate="no"
                   placeholder={ZipCode}
                 />
               </div>
@@ -322,7 +369,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                   type="text"
                   placeholder="Registration code from POS machine."
                   value={registrationCode}
-                  translate="no" 
+                  translate="no"
                   onChange={e => setRegistrationCode(e.target.value)}
                 />
               </div>
@@ -331,8 +378,8 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
             <div className="flex mt-3">
               <div style={{ width: "50%" }}></div>
               <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
-                <button id="register-terminal-button" onClick={registerTerminal_} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Register POS Machine</button>
-
+                <button id="register-terminal-button" onClick={() => registerTerminal_("cashier")} className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Register Casheir POS Machine</button>
+                <button id="register-kiosk-button" onClick={() => registerTerminal_("kiosk")} className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Register Food Kiosk POS Machine</button>
               </div>
             </div>
           </div>

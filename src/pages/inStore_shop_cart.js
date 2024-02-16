@@ -34,7 +34,9 @@ import { onSnapshot, query } from 'firebase/firestore';
 import { db } from '../firebase/index';
 import cartImage from './shopcart.png';
 import "./inStore_shop_cart.css";
-import PaymentComponent2 from "../pages/PaymentComponent2";
+import PaymentRegular from "../pages/PaymentRegular";
+// import PaymentKiosk from "../pages/PaymentKiosk";
+
 import Dnd_Test from '../pages/dnd_test';
 import { isMobile } from 'react-device-detect';
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
@@ -514,7 +516,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   }
 
 
-  const CashCheckOut = async (extra) => {
+  const CashCheckOut = async (extra, tax, total) => {
+    // tips: Math.round((result - finalPrice +extra) * 100) / 100
+    // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
+    // total: inputValue
     let extra_tip = 0
     if (extra !== null) {
       extra_tip = Math.round(extra * 100) / 100
@@ -525,16 +530,17 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setInputValue("")
       setDiscount("")
       setTips("")
+      setResult(null)
       return
     }
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
-        amount: Math.round(Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100 * 100),
+        amount: total * 100,
         amount_capturable: 0,
         amount_details: { tip: { amount: 0 } },
-        amount_received: Math.round(Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100 * 100),
+        amount_received: total * 100,
         application: "",
         application_fee_amount: 0,
         automatic_payment_methods: null,
@@ -558,9 +564,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
           isDine: true,
           service_fee: tips === "" ? 0 : tips,
           subtotal: Math.round(100 * totalPrice) / 100,
-          tax: Math.round(100 * totalPrice * 0.0825) / 100,
-          tips: Math.round(100 * extra_tip) / 100,
-          total: Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100,
+          tax: tax,
+          tips: extra_tip,
+          total: total
         }, // Assuming an empty map converts to an empty object
         next_action: null,
         object: "payment_intent",
@@ -598,7 +604,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setInputValue("")
       setDiscount("")
       setTips("")
-
+      setResult(null)
       SetTableInfo(store + "-" + selectedTable, "[]")
       SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]")
       //localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
@@ -757,9 +763,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
 
   const calculateExtra = (percentage) => {
-    const extraAmount = (finalPrice * percentage) / 100;
+    const extraAmount = (totalPrice * percentage) / 100;
     setExtra(extraAmount);
-    setFinalResult(finalPrice + extraAmount);
+    setFinalResult(totalPrice + extraAmount);
   };
 
   const calculateCustomAmount = (customAmoun_t) => {
@@ -767,7 +773,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     amount = parseFloat(customAmoun_t)
     if (!isNaN(amount)) {
       setExtra(amount);
-      setFinalResult(finalPrice + amount);
+      setFinalResult(totalPrice + amount);
     } else {
       alert("Please enter a valid number");
     }
@@ -999,7 +1005,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 <span className="pe-2">
                   <FontAwesomeIcon icon={isAllowed ? faToggleOn : faToggleOff} />
                 </span>
-              )} 
+              )}
               <span>{isAllowed ? 'Turn off Dish Revise' : 'Turn on Dish Revise'}</span>
             </a>
 
@@ -1069,7 +1075,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
             </a>
 
             <a
-              onClick={() => { setSplitPaymentModalOpen(true); SendToKitchen() }}
+              onClick={() => { setSplitPaymentModalOpen(true); SendToKitchen(); localStorage.setItem("splitSubtotalTotalPrice", Math.round(totalPrice * 100) / 100); localStorage.setItem("splitSubtotalCurrentPrice", 0) }}
               className="mt-3 btn btn-sm btn-warning mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -1224,23 +1230,32 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         <button
                           onClick={() => {
                             setCustomAmount(Math.round((result - finalPrice) * 100) / 100); calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
-                            CashCheckOut(Math.round((result - finalPrice) * 100) / 100);
+                            // tips: Math.round((result - finalPrice +extra) * 100) / 100
+                            // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
+                            // total: inputValue
+                            CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)), inputValue);
                             closeUniqueModal();
                           }}
                           style={uniqueModalStyles.buttonStyle}
                           className="mt-2 mb-2 bg-green-500 text-white px-4 py-2 rounded-md w-full"
                         >
-                          Put give back cash as Gratuity and Checkout Order
+
+                          Add return cash as a gratuity (Total:<span className='notranslate'>(${Math.round((result - finalPrice + extra) * 100) / 100}</span>) and finalize
                         </button>
 
                       </div>
                     )}
                     <button
-                      onClick={() => { CashCheckOut(extra); closeUniqueModal(); }}
+                      onClick={() => {
+                        // tips: Math.round((extra) * 100) / 100
+                        // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
+                        // total: finalPrice
+                        CashCheckOut(extra, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)), finalPrice); closeUniqueModal();
+                      }}//service_fee,finalnum,givebackcash,
                       style={uniqueModalStyles.buttonStyle}
                       className="mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
                     >
-                      Checkout Order
+                      Finalize the Order. Total Gratuity: <span className='notranslate'>(${Math.round((extra) * 100) / 100}) </span>
                     </button>
                   </div>
                   <div className="modal-footer">
@@ -1266,12 +1281,19 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               >
                 <div className="modal-content">
                   <div className="modal-header">
-                    <Button variant="danger" style={{ marginTop: "auto" }} onClick={resetDndTest}>
-                      Reset
-                    </Button>
-                    <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setSplitPaymentModalOpen(false); }}>
-                      &times;
-                    </button>
+                    <div className='flex'>
+                      <Button className='mr-2' variant="danger" style={{ marginTop: "auto" }} onClick={resetDndTest}>
+                        Reset
+                      </Button>
+                      <div style={{ fontWeight: 'bold', fontSize: '20px' }}>
+                        Paid Subtotal/Total Subtotal: <span className='notranslate'>${localStorage.getItem("splitSubtotalCurrentPrice")} / ${localStorage.getItem("splitSubtotalTotalPrice")}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setSplitPaymentModalOpen(false); }}>
+                        &times;
+                      </button>
+                    </div>
                   </div>
                   <div
                     className="modal-body pt-0"
@@ -1346,7 +1368,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   </div>
                   <div className="modal-body pt-0">
 
-                    <PaymentComponent2 setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} />
+                    <PaymentRegular setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} />
 
                   </div>
                   <div className="modal-footer">

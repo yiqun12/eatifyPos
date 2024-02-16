@@ -12,7 +12,6 @@ import {
   signInAnonymously
 } from "firebase/auth";
 
-import {loadStripe} from '@stripe/stripe-js';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';

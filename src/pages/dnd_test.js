@@ -519,7 +519,6 @@ function Dnd_Test(props) {
       }
       return item;
     });
-    console.log("hellllllllllllllo")
     console.log(JSON.stringify(updatedItemsArray));
 
     return (updatedItemsArray)
@@ -531,7 +530,10 @@ function Dnd_Test(props) {
 
   }, [items, numberOfGroups]); // Add numberOfGroups to the dependency array
 
+  // localStorage.setItem("splitTotalPrice", props.totalPrice)
+
   const containerItems = useMemo(() => {
+
     return Object.keys(items).map((key) => (
       <Container store={props.store} acct={props.acct} selectedTable={props.selectedTable} key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} numberOfGroups={numberOfGroups} dirty={dirty} activeId={activeId} />
     ));
@@ -654,7 +656,7 @@ function Dnd_Test(props) {
         <span className="notranslate">
 
           {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
-          <b>{Math.round( (Math.round(item.quantity) / Math.round(numberOfGroups))*100  )/100}</b> </span>
+          <b>{Math.round((Math.round(item.quantity) / Math.round(numberOfGroups)) * 100) / 100}</b> </span>
         {generateAttributes(item.attributeSelected)}
         {/* <p className="font-bold text-2xl">{item.quantity}</p> */}
       </div>
@@ -767,8 +769,8 @@ function Dnd_Test(props) {
                         type="text"
                         style={{ width: '90px', height: '90px', fontSize: '51px', alignItems: 'center', justifyContent: 'center', display: "flex", padding: '0px' }}
                       >{
-                      Math.round( (Math.round(quantity) / Math.round(numberOfGroups))*100  )/100
-                      }</span>
+                          Math.round((Math.round(quantity) / Math.round(numberOfGroups)) * 100) / 100
+                        }</span>
                       { /* end of the quantity number */}
 
                       { /* start of the add button */}

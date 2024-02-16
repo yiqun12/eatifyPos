@@ -671,7 +671,7 @@ const Food = () => {
                   {selectedFoodItem.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
                     <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg" src={selectedFoodItem.image} alt={selectedFoodItem.name} />
                     :
-                    <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg" src={'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/AAAAAgBAQEPkHIxAAAAAElFTkSuQmCC'} alt="White placeholder" />
+                    <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg" src={'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/89cb3a8a-0904-4774-76c9-3ffaa41c5200/public'} alt="White placeholder" />
 
                   }
                 </div>
@@ -998,7 +998,7 @@ const Food = () => {
                             {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
                               <img loading="lazy" class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={item.image} />
                               :
-                              <img class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/AAAAAgBAQEPkHIxAAAAAElFTkSuQmCC'} alt="White placeholder" />
+                              <img class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/89cb3a8a-0904-4774-76c9-3ffaa41c5200/public'} alt="White placeholder" />
 
                             }
                           </div>

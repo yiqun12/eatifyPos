@@ -19,6 +19,7 @@ import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import multipleCard from './mutiple_card.png';
 import { MDBCheckbox } from 'mdb-react-ui-kit';
 import { useParams } from 'react-router-dom';
+import PaymentKiosk from "../pages/PaymentKiosk";
 
 function Checkout(props) {
   const params = new URLSearchParams(window.location.search);
@@ -388,15 +389,43 @@ function Checkout(props) {
     // base case to just return the text if no modes/translations are found
     return text
   }
+  const [isKiosk, setIsKiosk] = useState(false);
+  const [kioskHash, setkioskHash] = useState("");
+
+  useEffect(() => {
+    // Function to check the URL format
+    const checkUrlFormat = () => {
+      try {
+        // Assuming you want to check the current window's URL
+        const url = new URL(window.location.href);
+
+        // Check if hash matches the specific pattern
+        // This pattern matches hashes like #string-string-string
+        const hashPattern = /^#(\w+)-(\w+)-(\w+)$/;
+        //console.log(url.hash)
+        setkioskHash(url.hash)
+        return hashPattern.test(url.hash);
+      } catch (error) {
+        // Handle potential errors, e.g., invalid URL
+        console.error("Invalid URL:", error);
+        return false;
+      }
+    };
+    // Call the checkUrlFormat function and log the result
+    const result = checkUrlFormat();
+    setIsKiosk(result)
+    console.log("URL format check result:", result);
+  }, []); // Empty dependency array means this effect runs only once after the initial render
 
   return (
     <div>
-      <div>
-
-
+      {!isKiosk ? <div>
         <div style={{ color: "white", fontSize: "5px" }}>.</div>
         <CardSection receiptToken={receiptToken} setReceiptToken={setReceiptToken} totalPrice={totalPrice} />
-      </div>
+      </div> : null
+
+      }
+
 
       <div>
         <div id="card2-header">
@@ -435,7 +464,19 @@ function Checkout(props) {
               </button>
 
             </form> */}
-            {paymentRequest && <PaymentRequestButtonElement options={{ paymentRequest }} />}
+            {
+              !isKiosk && paymentRequest && (
+                <>
+                  <div>
+
+                    <PaymentRequestButtonElement options={{ paymentRequest }} />
+                  </div>
+                  <div style={{ marginBottom: "10px" }}></div>
+                </>
+              )
+            }
+
+
 
             <form id="payment-form" onSubmit={handleWechat}>
               <button
@@ -443,7 +484,7 @@ function Checkout(props) {
                 type="submit"
                 name="pay"
                 class="text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-                style={{ "borderRadius": "0.2rem", marginTop: "10px", width: "100%" }}
+                style={{ "borderRadius": "0.2rem", width: "100%" }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -647,6 +688,34 @@ function CardSection(props) {
 
     setError(null);
   };
+  const [isKiosk, setIsKiosk] = useState(false);
+  const [kioskHash, setkioskHash] = useState("");
+
+  useEffect(() => {
+    // Function to check the URL format
+    const checkUrlFormat = () => {
+      try {
+        // Assuming you want to check the current window's URL
+        const url = new URL(window.location.href);
+
+        // Check if hash matches the specific pattern
+        // This pattern matches hashes like #string-string-string
+        const hashPattern = /^#(\w+)-(\w+)-(\w+)$/;
+        //console.log(url.hash)
+        setkioskHash(url.hash)
+        return hashPattern.test(url.hash);
+      } catch (error) {
+        // Handle potential errors, e.g., invalid URL
+        console.error("Invalid URL:", error);
+        return false;
+      }
+    };
+
+    // Call the checkUrlFormat function and log the result
+    const result = checkUrlFormat();
+    setIsKiosk(result)
+    console.log("URL format check result:", result);
+  }, []); // Empty dependency array means this effect runs only once after the initial render
 
 
 
@@ -686,7 +755,7 @@ function CardSection(props) {
                           placeholder={t("First Name")}
                           value={firstName}
                           onChange={handleFirstNameChange}
-                          translate="no" 
+                          translate="no"
                         />
                       </label>
                     </div>
@@ -700,7 +769,7 @@ function CardSection(props) {
                           placeholder={t("Last Name")}
                           value={lastName}
                           onChange={handleLastNameChange}
-                          translate="no" 
+                          translate="no"
                         />
                       </label>
                     </div>
@@ -783,7 +852,7 @@ function PayHistory(props) {
   const { totalPrice, tips } = props;
 
   let stripe; // Declare stripe variable outside of your function
-  
+
   //pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS
   //pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W
   const STRIPE_PUBLISHABLE_KEY = 'pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W';
@@ -932,7 +1001,7 @@ function PayHistory(props) {
     setProducts(JSON.parse(sessionStorage.getItem(store)))
     //console.log(JSON.parse(sessionStorage.getItem(store)))
   }, [id]);
-  
+
   useEffect(() => {
     if (props.receiptToken != "") {
       firebase
@@ -964,7 +1033,7 @@ function PayHistory(props) {
 
           } else if (payment.status === 'succeeded') {
             sessionStorage.removeItem(store);
-            window.location.href = '/store?store='+store+ '&order=' + doc.id+'&modal=true';
+            window.location.href = '/store?store=' + store + '&order=' + doc.id + '&modal=true' + kioskHash;
 
           } else if (payment.status === 'requires_action') {
             content = `🚨 ` + t("Payment status: ") + `${payment.status}`;
@@ -1074,7 +1143,7 @@ function PayHistory(props) {
         //const card = payment.charges.data[0].payment_method_details.card;
         if (payment.status === "succeeded") {
           sessionStorage.removeItem(store);
-          window.location.href = '/store?store='+store+ '&order=' + docId+'&modal=true';
+          window.location.href = '/store?store=' + store + '&order=' + docId + '&modal=true' + kioskHash;
 
         }
 
@@ -1103,31 +1172,25 @@ function PayHistory(props) {
     northeast: { lat: 37.8011648, lng: -122.4114176 },
     southwest: { lat: 37.7962271, lng: -122.4057551 }
   };
-  //   const myPoint = {
-  //     lat: /* your latitude */,
-  //     lng: /* your longitude */
-  // };
 
   const [distanceStatus, setDistanceStatus] = useState(null); // 'near' or 'far'
 
-  //this returns meters
-  //console.log(calcCrow(location.latitude,location.longitude,location.latitude,location.longitude).toFixed(1));
   function checkgeolocation() {
     getLocation().then((newLocation) => {
       if (isPointInBounds({ lat: newLocation.latitude, lng: newLocation.longitude }, bounds)) {
         setDistanceStatus('near');
 
       } else {
-        setDistanceStatus('near');
+        setDistanceStatus('far');
         //setDistanceStatus('far');
       }
     });
   }
 
-  const PendingDineInOrder = async (table,name) => {
+  const PendingDineInOrder = async (table, name) => {
     document
-    .querySelectorAll('button')
-    .forEach((button) => (button.disabled = true));
+      .querySelectorAll('button')
+      .forEach((button) => (button.disabled = true));
     try {
       // Create a reference to the Cloud Function
       const myFunction = firebase.functions().httpsCallable('PendingDineInOrder');
@@ -1139,8 +1202,8 @@ function PayHistory(props) {
         items: products,
         amount: "0", //NO USE
         status: "Review", //NO USE
-        table:table,
-        username:name,
+        table: table,
+        username: name,
       }
       const result = await myFunction(data);
 
@@ -1148,23 +1211,50 @@ function PayHistory(props) {
       console.log('Order processed:', result.data.docId);
 
       document
-      .querySelectorAll('button')
-      .forEach((button) => (button.disabled = false));
+        .querySelectorAll('button')
+        .forEach((button) => (button.disabled = false));
       sessionStorage.removeItem(store)
-      window.location.href = '/store?'+'docId='+result.data.docId+'&store=' + store+'&modal=true';
-      
+      window.location.href = '/store?' + 'docId=' + result.data.docId + '&store=' + store + '&modal=true' + kioskHash;
+
       return result;
     } catch (error) {
       document
-      .querySelectorAll('button')
-      .forEach((button) => (button.disabled = false));
+        .querySelectorAll('button')
+        .forEach((button) => (button.disabled = false));
       console.error('Error while processing order:', error);
       // Handle the error appropriately
       // You might want to return an error message or rethrow the error
       throw error;
     }
   };
+  const [isKiosk, setIsKiosk] = useState(false);
+  const [kioskHash, setkioskHash] = useState("");
 
+  useEffect(() => {
+    // Function to check the URL format
+    const checkUrlFormat = () => {
+      try {
+        // Assuming you want to check the current window's URL
+        const url = new URL(window.location.href);
+
+        // Check if hash matches the specific pattern
+        // This pattern matches hashes like #string-string-string
+        const hashPattern = /^#(\w+)-(\w+)-(\w+)$/;
+        //console.log(url.hash)
+        setkioskHash(url.hash)
+        return hashPattern.test(url.hash);
+      } catch (error) {
+        // Handle potential errors, e.g., invalid URL
+        console.error("Invalid URL:", error);
+        return false;
+      }
+    };
+
+    // Call the checkUrlFormat function and log the result
+    const result = checkUrlFormat();
+    setIsKiosk(result)
+    console.log("URL format check result:", result);
+  }, []); // Empty dependency array means this effect runs only once after the initial render
 
   const inputs = useRef([]);
   const isMobileOrTablet = useMobileAndTabletCheck();
@@ -1172,53 +1262,59 @@ function PayHistory(props) {
 
   return (
     <div>
-      <form id="payment-form" onSubmit={handleAli}>
-        <button
-          type="submit"
-          name="pay"
-          class="text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700"
-          style={{ "borderRadius": "0.2rem", width: "100%" }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="25"
-            width="25"
-            viewBox="-51.45 -71.25 445.9 415.5"
-            style={{ display: "inline", verticalAlign: "middle" }}
+      {
+        !isKiosk ? <form id="payment-form" onSubmit={handleAli}>
+          <button
+            type="submit"
+            name="pay"
+            class="text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-700"
+            style={{ "borderRadius": "0.2rem", width: "100%" }}
           >
-            <g fill="#FFF" fill-rule="evenodd"></g>
-            <path fill="#FFFFFF" d="M48.508 0C21.694 0 0 21.511 0 48.068v203.87c0 26.536 21.694 48.059 48.508 48.059h205.81c26.793 0 48.496-21.522 48.496-48.059v-2.086c-.902-.372-78.698-32.52-118.24-51.357-26.677 32.524-61.086 52.256-96.812 52.256-60.412 0-80.927-52.38-52.322-86.86 6.237-7.517 16.847-14.698 33.314-18.718 25.76-6.27 66.756 3.915 105.18 16.477 6.912-12.614 12.726-26.506 17.057-41.297H72.581v-11.88h61.057V87.168H59.687V75.28h73.951V44.89s0-5.119 5.236-5.119h29.848v35.508h73.107V87.17h-73.107v21.303h59.674c-5.71 23.176-14.38 44.509-25.264 63.236 18.111 6.49 34.368 12.646 46.484 16.666 40.413 13.397 51.74 15.034 53.201 15.205V48.069c0-26.557-21.704-48.068-48.496-48.068H48.511zm33.207 162.54a91.24 91.24 0 00-7.822.426c-7.565.753-21.768 4.06-29.533 10.865-23.274 20.109-9.344 56.87 37.762 56.87 27.383 0 54.743-17.343 76.236-45.114-27.71-13.395-51.576-23.335-76.643-23.047z" />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="25"
+              width="25"
+              viewBox="-51.45 -71.25 445.9 415.5"
+              style={{ display: "inline", verticalAlign: "middle" }}
+            >
+              <g fill="#FFF" fill-rule="evenodd"></g>
+              <path fill="#FFFFFF" d="M48.508 0C21.694 0 0 21.511 0 48.068v203.87c0 26.536 21.694 48.059 48.508 48.059h205.81c26.793 0 48.496-21.522 48.496-48.059v-2.086c-.902-.372-78.698-32.52-118.24-51.357-26.677 32.524-61.086 52.256-96.812 52.256-60.412 0-80.927-52.38-52.322-86.86 6.237-7.517 16.847-14.698 33.314-18.718 25.76-6.27 66.756 3.915 105.18 16.477 6.912-12.614 12.726-26.506 17.057-41.297H72.581v-11.88h61.057V87.168H59.687V75.28h73.951V44.89s0-5.119 5.236-5.119h29.848v35.508h73.107V87.17h-73.107v21.303h59.674c-5.71 23.176-14.38 44.509-25.264 63.236 18.111 6.49 34.368 12.646 46.484 16.666 40.413 13.397 51.74 15.034 53.201 15.205V48.069c0-26.557-21.704-48.068-48.496-48.068H48.511zm33.207 162.54a91.24 91.24 0 00-7.822.426c-7.565.753-21.768 4.06-29.533 10.865-23.274 20.109-9.344 56.87 37.762 56.87 27.383 0 54.743-17.343 76.236-45.114-27.71-13.395-51.576-23.335-76.643-23.047z" />
+            </svg>
 
-          {t("AliPay")}
-        </button>
-      </form>
+            {t("AliPay")}
+          </button>
+        </form> : null
+      }
+      {
+        isKiosk ?
+          <PaymentKiosk receipt_JSON={sessionStorage.getItem(store)}
+            storeID={store} chargeAmount={parseFloat(totalPrice)} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
+            service_fee={0} selectedTable={'点餐机kiosk'} /> : null
+      }
+
+      {/* <PaymentKiosk receipt_JSON={JSON.stringify([{ "id": "9ee84ddc-c91f-47ec-981b-1c5680550837", "name": "Garlic A Choy", "subtotal": "15", "image": "https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500", "quantity": 5, "attributeSelected": {}, "count": "3c50ff94-49e1-4563-ac99-990efc15b0e9", "itemTotalPrice": 75, "CHI": "蒜蓉A菜" }, { "id": "c315164b-5afb-4330-b24a-238caf766cc4", "name": "Beef And Broccoli", "subtotal": "18", "image": "https://img2.baidu.com/it/u=3582338435,3937177930&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500", "quantity": 1, "attributeSelected": {}, "count": "9e72ec1f-9941-45be-ac26-369792e69f78", "itemTotalPrice": 18, "CHI": "牛肉西兰花" }])}
+                  storeID={"demo"} chargeAmount={1} connected_stripe_account_id={"acct_1OWU8KBUAXdEY4mJ"} service_fee={0} selectedTable={"测试"} /> */}
+
       <div
         class="text-blue-500 underline bg-white-500 focus:outline-none font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2"
         style={{ "borderRadius": "0.2rem", width: "100%" }}
       >
         <div>
-          {isMobileOrTablet && !(sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "") ? 
-          <button onClick={() => {
-            checkgeolocation();
-            PendingDineInOrder(sessionStorage.getItem('table'),user.displayName)
-          }}>
+          {isMobileOrTablet && !(sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "") ?
+            <button onClick={() => {
+              checkgeolocation();
+              PendingDineInOrder(sessionStorage.getItem('table'), user.displayName)
+            }}>
 
-            {t("Place Order, Pay Later")}
-          </button>
+              {t("Place Order, Pay At Front Desk")}
+            </button>
 
             : <div>
             </div>}
         </div>
 
 
-        <button onClick={() => {
-          checkgeolocation();
-          PendingDineInOrder(sessionStorage.getItem('table'),user.displayName)
-        }}>
 
-          {t("Place Order, Pay Later")}
-        </button>
 
       </div>
       {location ? (

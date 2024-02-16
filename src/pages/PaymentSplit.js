@@ -7,9 +7,9 @@ import myImage from '../components/check-mark.png';  // Import the image
 import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 
-const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee,checkout_JSON,totalPrice }) => {
-    // State to store the error message
-    const [error, setError] = useState(null);
+const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, checkout_JSON, totalPrice, }) => {
+  // State to store the error message
+  const [error, setError] = useState(null);
 
 
   // the three variables we keep track of for payment
@@ -17,7 +17,7 @@ const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProduc
   const { user, user_loading } = useUserContext();
 
   var simulation_mode;
- 
+
   async function createPaymentIntent(amount, receipt_JSON) {
     console.log("createPaymentIntent");
 
@@ -56,7 +56,7 @@ const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProduc
         reader_id: items.find(item => item.id === selectedId).readerId,
         payment_intent_id: paymentIntentId,
         connected_stripe_account_id: connected_stripe_account_id,
-        amount:amount
+        amount: amount
       });
 
       console.log("the response was okay");
@@ -196,11 +196,11 @@ const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProduc
           //console.log("newTerminalsData is empty");
         } else {
           setReceived(true)
-          setExtra(0)
-          setInputValue("")
-          setDiscount("")
-          setTips("")
-          setProducts([]);
+          localStorage.setItem("splitSubtotalCurrentPrice", Math.round((Number(localStorage.getItem("splitSubtotalCurrentPrice")) + Number(subtotal)) * 100) / 100)
+          if (Number(localStorage.getItem("splitSubtotalCurrentPrice")) === Number(localStorage.getItem("splitSubtotalTotalPrice"))) {
+            SetTableInfo(storeID + "-" + selectedTable, "[]")
+            SetTableIsSent(storeID + "-" + selectedTable + "-isSent", "[]")
+          }
           // newTerminalsData is not empty
           //console.log("newTerminalsData is not empty");
         }
@@ -209,6 +209,33 @@ const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProduc
     // Return a cleanup function to unsubscribe from the snapshot listener when the component unmounts
     return () => unsubscribe();
   }, [intent]); // Remove the empty dependency array to listen to real-time changes
+  const SetTableInfo = async (table_name, product) => {
+    try {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docData = { product: product, date: date };
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "Table", table_name);
+      await setDoc(docRef, docData);
+
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
+  const SetTableIsSent = async (table_name, product) => {
+    try {
+      if (localStorage.getItem(table_name) === product) {
+        return
+      }
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docData = { product: product, date: date };
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "TableIsSent", table_name);
+      await setDoc(docRef, docData);
+
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
 
 
   const [selectedId, setSelectedId] = useState("");
@@ -241,7 +268,7 @@ const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProduc
                         style={{ marginRight: "5px" }}
                         value={item.id}
                         checked={selectedId === item.id}
-                        translate="no" 
+                        translate="no"
                         onChange={() => setSelectedId(item.id)}
                       />
                       POS Machine No.{index + 1} --- Added in {formatDate(item.date)}
@@ -280,10 +307,10 @@ const PaymentComponent = ({ setDiscount,setTips,setExtra,setInputValue,setProduc
                     </button>
                   </div>
                 </div>
-              
+
 
               }
-              {error && <p style={{color: 'red'}}>Read this carefully and retry: {error}</p>}
+              {error && <p style={{ color: 'red' }}>Read this carefully and retry: {error}</p>}
             </div>
           }
         </div>

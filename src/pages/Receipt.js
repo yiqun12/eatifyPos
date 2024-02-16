@@ -31,6 +31,14 @@ const Item = () => {
   const { user, user_loading } = useUserContext();
 
   const [documentData, setDocumentData] = useState("");
+  // Get the query string from the current URL
+  const queryString = window.location.search;
+
+  // Create a URLSearchParams object from the query string
+  const urlParams_ = new URLSearchParams(queryString);
+
+  // Extract specific parameters
+  const storeIdentity = urlParams_.get('store'); // 'demo'
 
   useEffect(() => {
     if (!payment_data) return;
@@ -62,39 +70,74 @@ const Item = () => {
 
   useEffect(() => {
     if (receiptToken && receiptToken.length === 20) {
-      const unsubscribe = firebase
-        .firestore()
-        .collection("stripe_customers")
-        .doc(user.uid)
-        .collection("payments")
-        .doc(receiptToken)
-        .onSnapshot((doc) => {
-          if (doc.exists) {
-            const payment = doc.data();
+      const unsubscribe =
+        firebase
+          .firestore()
+          .collection("stripe_customers")
+          .doc(user.uid)
+          .collection("payments")
+          .doc(receiptToken)
+          .onSnapshot((doc) => {
+            if (doc.exists) {
+              const payment = doc.data();
 
-            const paymentData = {
-              receipt_data: payment.receiptData,
-              document_id: doc.id.substring(0, 4),
-              time: payment.dateTime,
-              email: payment.user_email,
-              status: payment.powerBy,
-              isDinein: payment.metadata.isDine === "TakeOut" ? "TakeOut" : "Table: " + payment.tableNum,
-              tax: payment.metadata.tax,
-              tips: payment.metadata.tips,
-              subtotal: payment.metadata.subtotal,
-              total: payment.metadata.total,
-              store: payment.store,
-              tableNum: payment.tableNum
-            };
-            console.log("Document data:", paymentData);
-            setPaymentData(paymentData);
-            setProducts(JSON.parse(paymentData.receipt_data));
-          } else {
-            console.log("No such document!");
-          }
-        }, (error) => {
-          console.log("Error getting document:", error);
-        });
+              const paymentData = {
+                receipt_data: payment.receiptData,
+                document_id: doc.id.substring(0, 4),
+                time: payment.dateTime,
+                email: payment.user_email,
+                status: payment.powerBy,
+                isDinein: payment.metadata.isDine === "TakeOut" ? "TakeOut" : "Table: " + payment.tableNum,
+                tax: payment.metadata.tax,
+                tips: payment.metadata.tips,
+                subtotal: payment.metadata.subtotal,
+                total: payment.metadata.total,
+                store: payment.store,
+                tableNum: payment.tableNum
+              };
+              console.log("Document data:", paymentData);
+              setPaymentData(paymentData);
+              setProducts(JSON.parse(paymentData.receipt_data));
+            } else {//http://localhost:3000/store?store=demo&order=TH7DXBaLTDgn8yueN7Yb&modal=true#receive-jade-traffic
+
+              firebase
+                .firestore()
+                .collection("stripe_customers")
+                .doc(user.uid)
+                .collection("TitleLogoNameContent")
+                .doc(storeIdentity)
+                .collection("success_payment")
+                .doc(receiptToken)
+                .onSnapshot((doc) => {
+                  if (doc.exists) {
+                    const payment = doc.data();
+
+                    const paymentData = {
+                      receipt_data: payment.receiptData,
+                      document_id: doc.id.substring(0, 4),
+                      time: payment.dateTime,
+                      email: payment.user_email,
+                      status: payment.powerBy,
+                      isDinein: payment.metadata.isDine === "TakeOut" ? "TakeOut" : "Table: " + payment.tableNum,
+                      tax: payment.metadata.tax,
+                      tips: payment.metadata.tips,
+                      subtotal: payment.metadata.subtotal,
+                      total: payment.metadata.total,
+                      store: payment.store,
+                      tableNum: payment.tableNum
+                    };
+                    console.log("Document data:", paymentData);
+                    setPaymentData(paymentData);
+                    setProducts(JSON.parse(paymentData.receipt_data));
+                    console.log("No such document!");
+                  }
+                }, (error) => {
+                  console.log("Error getting document:", error);
+                });
+            }
+          }, (error) => {
+            console.log("Error getting document:", error);
+          });
 
       return () => unsubscribe(); // Clean up the listener when the component is unmounted
     } else {
@@ -119,7 +162,7 @@ const Item = () => {
     };
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
 
-  if (!payment_data||!receiptToken) return <div></div>; // Render a loading state if payment_data is not fetched
+  if (!payment_data || !receiptToken) return <div></div>; // Render a loading state if payment_data is not fetched
 
   return (
     <div className="" >

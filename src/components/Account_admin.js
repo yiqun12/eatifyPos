@@ -30,7 +30,7 @@ import ChangeTimeForm from "../pages/ChangeTimeForm"
 import Dropdown from 'react-bootstrap/Dropdown';
 import DemoFood from '../pages/demoFood'
 import StripeConnectButton from '../components/StripeConnectButton'
-import PaymentComponent from "../pages/PaymentComponent";
+import TerminalRegister from "../pages/TerminalRegister";
 import DatePicker from 'react-datepicker';
 import zhCN from 'date-fns/locale/zh-CN'; // for Simplified Chinese
 import { format, addDays } from 'date-fns';
@@ -63,6 +63,29 @@ registerLocale('zh-CN', zhCN);
 
 
 const Account = () => {
+
+  const [bounds, setBounds] = useState(null);
+  const [error, setError] = useState('');
+
+  const fetchBounds = async () => {
+    setError('');
+    setBounds(null);
+    const getGeocode = firebase.functions().httpsCallable('getGeocode');
+
+    try {
+      const result = await getGeocode({ address: "1600 Amphitheatre Parkway, Mountain View, CA" });
+      console.log("--------------------------------")
+      console.log(result.data.bounds)
+      setBounds(result.data.bounds);
+    } catch (error) {
+      console.log(error.message)
+      setError(error.message);
+    }
+  };
+  useEffect(() => {
+    fetchBounds();
+  }, []); // `address` is a dependency here, but since it's a constant, `fetchBounds` will only run once on component mount
+
   const params = new URLSearchParams(window.location.search);
 
   const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
@@ -472,7 +495,7 @@ const Account = () => {
       .where('dateTime', '<', convertDateFormat(endDate ? (addDays(endDate, 1)) : (addDays(startDate, 1))))
       .onSnapshot((snapshot) => {
         //console.log(snapshot.docs[0].data().id);
-
+        console.log("new added")
         const newData = snapshot.docs.map((doc) => ({
           ...doc.data(),
           intent_ID: doc.data().id,
@@ -512,6 +535,46 @@ const Account = () => {
           if (newItem.total === 0 && newItem.receiptData === "[]") {
             console.log("empty total and empty receiptdata", newItem.receiptData)
           } else {
+
+            if (newItem.receiptData === "[]" && newItem.status === "POS Machine") {
+              console.log("intentData")
+
+              console.log(newItem.intent_ID)
+              ///
+              firebase.firestore().collection('intent').doc(newItem.intent_ID).get()
+                .then(documentSnapshot => {
+                  if (documentSnapshot.exists) {
+                    // Document exists, you can access the data
+                    const data = documentSnapshot.data();
+                    if (documentSnapshot.data().receipt_JSON !== '[]') {
+                      firebase.firestore()
+                        .collection('stripe_customers')
+                        .doc(user.uid)
+                        .collection('TitleLogoNameContent')
+                        .doc(activeStoreTab)
+                        .collection('success_payment')
+                        .doc(newItem.id)
+                        .update({ // Use .update() here
+                          receiptData: data.receipt_JSON
+                        })
+                        .then(() => {
+                          console.log("Document successfully updated!");
+                        })
+                        .catch((error) => {
+                          // The document probably doesn't exist.
+                          console.error("Error updating document: ", error);
+                        });
+                    }
+                  } else {
+                    // Document does not exist
+                    console.log('Document does not exist!');
+                  }
+                })
+                .catch(error => {
+                  // Handle any errors
+                  console.error("Error getting document:", error);
+                });
+            }
             newItems.push(newItem); // Push the new item into the array
 
           }
@@ -2327,7 +2390,7 @@ const Account = () => {
                                     You already connect with Stripe to receive online payment!
                                   </div>
 
-                                  <PaymentComponent City={data?.Address} Address={data?.physical_address} State={data?.State} storeDisplayName={data?.Name} ZipCode={data?.ZipCode} storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
+                                  <TerminalRegister City={data?.Address} Address={data?.physical_address} State={data?.State} storeDisplayName={data?.Name} ZipCode={data?.ZipCode} storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
                                 </div>
                               }
                             </div>
@@ -2840,11 +2903,10 @@ const Account = () => {
                                               {"MerchantReceipt"}
                                             </button>
                                             {/* <button onClick={() => deleteDocument(order.id)}>
-                                            Delete Document
-                                          </button> */}
+                                              Delete Document
+                                            </button> */}
 
                                             <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
-
                                             >
                                               {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
                                             </button>

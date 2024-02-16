@@ -3,7 +3,6 @@ import React from 'react'
 import { useState } from 'react';
 import './checkout.css';
 import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
 import 'bootstrap/dist/css/bootstrap.css';
 import './group_list.css';
 import Dashboard from "../components/dashboard";
@@ -261,24 +260,25 @@ const Item = (props) => {
     <div className="card2 mb-50" style={!isMobile ? { "box-shadow": 'rgba(0, 0, 0, 0.08) -20px 1 20px -10px' } : { "box-shadow": 'rgba(0, 0, 0, 0.08) 20px -10px -20px -10px' }}>
 
       <div className="main">
-        <div className='mb-2'>
+        {/* <div className='mb-2'>
 
           <a href={`./store?store=${store}`} style={{ color: "blue" }}>
             &lt; Back to store
           </a>
-        </div>
+        </div> */}
         <span className='flex' id="sub-title">
           <div className='flex'>
 
             {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
               <b >
                 <b classname="notranslate" style={{ borderRadius: "3px", padding: "3px" }}>
-                {sessionStorage.getItem('table')} have scanned 
+                  {sessionStorage.getItem('table')} have scanned
                 </b>
                 &nbsp;
               </b> :
-              <b> {t("TakeOut - No QR Code was Sacnned")}
+              <b> {t("To-Go Order")}
               </b>
+
             }
 
           </div>
@@ -287,6 +287,7 @@ const Item = (props) => {
           </Hero>
 
         </span>
+        <b>No QR Code was Sacnned</b>
         {products.map((product, index) => {
           return (
             <div className="row row-main my-2" key={index}>
@@ -398,7 +399,7 @@ const Item = (props) => {
               <b> {t("Total")}:</b>
             </div>
             <div className="notranslate col d-flex justify-content-end">
-              <b>$ {Math.round(100 * (totalPrice * (1 + tax_rate) + tips+(sessionStorage.getItem("isDinein") == "true"?totalPrice*0.15:0))) / 100}</b>
+              <b>$ {Math.round(100 * (totalPrice * (1 + tax_rate) + tips + (sessionStorage.getItem("isDinein") == "true" ? totalPrice * 0.15 : 0))) / 100}</b>
             </div>
             <div style={{ display: 'flex', marginTop: "10px" }}>
               <img style={{ height: '35px', width: 'auto' }} src={discover} alt="Discover" />
@@ -446,7 +447,7 @@ const Checkout = (props) => {
   return (
     <div className="checkout ">
       <div className="checkout-container" >
-        {loading ? <h2>{t("Loading Payment")}...</h2> : <div> <Dashboard totalPrice={Math.round(100 * (totalPrice * (1 + tax_rate) + tips+(sessionStorage.getItem("isDinein") == "true"?totalPrice*0.15:0))) / 100} /> </div>}
+        {loading ? <h2>{t("Loading Payment")}...</h2> : <div> <Dashboard totalPrice={Math.round(100 * (totalPrice * (1 + tax_rate) + tips + (sessionStorage.getItem("isDinein") == "true" ? totalPrice * 0.15 : 0))) / 100} /> </div>}
       </div>
     </div>
   )

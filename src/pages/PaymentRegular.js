@@ -7,7 +7,7 @@ import myImage from '../components/check-mark.png';  // Import the image
 import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 
-const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee,totalPrice }) => {
+const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, totalPrice }) => {
   // State to store the error message
   const [error, setError] = useState(null);
 
@@ -56,7 +56,7 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
         reader_id: items.find(item => item.id === selectedId).readerId,
         payment_intent_id: paymentIntentId,
         connected_stripe_account_id: connected_stripe_account_id,
-        amount:amount
+        amount: amount
       });
 
       console.log("the response was okay");
@@ -166,7 +166,7 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
           id: doc.id,
         }));
 
-        
+
         setItems(terminalsData.sort((a, b) => b.date.localeCompare(a.date)))
         console.log(terminalsData)
         setSelectedId(terminalsData[0].id)
@@ -217,7 +217,7 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
   }, [intent]); // Remove the empty dependency array to listen to real-time changes
   const SetTableIsSent = async (table_name, product) => {
     try {
-      if(localStorage.getItem(table_name)===product){
+      if (localStorage.getItem(table_name) === product) {
         return
       }
 

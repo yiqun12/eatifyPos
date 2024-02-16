@@ -1,4 +1,3 @@
-import Dashboard from "./components/dashboard";
 import { useUserContext } from "./context/userContext";
 import SignUp from './pages/customer_signup';
 import LogIn from './pages/customer_login';
@@ -50,8 +49,9 @@ import ChangeTimeForm from "./pages/ChangeTimeForm"
 
 // import the terminal page
 
-import PaymentComponent from "./pages/PaymentComponent";
-import PaymentComponent2 from "./pages/PaymentComponent2";
+import TerminalRegister from "./pages/TerminalRegister";
+// import PaymentRegular from "./pages/PaymentRegular";
+import PaymentKiosk from "./pages/PaymentKiosk";
 
 import BusinessHoursTestPage from "./pages/BusinessHoursTestPage.js";
 
@@ -127,13 +127,12 @@ function App() {
 
                 <Route path="orders" element={<Receipt />} />
 
-                <Route path="orderhasreceived" element={<OrderHasReceived />} />
+                {/* <Route path="orderhasreceived" element={<OrderHasReceived />} /> */}
 
                 <Route path="Reservation" element={<Reservation />} />
                 {user ? <Route path="/checkout" element={<Checkout />}></Route> : <Route path="/checkout" element={<LogIn />}></Route>}
                 {user ? <Route path="/DemoFood" element={<DemoFood />}></Route> : <Route path="/DemoFood" element={<LogIn />}></Route>}
 
-                <Route path="Dashboard" element={<Dashboard />} />
                 {user ?
                   <Route path="Account" element=
                     {
@@ -154,23 +153,27 @@ function App() {
                 <Route path="SignUp" element={<SignUp />}></Route>
 
                 {/*testing from tony change Time menu */}
-                <Route exact path="/change_time" element={<ChangeTimeForm />} />
+                {/* <Route exact path="/change_time" element={<ChangeTimeForm />} /> */}
 
                 {/* sound button chinese for new order */}
-                <Route exact path="/sound_button" element={<div><SoundButtonNewOrderChinese /> <SoundButtonNewOrderEnglish /> </div>} />
+                {/* <Route exact path="/sound_button" element={<div><SoundButtonNewOrderChinese /> <SoundButtonNewOrderEnglish /> </div>} /> */}
 
 
                 {/* testing from tony */}
-                <Route exact path="/testing_admin" element={<Account_admin />} />
-                <Route exact path="/testing_food" element={<Food_testing />} />
-                <Route exact path="/terminal_page" element={<PaymentComponent storeDisplayName={"display"} storeID={"demo"} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />} />
-                <Route exact path="/terminal_page2" element={<PaymentComponent2 storeID={"demo"} chargeAmount={"100"} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />} />
-                <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage />} />
-                <Route exact path="/test_notification_page" element={<Test_Notification_Page />} />
-                <Route exact path="dnd" element={<Dnd_Test store={"demo"} acct={"acct_1NhfrBD7rxr1kqtN"} selectedTable={"A2"} key={dndTestKey} main_input={[{ "id": "9ee84ddc-c91f-47ec-981b-1c5680550837", "name": "Garlic A Choy", "subtotal": "15", "image": "https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500", "quantity": 5, "attributeSelected": {}, "count": "3c50ff94-49e1-4563-ac99-990efc15b0e9", "itemTotalPrice": 75, "CHI": "蒜蓉A菜" }, { "id": "c315164b-5afb-4330-b24a-238caf766cc4", "name": "Beef And Broccoli", "subtotal": "18", "image": "https://img2.baidu.com/it/u=3582338435,3937177930&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500", "quantity": 1, "attributeSelected": {}, "count": "9e72ec1f-9941-45be-ac26-369792e69f78", "itemTotalPrice": 18, "CHI": "牛肉西兰花" }]} />} />
+                {/* <Route exact path="/testing_admin" element={<Account_admin />} /> */}
+                {/* <Route exact path="/testing_food" element={<Food_testing />} /> */}
+                {/* <Route exact path="/terminal_page" element={<TerminalRegister storeDisplayName={"display"} storeID={"demo"} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />} /> */}
+                {/* <Route exact path="/terminal_page2" element={<PaymentRegular storeID={"demo"} chargeAmount={"100"} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />} /> */}
+                {/* <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage />} /> */}
+                {/* <Route exact path="/test_notification_page" element={<Test_Notification_Page />} /> */}
+                {/* <Route exact path="dnd" element={<Dnd_Test store={"demo"} acct={"acct_1NhfrBD7rxr1kqtN"} selectedTable={"A2"} key={dndTestKey} main_input={[{ "id": "9ee84ddc-c91f-47ec-981b-1c5680550837", "name": "Garlic A Choy", "subtotal": "15", "image": "https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500", "quantity": 5, "attributeSelected": {}, "count": "3c50ff94-49e1-4563-ac99-990efc15b0e9", "itemTotalPrice": 75, "CHI": "蒜蓉A菜" }, { "id": "c315164b-5afb-4330-b24a-238caf766cc4", "name": "Beef And Broccoli", "subtotal": "18", "image": "https://img2.baidu.com/it/u=3582338435,3937177930&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500", "quantity": 1, "attributeSelected": {}, "count": "9e72ec1f-9941-45be-ac26-369792e69f78", "itemTotalPrice": 18, "CHI": "牛肉西兰花" }]} />} /> */}
                 {/* <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage/>}/> */}
-                <Route exact path="/test_admin_new" element={<Admin_new />} />
-                <Route exact path="/test_iframeDesk" element={<IframeDesk store={"demo"} />} />
+                {/* <Route exact path="/test_admin_new" element={<Admin_new />} /> */}
+                {/* <Route exact path="/test_iframeDesk" element={<IframeDesk store={"demo"} />} /> */}
+
+                <Route exact path="/PaymentKiosk" element={<PaymentKiosk receipt_JSON={JSON.stringify([{ "id": "9ee84ddc-c91f-47ec-981b-1c5680550837", "name": "Garlic A Choy", "subtotal": "15", "image": "https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500", "quantity": 5, "attributeSelected": {}, "count": "3c50ff94-49e1-4563-ac99-990efc15b0e9", "itemTotalPrice": 75, "CHI": "蒜蓉A菜" }, { "id": "c315164b-5afb-4330-b24a-238caf766cc4", "name": "Beef And Broccoli", "subtotal": "18", "image": "https://img2.baidu.com/it/u=3582338435,3937177930&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500", "quantity": 1, "attributeSelected": {}, "count": "9e72ec1f-9941-45be-ac26-369792e69f78", "itemTotalPrice": 18, "CHI": "牛肉西兰花" }])}
+                  storeID={"demo"} chargeAmount={1} connected_stripe_account_id={"acct_1OWU8KBUAXdEY4mJ"} service_fee={0} selectedTable={"测试"} />} />
+
                 {user ? <Route path="ForgotPassword" element={<Account_admin />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
                 <Route exact path="/store" element={<Food />} />
                 <Route exact path="/DemoFood" element={<DemoFood />} />

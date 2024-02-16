@@ -15,7 +15,7 @@ import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
-import PaymentComponent2 from "../pages/PaymentComponent3";
+import PaymentSplit from "../pages/PaymentSplit";
 
 // function Item({ heading, description }) 
 
@@ -62,11 +62,11 @@ function Item({ item, updateItems, whole_item_groups, numberOfGroups }) {
       <p className="text-gra7-700 font-thin">{description}</p> */}
       {/* <p className="font-bold text-2xl">{item.name}</p> */}
       <span className="notranslate">
-        
-      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
-      <b>{
-      Math.round( (Math.round(item.quantity) / Math.round(numberOfGroups))*100  )/100
-      }</b> </span>
+
+        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
+        <b>{
+          Math.round((Math.round(item.quantity) / Math.round(numberOfGroups)) * 100) / 100
+        }</b> </span>
       {generateAttributes(item.attributeSelected)}
       {/* <p className="font-bold text-2xl">{item.quantity}</p> */}
     </div>
@@ -151,9 +151,9 @@ function Container(props) {
   };
 
   const calculateExtra = (percentage) => {
-    const extraAmount = (finalPrice * percentage) / 100;
+    const extraAmount = (subtotal * percentage) / 100;
     setExtra(extraAmount);
-    setFinalResult(finalPrice + extraAmount);
+    setFinalResult(subtotal + extraAmount);
   };
 
   const calculateCustomAmount = (customAmoun_t) => {
@@ -165,7 +165,7 @@ function Container(props) {
     }
     if (!isNaN(amount)) {
       setExtra(amount);
-      setFinalResult(finalPrice + amount);
+      setFinalResult(subtotal + amount);
     } else {
       alert("Please enter a valid number");
     }
@@ -443,7 +443,7 @@ function Container(props) {
     }
   }
 
-  const CashCheckOut = async (extra) => {
+  const CashCheckOut = async (extra, tax, total) => {
     let extra_tip = 0
     if (extra !== null) {
       extra_tip = Math.round(extra * 100) / 100
@@ -479,9 +479,9 @@ function Container(props) {
           isDine: true,
           service_fee: tips === "" ? 0 : tips,
           subtotal: Math.round(100 * subtotal) / 100,
-          tax: Math.round(100 * subtotal * 0.0825) / 100,
-          tips: Math.round(100 * extra_tip) / 100,
-          total: finalPrice,
+          tax: tax,
+          tips: extra,
+          total: total,
         }, // Assuming an empty map converts to an empty object
         next_action: null,
         object: "payment_intent",
@@ -513,15 +513,44 @@ function Container(props) {
         uid: user.uid,
         user_email: user.email,
       });
-      setExtra(0)
-      setInputValue("")
-      setDiscount("")
-      setTips("")
+      localStorage.setItem("splitSubtotalCurrentPrice", Math.round((Number(localStorage.getItem("splitSubtotalCurrentPrice")) + Number(subtotal)) * 100) / 100)
+      if (Number(localStorage.getItem("splitSubtotalCurrentPrice")) === Number(localStorage.getItem("splitSubtotalTotalPrice"))) {
+        SetTableInfo(store + "-" + selectedTable, "[]")
+        SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]")
+      }
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
   }
+  const SetTableInfo = async (table_name, product) => {
+    try {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docData = { product: product, date: date };
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
+      await setDoc(docRef, docData);
+
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
+
+  const SetTableIsSent = async (table_name, product) => {
+    try {
+      if (localStorage.getItem(table_name) === product) {
+        return
+      }
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docData = { product: product, date: date };
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "TableIsSent", table_name);
+      await setDoc(docRef, docData);
+
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
 
 
   return (
@@ -791,7 +820,7 @@ function Container(props) {
                     </div>
                     <div className="modal-body pt-0">
 
-                      <PaymentComponent2 setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} checkout_JSON={checkout(containerId)} totalPrice={Math.round(subtotal*100)} />
+                      <PaymentSplit subtotal={subtotal} setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} checkout_JSON={checkout(containerId)} totalPrice={Math.round(subtotal * 100)} />
 
                     </div>
                     <div className="modal-footer">
@@ -885,24 +914,32 @@ function Container(props) {
                           <button
                             onClick={() => {
                               setCustomAmount(Math.round((result - finalPrice) * 100) / 100); calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
-                              CashCheckOut(Math.round((result - finalPrice) * 100) / 100);
+                              // tips: Math.round((result - finalPrice +extra) * 100) / 100
+                              // tax: Math.round(subtotal * 0.0825 * 100) / 100
+                              // total: inputValue
+                              CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, Math.round(subtotal * 0.0825 * 100) / 100, inputValue);
                               closeUniqueModal();
                             }}
                             style={uniqueModalStyles.buttonStyle}
                             className="mt-2 mb-2 bg-green-500 text-white px-4 py-2 rounded-md w-full"
                           >
-                            Put give back cash as Gratuity and Checkout Order
+                            Add return cash as a gratuity (Total:<span className='notranslate'>(${Math.round((result - finalPrice + extra) * 100) / 100}</span>) and finalize
                           </button>
 
                         </div>
                       )}
 
                       <button
-                        onClick={() => { CashCheckOut(extra); closeUniqueModal(); }}
+                        onClick={() => {
+                          // tips: Math.round((extra) * 100) / 100
+                          // tax: Math.round(subtotal * 0.0825 * 100) / 100
+                          // total: finalPrice
+                          CashCheckOut(extra, Math.round(subtotal * 0.0825 * 100) / 100, finalPrice); closeUniqueModal();
+                        }}
                         style={uniqueModalStyles.buttonStyle}
                         className="mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
                       >
-                        Checkout Order
+                        Finalize the Order. Total Gratuity: <span className='notranslate'>(${Math.round((extra) * 100) / 100}) </span>
                       </button>
                     </div>
                     <div className="modal-footer">
@@ -922,7 +959,7 @@ function Container(props) {
               <div className={`text-right`}>Gratuity: <span className='notranslate'>{Math.round((extra) * 100) / 100} </span></div>
             )}
             <div className={`text-right `}>Tax: <span className='notranslate'>${Math.round(subtotal * 0.0825 * 100) / 100}</span>  </div>
-            <div className={`text-right `}>Total: <span className='notranslate'>${finalPrice}</span>  </div>
+            <div className={`text-right `}>Total Amount: <span className='notranslate'>${finalPrice}</span>  </div>
 
           </div>
         </div>

@@ -56,7 +56,11 @@ const Hero = () => {
   return (
     <div style={{ display: 'flex' }} className='max-w-[1000px] ml-auto'>
       <div className="notranslate switches-container" style={{ "marginBottom": "10px", "boxShadow": "0px 0px 4px rgba(0, 0, 0, 0.3)" }}
-        onClick={() => { if (sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "") alert(t("You need to scan the qr code from the table")); }}
+        onClick={() => {
+          if (sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "")
+            alert(localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+              "您需要扫描餐桌上的二维码来选取堂食" : "You need to scan the qr code from the table to switch to dine in mode");
+        }}//您需要扫描餐桌上的二维码
       >
         <input
           type="radio"
@@ -66,7 +70,7 @@ const Hero = () => {
           checked={plan === 'TakeOut'}
           onChange={handleSwitchChange}
           disabled={sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === ""}
-          translate="no" 
+          translate="no"
         />
         <input
           type="radio"
@@ -76,13 +80,13 @@ const Hero = () => {
           checked={plan === 'DineIn'}
           onChange={handleSwitchChange}
           disabled={sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === ""}
-          translate="no" 
+          translate="no"
         />
-        <label htmlFor="switchTakeOut" style={{ "fontSize": "14px" }}>{t("TakeOut")}</label>
+        <label htmlFor="switchTakeOut" style={{ "fontSize": "14px" }}>{t("ToGo")}</label>
         <label htmlFor="switchDineIn" style={{ "fontSize": "143x" }}>{t("DineIn")}</label>
         <div className="switch-wrapper">
           <div className="switch">
-            <div style={{ "fontSize": "14px" }}>{t("TakeOut")}</div>
+            <div style={{ "fontSize": "14px" }}>{t("ToGo")}</div>
             <div style={{ "fontSize": "14px" }}>{t("DineIn")}</div>
           </div>
         </div>

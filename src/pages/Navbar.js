@@ -249,8 +249,12 @@ const Navbar = () => {
   const HandleCheckout_local_stripe = async () => {
     sessionStorage.setItem(store, JSON.stringify(products));
     if (sessionStorage.getItem("table") !== null || sessionStorage.getItem("table") !== "") {
-      window.location.href = '/Checkout' + "?store=" + storeValue
+      if (isKiosk) {
+        window.location.href = '/Checkout' + "?store=" + storeValue + kioskHash
+      } else {
+        window.location.href = '/Checkout' + "?store=" + storeValue
 
+      }
     } else {
       window.location.href = '/Checkout' + "?store=" + storeValue + "&" + "table=" + sessionStorage.getItem("table")
 
@@ -288,12 +292,39 @@ const Navbar = () => {
       return text
     }
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")])
+  const [isKiosk, setIsKiosk] = useState(false);
+  const [kioskHash, setkioskHash] = useState("");
+
+  useEffect(() => {
+    // Function to check the URL format
+    const checkUrlFormat = () => {
+      try {
+        // Assuming you want to check the current window's URL
+        const url = new URL(window.location.href);
+
+        // Check if hash matches the specific pattern
+        // This pattern matches hashes like #string-string-string
+        const hashPattern = /^#(\w+)-(\w+)-(\w+)$/;
+        //console.log(url.hash)
+        setkioskHash(url.hash)
+        return hashPattern.test(url.hash);
+      } catch (error) {
+        // Handle potential errors, e.g., invalid URL
+        console.error("Invalid URL:", error);
+        return false;
+      }
+    };
+
+    // Call the checkUrlFormat function and log the result
+    const result = checkUrlFormat();
+    setIsKiosk(result)
+    console.log("URL format check result:", result);
+  }, []); // Empty dependency array means this effect runs only once after the initial render
 
   if (localStorage.getItem("Google-language") && localStorage.getItem("Google-language") !== null) {
   } else {
     localStorage.setItem("Google-language", "Select Language");
   }
-
   // the below code checks for language option changes with the google translate widget
   $(document).ready(function () {
     function listenToTranslateWidget() {
@@ -347,6 +378,8 @@ const Navbar = () => {
   const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
 
 
+
+
   return (
 
     <div>
@@ -375,7 +408,7 @@ const Navbar = () => {
       {(/\/account/.test(location.pathname) && new URLSearchParams(location.hash.split('?')[1]).has('store')) && (
         <a className="float ">
           <a
-            style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
+            style={{ 'cursor': "pointer", "user-select": "none" }} onClick={() => { window.location.hash = `cards?store=${store}`; }}>
 
             <div id="ringbell"
               style={{ width: "60px", height: "60px", 'color': '#444444' }}
@@ -396,7 +429,7 @@ const Navbar = () => {
 
               <div className="p-4">
                 <div className='flex justify-between'>
-                  You can view latest order here:
+                  You can view latest order here: (Take a screenshot if needed)
                   <DeleteSvg
                     className="cursor-pointer"
                     ref={spanRef2}
@@ -502,7 +535,7 @@ const Navbar = () => {
                   <div className="quantity p-0"
                     style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
                     <div>
-                      <div>${product.itemTotalPrice}</div>
+                      <div className='notranslate'>${product.itemTotalPrice}</div>
 
                     </div>
                     {/* the add minus box set up */}
@@ -563,9 +596,15 @@ const Navbar = () => {
           {/* Your navbar content here */}
           <div className="col-span-4 pl-4 lg:ml-10 lg:mr-10" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
             <img
+
               onClick={event => {
                 if (storeFromURL !== '' && storeFromURL !== null) {
-                  window.location.href = `/store?store=${storeFromURL}`;
+                  if (isKiosk) {
+                    window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
+                  } else {
+                    window.location.href = `/store?store=${storeFromURL}`;
+                  }
+
                 } else {
                   window.location.href = '/';
                 }
@@ -628,17 +667,27 @@ const Navbar = () => {
 
 
               )}
-              {!user_loading ?
-                <button className="ml-3" onClick={event => {
-                  if (storeFromURL !== '' && storeFromURL !== null) {
-                    window.location.href = `/account?store=${storeFromURL}`;
-                  } else {
-                    window.location.href = '/account';
-                  }
-                }} style={{ 'cursor': "pointer", 'top': '-10px', fontSize: "20px" }}> <i className="bi bi-person"></i> {user ? "Account" : "Login"}</button>
-                :
-                <div>
-                </div>}
+              {
+                !isKiosk && (
+                  !user_loading ? (
+                    <button
+                      className="ml-3"
+                      onClick={event => {
+                        // Determine the redirection URL based on the storeFromURL value
+                        const redirectUrl = storeFromURL ? `/account?store=${storeFromURL}` : '/account';
+                        window.location.href = redirectUrl;
+                      }}
+                      style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
+                    >
+                      <i className="bi bi-person"></i> {user ? "Account" : "Login"}
+                    </button>
+                  ) : (
+                    <div>Loading...</div> // Consider showing a loading indicator or message
+                  )
+                )
+              }
+
+
             </div>
 
           </div>

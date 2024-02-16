@@ -74,7 +74,7 @@ const Item = () => {
         };
     }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
 
-    if (!store||!receiptToken) return <div></div>; // Render a loading state if payment_data is not fetched
+    if (!store || !receiptToken) return <div></div>; // Render a loading state if payment_data is not fetched
 
     return (
         <div className="" >
@@ -88,7 +88,7 @@ const Item = () => {
                         <div>
 
                             <b>
-                                We have received your unpaid order. 
+                                We have received your unpaid order.
                                 Please contact the seller to confirm your order.
                             </b>
                         </div>

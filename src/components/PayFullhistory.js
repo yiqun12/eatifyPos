@@ -5,7 +5,6 @@ import React from 'react';
 import { useUserContext } from "../context/userContext";
 
 import firebase from 'firebase/compat/app';
-import { loadStripe } from '@stripe/stripe-js';
 import DOMPurify from 'dompurify';
 import moment from 'moment';
 import { useState, useEffect } from 'react';
@@ -187,7 +186,7 @@ function PayFullhistory() {
                             >
                               <span className='notranslate'>
                                 {
-                                  localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(order?.storeNameCHI) : (order?.Name)
+                                  localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(order?.storeNameCHI) : (order?.storeName)
                                 }
                               </span>
                             </p>
