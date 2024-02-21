@@ -21,6 +21,8 @@ import wechatpay from '../components/wechatpay.png';
 
 import alipay from '../components/alipay.png';
 import { useMemo } from 'react';
+import { db } from '../firebase/index';
+import { query, where, limit, doc, getDoc } from "firebase/firestore";
 
 const App = () => {
   const params = new URLSearchParams(window.location.search);
@@ -133,12 +135,58 @@ const App = () => {
       return text;
     };
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
+  const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
+  const [isKiosk, setIsKiosk] = useState(false);
+  const [kioskHash, setkioskHash] = useState("");
+
+  useEffect(() => {
+    // Function to check the URL format
+    const checkUrlFormat = () => {
+      try {
+        // Assuming you want to check the current window's URL
+        const url = new URL(window.location.href);
+
+        // Check if hash matches the specific pattern
+        // This pattern matches hashes like #string-string-string
+        const hashPattern = /^#(\w+)-(\w+)-(\w+)$/;
+        //console.log(url.hash)
+        setkioskHash(url.hash)
+        return hashPattern.test(url.hash);
+      } catch (error) {
+        // Handle potential errors, e.g., invalid URL
+        console.error("Invalid URL:", error);
+        return false;
+      }
+    };
+
+    // Call the checkUrlFormat function and log the result
+    const result = checkUrlFormat();
+    setIsKiosk(result)
+    console.log("URL format check result:", result);
+  }, []); // Empty dependency array means this effect runs only once after the initial render
 
   return (
 
     <div className='mx-auto p-2 max-w-[1200px] '>
       {isLoading ?
-        <div>{t("Cart is empty... Redirecting back to home page")}</div> :
+        <div>{t("Cart is empty... Please Redirect back to home page")}
+          <button
+            onClick={event => {
+              if (storeFromURL !== '' && storeFromURL !== null) {
+                if (isKiosk) {
+                  window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
+                } else {
+                  window.location.href = `/store?store=${storeFromURL}`;
+                }
+
+              } else {
+                window.location.href = '/';
+              }
+            }}
+            class="text-blue-500 underline bg-white focus:outline-none font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2">
+            Click here to redirect
+          </button>
+        </div> :
 
         <div className="app-container" style={{ height: "100%" }}>
           <div className="row">
@@ -341,7 +389,7 @@ const Item = (props) => {
             <div>
               <div className="row">
                 <div className="col">
-                  <b> {t("Service Fee: (15%)")}</b>
+                  <b> {t("Service Fee (15%):")}</b>
                 </div>
                 <div className="col d-flex justify-end notranslate">
                   <b>$ {Math.round(100 * totalPrice * 0.15) / 100}</b>
@@ -396,21 +444,12 @@ const Item = (props) => {
           </div>
           <div className="row">
             <div className="col">
-              <b> {t("Total")}:</b>
+              <b> {t("Total Amount")}:</b>
             </div>
             <div className="notranslate col d-flex justify-content-end">
               <b>$ {Math.round(100 * (totalPrice * (1 + tax_rate) + tips + (sessionStorage.getItem("isDinein") == "true" ? totalPrice * 0.15 : 0))) / 100}</b>
             </div>
-            <div style={{ display: 'flex', marginTop: "10px" }}>
-              <img style={{ height: '35px', width: 'auto' }} src={discover} alt="Discover" />
 
-              <img style={{ height: '35px', width: 'auto', marginLeft: "15px" }} src={visa} alt="Visa" />
-            </div>
-            <div style={{ display: 'flex', marginTop: "5px" }}>
-              <img style={{ height: '35px', width: 'auto' }} src={applepay} alt="Apple Pay" />
-              <img style={{ height: '30px', width: 'auto', marginLeft: "10px" }} src={wechatpay} alt="wechatpay" />
-              <img style={{ height: '30px', width: 'auto', marginLeft: "15px" }} src={alipay} alt="alipay" />
-            </div>
           </div>
         </div>
       </div>
@@ -443,11 +482,41 @@ const Checkout = (props) => {
     // base case to just return the text if no modes/translations are found
     return text
   }
+  const params = new URLSearchParams(window.location.search);
+  const store = params.get('store') ? params.get('store').toLowerCase() : "";
+  const [loadedAcct, setLoadedAcct] = useState(false);
+
+  const fetchPost = async (name) => {
+    const docRef = doc(db, "TitleLogoNameContent", name);
+
+    try {
+      // Fetch the document
+      const docSnapshot = await getDoc(docRef);
+      // console.log(docSnapshot)
+      // Check if a document was found
+      if (docSnapshot.exists()) {
+        // The document exists
+        const docData = docSnapshot.data();
+        // Save the fetched data to sessionStorage
+        sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(docData));
+        setLoadedAcct(true)
+      } else {
+        console.log("No document found with the given name.");
+      }
+    } catch (error) {
+      console.error("Error fetching the document:", error);
+    }
+  }
+
+  useEffect(() => {
+    fetchPost(store);
+    //console.log("hello")
+  }, []); // <-- Empty dependency array
 
   return (
     <div className="checkout ">
       <div className="checkout-container" >
-        {loading ? <h2>{t("Loading Payment")}...</h2> : <div> <Dashboard totalPrice={Math.round(100 * (totalPrice * (1 + tax_rate) + tips + (sessionStorage.getItem("isDinein") == "true" ? totalPrice * 0.15 : 0))) / 100} /> </div>}
+        {loading && !loadedAcct ? <h2>{t("Loading Payment")}...</h2> : <div> <Dashboard totalPrice={Math.round(100 * (totalPrice * (1 + tax_rate) + tips + (sessionStorage.getItem("isDinein") == "true" ? totalPrice * 0.15 : 0))) / 100} /> </div>}
       </div>
     </div>
   )

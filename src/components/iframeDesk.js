@@ -494,6 +494,7 @@ function App({ store, acct }) {
 
 
 
+
     return (
 
         <div ref={divRef}>
@@ -567,6 +568,8 @@ function App({ store, acct }) {
 
                         <div style={{ margin: "10px", display: "flex" }} >
                             <div style={{ position: 'relative' }}>
+
+
                                 <Iframe className="notranslate" key={changeEvent}
                                     ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width={(divWidth) + "px"} height="800px" storeName={store}
                                     title={title} />

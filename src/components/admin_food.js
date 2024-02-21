@@ -723,370 +723,369 @@ const Food = ({ store }) => {
           </div>
 
         </div>
-        <LazyLoad height={762}>  
+        <LazyLoad height={762}>
 
 
-        {/* diplay food */}
-        <div style={containerStyle}>
-          <div style={itemStyle}>
+          {/* diplay food */}
+          <div style={containerStyle}>
+            <div style={itemStyle}>
 
 
-            <div
-              layout
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.1 }}
-              key={""}
-              className="">
+              <div
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.1 }}
+                key={""}
+                className="">
 
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-              }}>
-                <div
-                  style={{
-                    width: '80px',
-                  }}>
-                  <label className='cursor-pointer'
-                    style={{ display: 'block', width: '100%' }}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                }}>
+                  <div
+                    style={{
+                      width: '80px',
+                    }}>
+                    <label className='cursor-pointer'
+                      style={{ display: 'block', width: '100%' }}
 
-                  >
-                    <input
-                      type="file"
-                      onChange={handleFileChangeAndUpload}
-                      style={{ display: 'none' }} // hides the input
-                      translate="no"
-                    />
-
-                    <img
-                      className="h-[80px] w-[80px] transition-all object-cover rounded-md"
-                      src={previewUrl}
-                      loading="lazy"
-                    />
-                  </label>
-                </div>
-
-                <div style={{ width: 'calc(100% - 80px)' }}>  {/* adjust width */}
-                  <div className=' text-md font-semibold'>
-
-                    <div className="mb-1 flex ml-2 items-center">
-                      <span className='text-black'>
-
-                        {t("Dish:")}&nbsp;
-                      </span>
-
+                    >
                       <input
-                        className='text-md font-semibold'
-                        style={{ width: "50%" }}
-                        type="text"
-                        name="name"
-                        placeholder={t("Blank")}
-                        value={newItem.name}
-                        onChange={handleInputChange}
-                        translate="no"
-                      />
-                      <span onClick={async () => {  //Auto Fill Chinese
-                        let translatedText = "Blank";
-                        if (newItem.name) {
-                          translatedText = newItem.name;
-                        }
-                        try {
-                          const chineseTranslation = await translateToChinese(translatedText);
-                          setNewItem({ ...newItem, CHI: chineseTranslation });
-                        } catch (error) {
-                          console.error("Translation error:", error);
-                        }
-
-                      }}
-                        className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(CN)")}</span></span>
-
-                    </div>
-                    <div className="mb-1 ml-2 flex  items-center">
-                      <span className='text-black'>
-
-                        {t("菜品:")}&nbsp;
-                      </span>
-                      <input
-                        className='text-md font-semibold'
-                        style={{ width: "40%" }}
-                        type="text"
-                        name="CHI"
-                        placeholder={"空白的"}
-                        value={newItem.CHI}
-                        onChange={handleInputChange}
+                        type="file"
+                        onChange={handleFileChangeAndUpload}
+                        style={{ display: 'none' }} // hides the input
                         translate="no"
                       />
 
-                      <span onClick={async () => {  // Auto Fill English
-                        let translatedText = "空白的";
-                        if (newItem.CHI) {
-                          translatedText = newItem.CHI;
-                        }
-                        try {
-                          const EnglishTranslation = await translateToEnglish(translatedText);
-                          setNewItem({ ...newItem, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
-                        } catch (error) {
-                          console.error("Translation error:", error);
-                        }
-                      }}
-                        className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(EN)")}</span></span>
-
-                    </div>
-
-                  </div>
-                </div>
-
-              </div>
-              <div className=' d-block text-md font-semibold'>
-                <div className='flex'>
-                  <div>
-                    <div>
-                      <span className='text-black'>
-                        {t("Category: ")}
-                      </span>
-                      <input
-                        className='text-md font-semibold'
-                        style={{ width: "50%" }}
-                        type="text" name="category" 
-                        placeholder={selectedFoodType === "" ? "classic" : selectedFoodType} 
-                        value={selectedFoodType === "" ? newItem.category : selectedFoodType} 
-                        onChange={handleInputChange}
-                        translate="no" />
-                    </div>
-                    <div>
-                      <span className='text-black'>
-                        {t("Price: $ ")}
-
-                      </span>
-                      <input
-                        className='text-md font-semibold'
-                        style={{ width: "50%" }}
-                        type="text"
-                        name="subtotal"
-                        placeholder={"1"}
-                        value={newItem.subtotal}
-                        onChange={handleInputChange}
-                        translate="no"
+                      <img
+                        className="h-[80px] w-[80px] transition-all object-cover rounded-md"
+                        src={previewUrl}
+                        loading="lazy"
                       />
-                    </div>
+                    </label>
                   </div>
 
-                </div>
+                  <div style={{ width: 'calc(100% - 80px)' }}>  {/* adjust width */}
+                    <div className=' text-md font-semibold'>
 
-
-                {expandDetails ? <div>
-
-                  <div>
-                    <p className="mb-1">
-                      <span className='text-black'>
-                        {" Options:"}
-                      </span>
-                    </p>
-                    {expandOptions ? <div><div className='d-block text-md font-semibold'>
-                      <div className='flex'>
-
+                      <div className="mb-1 flex ml-2 items-center">
                         <span className='text-black'>
-                          Dish Revise Category:&nbsp;
 
+                          {t("Dish:")}&nbsp;
                         </span>
 
                         <input
                           className='text-md font-semibold'
                           style={{ width: "50%" }}
-                          value={currentAttribute}
-                          onChange={(e) => setCurrentAttribute(e.target.value)}
-                          placeholder=" Size"
+                          type="text"
+                          name="name"
+                          placeholder={t("Blank")}
+                          value={newItem.name}
+                          onChange={handleInputChange}
                           translate="no"
                         />
+                        <span onClick={async () => {  //Auto Fill Chinese
+                          let translatedText = "Blank";
+                          if (newItem.name) {
+                            translatedText = newItem.name;
+                          }
+                          try {
+                            const chineseTranslation = await translateToChinese(translatedText);
+                            setNewItem({ ...newItem, CHI: chineseTranslation });
+                          } catch (error) {
+                            console.error("Translation error:", error);
+                          }
+
+                        }}
+                          className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(CN)")}</span></span>
+
                       </div>
-                      <small>E.g.: Portion Size</small>
-                      <div className='flex'>
-
+                      <div className="mb-1 ml-2 flex  items-center">
                         <span className='text-black'>
-                          Dish Revise Details:&nbsp;
-                        </span>
 
+                          {t("菜品:")}&nbsp;
+                        </span>
+                        <input
+                          className='text-md font-semibold'
+                          style={{ width: "40%" }}
+                          type="text"
+                          name="CHI"
+                          placeholder={"空白的"}
+                          value={newItem.CHI}
+                          onChange={handleInputChange}
+                          translate="no"
+                        />
+
+                        <span onClick={async () => {  // Auto Fill English
+                          let translatedText = "空白的";
+                          if (newItem.CHI) {
+                            translatedText = newItem.CHI;
+                          }
+                          try {
+                            const EnglishTranslation = await translateToEnglish(translatedText);
+                            setNewItem({ ...newItem, name: EnglishTranslation.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') });
+                          } catch (error) {
+                            console.error("Translation error:", error);
+                          }
+                        }}
+                          className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(EN)")}</span></span>
+
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+                <div className=' d-block text-md font-semibold'>
+                  <div className='flex'>
+                    <div>
+                      <div>
+                        <span className='text-black'>
+                          {t("Category: ")}
+                        </span>
                         <input
                           className='text-md font-semibold'
                           style={{ width: "50%" }}
-                          value={currentVariation.type}
-                          onChange={(e) => setCurrentVariation({ ...currentVariation, type: e.target.value })}
-                          placeholder=" Big"
-                          translate="no"
-                        />
+                          type="text" name="category"
+                          placeholder={selectedFoodType === "" ? "classic" : selectedFoodType}
+                          value={selectedFoodType === "" ? newItem.category : selectedFoodType}
+                          onChange={handleInputChange}
+                          translate="no" />
                       </div>
-                      <small>E.g.: Big</small>
-                      <div className='flex'>
-
+                      <div>
                         <span className='text-black'>
                           {t("Price: $ ")}
 
                         </span>
-
                         <input
                           className='text-md font-semibold'
                           style={{ width: "50%" }}
-                          value={currentVariation.price}
-                          onChange={(e) => setCurrentVariation({ ...currentVariation, price: e.target.value })}
-                          placeholder="1"
+                          type="text"
+                          name="subtotal"
+                          placeholder={"1"}
+                          value={newItem.subtotal}
+                          onChange={handleInputChange}
                           translate="no"
                         />
                       </div>
-                      <div className='text-red-700'>
-                        {priceFormatError && <span>{priceFormatError}</span>}
-
-                      </div>
-
-                    </div></div> : <div></div>}
-
-                    <div className='flex'>
-                      <a
-                        onClick={() => {
-                          if (!expandOptions) {
-                            setExpandOptions(true);
-                          } else {
-                            addOrUpdateAttributeVariation();
-                          }
-                        }}
-                        className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light"
-                      >
-                        <span>
-                          {!expandOptions ? "Add or Update Option" : "Confirm"}
-                        </span>
-                      </a>
                     </div>
-
-                    {Object.entries(attributes).map(([attributeName, attributeDetails]) => (
-                      <div key={attributeName}>
-                        <p className="mb-1">
-                          <span onClick={() => setCurrentAttribute(attributeName)} className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
-                            {attributeName} &nbsp;
-                          </span>
-                          <div className="custom-control custom-switch" style={{ display: "inline-block", verticalAlign: "middle" }}>
-                            <input
-                              className='form-check-input'
-                              type="checkbox"
-                              style={{ marginRight: "5px" }}
-                              checked={!attributeDetails.isSingleSelected}
-                              onChange={(e) => handleToggle(attributeName, !e.target.checked)}
-                              translate="no"
-                            />
-                          </div>
-                          {" Multi-Select"} { }
-                        </p>
-
-                        <div className='flex flex-wrap'>
-                          {attributeDetails.variations.map((variation, idx) => (
-                            <div>
-                              <div key={idx}>
-                                <div onClick={() => selectVariationForEdit(attributeName, variation)} className='mb-1 mr-1 mt-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
-                                  {variation.type}({formatPriceDisplay(variation.price)})
-                                  <span onClick={() => deleteVariation(attributeName, idx)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
-                                    <i className="fas fa-times"></i>
-                                  </span>
-                                </div>
-                              </div>
-
-                            </div>
-                          ))}
-                        </div>
-
-                      </div>
-                    ))}
-
 
                   </div>
 
-                  <div className='mb-3'>
-                    <p className="mb-1">
-                      <span className='text-black'>
 
-                        Time Range Availability:
-                      </span>
+                  {expandDetails ? <div>
 
-                    </p>
-                    <div className="flex">
-  {['Morning', 'Afternoon', 'Evening'].map((timeOfDay) => (
-    <div
-      key={timeOfDay}
-      className={`mr-1 cursor-pointer relative rounded-lg px-2.5 h-8 flex items-center justify-center font-semibold text-xs leading-none tracking-wider text-uppercase text-black whitespace-nowrap ${
-        selectedOptions.includes(timeOfDay) ? 'bg-blue-200' : 'bg-white'
-      }`}
-      onClick={() => toggleOption(timeOfDay)}
-    >
-      {timeOfDay}
-      {selectedOptions.includes(timeOfDay) && (
-        <span className="absolute top-0 right-0 cursor-pointer">
-          {/* Ensure FontAwesomeIcon component is correctly imported to use it here */}
-          <FontAwesomeIcon icon={faTimes} />
-        </span>
-      )}
-    </div>
-  ))}
-</div>
+                    <div>
+                      <p className="mb-1">
+                        <span className='text-black'>
+                          {" Options:"}
+                        </span>
+                      </p>
+                      {expandOptions ? <div><div className='d-block text-md font-semibold'>
+                        <div className='flex'>
+
+                          <span className='text-black'>
+                            Dish Revise Category:&nbsp;
+
+                          </span>
+
+                          <input
+                            className='text-md font-semibold'
+                            style={{ width: "50%" }}
+                            value={currentAttribute}
+                            onChange={(e) => setCurrentAttribute(e.target.value)}
+                            placeholder=" Size"
+                            translate="no"
+                          />
+                        </div>
+                        <small>E.g.: Portion Size</small>
+                        <div className='flex'>
+
+                          <span className='text-black'>
+                            Dish Revise Details:&nbsp;
+                          </span>
+
+                          <input
+                            className='text-md font-semibold'
+                            style={{ width: "50%" }}
+                            value={currentVariation.type}
+                            onChange={(e) => setCurrentVariation({ ...currentVariation, type: e.target.value })}
+                            placeholder=" Big"
+                            translate="no"
+                          />
+                        </div>
+                        <small>E.g.: Big</small>
+                        <div className='flex'>
+
+                          <span className='text-black'>
+                            {t("Price: $ ")}
+
+                          </span>
+
+                          <input
+                            className='text-md font-semibold'
+                            style={{ width: "50%" }}
+                            value={currentVariation.price}
+                            onChange={(e) => setCurrentVariation({ ...currentVariation, price: e.target.value })}
+                            placeholder="1"
+                            translate="no"
+                          />
+                        </div>
+                        <div className='text-red-700'>
+                          {priceFormatError && <span>{priceFormatError}</span>}
+
+                        </div>
+
+                      </div></div> : <div></div>}
+
+                      <div className='flex'>
+                        <a
+                          onClick={() => {
+                            if (!expandOptions) {
+                              setExpandOptions(true);
+                            } else {
+                              addOrUpdateAttributeVariation();
+                            }
+                          }}
+                          className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light"
+                        >
+                          <span>
+                            {!expandOptions ? "Add or Update Option" : "Confirm"}
+                          </span>
+                        </a>
+                      </div>
+
+                      {Object.entries(attributes).map(([attributeName, attributeDetails]) => (
+                        <div key={attributeName}>
+                          <p className="mb-1">
+                            <span onClick={() => setCurrentAttribute(attributeName)} className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
+                              {attributeName} &nbsp;
+                            </span>
+                            <div className="custom-control custom-switch" style={{ display: "inline-block", verticalAlign: "middle" }}>
+                              <input
+                                className='form-check-input'
+                                type="checkbox"
+                                style={{ marginRight: "5px" }}
+                                checked={!attributeDetails.isSingleSelected}
+                                onChange={(e) => handleToggle(attributeName, !e.target.checked)}
+                                translate="no"
+                              />
+                            </div>
+                            {" Multi-Select"} { }
+                          </p>
+
+                          <div className='flex flex-wrap'>
+                            {attributeDetails.variations.map((variation, idx) => (
+                              <div>
+                                <div key={idx}>
+                                  <div onClick={() => selectVariationForEdit(attributeName, variation)} className='mb-1 mr-1 mt-1' style={{ position: 'relative', background: 'rgb(208, 229, 253)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}>
+                                    {variation.type}({formatPriceDisplay(variation.price)})
+                                    <span onClick={() => deleteVariation(attributeName, idx)} style={{ position: 'absolute', top: '-2px', right: '-2px', cursor: 'pointer' }}>
+                                      <i className="fas fa-times"></i>
+                                    </span>
+                                  </div>
+                                </div>
+
+                              </div>
+                            ))}
+                          </div>
+
+                        </div>
+                      ))}
 
 
-                  </div></div> :
-                  <div className='mb-2'></div>}
+                    </div>
 
-              </div>
+                    <div className='mb-3'>
+                      <p className="mb-1">
+                        <span className='text-black'>
 
-              <div className={`flex justify-between`}>
+                          Time Range Availability:
+                        </span>
 
-                <a onClick={() => setExpandDetails(!expandDetails)} // Use an arrow function to toggle the state
-                  className="btn d-inline-flex d-inline-flex btn-sm btn-light">
+                      </p>
+                      <div className="flex">
+                        {['Morning', 'Afternoon', 'Evening'].map((timeOfDay) => (
+                          <div
+                            key={timeOfDay}
+                            className={`mr-1 cursor-pointer relative rounded-lg px-2.5 h-8 flex items-center justify-center font-semibold text-xs leading-none tracking-wider text-uppercase text-black whitespace-nowrap ${selectedOptions.includes(timeOfDay) ? 'bg-blue-200' : 'bg-white'
+                              }`}
+                            onClick={() => toggleOption(timeOfDay)}
+                          >
+                            {timeOfDay}
+                            {selectedOptions.includes(timeOfDay) && (
+                              <span className="absolute top-0 right-0 cursor-pointer">
+                                {/* Ensure FontAwesomeIcon component is correctly imported to use it here */}
+                                <FontAwesomeIcon icon={faTimes} />
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
 
-                  <span>
-                    {expandDetails ? "Hide Details" : "Edit Details"}
-                  </span>
-                </a>
-                <div>
 
+                    </div></div> :
+                    <div className='mb-2'></div>}
 
-                  <a onClick={() => handleAddNewItem(!expandDetails)} className="btn d-inline-flex btn-sm btn-success">
-                    <span className="pe-2">
-                      <i class="bi bi-pencil"></i>
-                    </span>
-                    <span>
-                      {t("Add New")}
-                    </span>
-                  </a>
                 </div>
 
+                <div className={`flex justify-between`}>
+
+                  <a onClick={() => setExpandDetails(!expandDetails)} // Use an arrow function to toggle the state
+                    className="btn d-inline-flex d-inline-flex btn-sm btn-light">
+
+                    <span>
+                      {expandDetails ? "Hide Details" : "Edit Details"}
+                    </span>
+                  </a>
+                  <div>
+
+
+                    <a onClick={() => handleAddNewItem(!expandDetails)} className="btn d-inline-flex btn-sm btn-success">
+                      <span className="pe-2">
+                        <i class="bi bi-pencil"></i>
+                      </span>
+                      <span>
+                        {t("Add New")}
+                      </span>
+                    </a>
+                  </div>
+
+                </div>
+
+
               </div>
-
-
             </div>
+
+            <React.Fragment>
+              {foods
+                // Filter by selected food category
+                .filter(food => selectedFoodType === "" || food.category === selectedFoodType)
+                // Filter by name, if provided
+                .filter(food => selectedName === "" || food.name.toLowerCase().includes(selectedName.toLowerCase()))
+                // Filter by CHI, if provided
+                .filter(food => {
+                  if (selectedCHI === "") {
+                    return true;
+                  }
+                  const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
+                  return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
+                })
+                .map((item, index) => (
+
+                  <div style={itemStyle}>
+
+
+                    <Item selectedFoodType={selectedFoodType} key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} foodTypes={foodTypes} />
+
+                  </div>
+                ))}
+            </React.Fragment>
+
+
           </div>
-
-          <React.Fragment>
-          {foods
-            // Filter by selected food category
-            .filter(food => selectedFoodType === "" || food.category === selectedFoodType)
-            // Filter by name, if provided
-            .filter(food => selectedName === "" || food.name.toLowerCase().includes(selectedName.toLowerCase()))
-            // Filter by CHI, if provided
-            .filter(food => {
-              if (selectedCHI === "") {
-                return true;
-              }
-              const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
-              return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
-            })
-            .map((item, index) => (
-
-              <div style={itemStyle}>
-                          
-
-                <Item selectedFoodType={selectedFoodType} key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} foodTypes={foodTypes} />
-
-              </div>
-            ))}
-    </React.Fragment>
-
-
-        </div>
         </LazyLoad>
 
       </div>
@@ -1745,24 +1744,23 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
 
               </p>
               <div className="flex">
-  {['Morning', 'Afternoon', 'Evening'].map((period) => (
-    <div
-      key={period}
-      className={`mr-1 cursor-pointer relative rounded-lg px-2.5 h-8 flex items-center justify-center font-semibold text-xs leading-none tracking-wider uppercase text-black whitespace-nowrap ${
-        item.availability.includes(period) ? 'bg-blue-200' : 'bg-white'
-      }`}
-      onClick={() => toggleOption(period)}
-    >
-      {period}
-      {item.availability.includes(period) && (
-        <span className="absolute top-0 right-0 cursor-pointer">
-          {/* Ensure FontAwesomeIcon component is correctly imported to use it here */}
-          <FontAwesomeIcon icon={faTimes} />
-        </span>
-      )}
-    </div>
-  ))}
-</div>
+                {['Morning', 'Afternoon', 'Evening'].map((period) => (
+                  <div
+                    key={period}
+                    className={`mr-1 cursor-pointer relative rounded-lg px-2.5 h-8 flex items-center justify-center font-semibold text-xs leading-none tracking-wider uppercase text-black whitespace-nowrap ${item.availability.includes(period) ? 'bg-blue-200' : 'bg-white'
+                      }`}
+                    onClick={() => toggleOption(period)}
+                  >
+                    {period}
+                    {item.availability.includes(period) && (
+                      <span className="absolute top-0 right-0 cursor-pointer">
+                        {/* Ensure FontAwesomeIcon component is correctly imported to use it here */}
+                        <FontAwesomeIcon icon={faTimes} />
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
 
 
             </div></div> : <div className='mb-2'></div>}

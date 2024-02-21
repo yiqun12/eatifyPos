@@ -12,7 +12,7 @@ const Dashboard = (props) => {
   const STRIPE_PUBLISHABLE_KEY = 'pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W';
 
   const promise = loadStripe(STRIPE_PUBLISHABLE_KEY, {
-    stripeAccount: JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).stripe_store_acct
+    stripeAccount: JSON.parse(sessionStorage.getItem('TitleLogoNameContent'))?.stripe_store_acct
   });
 
   return (

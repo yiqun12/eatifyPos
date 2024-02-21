@@ -4,7 +4,7 @@ import { getAuth } from "firebase/auth";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const firebaseConfig = {
@@ -19,9 +19,40 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+// // Immediately set Firestore settings
+// firebase.firestore().settings({
+//   cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+// });
+
+// Enable offline data persistence
+
+firebase.firestore().enablePersistence()
+  .catch((err) => {
+    if (err.code === 'failed-precondition') {
+      // Multiple tabs open, persistence can only be enabled in one tab at a time.
+    } else if (err.code === 'unimplemented') {
+      // The current browser does not support all of the features required to enable persistence.
+    }
+  });
 
 export const app = initializeApp(firebaseConfig);
+
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+enableIndexedDbPersistence(db, { forceOwnership: true }) // forceOwnership for web worker
+.then(() => console.log("Offline persistence enabled"))
+.catch(error => {
+    switch (error.code) {
+        case 'failed-precondition':
+            console.log("Offline persistence already enabled in another tab")
+            break
+        case 'unimplemented':
+            console.log("Offline persistence not supported by browser")
+            break
+        default:
+            console.error(error)
+    }
+})
+// Enable offline data persistence
 export const functions = getFunctions(app);
 

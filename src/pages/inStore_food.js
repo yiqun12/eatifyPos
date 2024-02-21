@@ -32,6 +32,8 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
   const [count, setCount] = useState(0);  // Set up a state
+  const [selectedFoodItem, setSelectedFoodItem] = useState('')
+
   const [priceError, setPriceError] = useState("");  // Set up a state
   const SetTableInfo = async (table_name, product) => {
     try {
@@ -51,7 +53,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
   };
 
 
-  const handleAttributeSelect = (attributeName, variationType, id, count, updateSelectedAttributes) => {
+  const handleAttributeSelect = (attributeName, variationType, id, count, updateSelectedAttributes, init) => {
     let updatedSelectedAttributes;
 
     if (Object.keys(updateSelectedAttributes).length === 0) {
@@ -64,8 +66,10 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
     // Create a copy of the selectedAttributes state
     //const updatedSelectedAttributes = { ...selectedAttributes };
-
-    console.log(updatedSelectedAttributes[attributeName])
+    console.log("sabniojwosww")
+    console.log(selectedFoodItem)
+    //console.log(updatedSelectedAttributes[attributeName])
+    //console.log(selectedFoodItem.attributesArr[attributeName].isSingleSelected)
     if (selectedFoodItem.attributesArr[attributeName].isSingleSelected) {
       // If isSingleSelected is true, set the selected variation as a string
       if (updatedSelectedAttributes[attributeName] === null) {
@@ -80,23 +84,33 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     } else {
       // If isSingleSelected is false, allow multiple selections as an array
       if (!updatedSelectedAttributes[attributeName]) {
-        // If the attribute is not selected yet, initialize it as an array
+        console.log("If the attribute is not selected yet, initialize it as an array")
+
         updatedSelectedAttributes[attributeName] = [variationType];
       } else {
-        // If the attribute is already selected, add or remove from the array
-        if (updatedSelectedAttributes[attributeName].includes(variationType)) {
-          updatedSelectedAttributes[attributeName] = updatedSelectedAttributes[attributeName].filter(
-            (selected) => selected !== variationType
-          );
+        console.log("If the attribute is already selected, add or remove from the array")
+        if (init) {
         } else {
-          updatedSelectedAttributes[attributeName] = [
-            ...updatedSelectedAttributes[attributeName],
-            variationType,
-          ];
+          // If the attribute is already selected, add or remove from the array
+          if (updatedSelectedAttributes[attributeName].includes(variationType)) {
+            console.log("remove")
+            updatedSelectedAttributes[attributeName] = updatedSelectedAttributes[attributeName].filter(
+              (selected) => selected !== variationType
+            );
+
+          } else {
+            console.log("add")
+            updatedSelectedAttributes[attributeName] = [
+              ...updatedSelectedAttributes[attributeName],
+              variationType,
+            ];
+          }
         }
+
 
         // If the array becomes empty after modification, delete it from the object
         if (updatedSelectedAttributes[attributeName].length === 0) {
+
           delete updatedSelectedAttributes[attributeName];
         } else {
           // Sort the array if it is not empty
@@ -107,6 +121,8 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     const newTotalPrice = TotalAttributePrice(updatedSelectedAttributes, selectedFoodItem.attributesArr);
     const products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
     const product = products.find((product) => product.id === id && product.count === count);
+    console.log("asjioawjiosj")
+    console.log(product, selectedFoodItem)
     console.log(Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100) >= 0)
     if (Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100 >= 0) {
       setTotalPrice(newTotalPrice);
@@ -384,6 +400,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     // Find the product with the matching id
     //let product = products.find((product) => product.id === id);
     const product = products?.find((product) => product.id === id && product.count === count);
+    console.log("snaiojwkoasn")
     console.log(attributeSelected)
     // If the product exists, update its name, subtotal, image, and timesClicked values
     if (product) {
@@ -407,12 +424,14 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     // Update the array in local storage
     //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
     //SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
-
+    //  handleAttributeSelect("Customized Option", "外卖TakeOut", id, count, {}, false)
+    //8   console.log(selectedFoodItem)
     if (!item || !item.attributesArr) {
       SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
       return;
     }
     SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(products)));
+    // setSelectedFoodItem(products)
 
 
   };
@@ -599,7 +618,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     }
     return result;
   }
-  const [selectedFoodItem, setSelectedFoodItem] = useState('')
   const [isOpen, setIsOpen] = useState(false);
   const [isModalVisible, setModalVisibility] = useState(false);
   const [OpenChangeAttributeTrigger, setOpenChangeAttributeTrigger] = useState(false);
@@ -612,7 +630,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     } else {
       showModal(OpenChangeAttributeModal)
       setOpenChangeAttributeTrigger(true)
-      
+
       //open one
     }
 
@@ -621,16 +639,18 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
   // Function to show the modal
   const showModal = (item) => {
     const randomNum = uuidv4()
-    setSelectedFoodItem(item);
+    setSelectedFoodItem(item);//attributeSelected
+    console.log("sajows")
+    console.log(item)
     setCount(randomNum);  // Increment the count every time the modal is opened
-    setSelectedAttributes({})
-    setTotalPrice(0);
 
-    addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, null, item.availability, item.attributesArr, item.quantity)
+    setTotalPrice(0);
+    const attributeSelected = item?.attributeSelected ? item.attributeSelected : {}
+    setSelectedAttributes(attributeSelected)
+    addSpecialFood(item.id, item.name, item.subtotal, item.image, attributeSelected, randomNum, item.CHI, null, item.availability, item.attributesArr, item.quantity)
+
     setModalVisibility(true);
     saveId(Math.random());
-    console.log("hello")
-
     //const [selectedAttributes, setSelectedAttributes] = useState({});
     //const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
 
@@ -728,15 +748,33 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
     // Automatically select the new or updated variant
     updatedAttributes['Customized Option'] = updatedAttributes['Customized Option'] || [];
+    console.log(updatedAttributes['Customized Option'])
+    console.log(name)
     if (!updatedAttributes['Customized Option'].includes(name)) {
       updatedAttributes['Customized Option'].push(name);
 
     }
-    console.log("handleAttributeSelecthandleAttributeSelecthandleAttributeSelecthandleAttributeSelect")
     console.log('Customized Option', name, id, count, {})
-    handleAttributeSelect('Customized Option', name, id, count, {})
+    console.log(updatedFoodItem.attributesArr)
+
+    // Assuming 'store', 'selectedTable', 'count', and 'updatedFoodItem' are your variables
+    let storeKey = store + "-" + selectedTable;
+    let items = JSON.parse(localStorage.getItem(storeKey)); // Step 1 & 2
+    console.log(items)
+    console.log(updatedFoodItem.attributesArr)
+    // Update the item with a specific 'count' ID
+    items.forEach(item => { // Step 3
+      if (item.count === count) {
+        item.attributesArr = updatedFoodItem.attributesArr; // Step 4: Assuming you want to set it to updatedFoodItem's attributesArr
+      }
+    });
+
+    // Convert the updated array back to a JSON string and save it in local storage
+    localStorage.setItem(storeKey, JSON.stringify(items)); // Step 5 & 6
+    handleAttributeSelect('Customized Option', name, id, count, {}, true)
     setSelectedFoodItem(updatedFoodItem);
     setSelectedAttributes(updatedAttributes);
+
     setTotalPrice(TotalAttributePrice(updatedAttributes, updatedFoodItem.attributesArr));
     setCustomVariant({ name: '外卖TakeOut', price: 0 }); // Reset custom variant input
 
@@ -855,7 +893,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                     <div key={attributeName}>
                       <p className="mb-1">
                         <span className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
-                          {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : "Select All That Apply"}
+                          {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : "(Select All That Apply)"}
                         </span>
                       </p>
 
@@ -881,9 +919,9 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                                 whiteSpace: 'nowrap',
                                 cursor: 'pointer',
                               }}
-                              onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count, {})}
+                              onClick={() =>
+                                handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count, {}, false)}
                             >
-
                               <span class="notranslate">
                                 {variation.type}
                               </span>
@@ -904,13 +942,16 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                 </div>
                 <div className='p-4 pt-3 flex justify-between'>
                   <div>
-
-
-                    <span class="text-lg notranslate">
-                      ${(Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100).toFixed(2)}
-                    </span>
-                    {priceError}
-
+                    {OpenChangeAttributeTrigger ?
+                      null
+                      :
+                      <div>
+                        <span class="text-lg notranslate">
+                          ${(Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100).toFixed(2)}
+                        </span>
+                        {priceError}
+                      </div>
+                    }
                   </div>
                   <div>
                     <span>
@@ -981,7 +1022,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                         deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 0);
                         setOpenChangeAttributeTrigger(false);
                         setOpenChangeAttributeModal(false)
-                        
+
                       } else {
                         deleteSpecialFood(selectedFoodItem.id, selectedFoodItem.count, selectedAttributes, 0);//delete old one
                         setOpenChangeAttributeTrigger(false);
@@ -1080,138 +1121,138 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
           </div>
           <LazyLoad height={762}>
 
-          {/* diplay food */}
-          <AnimatePresence>
-            <div className='grid grid-cols-1 gap-3 pt-2 ' style={{
-              gridTemplateRows: `repeat(1, 1fr)`,
-              gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
-              overflowY: 'auto',
-              maxHeight: dynamicHeight
-            }}>
-              {foods.map((item, index) => (
-                <motion.div
-                  layout
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.1 }}
-                  key={item.id}
-                  onClick={() => {
+            {/* diplay food */}
+            <AnimatePresence>
+              <div className='grid grid-cols-1 gap-3 pt-2 ' style={{
+                gridTemplateRows: `repeat(1, 1fr)`,
+                gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
+                overflowY: 'auto',
+                maxHeight: dynamicHeight
+              }}>
+                {foods.map((item, index) => (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.1 }}
+                    key={item.id}
+                    onClick={() => {
 
-                    if (!isAllowed) {
+                      if (!isAllowed) {
 
-                      if (Object.keys(item.attributesArr).length > 0) {
-                        showModal(item);
+                        if (Object.keys(item.attributesArr).length > 0) {
+                          showModal(item);
+                        } else {
+                          const randomNum = uuidv4()
+                          setCount(randomNum);  // Increment the count every time the modal is opened
+                          setSelectedAttributes({})
+                          setTotalPrice(0);
+                          addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item, item.availability, item.attributesArr)
+                          //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+                          //console.log("helllllllllllllllllllllllllllllllllllllo")
+                          //console.log(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable))))
+                          //SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+                        }
                       } else {
-                        const randomNum = uuidv4()
-                        setCount(randomNum);  // Increment the count every time the modal is opened
-                        setSelectedAttributes({})
-                        setTotalPrice(0);
-                        addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item, item.availability, item.attributesArr)
-                        //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
-                        //console.log("helllllllllllllllllllllllllllllllllllllo")
-                        //console.log(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable))))
-                        //SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+                        showModal(item);
+
                       }
-                    } else {
-                      showModal(item);
+                    }}
 
-                    }
-                  }}
+                    className=" border border-black rounded cursor-pointer">
+                    <div className='flex'>
+                      <div style={{ width: "100%" }}>
+                        <div className='flex-row px-2 pb-1 w-full'>
 
-                  className=" border border-black rounded cursor-pointer">
-                  <div className='flex'>
-                    <div style={{ width: "100%" }}>
-                      <div className='flex-row px-2 pb-1 w-full'>
+                          {/* parent div of title + quantity and button parent div */}
+                          <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                            <div className="col-span-4 ">
+                              <p class="notranslate">
 
-                        {/* parent div of title + quantity and button parent div */}
-                        <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                          <div className="col-span-4 ">
-                            <p class="notranslate">
+                                {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
+                              </p>                          </div>
 
-                              {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
-                            </p>                          </div>
+                            {/* parent div of the quantity and buttons */}
 
-                          {/* parent div of the quantity and buttons */}
-
-                          {/* ^ end of parent div of quantity and button */}
-                        </div>
-                        <div style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          marginBottom: "10px"
-                        }}>
-                          <div className="col-span-2" style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "center",
-                            alignItems: "center"
-                          }}>
-                            <p style={{ marginBottom: "0" }}>
-                              <span className='notranslate'>
-                                ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}
-                              </span>
-                            </p>
-
+                            {/* ^ end of parent div of quantity and button */}
                           </div>
-                          <div className="col-span-2 flex justify-end">
+                          <div style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            marginBottom: "10px"
+                          }}>
+                            <div className="col-span-2" style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center"
+                            }}>
+                              <p style={{ marginBottom: "0" }}>
+                                <span className='notranslate'>
+                                  ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}
+                                </span>
+                              </p>
 
-                            <div className="quantity"
-                              style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
+                            </div>
+                            <div className="col-span-2 flex justify-end">
 
-                              <div
-                                className="black_hover"
-                                style={{
-                                  padding: '4px',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  display: "flex",
-                                  border: "1px solid", // Adjust the border
-                                  borderRadius: "50%", // Set borderRadius to 50% for a circle
-                                  width: "30px", // Make sure width and height are equal
-                                  height: "30px",
+                              <div className="quantity"
+                                style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
 
-                                }}
-                              >
-                                <button
-                                  className="minus-btn"
-                                  type="button"
-                                  name="button"
+                                <div
+                                  className="black_hover"
                                   style={{
-                                    marginTop: '0px',
-                                    width: '20px',
-                                    height: '20px',
+                                    padding: '4px',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     display: "flex",
+                                    border: "1px solid", // Adjust the border
+                                    borderRadius: "50%", // Set borderRadius to 50% for a circle
+                                    width: "30px", // Make sure width and height are equal
+                                    height: "30px",
+
                                   }}
                                 >
-                                  <PlusSvg
+                                  <button
+                                    className="minus-btn"
+                                    type="button"
+                                    name="button"
                                     style={{
-                                      margin: '0px',
-                                      width: '10px',
-                                      height: '10px',
+                                      marginTop: '0px',
+                                      width: '20px',
+                                      height: '20px',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      display: "flex",
                                     }}
-                                    alt=""
-                                  />
-                                </button>
+                                  >
+                                    <PlusSvg
+                                      style={{
+                                        margin: '0px',
+                                        width: '10px',
+                                        height: '10px',
+                                      }}
+                                      alt=""
+                                    />
+                                  </button>
+                                </div>
                               </div>
                             </div>
+
                           </div>
-
+                          {/* ^ end of parent div of title + quantity and buttons */}
                         </div>
-                        {/* ^ end of parent div of title + quantity and buttons */}
+                        {/* This is Tony added code */}
                       </div>
-                      {/* This is Tony added code */}
                     </div>
-                  </div>
 
 
 
-                </motion.div>
-              ))}
-            </div>
-          </AnimatePresence>
+                  </motion.div>
+                ))}
+              </div>
+            </AnimatePresence>
           </LazyLoad>
 
         </div>

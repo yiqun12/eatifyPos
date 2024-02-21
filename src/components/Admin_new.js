@@ -70,7 +70,7 @@ function App() {
         console.log(selectedItem)
     }
     /**change app namne and logo */
-   // const [faviconUrl, setFaviconUrl] = useState('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
+    // const [faviconUrl, setFaviconUrl] = useState('https://upload.wikimedia.org/wikipedia/en/thumb/e/ef/LUwithShield-CMYK.svg/1200px-LUwithShield-CMYK.svg.png');
     const [pageTitle, setPageTitle] = useState("Title1");
     const handleOpenCashDraw = async () => {
         try {
@@ -671,7 +671,7 @@ function App() {
                                             style={{ marginLeft: "5%", height: '50px', width: "150%" }}
                                             onChange={(e) => setInputData(e.target.value)}
                                             value={inputData}
-                                            translate="no" 
+                                            translate="no"
                                         />
                                         <Button
                                             fullWidth
@@ -1013,7 +1013,7 @@ function App() {
                                                 setSearchData(e.target.value);
                                             }}
                                             value={searchData}
-                                            translate="no" 
+                                            translate="no"
                                         />
 
                                         <div className="task-wrap" style={{ minHeight: '400px', maxHeight: '400px', overflowY: 'scroll' }}>
@@ -1269,40 +1269,3 @@ function App() {
     );
 }
 export default App;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -51,13 +51,13 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
 
 
 
-  async function createReader(payloadReader,mode) {
+  async function createReader(payloadReader, mode) {
     try {
       const formattedPayload = {
         location_id: locationId,
         terminal_code: payloadReader.terminalRegistrationCode,
         connected_stripe_account_id: connected_stripe_account_id,
-        mode:mode
+        mode: mode
       };
 
       const registerReaderFunction = firebase.functions().httpsCallable('registerReader');
@@ -126,7 +126,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
       } else {
         simulation_mode = false;
       }
-      const reader = await createReader(payloadReader,mode);
+      const reader = await createReader(payloadReader, mode);
       //console.log("registered reader: ", reader);
       readerId = reader["id"]
       let docRef;
@@ -239,7 +239,28 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
         console.log(terminalsData)
       });
   }, [])
-  
+  const [itemsKiosk, setItemsKiosk] = useState([])
+
+  useEffect(() => {
+    firebase
+      .firestore()
+      .collection('stripe_customers')
+      .doc(user.uid)
+      .collection('TitleLogoNameContent')
+      .doc(storeID)
+      .collection('kiosk')
+      .onSnapshot((snapshot) => {
+
+        const terminalsData = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+
+
+        setItemsKiosk(terminalsData.sort((a, b) => b.date.localeCompare(a.date)))
+        console.log(terminalsData)
+      });
+  }, [])
   const formatDate = (dateString) => {
     const dateParts = dateString.split('-');
     const formattedDate = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`;
@@ -266,20 +287,31 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
 
   return (
     <div>
-      <label className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
-        POS machines:
-      </label>
-      <div className='mb-1'>In Store Payment Options:</div>
+
+      <div className='mb-1' style={{ fontWeight: 'bold' }}>Available Front Desk Payment Terminal:</div>
+      {items?.map((item, index) => (
+        <div key={item.id}>
+          <label className='flex'>
+            POS Machine( {item.id}) No.{items.length - index} --- Added in {formatDate(item.date)}
+          </label>
+        </div>
+      ))}
+      <div className='mb-1' ><span style={{ fontWeight: 'bold' }}>Available Kiosk Payment Terminal:</span><span>(Tap to navigate to the kiosk page)</span></div>
+
+      {itemsKiosk?.map((item, index) => (
+        <div key={item.id}>
+          <label className='flex'
+            style={{ color: 'blue', "text-underline-offset": "4px", textDecoration: 'underline', cursor: 'pointer' }}
+            onClick={() => window.location.href = `/store?store=${storeID}#${item.id}`}
+          >
+            POS Machine( {item.id}) No.{itemsKiosk.length - index} --- Added in {formatDate(item.date)}
+          </label>
+        </div>
+      ))}
 
       <div>
 
-        {items.map(item => (
-          <div key={item.id}>
-            <label className='flex'>
-              {item.id}  ({formatDate(item.date)})
-            </label>
-          </div>
-        ))}
+
         <div className="flex mt-3">
           <div style={{ width: "50%" }}></div>
           <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
@@ -289,6 +321,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 onClick={() => setIsExpanded(true)}
               >
+                <i class="bi bi-arrows-expand me-2"></i>
                 Register New POS Machine
               </button>
             )}
@@ -375,15 +408,15 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
               </div>
             </div>
             <div style={{ color: 'red' }}>{error_}</div>
-            <div className="flex mt-3">
-              <div style={{ width: "50%" }}></div>
-              <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
-                <button id="register-terminal-button" onClick={() => registerTerminal_("cashier")} className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Register Casheir POS Machine</button>
-                <button id="register-kiosk-button" onClick={() => registerTerminal_("kiosk")} className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >Register Food Kiosk POS Machine</button>
-              </div>
+            <div className="flex justify-end" >
+              <button id="register-terminal-button" onClick={() => registerTerminal_("cashier")}
+                className="ml-2 bg-gray-400 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded" >Register Cashier POS Machine</button>
+              <button id="register-kiosk-button" onClick={() => registerTerminal_("kiosk")}
+                className="ml-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" >Register Food Kiosk POS Machine</button>
             </div>
           </div>
-        </form>}
+        </form>
+        }
       </div>
 
     </div>

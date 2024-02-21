@@ -866,11 +866,22 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   }
 
   const mergeProduct = async (table_name) => {
+    //table_name is mergeTo
+    //selectedTable should be selectedTable
+    // console.log("saijdoaewjdioaw")
+    // console.log(JSON.stringify(groupAndSumItems(
+    //   [...JSON.parse(localStorage.getItem(`${store}-${selectedTable}`)), ...JSON.parse(localStorage.getItem(`${store}-${table_name}`))]
+    // )))
+    // console.log( )
+    // console.log(localStorage.getItem(store + "-" + selectedTable + "-isSent"))
+    // console.log(localStorage.getItem(store + "-" + table_name + "-isSent"))
     SetTableInfo_(`${store}-${table_name}`, JSON.stringify(groupAndSumItems(
       [...JSON.parse(localStorage.getItem(`${store}-${selectedTable}`)), ...JSON.parse(localStorage.getItem(`${store}-${table_name}`))]
     )))
     SetTableInfo_(`${store}-${selectedTable}`, JSON.stringify([]))
-    SetTableIsSent(`${store}-${table_name}-isSent`, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent")))))
+    SetTableIsSent(`${store}-${table_name}-isSent`, JSON.stringify(groupAndSumItems(
+      [...JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent") ), ...JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent"))])
+      ))
     //localStorage.setItem(`${store}-${table_name}-isSent`,JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")),JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent")))))
     SetTableIsSent(`${store}-${selectedTable}-isSent`, JSON.stringify([]))
     //localStorage.setItem(`${store}-${selectedTable}-isSent`,JSON.stringify([]))
@@ -897,7 +908,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     <div>
       <div class=''>
         <div className="flex w-full">
-          <div style={{ overflowY: 'auto', maxHeight: '800px' }} className={`flex-grow  ${!isMobile ? 'm-6' : 'm-2'}`}>
+          <div style={{ overflowY: 'auto', maxHeight: '700px' }} className={`flex-grow  ${!isMobile ? 'm-6' : 'm-2'}`}>
             {(Array.isArray(products) ? products : []).map((product) => (
               // the parent div
               // can make the parent div flexbox
@@ -1315,13 +1326,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <div className="modal-dialog" role="document">
                 <div className="modal-content">
                   <div className="modal-header">
-                    <h5 className="modal-title">Select Dining Desk to Merge</h5>
+                    <h5 className="modal-title">Select Dining Desk to Merge for {selectedTable}</h5>
                     <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setChangeTableModal(false); }}>
                       &times;
                     </button>
                   </div>
                   <div className="modal-body pt-0">
-                    <div>Empty Dining Desk(s):</div>
+                    <div>Empty Dining Desk(s): </div>
                     {arrEmpty.map((option) => (
 
                       <button

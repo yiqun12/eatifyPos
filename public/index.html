@@ -1,32 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <script src="/__/firebase/9.13.0/firebase-app-compat.js"></script>
-    <script src="/__/firebase/9.13.0/firebase-auth-compat.js"></script>
-    <script src="/__/firebase/9.13.0/firebase-firestore-compat.js"></script>
-    <script src="/__/firebase/init.js"></script>
 
-    <!-- Import Firebase UI -->
-    <script src="https://www.gstatic.com/firebasejs/ui/4.5.0/firebase-ui-auth.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-BdL/ARyGZNwhY9XShrsi1OnEldtRO67yS9X78I82iZLyOoJx4z4wQ4Z0gphOJQ2hACpl0H+kOoqPfVTGgAzFaw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+<head>
+  <script src="/__/firebase/9.13.0/firebase-app-compat.js"></script>
+  <script src="/__/firebase/9.13.0/firebase-auth-compat.js"></script>
+  <script src="/__/firebase/9.13.0/firebase-firestore-compat.js"></script>
+  <script src="/__/firebase/init.js"></script>
 
-    
-    <!-- Stripe's JS library -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Eatifydash is an online ordering system."
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
+  <!-- Import Firebase UI -->
+  <script src="https://www.gstatic.com/firebasejs/ui/4.5.0/firebase-ui-auth.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    integrity="sha512-BdL/ARyGZNwhY9XShrsi1OnEldtRO67yS9X78I82iZLyOoJx4z4wQ4Z0gphOJQ2hACpl0H+kOoqPfVTGgAzFaw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+
+
+  <!-- Stripe's JS library -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Eatifydash is an online ordering system." />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
+  <!-- <link rel="manifest" href="/manifest.json?path=%REPLACE_WITH_DYNAMIC_PATH%"> -->
+  <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
       Only files inside the `public` folder can be referenced from the HTML.
@@ -35,27 +35,43 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>Eatifydash</title>
-    <!--  change title logo-->
-    <!--  change title logo-->
-  </head>
-  <body>
-    <!--  change title logo-->
-    
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <script>
-      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-      link.type = 'image/x-icon';
-      link.rel = 'shortcut icon';
-      link.href = `${"https://cdn.discordapp.com/attachments/759102082849833000/1199718338683748534/new_logo-removebg-preview.png?ex=65c38fc5&is=65b11ac5&hm=263867d26289d9c635ebeca098af1bd20e8c543e7881431f263011622dc519a1&"}?t=${Date.now()}`;
-      document.getElementsByTagName('head')[0].appendChild(link);
-      // var header = document.getElementById("header");
-      // header.innerHTML = data.headerText;
-      document.title = "Eatifydash";
-    </script>
-    <!--  change title logo-->
-    <!--
+  <title>Eatifydash</title>
+  <!--  change title logo-->
+  <!--  change title logo-->
+</head>
+
+<body>
+  <!--  change title logo-->
+
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <script>
+    const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.type = 'image/x-icon';
+    link.rel = 'shortcut icon';
+    link.href = `${"https://cdn.discordapp.com/attachments/759102082849833000/1199718338683748534/new_logo-removebg-preview.png?ex=65c38fc5&is=65b11ac5&hm=263867d26289d9c635ebeca098af1bd20e8c543e7881431f263011622dc519a1&"}?t=${Date.now()}`;
+    document.getElementsByTagName('head')[0].appendChild(link);
+    // var header = document.getElementById("header");
+    // header.innerHTML = data.headerText;
+    document.title = "Eatifydash";
+    document.addEventListener('DOMContentLoaded', (event) => {
+      // Get the full URL path, including search queries and hash
+      const fullPath = window.location.pathname + window.location.search + window.location.hash;
+
+      // Create a manifest link element
+      const manifestLink = document.createElement('link');
+      manifestLink.rel = 'manifest';
+
+      // Set the href to include the full path, properly encoded
+      manifestLink.href = `/manifest.json?path=${encodeURIComponent(fullPath)}`;
+
+      // Append the manifest link to the document head
+      document.head.appendChild(manifestLink);
+    });
+
+  </script>
+  <!--  change title logo-->
+  <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
 
@@ -65,5 +81,6 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-  </body>
+</body>
+
 </html>

@@ -347,8 +347,8 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
               </div>
               <div className="modal-body pt-0">
                 <div>Customer's Chosen Dining Table:{
-                    arrOccupied.includes(selectedOrder.table)||arrEmpty.includes(selectedOrder.table)?"":"Customer's Table Not Found"
-                  }</div>
+                  arrOccupied.includes(selectedOrder.table) || arrEmpty.includes(selectedOrder.table) ? "" : "Customer's Table Not Found"
+                }</div>
 
                 {arrEmpty.includes(selectedOrder.table) ?
                   <button
@@ -357,6 +357,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                     onClick={() => {
                       mergeProduct(selectedOrder.table);//A1
                       setChangeTableModal(false);
+                      deleteDocument(selectedOrder.orderId)
                     }}
                     style={{ backgroundColor: '#966f33' }}
                   >
@@ -439,14 +440,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
 
           </span></h5>
         </div>
-        {sortedData.length <= 0
-          ?
-          <div class="card-footer border-0 py-5">
-            <span class="text-muted text-sm">There is no pending dine in order at this moment.</span>
-          </div> :
-          null
 
-        }
         <div class="table-responsive">
 
           <table
@@ -562,7 +556,14 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
             </tbody>
           </table>
         </div>
+        {sortedData.length <= 0
+          ?
+          <div class="card-footer border-0 py-5">
+            <span class="text-muted text-sm">There is no pending dine in order at this moment.</span>
+          </div> :
+          null
 
+        }
       </div>
     </div >
   );

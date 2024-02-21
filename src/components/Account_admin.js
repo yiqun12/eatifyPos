@@ -17,6 +17,8 @@ import { onSnapshot, query } from "firebase/firestore";
 import mySound from '../pages/new_order_english.mp3'; // Replace with your sound file's path
 import mySound_CHI from '../pages/new_order_chinese.mp3'; // Replace with your sound file's path
 import $ from 'jquery';
+import useGeolocation from './useGeolocation';
+import QRCode from 'qrcode.react'; // import QRCode component
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } from 'recharts';
 import { data_ } from '../data/data.js'
@@ -63,28 +65,14 @@ registerLocale('zh-CN', zhCN);
 
 
 const Account = () => {
-
+  const generateQRLink = (item) => {
+    const tableParam = item.split('-'); // This will split the string into an array
+    const prefix = tableParam[0]; // This will be 'demo'
+    const suffix = tableParam[1]; // This will be 'a2'
+    return `http://localhost:3000/store?store=${prefix}&table=${suffix}`;
+  };
   const [bounds, setBounds] = useState(null);
   const [error, setError] = useState('');
-
-  const fetchBounds = async () => {
-    setError('');
-    setBounds(null);
-    const getGeocode = firebase.functions().httpsCallable('getGeocode');
-
-    try {
-      const result = await getGeocode({ address: "1600 Amphitheatre Parkway, Mountain View, CA" });
-      console.log("--------------------------------")
-      console.log(result.data.bounds)
-      setBounds(result.data.bounds);
-    } catch (error) {
-      console.log(error.message)
-      setError(error.message);
-    }
-  };
-  useEffect(() => {
-    fetchBounds();
-  }, []); // `address` is a dependency here, but since it's a constant, `fetchBounds` will only run once on component mount
 
   const params = new URLSearchParams(window.location.search);
 
@@ -160,6 +148,7 @@ const Account = () => {
   const [storeName_, setStoreName_] = useState('');
   const [storeID, setStoreID] = useState('');
   const [storeOpenTime, setStoreOpenTime] = useState('');
+  const [docIds, setDocIds] = useState([]);
   useEffect(() => {
     // Ensure the user is defined
     if (!user || !user.uid) return;
@@ -171,11 +160,17 @@ const Account = () => {
       // 
       snapshot.docChanges().forEach((change) => {
         const doc = change.doc;
+        const docId = change.doc.id; // Extract the document ID
+
         if (change.type === "added" || change.type === "modified") {
-          console.log("Document changed:", doc.data().product);
+          // Check if the docId is not already in the state array to avoid duplicates
+          if (!docIds.includes(docId)) {
+            // Update the state with the new docId, ensuring uniqueness
+            setDocIds(prevDocIds => [...new Set([...prevDocIds, docId])]);
+          }
           localStorage.setItem(doc.id, doc.data().product);
         } else if (change.type === "removed") {
-          // console.log("Document removed:", doc.id);
+          setDocIds(prevDocIds => prevDocIds.filter(id => id !== docId));
           // localStorage.removeItem(doc.id);
         }
       });
@@ -1408,7 +1403,11 @@ const Account = () => {
     }
 
   };
-
+  function handlePrint() {
+    document.body.classList.add('printing');
+    window.print();
+    document.body.classList.remove('printing');
+  }
   const [order_status, setOrder_status] = useState("");
   const [order_table, setOrder_table] = useState("");
   const OpenCashDraw = async () => {
@@ -1424,6 +1423,27 @@ const Account = () => {
     } catch (e) {
       console.error("Error adding document: ", e);
     }
+  }
+  const [location, getLocation] = useGeolocation();
+  function checkGeolocation() {
+    getLocation().then((newLocation) => {
+      console.log(newLocation.latitude, newLocation.longitude);
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID);
+
+      // Update the lat and long fields within the latNlong map
+      updateDoc(docRef, {
+        "latNlong.lat": newLocation.latitude,
+        "latNlong.long": newLocation.longitude
+      }).then(() => {
+        console.log("Document successfully updated with new latitude and longitude");
+        alert("Upload successful!"); // Alert message for successful upload
+
+      }).catch((error) => {
+        console.error("Error updating document: ", error);
+        alert("Error updating document. Please try again."); // Optionally, alert the user in case of an error.
+
+      });
+    });
   }
 
   return (
@@ -1930,7 +1950,7 @@ const Account = () => {
                     <div className="d-flex align-items-center justify-content-between">
                       <div className="mb-0 mt-2" style={{ "cursor": "pointer" }}>
                         <h1 className="h2 ls-tight active">
-                          {activeTab === `#profile` || storeName_ === '' ? 'Account' : <span className='notranslate'>ID: {storeName_}</span>}
+                          {activeTab === `#profile` || storeName_ === '' ? 'Account' : <span className='notranslate'>{storeName_}</span>}
 
                         </h1>
                       </div>
@@ -1964,7 +1984,7 @@ const Account = () => {
                           <span className="pe-2">
                             <i class="bi bi-house"></i>
                           </span>
-                          <span>{"Edit Store"}</span>
+                          <span>{"Select Store"}</span>
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                           {
@@ -2205,14 +2225,6 @@ const Account = () => {
                             <div className=''>
                               <div className='mx-auto '>
                                 <div className='mt-3 rounded-lg w-full  max-h-[200px] relative'>
-                                  <div className='rounded-lg absolute  w-full h-full max-h-[200px] bg-black/40 text-gray-200 flex flex-col justify-center'>
-                                    <h1 className='px-4 text-4xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-justify'><span className='text-orange-500'>
-                                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(data?.storeNameCHI) : (data?.Name)}
-
-                                    </span>
-                                    </h1>
-                                    <h1 className='px-4 text-white font-bold'>@{data.Address}</h1>
-                                  </div>
                                   <img
                                     className="rounded-lg w-full max-h-[200px] object-cover"
                                     src={(previewUrl !== '') ? previewUrl : data?.Image}
@@ -2224,7 +2236,7 @@ const Account = () => {
                             <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.State, data?.ZipCode, data?.Phone)}>
                               <div className="flex flex-wrap -mx-3 mb-6">
                                 <div className="w-full px-3">
-                                  <label className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
+                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
                                     Store Display Name
                                   </label>
                                   <input
@@ -2239,7 +2251,7 @@ const Account = () => {
                                   />
                                 </div>
                                 <div className="w-full px-3">
-                                  <label className="text-gray-700 mt-3 mb-2" htmlFor="storeNameCHI">
+                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeNameCHI">
                                     Store Display Name in Second Language (Optional)
                                   </label>
                                   <input
@@ -2255,7 +2267,7 @@ const Account = () => {
 
                                 </div>
                                 <div className="w-full px-3">
-                                  <label className="text-gray-700 mt-3 mb-2" htmlFor="physical_address">
+                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="physical_address">
                                     Display Address
                                   </label>
                                   <input
@@ -2271,7 +2283,7 @@ const Account = () => {
                                   />
                                 </div>
                                 <div className="w-full px-3">
-                                  <label className="text-gray-700 mt-3 mb-2" htmlFor="city">
+                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="city">
                                     Display City
                                   </label>
                                   <input
@@ -2287,7 +2299,7 @@ const Account = () => {
                                 </div>
 
                                 <div className="w-full px-3">
-                                  <label className="text-gray-700 mt-3 mb-2" htmlFor="State">
+                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="State">
                                     State
                                   </label>
                                   <input
@@ -2303,7 +2315,7 @@ const Account = () => {
                                   />
                                 </div>
                                 <div className="w-full px-3">
-                                  <label className="text-gray-700 mt-3 mb-2" htmlFor="ZipCode">
+                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="ZipCode">
                                     Zip Code
                                   </label>
                                   <input
@@ -2319,7 +2331,7 @@ const Account = () => {
                                   />
                                 </div>
                                 <div className="w-full px-3">
-                                  <label className="text-gray-700 mt-3 mb-2" htmlFor="Phone">
+                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="Phone">
                                     Phone
                                   </label>
                                   <input
@@ -2336,8 +2348,8 @@ const Account = () => {
                                 </div>
                               </div>
                               <div className="mb-6">
-                                <label htmlFor="formFileLg" className="mb-2 inline-block text-neutral-700 dark:text-neutral-200">
-                                  Upload Your Store Front Here
+                                <label style={{ fontWeight: 'bold' }} htmlFor="formFileLg" className="mb-2 inline-block text-neutral-700 dark:text-neutral-200">
+                                  Submit Your Online Store Background Here
                                 </label>
                                 <input
                                   className="relative m-0 block w-full min-w-0 flex-auto cursor-pointer rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] font-normal leading-[2.15] text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:cursor-pointer file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary"
@@ -2353,12 +2365,46 @@ const Account = () => {
                                 <div style={{ width: "50%" }}></div>
                                 <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
                                   <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                    <i className="bi bi-house me-2" style={{ color: "#FFFFFF" }}></i>
                                     Submit
                                   </button>
                                 </div>
                               </div>
                             </form>
+                            <hr />
+                            <div style={{ fontWeight: 'bold' }}>
+                              QR code generator:
+                            </div>
+                            <div className="printContainer hidden print:block">
+                              {docIds.map((item, index) => (
+                                <div key={index} className="qrCodeItem">
+                                  <QRCode value={generateQRLink(item)} size={128} />
+                                  <div>{item.split('-')[1]}</div>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="flex justify-end">
+                              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                onClick={handlePrint}>
+                                <i class="bi bi-printer-fill me-2"></i>
+                                Create A4 Sized QR Code Prints</button>
 
+                            </div>
+
+                            <hr />
+
+                            <div style={{ fontWeight: 'bold' }}>
+                              Location Verification:
+                            </div>
+                            <div>
+                              Please stay within the store area for a location verification, ensuring you are no further than 24 meters away. This is to secure the use of QR codes for your store's operations. This step guarantees that QR code orders are accessible only to those present within the store. Utilizing your phone's GPS will provide greater accuracy for this process.
+                            </div>
+                            <div className="flex justify-end">
+                              <button onClick={() => checkGeolocation()} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                <i class="bi bi-geo-alt-fill me-2"></i>
+                                Start Location Verification
+                              </button>
+                            </div>
 
 
                             <hr />
@@ -2375,7 +2421,7 @@ const Account = () => {
 
                                 :
                                 <div>
-                                  <div className='mb-1'>Online Payment Options:</div>
+                                  <div className='mb-1' style={{ fontWeight: 'bold' }}>Online Payment Options:</div>
 
                                   <div className='mb-1' style={{ display: 'flex' }}>
 
@@ -2397,7 +2443,7 @@ const Account = () => {
                             <hr />
 
 
-                            <div>Operating Hours:</div>
+                            <div style={{ fontWeight: 'bold' }}>Operating Hours:</div>
                             <ChangeTimeForm storeID={storeID} storeOpenTime={storeOpenTime} />
 
 
@@ -2441,7 +2487,7 @@ const Account = () => {
                                       <div>End Date:</div>
                                       {(endDate === null) ?
                                         <button onClick={() => setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))}
-                                          className="btn btn-sm btn-success mt-1 mb-1 notranslate" style={{
+                                          className="btn btn-sm btn-success mt-1 mb-1" style={{
                                             border: '1px solid #ccc',
                                             display: 'inline-flex',
                                             alignItems: 'center',
@@ -2588,13 +2634,14 @@ const Account = () => {
                                     <i className="bi bi-calendar-event pe-2"></i>
                                     <span>Today's Orders</span>
                                   </button>
-                                  <button
-                                    onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
-                                    className="btn btn-sm btn-warning d-flex align-items-center mx-1 mb-2"
-                                  >
-                                    <i className="bi bi-calendar3 pe-2"></i>
-                                    <span>List This Month</span>
-                                  </button>
+                                  {!isMobile &&
+                                    <button
+                                      onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                      className="btn btn-sm btn-warning d-flex align-items-center mx-1 mb-2"
+                                    >
+                                      <i className="bi bi-calendar3 pe-2"></i>
+                                      <span>List This Month</span>
+                                    </button>}
                                   {/* {JSON.stringify(startDate)}
                                   {JSON.stringify(endDate)} */}
 
@@ -2742,20 +2789,22 @@ const Account = () => {
 
                             </div>
                             <div className={`${isMobile ? 'flex' : ''}`} >
-                              <button
+                              {!isMobile && <button
                                 onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
                                 className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
                               >
                                 <i className="bi bi-calendar pe-2"></i>
                                 <span>List All Orders</span>
-                              </button>
-                              <button
-                                onClick={() => { OpenCashDraw() }}
-                                className="btn btn-sm btn-info d-flex align-items-center mx-1 mt-1 mb-2"
-                              >
-                                <i className="bi bi-cash-stack pe-2"></i>
-                                <span>Cash Drawer</span>
-                              </button>
+                              </button>}
+                              {!isMobile &&
+                                <button
+                                  onClick={() => { OpenCashDraw() }}
+                                  className="btn btn-sm btn-info d-flex align-items-center mx-1 mt-1 mb-2"
+                                >
+                                  <i className="bi bi-cash-stack pe-2"></i>
+                                  <span>Cash Drawer</span>
+                                </button>
+                              }
                             </div>
                             {showChart ?
                               <div>
@@ -2791,7 +2840,7 @@ const Account = () => {
                               <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
                                 <option value="">Select Other Dining Table</option>
                                 {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
-                                  <option key={index} value={option}>{option}</option>
+                                  <option className='notranslate' key={index} value={option}>{option}</option>
                                 ))}
                                 {/* The options will be dynamically created here */}
                               </select>
@@ -2817,7 +2866,7 @@ const Account = () => {
                                       <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
                                         <option value="">Select Other Dining Table</option>
                                         {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
-                                          <option key={index} value={option}>{option}</option>
+                                          <option className='notranslate' key={index} value={option}>{option}</option>
                                         ))}
                                         {/* The options will be dynamically created here */}
                                       </select>
@@ -2841,13 +2890,13 @@ const Account = () => {
                                   {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).map((order, index) => (
                                     <div style={{ display: 'contents' }}>
 
-                                      {isMobile ? <div># {orders.length - index}</div> :
+                                      {isMobile ? <div className='notranslate'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - index}</div> :
                                         null
                                       }
                                       <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
-                                        {isMobile ? null : <td className='notranslate'># {orders.length - index}</td>}
+                                        {isMobile ? null : <td className='notranslate'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - index}</td>}
                                         <td className="order-number notranslate" data-title="OrderID"><a>{order.id.substring(0, 4)}</a></td>
-                                        <td className="order-name notranslate" data-title="Name" style={{ whiteSpace: "nowrap" }}>{order.tableNum === "" ? "Takeout" : order.tableNum}</td>
+                                        <td className="order-name notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>{order.tableNum === "" ? "Takeout" : order.tableNum}</td>
                                         <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
                                         <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="notranslate amount">{"$" + roundToTwoDecimalsTofix(order.total)}</span></td>
                                         <td className="order-date" data-title="Time" style={{ whiteSpace: "nowrap" }}>

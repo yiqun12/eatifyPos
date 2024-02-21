@@ -13,7 +13,6 @@ const useGeolocation = () => {
                 longitude: position.coords.longitude,
               };
               setLocation(newLocation);
-              console.log(newLocation)
               resolve(newLocation); // Resolve with the new location object
             },
             (error) => {

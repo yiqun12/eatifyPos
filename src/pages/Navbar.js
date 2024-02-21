@@ -35,6 +35,7 @@ import ringBell from './ringBell.png';
 
 const Navbar = () => {
 
+
   const googleTranslateElementInit = () => {
     if (window.google && window.google.translate) {
       new window.google.translate.TranslateElement(

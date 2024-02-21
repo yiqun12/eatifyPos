@@ -20,13 +20,21 @@ import multipleCard from './mutiple_card.png';
 import { MDBCheckbox } from 'mdb-react-ui-kit';
 import { useParams } from 'react-router-dom';
 import PaymentKiosk from "../pages/PaymentKiosk";
+import applepay from '../components/applepay.png';
+import amex from '../components/amex.png';
+import visa from '../components/visa.png';
+import discover from '../components/discover.png';
+import wechatpay from '../components/wechatpay.png';
+
+import alipay from '../components/alipay.png';
 
 function Checkout(props) {
+
   const params = new URLSearchParams(window.location.search);
 
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
   const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
-  console.log(store)
+
   const [receiptToken, setReceiptToken] = useState("");
 
   useEffect(() => {
@@ -183,181 +191,181 @@ function Checkout(props) {
     });
   }, [stripe, elements]);
 
-  function startDataListeners() {
-    /**
-     * Get all payment methods for the logged in customer
-     */
-    firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('payment_methods')
-      .onSnapshot((snapshot) => {
-        console.log('read card')
-        if (snapshot.empty) {
-          // console.log('No payment methods found for the customer');
+  // function startDataListeners() {
+  //   /**
+  //    * Get all payment methods for the logged in customer
+  //    */
+  //   firebase
+  //     .firestore()
+  //     .collection('stripe_customers')
+  //     .doc(user.uid)
+  //     .collection('payment_methods')
+  //     .onSnapshot((snapshot) => {
+  //       console.log('read card')
+  //       if (snapshot.empty) {
+  //         // console.log('No payment methods found for the customer');
 
-          //<option disabled="disabled" default="true"></option>
-          let optionElement = document.createElement('option');
-          optionElement.disabled = true;
-          optionElement.id = "404null"
-          optionElement.value = "null"
-          if (document.getElementById('404null')) {
-            console.log("does not have card")
-          } else {
-            document.querySelector('select[name=payment-method]').appendChild(optionElement);
-            document.querySelector('#add-new-card').open = true;
-            document.querySelector('[name=delete]').setAttribute('disabled', true);
-            document.querySelector('[name=pay]').setAttribute('disabled', true);
+  //         //<option disabled="disabled" default="true"></option>
+  //         let optionElement = document.createElement('option');
+  //         optionElement.disabled = true;
+  //         optionElement.id = "404null"
+  //         optionElement.value = "null"
+  //         if (document.getElementById('404null')) {
+  //           console.log("does not have card")
+  //         } else {
+  //           document.querySelector('select[name=payment-method]').appendChild(optionElement);
+  //           document.querySelector('#add-new-card').open = true;
+  //           document.querySelector('[name=delete]').setAttribute('disabled', true);
+  //           document.querySelector('[name=pay]').setAttribute('disabled', true);
 
-          }
-          handleAddNewCard();
-          saveId(Math.random());
-        } else {
-          Goback();
-          saveId(Math.random());
-          // console.log('payment methods found for the customer');
-          if (document.getElementById('404null')) {
-            const optionElementToDelete = document.querySelector(`option[id="${'404null'}"]`);
-            optionElementToDelete.remove();
-          } else {
-          }
+  //         }
+  //         handleAddNewCard();
+  //         saveId(Math.random());
+  //       } else {
+  //         Goback();
+  //         saveId(Math.random());
+  //         // console.log('payment methods found for the customer');
+  //         if (document.getElementById('404null')) {
+  //           const optionElementToDelete = document.querySelector(`option[id="${'404null'}"]`);
+  //           optionElementToDelete.remove();
+  //         } else {
+  //         }
 
-        }
-        snapshot.forEach(function (doc) {
-          const paymentMethod = doc.data();
-          if (!paymentMethod.card) {
-            return;
-          }
+  //       }
+  //       snapshot.forEach(function (doc) {
+  //         const paymentMethod = doc.data();
+  //         if (!paymentMethod.card) {
+  //           return;
+  //         }
 
-          const optionId = `card-${doc.id}`;
-          let optionElement = document.getElementById(optionId);
-          if (!optionElement) {
-            optionElement = document.createElement('option');
-            optionElement.id = optionId;
-            document.querySelector('select[name=payment-method]').appendChild(optionElement);
-            // console.log(optionElement.id)
-          }
+  //         const optionId = `card-${doc.id}`;
+  //         let optionElement = document.getElementById(optionId);
+  //         if (!optionElement) {
+  //           optionElement = document.createElement('option');
+  //           optionElement.id = optionId;
+  //           document.querySelector('select[name=payment-method]').appendChild(optionElement);
+  //           // console.log(optionElement.id)
+  //         }
 
-          optionElement.value = paymentMethod.id;
-          optionElement.setAttribute("data-type", paymentMethod.card.brand);
-          //console(optionElement.value)
-          optionElement.text = `•••• ${paymentMethod.card.last4} | ${paymentMethod.card.exp_month}/${parseInt(paymentMethod.card.exp_year) % 100}`;
-          optionElement.selected = true;
+  //         optionElement.value = paymentMethod.id;
+  //         optionElement.setAttribute("data-type", paymentMethod.card.brand);
+  //         //console(optionElement.value)
+  //         optionElement.text = `•••• ${paymentMethod.card.last4} | ${paymentMethod.card.exp_month}/${parseInt(paymentMethod.card.exp_year) % 100}`;
+  //         optionElement.selected = true;
 
-          saveId(Math.random())
-          // get the select element
-          //console.log("exist card:",optionElement.text)
-        });
+  //         saveId(Math.random())
+  //         // get the select element
+  //         //console.log("exist card:",optionElement.text)
+  //       });
 
-      });
+  //     });
 
-    // for translation
-    const trans = JSON.parse(sessionStorage.getItem("translations"))
-    const t = (text) => {
-      // const trans = sessionStorage.getItem("translations")
-      // console.log(trans)
-      // console.log(sessionStorage.getItem("translationsMode"))
+  //   // for translation
+  //   const trans = JSON.parse(sessionStorage.getItem("translations"))
+  //   const t = (text) => {
+  //     // const trans = sessionStorage.getItem("translations")
+  //     // console.log(trans)
+  //     // console.log(sessionStorage.getItem("translationsMode"))
 
-      if (trans != null) {
-        if (sessionStorage.getItem("translationsMode") != null) {
-          // return the translated text with the right mode
-          if (trans[text] != null) {
-            if (trans[text][sessionStorage.getItem("translationsMode")] != null)
-              return trans[text][sessionStorage.getItem("translationsMode")]
-          }
-        }
-      }
-      // base case to just return the text if no modes/translations are found
-      return text
-    }
+  //     if (trans != null) {
+  //       if (sessionStorage.getItem("translationsMode") != null) {
+  //         // return the translated text with the right mode
+  //         if (trans[text] != null) {
+  //           if (trans[text][sessionStorage.getItem("translationsMode")] != null)
+  //             return trans[text][sessionStorage.getItem("translationsMode")]
+  //         }
+  //       }
+  //     }
+  //     // base case to just return the text if no modes/translations are found
+  //     return text
+  //   }
 
-    document
-      .querySelector('#payment-form')
-      .addEventListener('submit', async (event) => {
-        event.preventDefault();
+  //   document
+  //     .querySelector('#payment-form')
+  //     .addEventListener('submit', async (event) => {
+  //       event.preventDefault();
 
-        if (event.submitter.name === 'delete') {
-          document
-            .querySelectorAll('button')
-            .forEach((button) => (button.disabled = true));
-          const form = new FormData(event.target);
-          const paymentMethodValue = form.get('payment-method');
-          const paymentMethodId = document.querySelector(`option[value="${paymentMethodValue}"]`).id;
-          const new_paymentMethodId = paymentMethodId.substring(5);
-          // console.log("deleted click")
-          // console.log(new_paymentMethodId);
-          await firebase
-            .firestore()
-            .collection('stripe_customers')
-            .doc(user.uid)
-            .collection('payment_methods')
-            .doc(new_paymentMethodId)
-            .delete();
-          const optionIdToDelete = paymentMethodId;
-          const optionElementToDelete = document.querySelector(`option[id="${optionIdToDelete}"]`);
-          if (optionElementToDelete) {
-            optionElementToDelete.remove();
-          }
-          document
-            .querySelectorAll('button')
-            .forEach((button) => (button.disabled = false));
-          // set the prompt message
-          const promptMessage = document.querySelector('#delete-message');
-          promptMessage.textContent = t("successfully deleted") + "!";
+  //       if (event.submitter.name === 'delete') {
+  //         document
+  //           .querySelectorAll('button')
+  //           .forEach((button) => (button.disabled = true));
+  //         const form = new FormData(event.target);
+  //         const paymentMethodValue = form.get('payment-method');
+  //         const paymentMethodId = document.querySelector(`option[value="${paymentMethodValue}"]`).id;
+  //         const new_paymentMethodId = paymentMethodId.substring(5);
+  //         // console.log("deleted click")
+  //         // console.log(new_paymentMethodId);
+  //         await firebase
+  //           .firestore()
+  //           .collection('stripe_customers')
+  //           .doc(user.uid)
+  //           .collection('payment_methods')
+  //           .doc(new_paymentMethodId)
+  //           .delete();
+  //         const optionIdToDelete = paymentMethodId;
+  //         const optionElementToDelete = document.querySelector(`option[id="${optionIdToDelete}"]`);
+  //         if (optionElementToDelete) {
+  //           optionElementToDelete.remove();
+  //         }
+  //         document
+  //           .querySelectorAll('button')
+  //           .forEach((button) => (button.disabled = false));
+  //         // set the prompt message
+  //         const promptMessage = document.querySelector('#delete-message');
+  //         promptMessage.textContent = t("successfully deleted") + "!";
 
-          // hide the error message after 2 seconds
-          setTimeout(() => {
-            promptMessage.textContent = "";
-          }, 6000);
-        }
-        if (event.submitter.name === 'pay') {
-          //console.log(sessionStorage.getItem("isDinein")== "true"?"TakeOut":"DineIn")
-          document
-            .querySelectorAll('button')
-            .forEach((button) => (button.disabled = true));
-          const form = new FormData(event.target);
-          const amount = Number(totalPrice);
-          const currency = 'usd';
-          //console.log(currency)
-          //console.log(amount)
-          const dateTime = new Date().toISOString();
-          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-          //console.log(form.get('payment-method'))
-          const data = {
-            store,
-            payment_method: form.get('payment-method'),
-            currency,
-            amount: amount,
-            status: 'new',
-            receipt: sessionStorage.getItem(store),
-            dateTime: date,
-            user_email: user.email,
-            uid: user.uid,
-            isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
-            tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut"
-          };
-          //send to db
-          await firebase
-            .firestore()
-            .collection('stripe_customers')
-            .doc(user.uid)
-            .collection('payments')
-            .add(data).then((docRef) => {
-              setReceiptToken(docRef.id)
-              console.log("Document ID is:", docRef.id);
-            })
-            .catch((error) => {
-              setReceiptToken("")
-              console.error("Error adding document: ", error);
-            });
-        }
-      });
-  }
+  //         // hide the error message after 2 seconds
+  //         setTimeout(() => {
+  //           promptMessage.textContent = "";
+  //         }, 6000);
+  //       }
+  //       if (event.submitter.name === 'pay') {
+  //         //console.log(sessionStorage.getItem("isDinein")== "true"?"TakeOut":"DineIn")
+  //         document
+  //           .querySelectorAll('button')
+  //           .forEach((button) => (button.disabled = true));
+  //         const form = new FormData(event.target);
+  //         const amount = Number(totalPrice);
+  //         const currency = 'usd';
+  //         //console.log(currency)
+  //         //console.log(amount)
+  //         const dateTime = new Date().toISOString();
+  //         const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+  //         //console.log(form.get('payment-method'))
+  //         const data = {
+  //           store,
+  //           payment_method: form.get('payment-method'),
+  //           currency,
+  //           amount: amount,
+  //           status: 'new',
+  //           receipt: sessionStorage.getItem(store),
+  //           dateTime: date,
+  //           user_email: user.email,
+  //           uid: user.uid,
+  //           isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
+  //           tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut"
+  //         };
+  //         //send to db
+  //         await firebase
+  //           .firestore()
+  //           .collection('stripe_customers')
+  //           .doc(user.uid)
+  //           .collection('payments')
+  //           .add(data).then((docRef) => {
+  //             setReceiptToken(docRef.id)
+  //             console.log("Document ID is:", docRef.id);
+  //           })
+  //           .catch((error) => {
+  //             setReceiptToken("")
+  //             console.error("Error adding document: ", error);
+  //           });
+  //       }
+  //     });
+  // }
 
-  useEffect(() => {
-    startDataListeners();
-  }, []);
+  // useEffect(() => {
+  //   startDataListeners();
+  // }, []);
 
   const [selectedOption, setSelectedOption] = useState('');
 
@@ -478,7 +486,7 @@ function Checkout(props) {
 
 
 
-            <form id="payment-form" onSubmit={handleWechat}>
+            {/* <form id="payment-form" onSubmit={handleWechat}>
               <button
                 onClick={handleWechat}
                 type="submit"
@@ -501,7 +509,7 @@ function Checkout(props) {
                 {t("WeChat Pay")}
               </button>
 
-            </form>
+            </form> */}
 
 
 
@@ -847,6 +855,8 @@ function PayHistory(props) {
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
   const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
 
+
+
   console.log(store)
   const { user, user_loading } = useUserContext();
   const { totalPrice, tips } = props;
@@ -855,13 +865,13 @@ function PayHistory(props) {
 
   //pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS
   //pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W
-  const STRIPE_PUBLISHABLE_KEY = 'pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W';
+  // const STRIPE_PUBLISHABLE_KEY = 'pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W';
 
-  loadStripe(STRIPE_PUBLISHABLE_KEY, {
-    stripeAccount: JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).stripe_store_acct
-  }).then(stripeInstance => {
-    stripe = stripeInstance; // Save stripe instance for use in your function
-  }).catch(console.error);
+  // loadStripe(STRIPE_PUBLISHABLE_KEY, {
+  //   stripeAccount: JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).stripe_store_acct
+  // }).then(stripeInstance => {
+  //   stripe = stripeInstance; // Save stripe instance for use in your function
+  // }).catch(console.error);
 
   const promise = useStripe()
   const elements = useElements()
@@ -1159,28 +1169,45 @@ function PayHistory(props) {
   //determine whether the new long and lat fall within the circle's range.
 
   //This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in km)
-  function isPointInBounds(point, bounds) {
-    const { lat, lng } = point;
-    const { northeast, southwest } = bounds;
 
-    const isLatInRange = lat >= southwest.lat && lat <= northeast.lat;
-    const isLngInRange = lng >= southwest.lng && lng <= northeast.lng;
+  //{latitude: 37.7847808, longitude: -122.4146944}
 
-    return isLatInRange && isLngInRange;
+
+  function calcCrow(lat1, lon1, lat2, lon2) {
+    var R = 6371; // km
+    var dLat = toRad(lat2 - lat1);
+    var dLon = toRad(lon2 - lon1);
+    var lat1 = toRad(lat1);
+    var lat2 = toRad(lat2);
+
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+    return d;
   }
-  const bounds = {
-    northeast: { lat: 37.8011648, lng: -122.4114176 },
-    southwest: { lat: 37.7962271, lng: -122.4057551 }
-  };
 
-  const [distanceStatus, setDistanceStatus] = useState(null); // 'near' or 'far'
+  // Converts numeric degrees to radians
+  function toRad(Value) {
+    return Value * Math.PI / 180;
+  }
+  const [distanceStatus, setDistanceStatus] = useState("far"); // 'near' or 'far'
+  checkgeolocation()
 
   function checkgeolocation() {
+
     getLocation().then((newLocation) => {
-      if (isPointInBounds({ lat: newLocation.latitude, lng: newLocation.longitude }, bounds)) {
+      const latNlong = JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).latNlong;
+      // console.log(latNlong)
+      // console.log(newLocation)
+      // console.log(calcCrow(newLocation.latitude, newLocation.longitude, latNlong.lat, latNlong.long))
+      if (calcCrow(newLocation.latitude, newLocation.longitude, latNlong.lat, latNlong.long) < latNlong.withinMile) {
+        console.log("near")
+
         setDistanceStatus('near');
 
       } else {
+        console.log("far")
         setDistanceStatus('far');
         //setDistanceStatus('far');
       }
@@ -1202,7 +1229,7 @@ function PayHistory(props) {
         items: products,
         amount: "0", //NO USE
         status: "Review", //NO USE
-        table: table,
+        table: table ? table : "",
         username: name,
       }
       const result = await myFunction(data);
@@ -1262,7 +1289,7 @@ function PayHistory(props) {
 
   return (
     <div>
-      {
+      {/* {
         !isKiosk ? <form id="payment-form" onSubmit={handleAli}>
           <button
             type="submit"
@@ -1284,54 +1311,89 @@ function PayHistory(props) {
             {t("AliPay")}
           </button>
         </form> : null
-      }
+      } */}
+      {/* <div>
+        {true ?
+          <button
+            class="text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+            style={{ "borderRadius": "0.2rem", width: "100%" }}
+            onClick={() => {
+              checkgeolocation();
+              PendingDineInOrder(sessionStorage.getItem('table'), user.displayName)
+            }}>
+
+            {t("Place Order, Pay At Front Desk")}
+          </button>
+
+          : <div>
+          </div>}
+
+      </div> */}
+
+
+      {/* <PaymentKiosk receipt_JSON={JSON.stringify([{ "id": "9ee84ddc-c91f-47ec-981b-1c5680550837", "name": "Garlic A Choy", "subtotal": "15", "image": "https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500", "quantity": 5, "attributeSelected": {}, "count": "3c50ff94-49e1-4563-ac99-990efc15b0e9", "itemTotalPrice": 75, "CHI": "蒜蓉A菜" }, { "id": "c315164b-5afb-4330-b24a-238caf766cc4", "name": "Beef And Broccoli", "subtotal": "18", "image": "https://img2.baidu.com/it/u=3582338435,3937177930&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500", "quantity": 1, "attributeSelected": {}, "count": "9e72ec1f-9941-45be-ac26-369792e69f78", "itemTotalPrice": 18, "CHI": "牛肉西兰花" }])}
+                  storeID={"demo"} chargeAmount={1} connected_stripe_account_id={"acct_1OWU8KBUAXdEY4mJ"} service_fee={0} selectedTable={"测试"} /> */}
       {
         isKiosk ?
           <PaymentKiosk receipt_JSON={sessionStorage.getItem(store)}
             storeID={store} chargeAmount={parseFloat(totalPrice)} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
             service_fee={0} selectedTable={'点餐机kiosk'} /> : null
       }
+      {isKiosk ?
+        <button
+          class="text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+          style={{ "borderRadius": "0.2rem", width: "100%" }}
+          onClick={() => {
+            PendingDineInOrder(sessionStorage.getItem('table'), user.displayName)
+          }}>
 
-      {/* <PaymentKiosk receipt_JSON={JSON.stringify([{ "id": "9ee84ddc-c91f-47ec-981b-1c5680550837", "name": "Garlic A Choy", "subtotal": "15", "image": "https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500", "quantity": 5, "attributeSelected": {}, "count": "3c50ff94-49e1-4563-ac99-990efc15b0e9", "itemTotalPrice": 75, "CHI": "蒜蓉A菜" }, { "id": "c315164b-5afb-4330-b24a-238caf766cc4", "name": "Beef And Broccoli", "subtotal": "18", "image": "https://img2.baidu.com/it/u=3582338435,3937177930&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500", "quantity": 1, "attributeSelected": {}, "count": "9e72ec1f-9941-45be-ac26-369792e69f78", "itemTotalPrice": 18, "CHI": "牛肉西兰花" }])}
-                  storeID={"demo"} chargeAmount={1} connected_stripe_account_id={"acct_1OWU8KBUAXdEY4mJ"} service_fee={0} selectedTable={"测试"} /> */}
+          {t("Place Order, Pay At Front Desk")}
+        </button>
 
-      <div
-        class="text-blue-500 underline bg-white-500 focus:outline-none font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2"
-        style={{ "borderRadius": "0.2rem", width: "100%" }}
-      >
-        <div>
-          {isMobileOrTablet && !(sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "") ?
-            <button onClick={() => {
-              checkgeolocation();
-              PendingDineInOrder(sessionStorage.getItem('table'), user.displayName)
-            }}>
+        : <div>
+        </div>}
 
-              {t("Place Order, Pay At Front Desk")}
-            </button>
-
-            : <div>
-            </div>}
-        </div>
-
-
-
-
-      </div>
       {location ? (
         distanceStatus === 'near' ? (
           <div>
-            <p>{t("Awaiting... Do not forgot to notify the store when placing this order.")}</p>
+
+            {/* {JSON.stringify(bounds)} */}
+            {/* {sessionStorage.getItem('table')} */}
+            {(isMobileOrTablet
+              &&
+              !(sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "")
+            ) ?
+              <button
+                class="text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+                style={{ "borderRadius": "0.2rem", width: "100%" }}
+                onClick={() => {
+                  PendingDineInOrder(sessionStorage.getItem('table'), user.displayName)
+                }}>
+
+                {t("Place Order, Pay At Front Desk")}
+              </button>
+
+              : <div>
+              </div>
+            }
           </div>
         ) : (
           <div>
-            <p>{t("Order placement is not possible as your location is too distant from our store.")}</p>
+            <p>{t("Given the considerable distance between your location and our store, you have the option to come here for pickup.")}</p>
           </div>
         )
       ) : (
         <div>
         </div>
       )}
+      <div style={{ display: 'flex', marginTop: "10px" }}>
+        <img style={{ height: '35px', width: 'auto' }} src={discover} alt="Discover" />
 
+        <img style={{ height: '35px', width: 'auto', marginLeft: "15px" }} src={visa} alt="Visa" />
+      </div>
+      <div style={{ display: 'flex', marginTop: "5px" }}>
+        <img style={{ height: '35px', width: 'auto' }} src={applepay} alt="Apple Pay" />
+      </div>
       <ul id="payments-list"></ul>
 
     </div>
