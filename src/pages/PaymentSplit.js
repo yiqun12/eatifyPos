@@ -218,7 +218,9 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
       await setDoc(docRef, docData);
 
     } catch (error) {
-      console.error("Error adding document: ", error);
+      setError("There was an error with processPayment:", error.message);
+
+      console.error("Error adding document: ", error.message);
     }
   };
   const SetTableIsSent = async (table_name, product) => {
@@ -233,7 +235,9 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
       await setDoc(docRef, docData);
 
     } catch (error) {
-      console.error("Error adding document: ", error);
+      setError("There was an error with cancel:", error.message);
+
+      console.error("Error adding document: ", error.message);
     }
   };
 

@@ -10,6 +10,7 @@ import plusSvg from '../pages/plus.svg';
 import minusSvg from '../pages/minus.svg';
 import { useRef } from "react";
 import { data_ } from '../data/data.js'
+import firebase from 'firebase/compat/app';
 
 import InStore_food from '../pages/inStore_food'
 import InStore_shop_cart from '../pages/inStore_shop_cart'
@@ -240,6 +241,43 @@ function App({ store, acct }) {
         }
     };
 
+    async function processPayment() {
+        console.log("processPayment");
+
+        try {
+            const processPaymentFunction = firebase.functions().httpsCallable('processPayment');
+
+            const response = await processPaymentFunction({
+                keepWarm: true
+            });
+
+            console.log("the response was okay");
+            return response.data;
+        } catch (error) {
+            console.error("There was an error with processPayment:", error.message);
+            throw error; // rethrow to handle it outside of the function or display to user
+        }
+    }
+
+
+
+    async function cancel() {
+        console.log("cancel");
+        try {
+            const cancelActionFunction = firebase.functions().httpsCallable('cancelAction');
+
+            const response = await cancelActionFunction({
+                keepWarm: true
+            });
+
+            console.log("the response was okay");
+            return response.data;
+
+        } catch (error) {
+            console.error("There was an error with cancel:", error.message);
+            throw error; // rethrow to handle it outside of the function or display to user
+        }
+    }
     // the selectedTable variable allows you to keep track which table you have selected
     const [selectedTable, setSelectedTable] = useState("null");
     const [selectedSeatMode, setSelectedSeatMode] = useState("customer");
@@ -267,6 +305,8 @@ function App({ store, acct }) {
                 //localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
                 SetTableInfo(store + "-" + tableNumber, JSON.stringify([]))
             }
+            processPayment()//kepp the cloud function warm and get ready
+            cancel()//kepp the cloud function warm and get ready
         } else if (event.data === "admin mode active") {
             setSelectedSeatMode("admin");
         } else if (event.data === "customer mode active") {
@@ -618,16 +658,26 @@ function App({ store, acct }) {
                                                     <div key={view} className="modal-body p-0">
                                                         <div >
                                                             {view === true ?
-                                                                <InStore_shop_cart
-                                                                    OpenChangeAttributeModal={OpenChangeAttributeModal}
-                                                                    setOpenChangeAttributeModal={setOpenChangeAttributeModal}
-                                                                    store={store}
-                                                                    acct={acct}
-                                                                    selectedTable={selectedTable}
-                                                                    isAllowed={isAllowed}
-                                                                    setIsAllowed={setIsAllowed}
-                                                                    openSplitPaymentModal={openSplitPaymentModal}
-                                                                />
+                                                                <div>
+                                                                    <InStore_shop_cart
+                                                                        OpenChangeAttributeModal={OpenChangeAttributeModal}
+                                                                        setOpenChangeAttributeModal={setOpenChangeAttributeModal}
+                                                                        store={store}
+                                                                        acct={acct}
+                                                                        selectedTable={selectedTable}
+                                                                        isAllowed={isAllowed}
+                                                                        setIsAllowed={setIsAllowed}
+                                                                        openSplitPaymentModal={openSplitPaymentModal}
+                                                                    />
+                                                                    <InStore_food
+                                                                        OpenChangeAttributeModal={OpenChangeAttributeModal}
+                                                                        setOpenChangeAttributeModal={setOpenChangeAttributeModal}
+                                                                        isAllowed={isAllowed}
+                                                                        setIsAllowed={setIsAllowed}
+                                                                        store={store} selectedTable={selectedTable}
+                                                                        view={view}
+                                                                    />
+                                                                </div>
                                                                 :
                                                                 <InStore_food
                                                                     OpenChangeAttributeModal={OpenChangeAttributeModal}

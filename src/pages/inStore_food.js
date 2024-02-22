@@ -27,7 +27,7 @@ function convertToPinyin(text) {
   }).join('');
 }
 
-const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable }) => {
+const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, view }) => {
   //const params = new URLSearchParams(window.location.search);
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
@@ -1038,222 +1038,228 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
           </div>
         )
         }
+
         <div className='m-auto '>
+
           <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
             {/* Filter Type */}
             <div className='Type' >
               {/* <div className='flex justify-between flex-wrap'> */}
 
               {/* web mode */}
+              {!view ?
+                <div>
 
-              <div>
+                  <div className='flex' style={{ justifyContent: 'space-between', alignItems: 'center' }}>
 
-                <div className='flex' style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-
-                  <div className="mt-2 flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full items-center">
-                    <input
-                      type="search"
-                      className='flex bg-transparent p-2 w-full focus:outline-none text-black'
-                      placeholder={t('Search Food Item')}
-                      onChange={handleInputChange}
-                      translate="no"
-                    />
-                    <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
+                    <div className="mt-2 flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full items-center">
+                      <input
+                        type="search"
+                        className='flex bg-transparent p-2 w-full focus:outline-none text-black'
+                        placeholder={t('Search Food Item')}
+                        onChange={handleInputChange}
+                        translate="no"
+                      />
+                      <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
+                    </div>
                   </div>
                 </div>
-              </div>
-
+                : null}
               {/* end of the top */}
               <div ref={scrollingWrapperRef} className={`mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''} mb-0`}
 
               >
+                {!view ?
+                  <div>
+                    <button onClick={() => {
+                      setFoods(data)
+                      setSelectedFoodType(null);
+                    }}
+                      className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg ${selectedFoodType === null ? 'underline' : ''}`}
+                      style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
 
-                <button onClick={() => {
-                  setFoods(data)
-                  setSelectedFoodType(null);
-                }}
-                  className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg ${selectedFoodType === null ? 'underline' : ''}`}
-                  style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
-
-                {
-                  translationsMode_ === 'ch'
-                    ? foodTypesCHI.map((foodType) => (
-                      <button
-                        key={foodType}
-                        onClick={() => {
-                          filterTypeCHI(foodType);
-                          setSelectedFoodType(foodType);
-                        }}
-                        className={`m-0 border-black-600 text-black-600 rounded-xl text-lg px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
-                          }`}
-                        style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-                      >
-                        <div>
-                          {foodType && foodType.length > 1
-                            ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-                            : ''}
-                        </div>
-                      </button>
-                    ))
-                    : foodTypes.map((foodType) => (
-                      <button
-                        key={foodType}
-                        onClick={() => {
-                          filterType(foodType);
-                          setSelectedFoodType(foodType);
-                        }}
-                        className={`m-0 border-black-600 text-black-600 text-lg rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
-                          }`}
-                        style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-                      >
-                        <div>
-                          {foodType && foodType.length > 1
-                            ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-                            : ''}
-                        </div>
-                      </button>
-                    ))
-                }
-
+                    {
+                      translationsMode_ === 'ch'
+                        ? foodTypesCHI.map((foodType) => (
+                          <button
+                            key={foodType}
+                            onClick={() => {
+                              filterTypeCHI(foodType);
+                              setSelectedFoodType(foodType);
+                            }}
+                            className={`m-0 border-black-600 text-black-600 rounded-xl text-lg px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
+                              }`}
+                            style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+                          >
+                            <div>
+                              {foodType && foodType.length > 1
+                                ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                                : ''}
+                            </div>
+                          </button>
+                        ))
+                        : foodTypes.map((foodType) => (
+                          <button
+                            key={foodType}
+                            onClick={() => {
+                              filterType(foodType);
+                              setSelectedFoodType(foodType);
+                            }}
+                            className={`m-0 border-black-600 text-black-600 text-lg rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
+                              }`}
+                            style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+                          >
+                            <div>
+                              {foodType && foodType.length > 1
+                                ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                                : ''}
+                            </div>
+                          </button>
+                        ))
+                    }
+                  </div> : null}
               </div>
             </div>
 
           </div>
-          <LazyLoad height={762}>
+          {!view ?
+            <LazyLoad height={762}>
 
-            {/* diplay food */}
-            <AnimatePresence>
-              <div className='grid grid-cols-1 gap-3 pt-2 ' style={{
-                gridTemplateRows: `repeat(1, 1fr)`,
-                gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
-                overflowY: 'auto',
-                maxHeight: dynamicHeight
-              }}>
-                {foods.map((item, index) => (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.1 }}
-                    key={item.id}
-                    onClick={() => {
+              {/* diplay food */}
+              <AnimatePresence>
+                <div className='grid grid-cols-1 gap-3 pt-2 ' style={{
+                  gridTemplateRows: `repeat(1, 1fr)`,
+                  gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
+                  overflowY: 'auto',
+                  maxHeight: dynamicHeight
+                }}>
+                  {foods.map((item, index) => (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.1 }}
+                      key={item.id}
+                      onClick={() => {
 
-                      if (!isAllowed) {
+                        if (!isAllowed) {
 
-                        if (Object.keys(item.attributesArr).length > 0) {
-                          showModal(item);
+                          if (Object.keys(item.attributesArr).length > 0) {
+                            showModal(item);
+                          } else {
+                            const randomNum = uuidv4()
+                            setCount(randomNum);  // Increment the count every time the modal is opened
+                            setSelectedAttributes({})
+                            setTotalPrice(0);
+                            addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item, item.availability, item.attributesArr)
+                            //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+                            //console.log("helllllllllllllllllllllllllllllllllllllo")
+                            //console.log(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable))))
+                            //SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+                          }
                         } else {
-                          const randomNum = uuidv4()
-                          setCount(randomNum);  // Increment the count every time the modal is opened
-                          setSelectedAttributes({})
-                          setTotalPrice(0);
-                          addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item, item.availability, item.attributesArr)
-                          //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
-                          //console.log("helllllllllllllllllllllllllllllllllllllo")
-                          //console.log(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable))))
-                          //SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+                          showModal(item);
+
                         }
-                      } else {
-                        showModal(item);
+                      }}
 
-                      }
-                    }}
+                      className=" border border-black rounded cursor-pointer">
+                      <div className='flex'>
+                        <div style={{ width: "100%" }}>
+                          <div className='flex-row px-2 pb-1 w-full'>
 
-                    className=" border border-black rounded cursor-pointer">
-                    <div className='flex'>
-                      <div style={{ width: "100%" }}>
-                        <div className='flex-row px-2 pb-1 w-full'>
+                            {/* parent div of title + quantity and button parent div */}
+                            <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                              <div className="col-span-4 ">
+                                <p class="notranslate">
 
-                          {/* parent div of title + quantity and button parent div */}
-                          <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                            <div className="col-span-4 ">
-                              <p class="notranslate">
+                                  {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
+                                </p>                          </div>
 
-                                {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
-                              </p>                          </div>
+                              {/* parent div of the quantity and buttons */}
 
-                            {/* parent div of the quantity and buttons */}
-
-                            {/* ^ end of parent div of quantity and button */}
-                          </div>
-                          <div style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            marginBottom: "10px"
-                          }}>
-                            <div className="col-span-2" style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "center",
-                              alignItems: "center"
-                            }}>
-                              <p style={{ marginBottom: "0" }}>
-                                <span className='notranslate'>
-                                  ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}
-                                </span>
-                              </p>
-
+                              {/* ^ end of parent div of quantity and button */}
                             </div>
-                            <div className="col-span-2 flex justify-end">
+                            <div style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              marginBottom: "10px"
+                            }}>
+                              <div className="col-span-2" style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center"
+                              }}>
+                                <p style={{ marginBottom: "0" }}>
+                                  <span className='notranslate'>
+                                    ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}
+                                  </span>
+                                </p>
 
-                              <div className="quantity"
-                                style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
+                              </div>
+                              <div className="col-span-2 flex justify-end">
 
-                                <div
-                                  className="black_hover"
-                                  style={{
-                                    padding: '4px',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    display: "flex",
-                                    border: "1px solid", // Adjust the border
-                                    borderRadius: "50%", // Set borderRadius to 50% for a circle
-                                    width: "30px", // Make sure width and height are equal
-                                    height: "30px",
+                                <div className="quantity"
+                                  style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
 
-                                  }}
-                                >
-                                  <button
-                                    className="minus-btn"
-                                    type="button"
-                                    name="button"
+                                  <div
+                                    className="black_hover"
                                     style={{
-                                      marginTop: '0px',
-                                      width: '20px',
-                                      height: '20px',
+                                      padding: '4px',
                                       alignItems: 'center',
                                       justifyContent: 'center',
                                       display: "flex",
+                                      border: "1px solid", // Adjust the border
+                                      borderRadius: "50%", // Set borderRadius to 50% for a circle
+                                      width: "30px", // Make sure width and height are equal
+                                      height: "30px",
+
                                     }}
                                   >
-                                    <PlusSvg
+                                    <button
+                                      className="minus-btn"
+                                      type="button"
+                                      name="button"
                                       style={{
-                                        margin: '0px',
-                                        width: '10px',
-                                        height: '10px',
+                                        marginTop: '0px',
+                                        width: '20px',
+                                        height: '20px',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        display: "flex",
                                       }}
-                                      alt=""
-                                    />
-                                  </button>
+                                    >
+                                      <PlusSvg
+                                        style={{
+                                          margin: '0px',
+                                          width: '10px',
+                                          height: '10px',
+                                        }}
+                                        alt=""
+                                      />
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
+
                             </div>
-
+                            {/* ^ end of parent div of title + quantity and buttons */}
                           </div>
-                          {/* ^ end of parent div of title + quantity and buttons */}
+                          {/* This is Tony added code */}
                         </div>
-                        {/* This is Tony added code */}
                       </div>
-                    </div>
 
 
 
-                  </motion.div>
-                ))}
-              </div>
-            </AnimatePresence>
-          </LazyLoad>
+                    </motion.div>
+                  ))}
+                </div>
+              </AnimatePresence>
+            </LazyLoad> : null
+          }
+
 
         </div>
       </div >

@@ -880,8 +880,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     )))
     SetTableInfo_(`${store}-${selectedTable}`, JSON.stringify([]))
     SetTableIsSent(`${store}-${table_name}-isSent`, JSON.stringify(groupAndSumItems(
-      [...JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent") ), ...JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent"))])
-      ))
+      [...JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), ...JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent"))])
+    ))
     //localStorage.setItem(`${store}-${table_name}-isSent`,JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")),JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent")))))
     SetTableIsSent(`${store}-${selectedTable}-isSent`, JSON.stringify([]))
     //localStorage.setItem(`${store}-${selectedTable}-isSent`,JSON.stringify([]))
@@ -908,7 +908,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     <div>
       <div class=''>
         <div className="flex w-full">
-          <div style={{ overflowY: 'auto', maxHeight: '700px' }} className={`flex-grow  ${!isMobile ? 'm-6' : 'm-2'}`}>
+          <div style={{ overflowY: 'auto', maxHeight: '700px' }} className={`flex-grow  ${!isMobile ? 'm-6' : ''}`}>
             {(Array.isArray(products) ? products : []).map((product) => (
               // the parent div
               // can make the parent div flexbox
@@ -942,7 +942,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         setOpenChangeAttributeModal(product)
                       }}
                       class="btn d-inline-flex btn-sm btn-outline-dark mx-1">
-                      <span>Dish Revise</span>
+                      <span>Revise</span>
                     </a>
                     {/* the add minus box set up */}
                     <div style={{ display: "flex" }}>
