@@ -9,12 +9,12 @@ function App() {
   useEffect(() => {
     // Define a query to get only documents where "isUsed" is false
     const q = query(collection(db, "guestLink"), where("isUsed", "==", false));
-        
+
     // Listen for real time updates
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       // Map the data and id
       const newData = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-          
+
       // Set the state
       setGuestLinks(newData);
     });
@@ -26,15 +26,15 @@ function App() {
   // You can now use guestLinks state variable in your component
   return (
     <div className="App">
-        {/* Example usage: */}
-        {guestLinks.map((link) => (
-            <div key={link.id} style={{ textAlign: 'center' }}>
-  <p>{"http://localhost:3000/guest/"+link.id}</p>
-  <div style={{ display: 'inline-block' }}>
-    <QRCode value={"http://localhost:3000/guest/"+link.id} size={256} />
-  </div>
-</div>
-        ))}
+      {/* Example usage: */}
+      {guestLinks.map((link) => (
+        <div key={link.id} style={{ textAlign: 'center' }}>
+          <p>{"http://localhost:3000/guest/" + link.id}</p>
+          <div style={{ display: 'inline-block' }}>
+            <QRCode value={"http://localhost:3000/guest/" + link.id} size={256} />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

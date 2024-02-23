@@ -229,23 +229,8 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
           console.log(2)
         }
       }
-      if (localStorage.getItem(storeID + "-" + selectedTable + "-isSent") === null || localStorage.getItem(storeID + "-" + selectedTable + "-isSent") === "[]") {//nothing isSent
-        const dateTime = new Date().toISOString();
-        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-        const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "SendToKitchen"), {
-          date: date,
-          data: localStorage.getItem(storeID + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(storeID + "-" + selectedTable)) : [],
-          selectedTable: selectedTable
-        });
-        console.log("Document written with ID: ", docRef.id);
-        SetTableIsSent(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
-        //localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
-      } else {//partially is sent
-        compareArrays(JSON.parse(localStorage.getItem(storeID + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(storeID + "-" + selectedTable)), selectedTable)
-        SetTableIsSent(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
-        //localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
-
-      }
+      compareArrays(JSON.parse(localStorage.getItem(storeID + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(storeID + "-" + selectedTable)), selectedTable)
+      SetTableIsSent(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -298,27 +283,40 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
         add_array.push(item2)
       }
     }
+    const promises = [];//make them call at the same time
+
     if (add_array.length !== 0) {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "SendToKitchen"), {
+      const addPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "SendToKitchen"), {
         date: date,
         data: add_array,
         selectedTable: selectedTable
+      }).then(docRef => {
+        console.log("Document written with ID: ", docRef.id);
       });
-      console.log("Document written with ID: ", docRef.id);
+      promises.push(addPromise);
     }
 
     if (delete_array.length !== 0) {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "DeletedSendToKitchen"), {
+      const deletePromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "DeletedSendToKitchen"), {
         date: date,
         data: delete_array,
         selectedTable: selectedTable
+      }).then(docRef => {
+        console.log("DeleteSendToKitchen Document written with ID: ", docRef.id);
       });
-      console.log("DeleteSendToKitchen Document written with ID: ", docRef.id);
+      promises.push(deletePromise);
     }
+
+    // Execute both promises in parallel
+    Promise.all(promises).then(() => {
+      console.log("All operations completed");
+    }).catch(error => {
+      console.error("Error in executing parallel operations", error);
+    });
   }
 
   return (

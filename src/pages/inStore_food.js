@@ -19,6 +19,7 @@ import { setDoc } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import pinyin from "pinyin";
 import LazyLoad from 'react-lazy-load';
+import { onSnapshot } from "firebase/firestore"; // Make sure to import onSnapshot
 
 
 function convertToPinyin(text) {
@@ -199,48 +200,48 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
   };
   const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('TitleLogoNameContent') !== null ? JSON.parse(JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).Open_time) : { "0": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "1": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "2": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "3": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "4": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "5": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "6": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "7": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" } });
 
-  const fetchPost = async (name) => {
+  const fetchPost = (name) => {
     const docRef = doc(db, "TitleLogoNameContent", name);
 
     try {
-      // Fetch the document
-      const docSnapshot = await getDoc(docRef);
-      console.log(docSnapshot)
-      // Check if a document was found
-      if (docSnapshot.exists()) {
-        // The document exists
-        const docData = docSnapshot.data();
+      // Listen for document updates
+      const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
+        console.log(docSnapshot);
+        // Check if a document was found
+        if (docSnapshot.exists()) {
+          // The document exists
+          const docData = docSnapshot.data();
 
-        // Save the fetched data to sessionStorage
-        sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(docData));
-        setStoreOpenTime(JSON.parse(docData.Open_time))
-        // Assuming you want to store the key from the fetched data as "Food_arrays"
-        sessionStorage.setItem("Food_arrays", docData.key);
-        setData(JSON.parse(docData.key))
-        setFoods(JSON.parse(docData.key))
-        setStoreInfo(docData)
-        setFoodTypes([...new Set(JSON.parse(docData.key).map(item => item.category))])
-        setFoodTypesCHI([...new Set(JSON.parse(docData.key).map(item => item.categoryCHI))])
-        console.log(JSON.parse(docData.key))
-        console.log([...new Set(JSON.parse(docData.key).map(item => item.category))])
+          // Save the fetched data to sessionStorage
+          sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(docData));
+          setStoreOpenTime(JSON.parse(docData.Open_time));
+          // Assuming you want to store the key from the fetched data as "Food_arrays"
+          sessionStorage.setItem("Food_arrays", docData.key);
+          setData(JSON.parse(docData.key));
+          setFoods(JSON.parse(docData.key));
+          setStoreInfo(docData);
+          setFoodTypes([...new Set(JSON.parse(docData.key).map(item => item.category))]);
+          setFoodTypesCHI([...new Set(JSON.parse(docData.key).map(item => item.categoryCHI))]);
+          console.log(JSON.parse(docData.key));
+          console.log([...new Set(JSON.parse(docData.key).map(item => item.category))]);
 
-        // Check if the stored item is empty or non-existent, and handle it
-        if (!sessionStorage.getItem("Food_arrays") || sessionStorage.getItem("Food_arrays") === "") {
+          // Check if the stored item is empty or non-existent, and handle it
+          if (!sessionStorage.getItem("Food_arrays") || sessionStorage.getItem("Food_arrays") === "") {
+            sessionStorage.setItem("Food_arrays", "[]");
+          }
+        } else {
           sessionStorage.setItem("Food_arrays", "[]");
+          setData([]);
+          setFoods([]);
+          console.log("No document found with the given name.");
         }
-        // window.location.reload();
-      } else {
-        sessionStorage.setItem("Food_arrays", "[]");
-        // window.location.reload();
-        setData([])
-        setFoods([])
-        console.log("No document found with the given name.");
-      }
+      });
+
+      return unsubscribe; // Returns the unsubscribe function to stop listening for updates
     } catch (error) {
       sessionStorage.setItem("Food_arrays", "[]");
-
-      setData([])
-      setFoods([])
+      setData([]);
+      setFoods([]);
 
       console.error("Error fetching the document:", error);
     }

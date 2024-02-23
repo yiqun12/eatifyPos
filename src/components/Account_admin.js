@@ -59,6 +59,7 @@ import styled from '@emotion/styled';
 import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate } from '../comonFunctions';
 import { el } from 'date-fns/locale';
 import e from 'cors';
+import { json } from 'react-router-dom';
 
 registerLocale('zh-CN', zhCN);
 
@@ -438,45 +439,7 @@ const Account = () => {
     } else {
       return
     }
-    // firebase
-    //   .firestore()
-    //   .collection('stripe_customers')
-    //   .doc(user.uid)
-    //   .collection('TitleLogoNameContent')
-    //   .doc(activeStoreTab)
-    //   .collection('success_payment')
-    //   // .where('dateTime', '>=', subtractHours("2023-12-31-00-00-00-00", -16))//actually 17
-    //   // .where('dateTime', '<', subtractHours("2024-01-02-00-00-00-00", -16))//actually 18
-    //   .get()
-    //   .then(async (snapshot) => {
-    //     for (const doc of snapshot.docs) {
-    //       const newData = { ...doc.data(), id: doc.id};
 
-    //       try {
-    //         // Update document here
-    //         await firebase
-    //           .firestore().collection('stripe_customers')
-    //           .doc(user.uid)
-    //           .collection('TitleLogoNameContent')
-    //           .doc(activeStoreTab)
-    //           .collection('success_payment')
-    //           .doc(doc.id)
-    //           .update({ amount: Math.round((Math.round(newData.metadata.subtotal* 100) / 100+Math.round(newData.metadata.service_fee* 100) / 100+Math.round(newData.metadata.tips* 100) / 100+Math.round(newData.metadata.tax* 100) / 100-Math.round(newData.metadata.discount* 100) / 100)*100),amount_received:Math.round((Math.round(newData.metadata.subtotal* 100) / 100+Math.round(newData.metadata.service_fee* 100) / 100+Math.round(newData.metadata.tips* 100) / 100+Math.round(newData.metadata.tax* 100) / 100-Math.round(newData.metadata.discount* 100) / 100)*100),'metadata.total':  Math.round((Math.round(newData.metadata.subtotal* 100) / 100+Math.round(newData.metadata.service_fee* 100) / 100+Math.round(newData.metadata.tips* 100) / 100+Math.round(newData.metadata.tax* 100) / 100-Math.round(newData.metadata.discount* 100) / 100)*100)/100});
-
-    //         // Log success with document ID and latest data
-    //         console.log(`Success: Document ${doc.id} updated with data:`, newData);
-
-    //         // Wait a bit after each update
-    //         await new Promise(resolve => setTimeout(resolve, 1000)); // waits for 1 second
-    //       } catch (error) {
-    //         // Log failure with document ID and error
-    //         console.error(`Failed: Document ${doc.id} update error:`, error);
-    //       }
-    //     }
-    //   })
-    //   .catch(error => {
-    //     console.error("Error getting documents: ", error);
-    //   });
 
     firebase
       .firestore()
@@ -1445,10 +1408,253 @@ const Account = () => {
       });
     });
   }
+  // Create references for each iframe
+  const iframeRef1 = useRef(null);
+
+  // Function to send a message to both iframes
+  const sendMessageToIframes = (type, data) => {
+    const message = { type: type, json: data };
+
+    // Check if the iframe references are currently pointing to the iframe elements
+    if (iframeRef1.current) {
+      iframeRef1.current.contentWindow.postMessage(message, 'http://localhost:3001');
+    }
+  };
+
+
+  useEffect(() => {
+    // Ensure the user is defined
+    if (!user || !user.uid) return;
+    if (!storeID) return;
+    let dateTime = new Date().toISOString();
+    let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+    const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "listOrder");
+    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+      // 
+      snapshot.docChanges().forEach((change) => {
+
+        if (change.type === "added" && (change.doc.data().date > date)) {
+          sendMessageToIframes('listOrder', change.doc.data())
+        }
+      });
+    }, (error) => {
+      // Handle any errors
+      console.error("Error getting documents:", error);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [storeID]); // Dependencies for useEffect
+
+  useEffect(() => {
+    // Ensure the user is defined
+    if (!user || !user.uid) return;
+    if (!storeID) return;
+    let dateTime = new Date().toISOString();
+    let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+    const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "OpenCashDraw");
+    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+      // 
+      snapshot.docChanges().forEach((change) => {
+
+        if (change.type === "added" && (change.doc.data().date > date)) {
+          sendMessageToIframes('OpenCashDraw', change.doc.data())
+        }
+      });
+    }, (error) => {
+      // Handle any errors
+      console.error("Error getting documents:", error);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [storeID]); // Dependencies for useEffect
+
+  useEffect(() => {
+    // Ensure the user is defined
+    if (!user || !user.uid) return;
+    if (!storeID) return;
+    let dateTime = new Date().toISOString();
+    let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+    const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "SendToKitchen");
+    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+      // 
+      snapshot.docChanges().forEach((change) => {
+
+        if (change.type === "added" && (change.doc.data().date > date)) {
+          sendMessageToIframes('SendToKitchen', change.doc.data())
+        }
+      });
+    }, (error) => {
+      // Handle any errors
+      console.error("Error getting documents:", error);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [storeID]); // Dependencies for useEffect
+
+  useEffect(() => {
+    // Ensure the user is defined
+    if (!user || !user.uid) return;
+    if (!storeID) return;
+    let dateTime = new Date().toISOString();
+    let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+    const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "DeletedSendToKitchen");
+    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+      // 
+      snapshot.docChanges().forEach((change) => {
+
+        if (change.type === "added" && (change.doc.data().date > date)) {
+          sendMessageToIframes('DeletedSendToKitchen', change.doc.data())
+        }
+      });
+    }, (error) => {
+      // Handle any errors
+      console.error("Error getting documents:", error);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [storeID]); // Dependencies for useEffect
+
+  useEffect(() => {
+    // Ensure the user is defined
+    if (!user || !user.uid) return;
+    if (!storeID) return;
+    let dateTime = new Date().toISOString();
+    let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+    const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "CustomerReceipt");
+    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+      // 
+      snapshot.docChanges().forEach((change) => {
+
+        if (change.type === "added" && (change.doc.data().date > date)) {
+          const index = storelist.findIndex(data => data.id === storeID);
+
+          if (index !== -1) {
+            // The object was found, you can access it using storelist[index]
+            const selectedStore = storelist[index];
+
+            // Now, you can perform actions with the selected store object
+
+            let jsonObject = change.doc.data();
+            jsonObject.storeId = selectedStore.id;
+            jsonObject.storeName = selectedStore.Name;
+            jsonObject.storeAddress = selectedStore.physical_address;
+            jsonObject.storeState = selectedStore.State;
+            jsonObject.storeZipCode = selectedStore.ZipCode;
+            jsonObject.storePhone = selectedStore.Phone;
+            jsonObject.storeNameCHI = selectedStore.storeNameCHI;
+            jsonObject.storeCityAddress = selectedStore.Address;
+            sendMessageToIframes('CustomerReceipt', jsonObject)
+          }
+        }
+      });
+    }, (error) => {
+      // Handle any errors
+      console.error("Error getting documents:", error);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [storeID]); // Dependencies for useEffect
+
+  useEffect(() => {
+    // Ensure the user is defined
+    if (!user || !user.uid) return;
+    if (!storeID) return;
+    let dateTime = new Date().toISOString();
+    let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+    const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "MerchantReceipt");
+    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+      // 
+      snapshot.docChanges().forEach((change) => {
+
+        if (change.type === "added" && (change.doc.data().date > date)) {
+          const index = storelist.findIndex(data => data.id === storeID);
+
+          if (index !== -1) {
+            // The object was found, you can access it using storelist[index]
+            const selectedStore = storelist[index];
+
+            // Now, you can perform actions with the selected store object
+
+            let jsonObject = change.doc.data();
+            jsonObject.storeId = selectedStore.id;
+            jsonObject.storeName = selectedStore.Name;
+            jsonObject.storeAddress = selectedStore.physical_address;
+            jsonObject.storeState = selectedStore.State;
+            jsonObject.storeZipCode = selectedStore.ZipCode;
+            jsonObject.storePhone = selectedStore.Phone;
+            jsonObject.storeNameCHI = selectedStore.storeNameCHI;
+            jsonObject.storeCityAddress = selectedStore.Address;
+            sendMessageToIframes('MerchantReceipt', jsonObject)
+          }
+        }
+      });
+    }, (error) => {
+      // Handle any errors
+      console.error("Error getting documents:", error);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [storeID]); // Dependencies for useEffect
+
+  useEffect(() => {
+    // Ensure the user is defined
+    if (!user || !user.uid) return;
+    if (!storeID) return;
+    let dateTime = new Date().toISOString();
+    let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+    const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "bankReceipt");
+    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+      // 
+      snapshot.docChanges().forEach((change) => {
+
+        if (change.type === "added" && (change.doc.data().date > date)) {
+          const index = storelist.findIndex(data => data.id === storeID);
+
+          if (index !== -1) {
+            // The object was found, you can access it using storelist[index]
+            const selectedStore = storelist[index];
+
+            // Now, you can perform actions with the selected store object
+
+            let jsonObject = change.doc.data();
+            jsonObject.storeId = selectedStore.id;
+            jsonObject.storeName = selectedStore.Name;
+            jsonObject.storeAddress = selectedStore.physical_address;
+            jsonObject.storeState = selectedStore.State;
+            jsonObject.storeZipCode = selectedStore.ZipCode;
+            jsonObject.storePhone = selectedStore.Phone;
+            jsonObject.storeNameCHI = selectedStore.storeNameCHI;
+            jsonObject.storeCityAddress = selectedStore.Address;
+            sendMessageToIframes('bankReceipt', jsonObject)
+          }
+        }
+      });
+    }, (error) => {
+      // Handle any errors
+      console.error("Error getting documents:", error);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [storeID]); // Dependencies for useEffect
 
   return (
     <div>
 
+      {JSON.stringify(storeID)}
+      <iframe
+        ref={iframeRef1}
+        src="http://localhost:3001"
+        title="Localhost Iframe 1"
+        width="0"
+        height="0"
+      ></iframe>
       <div>
         <style>
           {`
@@ -1734,7 +1940,6 @@ const Account = () => {
                       setActiveStoreTab('');
                       setShowSection('');
                       setStoreName_('');
-                      setStoreID('');
                       setActiveStoreId('')
                       setStoreOpenTime('')
 
@@ -1763,7 +1968,6 @@ const Account = () => {
                       setActiveStoreTab('');
                       setShowSection('');
                       setStoreName_('');
-                      setStoreID('');
                       setActiveStoreId('')
                       setStoreOpenTime('')
                       setActiveTab('#profile')
@@ -1957,8 +2161,8 @@ const Account = () => {
                       <div className="text-sm-end">
                         <div className="mx-n1">
 
-                          <a className="btn d-inline-flex btn-sm btn-outline-danger mx-1">
-                            <span className="pe-2">
+                          <a className="btn d-inline-flex btn-sm btn-secondary mx-1">
+                            <span className="">
                               <i className="bi bi-exclamation-triangle"></i>
                             </span>
                             <span
@@ -1973,7 +2177,7 @@ const Account = () => {
                       </div>
                     </div>
 
-                    <div class="mt-2 mb-2">
+                    <div className="mt-2 mb-2 d-flex" style={{ display: 'flex', alignItems: 'center' }}>
                       <Dropdown>
                         <Dropdown.Toggle
                           variant="neutral"
@@ -2001,34 +2205,42 @@ const Account = () => {
                                     setStoreOpenTime(data.Open_time)
                                     window.location.hash = `charts?store=${data.id}`;
                                   }}
-                                >
-                                  {data.id}
+                                ><i class="bi bi-house"></i>
+                                  &nbsp;{data.id}
                                 </Dropdown.Item>
                               )) :
-                              <Dropdown.Item onClick={(e) => e.preventDefault()}>No Store Available</Dropdown.Item>
+                              null
                           }
+                          <Dropdown.Item onClick={(e) => {
+                            setActiveStoreTab('');
+                            setShowSection('');
+                            setStoreName_('');
+                            setActiveStoreId('')
+                            setStoreOpenTime('')
+                            setActiveTab('#profile')
+                            window.location.hash = 'createStore'
+                          }}>
+                            <i className="bi bi-pencil"></i>
+                            &nbsp;Create Store</Dropdown.Item>
+
                         </Dropdown.Menu>
                       </Dropdown>
 
 
-                      <a
-                        onClick={(e) => {
-                          setActiveStoreTab('');
-                          setShowSection('');
-                          setStoreName_('');
-                          setStoreID('');
-                          setActiveStoreId('')
-                          setStoreOpenTime('')
-                          setActiveTab('#profile')
-                          window.location.hash = 'createStore'
-                        }}
-                        class="btn d-inline-flex btn-sm btn-primary mx-1">
-                        <span class=" pe-2">
-                          <i className="bi bi-pencil"></i>
+                      {/* <a
 
+                        class="btn d-inline-flex btn-sm btn-primary mx-1">
+                        <span >
+                          <i className="bi bi-pencil"></i>
                         </span>
                         <span> {"Create Store"}</span>
-                      </a>
+                      </a> */}
+                      <a
+                        onClick={(e) => {
+                          e.preventDefault(); // Prevent the default anchor action
+                          window.location.reload(); // Reload the page
+                        }} className="btn d-inline-flex btn-sm btn-danger mx-1">
+                        <i className="bi bi-arrow-clockwise"></i>&nbsp;Refresh </a>
                     </div>
 
                     <ul className={`nav nav-tabs mt-4 overflow-x border-0 ${isMobile ? 'd-flex justify-content-between' : ''}`}>
@@ -2038,7 +2250,6 @@ const Account = () => {
                           setActiveStoreTab('');
                           setShowSection('');
                           setStoreName_('');
-                          setStoreID('');
                           setActiveStoreId('')
                           setStoreOpenTime('')
                           if (storeFromURL !== '' && storeFromURL !== null) {

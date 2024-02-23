@@ -276,27 +276,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     try {
       if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
         if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
+          console.log("//no item in the array no item isSent.")
           return //no item in the array no item isSent.
         } else {//delete all items
         }
       }
-      if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {//nothing isSent
-        const dateTime = new Date().toISOString();
-        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-        const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
-          date: date,
-          data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
-          selectedTable: selectedTable
-        });
-        console.log("Document written with ID: ", docRef.id);
-        SetTableIsSent(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
-        //localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
-      } else {//partially is sent
-        compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
-        SetTableIsSent(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
-        //localStorage.setItem(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+      compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
+      SetTableIsSent(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
 
-      }
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -386,27 +373,40 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         add_array.push(item2)
       }
     }
+    const promises = [];//make them call at the same time
+
     if (add_array.length !== 0) {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
+      const addPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
         date: date,
         data: add_array,
         selectedTable: selectedTable
+      }).then(docRef => {
+        console.log("Document written with ID: ", docRef.id);
       });
-      console.log("Document written with ID: ", docRef.id);
+      promises.push(addPromise);
     }
 
     if (delete_array.length !== 0) {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
+      const deletePromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
         date: date,
         data: delete_array,
         selectedTable: selectedTable
+      }).then(docRef => {
+        console.log("DeleteSendToKitchen Document written with ID: ", docRef.id);
       });
-      console.log("DeleteSendToKitchen Document written with ID: ", docRef.id);
+      promises.push(deletePromise);
     }
+
+    // Execute both promises in parallel
+    Promise.all(promises).then(() => {
+      console.log("All operations completed");
+    }).catch(error => {
+      console.error("Error in executing parallel operations", error);
+    });
   }
 
   const OpenCashDraw = async () => {
@@ -520,6 +520,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     // tips: Math.round((result - finalPrice +extra) * 100) / 100
     // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
     // total: inputValue
+    console.log("CashCheckOut")
     let extra_tip = 0
     if (extra !== null) {
       extra_tip = Math.round(extra * 100) / 100
@@ -533,6 +534,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setResult(null)
       return
     }
+    console.log("CashCheckOut")
+
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
@@ -906,6 +909,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   return (
 
     <div>
+
       <div class=''>
         <div className="flex w-full">
           <div style={{ overflowY: 'auto', maxHeight: '700px' }} className={`flex-grow  ${!isMobile ? 'm-6' : ''}`}>
