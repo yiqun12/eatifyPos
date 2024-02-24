@@ -1900,8 +1900,7 @@ const Account = () => {
               >
 
                 <div className="container-fluid" style={{ minHeight: "0px" }}>
-
-                  <button
+                  {isOnline ? <button
                     className={`mt-2 btn mr-2 ml-2 ${activeTab === '#profile' ? 'border-black' : ''}`}
                     onClick={(e) => {
                       handleTabClick(e, '#profile')
@@ -1911,6 +1910,7 @@ const Account = () => {
                       setStoreCHI_('')
                       setActiveStoreId('')
                       setStoreOpenTime('')
+                      setStoreID('');
 
                       if (storeFromURL !== '' && storeFromURL !== null) {
                         // Use pushState to change the URL without reloading the page
@@ -1931,26 +1931,32 @@ const Account = () => {
                       {" Account"}
                     </div>
                   </button>
-                  <button
-                    className={`mt-2 btn mr-2 ml-2 ${activeTab === '#Revenue_Chart' ? 'border-black' : ''}`}
-                    onClick={(e) => {
-                      setActiveStoreTab('');
-                      setShowSection('');
-                      setStoreName_('');
-                      setStoreCHI_('')
-                      setActiveStoreId('')
-                      setStoreOpenTime('')
-                      setActiveTab('#profile')
-                      window.location.hash = 'createStore'
+                    : null
+                  }
+                  {isOnline ?
+                    <button
+                      className={`mt-2 btn mr-2 ml-2 ${activeTab === '#Revenue_Chart' ? 'border-black' : ''}`}
+                      onClick={(e) => {
+                        setActiveStoreTab('');
+                        setShowSection('');
+                        setStoreID('');
+                        setStoreName_('');
+                        setStoreCHI_('')
+                        setActiveStoreId('')
+                        setStoreOpenTime('')
+                        setActiveTab('#profile')
+                        window.location.hash = 'createStore'
 
-                    }}
-                  >
-                    <div style={{ alignItems: 'center', justifyContent: 'center' }}>
-                      <i className="bi bi-pencil"></i>
+                      }}
+                    >
+                      <div style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <i className="bi bi-pencil"></i>
 
-                      {" Create Store"}
-                    </div>
-                  </button>
+                        {" Create Store"}
+                      </div>
+                    </button> : null
+                  }
+
                   {storelist?.map((data, index) => (
                     <div style={{ display: 'contents' }}>
                       <button
@@ -1967,10 +1973,13 @@ const Account = () => {
                           window.location.hash = `charts?store=${data.id}`;
                         }}
                       >
-                        <div class="notranslate" style={{ alignItems: 'center', justifyContent: 'center' }}>
-                          {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                            data.storeNameCHI : data.Name
-                          }
+                        <div style={{ alignItems: 'center', justifyContent: 'center' }}>
+                          Store:
+                          <span class="notranslate">
+                            {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                              data.storeNameCHI : data.Name
+                            }
+                          </span>
                         </div>
                       </button>
 
@@ -2175,7 +2184,7 @@ const Account = () => {
                           <span>{"Select Store"}</span>
                         </Dropdown.Toggle>
                         <Dropdown.Menu
-                        className='notranslate'>
+                          className='notranslate'>
                           {
                             storelist && storelist.length > 0 ?
                               storelist.map((data, index) => (
@@ -2205,6 +2214,7 @@ const Account = () => {
                             setShowSection('');
                             setStoreName_('');
                             setStoreCHI_('')
+                            setStoreID('');
                             setActiveStoreId('')
                             setStoreOpenTime('')
                             setActiveTab('#profile')
@@ -2241,6 +2251,8 @@ const Account = () => {
                           handleTabClick(e, '#profile')
                           setActiveStoreTab('');
                           setShowSection('');
+                          setStoreID('');
+
                           setStoreName_('');
                           setStoreCHI_('')
                           setActiveStoreId('')
@@ -2784,12 +2796,12 @@ const Account = () => {
                                     )}
                                     {isPickerOpenEndDay && (
                                       <div
-                                      class="notranslate" style={{
-                                        position: 'absolute',
-                                        zIndex: 1000,
-                                        top: '100%', // Position right below the button
-                                        left: 0
-                                      }}>
+                                        class="notranslate" style={{
+                                          position: 'absolute',
+                                          zIndex: 1000,
+                                          top: '100%', // Position right below the button
+                                          left: 0
+                                        }}>
                                         {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                                           <DatePicker
                                             selected={endDate}
