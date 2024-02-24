@@ -10,7 +10,7 @@ import Checkout from "./Checkout_acc";
 import './style.css';
 import './stripeButton.css';
 import { useCallback } from 'react';
-import { collection, doc, addDoc, getDocs, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, addDoc, getDocs, getDoc, updateDoc, deleteDoc, where } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useRef } from "react";
 import { onSnapshot, query } from "firebase/firestore";
@@ -19,6 +19,7 @@ import mySound_CHI from '../pages/new_order_chinese.mp3'; // Replace with your s
 import $ from 'jquery';
 import useGeolocation from './useGeolocation';
 import QRCode from 'qrcode.react'; // import QRCode component
+import useNetworkStatus from './useNetworkStatus';
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } from 'recharts';
 import { data_ } from '../data/data.js'
@@ -66,11 +67,13 @@ registerLocale('zh-CN', zhCN);
 
 
 const Account = () => {
+  const { isOnline } = useNetworkStatus();
+
   const generateQRLink = (item) => {
     const tableParam = item.split('-'); // This will split the string into an array
     const prefix = tableParam[0]; // This will be 'demo'
     const suffix = tableParam[1]; // This will be 'a2'
-    return `http://localhost:3000/store?store=${prefix}&table=${suffix}`;
+    return `https://eatify-22231.web.app/store?store=${prefix}&table=${suffix}`;
   };
   const [bounds, setBounds] = useState(null);
   const [error, setError] = useState('');
@@ -83,7 +86,7 @@ const Account = () => {
     { input: "Paid by Cash", output: "现金支付" },
     { input: "POS Machine", output: "POS机" },
     { input: "Unpaid", output: "未付" },
-    { input: "Online App", output: "在线应用程序" }
+    { input: "Online App", output: "在线应用程序" },
   ];
   function translate(input) {
     const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
@@ -147,6 +150,8 @@ const Account = () => {
   const [activeTab, setActiveTab] = useState('');
   const [activeStoreTab, setActiveStoreTab] = useState('');
   const [storeName_, setStoreName_] = useState('');
+  const [storeCHI, setStoreCHI_] = useState('');
+
   const [storeID, setStoreID] = useState('');
   const [storeOpenTime, setStoreOpenTime] = useState('');
   const [docIds, setDocIds] = useState([]);
@@ -440,136 +445,93 @@ const Account = () => {
       return
     }
 
+    // Construct query
+    const paymentsQuery = query(
+      collection(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', activeStoreTab, 'success_payment'),
+      where('dateTime', '>=', convertDateFormat(startDate)),
+      where('dateTime', '<', convertDateFormat(endDate ? addDays(endDate, 1) : addDays(startDate, 1)))
+    );
 
-    firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('TitleLogoNameContent')
-      .doc(activeStoreTab)
-      .collection('success_payment')
+    onSnapshot(paymentsQuery, (snapshot) => {
+      console.log("new added");
+      const newData = snapshot.docs.map(doc => ({
+        ...doc.data(),
+        intent_ID: doc.data().id,
+        id: doc.id,
+      }));
 
-      .where('dateTime', '>=', convertDateFormat(startDate))
-      .where('dateTime', '<', convertDateFormat(endDate ? (addDays(endDate, 1)) : (addDays(startDate, 1))))
-      .onSnapshot((snapshot) => {
-        //console.log(snapshot.docs[0].data().id);
-        console.log("new added")
-        const newData = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          intent_ID: doc.data().id,
-          id: doc.id,
-        }));
+      console.log(newData);
+      newData.sort((a, b) => moment(b.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf() - moment(a.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf());
 
+      const newItems = [];
+      newData.forEach(item => {
+        const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
+          .subtract(8, "hours")
+          .format("M/D/YY HH:mm");
 
-        console.log(newData)
-        newData.sort((a, b) =>
-          moment(b.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf() -
-          moment(a.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf()
-        );
-        const newItems = []; // Declare an empty array to hold the new items
+        const newItem = {
+          id: item.id,
+          receiptData: item.receiptData,
+          date: formattedDate,
+          email: item.user_email,
+          dineMode: item.metadata.isDine,
+          status: item.powerBy,
+          total: parseFloat(item.metadata.total),
+          tableNum: item.tableNum,
+          metadata: item.metadata,
+          store: item.store,
+          intent_ID: item.intent_ID,
+          Charge_ID: item.latest_charge,
+        };
 
-        newData.forEach((item) => {
-          const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
-            .subtract(8, "hours")
-            .format("M/D/YY HH:mm");
-          //  console.log("formattedDate")
-          // console.log(formattedDate)
-          const newItem = {
-            id: item.id, // use only the first 4 characters of item.id as the value for the id property
-            receiptData: item.receiptData,
-            date: formattedDate,
-            email: item.user_email,
-            dineMode: item.metadata.isDine,
-            status: item.powerBy,
-            total: parseFloat(item.metadata.total),
-            tableNum: item.tableNum,
-            metadata: item.metadata,
-            store: item.store,
-            intent_ID: item?.intent_ID,
-            Charge_ID: item?.latest_charge
-
-          };
-
-          if (newItem.total === 0 && newItem.receiptData === "[]") {
-            console.log("empty total and empty receiptdata", newItem.receiptData)
-          } else {
-
-            if (newItem.receiptData === "[]" && newItem.status === "POS Machine") {
-              console.log("intentData")
-
-              console.log(newItem.intent_ID)
-              ///
-              firebase.firestore().collection('intent').doc(newItem.intent_ID).get()
-                .then(documentSnapshot => {
-                  if (documentSnapshot.exists) {
-                    // Document exists, you can access the data
-                    const data = documentSnapshot.data();
-                    if (documentSnapshot.data().receipt_JSON !== '[]') {
-                      firebase.firestore()
-                        .collection('stripe_customers')
-                        .doc(user.uid)
-                        .collection('TitleLogoNameContent')
-                        .doc(activeStoreTab)
-                        .collection('success_payment')
-                        .doc(newItem.id)
-                        .update({ // Use .update() here
-                          receiptData: data.receipt_JSON
-                        })
-                        .then(() => {
-                          console.log("Document successfully updated!");
-                        })
-                        .catch((error) => {
-                          // The document probably doesn't exist.
-                          console.error("Error updating document: ", error);
-                        });
-                    }
-                  } else {
-                    // Document does not exist
-                    console.log('Document does not exist!');
-                  }
-                })
-                .catch(error => {
-                  // Handle any errors
-                  console.error("Error getting document:", error);
-                });
-            }
-            newItems.push(newItem); // Push the new item into the array
-
+        if (!(newItem.total === 0 && newItem.receiptData === "[]")) {
+          if (newItem.receiptData === "[]" && newItem.status === "POS Machine") {
+            getDoc(doc(db, 'intent', newItem.intent_ID)).then(documentSnapshot => {
+              if (documentSnapshot.exists()) {
+                const data = documentSnapshot.data();
+                if (data.receipt_JSON !== '[]') {
+                  updateDoc(doc(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', activeStoreTab, 'success_payment', newItem.id), {
+                    receiptData: data.receipt_JSON
+                  }).then(() => {
+                    console.log("Document successfully updated!");
+                  }).catch(error => {
+                    console.error("Error updating document: ", error);
+                  });
+                }
+              } else {
+                console.log('Document does not exist!');
+              }
+            }).catch(error => {
+              console.error("Error getting document:", error);
+            });
           }
-        });
-        // console.log("hello")
-        // console.log(newItems)
-        setOrders(newItems)
-        saveId(Math.random())
-        console.log(orders)
-        // Create an object to store daily revenue totals
-        const dailyRevenue = {};
-        // Loop through each receipt and sum up the total revenue for each date
-        newItems.forEach(receipt => {
-          // Extract the date from the receipt
-          const date = receipt.date.split(' ')[0];
-          //console.log(receipt)
-          // Extract the revenue from the receipt (for example, by parsing the receiptData string)
-          const revenue = receipt.total; // replace with actual revenue calculation
-          // Add the revenue to the dailyRevenue object for the appropriate date
-          if (dailyRevenue[date]) {
-            dailyRevenue[date] += revenue;
-          } else {
-            dailyRevenue[date] = revenue;
-          }
-        });
-        // Convert the dailyRevenue object into an array of objects with date and revenue properties
-        const dailyRevenueArray = Object.keys(dailyRevenue).map(date => {
-          return {
-            date: date,
-            revenue: Math.round(dailyRevenue[date] * 100) / 100
-          };
-        });
-        // console.log("hello", dailyRevenueArray)
-        // Example output: [{date: '3/14/2023', revenue: 10}, {date: '3/13/2023', revenue: 10}, {date: '3/4/2023', revenue: 10}]
-        setRevenueData(dailyRevenueArray)
-
+          newItems.push(newItem);
+        }
       });
+
+      setOrders(newItems);
+      saveId(Math.random());
+      console.log(orders);
+
+      const dailyRevenue = {};
+      newItems.forEach(receipt => {
+        const date = receipt.date.split(' ')[0];
+        const revenue = receipt.total;
+        if (dailyRevenue[date]) {
+          dailyRevenue[date] += revenue;
+        } else {
+          dailyRevenue[date] = revenue;
+        }
+      });
+
+      const dailyRevenueArray = Object.keys(dailyRevenue).map(date => ({
+        date: date,
+        revenue: Math.round(dailyRevenue[date] * 100) / 100
+      }));
+
+      setRevenueData(dailyRevenueArray);
+    });
+
     console.log("fetchPost2");
 
   };
@@ -959,6 +921,8 @@ const Account = () => {
             setActiveTab(`#${selectedStore.id}`);
             setActiveStoreTab(selectedStore.id);
             setStoreName_(selectedStore.Name);
+            setStoreCHI_(selectedStore.storeNameCHI);
+
             setStoreID(selectedStore.id);
             setActiveStoreId(selectedStore.id)
             setStoreOpenTime(selectedStore.Open_time)
@@ -1002,6 +966,7 @@ const Account = () => {
             setActiveTab(`#${selectedStore.id}`);
             setActiveStoreTab(selectedStore.id);
             setStoreName_(selectedStore.Name);
+            setStoreCHI_(selectedStore.storeNameCHI)
             setStoreID(selectedStore.id);
             setActiveStoreId(selectedStore.id)
             setStoreOpenTime(selectedStore.Open_time)
@@ -1045,6 +1010,7 @@ const Account = () => {
             setActiveTab(`#${selectedStore.id}`);
             setActiveStoreTab(selectedStore.id);
             setStoreName_(selectedStore.Name);
+            setStoreCHI_(selectedStore.storeNameCHI)
             setStoreID(selectedStore.id);
             setActiveStoreId(selectedStore.id)
             setStoreOpenTime(selectedStore.Open_time)
@@ -1089,6 +1055,7 @@ const Account = () => {
             setActiveTab(`#${selectedStore.id}`);
             setActiveStoreTab(selectedStore.id);
             setStoreName_(selectedStore.Name);
+            setStoreCHI_(selectedStore.storeNameCHI)
             setStoreID(selectedStore.id);
             setActiveStoreId(selectedStore.id)
             setStoreOpenTime(selectedStore.Open_time)
@@ -1132,6 +1099,7 @@ const Account = () => {
             setActiveTab(`#${selectedStore.id}`);
             setActiveStoreTab(selectedStore.id);
             setStoreName_(selectedStore.Name);
+            setStoreCHI_(selectedStore.storeNameCHI)
             setStoreID(selectedStore.id);
             setActiveStoreId(selectedStore.id)
             setStoreOpenTime(selectedStore.Open_time)
@@ -1151,6 +1119,7 @@ const Account = () => {
       setShowSection('');
       setActiveTab('#Revenue_Chart');
       setStoreName_('');
+      setStoreCHI_('')
     }
 
     function hashRedirect(hashValue) {
@@ -1171,7 +1140,7 @@ const Account = () => {
 
       setActiveTab(hashValue);
       setActiveStoreTab(valueWithoutHash);
-      setStoreName_(valueWithoutHash);
+      setStoreName_('');
       setStoreID(valueWithoutHash);
       setActiveStoreId(valueWithoutHash);
 
@@ -1343,21 +1312,20 @@ const Account = () => {
     console.log(tipsUpdated)
     console.log(totalUpdated)
     try {
+      setSplitPaymentModalOpen(false)
       // Update document here
-      await firebase
-        .firestore().collection('stripe_customers')
-        .doc(user.uid)
-        .collection('TitleLogoNameContent')
-        .doc(modalStore)
-        .collection('success_payment')
-        .doc(modalID)
-        .update({ amount: totalUpdated * 100, amount_received: totalUpdated * 100, 'metadata.total': totalUpdated, 'metadata.tips': tipsUpdated });
+      const paymentDocRef = doc(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', modalStore, 'success_payment', modalID);
+      await updateDoc(paymentDocRef, {
+        amount: totalUpdated * 100,
+        amount_received: totalUpdated * 100,
+        'metadata.total': totalUpdated,
+        'metadata.tips': tipsUpdated
+      });
 
       // Log success with document ID and latest data
       console.log(`Success: Document ${modalID} updated with data:`);
       setModalStore(''); setModalID(''); setModalTips(''); setModalTotal('')
       setTipAmount('')
-      setSplitPaymentModalOpen(false)
       // Wait a bit after each update
       //await new Promise(resolve => setTimeout(resolve, 1000)); // waits for 1 second
     } catch (error) {
@@ -1644,10 +1612,10 @@ const Account = () => {
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
 
+
   return (
     <div>
 
-      {JSON.stringify(storeID)}
       <iframe
         ref={iframeRef1}
         src="http://localhost:3001"
@@ -1940,6 +1908,7 @@ const Account = () => {
                       setActiveStoreTab('');
                       setShowSection('');
                       setStoreName_('');
+                      setStoreCHI_('')
                       setActiveStoreId('')
                       setStoreOpenTime('')
 
@@ -1968,6 +1937,7 @@ const Account = () => {
                       setActiveStoreTab('');
                       setShowSection('');
                       setStoreName_('');
+                      setStoreCHI_('')
                       setActiveStoreId('')
                       setStoreOpenTime('')
                       setActiveTab('#profile')
@@ -1990,15 +1960,17 @@ const Account = () => {
                           setActiveStoreTab(data.id);
                           setShowSection('sales');
                           setStoreName_(data.Name);
+                          setStoreCHI_(data.storeNameCHI)
                           setStoreID(data.id);
                           setActiveStoreId(data.id)
                           setStoreOpenTime(data.Open_time)
                           window.location.hash = `charts?store=${data.id}`;
                         }}
                       >
-                        <div style={{ alignItems: 'center', justifyContent: 'center' }}>
-                          <i class="bi bi-house"> {data.id}</i>
-
+                        <div class="notranslate" style={{ alignItems: 'center', justifyContent: 'center' }}>
+                          {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                            data.storeNameCHI : data.Name
+                          }
                         </div>
                       </button>
 
@@ -2072,44 +2044,51 @@ const Account = () => {
                               </a>
 
                             </li>
-                            <li className={`nav-item p-0`}
-                              onClick={() => {
-                                setShowSection('menu')
-                                window.location.hash = `book?store=${data.id}`;
-                              }}
-                              style={{ width: "80%", margin: "auto" }}
-                            >
-                              <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`} style={{ border: "0px" }}>
-                                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-diagram-3" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
-                                  </svg>
-                                </i>
-                                <span style={{ marginLeft: "5%" }}>Menu Settings</span>
+                            {!isOnline ?
+                              null
+                              :
+                              <React.Fragment>
+                                <li className={`nav-item p-0`}
+                                  onClick={() => {
+                                    setShowSection('menu')
+                                    window.location.hash = `book?store=${data.id}`;
+                                  }}
+                                  style={{ width: "80%", margin: "auto" }}
+                                >
+                                  <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`} style={{ border: "0px" }}>
+                                    <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-diagram-3" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
+                                      </svg>
+                                    </i>
+                                    <span style={{ marginLeft: "5%" }}>Menu Settings</span>
 
-                              </a>
+                                  </a>
 
-                            </li>
-                            <li className={`nav-item border-b-0 p-0`}
-                              onClick={() => {
-                                setShowSection('store')
-                                window.location.hash = `settings?store=${data.id}`;
-                              }}
-                              style={{ width: "80%", margin: "auto", border: "0px" }}
-                            >
-                              <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `store` ? 'active' : ''}`} style={{ marginRight: "0", border: "0px" }}>
-                                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
-                                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
-                                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
-                                  </svg>
-                                </i>
+                                </li>
+                                <li className={`nav-item border-b-0 p-0`}
+                                  onClick={() => {
+                                    setShowSection('store')
+                                    window.location.hash = `settings?store=${data.id}`;
+                                  }}
+                                  style={{ width: "80%", margin: "auto", border: "0px" }}
+                                >
+                                  <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `store` ? 'active' : ''}`} style={{ marginRight: "0", border: "0px" }}>
+                                    <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                                        <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
+                                        <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
+                                      </svg>
+                                    </i>
 
-                                <span style={{ marginLeft: "5%" }}>Store Settings</span>
+                                    <span style={{ marginLeft: "5%" }}>Store Settings</span>
 
-                              </a>
+                                  </a>
 
-                            </li>
+                                </li>
+                              </React.Fragment>
+                            }
+
                           </div>
 
 
@@ -2154,7 +2133,12 @@ const Account = () => {
                     <div className="d-flex align-items-center justify-content-between">
                       <div className="mb-0 mt-2" style={{ "cursor": "pointer" }}>
                         <h1 className="h2 ls-tight active">
-                          {activeTab === `#profile` || storeName_ === '' ? 'Account' : <span className='notranslate'>{storeName_}</span>}
+                          {activeTab === `#profile` || storeName_ === '' ? 'Account' :
+                            <span className='notranslate'>
+                              {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                                storeCHI : storeName_
+                              }
+                            </span>}
 
                         </h1>
                       </div>
@@ -2190,23 +2174,28 @@ const Account = () => {
                           </span>
                           <span>{"Select Store"}</span>
                         </Dropdown.Toggle>
-                        <Dropdown.Menu>
+                        <Dropdown.Menu
+                        className='notranslate'>
                           {
                             storelist && storelist.length > 0 ?
                               storelist.map((data, index) => (
                                 <Dropdown.Item
+                                  class="notranslate"
                                   onClick={(e) => {
                                     handleTabClick(e, `#${data.id}`);
                                     setActiveStoreTab(data.id);
                                     setShowSection('sales');
                                     setStoreName_(data.Name);
+                                    setStoreCHI_(data.storeNameCHI)
                                     setStoreID(data.id);
                                     setActiveStoreId(data.id)
                                     setStoreOpenTime(data.Open_time)
                                     window.location.hash = `charts?store=${data.id}`;
                                   }}
-                                ><i class="bi bi-house"></i>
-                                  &nbsp;{data.id}
+                                >
+                                  {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                                    data.storeNameCHI : data.Name
+                                  }
                                 </Dropdown.Item>
                               )) :
                               null
@@ -2215,13 +2204,16 @@ const Account = () => {
                             setActiveStoreTab('');
                             setShowSection('');
                             setStoreName_('');
+                            setStoreCHI_('')
                             setActiveStoreId('')
                             setStoreOpenTime('')
                             setActiveTab('#profile')
                             window.location.hash = 'createStore'
                           }}>
                             <i className="bi bi-pencil"></i>
-                            &nbsp;Create Store</Dropdown.Item>
+                            &nbsp;Create Store
+
+                          </Dropdown.Item>
 
                         </Dropdown.Menu>
                       </Dropdown>
@@ -2250,6 +2242,7 @@ const Account = () => {
                           setActiveStoreTab('');
                           setShowSection('');
                           setStoreName_('');
+                          setStoreCHI_('')
                           setActiveStoreId('')
                           setStoreOpenTime('')
                           if (storeFromURL !== '' && storeFromURL !== null) {
@@ -2397,7 +2390,7 @@ const Account = () => {
                           </div>
 
                         </a>
-                        <h5>{t("Past Orders:")}</h5>
+                        <h5>{t("Past Spending History:")}</h5>
                         <PayFullhistory />
                       </div>
                     ) : null}
@@ -2766,11 +2759,12 @@ const Account = () => {
                                   <div ref={wrapperRef} style={{ position: 'relative' }}>
 
                                     {isPickerOpenStartDay && (
-                                      <div style={{
+                                      <div class="notranslate" style={{
                                         position: 'absolute',
                                         zIndex: 1000,
                                         top: '100%', // Position right below the button
                                         left: 0
+
                                       }}>
                                         {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                                           <DatePicker
@@ -2789,7 +2783,8 @@ const Account = () => {
                                       </div>
                                     )}
                                     {isPickerOpenEndDay && (
-                                      <div style={{
+                                      <div
+                                      class="notranslate" style={{
                                         position: 'absolute',
                                         zIndex: 1000,
                                         top: '100%', // Position right below the button
@@ -2812,7 +2807,7 @@ const Account = () => {
                                       </div>
                                     )}
                                     {isPickerOpenMonth && (
-                                      <div style={{
+                                      <div class="notranslate" style={{
                                         position: 'absolute',
                                         zIndex: 1000,
                                         top: '100%', // Position right below the button
@@ -3043,7 +3038,7 @@ const Account = () => {
                               <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
                                 <option value="">Select Other Payment Status</option>
                                 {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
-                                  <option key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
+                                  <option class="notranslate" key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
                                 ))}
                                 {/* The options will be dynamically created here */}
                               </select>

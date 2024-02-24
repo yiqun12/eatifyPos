@@ -170,17 +170,17 @@ function PayFullhistory() {
                   <div>
                     <div>
                       <div className='flex'>
-                        <div className="w-20 h-20 mt-3 overflow-hidden rounded-md">
+                        {/* <div className="w-20 h-20 mt-3 overflow-hidden rounded-md">
                           <img
                             className="w-full h-full object-cover object-center"
                             src={JSON.parse(order.receiptData)[0].image}
                             loading="lazy"
                           />
-                        </div>
+                        </div> */}
 
-                        <div className='w-full ml-3'>
+                        <div className='w-full'>
                           <div className="mt-2 flex justify-between">
-                            <p className="mb-1 text-blue-700 d-block text-md font-semibold"
+                            <div className="mb-1 text-blue-700 d-block text-md font-semibold"
                               onClick={() => { window.location.href = `/store?store=${order.store}`; }}
                               style={{ cursor: 'pointer' }}
                             >
@@ -188,23 +188,27 @@ function PayFullhistory() {
                                 {
                                   localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(order?.storeNameCHI) : (order?.storeName)
                                 }
+                                (${order.metadata.total})
                               </span>
-                            </p>
-
+                            </div>
+                            <div className="mb-1 d-block text-sm text-muted font-semibold">{order.date.split(" ")[0]}</div>
                           </div>
 
                           <div className=" flex justify-between">
                             <div>
-                              <p className="mb-1 d-block text-sm text-muted font-semibold">{order.date.split(" ")[0]}</p>
-                              <p className="mb-1 d-block text-sm text-muted font-semibold">${order.metadata.total}</p>
+                              <div>
+                                <p className="mb-1 text-gray-500 d-block text-sm font-semibold">{order.dineMode === "DineIn" ? "Table Number: " + order.tableNum : "Take Out Order"}
+                                ({order.id.substring(0, 4)})
+                                </p>
+                              </div>
+
                             </div>
+
 
                             <a
                               onClick={() => { toggleExpandedOrderId(order.id) }}
                               class="btn d-inline-flex btn-sm btn-light mx-1 text-center"  // Added "text-center" class
                               style={{ height: "40px", display: "flex", alignItems: "center" }}> {/* Added display and alignItems styles */}
-                              <span class="pe-2">
-                              </span>
                               <span>
                                 {expandedOrderIds.includes(order.id) ? (
                                   "Hide Details"
@@ -221,24 +225,14 @@ function PayFullhistory() {
                       {expandedOrderIds.includes(order.id) && (
                         <div className="p-0 p-0 rounded-b-lg">
                           <div style={{ paddingTop: "0px", paddingBottom: "10px" }}>
-                            <div className="mt-1 flex justify-between mb-1">
-                              <div className=' notranslate text-black d-block text-sm font-semibold '>
-                                Order Id: {order.id.substring(0, 4)}
-                              </div>
-
-
-                            </div>
-                            <p className="mb-1 text-gray-500 d-block text-sm font-semibold">{order.dineMode === "DineIn" ? "Table Number: " + order.tableNum : order.dineMode} ({order.status}) </p>
-
                             <div className="receipt">
                               {JSON.parse(order.receiptData).map((item, index) => (
-
                                 <div className="receipt-item" key={item.id}>
                                   <div>
                                     <div>
                                       <div className='flex justify-between'>
                                         <p className="notranslate mb-1 text-black text-left text-sm font-semibold">
-                                          {item.quantity} x&nbsp; 
+                                          {item.quantity} x&nbsp;
                                           {
                                             localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)
                                           }

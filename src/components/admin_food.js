@@ -1072,8 +1072,7 @@ const Food = ({ store }) => {
                   }
                   const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
                   return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
-                })
-                .map((item, index) => (
+                })?.map((item, index) => (
 
                   <div style={itemStyle}>
 

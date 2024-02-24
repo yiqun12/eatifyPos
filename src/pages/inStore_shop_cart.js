@@ -53,7 +53,46 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     setProducts(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
   }, [id]);
 
-
+  const translations = [
+    { input: "Change Dining Desk", output: "更换餐桌" },
+    { input: "Turn on Dish Revise", output: "打开菜品修改" },
+    { input: "Turn off Dish Revise", output: "关闭菜品修改" },
+    { input: "Add Service Fee", output: "添加服务费" },
+    { input: "Add Discount", output: "添加折扣" },
+    { input: "Send to kitchen", output: "送到厨房" },
+    { input: "Print Order", output: "打印订单" },
+    { input: "Merchant Receipt", output: "商户收据" },
+    { input: "Split payment", output: "分单付款" },
+    { input: "Mark as Unpaid", output: "未付款" },
+    { input: "Card Pay", output: "信用卡支付" },
+    { input: "Cash Pay", output: "现金支付" },
+    { input: "Subtotal", output: "小计" },
+    { input: "Tax", output: "税" },
+    { input: "Total Amount", output: "总额" },
+    { input: "Discount", output: "折扣" },
+    { input: "Service Fee", output: "服务费" },
+    { input: "Gratuity", output: "小费" },
+    { input: "Revise", output: "修订" },
+    { input: "Cash Pay", output: "现金支付" },
+    { input: "Enter the Cash Received", output: "输入收到的现金" },
+    { input: "Calculate Give Back Cash", output: "计算返还现金" },
+    { input: "Receivable Payment", output: "应收付款" },
+    { input: "Give Back Cash ", output: "返还现金" },
+    { input: "Add return cash as a gratuity", output: "添加返还现金作为小费" },
+    { input: "Total", output: "总计" },
+    { input: "Custom Gratuity", output: "自定义小费" },
+    { input: "Other", output: "其他" },
+    { input: "Add", output: "添加" },
+    { input: "and finalize", output: "并最终确定" },
+    { input: "Finalize the Order. Total Gratuity", output: "完成订单。小费总额" },
+  ];
+  function translate(input) {
+    const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
+    return translation ? translation.output : "Translation not found";
+  }
+  function fanyi(input) {
+    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
+  }
 
   /**check if its mobile/browser */
   const [width, setWidth] = useState(window.innerWidth);
@@ -437,7 +476,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         setTips("")
         return
       }
-      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
+      // Wrap the addDoc call in a promise
+      const addDocPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
         amount: Math.round(Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100 * 100),
         amount_capturable: 0,
         amount_details: { tip: { amount: 0 } },
@@ -499,16 +539,25 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         uid: user.uid,
         user_email: user.email,
       });
-      console.log("Document written with ID: ", docRef.id);
+
+      // Assuming SetTableInfo and SetTableIsSent are asynchronous and return promises
+      // If they are not asynchronous, you can wrap their calls in Promise.resolve to treat them as promises
+      const setTableInfoPromise = Promise.resolve(SetTableInfo(store + "-" + selectedTable, "[]"));
+      const setTableIsSentPromise = Promise.resolve(SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]"));
+
+      // Execute all promises in parallel
+      Promise.all([addDocPromise, setTableInfoPromise, setTableIsSentPromise]).then(() => {
+        console.log("All operations completed successfully.");
+      }).catch((error) => {
+        console.error("Error executing operations:", error);
+      });
+
       setProducts([]);
       setExtra(0)
       setInputValue("")
       setDiscount("")
       setTips("")
-      localStorage.setItem(store + "-" + selectedTable, "[]")
-      localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
-      SetTableInfo(store + "-" + selectedTable, "[]")
-      SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]")
+
       //localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -539,7 +588,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
+      // Wrap the addDoc call in a promise
+      const addDocPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
         amount: total * 100,
         amount_capturable: 0,
         amount_details: { tip: { amount: 0 } },
@@ -601,15 +651,25 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         uid: user.uid,
         user_email: user.email,
       });
-      console.log("Document written with ID: ", docRef.id);
+
+      // Assuming SetTableInfo and SetTableIsSent are asynchronous and return promises
+      // If they are not asynchronous, you can wrap their calls in Promise.resolve to treat them as promises
+      const setTableInfoPromise = Promise.resolve(SetTableInfo(store + "-" + selectedTable, "[]"));
+      const setTableIsSentPromise = Promise.resolve(SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]"));
+
+      // Execute all promises in parallel
+      Promise.all([addDocPromise, setTableInfoPromise, setTableIsSentPromise]).then(() => {
+        console.log("All operations completed successfully.");
+      }).catch((error) => {
+        console.error("Error executing operations:", error);
+      });
       setProducts([]);
       setExtra(0)
       setInputValue("")
       setDiscount("")
       setTips("")
       setResult(null)
-      SetTableInfo(store + "-" + selectedTable, "[]")
-      SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]")
+
       //localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -1009,7 +1069,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <FontAwesomeIcon icon={faShare} />
                 </span>
               }
-              <span>{t("Change Dining Desk")}</span>
+              <span className='notranslate'>{fanyi("Change Dining Desk")}</span>
             </a>
             <a
               onClick={toggleAllowance}
@@ -1021,7 +1081,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <FontAwesomeIcon icon={isAllowed ? faToggleOn : faToggleOff} />
                 </span>
               )}
-              <span>{isAllowed ? 'Turn off Dish Revise' : 'Turn on Dish Revise'}</span>
+              <span className='notranslate'>{isAllowed ? fanyi('Turn off Dish Revise') : fanyi('Turn on Dish Revise')}</span>
             </a>
 
             <a
@@ -1034,7 +1094,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <FontAwesomeIcon icon={faPencilAlt} />
                 </span>
               }
-              <span>{t("Add Service Fee")}</span>
+              <span className='notranslate'>{fanyi("Add Service Fee")}</span>
             </a>
 
             <a
@@ -1047,7 +1107,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <FontAwesomeIcon icon={faGift} />
                 </span>
               }
-              <span>{t("Add Discount")}</span>
+              <span className='notranslate'>{fanyi("Add Discount")}</span>
             </a>
 
             <a
@@ -1060,7 +1120,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <FontAwesomeIcon icon={faArrowRight} />
                 </span>
               }
-              <span>{t("Send to kitchen")}</span>
+              <span className='notranslate'>{fanyi("Send to kitchen")}</span>
             </a>
 
             <a
@@ -1073,7 +1133,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <FontAwesomeIcon icon={faPrint} />
                 </span>
               }
-              <span>{t("Print Order")}</span>
+              <span className='notranslate'>{fanyi("Print Order")}</span>
             </a>
 
             <a
@@ -1086,7 +1146,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <FontAwesomeIcon icon={faPrint} />
                 </span>
               }
-              <span>{t("Merchant Receipt")}</span>
+              <span className='notranslate'>{fanyi("Merchant Receipt")}</span>
             </a>
 
             <a
@@ -1101,7 +1161,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               }
 
 
-              <span>{t("Split Payment")}</span>
+              <span className='notranslate'>{fanyi("Split Payment")}</span>
             </a>
             <a
               onClick={() => { MarkAsUnPaid(); SendToKitchen() }}
@@ -1113,7 +1173,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <FontAwesomeIcon icon={faExclamation} />
                 </span>
               }
-              <span>{t("Mark as Unpaid")}</span>
+              <span className='notranslate'>{fanyi("Mark as Unpaid")}</span>
             </a>
             <a
               onClick={() => { setMyModalVisible(true); SendToKitchen() }}
@@ -1124,7 +1184,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 <FontAwesomeIcon icon={faCreditCard} />
               </span>
               }
-              <span>{t("Card Pay")}</span>
+              <span className='notranslate'>{fanyi("Card Pay")}</span>
             </a>
 
             <a
@@ -1137,23 +1197,23 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <FontAwesomeIcon icon={faDollarSign} />
                 </span>
               }
-              <span>{t("Cash Pay")}</span>
+              <span className='notranslate'>{fanyi("Cash Pay")}</span>
             </a>
 
-            <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Subtotal: <span className='notranslate'>${stringTofixed(Math.round(100 * totalPrice) / 100)}</span> </div>
+            <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''}`}>{fanyi("Subtotal")}: <span className='notranslate'>${stringTofixed(Math.round(100 * totalPrice) / 100)}</span> </div>
 
             {discount && (
-              <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Discount: <span className='notranslate'>-${stringTofixed(discount)} </span></div>
+              <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''}`}>{fanyi("Discount")}: <span className='notranslate'>-${stringTofixed(discount)} </span></div>
             )}
 
             {tips && (
-              <div className={`text-right ${!isMobile ? 'text-lg' : ''}`}>Service Fee: <span className='notranslate'>${stringTofixed(tips)}</span> </div>
+              <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''}`}>{fanyi("Service Fee")}: <span className='notranslate'>${stringTofixed(tips)}</span> </div>
             )}
             {(extra !== null && extra !== 0) && (
-              <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Gratuity: <span className='notranslate'>${stringTofixed(Math.round((extra) * 100) / 100)}</span></div>
+              <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''} `}>{fanyi("Gratuity")}: <span className='notranslate'>${stringTofixed(Math.round((extra) * 100) / 100)}</span></div>
             )}
-            <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Tax(8.25%): <span className='notranslate'>${stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))}</span>    </div>
-            <div className={`text-right ${!isMobile ? 'text-lg' : ''} `}>Total Amount: <span className='notranslate'>${stringTofixed(finalPrice)}</span> </div>
+            <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''} `}>{fanyi("Tax")}(8.25%): <span className='notranslate'>${stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))}</span>    </div>
+            <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''} `}>{fanyi("Total Amount")}: <span className='notranslate'>${stringTofixed(finalPrice)}</span> </div>
           </div>
         </div>
         <div>
@@ -1164,17 +1224,17 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
         <div className="flex flex-col flex-row">
           {isUniqueModalOpen && (
-            <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+            <div id="addTipsModal notranslate" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
               <div className="modal-dialog" role="document">
                 <div className="modal-content">
                   <div className="modal-header">
-                    <h2 className="text-2xl font-semibold mb-4">Cash Pay</h2>
+                    <h2 className="text-2xl font-semibold mb-4">{fanyi("Cash Pay")}</h2>
                     <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setUniqueModalOpen(false); }}>
                       &times;
                     </button>
                   </div>
                   <div className="modal-body pt-0">
-                    <p className="mb-2">Enter the Cash Received</p>
+                    <p className="mb-2">{fanyi("Enter the Cash Received")}</p>
                     <input
                       type="number"
                       value={inputValue}
@@ -1188,9 +1248,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                       style={uniqueModalStyles.buttonStyle}
                       className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
                     >
-                      Calculate Give Back Cash
+                      {fanyi("Calculate Give Back Cash")}
                     </button>
-                    <p className="mb-4 mt-4">Gratuity:</p>
+                    <p className="mb-4 mt-4">{fanyi("Gratuity")}:</p>
                     <div className="flex justify-between mb-4">
                       <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
                         15%
@@ -1205,13 +1265,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         0
                       </button>
                       <button onClick={toggleCustomAmountVisibility} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        Other
+                        {fanyi("Other")}
                       </button>
                     </div>
 
                     {isCustomAmountVisible && (
-                      <div>
-                        <p className="mb-2">Custom Gratuity:</p>
+                      <div className='notranslate'>
+                        <p className="mb-2">{fanyi("Custom Gratuity")}:</p>
                         <div className="flex">
                           <input
                             type="number"
@@ -1224,21 +1284,21 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                             onClick={() => calculateCustomAmount(customAmount)}
                             className="bg-orange-500 text-white p-2 rounded-md w-1/3"
                           >
-                            Add
+                            {fanyi("Add")}
                           </button>
                         </div>
                       </div>
                     )}
 
                     {(extra !== null && extra !== 0) && (
-                      <p className="">Gratuity: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
+                      <p className="">{fanyi("Gratuity")}: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
                     )}
-                    <p className="mt-1">Receivable Payment: <span className='notranslate'>${finalPrice}</span> </p>
+                    <p className="mt-1">{fanyi("Receivable Payment")}: <span className='notranslate'>${finalPrice}</span> </p>
 
                     {result !== null && (
                       <div>
                         <p className="mt-1 mb-4 ">
-                          Give Back Cash :
+                          {fanyi("Give Back Cash")} :
 
                           <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
                         </p>
@@ -1255,7 +1315,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                           className="mt-2 mb-2 bg-green-500 text-white px-4 py-2 rounded-md w-full"
                         >
 
-                          Add return cash as a gratuity (Total:<span className='notranslate'>(${Math.round((result - finalPrice + extra) * 100) / 100}</span>) and finalize
+                          {fanyi("Add return cash as a gratuity")} (
+                          {fanyi("Total")}:<span className='notranslate'>(${Math.round((result - finalPrice + extra) * 100) / 100}</span>)
+                          {fanyi("and finalize")}
                         </button>
 
                       </div>
@@ -1270,7 +1332,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                       style={uniqueModalStyles.buttonStyle}
                       className="mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
                     >
-                      Finalize the Order. Total Gratuity: <span className='notranslate'>(${Math.round((extra) * 100) / 100}) </span>
+                      {fanyi("Finalize the Order. Total Gratuity")}:
+                      <span className='notranslate'>(${Math.round((extra) * 100) / 100}) </span>
                     </button>
                   </div>
                   <div className="modal-footer">
