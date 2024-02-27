@@ -451,7 +451,7 @@ function Container(props) {
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
+      const addDocPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
         amount: Math.round(finalPrice * 100),
         amount_capturable: 0,
         amount_details: { tip: { amount: 0 } },
@@ -515,10 +515,18 @@ function Container(props) {
       });
       localStorage.setItem("splitSubtotalCurrentPrice", Math.round((Number(localStorage.getItem("splitSubtotalCurrentPrice")) + Number(subtotal)) * 100) / 100)
       if (Number(localStorage.getItem("splitSubtotalCurrentPrice")) === Number(localStorage.getItem("splitSubtotalTotalPrice"))) {
-        SetTableInfo(store + "-" + selectedTable, "[]")
-        SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]")
+        // Assuming SetTableInfo and SetTableIsSent are asynchronous and return promises
+        // If they are not asynchronous, you can wrap their calls in Promise.resolve to treat them as promises
+        const setTableInfoPromise = Promise.resolve(SetTableInfo(store + "-" + selectedTable, "[]"));
+        const setTableIsSentPromise = Promise.resolve(SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]"));
+
+        // Execute all promises in parallel
+        Promise.all([addDocPromise, setTableInfoPromise, setTableIsSentPromise]).then(() => {
+          console.log("All operations completed successfully.");
+        }).catch((error) => {
+          console.error("Error executing operations:", error);
+        });
       }
-      console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
     }

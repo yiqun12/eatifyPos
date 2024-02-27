@@ -57,7 +57,7 @@ import { ReactComponent as Todo_icon } from './todo_icon.svg';
 import { ReactComponent as Menu_icon } from './menu_icon.svg';
 import file_icon from './file_icon.png';
 import styled from '@emotion/styled';
-import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate } from '../comonFunctions';
+import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
 import { el } from 'date-fns/locale';
 import e from 'cors';
 import { json } from 'react-router-dom';
@@ -87,6 +87,13 @@ const Account = () => {
     { input: "POS Machine", output: "POS机" },
     { input: "Unpaid", output: "未付" },
     { input: "Online App", output: "在线应用程序" },
+    { input: "Cash Gratuity", output: "现金小费" },
+    { input: "Gratuity", output: "小费" },
+    { input: "Revenue", output: "收入" },
+    { input: "Subtotal", output: "小计" },
+    { input: "Tax", output: "税" },
+    { input: "Service Fee", output: "服务费" },
+
   ];
   function translate(input) {
     const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
@@ -280,10 +287,15 @@ const Account = () => {
       console.error("Error adding document: ", e);
     }
   }
-
   const handleTabClick = (e, tabHref) => {
     e.preventDefault();
     setActiveTab(tabHref);
+  }
+
+
+
+  function fanyi(input) {
+    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
   }
   const { user, user_loading } = useUserContext();
   //console.log(user)
@@ -462,12 +474,12 @@ const Account = () => {
 
       console.log(newData);
       newData.sort((a, b) => moment(b.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf() - moment(a.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf());
-
       const newItems = [];
       newData.forEach(item => {
-        const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
-          .subtract(8, "hours")
-          .format("M/D/YY HH:mm");
+        // console.log("sawsssssssss")
+        // console.log(item.dateTime)
+        // console.log(parseDateUTC(item.dateTime))
+        const formattedDate = parseDateUTC(item.dateTime)
 
         const newItem = {
           id: item.id,
@@ -1389,24 +1401,26 @@ const Account = () => {
     }
   };
 
-
   useEffect(() => {
     // Ensure the user is defined
     if (!user || !user.uid) return;
     if (!storeID) return;
+
+    // Assuming you convert your date to a Firestore compatible timestamp or keep it in a comparable string format
     let dateTime = new Date().toISOString();
     let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
     const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "listOrder");
-    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-      // 
-      snapshot.docChanges().forEach((change) => {
 
-        if (change.type === "added" && (change.doc.data().date > date)) {
+    // Adjust the query to include a condition for the `date` field
+    const q = query(collectionRef, where("date", ">", date));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
           sendMessageToIframes('listOrder', change.doc.data())
         }
       });
     }, (error) => {
-      // Handle any errors
       console.error("Error getting documents:", error);
     });
 
@@ -1418,19 +1432,22 @@ const Account = () => {
     // Ensure the user is defined
     if (!user || !user.uid) return;
     if (!storeID) return;
+
+    // Assuming you convert your date to a Firestore compatible timestamp or keep it in a comparable string format
     let dateTime = new Date().toISOString();
     let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
     const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "OpenCashDraw");
-    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-      // 
-      snapshot.docChanges().forEach((change) => {
 
-        if (change.type === "added" && (change.doc.data().date > date)) {
+    // Adjust the query to include a condition for the `date` field
+    const q = query(collectionRef, where("date", ">", date));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
           sendMessageToIframes('OpenCashDraw', change.doc.data())
         }
       });
     }, (error) => {
-      // Handle any errors
       console.error("Error getting documents:", error);
     });
 
@@ -1442,19 +1459,22 @@ const Account = () => {
     // Ensure the user is defined
     if (!user || !user.uid) return;
     if (!storeID) return;
+
+    // Assuming you convert your date to a Firestore compatible timestamp or keep it in a comparable string format
     let dateTime = new Date().toISOString();
     let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
     const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "SendToKitchen");
-    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-      // 
-      snapshot.docChanges().forEach((change) => {
 
-        if (change.type === "added" && (change.doc.data().date > date)) {
+    // Adjust the query to include a condition for the `date` field
+    const q = query(collectionRef, where("date", ">", date));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
           sendMessageToIframes('SendToKitchen', change.doc.data())
         }
       });
     }, (error) => {
-      // Handle any errors
       console.error("Error getting documents:", error);
     });
 
@@ -1466,19 +1486,22 @@ const Account = () => {
     // Ensure the user is defined
     if (!user || !user.uid) return;
     if (!storeID) return;
+
+    // Assuming you convert your date to a Firestore compatible timestamp or keep it in a comparable string format
     let dateTime = new Date().toISOString();
     let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
     const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "DeletedSendToKitchen");
-    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-      // 
-      snapshot.docChanges().forEach((change) => {
 
-        if (change.type === "added" && (change.doc.data().date > date)) {
+    // Adjust the query to include a condition for the `date` field
+    const q = query(collectionRef, where("date", ">", date));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
           sendMessageToIframes('DeletedSendToKitchen', change.doc.data())
         }
       });
     }, (error) => {
-      // Handle any errors
       console.error("Error getting documents:", error);
     });
 
@@ -1490,13 +1513,17 @@ const Account = () => {
     // Ensure the user is defined
     if (!user || !user.uid) return;
     if (!storeID) return;
+
+    // Assuming you convert your date to a Firestore compatible timestamp or keep it in a comparable string format
     let dateTime = new Date().toISOString();
     let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
     const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "CustomerReceipt");
-    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-      // 
-      snapshot.docChanges().forEach((change) => {
 
+    // Adjust the query to include a condition for the `date` field
+    const q = query(collectionRef, where("date", ">", date));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
         if (change.type === "added" && (change.doc.data().date > date)) {
           const index = storelist.findIndex(data => data.id === storeID);
 
@@ -1520,7 +1547,6 @@ const Account = () => {
         }
       });
     }, (error) => {
-      // Handle any errors
       console.error("Error getting documents:", error);
     });
 
@@ -1532,13 +1558,17 @@ const Account = () => {
     // Ensure the user is defined
     if (!user || !user.uid) return;
     if (!storeID) return;
+
+    // Assuming you convert your date to a Firestore compatible timestamp or keep it in a comparable string format
     let dateTime = new Date().toISOString();
     let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
     const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "MerchantReceipt");
-    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-      // 
-      snapshot.docChanges().forEach((change) => {
 
+    // Adjust the query to include a condition for the `date` field
+    const q = query(collectionRef, where("date", ">", date));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
         if (change.type === "added" && (change.doc.data().date > date)) {
           const index = storelist.findIndex(data => data.id === storeID);
 
@@ -1562,7 +1592,6 @@ const Account = () => {
         }
       });
     }, (error) => {
-      // Handle any errors
       console.error("Error getting documents:", error);
     });
 
@@ -1570,17 +1599,22 @@ const Account = () => {
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
 
+
   useEffect(() => {
     // Ensure the user is defined
     if (!user || !user.uid) return;
     if (!storeID) return;
+
+    // Assuming you convert your date to a Firestore compatible timestamp or keep it in a comparable string format
     let dateTime = new Date().toISOString();
     let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
     const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "bankReceipt");
-    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-      // 
-      snapshot.docChanges().forEach((change) => {
 
+    // Adjust the query to include a condition for the `date` field
+    const q = query(collectionRef, where("date", ">", date));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
         if (change.type === "added" && (change.doc.data().date > date)) {
           const index = storelist.findIndex(data => data.id === storeID);
 
@@ -1604,7 +1638,6 @@ const Account = () => {
         }
       });
     }, (error) => {
-      // Handle any errors
       console.error("Error getting documents:", error);
     });
 
@@ -2875,12 +2908,12 @@ const Account = () => {
 
                               <div style={isMobile ? { "width": "50%" } : {}}>
 
-                                <PieChart width={isMobile ? width2 / 2 : 300} height={250}>
+                                <PieChart className='notranslate' width={isMobile ? width2 / 2 : 300} height={250}>
                                   <Pie
                                     cx={80} // Move the pie to the left by adjusting the cx value
                                     data={[
                                       {
-                                        name: 'Subtotal', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                        name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -2893,7 +2926,7 @@ const Account = () => {
                                         ).subtotal * 100) / 100
                                       },
                                       {
-                                        name: 'Tax', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                        name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -2905,7 +2938,7 @@ const Account = () => {
                                           { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
                                         ).tax * 100) / 100
                                       }, {
-                                        name: 'Gratuity', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                        name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -2918,7 +2951,7 @@ const Account = () => {
                                         ).tips * 100) / 100
                                       },
                                       {
-                                        name: 'Service Fee', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                        name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -2940,7 +2973,7 @@ const Account = () => {
                                     {
                                       [
                                         {
-                                          name: 'Gratuity', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                          name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -2953,7 +2986,7 @@ const Account = () => {
                                           ).tips * 100) / 100
                                         },
                                         {
-                                          name: 'Service Fee', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                          name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -2966,7 +2999,7 @@ const Account = () => {
                                           ).service_fee * 100) / 100
                                         },
                                         {
-                                          name: 'Tax', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                          name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -2979,7 +3012,7 @@ const Account = () => {
                                           ).tax * 100) / 100
                                         },
                                         {
-                                          name: 'Subtotal', value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                          name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -3048,7 +3081,7 @@ const Account = () => {
                             {isMobile ? <hr class="opacity-50 border-t-2 border-black-1000" /> : <hr class="opacity-50 border-t-2 border-black-1000" />}
                             {isMobile ? <div >
                               <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
-                                <option value="">Select Other Payment Status</option>
+                                <option value="">Filter Payment Status</option>
                                 {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
                                   <option class="notranslate" key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
                                 ))}
@@ -3056,7 +3089,7 @@ const Account = () => {
                               </select>
                               &nbsp;
                               <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
-                                <option value="">Select Other Dining Table</option>
+                                <option value="">Filter Dining Table</option>
                                 {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
                                   <option className='notranslate' key={index} value={option}>{option}</option>
                                 ))}
@@ -3078,11 +3111,11 @@ const Account = () => {
 
                                 <thead>
                                   <tr>
-                                    {isMobile ? null : <th className="notranslate" style={{ width: "6%" }}>Number.</th>}
-                                    <th className="order-number" style={isMobile ? {} : { width: "7%" }}>Order ID</th>
-                                    <th className="order-name" style={isMobile ? {} : { width: "10%" }}>
+                                    {isMobile ? null : <th className="notranslate" style={{ width: "10%" }}>Number.</th>}
+                                    <th className="order-number" style={isMobile ? {} : { width: "10%" }}>Order ID</th>
+                                    <th className="order-name" style={isMobile ? {} : { width: "15%" }}>
                                       <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
-                                        <option value="">Select Other Dining Table</option>
+                                        <option value="">Filter Dining Table</option>
                                         {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
                                           <option className='notranslate' key={index} value={option}>{option}</option>
                                         ))}
@@ -3090,17 +3123,17 @@ const Account = () => {
                                       </select>
 
                                     </th>
-                                    <th className="order-status" style={isMobile ? {} : { width: "30%" }}>
+                                    <th className="order-status" style={isMobile ? {} : { width: "15%" }}>
                                       <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
-                                        <option value="">Select Other Payment Status</option>
+                                        <option value="">Filter Payment Status</option>
                                         {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
                                           <option key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
                                         ))}
                                         {/* The options will be dynamically created here */}
                                       </select>
                                     </th>
-                                    <th className="order-total" style={isMobile ? {} : { width: "7%" }}>Total Price</th>
-                                    <th className="order-date" style={isMobile ? {} : { width: "25%" }}>Time</th>
+                                    <th className="order-total" style={isMobile ? {} : { width: "15%" }}>Total Price</th>
+                                    <th className="order-date" style={isMobile ? {} : { width: "10%" }}>Date</th>
                                   </tr>
                                 </thead>
 
@@ -3117,7 +3150,7 @@ const Account = () => {
                                         <td className="order-name notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>{order.tableNum === "" ? "Takeout" : order.tableNum}</td>
                                         <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
                                         <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="notranslate amount">{"$" + roundToTwoDecimalsTofix(order.total)}</span></td>
-                                        <td className="order-date" data-title="Time" style={{ whiteSpace: "nowrap" }}>
+                                        <td className="order-date" data-title="Date" style={{ whiteSpace: "nowrap" }}>
                                           <time dateTime={order.date} title={order.date} nowrap>
                                             <span className='notranslate'>{order.date}</span>
                                           </time>
@@ -3133,7 +3166,7 @@ const Account = () => {
                                             <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)} style={{ cursor: "pointer", border: "1px solid black" }}>
                                               {"MerchantReceipt"}
                                             </button>
-                                            {order?.status === 'Paid by Cash' ? (
+                                            {/* {order?.status === 'Paid by Cash' ? (
                                               <button
                                                 className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
                                                 onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
@@ -3146,13 +3179,20 @@ const Account = () => {
                                                 onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
                                               >
                                                 Bank Receipt
-                                              </button>}
-
+                                              </button>} */}
+                                            {true ?
+                                              <button
+                                                className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                              >
+                                                Add Gratuity
+                                              </button> : null
+                                            }
                                           </div>
                                           :
                                           <td className="order-details" style={{ whiteSpace: "nowrap", textAlign: "right" }}
                                             data-title="Details">
-                                            {order?.status === 'Paid by Cash' ? (
+                                            {/* {order?.status === 'Paid by Cash' ? (
                                               <button
                                                 className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
                                                 onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
@@ -3165,7 +3205,15 @@ const Account = () => {
                                                 onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
                                               >
                                                 Bank Receipt
-                                              </button>}
+                                              </button>} */}
+                                            {true ?
+                                              <button
+                                                className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                              >
+                                                Add Gratuity
+                                              </button> : null
+                                            }
                                             <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)} style={{ cursor: "pointer", border: "1px solid black" }}>
                                               {"MerchantReceipt"}
                                             </button>
@@ -3183,33 +3231,35 @@ const Account = () => {
 
 
 
-                                      {expandedOrderIds.includes(order.id) && (
-                                        <tr style={{ backgroundColor: '#f8f9fa' }}>
-                                          <td colSpan={8} style={{ padding: "10px" }}>
-                                            <div className="receipt">
-                                              <p><span className='notranslate'>{order.name}</span></p>
-                                              {/* <p>{order.email}</p> */}
-                                              {/* <p><span className='notranslate'>{order.date}</span></p> */}
-                                              {JSON.parse(order.receiptData).map((item, index) => (
-                                                <div className="receipt-item" key={item.id}>
-                                                  <p className='notranslate'>
-                                                    {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
-                                                      : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
-                                                    &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
-                                                    &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.quantity * item.subtotal)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) : item.subtotal}
-                                                    &nbsp;each = ${roundToTwoDecimalsTofix(item.quantity * item.subtotal)}</p>
-                                                </div>
-                                              ))}
-                                              <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.discount)}</span> </p>
-                                              <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.subtotal)}</span> </p>
-                                              <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.service_fee)}</span></p>
-                                              <p>Tax: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tax)}</span></p>
-                                              <p>Gratuity: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tips)}</span></p>
-                                              <p>Total: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.total)}</span></p>
-                                            </div>
-                                          </td>
-                                        </tr>
-                                      )}
+                                      {
+                                        expandedOrderIds.includes(order.id) && (
+                                          <tr style={{ backgroundColor: '#f8f9fa' }}>
+                                            <td colSpan={8} style={{ padding: "10px" }}>
+                                              <div className="receipt">
+                                                <p><span className='notranslate'>{order.name}</span></p>
+                                                {/* <p>{order.email}</p> */}
+                                                {/* <p><span className='notranslate'>{order.date}</span></p> */}
+                                                {JSON.parse(order.receiptData).map((item, index) => (
+                                                  <div className="receipt-item" key={item.id}>
+                                                    <p className='notranslate'>
+                                                      {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
+                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
+                                                      &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
+                                                      &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.quantity * item.subtotal)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) : item.subtotal}
+                                                      &nbsp;each = ${roundToTwoDecimalsTofix(item.quantity * item.subtotal)}</p>
+                                                  </div>
+                                                ))}
+                                                <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.discount)}</span> </p>
+                                                <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.subtotal)}</span> </p>
+                                                <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.service_fee)}</span></p>
+                                                <p>Tax: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tax)}</span></p>
+                                                <p>Gratuity: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tips)}</span></p>
+                                                <p>Total: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.total)}</span></p>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        )
+                                      }
                                     </div>
                                   ))}
                                 </tbody>
@@ -3252,13 +3302,25 @@ const renderLegend = (props) => {
   payload.forEach(entry => {
     revenue += entry.payload.value;
   });
+  const translations = [
+    { input: "Revenue", output: "总营收" },
 
+  ];
+  function translate(input) {
+    const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
+    return translation ? translation.output : "Translation not found";
+  }
+
+  function fanyi(input) {
+    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
+  }
   return (
     <ul>
       {revenue !== 0 ? (
         <div>
           <li key="revenue" style={{ fontWeight: 'bold', fontWeight: 'bold', fontSize: '13px' }}>
-            Revenue<span class='notranslate'> (${revenue.toFixed(2)})</span>
+            {fanyi("Revenue")}
+            <span class='notranslate'> (${revenue.toFixed(2)})</span>
           </li>
           {payload.map((entry, index) => (
             <li key={`item-${index}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }} >

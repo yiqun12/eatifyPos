@@ -44,11 +44,11 @@ export const UserContextProvider = ({ children }) => {
     setLoading(true);
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        const {uid, displayName, email,storelist} = firebaseUser;
-        const filteredProperties = Object.assign({}, {uid}, {displayName}, {email});
-        if(filteredProperties.uid!=null&&filteredProperties.displayName==null&&email==null){
+        const { uid, displayName, email, storelist } = firebaseUser;
+        const filteredProperties = Object.assign({}, { uid }, { displayName }, { email });
+        if (filteredProperties.uid != null && filteredProperties.displayName == null && email == null) {
           filteredProperties.displayName = "Guest"
-          filteredProperties.email = "Guest@Yumcha.App"
+          filteredProperties.email = "Guest@Eatifydash.App"
         }
         setUser(filteredProperties);
         currentUser = firebaseUser;
@@ -62,12 +62,12 @@ export const UserContextProvider = ({ children }) => {
     });
     return unsubscribe;
   }, []);
-  
-// logout untill full filled.
+
+  // logout untill full filled.
   const registerUser = async (email, password, name) => {
     setLoading(true);
     setError("");
-  
+
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         updateProfile(auth.currentUser, {
@@ -75,7 +75,7 @@ export const UserContextProvider = ({ children }) => {
         });
         emailVerification()//sometimes it conflict with logout
         logoutUser()
-        
+
       })
       .catch((err) => {
         alert(err.message);
@@ -87,10 +87,10 @@ export const UserContextProvider = ({ children }) => {
   const signInUser = async (email, password) => {
     setLoading(true);
     setError("");
-  
+
     try {
       await signInWithEmailAndPassword(auth, email, password)
-  
+
       if (!auth.currentUser.emailVerified) {
         logoutUser();
         //sessionStorage.removeItem("user");
@@ -111,7 +111,7 @@ export const UserContextProvider = ({ children }) => {
       setLoading(false);
     }
   };
-  
+
 
   const signInWithGoogle = () => {
     setLoading(true);
@@ -124,45 +124,45 @@ export const UserContextProvider = ({ children }) => {
   };
 
   // list of admin emails (replace this with your actual admin emails)
-const adminEmails = ["yix223@lehigh.edu"];
+  const adminEmails = ["yix223@lehigh.edu"];
 
-const signInWithAdminGoogle = () => {
-  setLoading(true);
-  setError("");
+  const signInWithAdminGoogle = () => {
+    setLoading(true);
+    setError("");
 
-  signInWithPopup(auth, new GoogleAuthProvider())
-    .then((res) => {
-      // Extract user from the result
-      const user = res.user;
+    signInWithPopup(auth, new GoogleAuthProvider())
+      .then((res) => {
+        // Extract user from the result
+        const user = res.user;
 
-      if (adminEmails.includes(user.email)) {
-        // If user email is in the list of admin emails, the user is an admin
-        console.log("User is an admin");
-        // Handle admin logic here
-      } else {
-        // If not an admin, ask for store name
-        const storeName = prompt("Enter your store name:");
-        if (storeName) {
-          // Save store name and set user as admin
-          // ... your logic here
+        if (adminEmails.includes(user.email)) {
+          // If user email is in the list of admin emails, the user is an admin
+          console.log("User is an admin");
+          // Handle admin logic here
+        } else {
+          // If not an admin, ask for store name
+          const storeName = prompt("Enter your store name:");
+          if (storeName) {
+            // Save store name and set user as admin
+            // ... your logic here
+          }
         }
-      }
-    })
-    .catch((err) => setError(err.code))
-    .finally(() => setLoading(false));
-};
+      })
+      .catch((err) => setError(err.code))
+      .finally(() => setLoading(false));
+  };
 
 
   const signInWithGuest = () => {
     setLoading(true);
     setError("");
-  
+
     try {
       signInAnonymously(auth)
-/*  
-      updateProfile(auth.currentUser, {
-        displayName: 'Guest',
-      });*/
+      /*  
+            updateProfile(auth.currentUser, {
+              displayName: 'Guest',
+            });*/
       return;
     } catch (err) {
       //console.log(err.message);
@@ -212,7 +212,7 @@ const signInWithAdminGoogle = () => {
 
   const contextValue = {
     user,
-    user_loading:loading,
+    user_loading: loading,
     error,
     signInUser,
     registerUser,

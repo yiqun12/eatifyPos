@@ -12,6 +12,7 @@ import { useMyHook } from '../pages/myHook';
 import { motion, AnimatePresence } from "framer-motion"
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/index';
+import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate,parseDateUTC } from '../comonFunctions';
 
 
 function PayFullhistory() {
@@ -101,9 +102,7 @@ function PayFullhistory() {
         fetchCollectionAsMap().then(tempStoreMap => {
           console.log(tempStoreMap);
           newPayments.forEach((item) => {
-            const formattedDate = moment(item.dateTime, "YYYY-MM-DD-HH-mm-ss-SS")
-              .subtract(8, "hours")
-              .format("M/D/YYYY h:mma");
+            const formattedDate = parseDateUTC(item.dateTime)
 
             const newItem = {
               storeName: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store) ? tempStoreMap[payment.store].storeName : payment.store,
@@ -180,45 +179,40 @@ function PayFullhistory() {
 
                         <div className='w-full'>
                           <div className="mt-2 flex justify-between">
-                            <div className="mb-1 text-blue-700 d-block text-md font-semibold"
-                              onClick={() => { window.location.href = `/store?store=${order.store}`; }}
-                              style={{ cursor: 'pointer' }}
-                            >
-                              <span className='notranslate'>
-                                {
-                                  localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(order?.storeNameCHI) : (order?.storeName)
-                                }
-                                (${order.metadata.total})
-                              </span>
-                            </div>
-                            <div className="mb-1 d-block text-sm text-muted font-semibold">{order.date.split(" ")[0]}</div>
-                          </div>
-
-                          <div className=" flex justify-between">
                             <div>
-                              <div>
-                                <p className="mb-1 text-gray-500 d-block text-sm font-semibold">{order.dineMode === "DineIn" ? "Table Number: " + order.tableNum : "Take Out Order"}
-                                ({order.id.substring(0, 4)})
-                                </p>
+                              <div className="mb-1 text-blue-700 d-block text-md font-semibold"
+                                onClick={() => { window.location.href = `/store?store=${order.store}`; }}
+                                style={{ cursor: 'pointer' }}
+                              >
+                                <span className='notranslate'>
+                                  {
+                                    localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(order?.storeNameCHI) : (order?.storeName)
+                                  }
+                                  (${order.metadata.total})
+                                </span>
                               </div>
-
+                              <div className="mb-1 d-block text-sm text-muted font-semibold">{order.date.split(" ")[0]}</div>
                             </div>
 
+                            <div className=" flex justify-between">
 
-                            <a
-                              onClick={() => { toggleExpandedOrderId(order.id) }}
-                              class="btn d-inline-flex btn-sm btn-light mx-1 text-center"  // Added "text-center" class
-                              style={{ height: "40px", display: "flex", alignItems: "center" }}> {/* Added display and alignItems styles */}
-                              <span>
-                                {expandedOrderIds.includes(order.id) ? (
-                                  "Hide Details"
-                                ) : (
-                                  "View Details"
-                                )}
-                              </span>
-                            </a>
 
+                              <a
+                                onClick={() => { toggleExpandedOrderId(order.id) }}
+                                class="btn d-inline-flex btn-sm btn-light mx-1 text-center"  // Added "text-center" class
+                                style={{ height: "40px", display: "flex", alignItems: "center" }}> {/* Added display and alignItems styles */}
+                                <span>
+                                  {expandedOrderIds.includes(order.id) ? (
+                                    "Hide Details"
+                                  ) : (
+                                    "View Details"
+                                  )}
+                                </span>
+                              </a>
+
+                            </div>
                           </div>
+
 
                         </div>
                       </div>
@@ -226,6 +220,9 @@ function PayFullhistory() {
                         <div className="p-0 p-0 rounded-b-lg">
                           <div style={{ paddingTop: "0px", paddingBottom: "10px" }}>
                             <div className="receipt">
+                              <p className="mb-1 text-gray-500 d-block text-sm font-semibold">{order.dineMode === "DineIn" ? "Table Number: " + order.tableNum : "Take Out Order"}
+                                ({order.id.substring(0, 4)})
+                              </p>
                               {JSON.parse(order.receiptData).map((item, index) => (
                                 <div className="receipt-item" key={item.id}>
                                   <div>

@@ -37,12 +37,17 @@ const Navbar = () => {
 
 
   const googleTranslateElementInit = () => {
+    // Detect the browser's language
+    let userLang = navigator.language || navigator.userLanguage;
+    // Default to English if the browser language is not Chinese
+    let pageLang = userLang.startsWith('zh') ? 'zh-CN' : 'en';
+
     if (window.google && window.google.translate) {
       new window.google.translate.TranslateElement(
         {
-          pageLanguage: "en",
-          includedLanguages: "en,zh-CN",
-          autoDisplay: false
+          pageLanguage: pageLang,
+          includedLanguages: "en,zh-CN", // Only include English and Chinese
+          autoDisplay: true
         },
         "google_translate_element"
       );
@@ -610,31 +615,26 @@ const Navbar = () => {
                   window.location.href = '/';
                 }
               }}
-              src="https://cdn.discordapp.com/attachments/759102082849833000/1199718338683748534/new_logo-removebg-preview.png?ex=65c38fc5&is=65b11ac5&hm=263867d26289d9c635ebeca098af1bd20e8c543e7881431f263011622dc519a1&"
-              alt=""
+              src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/a6dbaa1a-5a08-4125-adec-83f41f9a6300/public"
               style={{
-                maxHeight: '50px',
-                maxWidth: '50px',
-                borderRadius: '50%',  // this makes the image round
+                maxHeight: '30px',
+                maxWidth: '30px',
                 objectFit: 'cover',   // this makes the image co0ver the entire dimensions
-                marginRight: '10px',   // added some margin to the right of the image
-                marginLeft: "5px"
               }} />
-            <div className='flex' style={{ flexDirection: "column" }}>
-              <h1 className='text-orange-500' style={{
-                fontStyle: 'italic'
-              }} onClick={event => {
-                if (storeFromURL !== '' && storeFromURL !== null) {
-                  window.location.href = `/store?store=${storeFromURL}`;
+            <span onClick={event => {
+              if (storeFromURL !== '' && storeFromURL !== null) {
+                if (isKiosk) {
+                  window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
                 } else {
-                  window.location.href = '/';
+                  window.location.href = `/store?store=${storeFromURL}`;
                 }
-              }}
 
-              >
-              </h1>
-
-            </div>
+              } else {
+                window.location.href = '/';
+              }
+            }} className='notranslate text-black font-bold'>
+              Eatifydash
+            </span>
 
             <div className='flex ml-auto pr-4 '>
               <div className='mt-2' id="google_translate_element"></div>
@@ -651,17 +651,18 @@ const Navbar = () => {
                 </button>
               )}
               {((location.pathname.includes('/store') && !isMobile)) && (
-                <>              <div id="cart"
-                  style={{ position: 'relative', width: "", height: "", 'color': '#444444' }}
-                  className="cart" data-totalitems={totalQuant} onClick={openModal} >
+                <>
+                  <div id="cart"
+                    style={{ position: 'relative', width: "", height: "", 'color': '#444444' }}
+                    className="cart" data-totalitems={totalQuant} onClick={openModal} >
 
-                  <div
+                    <div
 
-                    style={{ fontSize: "20px" }}
-                  >
-                    <i className="bi bi-cart"></i>
+                      style={{ fontSize: "20px" }}
+                    >
+                      <i className="bi bi-cart"></i>
+                    </div>
                   </div>
-                </div>
                   <div onClick={openModal} style={{ fontSize: "20px", marginTop: "10px", marginleft: "-28px" }} > {"Shopping Cart"}</div>
 
                 </>

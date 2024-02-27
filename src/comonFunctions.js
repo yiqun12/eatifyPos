@@ -60,6 +60,15 @@ export function parseDate(dateString) {
   return new Date(losAngelesDate);
 }
 
+// convert YYYY-MM-DD-HH-MM-SS-SS into YYYY-MM-DD-HH-MM-SS-SS califronia then into YYYY-MM-DDTHH:mm:ss.sssZ uct
+
+export function parseDateUTC(dateString) {
+  const formattedDate = dateString.replace(/-/g, '').slice(0, -2); // "20240103000000"
+  const date = moment.tz(formattedDate, "YYYYMMDDHHmmss", "UTC");
+
+  return date.tz('America/Los_Angeles').format("M/D/YY HH:mm");
+}
+
 // convert YYYY-MM-DDTHH:mm:ss.sssZ into YYYY-MM-DD-HH-MM-SS-SS
 export function convertDateFormat(dateString) {
   const date = new Date(dateString);

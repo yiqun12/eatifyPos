@@ -19,10 +19,27 @@ self.addEventListener('fetch', (event) => {
 
                 // Define your manifest with a dynamic start_url
                 const manifest = {
-                    short_name: "React App",
-                    name: "Create React App Sample",
+                    short_name: "Eatifydash",
+                    name: "Eatifydash",
                     start_url: startUrl,
                     display: "standalone",
+                    icons: [
+                        {
+                            src: "favicon.ico",
+                            sizes: "64x64 32x32 24x24 16x16",
+                            type: "image/x-icon"
+                        },
+                        {
+                            src: "android-chrome-192x192.png",
+                            type: "image/png",
+                            sizes: "192x192"
+                        },
+                        {
+                            src: "android-chrome-512x512.png",
+                            type: "image/png",
+                            sizes: "512x512"
+                        }
+                    ],
                     theme_color: "#000000",
                     background_color: "#ffffff"
                 };

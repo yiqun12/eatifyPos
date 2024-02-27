@@ -1164,7 +1164,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <span className='notranslate'>{fanyi("Split Payment")}</span>
             </a>
             <a
-              onClick={() => { MarkAsUnPaid(); SendToKitchen() }}
+              onClick={() => { SendToKitchen();MarkAsUnPaid();  }}
               className="mt-3 btn btn-sm btn-outline-danger mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -1364,7 +1364,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         Reset
                       </Button>
                       <div style={{ fontWeight: 'bold', fontSize: '20px' }}>
-                        Paid Subtotal/Total Subtotal: <span className='notranslate'>${localStorage.getItem("splitSubtotalCurrentPrice")} / ${localStorage.getItem("splitSubtotalTotalPrice")}</span>
+                        Paid Subtotal/Total Subtotal:
+                        <span className='notranslate'>
+                          ${localStorage.getItem("splitSubtotalCurrentPrice")} / ${localStorage.getItem("splitSubtotalTotalPrice")}
+                        </span>
                       </div>
                     </div>
                     <div>
