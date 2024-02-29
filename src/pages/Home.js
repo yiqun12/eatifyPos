@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import { useMyHook } from '../pages/myHook';
 import scroll from './scroll.png';
 import intro_pic from './Best-Free-Online-Ordering-Systems-for-Restaurants.png';
+import { Link } from 'react-router-dom';
 
 import './home.css';
 
@@ -52,18 +53,125 @@ const Account = () => {
         <div class="header-text">
           <h1 style={{ "font-size": "50px", "font-weight": "800", "margin-bottom": "2rem" }}>A Better Solution for Your Restaurants</h1>
           <p>We put our heart into every little detail of our products, going above and beyond to make things easier for our customers, whether it's through our POS system or service.</p>
-          <a href="#about"><img src={scroll} style={{ "padding-top": "10%", "margin-left": "auto", "margin-right": "auto" }} /></a>
+          <a ><img src={scroll} style={{ "padding-top": "10%", "margin-left": "auto", "margin-right": "auto" }} /></a>
         </div>
       </section>
+      <section class="flex-item" id="pricing" style={{ "background-color": "#f2f2f2" }}>
 
+        <div class="flex-container">
+          <div class="flex-item-right">
+            <ul class="price">
+              {/* <li class="price-header">Professional</li> */}
+              <div style={{
+                position: 'relative',
+                width: '100%',
+                paddingTop: '100%', // This creates a square aspect ratio
+              }}>
+                <img
+                  src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/1bc8bcd0-5e7b-409f-6f07-cde3f3bc2200/public"
+
+                  alt="Description" style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover' // Optional, to cover the area without losing aspect ratio
+                  }} />
+              </div>
+              <li>Choose your own handheld kit</li>
+              <li>Installation & Network Configuration</li>
+              <li>Order & Table Management</li>
+              <li>Gratuity Management Tools</li>
+              <li>Simple, flat rate (Bank Rate + 1% per Order)</li>
+            </ul>
+          </div>
+          <div class="flex-item-right">
+            <ul class="price">
+              <div style={{
+                position: 'relative',
+                width: '100%',
+                paddingTop: '100%', // This creates a square aspect ratio
+              }}>
+                <img src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/160b451c-e42c-43a0-dea1-43cb504f6e00/public"
+
+                  alt="Description" style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover' // Optional, to cover the area without losing aspect ratio
+                  }} />
+              </div>
+              <li>Reporting & Analytics</li>
+              <li>Mobile Management Tools</li>
+              <li>Real-time fraud monitoring</li>
+              <li>Generative AI Menu Management</li>
+              <li>24/7/365 Availability</li>
+            </ul>
+          </div>
+
+
+          <div class="flex-item-right">
+            <ul class="price">
+              <div style={{
+                position: 'relative',
+                width: '100%',
+                paddingTop: '100%', // This creates a square aspect ratio
+              }}>
+                <img
+                  src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/2474a6cc-db01-485d-af4a-d6345609ed00/public"
+
+                  alt="Description" style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover' // Optional, to cover the area without losing aspect ratio
+                  }} />
+              </div>
+              <li>Online Ordering</li>
+              <li>InStore Kiosk Ordering</li>
+              <li>Third Party Delivery Integrations</li>
+              <li>TakeOut Ordering</li>
+            </ul>
+          </div>
+          <div class="flex-item-left">
+            <ul class="price" >
+              <div style={{
+                position: 'relative',
+                width: '100%',
+                paddingTop: '100%', // This creates a square aspect ratio
+              }}>
+                <img src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/7444a388-1610-475b-b5b2-b0c556bd8d00/public"
+                  alt="Description" style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover' // Optional, to cover the area without losing aspect ratio
+                  }} />
+              </div>
+              <li>Digital Menus</li>
+              <li>Mobile Payments</li>
+              <li>QR code/NFC ordering</li>
+            </ul>
+          </div>
+        </div>
+
+      </section>
       <section class="flex-item" id="about" style={{ "background-color": "#f2f2f2" }}>
         <div class="grid-container">
           <div class="grid-item" style={{ "text-align": "left" }}>
             <h1 style={{ "font-size": "40px", "font-weight": "600", "margin-bottom": "2rem" }}>About Eatifydash</h1>
             <p style={{ "color: #525252; line-height": "1.5" }}>
-              With Google's latest AI tech at our fingertips, setting up your bilingual, picture-powered ordering tools takes no more than five minutes. Eatifydash brings down language walls with support for several languages and quick printing of bilingual receipts. You can choose from a variety of popular payment methods, including WeChat Pay, AliPay, Visa, Mastercard, Amex, Apple Pay, and Google Pay. Say goodbye to the steep 10%-30% fees that platforms like Uber and DoorDash charge. With us, you're looking at a fixed fee of $4 for each delivery that's successfully made.</p>
-            <p style={{ "color": "#525252", "border-top": "0.5px solid #919191", "padding-top": "2%" }}>Contact us at admin@eatifydash.com</p>
-            <button className='button_demo' href="" style={{ "margin-top": "5%" }} onClick={() => window.location.href = "/account"}>Set it up in less than 30 minute</button>
+              With latest AI tech at our fingertips, setting up your bilingual, picture-powered ordering tools takes no more than five minutes. Eatifydash brings down language walls with support for several languages and quick printing of bilingual receipts. You can choose from a variety of popular payment methods, including WeChat Pay, AliPay, Visa, Mastercard, Amex, Apple Pay, and Google Pay. Say goodbye to the steep 10%-30% fees that platforms like Uber and DoorDash charge. With us, you're looking at a fixed fee of $4 for each delivery that's successfully made.
+              </p>
+            <p style={{ "color": "#525252", "border-top": "0.5px solid #919191", "padding-top": "2%" }}>Contact us for sales at admin@eatifydash.com</p>
+            <button className='button_demo' style={{ "margin-top": "5%" }} onClick={() => window.location.href = "/account"}>Set up your account right now</button>
           </div>
 
           <div class="grid-item" style={{ "text-align": "center", "padding": "5%" }}>
@@ -202,35 +310,7 @@ const Account = () => {
 
       </section>
 
-      {/* <section class="flex-item" id="pricing" style={{ "background-color": "#f2f2f2" }}>
 
-        <div class="flex-container">
-          <div class="flex-item-left">
-            <ul class="price" style={{ "border": "2px solid #cc9966" }}>
-              <li class="price-header">Free Starter</li>
-              <li >Custom QR Code Creation</li>
-              <li>Cloud Data Sync</li>
-              <li>Cloud Printer</li>
-              <li>Remote Engineer Support</li>
-              <li>(Basic Bank Rate)</li>
-              <li style={{ "border": "0px", "padding-bottom": "10%" }}><a href="#" class="button">Try Now</a></li>
-            </ul>
-          </div>
-
-          <div class="flex-item-right">
-            <ul class="price">
-              <li class="price-header">Professional</li>
-              <li>Must Enroll in Starter Plan</li>
-              <li>We Provide Payment Support</li>
-              <li>+ ML based Fraud Protection</li>
-              <li>+ 24/7/365 Customer Care</li>
-              <li>(Bank Rate + 1% + $0.20 per Order)</li>
-              <li style={{ "border": "0px", "padding-bottom": "10%" }}><a href="#" class="button">Try Now</a></li>
-            </ul>
-          </div>
-        </div>
-
-      </section> */}
 
       <section class="flex-item" id="more">
 
@@ -261,20 +341,18 @@ const Account = () => {
             <div class="speaker-info notranslate">
               <h3>Yiqun Xu</h3>
               <div>Co-founder @ New York</div>
-              <div>Lehigh University Alumni</div>
             </div>
           </div>
 
           <div class="grid-item">
             <div class="speaker-photo">
               <img style={{ "height": "150px", "width": "150px", "margin": "auto" }}
-                src={"https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/146e9294-65a3-4c23-a8cc-af2528728300/public"} />
+                src={"https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/5881e432-dcec-434b-bba3-5a6e7b971a00/public"} />
             </div>
 
             <div class="speaker-info notranslate">
               <h3>Yutao Li</h3>
               <div>Co-founder @ San Francisco </div>
-              <div>UC Davis Alumni</div>
             </div>
           </div>
 
@@ -286,7 +364,7 @@ const Account = () => {
 
             <div class="speaker-info notranslate">
               <h3>Yimei Wen</h3>
-              <div>Co-founder @ Boston </div>
+              <div>Active Contributor @ Boston </div>
               <div>Clemson University Ph.D.</div>
             </div>
           </div>
@@ -297,9 +375,8 @@ const Account = () => {
             </div>
 
             <div class="speaker-info notranslate">
-              <h3>Yuanlian Jiang</h3>
-              <div>Product Manager @ New York </div>
-              <div>Active Contributor</div>
+              <h3>Jessica Jiang</h3>
+              <div>Active Contributor @ New York </div>
             </div>
           </div>
           <div class="speaker">
@@ -311,8 +388,7 @@ const Account = () => {
 
             <div class="speaker-info notranslate">
               <h3>Winnie Mei</h3>
-              <div>Statistician @ Boston</div>
-              <div>Active Contributor</div>
+              <div>Active Contributor @ Boston</div>
             </div>
 
           </div>
@@ -323,9 +399,8 @@ const Account = () => {
 
       <footer class="flex_">
         <section class="flex_content_">
-          <a >Home</a>
-          <a >About us</a>
-          <a >Career</a>
+        <Link to="/">Home</Link>
+      <Link to="/career">Career</Link>
         </section>
         <section class="flex_content_ padding_1x" style={{ marginTop: "10px" }}>
           <p>© 2023 Eatifydash LLC || All rights reserved</p>

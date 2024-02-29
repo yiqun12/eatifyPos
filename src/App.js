@@ -43,6 +43,7 @@ import Food_testing from './pages/Food_testing'
 import Checklist from './pages/Checklist'
 import DemoFood from './pages/demoFood'
 import Refresh from './pages/Refresh'
+import Career from './pages/CareerPage'; // Your Career component
 
 // import the time change page for testing
 import ChangeTimeForm from "./pages/ChangeTimeForm"
@@ -179,6 +180,7 @@ function App() {
                 <Route exact path="/DemoFood" element={<DemoFood />} />
                 <Route exact path="/AdminFood" element={<Admin_food />} />
                 <Route exact path="/Refresh" element={<Refresh />} />
+                <Route path="/career" element={<Career/>} />
 
                 <Route path='*' exact={true} element={<Home />} />
                 <Route exact path="/" element={<Home />} />

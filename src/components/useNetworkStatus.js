@@ -1,21 +1,30 @@
 import { useState, useEffect } from 'react';
+import { onValue, ref, getDatabase } from 'firebase/database';
 
-const useNetworkStatus = () => {
+const useNetworkStatusWithFirebase = () => {
   const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetch('https://www.google.com/', {
-        mode: 'no-cors',
-      })
-        .then(() => !isOnline && setIsOnline(true))
-        .catch(() => isOnline && setIsOnline(false));
-    }, 500);
+    // Initialize Firebase Database and reference to the '.info/connected' path
+    const db = getDatabase();
+    const connectedRef = ref(db, '.info/connected');
 
-    return () => clearInterval(interval);
-  }, [isOnline]);
+    // Listen for changes in the connection state
+    const unsubscribe = onValue(connectedRef, (snapshot) => {
+      if (snapshot.val() === false) {
+        // Firebase reports that it is disconnected
+        setIsOnline(false);
+      } else {
+        // Firebase reports that it is connected or reconnects
+        setIsOnline(true);
+      }
+    });
+
+    // Cleanup the listener on component unmount
+    return () => unsubscribe();
+  }, []);
 
   return { isOnline };
 };
 
-export default useNetworkStatus;
+export default useNetworkStatusWithFirebase;

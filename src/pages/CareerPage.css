@@ -1,0 +1,65 @@
+.career-page {
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    padding: 20px;
+  }
+  
+  .hero-section {
+    background-color: rgb(242, 242, 242);
+    color: black;
+    padding: 40px;
+    text-align: center;
+  }
+  
+  .hero-section h1 {
+    margin: 0;
+    font-size: 2.5em;
+  }
+  
+  .hero-section p {
+    font-size: 1.2em;
+    margin-top: 10px;
+  }
+  
+  .open-positions {
+    margin-top: 40px;
+  }
+  
+  .positions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  .position {
+    border: 1px solid #ccc;
+    padding: 20px;
+    width: 300px;
+    text-align: left; /* Updated from center to left */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  .position h3 {
+    margin-top: 0;
+  }
+  
+  .position button {
+    background-color: #0077b6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 15px;
+    font-size: 1em;
+    display: block; /* Makes the button align to the left */
+    margin-left: auto; /* Aligns the button to the center, adjust as needed */
+    margin-right: auto; /* Aligns the button to the center, adjust as needed */
+  }
+  
+  .position button:hover {
+    background-color: #0096c7;
+  }
+  

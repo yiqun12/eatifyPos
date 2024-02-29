@@ -217,7 +217,6 @@ const Food = ({ store }) => {
 
   /**dorp food */
 
-
   const [width, setWidth] = useState(window.innerWidth - 64);
 
   useEffect(() => {
@@ -284,21 +283,30 @@ const Food = ({ store }) => {
     try {
       // Get a reference to the specific document with ID equal to store
       const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
-
+      console.log("syncData1")
       // Fetch the document
       const docSnapshot = await getDoc(docRef);
 
       if (docSnapshot.exists()) {
         // The document exists
-        sessionData = docSnapshot.data().key;
+        sessionData = docSnapshot.data()?.key;
         const { key, ...rest } = docSnapshot.data();
-        localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
-        localStorage.setItem("Old_TitleLogoNameContent", sessionData);
-        //alert("refreshed successfully")
+        JSON.parse(localStorage.getItem(store) || "[]")
+if (rest === undefined || rest === null) {
+  // If rest is undefined or null, do something else (e.g., set an empty array as the value)
+  localStorage.setItem("TitleLogoNameContent", JSON.stringify([]));
+} else {
+  // If rest is not undefined or null, proceed with the original operations
+  localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
+}
+if (sessionData === undefined || sessionData === null) {
+  // If rest is undefined or null, do something else (e.g., set an empty array as the value)
+  localStorage.setItem("Old_TitleLogoNameContent", JSON.stringify([]));
+} else {
+  // If rest is not undefined or null, proceed with the original operations
+  localStorage.setItem("Old_TitleLogoNameContent", sessionData);
+}
 
-        //setData(JSON.parse(sessionData)); // Update state
-        //setFoods(JSON.parse(sessionData))
-        //saveId(Math.random());
         setArr(JSON.parse(sessionData));
         setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
         setData(JSON.parse(sessionData)); // Update state
@@ -313,7 +321,7 @@ const Food = ({ store }) => {
     } catch (error) {
       console.error("Error fetching the document:", error);
     }
-
+console.log("syncData1")
   }
 
 

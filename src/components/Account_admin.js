@@ -2108,6 +2108,7 @@ const Account = () => {
                                   </a>
 
                                 </li>
+                                {isOnline?
                                 <li className={`nav-item border-b-0 p-0`}
                                   onClick={() => {
                                     setShowSection('store')
@@ -2127,7 +2128,7 @@ const Account = () => {
 
                                   </a>
 
-                                </li>
+                                </li>:null}
                               </React.Fragment>
                             }
 
@@ -2142,8 +2143,8 @@ const Account = () => {
 
 
                   ))}
-
-
+                  {isOnline ?
+<React.Fragment>
                   <button
                     className={`btn btn-sm btn-danger d-flex align-items-center mx-1 mt-1 mb-2`}
                     onClick={(e) => {
@@ -2158,6 +2159,8 @@ const Account = () => {
                       {"Sign Out"}
                     </div>
                   </button>
+                  </React.Fragment>:null
+                  }
 
                 </div>
               </nav> : <div></div>}
@@ -2191,13 +2194,16 @@ const Account = () => {
                             <span className="">
                               <i className="bi bi-exclamation-triangle"></i>
                             </span>
+                            {isOnline?
                             <span
-                              onClick={() => {
-                                logoutUser();
-                                removeFromLocalStorage();
-                              }}>
-                              {t("Sign Out")}
-                            </span>
+                            onClick={() => {
+                              logoutUser();
+                              removeFromLocalStorage();
+                            }}>
+                            {t("Sign Out")}
+                          </span>:null
+                            }
+
                           </a>
                         </div>
                       </div>
@@ -2357,6 +2363,7 @@ const Account = () => {
                             </a>
 
                           </li>
+                          {isOnline?
                           <li className={`nav-item p-0`}
                             onClick={() => {
                               setShowSection('menu')
@@ -2372,7 +2379,7 @@ const Account = () => {
                               </i>
                             </a>
 
-                          </li>
+                          </li>:null}
                           <li className={`nav-item p-0`}
                             onClick={() => {
                               setShowSection('store')

@@ -32,22 +32,19 @@ import Receipt from '../pages/Receipt'
 import OrderHasReceived from '../pages/OrderHasReceived'
 import cartImage from './shopcart.png';
 import ringBell from './ringBell.png';
+import useNetworkStatus from '../components/useNetworkStatus';
 
 const Navbar = () => {
+  const { isOnline } = useNetworkStatus();
 
 
   const googleTranslateElementInit = () => {
-    // Detect the browser's language
-    let userLang = navigator.language || navigator.userLanguage;
-    // Default to English if the browser language is not Chinese
-    let pageLang = userLang.startsWith('zh') ? 'zh-CN' : 'en';
-
     if (window.google && window.google.translate) {
       new window.google.translate.TranslateElement(
         {
-          pageLanguage: pageLang,
-          includedLanguages: "en,zh-CN", // Only include English and Chinese
-          autoDisplay: true
+          pageLanguage: "en",
+          includedLanguages: "en,zh-CN",
+          autoDisplay: false
         },
         "google_translate_element"
       );
@@ -55,6 +52,7 @@ const Navbar = () => {
       console.error('Google Translate not initialized correctly');
     }
   };
+
 
   useEffect(() => {
     // Check if the script is already loaded
@@ -601,6 +599,8 @@ const Navbar = () => {
         <div >
           {/* Your navbar content here */}
           <div className="col-span-4 pl-4 lg:ml-10 lg:mr-10" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
+            {isOnline?
+            <React.Fragment>
             <img
 
               onClick={event => {
@@ -635,6 +635,8 @@ const Navbar = () => {
             }} className='notranslate text-black font-bold'>
               Eatifydash
             </span>
+            </React.Fragment>
+            :null}
 
             <div className='flex ml-auto pr-4 '>
               <div className='mt-2' id="google_translate_element"></div>
@@ -669,25 +671,28 @@ const Navbar = () => {
 
 
               )}
-              {
-                !isKiosk && (
-                  !user_loading ? (
-                    <button
-                      className="ml-3"
-                      onClick={event => {
-                        // Determine the redirection URL based on the storeFromURL value
-                        const redirectUrl = storeFromURL ? `/account?store=${storeFromURL}` : '/account';
-                        window.location.href = redirectUrl;
-                      }}
-                      style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
-                    >
-                      <i className="bi bi-person"></i> {user ? "Account" : "Login"}
-                    </button>
-                  ) : (
-                    <div>Loading...</div> // Consider showing a loading indicator or message
-                  )
-                )
-              }
+{
+  !isKiosk && (
+    !user_loading ? (
+      isOnline ? (
+        <button
+          className="ml-3"
+          onClick={(event) => {
+            // Determine the redirection URL based on the storeFromURL value
+            const redirectUrl = storeFromURL ? `/account?store=${storeFromURL}` : '/account';
+            window.location.href = redirectUrl;
+          }}
+          style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
+        >
+          <i className="bi bi-person"></i> {user ? "Account" : "Login"}
+        </button>
+      ) : null
+    ) : (
+      <div>Loading...</div>
+    )
+  )
+}
+
 
 
             </div>
