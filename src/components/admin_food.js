@@ -683,7 +683,7 @@ console.log("syncData1")
                     onClick={() => {
                       ChangeCategoryNameSubmit();
                       // You can pass categoryName or use it in your ChangeCategoryName function
-
+                      setChangeCategoryName(false)
                     }}
                     className="btn d-inline-flex btn-sm btn-primary"
                   >

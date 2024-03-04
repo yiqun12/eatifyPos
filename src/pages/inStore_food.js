@@ -796,7 +796,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
       //alert('No custom variants to remove');
     }
   };
-  const [dynamicHeight, setDynamicHeight] = useState('55vh');
+  const [dynamicHeight, setDynamicHeight] = useState('80vh');
 
   useEffect(() => {
     // Function to calculate the dynamic height
@@ -804,7 +804,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
       if (scrollingWrapperRef.current) {
         const wrapperHeight = scrollingWrapperRef.current.offsetHeight; // Get the height of the scrolling wrapper
         const viewportHeight = window.innerHeight; // Get the viewport height
-        const dynamicHeightValue = `calc(55vh - ${wrapperHeight}px)`; // Calculate the dynamic height
+        const dynamicHeightValue = `calc(80vh - ${wrapperHeight}px)`; // Calculate the dynamic height
         setDynamicHeight(dynamicHeightValue); // Set the dynamic height
       }
     };
@@ -1071,7 +1071,9 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
               >
                 {!view ?
-                  <div>
+                  <div className=
+                  {`${isMobile ? '' : 'bg-gray-100 p-4 rounded-lg shadow-lg flex flex-wrap gap-1 justify-content: space-between;'}`}
+                   style={{  overflowX: 'auto' }}>
                     <button onClick={() => {
                       setFoods(data)
                       setSelectedFoodType(null);
@@ -1128,7 +1130,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
               {/* diplay food */}
               <AnimatePresence>
-                <div className='grid grid-cols-1 gap-3 pt-2 ' style={{
+                <div className='grid grid-cols-1 gap-3 pt-3 ' style={{
                   gridTemplateRows: `repeat(1, 1fr)`,
                   gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
                   overflowY: 'auto',

@@ -1258,7 +1258,7 @@ const Account = () => {
   useEffect(() => {
     const updateHeight = () => {
       const screenHeight = window.innerHeight;
-      const newHeight = `${screenHeight - 100}px`;
+      const newHeight = `${screenHeight - 40}px`;
       setDivHeight(newHeight);
     };
 
@@ -1388,18 +1388,42 @@ const Account = () => {
       });
     });
   }
-  // Create references for each iframe
+  const [iframeAllowed, setIframeAllowed] = useState(false);
   const iframeRef1 = useRef(null);
+  const broadcastChannel = new BroadcastChannel('iframe_presence_channel');
 
-  // Function to send a message to both iframes
+  // Function to send a message to the iframe
   const sendMessageToIframes = (type, data) => {
-    const message = { type: type, json: data };
+    const message = { type, json: data };
 
-    // Check if the iframe references are currently pointing to the iframe elements
-    if (iframeRef1.current) {
+    // Send message if the iframe is allowed and the reference points to the iframe element
+    if (iframeAllowed && iframeRef1.current) {
       iframeRef1.current.contentWindow.postMessage(message, 'http://localhost:3001');
     }
   };
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data === 'iframe_exists') {
+        // Another instance has an iframe, do not allow this instance to create one
+        setIframeAllowed(false);
+      }
+    };
+
+    broadcastChannel.addEventListener('message', handleMessage);
+    broadcastChannel.postMessage('does_iframe_exist');
+
+    const timeoutId = setTimeout(() => {
+      setIframeAllowed(true);
+      broadcastChannel.postMessage('iframe_exists');
+    }, 1); // Adjust timeout as necessary
+
+    return () => {
+      clearTimeout(timeoutId);
+      broadcastChannel.removeEventListener('message', handleMessage);
+      broadcastChannel.close();
+    };
+  }, []);
 
   useEffect(() => {
     // Ensure the user is defined
@@ -1648,14 +1672,65 @@ const Account = () => {
 
   return (
     <div>
+      {iframeAllowed ?
+        <iframe
+          ref={iframeRef1} // Correct reference used here
+          src="http://localhost:3000"
+          title="Localhost Iframe 1"
+          width="0"
+          height="0"        >
 
-      <iframe
-        ref={iframeRef1}
-        src="http://localhost:3001"
-        title="Localhost Iframe 1"
-        width="0"
-        height="0"
-      ></iframe>
+        </iframe>
+        :
+
+        <div >
+          {
+            storeID !== '' && (
+              <div style={{
+                backgroundColor: '#FFEB3B',
+                padding: '10px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}>
+                {
+                  (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) ? (
+                    <div style={{ maxWidth: '60%', fontSize: '16px', lineHeight: '1.5' }}>
+                      <i className="bi bi-exclamation-triangle-fill" style={{ marginRight: '5px' }}></i>
+                      由于已经打开新的管理页面，这个页面打印机驱动接口已被自动终止。
+                    </div>
+                  ) : (
+                    <div style={{ maxWidth: '60%', fontSize: '16px', lineHeight: '1.5' }}>
+                      <i className="bi bi-exclamation-triangle-fill" style={{ marginRight: '5px' }}></i>
+                      Due to the recent opening of new administrative pages, the printer driver interface on this page has been automatically terminated.
+                    </div>
+                  )
+                }
+                <button onClick={() => window.location.reload()} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#9E9E9E',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  padding: '10px 20px',
+                  borderRadius: '4px',
+                  border: 'none',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }}>
+                  <i className="bi bi-arrow-clockwise" style={{ marginRight: '5px' }}></i>
+                  {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? '重新加载打印机驱动接口。' : 'Click here to Refresh Driver'}
+                </button>
+              </div>
+            )
+          }
+
+        </div>
+
+      }
       <div>
         <style>
           {`
@@ -1927,9 +2002,9 @@ const Account = () => {
           {isVisible && (
             <div>
               {isPC ? <nav
-                className="navbar navbar-vertical show z-0 navbar-expand-lg px-0 py-3 navbar-light bg-white border-bottom border-bottom-lg-0 border-end-lg"
+                className="navbar navbar-vertical show z-0 navbar-expand-lg px-0 py-3 navbar-light bg-gray-50 border-bottom border-bottom-lg-0 "
                 id="navbarVertical"
-                style={{ minWidth: '180px', height: divHeight }}
+                style={{ minWidth: '250px', height: divHeight }}
               >
 
                 <div className="container-fluid" style={{ minHeight: "0px" }}>
@@ -1989,6 +2064,12 @@ const Account = () => {
                       </div>
                     </button> : null
                   }
+                  <ul className={`text-md bold nav nav-tabs overflow-x border-0 flex flex-col `}>
+                    <li className='pt-0 pb-0'>
+                      Select Store:
+                    </li>
+
+                  </ul>
 
                   {storelist?.map((data, index) => (
                     <div style={{ display: 'contents' }}>
@@ -2007,7 +2088,6 @@ const Account = () => {
                         }}
                       >
                         <div style={{ alignItems: 'center', justifyContent: 'center' }}>
-                          Store:
                           <span class="notranslate">
                             {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                               data.storeNameCHI : data.Name
@@ -2108,27 +2188,27 @@ const Account = () => {
                                   </a>
 
                                 </li>
-                                {isOnline?
-                                <li className={`nav-item border-b-0 p-0`}
-                                  onClick={() => {
-                                    setShowSection('store')
-                                    window.location.hash = `settings?store=${data.id}`;
-                                  }}
-                                  style={{ width: "80%", margin: "auto", border: "0px" }}
-                                >
-                                  <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `store` ? 'active' : ''}`} style={{ marginRight: "0", border: "0px" }}>
-                                    <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
-                                        <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
-                                        <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
-                                      </svg>
-                                    </i>
+                                {isOnline ?
+                                  <li className={`nav-item border-b-0 p-0`}
+                                    onClick={() => {
+                                      setShowSection('store')
+                                      window.location.hash = `settings?store=${data.id}`;
+                                    }}
+                                    style={{ width: "80%", margin: "auto", border: "0px" }}
+                                  >
+                                    <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `store` ? 'active' : ''}`} style={{ marginRight: "0", border: "0px" }}>
+                                      <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                                          <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
+                                          <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
+                                        </svg>
+                                      </i>
 
-                                    <span style={{ marginLeft: "5%" }}>Store Settings</span>
+                                      <span style={{ marginLeft: "5%" }}>Store Settings</span>
 
-                                  </a>
+                                    </a>
 
-                                </li>:null}
+                                  </li> : null}
                               </React.Fragment>
                             }
 
@@ -2143,24 +2223,6 @@ const Account = () => {
 
 
                   ))}
-                  {isOnline ?
-<React.Fragment>
-                  <button
-                    className={`btn btn-sm btn-danger d-flex align-items-center mx-1 mt-1 mb-2`}
-                    onClick={(e) => {
-                      logoutUser();
-                      removeFromLocalStorage();
-                    }
-                    }
-                  >
-                    <div >
-                      <i className="bi bi-exclamation-triangle"></i>
-                      &#160;
-                      {"Sign Out"}
-                    </div>
-                  </button>
-                  </React.Fragment>:null
-                  }
 
                 </div>
               </nav> : <div></div>}
@@ -2194,15 +2256,13 @@ const Account = () => {
                             <span className="">
                               <i className="bi bi-exclamation-triangle"></i>
                             </span>
-                            {isOnline?
                             <span
-                            onClick={() => {
-                              logoutUser();
-                              removeFromLocalStorage();
-                            }}>
-                            {t("Sign Out")}
-                          </span>:null
-                            }
+                              onClick={() => {
+                                logoutUser();
+                                removeFromLocalStorage();
+                              }}>
+                              {t("Sign Out")}
+                            </span>
 
                           </a>
                         </div>
@@ -2363,23 +2423,23 @@ const Account = () => {
                             </a>
 
                           </li>
-                          {isOnline?
-                          <li className={`nav-item p-0`}
-                            onClick={() => {
-                              setShowSection('menu')
-                              window.location.hash = `book?store=${storeID}`;
-                            }}
+                          {isOnline ?
+                            <li className={`nav-item p-0`}
+                              onClick={() => {
+                                setShowSection('menu')
+                                window.location.hash = `book?store=${storeID}`;
+                              }}
 
-                          >
-                            <a className={`pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`}>
-                              <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{ fill: isPC ? 'white' : 'currentColor' }} class="bi bi-diagram-3" viewBox="0 0 16 16">
-                                  <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
-                                </svg>
-                              </i>
-                            </a>
+                            >
+                              <a className={`pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`}>
+                                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{ fill: isPC ? 'white' : 'currentColor' }} class="bi bi-diagram-3" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
+                                  </svg>
+                                </i>
+                              </a>
 
-                          </li>:null}
+                            </li> : null}
                           <li className={`nav-item p-0`}
                             onClick={() => {
                               setShowSection('store')
@@ -2422,26 +2482,49 @@ const Account = () => {
                     {activeTab === '#profile' || activeTab === '' ? (
 
                       <div className="tab-pane active mt-4" id="profile">
-
-                        <a class="nav-link d-flex align-items-center p-0">
-
+                        <div className='flex justify-between'>
                           <div>
-                            <span class="d-block text-md font-semibold">
-                              <i class="bi bi-person"></i>
-                              {" "}
 
-                              {user ? user.displayName : ""}
-                            </span>
-                            <span class="d-block text-sm text-muted font-regular">
-                              <i class="bi bi-envelope"></i>
-                              {" "}
+                            <a class="nav-link d-flex align-items-center p-0">
 
-                              {(user) ? user.email : ""}
+                              <div>
+                                <span class="d-block text-md font-semibold">
+                                  <i class="bi bi-person"></i>
+                                  {" "}
 
-                            </span>
+                                  {user ? user.displayName : ""}
+                                </span>
+                                <span class="d-block text-sm text-muted font-regular">
+                                  <i class="bi bi-envelope"></i>
+                                  {" "}
+
+                                  {(user) ? user.email : ""}
+
+                                </span>
+                              </div>
+
+
+                            </a>
                           </div>
+                          {isPC ?
+                            <div>
 
-                        </a>
+                              <a className="btn d-inline-flex btn-sm btn-danger mx-1">
+                                <span className="">
+                                  <i className="bi bi-exclamation-triangle"></i>
+                                </span>
+                                <span
+                                  onClick={() => {
+                                    logoutUser();
+                                    removeFromLocalStorage();
+                                  }}>
+                                  {t("Sign Out")}
+                                </span>
+
+                              </a>
+                            </div> : null}
+                        </div>
+
                         <h5>{t("Past Spending History:")}</h5>
                         <PayFullhistory />
                       </div>

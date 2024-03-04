@@ -595,48 +595,48 @@ const Navbar = () => {
         </div>
       </div>
       {/**navbar */}
-      <div className={`pb-2 sticky top-0 z-20 bg-white ${!isMobile ? "mx-auto justify-between" : "justify-between"}`}>
+      <div className={` pb-2 sticky top-0 z-20 ${!isMobile ? "mx-auto justify-between" : "justify-between"}`}>
         <div >
           {/* Your navbar content here */}
           <div className="col-span-4 pl-4 lg:ml-10 lg:mr-10" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
-            {isOnline?
-            <React.Fragment>
-            <img
+            {isOnline ?
+              <React.Fragment>
+                <img
 
-              onClick={event => {
-                if (storeFromURL !== '' && storeFromURL !== null) {
-                  if (isKiosk) {
-                    window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
+                  onClick={event => {
+                    if (storeFromURL !== '' && storeFromURL !== null) {
+                      if (isKiosk) {
+                        window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
+                      } else {
+                        window.location.href = `/store?store=${storeFromURL}`;
+                      }
+
+                    } else {
+                      window.location.href = '/';
+                    }
+                  }}
+                  src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/a6dbaa1a-5a08-4125-adec-83f41f9a6300/public"
+                  style={{
+                    maxHeight: '30px',
+                    maxWidth: '30px',
+                    objectFit: 'cover',   // this makes the image co0ver the entire dimensions
+                  }} />
+                <span onClick={event => {
+                  if (storeFromURL !== '' && storeFromURL !== null) {
+                    if (isKiosk) {
+                      window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
+                    } else {
+                      window.location.href = `/store?store=${storeFromURL}`;
+                    }
+
                   } else {
-                    window.location.href = `/store?store=${storeFromURL}`;
+                    window.location.href = '/';
                   }
-
-                } else {
-                  window.location.href = '/';
-                }
-              }}
-              src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/a6dbaa1a-5a08-4125-adec-83f41f9a6300/public"
-              style={{
-                maxHeight: '30px',
-                maxWidth: '30px',
-                objectFit: 'cover',   // this makes the image co0ver the entire dimensions
-              }} />
-            <span onClick={event => {
-              if (storeFromURL !== '' && storeFromURL !== null) {
-                if (isKiosk) {
-                  window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
-                } else {
-                  window.location.href = `/store?store=${storeFromURL}`;
-                }
-
-              } else {
-                window.location.href = '/';
-              }
-            }} className='notranslate text-black font-bold'>
-              Eatifydash
-            </span>
-            </React.Fragment>
-            :null}
+                }} className='notranslate text-black font-bold'>
+                  Eatifydash
+                </span>
+              </React.Fragment>
+              : null}
 
             <div className='flex ml-auto pr-4 '>
               <div className='mt-2' id="google_translate_element"></div>
@@ -671,27 +671,27 @@ const Navbar = () => {
 
 
               )}
-{
-  !isKiosk && (
-    !user_loading ? (
-      isOnline ? (
-        <button
-          className="ml-3"
-          onClick={(event) => {
-            // Determine the redirection URL based on the storeFromURL value
-            const redirectUrl = storeFromURL ? `/account?store=${storeFromURL}` : '/account';
-            window.location.href = redirectUrl;
-          }}
-          style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
-        >
-          <i className="bi bi-person"></i> {user ? "Account" : "Login"}
-        </button>
-      ) : null
-    ) : (
-      <div>Loading...</div>
-    )
-  )
-}
+              {
+                !isKiosk && (
+                  !user_loading ? (
+                    isOnline ? (
+                      <button
+                        className="ml-3"
+                        onClick={(event) => {
+                          // Determine the redirection URL based on the storeFromURL value
+                          const redirectUrl = storeFromURL ? `/account?store=${storeFromURL}` : '/account';
+                          window.location.href = redirectUrl;
+                        }}
+                        style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
+                      >
+                        <i className="bi bi-person"></i> {user ? "Account" : "Login"}
+                      </button>
+                    ) : null
+                  ) : (
+                    <div>Loading...</div>
+                  )
+                )
+              }
 
 
 
