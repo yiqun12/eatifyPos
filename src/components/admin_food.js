@@ -160,7 +160,6 @@ const Food = ({ store }) => {
     console.log(selectedOptions)
   };
 
-  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
   console.log(store)
   const [data, setData] = useState(JSON.parse(localStorage.getItem(store) || "[]"));
 
@@ -292,20 +291,20 @@ const Food = ({ store }) => {
         sessionData = docSnapshot.data()?.key;
         const { key, ...rest } = docSnapshot.data();
         JSON.parse(localStorage.getItem(store) || "[]")
-if (rest === undefined || rest === null) {
-  // If rest is undefined or null, do something else (e.g., set an empty array as the value)
-  localStorage.setItem("TitleLogoNameContent", JSON.stringify([]));
-} else {
-  // If rest is not undefined or null, proceed with the original operations
-  localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
-}
-if (sessionData === undefined || sessionData === null) {
-  // If rest is undefined or null, do something else (e.g., set an empty array as the value)
-  localStorage.setItem("Old_TitleLogoNameContent", JSON.stringify([]));
-} else {
-  // If rest is not undefined or null, proceed with the original operations
-  localStorage.setItem("Old_TitleLogoNameContent", sessionData);
-}
+        if (rest === undefined || rest === null) {
+          // If rest is undefined or null, do something else (e.g., set an empty array as the value)
+          localStorage.setItem("TitleLogoNameContent", JSON.stringify([]));
+        } else {
+          // If rest is not undefined or null, proceed with the original operations
+          localStorage.setItem("TitleLogoNameContent", JSON.stringify(rest));
+        }
+        if (sessionData === undefined || sessionData === null) {
+          // If rest is undefined or null, do something else (e.g., set an empty array as the value)
+          localStorage.setItem("Old_TitleLogoNameContent", JSON.stringify([]));
+        } else {
+          // If rest is not undefined or null, proceed with the original operations
+          localStorage.setItem("Old_TitleLogoNameContent", sessionData);
+        }
 
         setArr(JSON.parse(sessionData));
         setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
@@ -321,7 +320,7 @@ if (sessionData === undefined || sessionData === null) {
     } catch (error) {
       console.error("Error fetching the document:", error);
     }
-console.log("syncData1")
+    console.log("syncData1")
   }
 
 
@@ -408,7 +407,7 @@ console.log("syncData1")
       name: newItem.name || "Blank",
       CHI: newItem.CHI || "空白的",
       subtotal: newItem.subtotal || "1",
-      category: newItem.category || selectedFoodType === "" ? "classic" : selectedFoodType,
+      category: newItem.category || selectedFoodType === "" ? "Temporary Use" : selectedFoodType,
       categoryCHI: newItem.categoryCHI || "类别",
       availability: newItem.availability || ['Morning', 'Afternoon', 'Evening'],
       attributes: newItem.attributes || [],
@@ -558,6 +557,11 @@ console.log("syncData1")
     });
     //console.log(updatedData)
     reload(updatedData)
+    setSelectedFoodType(categoryName)
+    setSelectChangeCategoryName('');
+    setCategoryName(''); // Initialize with an empty string
+
+
   };
 
   return (
@@ -642,12 +646,16 @@ console.log("syncData1")
         {ChangeCategoryName && (
           <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
             <div className="relative w-full max-w-2xl max-h-full mt-20">
-              <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
-                <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-                  <h3 className="text-l font-semibold text-gray-900 dark:text-white">
+              <div className="relative bg-white rounded-lg border-black shadow ">
+                <div className="flex items-start justify-between p-4 border-b rounded-t ">
+                  <h3 className="text-l font-semibold text-gray-900">
                     {t("Please choose the food category you want to rename:")}
                   </h3>
-                  <button onClick={() => { setChangeCategoryName(false) }} style={{ fontSize: '24px', lineHeight: '1', color: 'black', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', position: 'absolute', top: '15px', right: '20px' }}>
+                  <button onClick={() => {
+                    setChangeCategoryName(false)
+                    setSelectChangeCategoryName('');
+                    setCategoryName(''); // Initialize with an empty string
+                  }} style={{ fontSize: '24px', lineHeight: '1', color: 'black', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', position: 'absolute', top: '15px', right: '20px' }}>
                     &times;
                   </button>
                 </div>
@@ -667,7 +675,7 @@ console.log("syncData1")
                     </button>
                   ))}
                 </div>
-                <h3 className=" p-4 text-l font-semibold text-gray-900 dark:text-white">
+                <h3 className=" p-4 text-l font-semibold text-gray-900">
                   {t("Please provide the new name for the food category:")}
                 </h3>
                 <div>
@@ -675,7 +683,7 @@ console.log("syncData1")
                     className="m-4 shadow appearance-none border rounded w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     id="foodCategory"
                     type="text"
-                    placeholder="Enter the new category name"
+                    placeholder={SelectChangeCategoryName === "" ? "Enter the new category name" : SelectChangeCategoryName}
                     value={categoryName}
                     onChange={(e) => setCategoryName(e.target.value)}
                   />
@@ -857,7 +865,7 @@ console.log("syncData1")
                           className='text-md font-semibold'
                           style={{ width: "50%" }}
                           type="text" name="category"
-                          placeholder={selectedFoodType === "" ? "classic" : selectedFoodType}
+                          placeholder={selectedFoodType === "" ? "Temporary Use" : selectedFoodType}
                           value={selectedFoodType === "" ? newItem.category : selectedFoodType}
                           onChange={handleInputChange}
                           translate="no" />
@@ -1320,9 +1328,9 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
       {isCategoryModalOpen && (
         <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
           <div className="relative w-full max-w-2xl max-h-full mt-20">
-            <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
-              <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <div className="relative bg-white rounded-lg border-black shadow">
+              <div className="flex items-start justify-between p-4 border-b rounded-t">
+                <h3 className="text-xl font-semibold text-gray-900 ">
                   {t("Select the category that you would like to change into")}
                 </h3>
                 <button onClick={() => { setCategoryModalOpen(false) }} style={{ fontSize: '24px', lineHeight: '1', color: 'black', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', position: 'absolute', top: '15px', right: '20px' }}>
@@ -1355,15 +1363,15 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
       {isModalGeneratePicOpen && (
         <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
           <div className="relative w-full max-w-2xl max-h-full mt-20">
-            <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
-              <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <div className="relative bg-white rounded-lg border-black shadow">
+              <div className="flex items-start justify-between p-4 border-b rounded-t ">
+                <h3 className="text-xl font-semibold text-gray-900 ">
                   {t("We recommend these pictures...")}
                 </h3>
                 <button
                   onClick={handleModalGeneratePicClose}
                   type="button"
-                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center ">
                   <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                   </svg>

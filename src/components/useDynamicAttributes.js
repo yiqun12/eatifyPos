@@ -33,9 +33,12 @@ const useDynamicAttributes = () => {
             return;
         }
 
-        const enteredPrice = currentVariation.price.trim();
+        let enteredPrice = currentVariation.price.trim();
         const validFormat = /^[-]?\d+(\.\d{1,2})?$/.test(enteredPrice);
-        if (!validFormat) {
+        if(enteredPrice === ""){
+            enteredPrice = 0;
+        }
+        else if (!validFormat) {
             setPriceFormatError('Invalid price format. Use: 1.2, 1.23, -2.3, etc.');
             return;
         }

@@ -35,7 +35,6 @@ import { db } from '../firebase/index';
 import cartImage from './shopcart.png';
 import "./inStore_shop_cart.css";
 import PaymentRegular from "../pages/PaymentRegular";
-// import PaymentKiosk from "../pages/PaymentKiosk";
 
 import Dnd_Test from '../pages/dnd_test';
 import { isMobile } from 'react-device-detect';
@@ -558,7 +557,6 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setDiscount("")
       setTips("")
 
-      //localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -670,7 +668,6 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setTips("")
       setResult(null)
 
-      //localStorage.setItem(store + "-" + selectedTable + "-isSent", "[]")
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -738,7 +735,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     if (value < 0) {
       value = 0;
     }
-    setDiscount(value);
+    setDiscount(value.toString());
   };
 
   const handleDiscountPercentage = (percentage) => {
@@ -750,51 +747,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     setSelectedDiscountPercentage(percentage);
   }
 
-  const handleCustomDiscountPercentageChange = (e) => {
-    let value = e.target.value;
-    if (value < 0) {
-      value = 0;
-    }
-    setCustomDiscountPercentage(value);
-    const calculatedDiscount = totalPrice * (Number(value) / 100);
-    setDiscount(calculatedDiscount.toFixed(2));
-    setSelectedDiscountPercentage(null);
-  }
-
-
   const [isMyModalVisible, setMyModalVisible] = useState(false);
   const [received, setReceived] = useState(false)
   const [isPaymentClick, setIsPaymentClick] = useState(false)
-
-  const myStyles = {
-    overlayStyle: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: isMyModalVisible ? 'flex' : 'none',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    modalStyle: {
-      backgroundColor: '#fff',
-      padding: '20px',
-      borderRadius: '4px',
-      width: '80%',
-      position: 'relative',
-    },
-    closeBtnStyle: {
-      position: 'absolute',
-      right: '10px',
-      top: '10px',
-      background: 'none',
-      border: 'none',
-      fontSize: '24px',
-      cursor: 'pointer',
-    }
-  };
 
 
   const [isUniqueModalOpen, setUniqueModalOpen] = useState(false);
@@ -1008,6 +963,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                       class="btn d-inline-flex btn-sm btn-outline-dark mx-1">
                       <span>Revise</span>
                     </a>
+                    
                     {/* the add minus box set up */}
                     <div style={{ display: "flex" }}>
 
@@ -1164,7 +1120,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <span className='notranslate'>{fanyi("Split Payment")}</span>
             </a>
             <a
-              onClick={() => { SendToKitchen();MarkAsUnPaid();  }}
+              onClick={() => { SendToKitchen(); MarkAsUnPaid(); }}
               className="mt-3 btn btn-sm btn-outline-danger mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -1494,21 +1450,23 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                     </div>
                     <input
                       type="number"
-                      min="0"  // Add this line
-                      placeholder="Enter serivce fee by amount"
+                      placeholder="Enter service fee by amount"
                       value={tips}
-                      className="form-control tips-no-spinners"  // Added the 'no-spinners' class
+                      className="form-control tips-no-spinners"  // Presuming the 'tips-no-spinners' class hides the default spinner
                       onChange={(e) => {
-                        let value = e.target.value;
-                        if (value < 0) {
-                          value = 0;
+                        let value = parseFloat(e.target.value);  // Convert the input value to a float
+                        if (isNaN(value) || value < 0) {
+                          value = 0;  // Ensure the value is non-negative
+                        } else {
+                          value = Math.max(0, value);  // Enforce the value is at least 0
                         }
-                        setTips(value);
+                        setTips(value.toString());  // Update the state with the validated, non-negative float as a string
                         setSelectedTipPercentage(null);
                       }}
                       onFocus={() => setSelectedTipPercentage(null)}
                       translate="no"
                     />
+
                   </div>
                   <div className="modal-footer">
                     <button type="button" className="btn btn-secondary" onClick={() => handleCancelTip()}>Cancel</button>
@@ -1541,22 +1499,23 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         25%
                       </button>
                     </div>
+
                     <input
                       type="number"
-                      min="0"
                       placeholder="Enter discount amount"
                       value={discount}
-                      className="form-control discounts-no-spinners"
+                      className="form-control discounts-no-spinners"  // Assuming this class is used to hide the spinner controls
                       translate="no"
                       onChange={(e) => {
-                        let value = parseFloat(e.target.value);
-                        if (value < 0 || isNaN(value)) {
-                          value = 0;
+                        let value = parseFloat(e.target.value);  // Parse the input value as a float to allow for decimals
+                        if (isNaN(value) || value < 0) {
+                          value = 0;  // If the parsed value is not a number or negative, reset it to 0
                         }
-                        applyDiscount(value);
+                        applyDiscount(value);  // Use the validated, non-negative float
                         setSelectedDiscountPercentage(null);
                       }}
                     />
+
                   </div>
                   <div className="modal-footer">
                     <button type="button" className="btn btn-secondary" onClick={handleCancelDiscount}>Cancel</button>

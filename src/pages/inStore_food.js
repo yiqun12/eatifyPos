@@ -15,7 +15,6 @@ import { db } from '../firebase/index';
 import { doc, getDoc } from "firebase/firestore";
 import { useUserContext } from "../context/userContext";
 import { setDoc } from "firebase/firestore";
-//setModalVisibility
 import { v4 as uuidv4 } from 'uuid';
 import pinyin from "pinyin";
 import LazyLoad from 'react-lazy-load';
@@ -45,7 +44,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
       const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
       await setDoc(docRef, docData);
-      //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(product))))
       //localStorage.setItem(table_name, product)
 
     } catch (error) {
@@ -136,7 +134,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
       product.attributeSelected = updatedSelectedAttributes
       product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
-      //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products))
       SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
     }
 
@@ -179,9 +176,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
   };
 
 
-  //const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
-  //console.log(store)
-
   const [loading, setLoading] = useState(true);
   const params = new URLSearchParams(window.location.search);
 
@@ -193,12 +187,9 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
   const [storeInfo, setStoreInfo] = useState({});
   const [foodTypes, setFoodTypes] = useState([]);
   const [foodTypesCHI, setFoodTypesCHI] = useState([]);
-  //const [storeOpenTime, setStoreOpenTime] = useState( );
-  const localStorageId = sessionStorage.getItem('TitleLogoNameContent');
   const formatPriceDisplay = (price) => {
     return price > 0 ? `+$${price.toFixed(2)}` : `-$${Math.abs(price).toFixed(2)}`;
   };
-  const [storeOpenTime, setStoreOpenTime] = useState(sessionStorage.getItem('TitleLogoNameContent') !== null ? JSON.parse(JSON.parse(sessionStorage.getItem('TitleLogoNameContent')).Open_time) : { "0": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "1": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "2": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "3": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "4": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "5": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "6": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" }, "7": { "timeRanges": [{ "openTime": "xxxx", "closeTime": "2359" }], "timezone": "ET" } });
 
   const fetchPost = (name) => {
     const docRef = doc(db, "TitleLogoNameContent", name);
@@ -214,35 +205,43 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
           // Save the fetched data to sessionStorage
           sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(docData));
-          setStoreOpenTime(JSON.parse(docData.Open_time));
           // Assuming you want to store the key from the fetched data as "Food_arrays"
-          sessionStorage.setItem("Food_arrays", docData.key);
+          localStorage.setItem("Food_arrays", docData.key);
           setData(JSON.parse(docData.key));
           setFoods(JSON.parse(docData.key));
-          setStoreInfo(docData);
           setFoodTypes([...new Set(JSON.parse(docData.key).map(item => item.category))]);
           setFoodTypesCHI([...new Set(JSON.parse(docData.key).map(item => item.categoryCHI))]);
           console.log(JSON.parse(docData.key));
           console.log([...new Set(JSON.parse(docData.key).map(item => item.category))]);
 
-          // Check if the stored item is empty or non-existent, and handle it
-          if (!sessionStorage.getItem("Food_arrays") || sessionStorage.getItem("Food_arrays") === "") {
-            sessionStorage.setItem("Food_arrays", "[]");
-          }
+
         } else {
-          sessionStorage.setItem("Food_arrays", "[]");
-          setData([]);
-          setFoods([]);
+          if (!localStorage.getItem("Food_arrays") || localStorage.getItem("Food_arrays") === "") {
+            localStorage.setItem("Food_arrays", "[]");
+            setFoodTypes([...new Set([].map(item => item.category))]);
+            setFoodTypesCHI([...new Set([].map(item => item.categoryCHI))]);
+            setData([]);
+            setFoods([]);
+          } else {
+            setFoodTypes([...new Set(JSON.parse(localStorage.getItem("Food_arrays")).map(item => item.category))]);
+            setFoodTypesCHI([...new Set(JSON.parse(localStorage.getItem("Food_arrays")).map(item => item.categoryCHI))]);
+            setData(JSON.parse(localStorage.getItem("Food_arrays")));
+            setFoods(JSON.parse(localStorage.getItem("Food_arrays")));
+          }
           console.log("No document found with the given name.");
         }
       });
 
       return unsubscribe; // Returns the unsubscribe function to stop listening for updates
     } catch (error) {
-      sessionStorage.setItem("Food_arrays", "[]");
-      setData([]);
-      setFoods([]);
-
+      if (!localStorage.getItem("Food_arrays") || localStorage.getItem("Food_arrays") === "") {
+        localStorage.setItem("Food_arrays", "[]");
+        setData([]);
+        setFoods([]);
+      } else {
+        setData(JSON.parse(localStorage.getItem("Food_arrays")));
+        setFoods(JSON.parse(localStorage.getItem("Food_arrays")));
+      }
       console.error("Error fetching the document:", error);
     }
   }
@@ -382,12 +381,10 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     // Check if the array exists in local storage
     if (localStorage.getItem(store + "-" + selectedTable) === null) {
       // If it doesn't exist, set the value to an empty array
-      //localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
       SetTableInfo(store + "-" + selectedTable, JSON.stringify([]))
     }
     if (!localStorage.getItem(store + "-" + selectedTable)) {
       // If it doesn't exist, set the value to an empty array
-      //localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
       SetTableInfo(store + "-" + selectedTable, JSON.stringify([]))
     }
     // Retrieve the array from local storage
@@ -423,7 +420,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     //product.itemTotalPrice= Math.round(100 *((parseFloat(totalPrice)+parseFloat(product.subtotal))*parseFloat(product.quantity))/ 100)
     console.log(product)
     // Update the array in local storage
-    //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
     //SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
     //  handleAttributeSelect("Customized Option", "外卖TakeOut", id, count, {}, false)
     //8   console.log(selectedFoodItem)
@@ -453,7 +449,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
         if (isDelete === 0) {//0 means false
           console.log("delete now")
           products.splice(productIndex, 1);
-          //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
           SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
           saveId(Math.random());
           setModalVisibility(false);
@@ -465,7 +460,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
         if (products[productIndex].quantity <= 0) {
           console.log("delete now")
           products.splice(productIndex, 1);
-          //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
           SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
           saveId(Math.random());
           setModalVisibility(false);
@@ -478,7 +472,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
         console.log(product)
         product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
         // Save the updated array in local storage
-        //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products));
         SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
       }
 
@@ -619,7 +612,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     }
     return result;
   }
-  const [isOpen, setIsOpen] = useState(false);
   const [isModalVisible, setModalVisibility] = useState(false);
   const [OpenChangeAttributeTrigger, setOpenChangeAttributeTrigger] = useState(false);
 
@@ -648,23 +640,16 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     setTotalPrice(0);
     const attributeSelected = item?.attributeSelected ? item.attributeSelected : {}
     setSelectedAttributes(attributeSelected)
-    addSpecialFood(item.id, item.name, item.subtotal, item.image, attributeSelected, randomNum, item.CHI, null, item.availability, item.attributesArr, item.quantity)
+    //addSpecialFood(item.id, item.name, item.subtotal, item.image, attributeSelected, randomNum, item.CHI, null, item.availability, item.attributesArr, item.quantity)
 
     setModalVisibility(true);
     saveId(Math.random());
-    //const [selectedAttributes, setSelectedAttributes] = useState({});
-    //const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
-
-    // Add a CSS class to disable body scroll
-    // document.body.style.overflow = 'hidden';
-    // document.documentElement.style.overflow = 'hidden';
   }
 
   // Function to hide the modal
   const hideModal = () => {
     setModalVisibility(false);
     handleRemoveAllCustomVariants();
-    //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
     SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
     saveId(Math.random)
 
@@ -697,21 +682,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     return Object.values(groupedItems).reverse();
   }
 
-  useEffect(() => {
-    // Function to update the store status
-    function updateStoreStatus() {
-      setIsOpen(isWithinTimeRange(storeOpenTime));
-    }
 
-    // Call the updateStoreStatus function initially to set the store status
-    updateStoreStatus();
-
-    // Update the store status every minute (you can adjust the interval if needed)
-    const intervalId = setInterval(updateStoreStatus, 60000);
-
-    // Clean up the interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
   const [customVariant, setCustomVariant] = useState({ name: '外卖TakeOut', price: '0' });
 
   const handleAddCustomVariant = (name, priceString, count, id) => {
@@ -796,7 +767,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
       //alert('No custom variants to remove');
     }
   };
-  const [dynamicHeight, setDynamicHeight] = useState('80vh');
+  const [dynamicHeight, setDynamicHeight] = useState('60vh');
 
   useEffect(() => {
     // Function to calculate the dynamic height
@@ -804,7 +775,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
       if (scrollingWrapperRef.current) {
         const wrapperHeight = scrollingWrapperRef.current.offsetHeight; // Get the height of the scrolling wrapper
         const viewportHeight = window.innerHeight; // Get the viewport height
-        const dynamicHeightValue = `calc(80vh - ${wrapperHeight}px)`; // Calculate the dynamic height
+        const dynamicHeightValue = `calc(60vh - ${wrapperHeight}px)`; // Calculate the dynamic height
         setDynamicHeight(dynamicHeightValue); // Set the dynamic height
       }
     };
@@ -832,7 +803,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
           <div id={count} className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
             <div className="relative w-full max-w-2xl max-h-full ">
-              <div className="relative bg-white rounded-lg border-black shadow dark:bg-gray-700">
+              <div className="relative bg-white rounded-lg border-black shadow">
 
                 <div className='p-4 pt-3'>
                   <div className='flex justify-between'>
@@ -1072,8 +1043,8 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
               >
                 {!view ?
                   <div className=
-                  {`${isMobile ? '' : 'bg-gray-100 p-4 rounded-lg shadow-lg flex flex-wrap gap-1 justify-content: space-between;'}`}
-                   style={{  overflowX: 'auto' }}>
+                    {`${isMobile ? '' : 'bg-gray-100 p-4 rounded-lg shadow-lg flex flex-wrap gap-1 justify-content: space-between;'}`}
+                    style={{ overflowX: 'auto' }}>
                     <button onClick={() => {
                       setFoods(data)
                       setSelectedFoodType(null);
@@ -1156,7 +1127,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                             setSelectedAttributes({})
                             setTotalPrice(0);
                             addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item, item.availability, item.attributesArr)
-                            //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
                             //console.log("helllllllllllllllllllllllllllllllllllllo")
                             //console.log(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable))))
                             //SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))

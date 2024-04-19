@@ -1,42 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { db } from '../firebase/index';
-import QRCode from 'qrcode.react'; // import QRCode component
+import React, { useState } from 'react';
+import axios from 'axios';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/functions';
 
 function App() {
-  const [guestLinks, setGuestLinks] = useState([]);
 
-  useEffect(() => {
-    // Define a query to get only documents where "isUsed" is false
-    const q = query(collection(db, "guestLink"), where("isUsed", "==", false));
+  const handleTextSubmit = async (text) => {
+    const synthesizeSpeech = firebase.functions().httpsCallable('synthesizeSpeech');
+    let languageCode = 'en-US'
+    try {
+      const result = await synthesizeSpeech({ text,languageCode });
+      const audioContentBase64 = result.data.audioContent;
+      const audioBlob = new Blob([Uint8Array.from(atob(audioContentBase64), c => c.charCodeAt(0))], { type: 'audio/mp3' });
+      const url = URL.createObjectURL(audioBlob);
+      const sound = new Audio(url);
+      sound.play();
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
-    // Listen for real time updates
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      // Map the data and id
-      const newData = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-
-      // Set the state
-      setGuestLinks(newData);
-    });
-
-    // Cleanup function to stop listening for updates when the component is unmounted
-    return () => unsubscribe();
-  }, []); // The empty array ensures that this runs once on component mount and not on every render
-
-  // You can now use guestLinks state variable in your component
-  return (
-    <div className="App">
-      {/* Example usage: */}
-      {guestLinks.map((link) => (
-        <div key={link.id} style={{ textAlign: 'center' }}>
-          <p>{"http://localhost:3000/guest/" + link.id}</p>
-          <div style={{ display: 'inline-block' }}>
-            <QRCode value={"http://localhost:3000/guest/" + link.id} size={256} />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+    return (
+      <button onClick={() => handleTextSubmit("New Order has been sent to kitchen")}>Convert to Speech</button>
+    );
 }
 
 export default App;

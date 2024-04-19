@@ -38,6 +38,7 @@ const Navbar = () => {
   const { isOnline } = useNetworkStatus();
 
 
+
   const googleTranslateElementInit = () => {
     if (window.google && window.google.translate) {
       new window.google.translate.TranslateElement(
@@ -75,7 +76,6 @@ const Navbar = () => {
   const params = new URLSearchParams(window.location.search);
 
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
-  //const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -219,7 +219,20 @@ const Navbar = () => {
   const btnRef2 = useRef(null);
   const spanRef2 = useRef(null);
   const queryParams = new URLSearchParams(location.search);
+  const tableValue = params.get('table') ? params.get('table') : "";
 
+  if (tableValue === "") {
+    if (sessionStorage.getItem('table')) {//存在过
+      sessionStorage.setItem('table', tableValue)
+      sessionStorage.setItem('isDinein', true)
+    } else {//不存在
+      sessionStorage.setItem('table', tableValue)
+      sessionStorage.setItem('isDinein', false)
+    }
+  } else {
+    sessionStorage.setItem('table', tableValue)
+    sessionStorage.setItem('isDinein', true)
+  }
   const storeFromURL_modal = params.get('modal') ? params.get('modal').toLowerCase() : "";
   const [openModal2, setOpenModal2] = useState(storeFromURL_modal === 'true');
 
@@ -244,24 +257,19 @@ const Navbar = () => {
   //google login button functions
 
   const storeValue = params.get('store') ? params.get('store').toLowerCase() : ""; // should give "parkasia"
-  const tableValue = queryParams.get('table'); // should give "A3"
   if (!sessionStorage.getItem(storeValue)) {
     sessionStorage.setItem(storeValue, JSON.stringify([]));
   }
   //console.log(storeValue)
   //console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
-    sessionStorage.setItem(store, JSON.stringify(products));
-    if (sessionStorage.getItem("table") !== null || sessionStorage.getItem("table") !== "") {
-      if (isKiosk) {
-        window.location.href = '/Checkout' + "?store=" + storeValue + kioskHash
-      } else {
-        window.location.href = '/Checkout' + "?store=" + storeValue
-
-      }
+    if (isKiosk) {
+      window.location.href = '/Checkout' + "?store=" + storeValue + kioskHash
+    }
+    if (!sessionStorage.getItem("table")) {
+      window.location.href = '/Checkout' + "?store=" + storeValue
     } else {
       window.location.href = '/Checkout' + "?store=" + storeValue + "&" + "table=" + sessionStorage.getItem("table")
-
     }
   };
   const [isVisible, setIsVisible] = useState(false);
@@ -394,7 +402,7 @@ const Navbar = () => {
         `}
       </style>
 
-      {((location.pathname.includes('/store')) && isMobile) && (
+      {/* {((location.pathname.includes('/store')) && isMobile) && (
         <a className="float">
           <a
             style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
@@ -408,7 +416,7 @@ const Navbar = () => {
             </div>
           </a>
         </a>
-      )}
+      )} */}
       {(/\/account/.test(location.pathname) && new URLSearchParams(location.hash.split('?')[1]).has('store')) && (
         <a className="float ">
           <a
@@ -428,7 +436,7 @@ const Navbar = () => {
       {openModal2 && (
         <div className="fixed inset-0 z-50 flex justify-center bg-black bg-opacity-50 p-4">
           <div className="relative w-full max-w-2xl max-h-full">
-            <div className="bg-white rounded-lg border border-gray-200 shadow-lg dark:bg-gray-700">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-lg ">
 
 
               <div className="p-4">
@@ -485,7 +493,7 @@ const Navbar = () => {
                 :
                 <button
                   style={{ width: "80%", border: "0px", margin: "auto" }}
-                  class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex justify-between"
+                  class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex justify-between"
                   onClick={HandleCheckout_local_stripe}>
 
                   <span class="text-left">
@@ -610,7 +618,11 @@ const Navbar = () => {
                       } else {
                         window.location.href = `/store?store=${storeFromURL}`;
                       }
-
+                      if (!sessionStorage.getItem("table")) {
+                        window.location.href = `/store?store=${storeFromURL}`
+                      } else {
+                        window.location.href = `/store?store=${storeFromURL}&table=${sessionStorage.getItem("table")}`
+                      }
                     } else {
                       window.location.href = '/';
                     }
@@ -628,7 +640,11 @@ const Navbar = () => {
                     } else {
                       window.location.href = `/store?store=${storeFromURL}`;
                     }
-
+                    if (!sessionStorage.getItem("table")) {
+                      window.location.href = `/store?store=${storeFromURL}`
+                    } else {
+                      window.location.href = `/store?store=${storeFromURL}&table=${sessionStorage.getItem("table")}`
+                    }
                   } else {
                     window.location.href = '/';
                   }
@@ -649,10 +665,14 @@ const Navbar = () => {
                   style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
                 >
                   <i className="bi bi-file-earmark-text"></i>
-                  {"Notes"}
+                  {isMobile ?
+                    <span></span> : <span>Notes</span>
+
+                  }
+
                 </button>
               )}
-              {((location.pathname.includes('/store') && !isMobile)) && (
+              {((location.pathname.includes('/store'))) && (
                 <>
                   <div id="cart"
                     style={{ position: 'relative', width: "", height: "", 'color': '#444444' }}
@@ -662,10 +682,15 @@ const Navbar = () => {
 
                       style={{ fontSize: "20px" }}
                     >
+
                       <i className="bi bi-cart"></i>
                     </div>
                   </div>
-                  <div onClick={openModal} style={{ fontSize: "20px", marginTop: "10px", marginleft: "-28px" }} > {"Shopping Cart"}</div>
+                  <div onClick={openModal} style={{ fontSize: "20px", marginTop: "10px", marginleft: "-28px" }} >
+                    {isMobile ?
+                      <span></span> : <span>Shopping Cart</span>
+
+                    }</div>
 
                 </>
 
@@ -684,7 +709,11 @@ const Navbar = () => {
                         }}
                         style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
                       >
-                        <i className="bi bi-person"></i> {user ? "Account" : "Login"}
+                        <i className="bi bi-person"></i> {user ?
+                          (isMobile ? "" : "Account")
+                          :
+                          (isMobile ? "" : "Account")
+                        }
                       </button>
                     ) : null
                   ) : (

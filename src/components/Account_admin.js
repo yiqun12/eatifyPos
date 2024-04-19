@@ -67,13 +67,31 @@ registerLocale('zh-CN', zhCN);
 
 
 const Account = () => {
-  const { isOnline } = useNetworkStatus();
 
+  const { isOnline } = useNetworkStatus();
+  const isMobileOrTablet = useMobileAndTabletCheck();
+  function useMobileAndTabletCheck() {
+    const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
+
+    useEffect(() => {
+      let check = false;
+      (function (a) { if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) check = true; })(navigator.userAgent || navigator.vendor || window.opera);
+      setIsMobileOrTablet(check);
+    }, []);
+
+    return isMobileOrTablet;
+  }
   const generateQRLink = (item) => {
     const tableParam = item.split('-'); // This will split the string into an array
     const prefix = tableParam[0]; // This will be 'demo'
     const suffix = tableParam[1]; // This will be 'a2'
-    return `https://eatify-22231.web.app/store?store=${prefix}&table=${suffix}`;
+    return `https://eatifydash.com/store?store=${prefix}&table=${suffix}`;
+  };
+  const generateQRLinkSelfCheckout = (item) => {
+    const tableParam = item.split('-'); // This will split the string into an array
+    const prefix = tableParam[0]; // This will be 'demo'
+    const suffix = tableParam[1]; // This will be 'a2'
+    return `https://eatifydash.com/selfCheckout?store=${prefix}&table=${suffix}`;
   };
   const [bounds, setBounds] = useState(null);
   const [error, setError] = useState('');
@@ -93,7 +111,6 @@ const Account = () => {
     { input: "Subtotal", output: "小计" },
     { input: "Tax", output: "税" },
     { input: "Service Fee", output: "服务费" },
-
   ];
   function translate(input) {
     const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
@@ -303,7 +320,6 @@ const Account = () => {
     setActiveTab(window.location.hash);
   }, []);
   function removeFromLocalStorage() {
-    sessionStorage.removeItem('Food_arrays');
   }
   //google login button functions
 
@@ -557,21 +573,21 @@ const Account = () => {
 
 
   useEffect(() => {
-    firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('TitleLogoNameContent')
-      .onSnapshot((snapshot) => {
-
-        const storeData = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        }));
-        console.log(storeData)
-        setStorelist(storeData.reverse())
-      });
-  }, [])
+    const colRef = collection(db, 'stripe_customers', user.uid, 'TitleLogoNameContent');
+    const unsubscribe = onSnapshot(colRef, (snapshot) => {
+      const storeData = snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      console.log(storeData);
+      setStorelist(storeData.reverse());
+    }, (error) => {
+      console.error("Error fetching data: ", error);
+    });
+  
+    // Cleanup function to unsubscribe from the listener when the component unmounts
+    return () => unsubscribe();
+  }, []); // Ensure db and user.uid are in the dependency array if they might change
 
   const [expandedOrderIds, setExpandedOrderIds] = useState([]);
   function daysBetweenDates(dateString1, dateString2) {
@@ -757,6 +773,7 @@ const Account = () => {
       console.log(docs);
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added" || change.type === "modified") {
+
           if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
             playSound_CHI()
           } else {
@@ -882,20 +899,22 @@ const Account = () => {
     // this allows you to wait until storelist is set and use it in functions instead of empty []
     function fetchStorelist() {
       return new Promise((resolve, reject) => {
-        const unsubscribe = firebase
-          .firestore()
-          .collection('stripe_customers')
-          .doc(user.uid)
-          .collection('TitleLogoNameContent')
-          .onSnapshot((snapshot) => {
+        const colRef = collection(db, 'stripe_customers', user.uid, 'TitleLogoNameContent');
+        const unsubscribe = onSnapshot(colRef,
+          (snapshot) => {
             const storeData = snapshot.docs.map((doc) => ({
               ...doc.data(),
               id: doc.id,
             }));
             console.log(storeData);
-            resolve(storeData.reverse());
-            unsubscribe(); // Unsubscribe from the snapshot listener once data is fetched
-          });
+            resolve(storeData.reverse());  // Resolve the promise with the data
+          }, 
+          (error) => {
+            reject(error);  // Reject the promise if there's an error
+          }
+        );
+    
+        return () => unsubscribe();  // Return a function to unsubscribe when no longer needed
       });
     }
 
@@ -1248,7 +1267,7 @@ const Account = () => {
   const [modalSubtotal, setModalSubtotal] = useState('');
 
 
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(!isMobileOrTablet);
 
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
@@ -1270,9 +1289,8 @@ const Account = () => {
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
   function deleteDocument(docId) {
-    firebase
-      .firestore()
-      .collection("stripe_customers").doc(user.uid).collection("TitleLogoNameContent").doc(storeID).collection("success_payment").doc(docId).delete()
+    const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "success_payment", docId);
+    deleteDoc(docRef)
       .then(() => {
         console.log("Document successfully deleted!");
       })
@@ -1675,7 +1693,7 @@ const Account = () => {
       {iframeAllowed ?
         <iframe
           ref={iframeRef1} // Correct reference used here
-          src="http://localhost:3000"
+          src="http://localhost:3001"
           title="Localhost Iframe 1"
           width="0"
           height="0"        >
@@ -1957,26 +1975,22 @@ const Account = () => {
           </div>
         )}
         {isPC ?
-          <div className="d-flex justify-content-between mx-3 ">
-            {/* <button onClick={toggleVisibility}>
-            {isVisible ? 
-            <div>
-              <button>
-                <i class="bi bi-backspace">  </i>
-                Hide Side Menu
-              </button>
-              
-            </div> :
+          <div className="d-flex justify-acontent-between mx-3 ">
+            <button onClick={toggleVisibility}>
+              {!isVisible ?
+                <div>
 
-              <div>
+                  <button>
+                    <i class="bi bi-bookmarks">  </i>
+                    Open Side Menu
+                  </button>
 
-                <button>
-                  <i class="bi bi-bookmarks">  </i>
-                  Open Side Menu
-                </button>
-              </div>
-            }
-          </button> */}
+                </div> :
+
+                <div>
+                </div>
+              }
+            </button>
             {/* {//
               (previousHash.includes('#charts') && storeID !== '') || (previousHash.includes('#code') && storeID !== '') ?
                 <div>
@@ -2001,6 +2015,7 @@ const Account = () => {
 
           {isVisible && (
             <div>
+
               {isPC ? <nav
                 className="navbar navbar-vertical show z-0 navbar-expand-lg px-0 py-3 navbar-light bg-gray-50 border-bottom border-bottom-lg-0 "
                 id="navbarVertical"
@@ -2008,6 +2023,20 @@ const Account = () => {
               >
 
                 <div className="container-fluid" style={{ minHeight: "0px" }}>
+                  <button onClick={toggleVisibility}>
+                    {isVisible ?
+                      <div>
+                        <button>
+                          <i class="bi bi-backspace">  </i>
+                          Hide Side Menu
+                        </button>
+
+                      </div> :
+
+                      <div>
+                      </div>
+                    }
+                  </button>
                   {isOnline ? <button
                     className={`mt-2 btn mr-2 ml-2 ${activeTab === '#profile' ? 'border-black' : ''}`}
                     onClick={(e) => {
@@ -2548,13 +2577,11 @@ const Account = () => {
                             <Admin_food store={data.id} />
                           </div> : <div></div>
                           }
-                          {showSection === 'qrCode' ? <div>
-
+                          <div style={{ display: showSection === 'qrCode' ? 'block' : 'none' }}>
                             <IframeDesk store={data.id} acct={data.stripe_store_acct}></IframeDesk>
+                            {/* Assuming you want the QRCode hidden or shown together with IframeDesk, otherwise adjust the condition as needed */}
+                          </div>
 
-                            {/* <QRCode value={"google.com"} /> */}
-                          </div> : <div></div>
-                          }
                           {showSection === 'stripeCard' ? <div>
                             <Test_Notification_Page storeID={data.id} reviewVar={numberReviewVariable} setReviewVar={setNumberReviewVariable} sortedData={notificationData} setSortedData={setNotificationData} />
                           </div> : <div></div>
@@ -2687,11 +2714,11 @@ const Account = () => {
                                 </div>
                               </div>
                               <div className="mb-6">
-                                <label style={{ fontWeight: 'bold' }} htmlFor="formFileLg" className="mb-2 inline-block text-neutral-700 dark:text-neutral-200">
+                                <label style={{ fontWeight: 'bold' }} htmlFor="formFileLg" className="mb-2 inline-block text-neutral-700">
                                   Submit Your Online Store Background Here
                                 </label>
                                 <input
-                                  className="relative m-0 block w-full min-w-0 flex-auto cursor-pointer rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] font-normal leading-[2.15] text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:cursor-pointer file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary"
+                                  className="relative m-0 block w-full min-w-0 flex-auto cursor-pointer rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] font-normal leading-[2.15] text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:cursor-pointer file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none"
                                   id="formFileLg"
                                   type="file"
                                   accept="image/*"
@@ -2721,6 +2748,13 @@ const Account = () => {
                                   <div>{item.split('-')[1]}</div>
                                 </div>
                               ))}
+                              {docIds.map((item, index) => (
+                                <div key={index} className="qrCodeItem">
+                                  <QRCode value={generateQRLinkSelfCheckout(item)} size={128} />
+                                  <div>Pay for {item.split('-')[1]}</div>
+                                </div>
+                              ))}
+
                             </div>
                             <div className="flex justify-end">
                               <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -3310,7 +3344,6 @@ const Account = () => {
                                             {/* <button onClick={() => deleteDocument(order.id)}>
                                               Delete Document
                                             </button> */}
-
                                             <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
                                             >
                                               {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}

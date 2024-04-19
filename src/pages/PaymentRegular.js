@@ -4,7 +4,7 @@ import { useUserContext } from "../context/userContext";
 import { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import myImage from '../components/check-mark.png';  // Import the image
-import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc,query, where, onSnapshot, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 
 const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, totalPrice }) => {
@@ -152,69 +152,74 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
   const [items, setItems] = useState([])
 
   useEffect(() => {
-    firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('TitleLogoNameContent')
-      .doc(storeID)
-      .collection('terminals')
-      .onSnapshot((snapshot) => {
-
-        const terminalsData = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        }));
-
-
-        setItems(terminalsData.sort((a, b) => b.date.localeCompare(a.date)))
-        console.log(terminalsData)
-        setSelectedId(terminalsData[0].id)
-      });
-  }, [])
-
+    const fetchTerminals = async () => {
+      try {
+        // Correct reference to the collection
+        const colRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals");
+  
+        // Listening to real-time updates
+        const unsubscribe = onSnapshot(colRef, (snapshot) => {
+          const terminalsData = snapshot.docs.map(doc => ({
+            ...doc.data(),
+            id: doc.id,
+          }));
+          terminalsData.sort((a, b) => b.date.localeCompare(a.date));
+          setItems(terminalsData);
+          console.log(terminalsData);
+          if (terminalsData.length > 0) {
+            setSelectedId(terminalsData[0].id);
+          }
+        }, (error) => {
+          console.error('Error fetching terminals:', error);
+        });
+  
+        // Returning the unsubscribe function will ensure that the subscription is canceled when the component unmounts
+        return unsubscribe;
+      } catch (error) {
+        console.error('Error setting up terminals listener:', error);
+      }
+    };
+  
+    fetchTerminals();
+  }, []); // Make sure to include all variables used in the useEffect in the dependency array
 
   useEffect(() => {
-    const unsubscribe = firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('TitleLogoNameContent')
-      .doc(storeID)
-      .collection('success_payment')
-      .where('id', '==', intent)
-      .where('status', '==', 'succeeded')
-      .onSnapshot({ includeMetadataChanges: true }, (snapshot) => {
-        const newTerminalsData = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-        }));
-
-        console.log("hello");
-        console.log(newTerminalsData);
-        if (newTerminalsData.length === 0) {
-          // newTerminalsData is an empty array
-          setReceived(false)
-          //console.log("newTerminalsData is empty");
-        } else {
-          setReceived(true)
-          setExtra(0)
-          setInputValue("")
-          setDiscount("")
-          setTips("")
-          //setDiscount,setTips,setExtra(null),setExtra,setInputValue 
-
-          SetTableInfo(storeID + "-" + selectedTable, "[]")
-          setProducts([]);
-          SetTableIsSent(storeID + "-" + selectedTable + "-isSent", "[]")
-          //localStorage.setItem(storeID + "-" + selectedTable + "-isSent", "[]")
-          // newTerminalsData is not empty
-          //console.log("newTerminalsData is not empty");
-        }
-      });
-
-    // Return a cleanup function to unsubscribe from the snapshot listener when the component unmounts
+    // Construct the query
+    const paymentsRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID);
+    const successPaymentsQuery = query(
+      collection(paymentsRef, "success_payment"),
+      where("id", "==", intent),
+      where("status", "==", "succeeded")
+    );
+  
+    // Listen for real-time updates
+    const unsubscribe = onSnapshot(successPaymentsQuery, { includeMetadataChanges: true }, (snapshot) => {
+      const paymentData = snapshot.docs.map(doc => doc.data());
+  
+      console.log("Payment update received: ", paymentData);
+      if (paymentData.length > 0) {
+        // Actions if payments are found
+        console.log("Payments are successful and received.");
+        setReceived(true);
+        setInputValue("");
+        setDiscount("");
+        setTips("");
+        setExtra(0);
+        setProducts([]);
+        // Resetting or setting additional state related to the table information
+        SetTableInfo(`${storeID}-${selectedTable}`, "[]");
+        SetTableIsSent(`${storeID}-${selectedTable}-isSent`, "[]");
+      } else {
+        // Actions if no payments are found
+        console.log("No successful payments found.");
+        setReceived(false);
+      }
+    });
+  
     return () => unsubscribe();
-  }, [intent]); // Remove the empty dependency array to listen to real-time changes
+  }, [intent]); // Ensure dependencies are correctly listed
+  
+  
   const SetTableIsSent = async (table_name, product) => {
     try {
       if (localStorage.getItem(table_name) === product) {

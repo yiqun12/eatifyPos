@@ -8,7 +8,6 @@ const Card = () => {
   const params = new URLSearchParams(window.location.search);
 
   const  store  = params.get('store') ? params.get('store').toLowerCase() : "";
-  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
   console.log(store)
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);

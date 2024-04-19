@@ -11,6 +11,18 @@ const Hero = () => {
   useEffect(() => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
+  // Function to check if the directory is 'checkout' or 'selfCheckout'
+  const checkDirectoryselfCheckout = () => {
+    const path = window.location.pathname; // Get the current URL path
+    if (path.includes('/selfCheckout')) {
+      return true
+    } else {
+      return false
+    }
+  };
+
+  // Example usage of the checkDirectory function
+  const directoryType = checkDirectoryselfCheckout();
 
   let initialDineInState = sessionStorage.getItem('isDinein')
     ? JSON.parse(sessionStorage.getItem('isDinein'))
@@ -57,10 +69,24 @@ const Hero = () => {
     <div style={{ display: 'flex' }} className='max-w-[1000px] ml-auto'>
       <div className="notranslate switches-container" style={{ "marginBottom": "10px", "boxShadow": "0px 0px 4px rgba(0, 0, 0, 0.3)" }}
         onClick={() => {
-          if (sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "")
+          
+          if (sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === ""){
             alert(localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
               "您需要扫描餐桌上的二维码来选取堂食" : "You need to scan the qr code from the table to switch to dine in mode");
-        }}//您需要扫描餐桌上的二维码
+          }else{
+            if(!directoryType){
+
+            }else{
+              alert(localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+              "自助服务不能转换成外卖。" 
+              : "Self-service cannot be converted to takeout.");
+            }
+            
+          }
+
+        }
+        
+        }//您需要扫描餐桌上的二维码
       >
         <input
           type="radio"
@@ -69,7 +95,7 @@ const Hero = () => {
           value="TakeOut"
           checked={plan === 'TakeOut'}
           onChange={handleSwitchChange}
-          disabled={sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === ""}
+          disabled={sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === ""||directoryType}
           translate="no"
         />
         <input
@@ -79,7 +105,7 @@ const Hero = () => {
           value="DineIn"
           checked={plan === 'DineIn'}
           onChange={handleSwitchChange}
-          disabled={sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === ""}
+          disabled={sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === ""||directoryType}
           translate="no"
         />
         <label htmlFor="switchTakeOut" style={{ "fontSize": "14px" }}>{t("ToGo")}</label>

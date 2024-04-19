@@ -4,7 +4,7 @@ import { useUserContext } from "../context/userContext";
 import { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import myImage from '../components/check-mark.png';  // Import the image
-import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc,query, where, onSnapshot, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 
 const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, checkout_JSON, totalPrice, }) => {
@@ -151,64 +151,54 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
   const [items, setItems] = useState([])
 
   useEffect(() => {
-    firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('TitleLogoNameContent')
-      .doc(storeID)
-      .collection('terminals')
-      .onSnapshot((snapshot) => {
-
-        const terminalsData = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        }));
-
-
-        setItems(terminalsData.sort((a, b) => b.date.localeCompare(a.date)))
-        console.log(terminalsData)
-        setSelectedId(terminalsData[0].id)
-      });
-  }, [])
-
+    const terminalsRef = collection(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', storeID, 'terminals');
+    const unsubscribe = onSnapshot(terminalsRef, (snapshot) => {
+      const terminalsData = snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      })).sort((a, b) => b.date.localeCompare(a.date));
+  
+      setItems(terminalsData);
+      console.log(terminalsData);
+      setSelectedId(terminalsData[0].id);
+    });
+  
+    // Cleanup function to unsubscribe from the listener
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
-    const unsubscribe = firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('TitleLogoNameContent')
-      .doc(storeID)
-      .collection('success_payment')
-      .where('id', '==', intent)
-      .where('status', '==', 'succeeded')
-      .onSnapshot((snapshot) => {
-        const newTerminalsData = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-        }));
-
-        console.log("hello");
-        console.log(newTerminalsData);
-        if (newTerminalsData.length === 0) {
-          // newTerminalsData is an empty array
-          setReceived(false)
-          //console.log("newTerminalsData is empty");
-        } else {
-          setReceived(true)
-          localStorage.setItem("splitSubtotalCurrentPrice", Math.round((Number(localStorage.getItem("splitSubtotalCurrentPrice")) + Number(subtotal)) * 100) / 100)
-          if (Number(localStorage.getItem("splitSubtotalCurrentPrice")) === Number(localStorage.getItem("splitSubtotalTotalPrice"))) {
-            SetTableInfo(storeID + "-" + selectedTable, "[]")
-            SetTableIsSent(storeID + "-" + selectedTable + "-isSent", "[]")
-          }
-          // newTerminalsData is not empty
-          //console.log("newTerminalsData is not empty");
+    // Construct the query
+    const paymentsRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID);
+    const successPaymentsQuery = query(
+      collection(paymentsRef, "success_payment"),
+      where("id", "==", intent),
+      where("status", "==", "succeeded")
+    );
+  
+    // Listen for real-time updates
+    const unsubscribe = onSnapshot(successPaymentsQuery, { includeMetadataChanges: true }, (snapshot) => {
+      const paymentData = snapshot.docs.map(doc => doc.data());
+  
+      console.log("Payment update received: ", paymentData);
+      if (paymentData.length === 0) {
+        // newTerminalsData is an empty array
+        setReceived(false)
+        //console.log("newTerminalsData is empty");
+      } else {
+        setReceived(true)
+        localStorage.setItem("splitSubtotalCurrentPrice", Math.round((Number(localStorage.getItem("splitSubtotalCurrentPrice")) + Number(subtotal)) * 100) / 100)
+        if (Number(localStorage.getItem("splitSubtotalCurrentPrice")) === Number(localStorage.getItem("splitSubtotalTotalPrice"))) {
+          SetTableInfo(storeID + "-" + selectedTable, "[]")
+          SetTableIsSent(storeID + "-" + selectedTable + "-isSent", "[]")
         }
-      });
-
-    // Return a cleanup function to unsubscribe from the snapshot listener when the component unmounts
+        // newTerminalsData is not empty
+        //console.log("newTerminalsData is not empty");
+      }
+    });
     return () => unsubscribe();
-  }, [intent]); // Remove the empty dependency array to listen to real-time changes
+  }, [intent]); // Ensure dependencies are correctly listed
+
   const SetTableInfo = async (table_name, product) => {
     try {
       const dateTime = new Date().toISOString();

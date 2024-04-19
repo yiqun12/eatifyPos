@@ -164,15 +164,11 @@ const Food = () => {
   };
 
 
-  //const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
-  //console.log(store)
-
   const [loading, setLoading] = useState(true);
   const params = new URLSearchParams(window.location.search);
 
   const storeValue = params.get('store') ? params.get('store').toLowerCase() : "";
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
-  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
 
 
 
@@ -185,20 +181,6 @@ const Food = () => {
     sessionStorage.setItem(store, '[]');
   }
   //console.log(user_loading)
-  if (tableValue === "") {
-    if (sessionStorage.getItem('table')) {//存在过
-      sessionStorage.setItem('table', tableValue)
-      sessionStorage.setItem('isDinein', true)
-    } else {//不存在
-      sessionStorage.setItem('table', tableValue)
-      sessionStorage.setItem('isDinein', false)
-
-    }
-  } else {
-    sessionStorage.setItem('table', tableValue)
-    sessionStorage.setItem('isDinein', true)
-  }
-  //console.log(tableValue)
 
   //const data = 
 
@@ -664,7 +646,7 @@ const Food = () => {
         {isModalVisible && (
           <div className="fixed inset-0 z-50 flex justify-center bg-black bg-opacity-50 p-4 overflow-x-hidden overflow-y-auto">
             <div className="relative w-full max-w-2xl max-h-full">
-              <div className="bg-white rounded-lg border border-gray-200 shadow-lg dark:bg-gray-700">
+              <div className="bg-white rounded-lg border border-gray-200 shadow-lg ">
 
                 <div className="flex justify-between">
                   {/* Conditional rendering for image with a more relevant placeholder */}

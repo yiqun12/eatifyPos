@@ -103,10 +103,7 @@ function App() {
               <Routes>
 
                 <Route path="QRcode" element={
-                  user != null &&
-                    user.uid === process.env.REACT_APP_ADMIN_UID ?
-                    <Html /> :
-                    <LogIn />} />
+                    <Html /> }></Route>
 
                 <Route path="Admin" element={
                   user != null &&
@@ -119,6 +116,8 @@ function App() {
                 {/* <Route path="orderhasreceived" element={<OrderHasReceived />} /> */}
 
                 <Route path="Reservation" element={<Reservation />} />
+                {user ? <Route path="/selfCheckout" element={<Checkout />}></Route> : <Route path="/selfCheckout" element={<LogIn />}></Route>}
+
                 {user ? <Route path="/checkout" element={<Checkout />}></Route> : <Route path="/checkout" element={<LogIn />}></Route>}
                 {user ? <Route path="/DemoFood" element={<DemoFood />}></Route> : <Route path="/DemoFood" element={<LogIn />}></Route>}
 

@@ -23,23 +23,69 @@ import alipay from '../components/alipay.png';
 import { useMemo } from 'react';
 import { db } from '../firebase/index';
 import { query, where, limit, doc, getDoc } from "firebase/firestore";
+import firebase from 'firebase/compat/app';
 
 const App = () => {
   const params = new URLSearchParams(window.location.search);
 
-  const store = params.get('store') ? params.get('store').toLowerCase() : "";
-  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
-  console.log(store)
+  // Function to check if the directory is 'checkout' or 'selfCheckout'
+  const checkDirectoryselfCheckout = () => {
+    const path = window.location.pathname; // Get the current URL path
+    if (path.includes('/selfCheckout')) {
+      return true
+    } else {
+      return false
+    }
+  };
 
+  // Example usage of the checkDirectory function
+  const directoryType = checkDirectoryselfCheckout();
+  console.log("directoryType")
+
+  console.log(directoryType)
+  const store = params.get('store') ? params.get('store').toLowerCase() : "";
+  // console.log(store)
+  // console.log(store + "-" + sessionStorage.getItem('table'))
   /**re-render everytime button clicked from shopping cart */
   const { id, saveId } = useMyHook(null);
+
+
+  useEffect(() => {
+    const table = sessionStorage.getItem('table'); // Assuming 'table' value is correctly set in sessionStorage
+    if (!store || !table) {
+      console.log(store)
+      console.log(table)
+      console.error("Store or Table is not defined");
+      return;
+    }
+    console.log("executing")
+    const docRef = firebase.firestore()
+      .collection('TitleLogoNameContent')
+      .doc(store)
+      .collection('Table')
+      .doc(`${store}-${table}`);
+
+    const unsubscribe = docRef.onSnapshot((snapshot) => {
+      if (snapshot.exists) {
+        const data = snapshot.data();
+        console.log('sssssss')
+        console.log(data.product)
+        setProducts(directoryType ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
+        saveId(Math.random());
+      } else {
+        console.log("No such document!");
+      }
+    }, err => {
+      console.error("Error getting document:", err);
+    });
+
+    // Cleanup function to unsubscribe from the listener when the component unmounts or dependencies change
+    return () => unsubscribe();
+  }, [store]);
+
+
   const [products, setProducts] = useState(JSON.parse(sessionStorage.getItem(store)));
 
-  //let products = JSON.parse(sessionStorage.getItem(store));
-  useEffect(() => {
-    setProducts(JSON.parse(sessionStorage.getItem(store)))
-    //console.log(JSON.parse(sessionStorage.getItem(store)))
-  }, [id]);
   /**check if its mobile/browser */
   const [width, setWidth] = useState(window.innerWidth);
   /**check if its too small */
@@ -222,12 +268,52 @@ const Item = (props) => {
   const params = new URLSearchParams(window.location.search);
 
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
-  const tableValue = params.get('table') ? params.get('table').toUpperCase() : "";
   console.log(store)
+  const checkDirectoryselfCheckout = () => {
+    const path = window.location.pathname; // Get the current URL path
+    if (path.includes('/selfCheckout')) {
+      return true
+    } else {
+      return false
+    }
+  };
 
+  // Example usage of the checkDirectory function
+  const directoryType = checkDirectoryselfCheckout();
   //let products = JSON.parse(sessionStorage.getItem(store));
   const [products, setProducts] = useState(JSON.parse(sessionStorage.getItem(store)));
 
+  useEffect(() => {
+    const table = sessionStorage.getItem('table'); // Assuming 'table' value is correctly set in sessionStorage
+    if (!store || !table) {
+      console.log(store)
+      console.log(table)
+      console.error("Store or Table is not defined");
+      return;
+    }
+    console.log("executing")
+    const docRef = firebase.firestore()
+      .collection('TitleLogoNameContent')
+      .doc(store)
+      .collection('Table')
+      .doc(`${store}-${table}`);
+
+    const unsubscribe = docRef.onSnapshot((snapshot) => {
+      if (snapshot.exists) {
+        const data = snapshot.data();
+        console.log("sssss")
+        console.log(data.product)
+        setProducts(directoryType ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
+      } else {
+        console.log("No such document!");
+      }
+    }, err => {
+      console.error("Error getting document:", err);
+    });
+
+    // Cleanup function to unsubscribe from the listener when the component unmounts or dependencies change
+    return () => unsubscribe();
+  }, [store]);
 
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -336,7 +422,8 @@ const Item = (props) => {
 
         </span>
         <b>No QR Code was Sacnned</b>
-        {products.map((product, index) => {
+
+        {products?.map((product, index) => {
           return (
             <div className="row row-main my-2" key={index}>
               {/* <div className="col-3">
@@ -401,21 +488,29 @@ const Item = (props) => {
                 </div>
               </div>
             </div>
-
             : <div></div>
           }
           <div className="row">
             <div className="col" style={{ marginBottom: "5px" }}>
-              <b> {t("Gratuity:")}</b>
+              <b> {t("Extra Gratuity:")}</b>
             </div>
 
             {/* for the buttons arrangement */}
             <div className="flex justify-between">
+              {!checkDirectoryselfCheckout ?
+                <>
+                  <Button type="percent" value="0%">0%</Button>
+                  <Button type="percent" value="15%">15%</Button>
+                  <Button type="percent" value="18%">18%</Button>
+                  <Button type="percent" value="20%">20%</Button>
+                </> :
+                <>
+                  <Button type="percent" value="0%">0%</Button>
+                  <Button type="percent" value="3%">3%</Button>
+                  <Button type="percent" value="5%">5%</Button>
+                </>
+              }
 
-              <Button type="percent" value="0%">0%</Button>
-              <Button type="percent" value="15%">15%</Button>
-              <Button type="percent" value="18%">18%</Button>
-              <Button type="percent" value="20%">20%</Button>
 
               {!showInput && <Button type="other">{t("Other")}</Button>}
               {showInput && <input
@@ -516,7 +611,10 @@ const Checkout = (props) => {
   return (
     <div className="checkout ">
       <div className="checkout-container" >
-        {loading && !loadedAcct ? <h2>{t("Loading Payment")}...</h2> : <div> <Dashboard totalPrice={Math.round(100 * (totalPrice * (1 + tax_rate) + tips + (sessionStorage.getItem("isDinein") == "true" ? totalPrice * 0.15 : 0))) / 100} /> </div>}
+        {loading && !loadedAcct ? <h2>{t("Loading Payment")}...</h2> : 
+        <div> 
+          <Dashboard totalPrice={Math.round(100 * (totalPrice * (1 + tax_rate) + tips + (sessionStorage.getItem("isDinein") == "true" ? totalPrice * 0.15 : 0))) / 100} /> 
+          </div>}
       </div>
     </div>
   )
