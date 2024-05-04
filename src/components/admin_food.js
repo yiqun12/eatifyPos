@@ -160,7 +160,6 @@ const Food = ({ store }) => {
     console.log(selectedOptions)
   };
 
-  console.log(store)
   const [data, setData] = useState(JSON.parse(localStorage.getItem(store) || "[]"));
 
   const [foods, setFoods] = useState(data);
@@ -378,7 +377,6 @@ const Food = ({ store }) => {
     attributes2: "",
     attributesArr: ""
   });
-  console.log(newItem)
 
 
   const [arr, setArr] = useState(JSON.parse(localStorage.getItem(store) || "[]"));
@@ -537,7 +535,6 @@ const Food = ({ store }) => {
   useEffect(() => {
     //console.log("hellooooooooooooooooooooo")
     syncData();
-
   }, []);
   const [ChangeCategoryName, setChangeCategoryName] = useState(false);
   const [SelectChangeCategoryName, setSelectChangeCategoryName] = useState('');

@@ -10,7 +10,7 @@ import Checkout from "./Checkout_acc";
 import './style.css';
 import './stripeButton.css';
 import { useCallback } from 'react';
-import { collection, doc, addDoc, getDocs, getDoc, updateDoc, deleteDoc, where } from "firebase/firestore";
+import { collection, doc, addDoc, getDoc, updateDoc, deleteDoc, where } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useRef } from "react";
 import { onSnapshot, query } from "firebase/firestore";
@@ -52,6 +52,8 @@ import Test_Notification_Page from "../pages/Test_Notification_Page.js";
 import myImage from './check-mark.png';  // Import the image
 import LazyLoad from 'react-lazy-load';
 
+import Eshopingcart from './e-shopingcart.png';  // Import the image
+
 import { ReactComponent as Dashboard_chart } from './dashboard_chart.svg';
 import { ReactComponent as Todo_icon } from './todo_icon.svg';
 import { ReactComponent as Menu_icon } from './menu_icon.svg';
@@ -67,7 +69,12 @@ registerLocale('zh-CN', zhCN);
 
 
 const Account = () => {
-
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "scroll"
+    };
+  }, []);
   const { isOnline } = useNetworkStatus();
   const isMobileOrTablet = useMobileAndTabletCheck();
   function useMobileAndTabletCheck() {
@@ -1224,7 +1231,6 @@ const Account = () => {
   useEffect(() => {
     // Set up an interval that updates the `seconds` state every second
     const interval = setInterval(() => {
-      console.log(numberReviewVariable)
       const ringbell = $('#ringbell');
       if (numberReviewVariable === 0) {
 
@@ -2517,13 +2523,13 @@ const Account = () => {
                             <a class="nav-link d-flex align-items-center p-0">
 
                               <div>
-                                <span class="d-block text-md font-semibold">
+                                <span class="d-block text-md font-semibold notranslate">
                                   <i class="bi bi-person"></i>
                                   {" "}
 
                                   {user ? user.displayName : ""}
                                 </span>
-                                <span class="d-block text-sm text-muted font-regular">
+                                <span class="d-block text-base text-muted font-regular notranslate">
                                   <i class="bi bi-envelope"></i>
                                   {" "}
 
@@ -2554,7 +2560,7 @@ const Account = () => {
                             </div> : null}
                         </div>
 
-                        <h5>{t("Past Spending History:")}</h5>
+                        <h4>{t("Past Spending History:")}</h4>
                         <PayFullhistory />
                       </div>
                     ) : null}
@@ -2588,7 +2594,7 @@ const Account = () => {
                           }
 
                           {showSection === 'store' ? <div>
-                            <div className=''>
+                            {/* <div className=''>
                               <div className='mx-auto '>
                                 <div className='mt-3 rounded-lg w-full  max-h-[200px] relative'>
                                   <img
@@ -2598,7 +2604,7 @@ const Account = () => {
                                   />
                                 </div>
                               </div>
-                            </div>
+                            </div> */}
                             <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.State, data?.ZipCode, data?.Phone)}>
                               <div className="flex flex-wrap -mx-3 mb-6">
                                 <div className="w-full px-3">
@@ -2713,7 +2719,7 @@ const Account = () => {
                                   />
                                 </div>
                               </div>
-                              <div className="mb-6">
+                              {/* <div className="mb-6">
                                 <label style={{ fontWeight: 'bold' }} htmlFor="formFileLg" className="mb-2 inline-block text-neutral-700">
                                   Submit Your Online Store Background Here
                                 </label>
@@ -2725,7 +2731,7 @@ const Account = () => {
                                   onChange={handleFileInputChange}
                                   translate="no"
                                 />
-                              </div>
+                              </div> */}
 
                               <div className="flex mt-3">
                                 <div style={{ width: "50%" }}></div>
@@ -2745,13 +2751,13 @@ const Account = () => {
                               {docIds.map((item, index) => (
                                 <div key={index} className="qrCodeItem">
                                   <QRCode value={generateQRLink(item)} size={128} />
-                                  <div>{item.split('-')[1]}</div>
+                                  <div><span className='notranslate'>{item.split('-')[1]}</span></div>
                                 </div>
                               ))}
                               {docIds.map((item, index) => (
                                 <div key={index} className="qrCodeItem">
                                   <QRCode value={generateQRLinkSelfCheckout(item)} size={128} />
-                                  <div>Pay for {item.split('-')[1]}</div>
+                                  <div>SelfPay <span className='notranslate'>{item.split('-')[1]}</span></div>
                                 </div>
                               ))}
 

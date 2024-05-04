@@ -1,7 +1,7 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState, useEffect } from 'react';
-import { collection, doc, setDoc, addDoc, getDocs, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
 import { onSnapshot, query } from 'firebase/firestore';

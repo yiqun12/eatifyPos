@@ -33,19 +33,7 @@ function Checkout(props) {
   const params = new URLSearchParams(window.location.search);
 
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
-  // Function to check if the directory is 'checkout' or 'selfCheckout'
-  const checkDirectoryselfCheckout = () => {
-    const path = window.location.pathname; // Get the current URL path
-    if (path.includes('/selfCheckout')) {
-      return true
-    } else {
-      return false
-    }
-  };
 
-  // Example usage of the checkDirectory function
-  const directoryType = checkDirectoryselfCheckout();
-  console.log("directoryType")
   const [receiptToken, setReceiptToken] = useState("");
 
   useEffect(() => {
@@ -182,7 +170,7 @@ function Checkout(props) {
         uid: user.uid,
         isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
         tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut",
-        directoryType:directoryType
+        directoryType:false
       };
       // send to db
       await firebase
@@ -535,20 +523,7 @@ function CardSection(props) {
   const params = new URLSearchParams(window.location.search);
 
   // Function to check if the directory is 'checkout' or 'selfCheckout'
-  const checkDirectoryselfCheckout = () => {
-    const path = window.location.pathname; // Get the current URL path
-    if (path.includes('/selfCheckout')) {
-      return true
-    } else {
-      return false
-    }
-  };
 
-  // Example usage of the checkDirectory function
-  const directoryType = checkDirectoryselfCheckout();
-  console.log("directoryType")
-
-  console.log(directoryType)
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
 
   console.log(store)
@@ -690,7 +665,7 @@ function CardSection(props) {
       isDinein: sessionStorage.getItem('isDinein') === 'true' ? 'DineIn' : 'TakeOut',
       saveCard: saveCard, // Include the saveCard value in the data
       tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut",
-      directoryType:directoryType,
+      directoryType:false,
     };
 
 
@@ -1313,14 +1288,7 @@ function PayHistory(props) {
     return isMobileOrTablet;
   }
   // Function to check if the directory is 'checkout' or 'selfCheckout'
-  const checkDirectoryselfCheckout = () => {
-    const path = window.location.pathname; // Get the current URL path
-    if (path.includes('/selfCheckout')) {
-      return true
-    } else {
-      return false
-    }
-  };
+
   return (
     <div>
       {/* {

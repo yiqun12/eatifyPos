@@ -46,6 +46,7 @@ const Hero = () => {
   const handleSwitchChange = (event) => {
     setPlan(event.target.value);
     handleToggle()
+    
   };
 
   // for translations sake

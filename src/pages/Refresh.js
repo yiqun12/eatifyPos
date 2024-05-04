@@ -1,7 +1,7 @@
 // Refresh.js
 import { useLocation } from 'react-router-dom';
 import { useUserContext } from "../context/userContext";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 import React, { useState, useEffect, useRef } from 'react'
 import { db } from '../firebase/index';
 

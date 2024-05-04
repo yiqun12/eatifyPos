@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from 'react'
 //import { data } from '../data/data.js'
 import { motion, AnimatePresence } from "framer-motion"
@@ -26,6 +28,7 @@ import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import 'leaflet/dist/leaflet.css';
 import pinyin from "pinyin";
 
+import myImage from '../components/check-mark.png';  // Import the image
 
 function convertToPinyin(text) {
   return pinyin(text, {
@@ -42,8 +45,15 @@ const customMarkerIcon = L.icon({
 });
 
 const Food = () => {
-  const [divHeight, setDivHeight] = useState('calc(100vh - 100px)');
 
+
+  const [divHeight, setDivHeight] = useState('calc(100vh - 100px)');
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "scroll"
+    };
+  }, []);
   useEffect(() => {
     const updateHeight = () => {
       const screenHeight = window.innerHeight;
@@ -118,13 +128,21 @@ const Food = () => {
     // After updating selectedAttributes, recalculate the total price
     const newTotalPrice = TotalAttributePrice(updatedSelectedAttributes, selectedFoodItem.attributesArr);
     setTotalPrice(newTotalPrice);
+    console.log(newTotalPrice)
     const products = JSON.parse(sessionStorage.getItem(store));
     const product = products.find((product) => product.id === id && product.count === count);
-    // console.log(product)
+    console.log(product)
+    console.log(products)
+
     // console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
 
     product.attributeSelected = updatedSelectedAttributes
     product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
+
+    console.log(JSON.stringify(products))
+
+
+
     sessionStorage.setItem(store, JSON.stringify(products));
     saveId(Math.random());
 
@@ -610,6 +628,12 @@ const Food = () => {
   }
   const [selectedFoodItem, setSelectedFoodItem] = useState('')
   const [isOpen, setIsOpen] = useState(false);
+  const openModal = () => {
+    setIsOpen(true);
+    setTimeout(() => {
+      setIsOpen(false);
+    }, 600); // Automatically close after 3 seconds
+  };
   const [isModalVisible, setModalVisibility] = useState(false);
 
   // Function to show the modal
@@ -618,6 +642,8 @@ const Food = () => {
     setCount(randomNum);  // Increment the count every time the modal is opened
     if (Object.keys(item.attributesArr).length > 0) {
       setModalVisibility(true);
+    } else {
+      openModal()
     }
     setSelectedAttributes({})
     setTotalPrice(0);
@@ -642,7 +668,22 @@ const Food = () => {
 
       <div>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
+        {isOpen && (
+          <div className="modal-backdrop">
 
+            <div className="modal-content_ flex">
+              <img className='mr-2'
+                src={myImage}  // Use the imported image here
+                alt="Description"
+                style={{
+                  width: '30px',
+                  height: '30px',
+                }}
+              />
+              Added
+            </div>
+          </div>
+        )}
         {isModalVisible && (
           <div className="fixed inset-0 z-50 flex justify-center bg-black bg-opacity-50 p-4 overflow-x-hidden overflow-y-auto">
             <div className="relative w-full max-w-2xl max-h-full">
@@ -653,13 +694,14 @@ const Food = () => {
                   {selectedFoodItem.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
                     <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg" src={selectedFoodItem.image} alt={selectedFoodItem.name} />
                     :
-                    <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg" src={'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/89cb3a8a-0904-4774-76c9-3ffaa41c5200/public'} alt="White placeholder" />
+                    <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg"
+                      src={'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/89cb3a8a-0904-4774-76c9-3ffaa41c5200/public'} alt="White placeholder" />
 
                   }
                 </div>
 
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold">
+                <div className="p-4 ">
+                  <h3 className="notranslate text-lg font-semibold">
                     {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : selectedFoodItem?.name}
                   </h3>
 
@@ -674,7 +716,8 @@ const Food = () => {
                             </p>
                             <div className="flex flex-wrap">
                               {attributeDetails.variations.map((variation, idx) => (
-                                <div key={idx} className={`mb-1 mr-1 mt-1 p-2 border rounded-lg cursor-pointer ${attributeDetails.isSingleSelected ? (selectedAttributes[attributeName] === variation.type ? 'bg-green-300 border-green-300' : 'bg-white border-gray-300') : (selectedAttributes[attributeName]?.includes(variation.type) ? 'bg-green-300 border-green-300' : 'bg-white border-green-300')} hover:bg-green-300`} onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id)}>
+                                <div key={idx} className={`mb-1 mr-1 mt-1 p-2 border rounded-lg cursor-pointer ${attributeDetails.isSingleSelected ? (selectedAttributes[attributeName] === variation.type ? 'bg-green-300 border-green-300' : 'bg-white border-gray-300') : (selectedAttributes[attributeName]?.includes(variation.type) ? 'bg-green-300 border-green-300' : 'bg-white border-green-300')} hover:bg-green-300`}
+                                  onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count)}>
                                   {variation.type}({formatPriceDisplay(variation.price)})
                                 </div>
                               ))}
@@ -687,8 +730,8 @@ const Food = () => {
                   ))}
 
                   <div className="flex justify-between mt-4">
-                    <span class="notranslate font-medium">
-                      ${Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100}
+                    <span class="notranslate font-medium notranslate">
+                      ${(Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100).toFixed(2)}
                     </span>
                     {/* Quantity Selector */}
                     <div>
@@ -738,7 +781,6 @@ const Food = () => {
                               onClick={() => {
 
                                 addSpecialFood(selectedFoodItem.id, selectedFoodItem.name, selectedFoodItem.subtotal, selectedFoodItem.image, selectedAttributes, count, selectedFoodItem.CHI);
-                                //saveId(Math.random());
                               }}
                             >
                               <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
@@ -754,7 +796,11 @@ const Food = () => {
                   <button onClick={() => { deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 0); }} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-800">
                     Cancel
                   </button>
-                  <button onClick={hideModal}  // Updated to use hideModal
+                  <button onClick={() => {
+                    hideModal();
+                    openModal()
+                  }
+                  }  // Updated to use hideModal
                     className="px-4 py-2 bg-blue-500 rounded hover:bg-blue-600 text-white">
                     Confirm
                   </button>
@@ -764,8 +810,90 @@ const Food = () => {
             </div>
           </div>
         )}
-        <div style={{ backgroundImage: `url(${storeInfo?.Image})` }
+        <div className='sticky top-0 z-20 lg:ml-10 lg:mr-10'>
+          {/* Filter Type */}
+          <div className='px-3' >
+            {/* end of the top */}
+            <div className='' style={{ background: 'rgba(255,255,255,0.9)', }} >
+              <div className='flex'>
 
+                <div>
+                  <h5 className='notranslate px-2 font-bold '>
+
+                    {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
+                  </h5>
+                  <BusinessHoursTable></BusinessHoursTable>
+                </div>
+                <div className='ml-auto w-1/2 max-w-[500px]'>
+
+                  <div className="m-2 flex justify-center bg-gray-200 h-10 rounded-md items-center">
+                    <input
+                      type="search"
+                      className='flex bg-transparent p-2 focus:outline-none text-black'
+                      placeholder={t('Search Food Item')}
+                      onChange={handleInputChange}
+                      translate="no"
+                    />
+                    <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
+                  </div>
+                </div>
+              </div>
+
+              <div ref={scrollingWrapperRef} className={`mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''} mb-2 rounded-lg`}>
+
+                <button onClick={() => {
+                  setFoods(data)
+                  setSelectedFoodType(null);
+                }}
+                  className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === null ? 'underline' : ''}`}
+                  style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
+
+                {
+                  translationsMode_ === 'ch'
+                    ? foodTypesCHI.map((foodType) => (
+                      <button
+                        key={foodType}
+                        onClick={() => {
+                          filterTypeCHI(foodType);
+                          setSelectedFoodType(foodType);
+                        }}
+                        className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
+                          }`}
+                        style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+                      >
+                        <div>
+                          {foodType && foodType.length > 1
+                            ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                            : ''}
+                        </div>
+                      </button>
+                    ))
+                    : foodTypes.map((foodType) => (
+                      <button
+                        key={foodType}
+                        onClick={() => {
+                          filterType(foodType);
+                          setSelectedFoodType(foodType);
+                        }}
+                        className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
+                          }`}
+                        style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+                      >
+                        <div>
+                          {foodType && foodType.length > 1
+                            ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                            : ''}
+                        </div>
+                      </button>
+                    ))
+                }
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div style={{ backgroundColor: "#eef0f2" }
         }
           className='m-auto px-4 flex-grow-1 overflow-y-auto relative min-h-screen w-full'>
 
@@ -776,93 +904,8 @@ const Food = () => {
 
           </div> */}
 
-          <div className='relative flex flex-col lg:flex-row justify-between lg:ml-10 lg:mr-10' style={{ flexDirection: "column" }}>
-            {/* Filter Type */}
-            <div className='Type' >
-              {/* <div className='flex justify-between flex-wrap'> */}
-
-              {/* web mode */}
-              <div className='mt-2 rounded-lg w-full text-black-200 flex flex-col justify-center' style={{
-                background: 'rgba(255,255,255,0.3)',
-              }}>
-                <h1 className='notranslate px-4 text-4xl sm:text-xl md:text-6xl lg:text-7xl font-bold text-justify'><span className=''>
-                  {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
-                </span></h1>
-                <h1 className='px-4 font-bold text-white-500 text-xl notranslate'>@{storeInfo.physical_address}</h1>
-                <BusinessHoursTable></BusinessHoursTable>
-
-              </div>
-
-
-
-              {/* end of the top */}
-              <div className='rounded-lg my-3 p-2' style={{ background: 'rgba(255,255,255,0.9)', }} >
-                <div className="m-2 flex justify-center bg-gray-200 h-10 rounded-md items-center">
-                  <input
-                    type="search"
-                    className='flex bg-transparent p-2 w-full focus:outline-none text-black'
-                    placeholder={t('Search Food Item')}
-                    onChange={handleInputChange}
-                    translate="no"
-                  />
-                  <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
-                </div>
-                <div ref={scrollingWrapperRef} className={`mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''} mb-2 rounded-lg`}>
-
-                  <button onClick={() => {
-                    setFoods(data)
-                    setSelectedFoodType(null);
-                  }}
-                    className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === null ? 'underline' : ''}`}
-                    style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
-
-                  {
-                    translationsMode_ === 'ch'
-                      ? foodTypesCHI.map((foodType) => (
-                        <button
-                          key={foodType}
-                          onClick={() => {
-                            filterTypeCHI(foodType);
-                            setSelectedFoodType(foodType);
-                          }}
-                          className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
-                            }`}
-                          style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-                        >
-                          <div>
-                            {foodType && foodType.length > 1
-                              ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-                              : ''}
-                          </div>
-                        </button>
-                      ))
-                      : foodTypes.map((foodType) => (
-                        <button
-                          key={foodType}
-                          onClick={() => {
-                            filterType(foodType);
-                            setSelectedFoodType(foodType);
-                          }}
-                          className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
-                            }`}
-                          style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-                        >
-                          <div>
-                            {foodType && foodType.length > 1
-                              ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-                              : ''}
-                          </div>
-                        </button>
-                      ))
-                  }
-
-                </div>
-              </div>
-            </div>
-
-          </div>
           {/* diplay food */}
-          <div className='lg:ml-10 lg:mr-10'>
+          <div className='lg:ml-10 lg:mr-10 mt-3'>
             <LazyLoad height={762}>
               <AnimatePresence>
                 <div className={
@@ -870,10 +913,10 @@ const Food = () => {
                     isPC ? 'grid lg:grid-cols-4 gap-3' :
                       'grid lg:grid-cols-2 gap-3'
                 }
-
-
-
-                > {/* group food by category */}
+                  style={{
+                    overflowY: 'auto',
+                    maxHeight: "calc(100vh - 300px)",
+                  }}> {/* group food by category */}
                   {Object.values(foods.reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().map((item, index) => (
 
 
@@ -895,15 +938,15 @@ const Food = () => {
                       }} className="z-200 border rounded-lg cursor-pointer">
                       <div className=' flex'>
 
-                        <div style={{ width: "60%" }}>
+                        <div style={{ width: 'calc(100% - 90px)' }}>
                           <div className='flex justify-between px-2 pb-1 grid grid-cols-4 w-full z-20'>
 
                             {/* parent div of title + quantity and button parent div */}
                             <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                               <div className="col-span-4">
-                                <span class="notranslate text-xl bold">
+                                <h3 className="notranslate text-lg font-semibold">
                                   {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
-                                </span >
+                                </h3 >
                               </div>
 
                               {/* parent div of the quantity and buttons */}
@@ -920,8 +963,8 @@ const Food = () => {
                                   alignItems: "center"
                                 }}>
                                   <p style={{ marginBottom: "0" }}>
-                                    <span>
-                                      ${item.subtotal}
+                                    <span className='notranslate'>
+                                   ${(Math.round(item.subtotal*100)/100).toFixed(2)}
 
                                     </span>
                                   </p>
@@ -935,7 +978,7 @@ const Food = () => {
                           </div>
                           {/* This is Tony added code */}
                         </div>
-                        <div style={{ width: "40%" }} class="h-min overflow-hidden rounded-md flex justify-end">
+                        <div class="h-min overflow-hidden rounded-md flex justify-end">
 
                           <div className='m-2 rounded-lg max-h-[220px] relative'>
                             <div className='absolute w-[80px] h-[80px] flex flex-col justify-end items-end'>

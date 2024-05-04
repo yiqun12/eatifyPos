@@ -17,7 +17,7 @@ import $ from 'jquery';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
-import logo_transparent from './logo_transparent.png'
+import E_logo from './E_logo.png'
 //import { flexbox } from '@mui/system';
 import "./navbar.css";
 import { useMyHook } from './myHook';
@@ -33,11 +33,30 @@ import OrderHasReceived from '../pages/OrderHasReceived'
 import cartImage from './shopcart.png';
 import ringBell from './ringBell.png';
 import useNetworkStatus from '../components/useNetworkStatus';
+import { useIdleTimer } from "react-idle-timer";
+import CountdownTimer from './CountdownTimer'; // Adjust the import path as needed
+import Eshopingcart from '../components/e-shopingcart.png';  // Import the image
 
 const Navbar = () => {
+  // Constants for the timeout and debounce time
+  const FIVE_MINS = 1 * 30 * 1000; // 5 minutes in milliseconds
+  const GENERAL_DEBOUNCE_TIME = 500; // 500 milliseconds
+
+  // Function to be called when user is idle
+  const handleOnUserIdle = () => {
+    setOpenModalTimer(true)
+  };
+
+  // Setting up the idle timer with a timeout and debounce
+  useIdleTimer({
+    timeout: FIVE_MINS, // time in milliseconds until the user is considered idle
+    onIdle: handleOnUserIdle, // function to call when the user is idle
+    debounce: GENERAL_DEBOUNCE_TIME // debounce time in milliseconds to wait before setting idle
+  });
+
+
+
   const { isOnline } = useNetworkStatus();
-
-
 
   const googleTranslateElementInit = () => {
     if (window.google && window.google.translate) {
@@ -203,7 +222,10 @@ const Navbar = () => {
   const modalRef = useRef(null);
   const btnRef = useRef(null);
   const spanRef = useRef(null);
+  const [shoppingCartOpen, setShoppingCartOpen] = useState(false);
+
   const openModal = () => {
+    setShoppingCartOpen(true)
     setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
     modalRef.current.style.display = 'block';
     // Retrieve the array from local storage
@@ -212,6 +234,7 @@ const Navbar = () => {
   const closeModal = () => {
     //console.log(products)
     modalRef.current.style.display = 'none';
+    setShoppingCartOpen(false)
     setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
 
   };
@@ -235,6 +258,8 @@ const Navbar = () => {
   }
   const storeFromURL_modal = params.get('modal') ? params.get('modal').toLowerCase() : "";
   const [openModal2, setOpenModal2] = useState(storeFromURL_modal === 'true');
+  const [openModalTimer, setOpenModalTimer] = useState(false);
+
 
   useEffect(() => {
     // Get the modal
@@ -265,8 +290,7 @@ const Navbar = () => {
   const HandleCheckout_local_stripe = async () => {
     if (isKiosk) {
       window.location.href = '/Checkout' + "?store=" + storeValue + kioskHash
-    }
-    if (!sessionStorage.getItem("table")) {
+    } else if (!sessionStorage.getItem("table")) {
       window.location.href = '/Checkout' + "?store=" + storeValue
     } else {
       window.location.href = '/Checkout' + "?store=" + storeValue + "&" + "table=" + sessionStorage.getItem("table")
@@ -402,7 +426,7 @@ const Navbar = () => {
         `}
       </style>
 
-      {/* {((location.pathname.includes('/store')) && isMobile) && (
+      {((location.pathname.includes('/store'))&&!shoppingCartOpen ) && (
         <a className="float">
           <a
             style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
@@ -416,7 +440,7 @@ const Navbar = () => {
             </div>
           </a>
         </a>
-      )} */}
+      )}
       {(/\/account/.test(location.pathname) && new URLSearchParams(location.hash.split('?')[1]).has('store')) && (
         <a className="float ">
           <a
@@ -466,7 +490,34 @@ const Navbar = () => {
         </div>
       )}
 
+      {(openModalTimer && isKiosk && location.pathname.includes('/Checkout')) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4 py-8">
+          <div className="relative w-full max-w-2xl mx-auto bg-white rounded-lg border border-gray-200 shadow-lg p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Inactive Alert</h2>
+            <p className="text-gray-700 mb-6">
+              It seems like you have been inactive for 30 seconds. Are you still on the page?
+              This will automatically redirect to the main page in <CountdownTimer /> seconds.
+            </p>
+            <div className="flex justify-between space-x-4">
+              <button
+                onClick={event => {
+                  setOpenModalTimer(false)
+                }}
+                className="px-6 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
+                Yes, I Still Need More Time
+              </button>
+              <button className="px-6 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
+                onClick={event => {
+                  window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
+                }}
+              >
+                No, Redirect Back To The Main Page Now
+              </button>
+            </div>
+          </div>
+        </div>
 
+      )}
 
       <div ref={modalRef} className="foodcart-modal modal">
 
@@ -495,11 +546,18 @@ const Navbar = () => {
                   style={{ width: "80%", border: "0px", margin: "auto" }}
                   class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex justify-between"
                   onClick={HandleCheckout_local_stripe}>
+                  <span class="text-left">                  <span >
+                    {isMobile ?
 
-                  <span class="text-left">
-                    <FontAwesomeIcon icon={faCreditCard} /> &nbsp;
-                    {t("Checkout Order")} </span>
-                  <span class="text-right notranslate"> ${Math.round(100 * totalPrice) / 100} </span>
+                      <></>
+                      : <FontAwesomeIcon icon={faCreditCard} />
+                    }
+                  </span>
+                    <span> &nbsp;Checkout Order
+                    </span>
+                  </span>
+
+                  <span class="text-right notranslate"> ${(Math.round(100 * totalPrice) / 100).toFixed(2)} </span>
                 </button>
               }
             </div>
@@ -547,7 +605,7 @@ const Navbar = () => {
                   <div className="quantity p-0"
                     style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
                     <div>
-                      <div className='notranslate'>${product.itemTotalPrice}</div>
+                      <div className='notranslate'>${(Math.round(product.itemTotalPrice*100)/100).toFixed(2)}</div>
 
                     </div>
                     {/* the add minus box set up */}
@@ -603,7 +661,7 @@ const Navbar = () => {
         </div>
       </div>
       {/**navbar */}
-      <div className={` pb-2 sticky top-0 z-20 ${!isMobile ? "mx-auto justify-between" : "justify-between"}`}>
+      <div className={`pb-2 sticky top-0 z-20 ${!isMobile ? "mx-auto justify-between" : "justify-between"}`}>
         <div >
           {/* Your navbar content here */}
           <div className="col-span-4 pl-4 lg:ml-10 lg:mr-10" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
@@ -627,7 +685,7 @@ const Navbar = () => {
                       window.location.href = '/';
                     }
                   }}
-                  src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/a6dbaa1a-5a08-4125-adec-83f41f9a6300/public"
+                  src={Eshopingcart}
                   style={{
                     maxHeight: '30px',
                     maxWidth: '30px',
@@ -648,8 +706,8 @@ const Navbar = () => {
                   } else {
                     window.location.href = '/';
                   }
-                }} className='notranslate text-black font-bold'>
-                  Eatifydash
+                }} className='notranslate text-black text-xl font-bold'>
+                 EatifyDash
                 </span>
               </React.Fragment>
               : null}
@@ -672,7 +730,7 @@ const Navbar = () => {
 
                 </button>
               )}
-              {((location.pathname.includes('/store'))) && (
+              {/* {((location.pathname.includes('/store'))) && (
                 <>
                   <div id="cart"
                     style={{ position: 'relative', width: "", height: "", 'color': '#444444' }}
@@ -695,7 +753,7 @@ const Navbar = () => {
                 </>
 
 
-              )}
+              )} */}
               {
                 !isKiosk && (
                   !user_loading ? (
@@ -709,11 +767,14 @@ const Navbar = () => {
                         }}
                         style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
                       >
-                        <i className="bi bi-person"></i> {user ?
-                          (isMobile ? "" : "Account")
-                          :
-                          (isMobile ? "" : "Account")
-                        }
+                        <i className="bi bi-person"></i>
+                        <span>
+                          {user ?
+                            (isMobile ? "" : "Account")
+                            :
+                            (isMobile ? "" : "LogIn")
+                          }
+                        </span>
                       </button>
                     ) : null
                   ) : (

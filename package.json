@@ -55,6 +55,7 @@
         "react-fontawesome": "^1.7.1",
         "react-helmet": "^6.1.0",
         "react-icons": "^4.7.1",
+        "react-idle-timer": "^5.7.2",
         "react-image-crop": "^10.1.5",
         "react-lazy-load": "^4.0.1",
         "react-lazy-load-image-component": "^1.6.0",

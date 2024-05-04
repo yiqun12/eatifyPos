@@ -6,7 +6,7 @@ import trash_can from './trash_can.png';
 import calendar from './calendar.png';
 import { useUserContext } from "../context/userContext";
 
-import { collection, doc, addDoc, getDocs, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import {  doc,updateDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 
 import { useMemo } from 'react';
@@ -175,7 +175,7 @@ function ChangeTimeForm({ storeID, storeOpenTime }) {
     // });
     const [formData, setFormData] = useState(convertData(JSON.parse(storeOpenTime)))
 
-    console.log(convertData(JSON.parse(storeOpenTime)))
+    //console.log(convertData(JSON.parse(storeOpenTime)))
     const handleAddTime = (day) => {
         setFormData(prev => ({
             ...prev,

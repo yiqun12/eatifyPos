@@ -12,10 +12,11 @@ import { ReactComponent as MinusSvg } from './minus.svg';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
-import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
 import PaymentSplit from "../pages/PaymentSplit";
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 // function Item({ heading, description }) 
 
@@ -26,18 +27,18 @@ function Item({ item, updateItems, whole_item_groups, numberOfGroups }) {
     function flattenObject(obj, prefix = "") {
       return Object.keys(obj).reduce((acc, key) => {
         const value = obj[key];
-        const currentKey = prefix ? `${prefix} ${key}` : key;
+        const currentKey = key;
 
         if (Array.isArray(value)) {
           // If the value is an array, join its elements and add to the result
           const flattenedArray = value.join(" ");
-          return acc + currentKey + " " + flattenedArray + "<br />";
+          return acc + flattenedArray + "<br />";
         } else if (typeof value === "object" && !Array.isArray(value)) {
           // If the value is an object, recursively flatten it
           return acc + flattenObject(value, currentKey);
         } else {
           // If the value is neither an object nor an array, add it to the result
-          return acc + currentKey + " " + value + "<br />";
+          return acc + value + "<br />";
         }
       }, "");
     }
@@ -57,7 +58,7 @@ function Item({ item, updateItems, whole_item_groups, numberOfGroups }) {
   }
 
   return (
-    <div className="w-full flex flex-col gap-4 rounded-md bg-white p-4 border-1 border-gray-800">
+    <div className="w-full flex flex-col gap-2 rounded-md bg-white p-4 border-1 border-gray-800">
       {/* <p className="font-bold text-2xl">{heading}</p>
       <p className="text-gra7-700 font-thin">{description}</p> */}
       {/* <p className="font-bold text-2xl">{item.name}</p> */}
@@ -576,7 +577,7 @@ function Container(props) {
             {containerId}
 
             <Button variant="danger" style={{ marginTop: "auto" }} onClick={() => openPopup(containerId)}>
-              <FontAwesomeIcon icon={faTimesCircle} color="white" size="2x" />
+              <FontAwesomeIcon icon={faTrash} color="white" size="1x" />
             </Button>
 
             {showPopup && (
@@ -662,8 +663,8 @@ function Container(props) {
 
         <div className="flex ">
 
-          <div className={`m-2`}>
-            <div className="flex flex-col gap-4 p-4 min-w-[250px]" >
+          <div className={``}>
+            <div className="flex flex-col gap-2 p-1 min-w-[250px]" >
               {/* Add an invisible placeholder */}
               <div
                 ref={setNodeRef}
@@ -826,7 +827,7 @@ function Container(props) {
                         &times;
                       </button>
                     </div>
-                    <div className="modal-body pt-0">
+                    <div className="modal-body p-1 pt-0 ">
 
                       <PaymentSplit subtotal={subtotal} setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} checkout_JSON={checkout(containerId)} totalPrice={Math.round(subtotal * 100)} />
 

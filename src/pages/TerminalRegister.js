@@ -51,13 +51,12 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
 
 
 
-  async function createReader(payloadReader, mode) {
+  async function createReader(payloadReader) {
     try {
       const formattedPayload = {
         location_id: locationId,
         terminal_code: payloadReader.terminalRegistrationCode,
         connected_stripe_account_id: connected_stripe_account_id,
-        mode: mode
       };
 
       const registerReaderFunction = firebase.functions().httpsCallable('registerReader');
@@ -76,15 +75,10 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
 
   // the onclick reactions
 
-  async function registerTerminal(mode) {
+  async function registerTerminal() {
 
     let registerTerminalButton;
-    if (mode === "cashier") {
-      registerTerminalButton = document.getElementById("register-terminal-button");
-    }
-    if (mode === "kiosk") {
-      registerTerminalButton = document.getElementById("register-kiosk-button");
-    }
+    registerTerminalButton = document.getElementById("register-terminal-button");
     registerTerminalButton.className = "loading";
     registerTerminalButton.disabled = true;
     registerTerminalButton.textContent = "Awaiting";
@@ -126,11 +120,10 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
       } else {
         simulation_mode = false;
       }
-      const reader = await createReader(payloadReader, mode);
+      const reader = await createReader(payloadReader);
       //console.log("registered reader: ", reader);
       readerId = reader["id"]
       let docRef;
-      if (mode === "cashier") {
         try {
           docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals", stripeTerminalRegistrationCode)
           const doc_ = await getDoc(docRef);
@@ -165,9 +158,6 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
           setError(`Error`);
           console.error(error);
         }
-      }
-
-      if (mode === "kiosk") {
         try {
           docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "kiosk", stripeTerminalRegistrationCode)
           const doc_ = await getDoc(docRef);
@@ -202,7 +192,6 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
           setError(`Error`);
           console.error(error);
         }
-      }
 
 
     } catch (error) {
@@ -274,13 +263,13 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
   const [registrationCode, setRegistrationCode] = useState('');
   const [error_, setError_] = useState('');
 
-  const registerTerminal_ = (mode) => {
+  const registerTerminal_ = () => {
     // Check if the registration code is empty
     if (!registrationCode.trim()) {
       setError_('Stripe Terminal Registration code is required');
     } else {
       setError_('');
-      registerTerminal(mode)
+      registerTerminal()
       // Your code to handle the registration
     }
   };
@@ -409,10 +398,8 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
             </div>
             <div style={{ color: 'red' }}>{error_}</div>
             <div className="flex justify-end" >
-              <button id="register-terminal-button" onClick={() => registerTerminal_("cashier")}
+              <button id="register-terminal-button" onClick={() => registerTerminal_()}
                 className="ml-2 bg-gray-400 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded" >Register Cashier POS Machine</button>
-              <button id="register-kiosk-button" onClick={() => registerTerminal_("kiosk")}
-                className="ml-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" >Register Food Kiosk POS Machine</button>
             </div>
           </div>
         </form>

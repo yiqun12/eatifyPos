@@ -22,27 +22,13 @@ import wechatpay from '../components/wechatpay.png';
 import alipay from '../components/alipay.png';
 import { useMemo } from 'react';
 import { db } from '../firebase/index';
-import { query, where, limit, doc, getDoc } from "firebase/firestore";
+import { query, where, limit, doc, onSnapshot } from "firebase/firestore";
 import firebase from 'firebase/compat/app';
 
 const App = () => {
+
   const params = new URLSearchParams(window.location.search);
 
-  // Function to check if the directory is 'checkout' or 'selfCheckout'
-  const checkDirectoryselfCheckout = () => {
-    const path = window.location.pathname; // Get the current URL path
-    if (path.includes('/selfCheckout')) {
-      return true
-    } else {
-      return false
-    }
-  };
-
-  // Example usage of the checkDirectory function
-  const directoryType = checkDirectoryselfCheckout();
-  console.log("directoryType")
-
-  console.log(directoryType)
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
   // console.log(store)
   // console.log(store + "-" + sessionStorage.getItem('table'))
@@ -68,9 +54,8 @@ const App = () => {
     const unsubscribe = docRef.onSnapshot((snapshot) => {
       if (snapshot.exists) {
         const data = snapshot.data();
-        console.log('sssssss')
         console.log(data.product)
-        setProducts(directoryType ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
+        setProducts(false ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
         saveId(Math.random());
       } else {
         console.log("No such document!");
@@ -268,18 +253,7 @@ const Item = (props) => {
   const params = new URLSearchParams(window.location.search);
 
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
-  console.log(store)
-  const checkDirectoryselfCheckout = () => {
-    const path = window.location.pathname; // Get the current URL path
-    if (path.includes('/selfCheckout')) {
-      return true
-    } else {
-      return false
-    }
-  };
 
-  // Example usage of the checkDirectory function
-  const directoryType = checkDirectoryselfCheckout();
   //let products = JSON.parse(sessionStorage.getItem(store));
   const [products, setProducts] = useState(JSON.parse(sessionStorage.getItem(store)));
 
@@ -301,9 +275,8 @@ const Item = (props) => {
     const unsubscribe = docRef.onSnapshot((snapshot) => {
       if (snapshot.exists) {
         const data = snapshot.data();
-        console.log("sssss")
         console.log(data.product)
-        setProducts(directoryType ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
+        setProducts(false ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
       } else {
         console.log("No such document!");
       }
@@ -316,7 +289,11 @@ const Item = (props) => {
   }, [store]);
 
   const { id, saveId } = useMyHook(null);
+  const [isDinein, setIsDinein] = useState(sessionStorage.getItem("isDinein"));
   useEffect(() => {
+    setIsDinein(sessionStorage.getItem("isDinein"))
+    //console.log("saijowsaw")
+    //console.log(sessionStorage.getItem("isDinein"))
   }, [id]);
 
   const { totalPrice } = props;
@@ -378,6 +355,36 @@ const Item = (props) => {
     setShowInput(false);
     setSelectedTip({ type: "percent", value: percent });
   };
+  const [isKiosk, setIsKiosk] = useState(false);
+
+  const [kioskHash, setkioskHash] = useState("");
+
+  useEffect(() => {
+    // Function to check the URL format
+    const checkUrlFormat = () => {
+      try {
+        // Assuming you want to check the current window's URL
+        const url = new URL(window.location.href);
+
+        // Check if hash matches the specific pattern
+        // This pattern matches hashes like #string-string-string
+        const hashPattern = /^#(\w+)-(\w+)-(\w+)$/;
+        //console.log(url.hash)
+        setkioskHash(url.hash)
+        return hashPattern.test(url.hash);
+      } catch (error) {
+        // Handle potential errors, e.g., invalid URL
+        console.error("Invalid URL:", error);
+        return false;
+      }
+    };
+
+    // Call the checkUrlFormat function and log the result
+    const result = checkUrlFormat();
+    setIsKiosk(result)
+    console.log("URL format check result:", result);
+  }, []); // Empty dependency array means this effect runs only once after the initial render
+
 
   const Button = ({ children, type }) => (
     <button
@@ -400,28 +407,33 @@ const Item = (props) => {
             &lt; Back to store
           </a>
         </div> */}
-        <span className='flex' id="sub-title">
-          <div className='flex'>
+        {isKiosk ?
+          null :
+          <span className='flex' id="sub-title">
+            <div className='flex'>
 
-            {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
-              <b >
-                <b classname="notranslate" style={{ borderRadius: "3px", padding: "3px" }}>
-                  {sessionStorage.getItem('table')} have scanned
-                </b>
-                &nbsp;
-              </b> :
-              <b> {t("To-Go Order")}
-              </b>
+              {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
+                <b >
+                  <b style={{ borderRadius: "3px" }}>
+                    <span className='notranslate'>
+                      {sessionStorage.getItem('table')}
+                    </span>
+                    &nbsp; have scanned
+                  </b>
+                  &nbsp;
+                </b> :
+                <b>No QR Code was Sacnned</b>
 
-            }
+              }
 
-          </div>
+            </div>
 
-          <Hero style={{ "marginBottom": "5px" }}>
-          </Hero>
+            <Hero style={{ "marginBottom": "5px" }}>
+            </Hero>
 
-        </span>
-        <b>No QR Code was Sacnned</b>
+          </span>
+        }
+
 
         {products?.map((product, index) => {
           return (
@@ -446,8 +458,12 @@ const Item = (props) => {
                 </div>
 
                 <div className="d-flex justify-between">
-                  <div className="text-muted notranslate">@ ${Math.round(100 * (product.itemTotalPrice / product.quantity)) / 100} {t("each")} x {product.quantity}</div>
-                  <div className='notranslate'><b>$ {Math.round(100 * (product.itemTotalPrice)) / 100} </b></div>
+                  <div className="text-muted notranslate">@ ${
+
+                    (Math.round(100 * product.itemTotalPrice / product.quantity) / 100).toFixed(2)
+                  } {t("each")} x {product.quantity}</div>
+                  <div className='notranslate'><b>${(Math.round(100 * product.itemTotalPrice * 0.15) / 100).toFixed(2)}
+                  </b></div>
                 </div>
 
               </div>
@@ -461,7 +477,9 @@ const Item = (props) => {
               <b> {t("Subtotal")}:</b>
             </div>
             <div className="col d-flex justify-content-end notranslate">
-              <b>$ {Math.round(100 * totalPrice) / 100}</b>
+              <b>${(Math.round(100 * totalPrice) / 100).toFixed(2)}
+
+              </b>
             </div>
           </div>
           <div className="row">
@@ -469,17 +487,19 @@ const Item = (props) => {
               <b> {t("Tax")} 	&#40;8.25%&#41;:</b>
             </div>
             <div className="col d-flex justify-content-end notranslate">
-              <b>$ {Math.round(100 * totalPrice * tax_rate) / 100}</b>
+              <b>${(Math.round(100 * totalPrice * tax_rate) / 100).toFixed(2)}
+              </b>
             </div>
           </div>
-          {sessionStorage.getItem("isDinein") == "true" ?
+          {sessionStorage.getItem("isDinein") === "true" ?
             <div>
               <div className="row">
                 <div className="col">
                   <b> {t("Service Fee (15%):")}</b>
                 </div>
                 <div className="col d-flex justify-end notranslate">
-                  <b>$ {Math.round(100 * totalPrice * 0.15) / 100}</b>
+                  <b>${(Math.round(100 * totalPrice * 0.15) / 100).toFixed(2)}
+                  </b>
                 </div>
               </div>
               <div className="row">
@@ -492,24 +512,29 @@ const Item = (props) => {
           }
           <div className="row">
             <div className="col" style={{ marginBottom: "5px" }}>
-              <b> {t("Extra Gratuity:")}</b>
+              {
+                sessionStorage.getItem("isDinein") === "true" ?
+                  <b> {t("Extra Gratuity:")}</b> : <b> {t("Gratuity:")}</b>
+              }
             </div>
 
             {/* for the buttons arrangement */}
             <div className="flex justify-between">
-              {!checkDirectoryselfCheckout ?
-                <>
-                  <Button type="percent" value="0%">0%</Button>
-                  <Button type="percent" value="15%">15%</Button>
-                  <Button type="percent" value="18%">18%</Button>
-                  <Button type="percent" value="20%">20%</Button>
-                </> :
-                <>
-                  <Button type="percent" value="0%">0%</Button>
-                  <Button type="percent" value="3%">3%</Button>
-                  <Button type="percent" value="5%">5%</Button>
-                </>
+              {
+                sessionStorage.getItem("isDinein") === "false" ?
+                  <>
+                    <Button type="percent" value="0%">0%</Button>
+                    <Button type="percent" value="15%">15%</Button>
+                    <Button type="percent" value="18%">18%</Button>
+                    <Button type="percent" value="20%">20%</Button>
+                  </> :
+                  <>
+                    <Button type="percent" value="0%">0%</Button>
+                    <Button type="percent" value="3%">3%</Button>
+                    <Button type="percent" value="5%">5%</Button>
+                  </>
               }
+
 
 
               {!showInput && <Button type="other">{t("Other")}</Button>}
@@ -534,7 +559,7 @@ const Item = (props) => {
 
           <div className="row">
             <div className="notranslate col d-flex justify-content-end">
-              <b>$ {calculateTip()}</b>
+              <b>${(Math.round(calculateTip()*100)/100).toFixed(2)}</b>
             </div>
           </div>
           <div className="row">
@@ -542,7 +567,7 @@ const Item = (props) => {
               <b> {t("Total Amount")}:</b>
             </div>
             <div className="notranslate col d-flex justify-content-end">
-              <b>$ {Math.round(100 * (totalPrice * (1 + tax_rate) + tips + (sessionStorage.getItem("isDinein") == "true" ? totalPrice * 0.15 : 0))) / 100}</b>
+              <b>${(Math.round(100 * (totalPrice * (1 + tax_rate) + tips + (sessionStorage.getItem("isDinein") === "true" ? totalPrice * 0.15 : 0))) / 100).toFixed(2)}</b>
             </div>
 
           </div>
@@ -581,39 +606,37 @@ const Checkout = (props) => {
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
   const [loadedAcct, setLoadedAcct] = useState(false);
 
-  const fetchPost = async (name) => {
-    const docRef = doc(db, "TitleLogoNameContent", name);
 
-    try {
-      // Fetch the document
-      const docSnapshot = await getDoc(docRef);
-      // console.log(docSnapshot)
-      // Check if a document was found
+  useEffect(() => {
+    // Check if name is provided to avoid errors
+
+    const docRef = doc(db, "TitleLogoNameContent", store);
+
+    // Set up the real-time subscription
+    const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
-        // The document exists
+        console.log("Document data:", docSnapshot.data());
         const docData = docSnapshot.data();
-        // Save the fetched data to sessionStorage
         sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(docData));
-        setLoadedAcct(true)
+        setLoadedAcct(true); // Assuming setLoadedAcct updates state to indicate data is loaded
       } else {
         console.log("No document found with the given name.");
       }
-    } catch (error) {
+    }, (error) => {
       console.error("Error fetching the document:", error);
-    }
-  }
+    });
 
-  useEffect(() => {
-    fetchPost(store);
-    //console.log("hello")
-  }, []); // <-- Empty dependency array
+    // Cleanup function to unsubscribe from the document when the component unmounts
+    return () => unsubscribe();
+  }, []); // Dependency array to re-run effect if 'name' changes
+
 
   return (
     <div className="checkout ">
       <div className="checkout-container" >
-        {loading && !loadedAcct ? <h2>{t("Loading Payment")}...</h2> : 
-        <div> 
-          <Dashboard totalPrice={Math.round(100 * (totalPrice * (1 + tax_rate) + tips + (sessionStorage.getItem("isDinein") == "true" ? totalPrice * 0.15 : 0))) / 100} /> 
+        {loading && !loadedAcct ? <h2>{t("Loading Payment")}...</h2> :
+          <div>
+            <Dashboard totalPrice={Math.round(100 * (totalPrice * (1 + tax_rate) + tips + (sessionStorage.getItem("isDinein") === "true" ? totalPrice * 0.15 : 0))) / 100} />
           </div>}
       </div>
     </div>

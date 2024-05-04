@@ -12,12 +12,18 @@ import { useMyHook } from '../pages/myHook';
 import { motion, AnimatePresence } from "framer-motion"
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/index';
-import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate,parseDateUTC } from '../comonFunctions';
+import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
+import Eshopingcart from './e-shopingcart.png';  // Import the image
 
 
 function PayFullhistory() {
 
-
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "scroll"
+    };
+  }, []);
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -167,7 +173,7 @@ function PayFullhistory() {
               <div>
                 <div>
                   <div>
-                    <div>
+                    <div class="border-b border-b-1">
                       <div className='flex'>
                         {/* <div className="w-20 h-20 mt-3 overflow-hidden rounded-md">
                           <img
@@ -179,19 +185,33 @@ function PayFullhistory() {
 
                         <div className='w-full'>
                           <div className="mt-2 flex justify-between">
-                            <div>
-                              <div className="mb-1 text-blue-700 d-block text-md font-semibold"
-                                onClick={() => { window.location.href = `/store?store=${order.store}`; }}
-                                style={{ cursor: 'pointer' }}
-                              >
-                                <span className='notranslate'>
-                                  {
-                                    localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(order?.storeNameCHI) : (order?.storeName)
-                                  }
-                                  (${order.metadata.total})
-                                </span>
+
+                            <div className='flex'>
+                              {!isMobile ?
+                                <img
+                                  src={Eshopingcart}
+                                  style={{
+                                    maxHeight: '50px',
+                                    maxWidth: '50px',
+                                    objectFit: 'cover',   // this makes the image co0ver the entire dimensions
+                                  }} /> : <></>
+                              }
+
+                              <div>
+                                <div className="text-blue-700 d-block text-md font-semibold"
+                                  onClick={() => { window.location.href = `/store?store=${order.store}`; }}
+                                  style={{ cursor: 'pointer' }}
+                                >
+                                  <span className='notranslate'>
+                                    {
+                                      localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(order?.storeNameCHI) : (order?.storeName)
+                                    }
+                                  </span>
+                                </div>
+                                <div className="mb-1 d-block text-base text-muted font-semibold">
+                                  Paid <span>${order.metadata.total}</span> at<span className='notranslate'>&nbsp;{order.date.split(" ")[0]}</span></div>
                               </div>
-                              <div className="mb-1 d-block text-sm text-muted font-semibold">{order.date.split(" ")[0]}</div>
+
                             </div>
 
                             <div className=" flex justify-between">
@@ -199,7 +219,7 @@ function PayFullhistory() {
 
                               <a
                                 onClick={() => { toggleExpandedOrderId(order.id) }}
-                                class="btn d-inline-flex btn-sm btn-light mx-1 text-center"  // Added "text-center" class
+                                class="btn d-inline-flex btn-base btn-light mx-1 text-center"  // Added "text-center" class
                                 style={{ height: "40px", display: "flex", alignItems: "center" }}> {/* Added display and alignItems styles */}
                                 <span>
                                   {expandedOrderIds.includes(order.id) ? (
@@ -220,7 +240,7 @@ function PayFullhistory() {
                         <div className="p-0 p-0 rounded-b-lg">
                           <div style={{ paddingTop: "0px", paddingBottom: "10px" }}>
                             <div className="receipt">
-                              <p className="mb-1 text-gray-500 d-block text-sm font-semibold">{order.dineMode === "DineIn" ? "Table Number: " + order.tableNum : "Take Out Order"}
+                              <p className="mb-1 text-gray-500 d-block text-base font-semibold">{order.dineMode === "DineIn" ? "Table Number: " + order.tableNum : "Take Out Order"}
                                 ({order.id.substring(0, 4)})
                               </p>
                               {JSON.parse(order.receiptData).map((item, index) => (
@@ -228,39 +248,38 @@ function PayFullhistory() {
                                   <div>
                                     <div>
                                       <div className='flex justify-between'>
-                                        <p className="notranslate mb-1 text-black text-left text-sm font-semibold">
+                                        <p className="notranslate mb-1 text-black text-left text-base font-semibold">
                                           {item.quantity} x&nbsp;
                                           {
                                             localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)
                                           }
                                         </p>
-                                        <p className="mb-1 text-black text-right text-sm font-semibold">
-                                          ${Math.round(item.quantity * item.subtotal * 100) / 100}
+                                        <p className="mb-1 text-black text-right text-base font-semibold notranslate">
+                                          ${(Math.round(item.quantity * item.subtotal * 100) / 100).toFixed(2)}
                                         </p>
                                       </div>
 
-                                      <div className="mb-1 text-gray-500 d-block text-sm font-semibold "> {Object.entries(item.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
+                                      <div className="mb-1 text-gray-500 d-block text-base font-semibold "> {Object.entries(item.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
                                     </div>
                                   </div>
                                 </div>
                               ))}
                               <div className=" flex justify-between">
-                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">{t("Subtotal")}</p>
-                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">${order.metadata.subtotal}</p>
+                                <p className="mb-1 text-orange-700 d-block text-base font-semibold">{t("Subtotal")}</p>
+                                <p className="mb-1 text-orange-700 d-block text-base font-semibold notranslate">${(Math.round(order.metadata.subtotal * 100) / 100).toFixed(2)}</p>
                               </div>
                               <div className="flex justify-between">
-                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">{t("Tax")}</p>
-                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">${order.metadata.tax}</p>
+                                <p className="mb-1 text-orange-700 d-block text-base font-semibold">{t("Tax")}</p>
+                                <p className="mb-1 text-orange-700 d-block text-base font-semibold notranslate">${(Math.round(order.metadata.tax * 100) / 100).toFixed(2)}</p>
                               </div>
                               <div className=" flex justify-between">
-                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">{t("Gratuity")}</p>
-                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">${order.metadata.tips}</p>
+                                <p className="mb-1 text-orange-700 d-block text-base font-semibold">{t("Gratuity")}</p>
+                                <p className="mb-1 text-orange-700 d-block text-base font-semibold notranslate">${(Math.round(order.metadata.tips * 100) / 100).toFixed(2)}</p>
                               </div>
                               <div className=" flex justify-between">
-                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">{t("Total")}</p>
-                                <p className="mb-1 text-orange-700 d-block text-sm font-semibold">${order.metadata.total}</p>
+                                <p className="mb-1 text-orange-700 d-block text-base font-semibold">{t("Total")}</p>
+                                <p className="mb-1 text-orange-700 d-block text-base font-semibold notranslate">${(Math.round(order.metadata.total * 100) / 100).toFixed(2)}</p>
                               </div>
-                              <hr></hr>
                             </div>
                           </div>
                         </div>

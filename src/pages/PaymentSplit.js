@@ -4,7 +4,7 @@ import { useUserContext } from "../context/userContext";
 import { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import myImage from '../components/check-mark.png';  // Import the image
-import { collection, doc, setDoc,query, where, onSnapshot, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc,query, where, onSnapshot} from "firebase/firestore";
 import { db } from '../firebase/index';
 
 const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, checkout_JSON, totalPrice, }) => {

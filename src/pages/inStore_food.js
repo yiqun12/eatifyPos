@@ -12,7 +12,7 @@ import { ReactComponent as PlusSvg } from './plus.svg';
 import { ReactComponent as MinusSvg } from './minus.svg';
 import { FiSearch } from 'react-icons/fi';
 import { db } from '../firebase/index';
-import { doc, getDoc } from "firebase/firestore";
+import { doc } from "firebase/firestore";
 import { useUserContext } from "../context/userContext";
 import { setDoc } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
@@ -640,7 +640,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     setTotalPrice(0);
     const attributeSelected = item?.attributeSelected ? item.attributeSelected : {}
     setSelectedAttributes(attributeSelected)
-    //addSpecialFood(item.id, item.name, item.subtotal, item.image, attributeSelected, randomNum, item.CHI, null, item.availability, item.attributesArr, item.quantity)
+    addSpecialFood(item.id, item.name, item.subtotal, item.image, attributeSelected, randomNum, item.CHI, null, item.availability, item.attributesArr, item.quantity)
 
     setModalVisibility(true);
     saveId(Math.random());
@@ -768,6 +768,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     }
   };
   const [dynamicHeight, setDynamicHeight] = useState('60vh');
+  const [dynamicHeightLazy, setDynamicHeightLazy] = useState('60vh');
 
   useEffect(() => {
     // Function to calculate the dynamic height
@@ -775,8 +776,9 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
       if (scrollingWrapperRef.current) {
         const wrapperHeight = scrollingWrapperRef.current.offsetHeight; // Get the height of the scrolling wrapper
         const viewportHeight = window.innerHeight; // Get the viewport height
-        const dynamicHeightValue = `calc(60vh - ${wrapperHeight}px)`; // Calculate the dynamic height
+        const dynamicHeightValue = isMobile ? `calc(80vh - ${wrapperHeight}px)` : `calc(60vh - ${wrapperHeight}px)`; // Calculate the dynamic height
         setDynamicHeight(dynamicHeightValue); // Set the dynamic height
+        setDynamicHeightLazy(isMobile ? `calc(80vh - ${wrapperHeight - 4}px)` : `calc(60vh - ${wrapperHeight - 4}px)`)
       }
     };
 
@@ -1038,12 +1040,10 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                 </div>
                 : null}
               {/* end of the top */}
-              <div ref={scrollingWrapperRef} className={`mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''} mb-0`}
-
-              >
+              <div ref={scrollingWrapperRef} className={`mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''} mb-0`}>
                 {!view ?
                   <div className=
-                    {`${isMobile ? '' : 'bg-gray-100 p-4 rounded-lg shadow-lg flex flex-wrap gap-1 justify-content: space-between;'}`}
+                    {`${isMobile ? '' : 'bg-gray-100 p-4 rounded-lg flex flex-wrap gap-1 justify-content: space-between;'}`}
                     style={{ overflowX: 'auto' }}>
                     <button onClick={() => {
                       setFoods(data)
@@ -1097,7 +1097,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
           </div>
           {!view ?
-            <LazyLoad height={762}>
+            <LazyLoad height={dynamicHeightLazy}>
 
               {/* diplay food */}
               <AnimatePresence>

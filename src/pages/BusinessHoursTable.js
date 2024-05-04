@@ -193,18 +193,18 @@ function BusinessHoursTable() {
   function grabDayTime(dayTimeObject) {
     const currentDayIndex = new Date().getDay(); // This will return a number from 0 (Sunday) to 6 (Saturday)
     const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    
+
     const currentDayName = daysOfWeek[currentDayIndex]; // This will give you the current day's name
-    
+
     const hoursForToday = businessHours[currentDayName];
     if (hoursForToday) {
       let hoursString = hoursForToday.map((hour, index) => {
         return hour === "Closed" ? t("Closed") : hour;
       }).join('\n');
-    
-      return(`${hoursString}`);
+
+      return (`${hoursString}`);
     } else {
-      return(`Not defined in business hours`);
+      return (`Not defined in business hours`);
     }
     //return `hello world`;
   }
@@ -258,9 +258,9 @@ function BusinessHoursTable() {
       Closed
       </Button> } */}
 
-      <pre onClick={handleShow} className="responsive-text notranslate text-2xl font-bold text-justify px-4 font-bold" style={{ cursor: "pointer" }}>
-      {grabDayTime()}
-      </pre>
+      <h6 onClick={handleShow} className="notranslate px-2" style={{ cursor: "pointer" }}>
+        {grabDayTime()}
+      </h6>
       {/* <Button variant="primary" onClick={handleShow}>
       Business Hours
       </Button> */}
@@ -268,6 +268,9 @@ function BusinessHoursTable() {
       <Modal className="my-custom-modal" show={show} onHide={handleClose} size="large" centered style={{ width: "100%" }}>
         <Modal.Header>
           <Modal.Title>{t("Business Hours")}</Modal.Title>
+          <Button variant="secondary" onClick={handleClose}>
+            {t("Close")}
+          </Button>
         </Modal.Header>
         <Modal.Body>
           {/* everything here to the Modal.Body end is the table */}
@@ -293,22 +296,11 @@ function BusinessHoursTable() {
                   </td>
                 </tr>
               ))}
-              {/* {Object.entries(businessHours).map(([day, hours]) => (
-          <tr key={day}>
-            <td>{day}</td>
-            <td>{hours}</td>
-          </tr>
-        ))} */}
             </tbody>
           </Table>
           {/* the code for the table ends here */}
 
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            {t("Close")}
-          </Button>
-        </Modal.Footer>
       </Modal>
     </div>
   );

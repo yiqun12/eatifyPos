@@ -4,7 +4,7 @@ import { useUserContext } from "../context/userContext";
 import { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import myImage from '../components/check-mark.png';  // Import the image
-import { doc, addDoc, arrayUnion, collection, setDoc, getDoc } from 'firebase/firestore';
+import { doc, addDoc, collection, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/index'; // Make sure to import necessary functions
 
 

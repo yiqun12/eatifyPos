@@ -28,7 +28,7 @@ import { ReactComponent as MinusSvg } from './minus.svg';
 import logo_fork from './logo_fork.png'
 import Hero from './Hero'
 import cuiyuan from './cuiyuan.png'
-import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc } from "firebase/firestore";
 import { onSnapshot, query } from 'firebase/firestore';
 
 import { db } from '../firebase/index';
@@ -927,7 +927,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
       <div class=''>
         <div className="flex w-full">
-          <div style={{ overflowY: 'auto', maxHeight: '700px' }} className={`flex-grow  ${!isMobile ? 'm-6' : ''}`}>
+          <div style={{ overflowY: 'auto', maxHeight: '700px' }} className={`flex-grow  ${!isMobile ? 'm-6' : 'm-2'}`}>
             {(Array.isArray(products) ? products : []).map((product) => (
               // the parent div
               // can make the parent div flexbox
@@ -963,7 +963,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                       class="btn d-inline-flex btn-sm btn-outline-dark mx-1">
                       <span>Revise</span>
                     </a>
-                    
+
                     {/* the add minus box set up */}
                     <div style={{ display: "flex" }}>
 
@@ -1180,8 +1180,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
         <div className="flex flex-col flex-row">
           {isUniqueModalOpen && (
-            <div id="addTipsModal notranslate" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              <div className="modal-dialog" role="document">
+            <div id="addTipsModal notranslate" className="modal fade show"
+              style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+              <div className="modal-dialog">
                 <div className="modal-content">
                   <div className="modal-header">
                     <h2 className="text-2xl font-semibold mb-4">{fanyi("Cash Pay")}</h2>
@@ -1311,19 +1312,29 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <div
                 className="modal-dialog"
                 role="document"
-                style={{ maxWidth: '90%', width: '90%', height: "90%", margin: '0 auto', marginTop: '20px' }}
+                style={{ maxWidth: '95%', width: '95%', height: "90%", margin: '0 auto', marginTop: '20px' }}
               >
                 <div className="modal-content">
-                  <div className="modal-header">
-                    <div className='flex'>
+
+                  <div
+                    className="modal-body pt-0"
+                    style={{ overflowX: 'auto', maxWidth: '100%' }}
+                  >
+                    <div className='flex p-2 pt-4'>
                       <Button className='mr-2' variant="danger" style={{ marginTop: "auto" }} onClick={resetDndTest}>
                         Reset
                       </Button>
-                      <div style={{ fontWeight: 'bold', fontSize: '20px' }}>
-                        Paid Subtotal/Total Subtotal:
-                        <span className='notranslate'>
-                          ${localStorage.getItem("splitSubtotalCurrentPrice")} / ${localStorage.getItem("splitSubtotalTotalPrice")}
-                        </span>
+                      <div style={{ fontWeight: 'bold', fontSize: '15px' }}>
+                        <div>
+                          <div>
+                            Paid Subtotal:
+                            <span className='notranslate'>${localStorage.getItem("splitSubtotalCurrentPrice")}</span>
+                          </div>
+                          <div>
+                            Total Subtotal:
+                            <span className='notranslate'>${localStorage.getItem("splitSubtotalTotalPrice")}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div>
@@ -1331,14 +1342,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         &times;
                       </button>
                     </div>
-                  </div>
-                  <div
-                    className="modal-body pt-0"
-                    style={{ overflowX: 'auto', maxWidth: '100%' }}
-                  >
                     <Dnd_Test store={store} acct={acct} selectedTable={selectedTable} key={dndTestKey} main_input={products} />
-                  </div>
-                  <div className="modal-footer">
                   </div>
                 </div>
               </div>

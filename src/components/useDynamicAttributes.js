@@ -25,6 +25,8 @@ const useDynamicAttributes = () => {
     const [priceFormatError, setPriceFormatError] = useState(null);
 
     const addOrUpdateAttributeVariation = () => {
+        console.log("currentVariation")
+        console.log(currentVariation)
         const trimmedAttribute = currentAttribute.trim();
         const trimmedVariationType = currentVariation.type.trim();
 
@@ -33,7 +35,7 @@ const useDynamicAttributes = () => {
             return;
         }
 
-        let enteredPrice = currentVariation.price.trim();
+        let enteredPrice = String(currentVariation.price).trim();
         const validFormat = /^[-]?\d+(\.\d{1,2})?$/.test(enteredPrice);
         if(enteredPrice === ""){
             enteredPrice = 0;

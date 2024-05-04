@@ -618,18 +618,18 @@ function Dnd_Test(props) {
       function flattenObject(obj, prefix = "") {
         return Object.keys(obj).reduce((acc, key) => {
           const value = obj[key];
-          const currentKey = prefix ? `${prefix} ${key}` : key;
+          const currentKey = key;
 
           if (Array.isArray(value)) {
             // If the value is an array, join its elements and add to the result
             const flattenedArray = value.join(" ");
-            return acc + currentKey + " " + flattenedArray + "<br />";
+            return acc + flattenedArray + "<br />";
           } else if (typeof value === "object" && !Array.isArray(value)) {
             // If the value is an object, recursively flatten it
             return acc + flattenObject(value, currentKey);
           } else {
             // If the value is neither an object nor an array, add it to the result
-            return acc + currentKey + " " + value + "<br />";
+            return acc + value + "<br />";
           }
         }, "");
       }
@@ -649,14 +649,16 @@ function Dnd_Test(props) {
     }
 
     return (
-      <div className="w-full flex flex-col gap-4 rounded-md bg-white p-4 border-1 border-gray-800">
+      <div className="w-full flex flex-col gap-2 rounded-md bg-white p-4 border-1 border-gray-800">
         {/* <p className="font-bold text-2xl">{heading}</p>
         <p className="text-gra7-700 font-thin">{description}</p> */}
         {/* <p className="font-bold text-2xl">{item.name}</p> */}
         <span className="notranslate">
 
           {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
-          <b>{Math.round((Math.round(item.quantity) / Math.round(numberOfGroups)) * 100) / 100}</b> </span>
+          <b>{
+            Math.round((Math.round(item.quantity) / Math.round(numberOfGroups)) * 100) / 100
+          }</b> </span>
         {generateAttributes(item.attributeSelected)}
         {/* <p className="font-bold text-2xl">{item.quantity}</p> */}
       </div>

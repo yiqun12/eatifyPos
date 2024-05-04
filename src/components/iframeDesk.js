@@ -25,7 +25,7 @@ const bodyOverflowHiddenClass = 'body-overflow-hidden';
 
 const Iframe = forwardRef(({ src, width, height, storeName, title }, ref) => {
     const iframeRef = useRef();
-    console.log("title", title)
+    //console.log("title", title)
 
     const sendMessage = () => {
         if (iframeRef.current) {
@@ -525,6 +525,7 @@ function App({ store, acct }) {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
     const isPC = width >= 1024;
+    const isMobile = width <= 768;
 
     const [view, setView] = useState(false);
     const [isAllowed, setIsAllowed] = useState(false);
@@ -607,17 +608,18 @@ function App({ store, acct }) {
                     <div className='flex flex-col' style={{ alignItems: 'flex-start' }}>
 
                         <div style={{ margin: "10px", display: "flex" }} >
-                            <div style={{ position: 'relative' }}>
+                            <div style={isMobile?{ position: 'static' }:{ position: 'relative' }}>
 
-
-                                <Iframe className="notranslate" key={changeEvent}
+                                <Iframe
+                                    className="notranslate" key={changeEvent}
                                     ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width={(divWidth) + "px"} height="800px" storeName={store}
                                     title={title} />
+
                                 {isModalOpen && (
                                     <div id="addTableModal" className="modal fade show" role="dialog" style={{ display: 'block', position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,1)', overflow: 'hidden' }}>
-                                        <div role="document" style={{ overflowY: 'hidden' }}>
+                                        <div role="document" className='m-2' style={{ overflowY: 'hidden' }}>
                                             <div className="modal-content" style={{ overflowY: 'hidden', /* Add scrollbar styles inline */ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' }}>
-                                                <div className="modal-header flex p-0 pb-3">
+                                                <div className="modal-header flex p-0 pb-3 ">
                                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                                         {!isPC ?
                                                             <a
