@@ -121,7 +121,19 @@ function Checkout(props) {
     // e.complete('success'); // Notify the browser that the payment is successful
 
   }
+  const checkDirectoryselfCheckout = () => {
+    const path = window.location.pathname; // Get the current URL path
+    const store = params.get('store')?.trim(); // Get 'store' parameter and trim any spaces
+    const table = params.get('table')?.trim(); // Get 'table' parameter and trim any spaces
+    if (path.includes('/selfCheckout') && store && table) {
+      return true
+    } else {
+      return false
+    }
+  };
 
+  // Example usage of the checkDirectory function
+  const directoryType = checkDirectoryselfCheckout();
   useEffect(() => {
     if (!stripe || !elements) {
       return;
@@ -144,7 +156,12 @@ function Checkout(props) {
         setPaymentRequest(pr);
       }
     });//google/apple pay
+    pr.removeAllListeners()
+    pr.off('paymentmethod'); 
+
     pr.on('paymentmethod', async (e) => {
+      console.log("paymentmethod" + totalPrice)
+
       const { paymentMethod } = e; // Extract the paymentMethod object from the event
 
       const paymentMethodId = paymentMethod.id; // Extract the id from the paymentMethod object
@@ -155,6 +172,7 @@ function Checkout(props) {
       const amount = Number(totalPrice);
       const currency = 'usd';
       //  console.log(currency)
+      console.log("dollar pay")
       console.log(amount)
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
@@ -164,13 +182,13 @@ function Checkout(props) {
         currency,
         amount: amount,
         status: 'new',
-        receipt: sessionStorage.getItem(store),
+        receipt: directoryType ? sessionStorage.getItem("ReceiptDataDineIn") : sessionStorage.getItem(store),
         dateTime: date,
         user_email: user.email,
         uid: user.uid,
         isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
         tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut",
-        directoryType:false
+        directoryType: directoryType
       };
       // send to db
       await firebase
@@ -188,7 +206,7 @@ function Checkout(props) {
         });
       //e.complete('success'); // Notify the browser that the payment is successful
     });
-  }, [stripe, elements]);
+  }, [stripe, elements, totalPrice]);
 
   // function startDataListeners() {
   //   /**
@@ -471,11 +489,11 @@ function Checkout(props) {
               </button>
 
             </form> */}
+            
             {
               !isKiosk && paymentRequest && (
                 <>
                   <div>
-
                     <PaymentRequestButtonElement options={{ paymentRequest }} />
                   </div>
                   <div style={{ marginBottom: "10px" }}></div>
@@ -520,6 +538,7 @@ function Checkout(props) {
   );
 };
 function CardSection(props) {
+
   const params = new URLSearchParams(window.location.search);
 
   // Function to check if the directory is 'checkout' or 'selfCheckout'
@@ -617,9 +636,22 @@ function CardSection(props) {
       card.unmount();
     };
   }, [stripe, elements]);
+  const checkDirectoryselfCheckout = () => {
+    const path = window.location.pathname; // Get the current URL path
+    const store = params.get('store')?.trim(); // Get 'store' parameter and trim any spaces
+    const table = params.get('table')?.trim(); // Get 'table' parameter and trim any spaces
+    if (path.includes('/selfCheckout') && store && table) {
+      return true
+    } else {
+      return false
+    }
+  };
+
+  // Example usage of the checkDirectory function
+  const directoryType = checkDirectoryselfCheckout();
 
   const handleSubmit = async (e) => {
-
+    console.log("handleSubmit", totalPrice)
     e.preventDefault();
 
     if (!stripe || !cardElement) {
@@ -658,14 +690,14 @@ function CardSection(props) {
       currency,
       amount,
       status: 'new',
-      receipt: sessionStorage.getItem(store),
+      receipt: directoryType ? sessionStorage.getItem("ReceiptDataDineIn") : sessionStorage.getItem(store),
       dateTime: date,
       user_email: user.email,
       uid: user.uid,
       isDinein: sessionStorage.getItem('isDinein') === 'true' ? 'DineIn' : 'TakeOut',
       saveCard: saveCard, // Include the saveCard value in the data
       tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut",
-      directoryType:false,
+      directoryType: directoryType,
     };
 
 
@@ -740,7 +772,7 @@ function CardSection(props) {
                   'paddingLeft': 0,
                   'paddingRight': 0,
                 }}>
-                  <span id="card2-inner" style={{
+                  <span id="card2-inner text-base" style={{
                     'paddingLeft': 0,
                     'paddingRight': 0,
                     color: "black"
@@ -791,7 +823,7 @@ function CardSection(props) {
                   'paddingLeft': 0,
                   'paddingRight': 0
                 }}>
-                  <span id="card2-inner" style={{
+                  <span id="card2-inner text-base" style={{
                     'paddingLeft': 0,
                     'paddingRight': 0,
                     color: "black"
@@ -828,7 +860,8 @@ function CardSection(props) {
               style={{ "borderRadius": "0.2rem", width: "100%" }}
               class="text-white bg-orange-700 hover:bg-orange-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 ">
               <FontAwesomeIcon icon={faCreditCard} />
-              &nbsp; {t("Pay with Credit Card")}</button>
+              &nbsp; {t("Pay with Credit Card")}
+            </button>
           </form>
 
         </div>
@@ -1181,7 +1214,7 @@ function PayHistory(props) {
     return Value * Math.PI / 180;
   }
   const [distanceStatus, setDistanceStatus] = useState("far"); // 'near' or 'far'
-  
+
   function checkgeolocation() {
 
     getLocation().then((newLocation) => {

@@ -11,6 +11,7 @@ import './SwitchToggle.css';
 import moment from 'moment';
 import firebase from 'firebase/compat/app';
 import { useUserContext } from "../context/userContext";
+import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
 
 const App = () => {
 
@@ -23,6 +24,9 @@ const App = () => {
 };
 
 const Item = () => {
+    function roundToTwoDecimalsTofix(n) {
+        return (Math.round(n * 100) / 100).toFixed(2);
+    }
     const params = new URLSearchParams(window.location.search);
     const { user, user_loading } = useUserContext();
     const [documentData, setDocumentData] = useState([]);
@@ -96,7 +100,9 @@ const Item = () => {
                         <div>
                             <b className="block text-black notranslate">{t("Order ID")}: {receiptToken?.substring(0, 4)}</b>
                         </div>
-                        <span className="block text-black text-sm">{moment(documentData?.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-13).format("MMMM D, YYYY h:mm a")}</span>
+                        <span className="block text-black text-sm">
+
+                            {parseDateUTC(documentData?.dateTime)}</span>
                     </div>
                 )
                 }
@@ -112,12 +118,12 @@ const Item = () => {
                                     </b>
                                 </div>
                                 <div className="row d-flex">
-                                    <p className="text-muted  mb-0 pb-0">@ ${product.subtotal} {t("each")} x {product.quantity}</p>
+                                    <p className="text-muted  mb-0 pb-0">@ ${roundToTwoDecimalsTofix(product.subtotal)} {t("each")} x {product.quantity}</p>
                                 </div>
                             </div>
                             <div className="col-3 d-flex justify-content-end">
                                 <p>
-                                    <b>${Math.round(100 * product.subtotal * product.quantity) / 100}</b>
+                                    <b>${roundToTwoDecimalsTofix(Math.round(100 * product.subtotal * product.quantity) / 100)}</b>
                                 </p>
                             </div>
                         </div>

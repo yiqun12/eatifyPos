@@ -137,7 +137,7 @@ const Food = () => {
     // console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
 
     product.attributeSelected = updatedSelectedAttributes
-    product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
+    product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) )/ 100
 
     console.log(JSON.stringify(products))
 
@@ -427,7 +427,7 @@ const Food = () => {
       product.quantity++;
       product.attributeSelected = attributeSelected;
       product.count = count;
-      product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
+      product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) )/ 100
       product.CHI = CHI
     } else {
       // If the product doesn't exist, add it to the array
@@ -476,7 +476,7 @@ const Food = () => {
         }
         const product = products.find((product) => product.id === id && product.count === count);
 
-        product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100)
+        product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) )/ 100
         // Save the updated array in local storage
         sessionStorage.setItem(store, JSON.stringify(products));
         setProducts(products)
@@ -748,17 +748,14 @@ const Food = () => {
                         }}
                       >
                         <div className="quantity"
-
                           style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-18px", paddingTop: "20px", height: "fit-content" }}>
                           <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
                             <button
-
                               className="plus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
                               onClick={() => {
                                 deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 1);
                                 //saveId(Math.random());
                               }}
-
                             >
                               <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
                             </button>

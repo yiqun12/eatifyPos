@@ -36,8 +36,30 @@ import useNetworkStatus from '../components/useNetworkStatus';
 import { useIdleTimer } from "react-idle-timer";
 import CountdownTimer from './CountdownTimer'; // Adjust the import path as needed
 import Eshopingcart from '../components/e-shopingcart.png';  // Import the image
-
+import Dashboard from "../components/dashboard";
+import { db } from '../firebase/index';
+import { query, where, limit, doc, onSnapshot } from "firebase/firestore";
 const Navbar = () => {
+  const [tipAmount, setTipAmount] = useState(0);
+  const [customTip, setCustomTip] = useState('');
+  const [showCustomTipInput, setShowCustomTipInput] = useState(false);
+
+  const handleTip = (percentage) => {
+    const tip = Math.round(100 * totalPrice * (percentage / 100)) / 100;
+    setTipAmount(tip.toFixed(2));
+  };
+  function stringTofixed(n) {
+    return (Math.round(n * 100) / 100).toFixed(2)
+  }
+  const handleCustomTip = () => {
+
+    setTipAmount(parseFloat(!isNaN(customTip) && customTip.trim() !== "" ? customTip : 0).toFixed(2));
+    setShowCustomTipInput(false);  // Optionally hide the input again after adding custom tip
+  };
+
+  const toggleCustomTipInput = () => {
+    setShowCustomTipInput(!showCustomTipInput);
+  };
   // Constants for the timeout and debounce time
   const FIVE_MINS = 1 * 30 * 1000; // 5 minutes in milliseconds
   const GENERAL_DEBOUNCE_TIME = 500; // 500 milliseconds
@@ -46,7 +68,13 @@ const Navbar = () => {
   const handleOnUserIdle = () => {
     setOpenModalTimer(true)
   };
-
+  const handleCustomTipChange = (e) => {
+    const value = e.target.value;
+    // Check if the input is either empty or a positive number (including zero)
+    if (value === '' || (!isNaN(value) && Number(value) >= 0)) {
+      setCustomTip(value);
+    }
+  };
   // Setting up the idle timer with a timeout and debounce
   useIdleTimer({
     timeout: FIVE_MINS, // time in milliseconds until the user is considered idle
@@ -62,7 +90,6 @@ const Navbar = () => {
     if (window.google && window.google.translate) {
       new window.google.translate.TranslateElement(
         {
-          pageLanguage: "en",
           includedLanguages: "en,zh-CN",
           autoDisplay: false
         },
@@ -98,6 +125,7 @@ const Navbar = () => {
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
+
     //console.log('Component B - ID changed:', id);
   }, [id]);
 
@@ -118,15 +146,6 @@ const Navbar = () => {
 
   const isMobile = width <= 768;
 
-  const [isHover, setIsHover] = useState(false);
-
-  const handleMouseEnter = () => {
-    setIsHover(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHover(false);
-  };
 
   const { logoutUser } = useUserContext();
   const { user, user_loading } = useUserContext();
@@ -140,28 +159,7 @@ const Navbar = () => {
 
   const [totalQuant, setTotalQuant] = useState(0);
   useEffect(() => {
-    // Calculate the height of the shopping cart based on the number of products
-    let height = 100;
-    if (width > 575) {
-      if (products && products.length > 0) {
-        if (products.length < 5) {
-          height = products.length * 123 + 100; // 123 is the height of each product element and 100 is the top and bottom margin of the shopping cart
-        } else {
-          height = 5 * 123 + 140; // set height to show only the first 5 items and the shopping cart header
-        }
-      }
-    } else {
 
-      height = (products?.length || 0) * 123 + 100;
-    }
-
-    //console.log("product changed")
-    // Update the height of the shopping cart element
-    const shoppingCart = document.querySelector('.shopping-cart');
-
-    if (shoppingCart && shoppingCart.style) {
-      shoppingCart.style.height = `${height}px`;
-    }
     //maybe add a line here...
     const calculateTotalPrice = () => {
       const total = products?.reduce((acc, item) => item && parseFloat(item.itemTotalPrice) ? parseFloat(acc) + parseFloat(item.itemTotalPrice) : parseFloat(acc), 0);
@@ -223,9 +221,10 @@ const Navbar = () => {
   const btnRef = useRef(null);
   const spanRef = useRef(null);
   const [shoppingCartOpen, setShoppingCartOpen] = useState(false);
+  const [containerHeight, setContainerHeight] = useState(0); // State to store the container height
+
 
   const openModal = () => {
-    setShoppingCartOpen(true)
     setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
     modalRef.current.style.display = 'block';
     // Retrieve the array from local storage
@@ -234,32 +233,61 @@ const Navbar = () => {
   const closeModal = () => {
     //console.log(products)
     modalRef.current.style.display = 'none';
-    setShoppingCartOpen(false)
     setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
-
+    setOpenCheckout(false)
   };
-  const modalRef2 = useRef(null);
   const btnRef2 = useRef(null);
   const spanRef2 = useRef(null);
   const queryParams = new URLSearchParams(location.search);
   const tableValue = params.get('table') ? params.get('table') : "";
+  
 
-  if (tableValue === "") {
-    if (sessionStorage.getItem('table')) {//存在过
-      sessionStorage.setItem('table', tableValue)
-      sessionStorage.setItem('isDinein', true)
-    } else {//不存在
-      sessionStorage.setItem('table', tableValue)
-      sessionStorage.setItem('isDinein', false)
+  const [isDineIn, setIsDineIn] = useState(false);
+  console.log(isDineIn)
+  
+  useEffect(() => {
+    if(tableValue===""){
+      setIsDineIn(false)
+      sessionStorage.setItem('table',tableValue)
+    }else{
+      sessionStorage.setItem('table',tableValue)
+      setIsDineIn(true)
     }
-  } else {
-    sessionStorage.setItem('table', tableValue)
-    sessionStorage.setItem('isDinein', true)
-  }
+  }, []); // Dependency array to re-run effect if 'name' changes
+
   const storeFromURL_modal = params.get('modal') ? params.get('modal').toLowerCase() : "";
   const [openModal2, setOpenModal2] = useState(storeFromURL_modal === 'true');
   const [openModalTimer, setOpenModalTimer] = useState(false);
+  const { loading } = useUserContext();
 
+  const [loadedAcct, setLoadedAcct] = useState(false);
+
+
+  useEffect(() => {
+    const path = window.location.pathname; // Get the current URL path
+
+    // Check if name is provided to avoid errors
+    if (!path.includes('/store')) {
+      return
+    }
+    const docRef = doc(db, "TitleLogoNameContent", store);
+    // Set up the real-time subscription
+    const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        console.log("Document data:", docSnapshot.data());
+        const docData = docSnapshot.data();
+        sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(docData));
+        setLoadedAcct(true); // Assuming setLoadedAcct updates state to indicate data is loaded
+      } else {
+        console.log("No document found with the given name.");
+      }
+    }, (error) => {
+      console.error("Error fetching the document:", error);
+    });
+
+    // Cleanup function to unsubscribe from the document when the component unmounts
+    return () => unsubscribe();
+  }, []); // Dependency array to re-run effect if 'name' changes
 
   useEffect(() => {
     // Get the modal
@@ -285,16 +313,19 @@ const Navbar = () => {
   if (!sessionStorage.getItem(storeValue)) {
     sessionStorage.setItem(storeValue, JSON.stringify([]));
   }
+  const [openCheckout, setOpenCheckout] = useState(false);
+
   //console.log(storeValue)
   //console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
-    if (isKiosk) {
-      window.location.href = '/Checkout' + "?store=" + storeValue + kioskHash
-    } else if (!sessionStorage.getItem("table")) {
-      window.location.href = '/Checkout' + "?store=" + storeValue
-    } else {
-      window.location.href = '/Checkout' + "?store=" + storeValue + "&" + "table=" + sessionStorage.getItem("table")
-    }
+    setOpenCheckout(true)
+    // if (isKiosk) {
+    //   window.location.href = '/Checkout' + "?store=" + storeValue + kioskHash
+    // } else if (!sessionStorage.getItem("table")) {
+    //   window.location.href = '/Checkout' + "?store=" + storeValue
+    // } else {
+    //   window.location.href = '/Checkout' + "?store=" + storeValue + "&" + "table=" + sessionStorage.getItem("table")
+    // }
   };
   const [isVisible, setIsVisible] = useState(false);
 
@@ -426,8 +457,8 @@ const Navbar = () => {
         `}
       </style>
 
-      {((location.pathname.includes('/store'))&&!shoppingCartOpen ) && (
-        <a className="float">
+      {((location.pathname.includes('/store')) && !shoppingCartOpen) && (
+        <a className="float" style={{ zIndex: "1000" }}>
           <a
             style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
 
@@ -490,7 +521,7 @@ const Navbar = () => {
         </div>
       )}
 
-      {(openModalTimer && isKiosk && location.pathname.includes('/Checkout')) && (
+      {(openModalTimer && isKiosk) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4 py-8">
           <div className="relative w-full max-w-2xl mx-auto bg-white rounded-lg border border-gray-200 shadow-lg p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Inactive Alert</h2>
@@ -524,141 +555,311 @@ const Navbar = () => {
 
         {/* popup content */}
         <div className="shopping-cart" >
-
+     
           {/* shoppig cart */}
-          <div className="title" style={{ height: '80px' }}>
+          {!openCheckout ?
+            <React.Fragment>
+              <div className="title pb-1">
+                <div className='flex' style={{ justifyContent: "space-between" }}>
+                  <Hero isDineIn={isDineIn} setIsDineIn={setIsDineIn} className="mr-auto" style={{ marginBottom: "5px" }}>
+                  </Hero>
 
-
-            <DeleteSvg className="delete-btn" style={{ 'postion': 'absolute', float: 'right', cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></DeleteSvg>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              {totalPrice === 0 ?
-                <div>
-                  <div style={{ marginTop: "5px", }}>
-                    <span>
-                      <i style={{ fontSize: "35px" }} className="bi bi-cart-check"></i>
-                      <span >&nbsp;{t("Your cart is currently empty.")}</span>
-                    </span>
-                  </div>
+                  <DeleteSvg className="delete-btn" style={{ 'postion': 'absolute', float: 'right', cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></DeleteSvg>
                 </div>
-                :
-                <button
-                  style={{ width: "80%", border: "0px", margin: "auto" }}
-                  class="w-900 mx-auto border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex justify-between"
-                  onClick={HandleCheckout_local_stripe}>
-                  <span class="text-left">                  <span >
-                    {isMobile ?
+                {isKiosk ?
+                  null :
+                  <span className='flex' id="sub-title">
+                    <div className='flex'>
 
-                      <></>
-                      : <FontAwesomeIcon icon={faCreditCard} />
-                    }
+                      {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
+                        <b >
+                          <b style={{ borderRadius: "3px" }}>
+                            Your dining table number is&nbsp;
+                            <span className='notranslate'>
+                              {sessionStorage.getItem('table')}
+                            </span>
+                            &nbsp;
+                          </b>
+                          &nbsp;
+                        </b> :
+                        <b>You did not select dining table</b>
+
+                      }
+
+                    </div>
+
                   </span>
-                    <span> &nbsp;Checkout Order
-                    </span>
-                  </span>
+                }
+                <div className='text-base'>Scroll down to checkout</div>
 
-                  <span class="text-right notranslate"> ${(Math.round(100 * totalPrice) / 100).toFixed(2)} </span>
-                </button>
-              }
-            </div>
-          </div>
-          <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
+              </div>
+              <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
 
-            {/* generates each food entry */}
-            {products?.map((product) => (
-              // the parent div
-              // can make the parent div flexbox
-              <div key={product.count} className="item">
+                {/* generates each food entry */}
+                {products?.map((product) => (
+                  // the parent div
+                  // can make the parent div flexbox
+                  <div key={product.count} className={` ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`} >
 
-                {/* the delete button */}
-                <div className="buttons">
+                    {/* the delete button */}
+                    {/* <div className="buttons">
                   <DeleteSvg className="delete-btn"
                     onClick={() => {
                       handleDeleteClick(product.id, product.count)
                     }}></DeleteSvg>
-                  {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
-                </div>
-                {/* the image */}
-                {/* <div className="image">
+                </div> */}
+                    {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
+
+                    {/* the image */}
+                    {/* <div className="image">
                   <div class="image-container" >
                     <img style={{ marginLeft: '-7px' }} src={product.image} alt="" />
                   </div>
                 </div> */}
 
-                {/* the name + quantity parent div*/}
-                <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available" }}>
-                  {/* the name */}
-                  <div className="description" style={{ width: "-webkit-fill-available" }}>
+                    {/* the name + quantity parent div*/}
+                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available" }}>
+                      {/* the name */}
+                      <div className="description" style={{ width: "-webkit-fill-available" }}>
 
-                    <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
-                      <div class='notranslate text-black text-lg ' style={{ color: "black", width: "-webkit-fill-available" }}>
-                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product.CHI) : (product.name)}
+                        <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
+                          <div class='notranslate text-black text-lg font-bold flex' style={{ justifyContent: "space-between", color: "black", width: "-webkit-fill-available" }}>
+                            <div>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product.CHI) : (product.name)}
+                            </div>
+                            <div style={{ display: "flex" }}>
+
+                              {/* the start of minus button set up */}
+                              <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                                <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                                  onClick={() => {
+                                    if (product.quantity === 1) {
+                                      handleDeleteClick(product.id, product.count);
+                                    } else {
+                                      handleMinusClick(product.id, product.count)
+                                      //handleMinusClick(product.id);
+                                    }
+                                  }}>
+                                  <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                                </button>
+                              </div>
+                              {/* the end of minus button set up */}
+
+                              { /* start of the quantity number */}
+                              <span
+                                class="notranslate"
+                                type="text"
+                                style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                              >{product.quantity}</span>
+                              { /* end of the quantity number */}
+
+                              { /* start of the add button */}
+                              <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                                <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                                  onClick={() => {
+                                    handlePlusClick(product.id, product.count)
+                                  }}>
+                                  <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                                </button>
+                              </div>
+                              { /* end of the add button */}
+                            </div>
+                          </div>
+
+                          <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
+
+                        </div>
                       </div>
 
-                      <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
+                      {/* <div className="theset"> */}
+                      {/* start of quantity (quantity = quantity text + buttons div) */}
+                      <div className="text-lg quantity p-0"
+                        style={{ marginRight: "0px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div className='span'>
+                          <div className="text-muted notranslate">@ ${
+                            (Math.round(100 * product.itemTotalPrice / product.quantity) / 100).toFixed(2)
+                          } {t("each")} x {product.quantity}</div>
+                        </div>
+                        {/* Using a pseudo-element to create a dashed line */}
+                        <div className="dashed-line "></div>
+                        <div className='notranslate'>${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}</div>
+                      </div>
 
+                      {/* end of quantity */}
                     </div>
+
+                    {/* end of name + quantity parent div*/}
                   </div>
 
-                  {/* <div className="theset"> */}
-                  {/* start of quantity (quantity = quantity text + buttons div) */}
-                  <div className="quantity p-0"
-                    style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
+                ))}
+                <div className={`total ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`}>
+                  <div className="row">
+                    <div className="col">
+                      <b> {t("Subtotal")}:</b>
+                    </div>
+                    <div className="col d-flex justify-content-end notranslate">
+                      <b>${(Math.round(100 * totalPrice) / 100).toFixed(2)}
+
+                      </b>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col">
+                      <b> {t("Tax")} 	&#40;8.25%&#41;:</b>
+                    </div>
+                    <div className="col d-flex justify-content-end notranslate">
+                      <b>${(Math.round(100 * totalPrice * 0.0825) / 100).toFixed(2)}
+                      </b>
+                    </div>
+                  </div>
+                  {isDineIn ?
                     <div>
-                      <div className='notranslate'>${(Math.round(product.itemTotalPrice*100)/100).toFixed(2)}</div>
+                      <div className="row">
+                        <div className="col">
+                          <b> {t("Service Fee (15%):")}</b>
+                        </div>
+                        <div className="col d-flex justify-end notranslate">
+                          <b>${(Math.round(100 * totalPrice * 0.15) / 100).toFixed(2)}
+                          </b>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col">
+                          <div> {t("A service charge is applied only for dining in.")}</div>
+                        </div>
+                      </div>
+                    </div>
+                    : <div></div>
+                  }
+                  <div className="flex">
+                    <div style={{ marginBottom: "5px" }}>
+                      {
+                        isDineIn ?
+                          <b> {t("Extra Gratuity:")}</b> : <b> {t("Gratuity:")}</b>
+
+                      }
+                      <b className='notranslate'>({stringTofixed(parseFloat(tipAmount) / parseFloat(totalPrice) * 100)}%)</b>
 
                     </div>
-                    {/* the add minus box set up */}
-                    <div style={{ display: "flex" }}>
+                    <div className="notranslate col d-flex justify-content-end">
+                      <b className='notranslate'>${stringTofixed(tipAmount)}</b>
 
-                      {/* the start of minus button set up */}
-                      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                        <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                          onClick={() => {
-                            if (product.quantity === 1) {
-                              handleDeleteClick(product.id, product.count);
-                            } else {
-                              handleMinusClick(product.id, product.count)
-                              //handleMinusClick(product.id);
-                            }
-                          }}>
-                          <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                        </button>
-                      </div>
-                      {/* the end of minus button set up */}
-
-                      { /* start of the quantity number */}
-                      <span
-                        class="notranslate"
-                        type="text"
-                        style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                      >{product.quantity}</span>
-                      { /* end of the quantity number */}
-
-                      { /* start of the add button */}
-                      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                        <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                          onClick={() => {
-                            handlePlusClick(product.id, product.count)
-                          }}>
-                          <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                        </button>
-                      </div>
-                      { /* end of the add button */}
                     </div>
-                    { /* end of the add minus setup*/}
+                  </div>
+                  <div>
+                    {!isDineIn ? (
+                      <div className="flex space-x-2 mb-2">
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(15)}>15%</button>
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(18)}>18%</button>
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(20)}>20%</button>
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
+
+                      </div>
+                    ) : (
+                      <div className="flex space-x-2 mb-2">
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(0)}>0%</button>
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(3)}>3%</button>
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(5)}>5%</button>
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
+
+                      </div>
+                    )}
+                    {showCustomTipInput && (
+                      <div className="my-2">
+                        <input
+                          type="number"
+                          className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          value={customTip}
+                          onChange={handleCustomTipChange}
+                          placeholder="Enter gratuity amount"
+                        />
+                        <button className="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" onClick={handleCustomTip}>
+                          Add Gratuity Amount</button>
+                      </div>
+                    )}
+
+
                   </div>
 
-                  {/* end of quantity */}
+                  <div className="row">
+                    <div className="col">
+                      <b> {t("Total Amount")}:</b>
+                    </div>
+                    <div className="notranslate col d-flex justify-content-end">
+                      <b>
+                        ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                          + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
+                        )
+
+                        }
+                      </b>
+                    </div>
+
+                  </div>
+                </div>
+                <div className="mb-3" style={{ display: 'flex', justifyContent: 'space-between' }}>
+
+                  {totalPrice === 0 ?
+                    <div className='mx-4'>
+                      <div style={{ marginTop: "5px", }}>
+                        <span>
+                          <i style={{ fontSize: "35px" }} className="bi bi-cart-check"></i>
+                          <span >&nbsp;{t("Your cart is currently empty.")}</span>
+                        </span>
+                      </div>
+                    </div>
+                    :
+                    <button
+                      style={{ width: "100%", border: "0px", margin: "auto" }}
+                      class="rounded-md mx-4 border-0 text-white bg-orange-700 hover:bg-orange-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex justify-between"
+                      onClick={HandleCheckout_local_stripe}>
+                      <span class="text-left">
+                        <span >
+                          <FontAwesomeIcon icon={faCreditCard} />
+                        </span>
+                        <span> &nbsp;Checkout Order
+                        </span>
+                      </span>
+
+                      <span class="text-right notranslate">
+                        ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                          + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
+                        )
+                        }
+                      </span>
+                    </button>
+                  }
+
+
                 </div>
 
-                {/* end of name + quantity parent div*/}
+
               </div>
+            </React.Fragment> : null
+          }
 
-            ))}
 
-          </div>
+          {loading && !loadedAcct ? <h2>{t("Loading Payment")}...</h2> :
+            <div>
+              {openCheckout ?
+                <React.Fragment>
+                  <div className="title pb-1 flex justify-end ml-auto pb-1" style={{ "borderBottom": "0" }}>
+                    <DeleteSvg className="delete-btn " style={{ cursor: 'pointer', margin: '0' }}
+                      ref={spanRef} onClick={closeModal}>
+                    </DeleteSvg>
+                  </div>
+
+                  <Dashboard totalPrice={stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                    + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
+                  )
+                  } />
+                </React.Fragment>
+
+                : <div></div>
+              }
+
+            </div>}
         </div>
+
       </div>
       {/**navbar */}
       <div className={`pb-2 sticky top-0 z-20 ${!isMobile ? "mx-auto justify-between" : "justify-between"}`}>
@@ -707,7 +908,7 @@ const Navbar = () => {
                     window.location.href = '/';
                   }
                 }} className='notranslate text-black text-xl font-bold'>
-                 EatifyDash
+                  EatifyDash
                 </span>
               </React.Fragment>
               : null}

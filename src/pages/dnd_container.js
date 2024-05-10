@@ -64,11 +64,13 @@ function Item({ item, updateItems, whole_item_groups, numberOfGroups }) {
       {/* <p className="font-bold text-2xl">{item.name}</p> */}
       <span className="notranslate">
 
-        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
-        <b>{
-          Math.round((Math.round(item.quantity) / Math.round(numberOfGroups)) * 100) / 100
-        }</b> </span>
-      {generateAttributes(item.attributeSelected)}
+{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
+<b>{
+  Math.round((Math.round(item.quantity) / Math.round(numberOfGroups)) * 100) / 100
+}</b>
+
+{generateAttributes(item.attributeSelected)}
+</span>
       {/* <p className="font-bold text-2xl">{item.quantity}</p> */}
     </div>
   );
@@ -664,7 +666,7 @@ function Container(props) {
         <div className="flex ">
 
           <div className={``}>
-            <div className="flex flex-col gap-2 p-1 min-w-[250px]" >
+            <div className="flex flex-col gap-2 p-1 w-[180px]" >
               {/* Add an invisible placeholder */}
               <div
                 ref={setNodeRef}
@@ -854,7 +856,7 @@ function Container(props) {
                         &times;
                       </button>
                     </div>
-                    <div className="modal-body pt-0">
+                    <div className="modal-body p-2 pt-0">
                       <p className="mb-4 mt-4">Gratuity:</p>
                       <div className="flex justify-between mb-4">
                         <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">

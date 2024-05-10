@@ -14,13 +14,15 @@ const Dashboard = (props) => {
   const promise = loadStripe(STRIPE_PUBLISHABLE_KEY, {
     stripeAccount: JSON.parse(sessionStorage.getItem('TitleLogoNameContent'))?.stripe_store_acct
   });
-
+  function stringTofixed(n) {
+    return (Math.round(n * 100) / 100).toFixed(2)
+  }
   return (
     <div>
       <Elements stripe={promise}>
-        <div className="card2 mb-50" style={{ "box-shadow": 'rgba(0, 0, 0, 0.02)-20px 1 20px -10px' }}>
+        <div className="m-4" style={{ "box-shadow": 'rgba(0, 0, 0, 0.02)-20px 1 20px -10px' }}>
           <div className="notranslate text-black select-none text-2xl">
-            CHECKOUT ${Math.round(100 * totalPrice) / 100}
+            CHECKOUT ${stringTofixed(Math.round(100 * totalPrice) / 100)}
           </div>
           <Checkout totalPrice={totalPrice} />
 

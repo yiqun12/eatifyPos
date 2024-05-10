@@ -11,6 +11,7 @@ import './SwitchToggle.css';
 import moment from 'moment';
 import firebase from 'firebase/compat/app';
 import { useUserContext } from "../context/userContext";
+import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
 
 const App = () => {
 
@@ -23,6 +24,9 @@ const App = () => {
 };
 
 const Item = () => {
+  function roundToTwoDecimalsTofix(n) {
+    return (Math.round(n * 100) / 100).toFixed(2);
+  }
   const [payment_data, setPaymentData] = useState(null);
   const [products, setProducts] = useState([]);
   //const receiptToken = window.location.href.split('?')[1];
@@ -80,16 +84,16 @@ const Item = () => {
           .onSnapshot((doc) => {
             if (doc.exists) {
               const payment = doc.data();
-
+              console.log("formattedDate"+parseDateUTC(payment.dateTime))
               const paymentData = {
                 receipt_data: payment.receiptData,
                 document_id: doc.id.substring(0, 4),
-                time: payment.dateTime,
+                time: parseDateUTC(payment.dateTime),
                 email: payment.user_email,
                 status: payment.powerBy,
                 isDinein: payment.metadata.isDine === "TakeOut" ? "TakeOut" : "Table: " + payment.tableNum,
                 tax: payment.metadata.tax,
-                tips: payment.metadata.tips,
+                tips: payment.metadata.service_fee,
                 subtotal: payment.metadata.subtotal,
                 total: payment.metadata.total,
                 store: payment.store,
@@ -111,16 +115,17 @@ const Item = () => {
                 .onSnapshot((doc) => {
                   if (doc.exists) {
                     const payment = doc.data();
+                    console.log("formattedDate"+parseDateUTC(payment.dateTime))
 
                     const paymentData = {
                       receipt_data: payment.receiptData,
                       document_id: doc.id.substring(0, 4),
-                      time: payment.dateTime,
+                      time: parseDateUTC(payment.dateTime),
                       email: payment.user_email,
                       status: payment.powerBy,
                       isDinein: payment.metadata.isDine === "TakeOut" ? "TakeOut" : "Table: " + payment.tableNum,
                       tax: payment.metadata.tax,
-                      tips: payment.metadata.tips,
+                      tips: payment.metadata.service_fee,
                       subtotal: payment.metadata.subtotal,
                       total: payment.metadata.total,
                       store: payment.store,
@@ -134,7 +139,7 @@ const Item = () => {
                 }, (error) => {
                   console.log("Error getting document:", error);
                 });
-            }
+            }//http://localhost:3000/store?store=demo&order=WVpWWerpIyAYsYNyBLAP&modal=true
           }, (error) => {
             console.log("Error getting document:", error);
           });
@@ -167,10 +172,13 @@ const Item = () => {
   return (
     <div className="" >
       <div className="col d-flex">
-        {/** 
-        <span className="text-muted" id="orderno">
-          order #546924
-        </span>*/}
+        <div>
+
+          <b>
+            We have received your paid order.
+            Please contact the seller to confirm your order.
+          </b>
+        </div>
       </div>
       <div className="gap">
         <div className="col-2 d-flex mx-auto" />
@@ -182,7 +190,9 @@ const Item = () => {
 
         <b className="block text-black notranslate">{t("Order ID")}: {payment_data.document_id?.substring(0, 4)}</b>
 
-        <span className="block text-black text-sm">{moment(payment_data.time, "YYYY-MM-DD-HH-mm-ss-SS").utcOffset(-13).format("MMMM D, YYYY h:mm a")}</span>
+        <span className="block text-black text-sm">
+        {payment_data.time}
+        </span>
 
 
       </div>
@@ -201,12 +211,12 @@ const Item = () => {
                   </b>
                 </div>
                 <div className="row d-flex">
-                  <p className="text-muted mb-0 pb-0">@ ${product.subtotal} {t("each")} x {product.quantity}</p>
+                  <p className="text-muted mb-0 pb-0">@ ${roundToTwoDecimalsTofix(product.subtotal)} {t("each")} x {product.quantity}</p>
                 </div>
               </div>
               <div className="col-3 d-flex justify-content-end">
                 <p>
-                  <b>${Math.round(100 * product.subtotal * product.quantity) / 100}</b>
+                  <b>${roundToTwoDecimalsTofix(Math.round(100 * product.subtotal * product.quantity) / 100)}</b>
                 </p>
               </div>
             </div>
@@ -219,7 +229,7 @@ const Item = () => {
               <b> {t("Subtotal")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${payment_data.subtotal}</b>
+              <b>${roundToTwoDecimalsTofix(payment_data.subtotal)}</b>
             </div>
           </div>
           <div className="row">
@@ -227,7 +237,7 @@ const Item = () => {
               <b> {t("Tax")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${payment_data.tax}</b>
+              <b>${roundToTwoDecimalsTofix(payment_data.tax)}</b>
             </div>
           </div>
           {payment_data.tips && payment_data.tips !== 0 && (
@@ -236,7 +246,7 @@ const Item = () => {
                 <b>{t("Gratuity")}:</b>
               </div>
               <div className="col d-flex justify-content-end">
-                <b>${payment_data.tips}</b>
+                <b>${roundToTwoDecimalsTofix(payment_data.tips)}</b>
               </div>
             </div>
           )}
@@ -245,7 +255,7 @@ const Item = () => {
               <b> {t("Total")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${payment_data.total}</b>
+              <b>${roundToTwoDecimalsTofix(payment_data.total)}</b>
             </div>
           </div>
         </div>

@@ -1317,7 +1317,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 <div className="modal-content">
 
                   <div
-                    className="modal-body pt-0"
+                    className="modal-body p-2 pt-0"
                     style={{ overflowX: 'auto', maxWidth: '100%' }}
                   >
                     <div className='flex p-2 pt-4'>

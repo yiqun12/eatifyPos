@@ -28,7 +28,19 @@ import firebase from 'firebase/compat/app';
 const App = () => {
 
   const params = new URLSearchParams(window.location.search);
+  const checkDirectoryselfCheckout = () => {
+    const path = window.location.pathname; // Get the current URL path
+    const store = params.get('store')?.trim(); // Get 'store' parameter and trim any spaces
+    const table = params.get('table')?.trim(); // Get 'table' parameter and trim any spaces
+    if (path.includes('/selfCheckout') && store && table) {
+      return true
+    } else {
+      return false
+    }
+  };
 
+  // Example usage of the checkDirectory function
+  const directoryType = checkDirectoryselfCheckout();
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
   // console.log(store)
   // console.log(store + "-" + sessionStorage.getItem('table'))
@@ -44,6 +56,9 @@ const App = () => {
       console.error("Store or Table is not defined");
       return;
     }
+    if (!directoryType) {
+      return
+    }
     console.log("executing")
     const docRef = firebase.firestore()
       .collection('TitleLogoNameContent')
@@ -55,7 +70,9 @@ const App = () => {
       if (snapshot.exists) {
         const data = snapshot.data();
         console.log(data.product)
-        setProducts(false ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
+        setProducts(directoryType ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
+        sessionStorage.setItem("ReceiptDataDineIn", data.product)
+
         saveId(Math.random());
       } else {
         console.log("No such document!");
@@ -256,7 +273,19 @@ const Item = (props) => {
 
   //let products = JSON.parse(sessionStorage.getItem(store));
   const [products, setProducts] = useState(JSON.parse(sessionStorage.getItem(store)));
+  const checkDirectoryselfCheckout = () => {
+    const path = window.location.pathname; // Get the current URL path
+    const store = params.get('store')?.trim(); // Get 'store' parameter and trim any spaces
+    const table = params.get('table')?.trim(); // Get 'table' parameter and trim any spaces
+    if (path.includes('/selfCheckout') && store && table) {
+      return true
+    } else {
+      return false
+    }
+  };
 
+  // Example usage of the checkDirectory function
+  const directoryType = checkDirectoryselfCheckout();
   useEffect(() => {
     const table = sessionStorage.getItem('table'); // Assuming 'table' value is correctly set in sessionStorage
     if (!store || !table) {
@@ -266,6 +295,9 @@ const Item = (props) => {
       return;
     }
     console.log("executing")
+    if (!directoryType) {
+      return
+    }
     const docRef = firebase.firestore()
       .collection('TitleLogoNameContent')
       .doc(store)
@@ -276,7 +308,8 @@ const Item = (props) => {
       if (snapshot.exists) {
         const data = snapshot.data();
         console.log(data.product)
-        setProducts(false ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
+        setProducts(directoryType ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
+        sessionStorage.setItem("ReceiptDataDineIn", data.product)
       } else {
         console.log("No such document!");
       }
@@ -401,39 +434,6 @@ const Item = (props) => {
     <div className="card2 mb-50" style={!isMobile ? { "box-shadow": 'rgba(0, 0, 0, 0.08) -20px 1 20px -10px' } : { "box-shadow": 'rgba(0, 0, 0, 0.08) 20px -10px -20px -10px' }}>
 
       <div className="main">
-        {/* <div className='mb-2'>
-
-          <a href={`./store?store=${store}`} style={{ color: "blue" }}>
-            &lt; Back to store
-          </a>
-        </div> */}
-        {isKiosk ?
-          null :
-          <span className='flex' id="sub-title">
-            <div className='flex'>
-
-              {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
-                <b >
-                  <b style={{ borderRadius: "3px" }}>
-                    <span className='notranslate'>
-                      {sessionStorage.getItem('table')}
-                    </span>
-                    &nbsp; have scanned
-                  </b>
-                  &nbsp;
-                </b> :
-                <b>No QR Code was Sacnned</b>
-
-              }
-
-            </div>
-
-            <Hero style={{ "marginBottom": "5px" }}>
-            </Hero>
-
-          </span>
-        }
-
 
         {products?.map((product, index) => {
           return (
@@ -457,12 +457,12 @@ const Item = (props) => {
                   <p className='m-0 pb-0'>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</p>
                 </div>
 
-                <div className="d-flex justify-between">
+                <div className="d-flex justify-between font-lg">
                   <div className="text-muted notranslate">@ ${
 
                     (Math.round(100 * product.itemTotalPrice / product.quantity) / 100).toFixed(2)
                   } {t("each")} x {product.quantity}</div>
-                  <div className='notranslate'><b>${(Math.round(100 * product.itemTotalPrice * 0.15) / 100).toFixed(2)}
+                  <div className='notranslate'><b>${(Math.round(100 * product.itemTotalPrice) / 100).toFixed(2)}
                   </b></div>
                 </div>
 
@@ -510,56 +510,11 @@ const Item = (props) => {
             </div>
             : <div></div>
           }
-          <div className="row">
-            <div className="col" style={{ marginBottom: "5px" }}>
-              {
-                sessionStorage.getItem("isDinein") === "true" ?
-                  <b> {t("Extra Gratuity:")}</b> : <b> {t("Gratuity:")}</b>
-              }
-            </div>
 
-            {/* for the buttons arrangement */}
-            <div className="flex justify-between">
-              {
-                sessionStorage.getItem("isDinein") === "false" ?
-                  <>
-                    <Button type="percent" value="0%">0%</Button>
-                    <Button type="percent" value="15%">15%</Button>
-                    <Button type="percent" value="18%">18%</Button>
-                    <Button type="percent" value="20%">20%</Button>
-                  </> :
-                  <>
-                    <Button type="percent" value="0%">0%</Button>
-                    <Button type="percent" value="3%">3%</Button>
-                    <Button type="percent" value="5%">5%</Button>
-                  </>
-              }
-
-
-
-              {!showInput && <Button type="other">{t("Other")}</Button>}
-              {showInput && <input
-                type="tel"
-                min="0"
-                className={`notranslate Gratuity ${selectedTip?.type === "other" ? 'border border-solid border-black' : ''}`}
-                placeholder={t("Other")}
-                value={(parseFloat(selectedTip?.value || 0)).toFixed(2)}
-                onChange={e => {
-                  let inputValue = e.target.value;
-                  let centValue = (parseFloat(inputValue.replace('.', '')) || 0);
-                  centValue = centValue / 100;
-                  setSelectedTip({ type: "other", value: centValue.toString() });
-                }}
-                style={{ textAlign: 'center', width: '20%' }}
-                translate="no"
-              />}
-            </div>
-
-          </div>
 
           <div className="row">
             <div className="notranslate col d-flex justify-content-end">
-              <b>${(Math.round(calculateTip()*100)/100).toFixed(2)}</b>
+              <b>$abc</b>
             </div>
           </div>
           <div className="row">

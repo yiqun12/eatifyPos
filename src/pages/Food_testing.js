@@ -140,18 +140,7 @@ const Food = () => {
     sessionStorage.setItem(store, '[]');
   }
   //console.log(user_loading)
-  if (tableValue === "") {
-    if (sessionStorage.getItem('table')) {//存在过
-      sessionStorage.setItem('isDinein', true)
-    } else {//不存在
-      sessionStorage.setItem('table', tableValue)
-      sessionStorage.setItem('isDinein', false)
 
-    }
-  } else {
-    sessionStorage.setItem('table', tableValue)
-    sessionStorage.setItem('isDinein', true)
-  }
   //console.log(tableValue)
 
   //const data = 

@@ -658,8 +658,10 @@ function Dnd_Test(props) {
           {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
           <b>{
             Math.round((Math.round(item.quantity) / Math.round(numberOfGroups)) * 100) / 100
-          }</b> </span>
-        {generateAttributes(item.attributeSelected)}
+          }</b>
+
+          {generateAttributes(item.attributeSelected)}
+        </span>
         {/* <p className="font-bold text-2xl">{item.quantity}</p> */}
       </div>
     );

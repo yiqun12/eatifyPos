@@ -959,6 +959,7 @@ const Food = ({ store }) => {
                             if (!expandOptions) {
                               setExpandOptions(true);
                             } else {
+                              
                               addOrUpdateAttributeVariation();
                             }
                           }}
@@ -1142,10 +1143,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
 
     return initialState;
   };
-  useEffect(() => {
 
-    resetAttributes(transformJsonToInitialState(item.attributesArr));// init
-  }, []);
 
   /**
    * 
@@ -1694,6 +1692,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     if (!expandOptions) {
                       setExpandOptions(true);
                     } else {
+                      resetAttributes(transformJsonToInitialState(item.attributesArr));// init
                       addOrUpdateAttributeVariation();
                     }
                   }}

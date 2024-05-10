@@ -2,31 +2,51 @@ import { useState } from 'react';
 
 const useDynamicAttributes = () => {
 
-      // Initialize a variable with your JSON object
-  const initialAttributesJson = {};
-  const transformJsonToInitialState = (jsonObject) => {
-    const initialState = {};
+    // Initialize a variable with your JSON object
 
-    for (const attributeName in jsonObject) {
-        if (jsonObject.hasOwnProperty(attributeName)) {
-            initialState[attributeName] = {
-                isSingleSelected: jsonObject[attributeName].isSingleSelected,
-                variations: jsonObject[attributeName].variations
-            };
+
+    const initialAttributesJson = {
+        "isSingleSelected": false,
+        "variations": [
+            {
+                "type": "a",
+                "price": 0
+            }
+        ]
+    };
+    const transformJsonToInitialState = (jsonObject) => {
+        const initialState = {};
+
+        for (const attributeName in jsonObject) {
+            if (jsonObject.hasOwnProperty(attributeName)) {
+                initialState[attributeName] = {
+                    isSingleSelected: jsonObject[attributeName].isSingleSelected,
+                    variations: jsonObject[attributeName].variations
+                };
+            }
         }
-    }
+        return initialState;
+    };
 
-    return initialState;
-};
-
-    const [attributes, setAttributes] = useState(transformJsonToInitialState(initialAttributesJson));
+    const [attributes, setAttributes] = useState({
+        "加蛋": {
+            "isSingleSelected": false,
+            "variations": [
+                {
+                    "type": "加蛋",
+                    "price": 1.5
+                }
+            ]
+        }
+    });
     const [currentAttribute, setCurrentAttribute] = useState('');
     const [currentVariation, setCurrentVariation] = useState({ type: '', price: '' });
     const [priceFormatError, setPriceFormatError] = useState(null);
 
     const addOrUpdateAttributeVariation = () => {
         console.log("currentVariation")
-        console.log(currentVariation)
+        console.log(JSON.stringify(currentVariation))
+        console.log(JSON.stringify(attributes))
         const trimmedAttribute = currentAttribute.trim();
         const trimmedVariationType = currentVariation.type.trim();
 
@@ -37,7 +57,7 @@ const useDynamicAttributes = () => {
 
         let enteredPrice = String(currentVariation.price).trim();
         const validFormat = /^[-]?\d+(\.\d{1,2})?$/.test(enteredPrice);
-        if(enteredPrice === ""){
+        if (enteredPrice === "") {
             enteredPrice = 0;
         }
         else if (!validFormat) {
@@ -58,9 +78,9 @@ const useDynamicAttributes = () => {
 
             const variationIndex = updatedAttributes[trimmedAttribute].variations.findIndex(v => v.type === trimmedVariationType);
             if (variationIndex === -1) {
-                updatedAttributes[trimmedAttribute].variations.push(newVariation);
+                updatedAttributes[trimmedAttribute].variations.push(newVariation);//push
             } else {
-                updatedAttributes[trimmedAttribute].variations[variationIndex] = newVariation;
+                updatedAttributes[trimmedAttribute].variations[variationIndex] = newVariation;//set new
             }
 
             return updatedAttributes;
@@ -71,6 +91,8 @@ const useDynamicAttributes = () => {
     };
 
     const deleteVariation = (attributeName, index) => {
+        console.log("deleteVariation")
+
         setAttributes(prev => {
             const updatedAttributes = { ...prev };
             if (updatedAttributes[attributeName]) {
@@ -84,6 +106,8 @@ const useDynamicAttributes = () => {
     };
 
     const deleteAttribute = (attributeName) => {
+        console.log("deleteAttribute")
+
         setAttributes(prev => {
             const updatedAttributes = { ...prev };
             delete updatedAttributes[attributeName];
@@ -92,6 +116,7 @@ const useDynamicAttributes = () => {
     };
 
     const toggleMultiSelect = (attributeName, singleSelect) => {
+        console.log("toggleMultiSelect")
         setAttributes(prev => {
             const updatedAttributes = { ...prev };
             if (updatedAttributes[attributeName]) {
@@ -101,8 +126,12 @@ const useDynamicAttributes = () => {
         });
     };
     const resetAttributes = (customValue = {}) => {
+        if (Object.keys(customValue).length !== 0) {
+            console.log("inittt2");
+            console.log(customValue);
+        }
         setAttributes(customValue);
-      };
+    };
 
     return {
         attributes,

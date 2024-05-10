@@ -2831,6 +2831,7 @@ const Account = () => {
 
 
                           {showSection === 'sales' ? <div>
+                            
                             <div className="flex mt-3">
                               <div className={`w-50 ${isMobile ? 'mobile-class' : 'desktop-class'}`}>
                                 <div>
