@@ -981,15 +981,18 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                         }, {});
                       }
 
-                      function compareObjects() {
-                        const sortedObj1 = sortObject(JSON.parse(localStorage.getItem(store + "-" + selectedTable)).find(product => product.count === selectedFoodItem.count).attributeSelected);
-                        const sortedObj2 = sortObject(JSON.parse(localStorage.getItem(store + "-" + selectedTable)).find(product => product.count === count).attributeSelected);
+                      function compareObjects(obj1, obj2) {
+                        const sortedObj1 = sortObject(
+                          JSON.parse(localStorage.getItem(store + "-" + selectedTable)).find(product => product.count === selectedFoodItem.count).attributeSelected);
+                        const sortedObj2 = sortObject(
+                          JSON.parse(localStorage.getItem(store + "-" + selectedTable)).find(product => product.count === count).attributeSelected);
+                        
                         const serializedObj1 = JSON.stringify(sortedObj1);
                         const serializedObj2 = JSON.stringify(sortedObj2);
                         return serializedObj1 === serializedObj2;
                       }
                       //1st is old, second is new.
-                      if (compareObjects()) {//no attr changes
+                      if (compareObjects(selectedFoodItem.attributeSelected, selectedAttributes)) {//no attr changes
                         deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 0);//delete new one
 
                         console.log("cancel the change")

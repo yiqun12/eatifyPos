@@ -5,31 +5,16 @@ import { useEffect } from 'react';
 import { useMyHook } from './myHook';
 import { useMemo } from 'react';
 
-const Hero = ({ isDineIn, setIsDineIn }) => {
-  console.log(isDineIn)
+const Hero = ({ directoryType, isDineIn, setIsDineIn }) => {
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
     //console.log('Component B - ID changed:', id);
-  }, [id]);
+  }, [id, directoryType]);
   const params = new URLSearchParams(window.location.search);
 
-  // Function to check if the directory is 'checkout' or 'selfCheckout'
-  const checkDirectoryselfCheckout = () => {
-    const path = window.location.pathname; // Get the current URL path
-    const store = params.get('store')?.trim(); // Get 'store' parameter and trim any spaces
-    const table = params.get('table')?.trim(); // Get 'table' parameter and trim any spaces
-    if (path.includes('/selfCheckout') && store && table) {
-      return true
-    } else {
-      return false
-    }
-  };
-
-  // Example usage of the checkDirectory function
-  const directoryType = checkDirectoryselfCheckout();
-
-
+  console.log("sbaijwos")
+  console.log(directoryType)
 
   // for translations sake
   const trans = JSON.parse(sessionStorage.getItem("translations"))

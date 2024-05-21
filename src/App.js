@@ -102,8 +102,8 @@ function App() {
               <Navbar />
               <Routes>
 
-                <Route path="QRcode" element={
-                    <Html /> }></Route>
+                {/* <Route path="QRcode" element={
+                    <Html /> }></Route> */}
 
                 <Route path="Admin" element={
                   user != null &&
@@ -111,15 +111,15 @@ function App() {
                     <Admin_new /> :
                     <LogIn />} />
 
-                <Route path="orders" element={<Receipt />} />
+                {/* <Route path="orders" element={<Receipt />} /> */}
 
                 {/* <Route path="orderhasreceived" element={<OrderHasReceived />} /> */}
 
                 <Route path="Reservation" element={<Reservation />} />
-                {user ? <Route path="/selfCheckout" element={<Checkout />}></Route> : <Route path="/selfCheckout" element={<LogIn />}></Route>}
+                {/* {user ? <Route path="/selfCheckout" element={<Checkout />}></Route> : <Route path="/selfCheckout" element={<LogIn />}></Route>}
 
-                {user ? <Route path="/checkout" element={<Checkout />}></Route> : <Route path="/checkout" element={<LogIn />}></Route>}
-                {user ? <Route path="/DemoFood" element={<DemoFood />}></Route> : <Route path="/DemoFood" element={<LogIn />}></Route>}
+                {user ? <Route path="/checkout" element={<Checkout />}></Route> : <Route path="/checkout" element={<LogIn />}></Route>} */}
+                {/* {user ? <Route path="/DemoFood" element={<DemoFood />}></Route> : <Route path="/DemoFood" element={<LogIn />}></Route>} */}
 
                 {user ?
                   <Route path="Account" element=
@@ -159,14 +159,14 @@ function App() {
                 {/* <Route exact path="/test_admin_new" element={<Admin_new />} /> */}
                 {/* <Route exact path="/test_iframeDesk" element={<IframeDesk store={"demo"} />} /> */}
 
-                <Route exact path="/PaymentKiosk" element={<PaymentKiosk receipt_JSON={JSON.stringify([{ "id": "9ee84ddc-c91f-47ec-981b-1c5680550837", "name": "Garlic A Choy", "subtotal": "15", "image": "https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500", "quantity": 5, "attributeSelected": {}, "count": "3c50ff94-49e1-4563-ac99-990efc15b0e9", "itemTotalPrice": 75, "CHI": "蒜蓉A菜" }, { "id": "c315164b-5afb-4330-b24a-238caf766cc4", "name": "Beef And Broccoli", "subtotal": "18", "image": "https://img2.baidu.com/it/u=3582338435,3937177930&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500", "quantity": 1, "attributeSelected": {}, "count": "9e72ec1f-9941-45be-ac26-369792e69f78", "itemTotalPrice": 18, "CHI": "牛肉西兰花" }])}
-                  storeID={"demo"} chargeAmount={1} connected_stripe_account_id={"acct_1OWU8KBUAXdEY4mJ"} service_fee={0} selectedTable={"测试"} />} />
+                {/* <Route exact path="/PaymentKiosk" element={<PaymentKiosk receipt_JSON={JSON.stringify([{ "id": "9ee84ddc-c91f-47ec-981b-1c5680550837", "name": "Garlic A Choy", "subtotal": "15", "image": "https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500", "quantity": 5, "attributeSelected": {}, "count": "3c50ff94-49e1-4563-ac99-990efc15b0e9", "itemTotalPrice": 75, "CHI": "蒜蓉A菜" }, { "id": "c315164b-5afb-4330-b24a-238caf766cc4", "name": "Beef And Broccoli", "subtotal": "18", "image": "https://img2.baidu.com/it/u=3582338435,3937177930&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500", "quantity": 1, "attributeSelected": {}, "count": "9e72ec1f-9941-45be-ac26-369792e69f78", "itemTotalPrice": 18, "CHI": "牛肉西兰花" }])}
+                  storeID={"demo"} chargeAmount={1} connected_stripe_account_id={"acct_1OWU8KBUAXdEY4mJ"} service_fee={0} selectedTable={"测试"} />} /> */}
 
                 {user ? <Route path="ForgotPassword" element={<Account_admin />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
                 <Route exact path="/store" element={<Food />} />
-                <Route exact path="/DemoFood" element={<DemoFood />} />
+                {/* <Route exact path="/DemoFood" element={<DemoFood />} />
                 <Route exact path="/AdminFood" element={<Admin_food />} />
-                <Route exact path="/Refresh" element={<Refresh />} />
+                <Route exact path="/Refresh" element={<Refresh />} /> */}
                 <Route path="/career" element={<Career/>} />
 
                 <Route path='*' exact={true} element={<Home />} />

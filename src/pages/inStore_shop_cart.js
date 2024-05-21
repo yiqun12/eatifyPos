@@ -76,7 +76,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Enter the Cash Received", output: "输入收到的现金" },
     { input: "Calculate Give Back Cash", output: "计算返还现金" },
     { input: "Receivable Payment", output: "应收付款" },
-    { input: "Give Back Cash ", output: "返还现金" },
+    { input: "Give Back Cash", output: "返还现金" },
     { input: "Add return cash as a gratuity", output: "添加返还现金作为小费" },
     { input: "Total", output: "总计" },
     { input: "Custom Gratuity", output: "自定义小费" },
@@ -84,6 +84,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Add", output: "添加" },
     { input: "and finalize", output: "并最终确定" },
     { input: "Finalize the Order. Total Gratuity", output: "完成订单。小费总额" },
+    { input: "Collect", output: "现收" },
+    { input: "including", output: "余" },
+    { input: "Gratuity", output: "小费" },
+
   ];
   function translate(input) {
     const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
@@ -1186,7 +1190,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 <div className="modal-content">
                   <div className="modal-header">
                     <h2 className="text-2xl font-semibold mb-4">{fanyi("Cash Pay")}</h2>
-                    <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setUniqueModalOpen(false); }}>
+                    <button style={uniqueModalStyles.closeBtnStyle} onClick={() => {
+                      setUniqueModalOpen(false);
+                      setInputValue("")
+                    }}>
                       &times;
                     </button>
                   </div>
@@ -1255,9 +1262,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                     {result !== null && (
                       <div>
                         <p className="mt-1 mb-4 ">
-                          {fanyi("Give Back Cash")} :
-
-                          <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
+                          {fanyi("Give Back Cash")}: <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
                         </p>
                         <button
                           onClick={() => {
@@ -1269,12 +1274,16 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                             closeUniqueModal();
                           }}
                           style={uniqueModalStyles.buttonStyle}
-                          className="mt-2 mb-2 bg-green-500 text-white px-4 py-2 rounded-md w-full"
+                          className="notranslate mt-2 mb-2 bg-green-500 text-white px-4 py-2 rounded-md w-full"
                         >
-
-                          {fanyi("Add return cash as a gratuity")} (
-                          {fanyi("Total")}:<span className='notranslate'>(${Math.round((result - finalPrice + extra) * 100) / 100}</span>)
-                          {fanyi("and finalize")}
+                          {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
+                          {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
+                          {fanyi("Gratuity")}.
+                          {/* {fanyi("Add return cash as a gratuity")} (
+                          {fanyi("Total")}:
+                          
+                          <span className='notranslate'>${Math.round((result - finalPrice + extra) * 100) / 100}</span>
+                          {fanyi("and finalize")} */}
                         </button>
 
                       </div>
@@ -1284,13 +1293,16 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         // tips: Math.round((extra) * 100) / 100
                         // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
                         // total: finalPrice
-                        CashCheckOut(extra, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)), finalPrice); closeUniqueModal();
+                        CashCheckOut(extra, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)), finalPrice);
+                        closeUniqueModal();
+
                       }}//service_fee,finalnum,givebackcash,
                       style={uniqueModalStyles.buttonStyle}
-                      className="mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+                      className="notranslate mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
                     >
-                      {fanyi("Finalize the Order. Total Gratuity")}:
-                      <span className='notranslate'>(${Math.round((extra) * 100) / 100}) </span>
+                      {fanyi("Collect")} ${stringTofixed(finalPrice)},
+                      {fanyi("including")} ${Math.round((extra) * 100) / 100}
+                      {fanyi("Gratuity")}.
                     </button>
                   </div>
                   <div className="modal-footer">
@@ -1456,20 +1468,26 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                       type="number"
                       placeholder="Enter service fee by amount"
                       value={tips}
+                      step="any"  // Allows any decimal input
                       className="form-control tips-no-spinners"  // Presuming the 'tips-no-spinners' class hides the default spinner
                       onChange={(e) => {
-                        let value = parseFloat(e.target.value);  // Convert the input value to a float
-                        if (isNaN(value) || value < 0) {
-                          value = 0;  // Ensure the value is non-negative
-                        } else {
-                          value = Math.max(0, value);  // Enforce the value is at least 0
+                        let value = e.target.value;
+
+                        // Convert to float for validation but update state with original input value
+                        let parsedValue = parseFloat(value);
+
+                        // Ensure the input is non-negative and valid
+                        if (isNaN(parsedValue) || parsedValue < 0) {
+                          value = "0";  // Set to "0" if invalid or negative
                         }
-                        setTips(value.toString());  // Update the state with the validated, non-negative float as a string
+
+                        setTips(value.toString());  // Update the state with the raw input value
                         setSelectedTipPercentage(null);
                       }}
                       onFocus={() => setSelectedTipPercentage(null)}
                       translate="no"
                     />
+
 
                   </div>
                   <div className="modal-footer">
@@ -1506,20 +1524,27 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
                     <input
                       type="number"
-                      placeholder="Enter discount amount"
+                      placeholder="Enter discount by amount"
                       value={discount}
-                      className="form-control discounts-no-spinners"  // Assuming this class is used to hide the spinner controls
-                      translate="no"
+                      step="any"  // Allows any decimal input
+                      className="form-control tips-no-spinners"  // Presuming the 'tips-no-spinners' class hides the default spinner
                       onChange={(e) => {
-                        let value = parseFloat(e.target.value);  // Parse the input value as a float to allow for decimals
-                        if (isNaN(value) || value < 0) {
-                          value = 0;  // If the parsed value is not a number or negative, reset it to 0
-                        }
-                        applyDiscount(value);  // Use the validated, non-negative float
-                        setSelectedDiscountPercentage(null);
-                      }}
-                    />
+                        let value = e.target.value;
 
+                        // Convert to float for validation but update state with original input value
+                        let parsedValue = parseFloat(value);
+
+                        // Ensure the input is non-negative and valid
+                        if (isNaN(parsedValue) || parsedValue < 0) {
+                          value = "0";  // Set to "0" if invalid or negative
+                        }
+
+                        applyDiscount(value.toString());  // Update the state with the raw input value
+                        setSelectedTipPercentage(null);
+                      }}
+                      onFocus={() => setSelectedTipPercentage(null)}
+                      translate="no"
+                    />
                   </div>
                   <div className="modal-footer">
                     <button type="button" className="btn btn-secondary" onClick={handleCancelDiscount}>Cancel</button>

@@ -39,10 +39,13 @@ import Eshopingcart from '../components/e-shopingcart.png';  // Import the image
 import Dashboard from "../components/dashboard";
 import { db } from '../firebase/index';
 import { query, where, limit, doc, onSnapshot } from "firebase/firestore";
+import firebase from 'firebase/compat/app';
+
 const Navbar = () => {
   const [tipAmount, setTipAmount] = useState(0);
   const [customTip, setCustomTip] = useState('');
   const [showCustomTipInput, setShowCustomTipInput] = useState(false);
+  const { signInWithGoogle, signInWithGuest } = useUserContext();
 
   const handleTip = (percentage) => {
     const tip = Math.round(100 * totalPrice * (percentage / 100)) / 100;
@@ -232,25 +235,29 @@ const Navbar = () => {
 
   const closeModal = () => {
     //console.log(products)
-    modalRef.current.style.display = 'none';
-    setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
-    setOpenCheckout(false)
+    if (openCheckout && directoryType === true) {
+      setOpenCheckout(false)
+    } else {
+      modalRef.current.style.display = 'none';
+      setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
+      setOpenCheckout(false)
+    }
+
   };
   const btnRef2 = useRef(null);
   const spanRef2 = useRef(null);
   const queryParams = new URLSearchParams(location.search);
   const tableValue = params.get('table') ? params.get('table') : "";
-  
+
 
   const [isDineIn, setIsDineIn] = useState(false);
-  console.log(isDineIn)
-  
+
   useEffect(() => {
-    if(tableValue===""){
+    if (tableValue === "") {
       setIsDineIn(false)
-      sessionStorage.setItem('table',tableValue)
-    }else{
-      sessionStorage.setItem('table',tableValue)
+      sessionStorage.setItem('table', tableValue)
+    } else {
+      sessionStorage.setItem('table', tableValue)
       setIsDineIn(true)
     }
   }, []); // Dependency array to re-run effect if 'name' changes
@@ -261,7 +268,47 @@ const Navbar = () => {
   const { loading } = useUserContext();
 
   const [loadedAcct, setLoadedAcct] = useState(false);
+  const [directoryType, setDirectoryType] = useState(false);
 
+  useEffect(() => {
+    const table = sessionStorage.getItem('table'); // Assuming 'table' value is correctly set in sessionStorage
+    if (!store || !table) {
+      console.log(store)
+      console.log(table)
+      console.error("Store or Table is not defined");
+      return;
+    }
+    console.log("executing")
+    // if (!directoryType) {
+    //   return
+    // }
+    const docRef = firebase.firestore()
+      .collection('TitleLogoNameContent')
+      .doc(store)
+      .collection('Table')
+      .doc(`${store}-${table}`);
+
+    const unsubscribe = docRef.onSnapshot((snapshot) => {
+      if (snapshot.exists) {
+        const data = snapshot.data();
+        console.log(data.product)
+
+        sessionStorage.setItem("ReceiptDataDineIn", data.product)
+        if (JSON.parse(data.product).length > 0) {
+          setDirectoryType(true)
+          openModal()
+          setProducts(directoryType ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
+        }
+      } else {
+        console.log("No such document!");
+      }
+    }, err => {
+      console.error("Error getting document:", err);
+    });
+
+    // Cleanup function to unsubscribe from the listener when the component unmounts or dependencies change
+    return () => unsubscribe();
+  }, [directoryType]);
 
   useEffect(() => {
     const path = window.location.pathname; // Get the current URL path
@@ -289,23 +336,7 @@ const Navbar = () => {
     return () => unsubscribe();
   }, []); // Dependency array to re-run effect if 'name' changes
 
-  useEffect(() => {
-    // Get the modal
-    const modal = modalRef.current;
 
-    // Get the button that opens the modal
-    const btn = btnRef.current;
-
-    // Get the <span> element that closes the modal
-    const span = spanRef.current;
-
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = (event) => {
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    }
-  }, [products]);// pass `products` as a dependency
   //This will ensure that the useEffect hook is re-run every time the products value changes, and the latest value will be saved to local storage.
   //google login button functions
 
@@ -318,7 +349,13 @@ const Navbar = () => {
   //console.log(storeValue)
   //console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
+    if (user) {
+      //window.location.href = "/";
+    } else {
+      signInWithGuest()
+    }
     setOpenCheckout(true)
+
     // if (isKiosk) {
     //   window.location.href = '/Checkout' + "?store=" + storeValue + kioskHash
     // } else if (!sessionStorage.getItem("table")) {
@@ -361,7 +398,19 @@ const Navbar = () => {
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")])
   const [isKiosk, setIsKiosk] = useState(false);
   const [kioskHash, setkioskHash] = useState("");
+  useEffect(() => {
+    // Get the modal
+    const modal = modalRef.current;
 
+    // When the user clicks anywhere outside of the modal, close it
+
+    window.onclick = (event) => {
+      if (event.target === modal && directoryType === false) {
+        modal.style.display = "none";
+      }
+    }
+
+  }, [directoryType]);// pass `products` as a dependency
   useEffect(() => {
     // Function to check the URL format
     const checkUrlFormat = () => {
@@ -387,6 +436,45 @@ const Navbar = () => {
     setIsKiosk(result)
     console.log("URL format check result:", result);
   }, []); // Empty dependency array means this effect runs only once after the initial render
+  // Example usage of the checkDirectory function;
+
+
+  useEffect(() => {
+    const path = window.location.pathname; // Get the current URL path
+
+    const store = params.get('store')?.trim(); // Get 'store' parameter and trim any spaces
+    const table = params.get('table')?.trim(); // Get 'table' parameter and trim any spaces
+    console.log("checkDirectoryselfCheckout")
+    console.log(path.includes('/store') && store && table && store.length > 0 && table.length > 0)
+    if (store && table && store.length > 0 && table.length > 0) {
+    } else {
+      return
+    }
+    const docRef = firebase.firestore()
+      .collection('TitleLogoNameContent')
+      .doc(store)
+      .collection('Table')
+      .doc(`${store}-${table}`);
+
+    const unsubscribe = docRef.onSnapshot((snapshot) => {
+      if (snapshot.exists) {
+        const data = snapshot.data();
+        console.log("exist")
+        console.log(data.product)
+        //setProducts(directoryType ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
+        sessionStorage.setItem("ReceiptDataDineIn", data.product)
+
+        saveId(Math.random());
+      } else {
+        console.log("No such document!");
+      }
+    }, err => {
+      console.error("Error getting document:", err);
+    });
+
+    // Cleanup function to unsubscribe from the listener when the component unmounts or dependencies change
+    return () => unsubscribe();
+  }, [openCheckout]);
 
   if (localStorage.getItem("Google-language") && localStorage.getItem("Google-language") !== null) {
   } else {
@@ -521,7 +609,7 @@ const Navbar = () => {
         </div>
       )}
 
-      {(openModalTimer && isKiosk) && (
+      {/* {(openModalTimer && isKiosk) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4 py-8">
           <div className="relative w-full max-w-2xl mx-auto bg-white rounded-lg border border-gray-200 shadow-lg p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Inactive Alert</h2>
@@ -548,50 +636,70 @@ const Navbar = () => {
           </div>
         </div>
 
-      )}
+      )} */}
 
       <div ref={modalRef} className="foodcart-modal modal">
 
 
         {/* popup content */}
         <div className="shopping-cart" >
-     
+
           {/* shoppig cart */}
           {!openCheckout ?
             <React.Fragment>
               <div className="title pb-1">
-                <div className='flex' style={{ justifyContent: "space-between" }}>
-                  <Hero isDineIn={isDineIn} setIsDineIn={setIsDineIn} className="mr-auto" style={{ marginBottom: "5px" }}>
-                  </Hero>
 
-                  <DeleteSvg className="delete-btn" style={{ 'postion': 'absolute', float: 'right', cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></DeleteSvg>
+                <div className=' flex justify-end mb-2'>
+                  {!directoryType ?
+                    <DeleteSvg className="delete-btn " style={{ cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></DeleteSvg>
+                    : null}
                 </div>
-                {isKiosk ?
-                  null :
-                  <span className='flex' id="sub-title">
-                    <div className='flex'>
 
-                      {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
-                        <b >
-                          <b style={{ borderRadius: "3px" }}>
-                            Your dining table number is&nbsp;
-                            <span className='notranslate'>
-                              {sessionStorage.getItem('table')}
-                            </span>
-                            &nbsp;
-                          </b>
-                          &nbsp;
-                        </b> :
-                        <b>You did not select dining table</b>
 
-                      }
+                <div className='flex' style={{ justifyContent: "space-between" }}>
+                  <Hero directoryType={directoryType} isDineIn={isDineIn} setIsDineIn={setIsDineIn} className="mr-auto" style={{ marginBottom: "5px" }}>
+                  </Hero>
+                  {!directoryType ? null :
+                    <div className='mt-2' id="google_translate_element"></div>}
+                </div>
+                {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => { }}>show unpaid</button> */}
+                <div className='flex' style={{ justifyContent: "space-between" }}>
+                  <div>
+                    {isKiosk ?
+                      null :
+                      <span className='flex' id="sub-title">
+                        <div className='flex'>
 
-                    </div>
+                          {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
+                            <b >
+                              <b style={{ borderRadius: "3px" }}>
+                                Your dining table number is&nbsp;
+                                <span className='notranslate'>
+                                  {sessionStorage.getItem('table')}
+                                </span>
+                                &nbsp;
+                              </b>
+                              &nbsp;
+                            </b> :
+                            <b>You did not select dining table</b>
 
-                  </span>
-                }
-                <div className='text-base'>Scroll down to checkout</div>
+                          }
 
+                        </div>
+
+                      </span>
+                    }
+                    {directoryType ?
+                      <div className='text-base'> This dining table has unpaid orders. Please settle the existing bill before engaging in other activities.</div>
+                      : null
+                    }
+                    <div className='text-base'>Scroll down to checkout</div>
+
+                  </div>
+
+                  {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    onClick={() => { setDirectoryType(true) }}>Paid for order in this table</button> */}
+                </div>
               </div>
               <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
 
@@ -626,7 +734,7 @@ const Navbar = () => {
                           <div class='notranslate text-black text-lg font-bold flex' style={{ justifyContent: "space-between", color: "black", width: "-webkit-fill-available" }}>
                             <div>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product.CHI) : (product.name)}
                             </div>
-                            <div style={{ display: "flex" }}>
+                            {!directoryType ? <div style={{ display: "flex" }}>
 
                               {/* the start of minus button set up */}
                               <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
@@ -662,7 +770,11 @@ const Navbar = () => {
                                 </button>
                               </div>
                               { /* end of the add button */}
-                            </div>
+                            </div> : null
+
+
+                            }
+
                           </div>
 
                           <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
@@ -691,111 +803,112 @@ const Navbar = () => {
                   </div>
 
                 ))}
-                <div className={`total ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`}>
-                  <div className="row">
-                    <div className="col">
-                      <b> {t("Subtotal")}:</b>
-                    </div>
-                    <div className="col d-flex justify-content-end notranslate">
-                      <b>${(Math.round(100 * totalPrice) / 100).toFixed(2)}
+                {totalPrice !== 0 ?
+                  <div className={`total ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`}>
+                    <div className="row">
+                      <div className="col">
+                        <b> {t("Subtotal")}:</b>
+                      </div>
+                      <div className="col d-flex justify-content-end notranslate">
+                        <b>${(Math.round(100 * totalPrice) / 100).toFixed(2)}
 
-                      </b>
+                        </b>
+                      </div>
                     </div>
-                  </div>
-                  <div className="row">
-                    <div className="col">
-                      <b> {t("Tax")} 	&#40;8.25%&#41;:</b>
+                    <div className="row">
+                      <div className="col">
+                        <b> {t("Tax")} 	&#40;8.25%&#41;:</b>
+                      </div>
+                      <div className="col d-flex justify-content-end notranslate">
+                        <b>${(Math.round(100 * totalPrice * 0.0825) / 100).toFixed(2)}
+                        </b>
+                      </div>
                     </div>
-                    <div className="col d-flex justify-content-end notranslate">
-                      <b>${(Math.round(100 * totalPrice * 0.0825) / 100).toFixed(2)}
-                      </b>
-                    </div>
-                  </div>
-                  {isDineIn ?
-                    <div>
-                      <div className="row">
-                        <div className="col">
-                          <b> {t("Service Fee (15%):")}</b>
+                    {isDineIn ?
+                      <div>
+                        <div className="row">
+                          <div className="col">
+                            <b> {t("Service Fee (15%):")}</b>
+                          </div>
+                          <div className="col d-flex justify-end notranslate">
+                            <b>${(Math.round(100 * totalPrice * 0.15) / 100).toFixed(2)}
+                            </b>
+                          </div>
                         </div>
-                        <div className="col d-flex justify-end notranslate">
-                          <b>${(Math.round(100 * totalPrice * 0.15) / 100).toFixed(2)}
-                          </b>
+                        <div className="row">
+                          <div className="col">
+                            <div> {t("A service charge is applied only for dining in.")}</div>
+                          </div>
                         </div>
                       </div>
-                      <div className="row">
-                        <div className="col">
-                          <div> {t("A service charge is applied only for dining in.")}</div>
-                        </div>
-                      </div>
-                    </div>
-                    : <div></div>
-                  }
-                  <div className="flex">
-                    <div style={{ marginBottom: "5px" }}>
-                      {
-                        isDineIn ?
-                          <b> {t("Extra Gratuity:")}</b> : <b> {t("Gratuity:")}</b>
-
-                      }
-                      <b className='notranslate'>({stringTofixed(parseFloat(tipAmount) / parseFloat(totalPrice) * 100)}%)</b>
-
-                    </div>
-                    <div className="notranslate col d-flex justify-content-end">
-                      <b className='notranslate'>${stringTofixed(tipAmount)}</b>
-
-                    </div>
-                  </div>
-                  <div>
-                    {!isDineIn ? (
-                      <div className="flex space-x-2 mb-2">
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(15)}>15%</button>
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(18)}>18%</button>
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(20)}>20%</button>
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
-
-                      </div>
-                    ) : (
-                      <div className="flex space-x-2 mb-2">
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(0)}>0%</button>
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(3)}>3%</button>
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(5)}>5%</button>
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
-
-                      </div>
-                    )}
-                    {showCustomTipInput && (
-                      <div className="my-2">
-                        <input
-                          type="number"
-                          className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                          value={customTip}
-                          onChange={handleCustomTipChange}
-                          placeholder="Enter gratuity amount"
-                        />
-                        <button className="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" onClick={handleCustomTip}>
-                          Add Gratuity Amount</button>
-                      </div>
-                    )}
-
-
-                  </div>
-
-                  <div className="row">
-                    <div className="col">
-                      <b> {t("Total Amount")}:</b>
-                    </div>
-                    <div className="notranslate col d-flex justify-content-end">
-                      <b>
-                        ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
-                          + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
-                        )
+                      : <div></div>
+                    }
+                    <div className="flex">
+                      <div style={{ marginBottom: "5px" }}>
+                        {
+                          isDineIn ?
+                            <b> {t("Extra Gratuity:")}</b> : <b> {t("Gratuity:")}</b>
 
                         }
-                      </b>
+                        <b className='notranslate'>({stringTofixed(parseFloat(tipAmount) / parseFloat(totalPrice) * 100)}%)</b>
+
+                      </div>
+                      <div className="notranslate col d-flex justify-content-end">
+                        <b className='notranslate'>${stringTofixed(tipAmount)}</b>
+
+                      </div>
+                    </div>
+                    <div>
+                      {!isDineIn ? (
+                        <div className="flex space-x-2 mb-2">
+                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(15)}>15%</button>
+                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(18)}>18%</button>
+                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(20)}>20%</button>
+                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
+
+                        </div>
+                      ) : (
+                        <div className="flex space-x-2 mb-2">
+                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(0)}>0%</button>
+                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(3)}>3%</button>
+                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(5)}>5%</button>
+                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
+
+                        </div>
+                      )}
+                      {showCustomTipInput && (
+                        <div className="my-2">
+                          <input
+                            type="number"
+                            className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            value={customTip}
+                            onChange={handleCustomTipChange}
+                            placeholder="Enter gratuity amount"
+                          />
+                          <button className="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" onClick={handleCustomTip}>
+                            Add Gratuity Amount</button>
+                        </div>
+                      )}
+
+
                     </div>
 
-                  </div>
-                </div>
+                    <div className="row">
+                      <div className="col">
+                        <b> {t("Total Amount")}:</b>
+                      </div>
+                      <div className="notranslate col d-flex justify-content-end">
+                        <b>
+                          ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                            + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
+                          )
+
+                          }
+                        </b>
+                      </div>
+
+                    </div>
+                  </div> : null}
                 <div className="mb-3" style={{ display: 'flex', justifyContent: 'space-between' }}>
 
                   {totalPrice === 0 ?
@@ -842,16 +955,20 @@ const Navbar = () => {
             <div>
               {openCheckout ?
                 <React.Fragment>
+
                   <div className="title pb-1 flex justify-end ml-auto pb-1" style={{ "borderBottom": "0" }}>
                     <DeleteSvg className="delete-btn " style={{ cursor: 'pointer', margin: '0' }}
                       ref={spanRef} onClick={closeModal}>
                     </DeleteSvg>
                   </div>
+                  {loading && !loadedAcct ? <h2>{t("Loading Payment")}...</h2> :
+                    <div>
+                      <Dashboard directoryType={directoryType} isDineIn={isDineIn} totalPrice={stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                        + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
+                      )
+                      } />
+                    </div>}
 
-                  <Dashboard totalPrice={stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
-                    + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
-                  )
-                  } />
                 </React.Fragment>
 
                 : <div></div>
@@ -914,8 +1031,9 @@ const Navbar = () => {
               : null}
 
             <div className='flex ml-auto pr-4 '>
-              <div className='mt-2' id="google_translate_element"></div>
-
+              {!directoryType ?
+                <div className='mt-2' id="google_translate_element"></div>
+                : null}
               {((location.pathname.includes('/store')) || (location.pathname.includes('/Checkout'))) && (
 
                 <button

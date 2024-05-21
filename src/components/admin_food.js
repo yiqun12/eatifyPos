@@ -63,9 +63,7 @@ const Food = ({ store }) => {
 
     return initialState;
   };
-  useEffect(() => {
-    resetAttributes(transformJsonToInitialState({}));
-  }, []);
+
   /**
    * 
   {
@@ -397,7 +395,6 @@ const Food = ({ store }) => {
     if (isDuplicateId) {
       return handleAddNewItem(); // Recursively call the function to generate a new UUID
     }
-
     // Check if any input box is empty and use the placeholder values
     const newItemWithPlaceholders = {
       id: newItemId,
@@ -405,7 +402,7 @@ const Food = ({ store }) => {
       name: newItem.name || "Blank",
       CHI: newItem.CHI || "空白的",
       subtotal: newItem.subtotal || "1",
-      category: newItem.category || selectedFoodType === "" ? "Temporary Use" : selectedFoodType,
+      category: selectedFoodType === "" ? newItem.category || "Temporary Use" : selectedFoodType,
       categoryCHI: newItem.categoryCHI || "类别",
       availability: newItem.availability || ['Morning', 'Afternoon', 'Evening'],
       attributes: newItem.attributes || [],
@@ -539,6 +536,7 @@ const Food = ({ store }) => {
   const [ChangeCategoryName, setChangeCategoryName] = useState(false);
   const [SelectChangeCategoryName, setSelectChangeCategoryName] = useState('');
   const [categoryName, setCategoryName] = useState(''); // Initialize with an empty string
+  const [showAdjustion, setShowAdjustion] = useState(false);
 
   const ChangeCategoryNameSubmit = () => {
     // Use the categoryName state variable here
@@ -843,7 +841,7 @@ const Food = ({ store }) => {
                             console.error("Translation error:", error);
                           }
                         }}
-                          className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(EN)")}</span></span>
+                          className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span className='notranslate'>&nbsp;{t("(EN)")}</span></span>
 
                       </div>
 
@@ -897,23 +895,33 @@ const Food = ({ store }) => {
                         </span>
                       </p>
                       {expandOptions ? <div><div className='d-block text-md font-semibold'>
-                        <div className='flex'>
+                        <button onClick={() => setShowAdjustion(!showAdjustion)}
+                          className="btn d-inline-flex d-inline-flex btn-sm btn-light">
+                          Edit Dish Revision Category
+                        </button>
+                        {
+                          showAdjustion ? (
+                            <>
+                              <div className='flex'>
+                                <span className='text-black'>
+                                  Dish Revise Category:&nbsp;
+                                </span>
+                                <input
+                                  className='text-md font-semibold'
+                                  style={{ width: "50%" }}
+                                  value={currentAttribute}
+                                  onChange={(e) => setCurrentAttribute(e.target.value)}
+                                  placeholder="Size"
+                                  translate="no"
+                                />
+                              </div>
+                              <small className='text-blue-500'>default: 'Option' (E.g.: Portion Size)</small>
+                            </>
+                          ) : null
+                        }
 
-                          <span className='text-black'>
-                            Dish Revise Category:&nbsp;
 
-                          </span>
 
-                          <input
-                            className='text-md font-semibold'
-                            style={{ width: "50%" }}
-                            value={currentAttribute}
-                            onChange={(e) => setCurrentAttribute(e.target.value)}
-                            placeholder=" Size"
-                            translate="no"
-                          />
-                        </div>
-                        <small>E.g.: Portion Size</small>
                         <div className='flex'>
 
                           <span className='text-black'>
@@ -929,7 +937,7 @@ const Food = ({ store }) => {
                             translate="no"
                           />
                         </div>
-                        <small>E.g.: Big</small>
+                        <small className='text-blue-500'>E.g.: Big</small>
                         <div className='flex'>
 
                           <span className='text-black'>
@@ -959,14 +967,14 @@ const Food = ({ store }) => {
                             if (!expandOptions) {
                               setExpandOptions(true);
                             } else {
-                              
+                              resetAttributes(transformJsonToInitialState(attributes))
                               addOrUpdateAttributeVariation();
                             }
                           }}
-                          className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light"
+                          className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-warning"
                         >
                           <span>
-                            {!expandOptions ? "Add or Update Option" : "Confirm"}
+                            {!expandOptions ? "Adjust Dish Revision Option" : "Confirm"}
                           </span>
                         </a>
                       </div>
@@ -1109,6 +1117,7 @@ const Food = ({ store }) => {
 
 
 const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id, translateToEnglish, translateToChinese, foodTypes }) => {
+  const [showAdjustion, setShowAdjustion] = useState(false);
 
   const {
     attributes,
@@ -1559,7 +1568,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                   }
 
                 }}
-                  className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(EN)")}</span></span>
+                  className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span className='notranslate'>&nbsp;{t("(EN)")}</span></span>
 
               </div>
 
@@ -1628,22 +1637,33 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                 </span>
               </p>
               {expandOptions ? <div><div className='d-block text-md font-semibold'>
-                <div className='flex'>
+                <button onClick={() => setShowAdjustion(!showAdjustion)}
+                  className="btn d-inline-flex d-inline-flex btn-sm btn-light">
+                  Edit Dish Revision Category
+                </button>
+                {
+                  showAdjustion ? (
+                    <div>
+                      <div className='flex'>
 
-                  <span className='text-black'>
-                    Dish Revise Category:&nbsp;
+                        <span className='text-black'>
+                          Dish Revise Category:&nbsp;
 
-                  </span>
-                  <input
-                    className='text-md font-semibold'
-                    style={{ width: "50%" }}
-                    value={currentAttribute}
-                    onChange={(e) => setCurrentAttribute(e.target.value)}
-                    placeholder="Size"
-                    translate="no"
-                  />
-                </div>
-                <small>E.g.: Portion Size</small>
+                        </span>
+                        <input
+                          className='text-md font-semibold'
+                          style={{ width: "50%" }}
+                          value={currentAttribute}
+                          onChange={(e) => setCurrentAttribute(e.target.value)}
+                          placeholder="Size"
+                          translate="no"
+                        />
+                      </div>
+                      <small className='text-blue-500'>default: 'Option'(E.g.: Portion Size)</small>
+                    </div>
+                  ) : null
+                }
+
 
                 <div className='flex'>
 
@@ -1661,7 +1681,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     translate="no"
                   />
                 </div>
-                <small>E.g.: Big</small>
+                <small className='text-blue-500'>E.g.: Big</small>
 
                 <div className='flex'>
 
@@ -1696,10 +1716,10 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                       addOrUpdateAttributeVariation();
                     }
                   }}
-                  className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light"
+                  className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-warning"
                 >
                   <span>
-                    {!expandOptions ? "Add or Update Option" : "Confirm"}
+                    {!expandOptions ? "Adjust Dish Revision Option" : "Confirm"}
                   </span>
                 </a>
               </div>

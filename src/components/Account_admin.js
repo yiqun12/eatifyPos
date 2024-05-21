@@ -118,6 +118,8 @@ const Account = () => {
     { input: "Subtotal", output: "小计" },
     { input: "Tax", output: "税" },
     { input: "Service Fee", output: "服务费" },
+    { input: "Discount", output: "折扣" },
+
   ];
   function translate(input) {
     const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
@@ -591,7 +593,7 @@ const Account = () => {
     }, (error) => {
       console.error("Error fetching data: ", error);
     });
-  
+
     // Cleanup function to unsubscribe from the listener when the component unmounts
     return () => unsubscribe();
   }, []); // Ensure db and user.uid are in the dependency array if they might change
@@ -648,7 +650,7 @@ const Account = () => {
 
 
 
-  const COLORS = ['#0088FE', '#00C49F', '#FF8042', '#FFCC33'];
+  const COLORS = ['#0088FE', '#00C49F', '#FF8042', '#9e2820','#000000'];
 
   const RADIAN = Math.PI / 180;
 
@@ -809,7 +811,34 @@ const Account = () => {
   useEffect(() => {
     const handleHashChange = () => {
       const currentHash = window.location.hash;
+      // Retrieve items from localStorage
+      const oldData = localStorage.getItem("Old_TitleLogoNameContent");
+      const newData = localStorage.getItem(storeID);
 
+      // Parse the JSON strings into objects
+      const oldArray = JSON.parse(oldData);
+      const newArray = JSON.parse(newData);
+
+      // Function to sort arrays (adjust based on your data's structure)
+      function sortArray(array) {
+        return array.sort();
+      }
+
+      // Sort both arrays
+      const sortedOldArray = sortArray(oldArray);
+      const sortedNewArray = sortArray(newArray);
+
+      // Function to compare two arrays deeply
+      function areArraysEqual(arr1, arr2) {
+        if (arr1.length !== arr2.length) return false;
+        for (let i = 0; i < arr1.length; i++) {
+          if (arr1[i] !== arr2[i]) return false;
+        }
+        return true;
+      }
+
+      // Compare the sorted arrays
+      const isEqual = areArraysEqual(sortedOldArray, sortedNewArray);
       // Check if the previous hash was '#cards' and the current hash is different
       if (previousHash.includes('#book') && currentHash !== '#book') {
         if (localStorage.getItem("Old_TitleLogoNameContent") === localStorage.getItem(storeID)) {
@@ -915,12 +944,12 @@ const Account = () => {
             }));
             console.log(storeData);
             resolve(storeData.reverse());  // Resolve the promise with the data
-          }, 
+          },
           (error) => {
             reject(error);  // Reject the promise if there's an error
           }
         );
-    
+
         return () => unsubscribe();  // Return a function to unsubscribe when no longer needed
       });
     }
@@ -2754,12 +2783,12 @@ const Account = () => {
                                   <div><span className='notranslate'>{item.split('-')[1]}</span></div>
                                 </div>
                               ))}
-                              {docIds.map((item, index) => (
+                              {/* {docIds.map((item, index) => (
                                 <div key={index} className="qrCodeItem">
                                   <QRCode value={generateQRLinkSelfCheckout(item)} size={128} />
                                   <div>SelfPay <span className='notranslate'>{item.split('-')[1]}</span></div>
                                 </div>
-                              ))}
+                              ))} */}
 
                             </div>
                             <div className="flex justify-end">
@@ -2831,7 +2860,7 @@ const Account = () => {
 
 
                           {showSection === 'sales' ? <div>
-                            
+
                             <div className="flex mt-3">
                               <div className={`w-50 ${isMobile ? 'mobile-class' : 'desktop-class'}`}>
                                 <div>
@@ -3048,12 +3077,13 @@ const Account = () => {
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                            accumulator.discount += parseFloat(receipt.metadata.discount);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                             //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
                                         ).subtotal * 100) / 100
                                       },
                                       {
@@ -3061,24 +3091,26 @@ const Account = () => {
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                            accumulator.discount += parseFloat(receipt.metadata.discount);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                             //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
                                         ).tax * 100) / 100
                                       }, {
                                         name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                            accumulator.discount += parseFloat(receipt.metadata.discount);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                             //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
                                         ).tips * 100) / 100
                                       },
                                       {
@@ -3086,13 +3118,28 @@ const Account = () => {
                                           (accumulator, receipt) => {
                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                            accumulator.discount += parseFloat(receipt.metadata.discount);
                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                             //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
                                         ).service_fee * 100) / 100
+                                      },
+                                      {
+                                        name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                          (accumulator, receipt) => {
+                                            accumulator.tips += parseFloat(receipt.metadata.tips);
+                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                            accumulator.discount += parseFloat(receipt.metadata.discount);
+                                            accumulator.tax += parseFloat(receipt.metadata.tax);
+                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                            //accumulator.total += parseFloat(receipt.total);
+                                            return accumulator;
+                                          },
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
+                                        ).discount * 100) / 100
                                       },
                                     ]}
                                     labelLine={false}
@@ -3109,11 +3156,12 @@ const Account = () => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                              accumulator.discount += parseFloat(receipt.metadata.discount);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                               //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
-                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
                                           ).tips * 100) / 100
                                         },
                                         {
@@ -3122,11 +3170,12 @@ const Account = () => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                              accumulator.discount += parseFloat(receipt.metadata.discount);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                               //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
-                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
                                           ).service_fee * 100) / 100
                                         },
                                         {
@@ -3135,11 +3184,12 @@ const Account = () => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                              accumulator.discount += parseFloat(receipt.metadata.discount);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                               //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
-                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
                                           ).tax * 100) / 100
                                         },
                                         {
@@ -3147,14 +3197,30 @@ const Account = () => {
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                              accumulator.discount += parseFloat(receipt.metadata.discount);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
                                               //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
-                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0 }
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
                                           ).subtotal * 100) / 100
-                                        }].map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
+                                        },
+                                        {
+                                          name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                            (accumulator, receipt) => {
+                                              accumulator.tips += parseFloat(receipt.metadata.tips);
+                                              accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                              accumulator.discount += parseFloat(receipt.metadata.discount);
+                                              accumulator.tax += parseFloat(receipt.metadata.tax);
+                                              accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                              //accumulator.total += parseFloat(receipt.total);
+                                              return accumulator;
+                                            },
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
+                                          ).discount * 100) / 100
+                                        }
+                                      ].map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
                                     }
                                   </Pie>
                                   <Tooltip />
@@ -3450,7 +3516,7 @@ const renderLegend = (props) => {
         <div>
           <li key="revenue" style={{ fontWeight: 'bold', fontWeight: 'bold', fontSize: '13px' }}>
             {fanyi("Revenue")}
-            <span class='notranslate'> (${revenue.toFixed(2)})</span>
+            <span class='notranslate'> (${((revenue-(payload[4].payload.value*2)).toFixed(2))})</span>
           </li>
           {payload.map((entry, index) => (
             <li key={`item-${index}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }} >

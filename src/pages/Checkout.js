@@ -587,7 +587,7 @@ const Checkout = (props) => {
 
 
   return (
-    <div className="checkout ">
+    <div className="checkout">
       <div className="checkout-container" >
         {loading && !loadedAcct ? <h2>{t("Loading Payment")}...</h2> :
           <div>

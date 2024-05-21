@@ -64,13 +64,13 @@ function Item({ item, updateItems, whole_item_groups, numberOfGroups }) {
       {/* <p className="font-bold text-2xl">{item.name}</p> */}
       <span className="notranslate">
 
-{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
-<b>{
-  Math.round((Math.round(item.quantity) / Math.round(numberOfGroups)) * 100) / 100
-}</b>
+        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
+        <b>{
+          Math.round((Math.round(item.quantity) / Math.round(numberOfGroups)) * 100) / 100
+        }</b>
 
-{generateAttributes(item.attributeSelected)}
-</span>
+        {generateAttributes(item.attributeSelected)}
+      </span>
       {/* <p className="font-bold text-2xl">{item.quantity}</p> */}
     </div>
   );
@@ -562,7 +562,54 @@ function Container(props) {
       console.error("Error adding document: ", error);
     }
   };
+  function stringTofixed(n) {
+    return (Math.round(n * 100) / 100).toFixed(2)
+  }
 
+  const translations = [
+    { input: "Change Dining Desk", output: "更换餐桌" },
+    { input: "Turn on Dish Revise", output: "打开菜品修改" },
+    { input: "Turn off Dish Revise", output: "关闭菜品修改" },
+    { input: "Add Service Fee", output: "添加服务费" },
+    { input: "Add Discount", output: "添加折扣" },
+    { input: "Send to kitchen", output: "送到厨房" },
+    { input: "Print Order", output: "打印订单" },
+    { input: "Merchant Receipt", output: "商户收据" },
+    { input: "Split payment", output: "分单付款" },
+    { input: "Mark as Unpaid", output: "未付款" },
+    { input: "Card Pay", output: "信用卡支付" },
+    { input: "Cash Pay", output: "现金支付" },
+    { input: "Subtotal", output: "小计" },
+    { input: "Tax", output: "税" },
+    { input: "Total Amount", output: "总额" },
+    { input: "Discount", output: "折扣" },
+    { input: "Service Fee", output: "服务费" },
+    { input: "Gratuity", output: "小费" },
+    { input: "Revise", output: "修订" },
+    { input: "Cash Pay", output: "现金支付" },
+    { input: "Enter the Cash Received", output: "输入收到的现金" },
+    { input: "Calculate Give Back Cash", output: "计算返还现金" },
+    { input: "Receivable Payment", output: "应收付款" },
+    { input: "Give Back Cash", output: "返还现金" },
+    { input: "Add return cash as a gratuity", output: "添加返还现金作为小费" },
+    { input: "Total", output: "总计" },
+    { input: "Custom Gratuity", output: "自定义小费" },
+    { input: "Other", output: "其他" },
+    { input: "Add", output: "添加" },
+    { input: "and finalize", output: "并最终确定" },
+    { input: "Finalize the Order. Total Gratuity", output: "完成订单。小费总额" },
+    { input: "Collect", output: "现收" },
+    { input: "including", output: "余" },
+    { input: "Gratuity", output: "小费" },
+
+  ];
+  function translate(input) {
+    const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
+    return translation ? translation.output : "Translation not found";
+  }
+  function fanyi(input) {
+    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
+  }
 
   return (
 
@@ -719,21 +766,28 @@ function Container(props) {
                       </div>
                       <input
                         type="number"
-                        min="0"  // Add this line
-                        placeholder="Enter serivce fee by amount"
+                        placeholder="Enter service fee by amount"
                         value={tips}
-                        className="form-control tips-no-spinners"  // Added the 'no-spinners' class
+                        step="any"  // Allows any decimal input
+                        className="form-control tips-no-spinners"  // Presuming the 'tips-no-spinners' class hides the default spinner
                         onChange={(e) => {
                           let value = e.target.value;
-                          if (value < 0) {
-                            value = 0;
+
+                          // Convert to float for validation but update state with original input value
+                          let parsedValue = parseFloat(value);
+
+                          // Ensure the input is non-negative and valid
+                          if (isNaN(parsedValue) || parsedValue < 0) {
+                            value = "0";  // Set to "0" if invalid or negative
                           }
-                          setTips(value);
+
+                          setTips(value.toString());  // Update the state with the raw input value
                           setSelectedTipPercentage(null);
                         }}
                         onFocus={() => setSelectedTipPercentage(null)}
                         translate="no"
                       />
+
                     </div>
                     <div className="modal-footer">
                       <button type="button" className="btn btn-secondary" onClick={() => handleCancelTip()}>Cancel</button>
@@ -779,20 +833,28 @@ function Container(props) {
                           translate="no"
                         />
                       </div>
+
                       <input
                         type="number"
-                        min="0"
-                        placeholder="Enter discount amount"
+                        placeholder="Enter service fee by amount"
                         value={discount}
-                        className="form-control discounts-no-spinners"
+                        step="any"  // Allows any decimal input
+                        className="form-control discounts-no-spinners"  // Presuming the 'tips-no-spinners' class hides the default spinner
                         onChange={(e) => {
-                          let value = parseFloat(e.target.value);
-                          if (value < 0 || isNaN(value)) {
-                            value = 0;
+                          let value = e.target.value;
+
+                          // Convert to float for validation but update state with original input value
+                          let parsedValue = parseFloat(value);
+
+                          // Ensure the input is non-negative and valid
+                          if (isNaN(parsedValue) || parsedValue < 0) {
+                            value = "0";  // Set to "0" if invalid or negative
                           }
-                          applyDiscount(value);
-                          setSelectedDiscountPercentage(null);
+
+                          applyDiscount(value.toString());  // Update the state with the raw input value
+                          setSelectedTipPercentage(null);
                         }}
+                        onFocus={() => setSelectedTipPercentage(null)}
                         translate="no"
                       />
                     </div>
@@ -825,16 +887,13 @@ function Container(props) {
                   <div className="modal-content">
                     <div className="modal-header">
                       <h5 className="modal-title">Select your POS Machine:</h5>
-                      <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setMyModalVisible(false); setReceived(false) }}>
+                      <button style={uniqueModalStyles.closeBtnStyle}
+                        onClick={() => { setMyModalVisible(false); setReceived(false) }}>
                         &times;
                       </button>
                     </div>
-                    <div className="modal-body p-1 pt-0 ">
-
-                      <PaymentSplit subtotal={subtotal} setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} checkout_JSON={checkout(containerId)} totalPrice={Math.round(subtotal * 100)} />
-
-                    </div>
-                    <div className="modal-footer">
+                    <div className="modal-body pt-0">
+                    <PaymentSplit subtotal={subtotal} setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} checkout_JSON={checkout(containerId)} totalPrice={Math.round(subtotal * 100)} />
                     </div>
                   </div>
                 </div>
@@ -852,7 +911,10 @@ function Container(props) {
                   <div className="modal-content">
                     <div className="modal-header">
                       <h2 className="text-2xl font-semibold mb-4">Cash Pay</h2>
-                      <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setUniqueModalOpen(false); }}>
+                      <button style={uniqueModalStyles.closeBtnStyle} onClick={() => {
+                        setUniqueModalOpen(false);
+                        setInputValue("")
+                      }}>
                         &times;
                       </button>
                     </div>
@@ -934,7 +996,9 @@ function Container(props) {
                             style={uniqueModalStyles.buttonStyle}
                             className="mt-2 mb-2 bg-green-500 text-white px-4 py-2 rounded-md w-full"
                           >
-                            Add return cash as a gratuity (Total:<span className='notranslate'>(${Math.round((result - finalPrice + extra) * 100) / 100}</span>) and finalize
+                            {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
+                            {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
+                            {fanyi("Gratuity")}.
                           </button>
 
                         </div>
@@ -950,7 +1014,9 @@ function Container(props) {
                         style={uniqueModalStyles.buttonStyle}
                         className="mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
                       >
-                        Finalize the Order. Total Gratuity: <span className='notranslate'>(${Math.round((extra) * 100) / 100}) </span>
+                        {fanyi("Collect")} ${stringTofixed(finalPrice)},
+                        {fanyi("including")} ${Math.round((extra) * 100) / 100}
+                        {fanyi("Gratuity")}.
                       </button>
                     </div>
                     <div className="modal-footer">

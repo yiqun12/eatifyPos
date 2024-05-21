@@ -21,8 +21,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 // Immediately set Firestore settings
 firebase.firestore().settings({
-  cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+  cacheSizeBytes: 102400000 // 100 MB in bytes
 });
+
 
 // Enable offline data persistence
 
@@ -41,7 +42,7 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 enableMultiTabIndexedDbPersistence(db, {
   forceOwnership: true,
-  cacheSizeBytes: CACHE_SIZE_UNLIMITED // Set cache size to unlimited
+  cacheSizeBytes: 102400000 // Set cache size to 100 MB
 }).then(() => console.log("Offline persistence enabled"))
   .catch(error => {
     switch (error.code) {

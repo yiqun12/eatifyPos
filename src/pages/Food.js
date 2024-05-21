@@ -16,7 +16,7 @@ import { FiSearch } from 'react-icons/fi';
 import { collection, getDocs } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useParams } from 'react-router-dom';
-import { query, where, limit, doc, getDoc } from "firebase/firestore";
+import { query, where, limit, doc, getDoc,onSnapshot  } from "firebase/firestore";
 import LazyLoad from 'react-lazy-load';
 
 import BusinessHoursTable from './BusinessHoursTable.js'
@@ -211,29 +211,25 @@ const Food = () => {
   const formatPriceDisplay = (price) => {
     return price > 0 ? `+$${price.toFixed(2)}` : `-$${Math.abs(price).toFixed(2)}`;
   };
-
-  const fetchPost = async (name) => {
+  const fetchPost = (name) => {
     const docRef = doc(db, "TitleLogoNameContent", name);
-
-    try {
-      // Fetch the document
-      const docSnapshot = await getDoc(docRef);
-      // console.log(docSnapshot)
-      // Check if a document was found
+  
+    // Subscribe to document updates
+    const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
         // The document exists
         const docData = docSnapshot.data();
-
+        console.log(docData);
         // Save the fetched data to sessionStorage
         sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(docData));
         //setStoreOpenTime(JSON.parse(docData.Open_time))
         // Assuming you want to store the key from the fetched data as "Food_arrays"
-        sessionStorage.setItem("Food_arrays", docData.key);
-        setData(JSON.parse(docData.key))
-        setFoods(JSON.parse(docData.key))
+        sessionStorage.setItem("Food_arrays", JSON.stringify(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use")));
+        setData(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use"))
+        setFoods(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use"))
         setStoreInfo(docData)
-        setFoodTypes([...new Set(JSON.parse(docData.key).map(item => item.category))])
-        setFoodTypesCHI([...new Set(JSON.parse(docData.key).map(item => item.categoryCHI))])
+        setFoodTypes([...new Set(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use").map(item => item.category))])
+        setFoodTypesCHI([...new Set(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use").map(item => item.categoryCHI))])
         // console.log(JSON.parse(docData.key))
         // console.log([...new Set(JSON.parse(docData.key).map(item => item.category))])
 
@@ -241,8 +237,10 @@ const Food = () => {
         if (!sessionStorage.getItem("Food_arrays") || sessionStorage.getItem("Food_arrays") === "") {
           sessionStorage.setItem("Food_arrays", "[]");
         }
-        // window.location.reload();
-      } else {
+        // window.location.reload();      } else {
+        // No document found
+        console.log("No such document!");
+      }else{
         sessionStorage.setItem("Food_arrays", "[]");
 
 
@@ -252,15 +250,19 @@ const Food = () => {
 
         console.log("No document found with the given name.");
       }
-    } catch (error) {
+    }, (error) => {
+      // Handle any errors
+      console.log("Error getting document:", error);
       sessionStorage.setItem("Food_arrays", "[]");
 
       setData([])
       setFoods([])
 
-      console.error("Error fetching the document:", error);
-    }
+    });
+  
+    return unsubscribe; // Call this function to unsubscribe from updates when needed
   }
+
 
   useEffect(() => {
     fetchPost(storeValue);

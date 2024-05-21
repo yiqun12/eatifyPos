@@ -5,15 +5,7 @@ const useDynamicAttributes = () => {
     // Initialize a variable with your JSON object
 
 
-    const initialAttributesJson = {
-        "isSingleSelected": false,
-        "variations": [
-            {
-                "type": "a",
-                "price": 0
-            }
-        ]
-    };
+    const initialAttributesJson = {};
     const transformJsonToInitialState = (jsonObject) => {
         const initialState = {};
 
@@ -28,29 +20,21 @@ const useDynamicAttributes = () => {
         return initialState;
     };
 
-    const [attributes, setAttributes] = useState({
-        "加蛋": {
-            "isSingleSelected": false,
-            "variations": [
-                {
-                    "type": "加蛋",
-                    "price": 1.5
-                }
-            ]
-        }
-    });
+    const [attributes, setAttributes] = useState(transformJsonToInitialState(initialAttributesJson));
     const [currentAttribute, setCurrentAttribute] = useState('');
     const [currentVariation, setCurrentVariation] = useState({ type: '', price: '' });
     const [priceFormatError, setPriceFormatError] = useState(null);
 
     const addOrUpdateAttributeVariation = () => {
-        console.log("currentVariation")
-        console.log(JSON.stringify(currentVariation))
-        console.log(JSON.stringify(attributes))
-        const trimmedAttribute = currentAttribute.trim();
+        // console.log("currentVariation")
+        // console.log(JSON.stringify(currentVariation))
+        // console.log(JSON.stringify(attributes))
+        let trimmedAttribute = currentAttribute.trim();
         const trimmedVariationType = currentVariation.type.trim();
-
-        if (trimmedAttribute === '' || trimmedVariationType === '') {
+        if (trimmedAttribute === '') {
+            trimmedAttribute = "Option"
+        }
+        if (trimmedVariationType === '') {
             setPriceFormatError('Attribute and variation type cannot be empty.');
             return;
         }

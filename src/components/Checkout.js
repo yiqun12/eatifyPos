@@ -50,8 +50,9 @@ function Checkout(props) {
   }
 
   const { user, user_loading } = useUserContext();
-  const { totalPrice } = props;
-
+  const { totalPrice, isDineIn,directoryType } = props;
+  console.log("isDineIn")
+  console.log(isDineIn)
 
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
@@ -101,8 +102,8 @@ function Checkout(props) {
       dateTime: date,
       user_email: user.email,
       uid: user.uid,
-      isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
-      tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut"
+      isDinein: isDineIn ? "DineIn" : "TakeOut",
+      tableNum: isDineIn ? sessionStorage.getItem("table") : "外卖TakeOut"
     };
     // send to db
     await firebase
@@ -121,19 +122,7 @@ function Checkout(props) {
     // e.complete('success'); // Notify the browser that the payment is successful
 
   }
-  const checkDirectoryselfCheckout = () => {
-    const path = window.location.pathname; // Get the current URL path
-    const store = params.get('store')?.trim(); // Get 'store' parameter and trim any spaces
-    const table = params.get('table')?.trim(); // Get 'table' parameter and trim any spaces
-    if (path.includes('/selfCheckout') && store && table) {
-      return true
-    } else {
-      return false
-    }
-  };
 
-  // Example usage of the checkDirectory function
-  const directoryType = checkDirectoryselfCheckout();
   useEffect(() => {
     if (!stripe || !elements) {
       return;
@@ -157,7 +146,7 @@ function Checkout(props) {
       }
     });//google/apple pay
     pr.removeAllListeners()
-    pr.off('paymentmethod'); 
+    pr.off('paymentmethod');
 
     pr.on('paymentmethod', async (e) => {
       console.log("paymentmethod" + totalPrice)
@@ -186,8 +175,8 @@ function Checkout(props) {
         dateTime: date,
         user_email: user.email,
         uid: user.uid,
-        isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
-        tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut",
+        isDinein: isDineIn ? "DineIn" : "TakeOut",
+        tableNum: isDineIn ? sessionStorage.getItem("table") : "外卖TakeOut",
         directoryType: directoryType
       };
       // send to db
@@ -446,7 +435,7 @@ function Checkout(props) {
     <div>
       {!isKiosk ? <div>
         <div style={{ color: "white", fontSize: "5px" }}>.</div>
-        <CardSection receiptToken={receiptToken} setReceiptToken={setReceiptToken} totalPrice={totalPrice} />
+        <CardSection directoryType={directoryType} isDineIn={isDineIn} receiptToken={receiptToken} setReceiptToken={setReceiptToken} totalPrice={totalPrice} />
       </div> : null
 
       }
@@ -489,7 +478,7 @@ function Checkout(props) {
               </button>
 
             </form> */}
-            
+
             {
               !isKiosk && paymentRequest && (
                 <>
@@ -533,7 +522,7 @@ function Checkout(props) {
           </div>
         </div>
       </div>
-      <PayHistory receiptToken={receiptToken} setReceiptToken={setReceiptToken} totalPrice={totalPrice} />
+      <PayHistory isDineIn={isDineIn} receiptToken={receiptToken} setReceiptToken={setReceiptToken} totalPrice={totalPrice} />
     </div>
   );
 };
@@ -555,7 +544,7 @@ function CardSection(props) {
     setNewCardAdded(false);
   }
   const { user, user_loading } = useUserContext();
-  const { totalPrice } = props;
+  const { totalPrice, isDineIn,directoryType } = props;
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -636,19 +625,8 @@ function CardSection(props) {
       card.unmount();
     };
   }, [stripe, elements]);
-  const checkDirectoryselfCheckout = () => {
-    const path = window.location.pathname; // Get the current URL path
-    const store = params.get('store')?.trim(); // Get 'store' parameter and trim any spaces
-    const table = params.get('table')?.trim(); // Get 'table' parameter and trim any spaces
-    if (path.includes('/selfCheckout') && store && table) {
-      return true
-    } else {
-      return false
-    }
-  };
 
   // Example usage of the checkDirectory function
-  const directoryType = checkDirectoryselfCheckout();
 
   const handleSubmit = async (e) => {
     console.log("handleSubmit", totalPrice)
@@ -694,9 +672,9 @@ function CardSection(props) {
       dateTime: date,
       user_email: user.email,
       uid: user.uid,
-      isDinein: sessionStorage.getItem('isDinein') === 'true' ? 'DineIn' : 'TakeOut',
+      isDinein: isDineIn ? 'DineIn' : 'TakeOut',
       saveCard: saveCard, // Include the saveCard value in the data
-      tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut",
+      tableNum: isDineIn ? sessionStorage.getItem("table") : "外卖TakeOut",
       directoryType: directoryType,
     };
 
@@ -879,9 +857,8 @@ function PayHistory(props) {
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
 
 
-  console.log(store)
   const { user, user_loading } = useUserContext();
-  const { totalPrice, tips } = props;
+  const { totalPrice, tips, isDineIn } = props;
 
   let stripe; // Declare stripe variable outside of your function
 
@@ -923,8 +900,8 @@ function PayHistory(props) {
       dateTime: date,
       user_email: user.email,
       uid: user.uid,
-      isDinein: sessionStorage.getItem("isDinein") == "true" ? "DineIn" : "TakeOut",
-      tableNum: sessionStorage.getItem("isDinein") == "true" ? sessionStorage.getItem("table") : "外卖TakeOut"
+      isDinein: isDineIn ? "DineIn" : "TakeOut",
+      tableNum: isDineIn ? sessionStorage.getItem("table") : "外卖TakeOut"
     };
     // send to db
     await firebase
@@ -1374,7 +1351,7 @@ function PayHistory(props) {
             storeID={store} chargeAmount={parseFloat(totalPrice)} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
             service_fee={0} selectedTable={'点餐机kiosk'} /> : null
       }
-      {isKiosk ?
+      {/* {isKiosk ?
         <button
           class="text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2"
           style={{ "borderRadius": "0.2rem", width: "100%" }}
@@ -1386,13 +1363,13 @@ function PayHistory(props) {
         </button>
 
         : <div>
-        </div>}
+        </div>} */}
 
       {location ? (
         distanceStatus === 'near' ? (
           <div>
 
-            {(isMobileOrTablet
+            {/* {(isMobileOrTablet
               &&
               !(sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "")
             ) ?
@@ -1408,7 +1385,7 @@ function PayHistory(props) {
 
               : <div>
               </div>
-            }
+            } */}
           </div>
         ) : (
           <div>
