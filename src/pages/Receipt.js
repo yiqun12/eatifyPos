@@ -84,7 +84,7 @@ const Item = () => {
           .onSnapshot((doc) => {
             if (doc.exists) {
               const payment = doc.data();
-              console.log("formattedDate"+parseDateUTC(payment.dateTime))
+              console.log("formattedDate" + parseDateUTC(payment.dateTime))
               const paymentData = {
                 receipt_data: payment.receiptData,
                 document_id: doc.id.substring(0, 4),
@@ -115,7 +115,7 @@ const Item = () => {
                 .onSnapshot((doc) => {
                   if (doc.exists) {
                     const payment = doc.data();
-                    console.log("formattedDate"+parseDateUTC(payment.dateTime))
+                    console.log("formattedDate" + parseDateUTC(payment.dateTime))
 
                     const paymentData = {
                       receipt_data: payment.receiptData,
@@ -184,14 +184,14 @@ const Item = () => {
         <div className="col-2 d-flex mx-auto" />
 
         <div className='mt-1 mb-2' >
-          <b className="text-black text-2xl">{documentData}</b>
+          <b className="text-black text-2xl ">{documentData}</b>
         </div>
         <b className="block text-black text-sm">{payment_data.isDinein} ({payment_data.status})</b>
 
         <b className="block text-black notranslate">{t("Order ID")}: {payment_data.document_id?.substring(0, 4)}</b>
 
-        <span className="block text-black text-sm">
-        {payment_data.time}
+        <span className="block text-black text-sm notranslate">
+          {payment_data.time}
         </span>
 
 
@@ -210,13 +210,13 @@ const Item = () => {
                     {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
                   </b>
                 </div>
-                <div className="row d-flex">
-                  <p className="text-muted mb-0 pb-0">@ ${roundToTwoDecimalsTofix(product.subtotal)} {t("each")} x {product.quantity}</p>
+                <div className="row d-flex notranslate">
+                  <p className="text-muted mb-0 pb-0" >@ ${roundToTwoDecimalsTofix(product.subtotal)} {t("each")} x {product.quantity}</p>
                 </div>
               </div>
               <div className="col-3 d-flex justify-content-end">
                 <p>
-                  <b>${roundToTwoDecimalsTofix(Math.round(100 * product.subtotal * product.quantity) / 100)}</b>
+                  <b className=" notranslate" >${roundToTwoDecimalsTofix(Math.round(100 * product.subtotal * product.quantity) / 100)}</b>
                 </p>
               </div>
             </div>
@@ -229,7 +229,8 @@ const Item = () => {
               <b> {t("Subtotal")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${roundToTwoDecimalsTofix(payment_data.subtotal)}</b>
+              <b className=" notranslate" 
+              >${roundToTwoDecimalsTofix(payment_data.subtotal)}</b>
             </div>
           </div>
           <div className="row">
@@ -237,25 +238,25 @@ const Item = () => {
               <b> {t("Tax")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${roundToTwoDecimalsTofix(payment_data.tax)}</b>
+              <b className=" notranslate" >${roundToTwoDecimalsTofix(payment_data.tax)}</b>
             </div>
           </div>
-          {payment_data.tips && payment_data.tips !== 0 && (
+          {(payment_data.tips && payment_data.tips != 0.00)? 
             <div className="row">
               <div className="col">
-                <b>{t("Gratuity")}:</b>
+                <b>Gratuity:</b>
               </div>
               <div className="col d-flex justify-content-end">
-                <b>${roundToTwoDecimalsTofix(payment_data.tips)}</b>
+                <b className=" notranslate" >${roundToTwoDecimalsTofix(payment_data.tips)}</b>
               </div>
             </div>
-          )}
+          :null}
           <div className="row">
             <div className="col">
-              <b> {t("Total")}:</b>
+              <b> {t("Total Price")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b>${roundToTwoDecimalsTofix(payment_data.total)}</b>
+              <b className=" notranslate" >${roundToTwoDecimalsTofix(payment_data.total)}</b>
             </div>
           </div>
         </div>

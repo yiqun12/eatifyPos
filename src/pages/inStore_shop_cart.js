@@ -149,8 +149,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setTotalPrice(total);
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))
-
-      setFinalPrice((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
+      console.log("finalPrice")
+      console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
+      setFinalPrice(
+        (Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
       //console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
     }
     calculateTotalPrice();
@@ -565,8 +567,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       console.error("Error adding document: ", e);
     }
   }
-
-
+  // console.logg(tips)
+  // console.log(typeof(tips))
+  //console.logg(Math.round(extra * 100) / 100)
+  //console.log(typeof(Math.round(extra * 100) / 100))
+  function roundToTwoDecimals(n) {
+    return Math.round(n * 100) / 100;
+  }
   const CashCheckOut = async (extra, tax, total) => {
     // tips: Math.round((result - finalPrice +extra) * 100) / 100
     // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
@@ -576,6 +583,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     if (extra !== null) {
       extra_tip = Math.round(extra * 100) / 100
     }
+    //console.log(typeof extra_tip)//number
+    //console.log(typeof (tips === "" ? 0 : tips))//string
     if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
       setProducts([]);
       setExtra(0)
@@ -592,10 +601,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       // Wrap the addDoc call in a promise
       const addDocPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
-        amount: total * 100,
+        amount: Math.round(total * 100),
         amount_capturable: 0,
         amount_details: { tip: { amount: 0 } },
-        amount_received: total * 100,
+        amount_received: Math.round(total * 100),
         application: "",
         application_fee_amount: 0,
         automatic_payment_methods: null,
@@ -617,10 +626,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         metadata: {
           discount: discount === "" ? 0 : discount,
           isDine: true,
-          service_fee: tips === "" ? 0 : tips,
+          service_fee: 0,
           subtotal: Math.round(100 * totalPrice) / 100,
           tax: tax,
-          tips: extra_tip,
+          tips: roundToTwoDecimals
+          (roundToTwoDecimals(extra_tip)+roundToTwoDecimals(tips === "" ? 0 : tips)),
           total: total
         }, // Assuming an empty map converts to an empty object
         next_action: null,
@@ -665,6 +675,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       }).catch((error) => {
         console.error("Error executing operations:", error);
       });
+
       setProducts([]);
       setExtra(0)
       setInputValue("")
@@ -1270,7 +1281,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                             // tips: Math.round((result - finalPrice +extra) * 100) / 100
                             // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
                             // total: inputValue
-                            CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)), inputValue);
+                            CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)), 
+                            inputValue);
                             closeUniqueModal();
                           }}
                           style={uniqueModalStyles.buttonStyle}
@@ -1293,7 +1305,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         // tips: Math.round((extra) * 100) / 100
                         // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
                         // total: finalPrice
-                        CashCheckOut(extra, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)), finalPrice);
+                        CashCheckOut(extra, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)), 
+                        finalPrice);
                         closeUniqueModal();
 
                       }}//service_fee,finalnum,givebackcash,
@@ -1421,7 +1434,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   </div>
                   <div className="modal-body pt-0">
 
-                    <PaymentRegular setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} />
+                    <PaymentRegular setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} 
+                    chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} />
 
                   </div>
                   <div className="modal-footer">

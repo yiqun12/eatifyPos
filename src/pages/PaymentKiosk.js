@@ -6,6 +6,7 @@ import firebase from 'firebase/compat/app';
 import myImage from '../components/check-mark.png';  // Import the image
 import { doc, addDoc, collection, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/index'; // Make sure to import necessary functions
+import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
 
 
 const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id, receipt_JSON, selectedTable, service_fee }) => {
@@ -254,15 +255,20 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id, 
                         store: storeID,
                         stripe_account_store_owner: user.uid,
                         items: JSON.parse(receipt_JSON),
-                        date: date,
+                        date: parseDateUTC(date),
                         amount: chargeAmount,
                         Status: "Paid", // Assuming "NO USE" is a comment and not part of the value
                         table: selectedTable,
                         username: "kiosk",
-                    }).then(docRef => {
-                        // This function is called when the document has been successfully written to the database
-                        window.location.href = '/store?store=' + storeID + '&order=' + doc.id + '&modal=true' + currentHash
-                    })
+                    }).then(() => {
+                        sessionStorage.removeItem(storeID);
+
+                        window.location.href = '/store?store=' + storeID + '&order=' + newTerminalsData[0].docuId + '&modal=true' + currentHash
+                    }).catch((error) => {
+                        console.error("Error writing document: ", error);
+
+                    });
+
 
                     //sendToKitchen
                     //sendToMerchantPrinter

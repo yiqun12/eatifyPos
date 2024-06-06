@@ -445,7 +445,9 @@ function Container(props) {
       console.error("Error adding document: ", e);
     }
   }
-
+  function roundToTwoDecimals(n) {
+    return Math.round(n * 100) / 100;
+  }
   const CashCheckOut = async (extra, tax, total) => {
     let extra_tip = 0
     if (extra !== null) {
@@ -480,10 +482,11 @@ function Container(props) {
         metadata: {
           discount: discount === "" ? 0 : discount,
           isDine: true,
-          service_fee: tips === "" ? 0 : tips,
+          service_fee: 0,
           subtotal: Math.round(100 * subtotal) / 100,
           tax: tax,
-          tips: extra,
+          tips: roundToTwoDecimals
+          (roundToTwoDecimals(extra)+roundToTwoDecimals(tips === "" ? 0 : tips)),
           total: total,
         }, // Assuming an empty map converts to an empty object
         next_action: null,

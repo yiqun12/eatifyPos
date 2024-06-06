@@ -1,0 +1,38 @@
+.menu-button {
+    flex-direction: column;
+    justify-content: space-around;
+    width: 10px;
+    height: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  .menu-button:focus {
+    outline: none;
+  }
+  
+  .menu-button div {
+    width: 10px;
+    height: 3px;
+    background: black;
+    border-radius: 1px;
+    transition: all 0.3s linear;
+    position: relative;
+    transform-origin: 1px;
+  }
+  
+  .open .bar1 {
+    transform: rotate(45deg);
+  }
+  
+  .open .bar2 {
+    opacity: 0;
+  }
+  
+  .open .bar3 {
+    transform: rotate(-45deg);
+  }
+  

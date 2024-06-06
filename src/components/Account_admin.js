@@ -40,6 +40,7 @@ import { format, addDays } from 'date-fns';
 import "react-datepicker/dist/react-datepicker.css";
 import { startOfMonth, endOfMonth } from 'date-fns';
 import { registerLocale, setDefaultLocale } from "react-datepicker";
+import ScrollableFeed from 'react-scrollable-feed'
 
 import barchar_logo from './file_barchar.png';
 import files_icon from './files_icon.png';
@@ -63,12 +64,49 @@ import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parse
 import { el } from 'date-fns/locale';
 import e from 'cors';
 import { json } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHandPointer } from '@fortawesome/free-solid-svg-icons';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 registerLocale('zh-CN', zhCN);
 
 
 
 const Account = () => {
+
+  const fetchSingleBalance = async (Charge_ID, account_ID) => {
+    try {
+      const myFunction = firebase.functions().httpsCallable('fetchSingleBalance');
+      const response = await myFunction({
+        Charge_ID,
+        account_ID,
+      });
+
+      return response.data
+    } catch (error) {
+      //return []
+    }
+  };
+  // let result = await fetchSingleBalance('ch_3Of86QBUAXdEY4mJ2T9MBbRr', 'acct_1OWU8KBUAXdEY4mJ');
+  // console.log("fetchSingleBalance")
+  // console.log(result)
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+
+  //     try {
+  //       let result = await fetchSingleBalance('ch_3Of86QBUAXdEY4mJ2T9MBbRr', 'acct_1OWU8KBUAXdEY4mJ');
+  //       console.log("fetchSingleBalance")
+  //       console.log(result)
+  //     } catch (error) {
+  //       // Error handling if generateJSON fails
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []); // Empty dependency array means this effect will only run once after the initial render
+
+
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -489,7 +527,7 @@ const Account = () => {
       where('dateTime', '<', convertDateFormat(endDate ? addDays(endDate, 1) : addDays(startDate, 1)))
     );
 
-    onSnapshot(paymentsQuery, (snapshot) => {
+    onSnapshot(paymentsQuery, async (snapshot) => {
       console.log("new added");
       const newData = snapshot.docs.map(doc => ({
         ...doc.data(),
@@ -497,9 +535,33 @@ const Account = () => {
         id: doc.id,
       }));
 
-      console.log(newData);
+
       newData.sort((a, b) => moment(b.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf() - moment(a.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf());
+
       const newItems = [];
+
+
+
+      // const balancePromises = newData.map(async item => {
+      //   let balanceResult = null;
+      //   if (item.latest_charge !== "ch_none") {
+      //     balanceResult = await fetchSingleBalance(item.latest_charge, item.stripe_store_acct);
+      //   }
+      //   return { ...item, balanceResult };
+      // });
+
+      // const itemsWithBalances = await Promise.all(balancePromises);
+
+      // for (const item of itemsWithBalances) {
+      //   if (item.latest_charge !== "ch_none") {
+      //     console.log("FetchSingleBalance result:", item.balanceResult,
+      //       item.id, item.stripe_store_acct, item.dateTime,
+      //       item.latest_charge
+      //     );
+      //   }
+      // }
+
+
       newData.forEach(item => {
         // console.log("sawsssssssss")
         // console.log(item.dateTime)
@@ -519,6 +581,7 @@ const Account = () => {
           store: item.store,
           intent_ID: item.intent_ID,
           Charge_ID: item.latest_charge,
+          transaction_json: item.transaction_json,
         };
 
         if (!(newItem.total === 0 && newItem.receiptData === "[]")) {
@@ -650,7 +713,7 @@ const Account = () => {
 
 
 
-  const COLORS = ['#0088FE', '#00C49F', '#FF8042', '#9e2820','#000000'];
+  const COLORS = ['#0088FE', '#00C49F', '#FF8042', '#9e2820', '#000000'];
 
   const RADIAN = Math.PI / 180;
 
@@ -1256,6 +1319,7 @@ const Account = () => {
   const [numberReviewVariable, setNumberReviewVariable] = useState(notificationData ? notificationData.length : 0);
   // Initialize state with 0 seconds
   const [seconds, setSeconds] = useState(0);
+  const isLocalHost = !isMobile;
 
   useEffect(() => {
     // Set up an interval that updates the `seconds` state every second
@@ -1381,8 +1445,8 @@ const Account = () => {
       // Update document here
       const paymentDocRef = doc(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', modalStore, 'success_payment', modalID);
       await updateDoc(paymentDocRef, {
-        amount: totalUpdated * 100,
-        amount_received: totalUpdated * 100,
+        amount: Math.round(totalUpdated * 100),
+        amount_received: Math.round(totalUpdated * 100),
         'metadata.total': totalUpdated,
         'metadata.tips': tipsUpdated
       });
@@ -1558,7 +1622,33 @@ const Account = () => {
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
+  const divRef = useRef(null);
 
+  const handleScroll = () => {
+    const element = divRef.current;
+    // Check if the scroll position is at the bottom
+    const threshold = 1;
+    // Check if the scroll position is within the threshold from the bottom
+    const atBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + threshold;
+
+    if (atBottom) {
+      console.log(atBottom)
+      handleLoadMore()
+    }
+
+  };
+
+  useEffect(() => {
+    const div = divRef.current;
+    if (div) {
+      div.addEventListener('scroll', handleScroll);
+
+      // Cleanup the event listener when the component unmounts
+      return () => {
+        div.removeEventListener('scroll', handleScroll);
+      };
+    }
+  }, []);
   useEffect(() => {
     // Ensure the user is defined
     if (!user || !user.uid) return;
@@ -1630,6 +1720,61 @@ const Account = () => {
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
+  // Function to generate chunks of data
+  function* createChunkGenerator(itemList = [], chunkSize = 100) {
+    let chunkCount = 0;
+
+    while (itemList.length > 0) {
+      chunkCount++;
+      yield {
+        chunkCount,
+        itemList: itemList.splice(0, chunkSize),
+      };
+    }
+  }
+
+  // State to manage the displayed orders based on filters
+  const [displayedOrders, setDisplayedOrders] = useState([]);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true); // Assume initially that there might be no data
+
+  // useRef to persist the chunk generator
+  const chunkGeneratorRef = useRef(null);
+
+  // Filter and set displayed orders based on status and table number
+  useEffect(() => {
+    const filteredOrders = orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table));
+    // console.log("sssssddddddd")
+    // console.log(orders)
+    setDisplayedOrders(filteredOrders);
+    setItems([])
+  }, [orders, order_status, order_table]);
+
+  // Initialize the chunk generator and load the initial set of items
+  useEffect(() => {
+    chunkGeneratorRef.current = createChunkGenerator([...displayedOrders], 100);
+    const initialChunk = chunkGeneratorRef.current.next();
+    if (!initialChunk.done) {
+      setItems(initialChunk.value.itemList);
+      setLoading(false); // Update loading state based on content availability
+    } else {
+      setLoading(true); // No data to load
+    }
+  }, [displayedOrders]);
+
+  // Handle loading more items
+  const handleLoadMore = () => {
+    if (!chunkGeneratorRef.current) {
+      return;
+    }
+
+    const chunk = chunkGeneratorRef.current.next();
+    if (!chunk.done) {
+      setItems(prevItems => [...prevItems, ...chunk.value.itemList]);
+    } else {
+      setLoading(true); // When no more data to load, hide the button
+    }
+  };
 
   useEffect(() => {
     // Ensure the user is defined
@@ -1722,9 +1867,9 @@ const Account = () => {
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
 
-
   return (
     <div>
+
       {iframeAllowed ?
         <iframe
           ref={iframeRef1} // Correct reference used here
@@ -2293,10 +2438,12 @@ const Account = () => {
             </div>
           )}
 
-          <div className="flex-grow-1 overflow-y-auto" style={{
-            backgroundColor: 'white', // Set the background color to white
-            height: divHeight, // Use the dynamically calculated height
-          }}>
+          <div className="flex-grow-1 overflow-y-auto"
+            ref={divRef}
+            style={{
+              backgroundColor: 'white', // Set the background color to white
+              height: divHeight, // Use the dynamically calculated height
+            }}>
             {!isPC ?
               <header className="bg-surface-primary border-bottom pt-0">
                 <div className="container-fluid">
@@ -2313,24 +2460,27 @@ const Account = () => {
 
                         </h1>
                       </div>
-                      <div className="text-sm-end">
-                        <div className="mx-n1">
+                      {activeTab === `#profile` || storeName_ === '' ?
+                        <div className="text-sm-end">
+                          <div className="mx-n1">
 
-                          <a className="btn d-inline-flex btn-sm btn-secondary mx-1">
-                            <span className="">
-                              <i className="bi bi-exclamation-triangle"></i>
-                            </span>
-                            <span
-                              onClick={() => {
-                                logoutUser();
-                                removeFromLocalStorage();
-                              }}>
-                              {t("Sign Out")}
-                            </span>
+                            <a className="btn d-inline-flex btn-sm btn-secondary mx-1">
+                              <span className="">
+                                <i className="bi bi-exclamation-triangle"></i>
+                              </span>
+                              <span
+                                onClick={() => {
+                                  logoutUser();
+                                  removeFromLocalStorage();
+                                }}>
+                                {t("Sign Out")}
+                              </span>
 
-                          </a>
-                        </div>
-                      </div>
+                            </a>
+                          </div>
+                        </div> : null
+                      }
+
                     </div>
 
                     <div className="mt-2 mb-2 d-flex" style={{ display: 'flex', alignItems: 'center' }}>
@@ -2535,7 +2685,7 @@ const Account = () => {
 
             <div style={{ "borderRadius": "0" }}>
 
-              <div id="card_element" style={{
+              <div style={{
                 backgroundColor: 'white', // Set the background color to white
               }} className={`card-body tab-content pt-0 pb-0`} ref={elementRef}>
                 {user_loading ?
@@ -2618,7 +2768,11 @@ const Account = () => {
                           </div>
 
                           {showSection === 'stripeCard' ? <div>
-                            <Test_Notification_Page storeID={data.id} reviewVar={numberReviewVariable} setReviewVar={setNumberReviewVariable} sortedData={notificationData} setSortedData={setNotificationData} />
+                            <Test_Notification_Page storeID={data.id} 
+                            reviewVar={numberReviewVariable} 
+                            setReviewVar={setNumberReviewVariable} 
+                            sortedData={notificationData} 
+                            setSortedData={setNotificationData} />
                           </div> : <div></div>
                           }
 
@@ -3038,21 +3192,23 @@ const Account = () => {
                                     <div>
                                     </div>
                                   </div>
-                                  <button
-                                    onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(null) }}
-                                    className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
-                                  >
-                                    <i className="bi bi-calendar-event pe-2"></i>
-                                    <span>Today's Orders</span>
-                                  </button>
-                                  {!isMobile &&
+                                  {
                                     <button
-                                      onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
-                                      className="btn btn-sm btn-warning d-flex align-items-center mx-1 mb-2"
+                                      onClick={() => { OpenCashDraw() }}
+                                      className="btn btn-sm btn-info d-flex align-items-center mx-1 mt-1 mb-2"
                                     >
-                                      <i className="bi bi-calendar3 pe-2"></i>
-                                      <span>List This Month</span>
-                                    </button>}
+                                      <i className="bi bi-cash-stack pe-2"></i>
+                                      <span>Cash Drawer</span>
+                                    </button>
+                                  }
+                                  {!isMobile && <button
+                                    onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                    className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
+                                  >
+                                    <i className="bi bi-calendar pe-2"></i>
+                                    <span>List All Orders</span>
+                                  </button>}
+
                                   {/* {JSON.stringify(startDate)}
                                   {JSON.stringify(endDate)} */}
 
@@ -3083,7 +3239,7 @@ const Account = () => {
                                             //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                         ).subtotal * 100) / 100
                                       },
                                       {
@@ -3097,7 +3253,7 @@ const Account = () => {
                                             //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                         ).tax * 100) / 100
                                       }, {
                                         name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
@@ -3110,7 +3266,7 @@ const Account = () => {
                                             //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                         ).tips * 100) / 100
                                       },
                                       {
@@ -3124,7 +3280,7 @@ const Account = () => {
                                             //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                         ).service_fee * 100) / 100
                                       },
                                       {
@@ -3138,7 +3294,7 @@ const Account = () => {
                                             //accumulator.total += parseFloat(receipt.total);
                                             return accumulator;
                                           },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
+                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                         ).discount * 100) / 100
                                       },
                                     ]}
@@ -3161,7 +3317,7 @@ const Account = () => {
                                               //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
-                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                           ).tips * 100) / 100
                                         },
                                         {
@@ -3175,7 +3331,7 @@ const Account = () => {
                                               //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
-                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                           ).service_fee * 100) / 100
                                         },
                                         {
@@ -3189,7 +3345,7 @@ const Account = () => {
                                               //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
-                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                           ).tax * 100) / 100
                                         },
                                         {
@@ -3203,7 +3359,7 @@ const Account = () => {
                                               //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
-                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                           ).subtotal * 100) / 100
                                         },
                                         {
@@ -3217,7 +3373,7 @@ const Account = () => {
                                               //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
-                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0,discount:0 }
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                           ).discount * 100) / 100
                                         }
                                       ].map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
@@ -3236,23 +3392,51 @@ const Account = () => {
 
 
                             </div>
-                            <div className={`${isMobile ? 'flex' : ''}`} >
-                              {!isMobile && <button
-                                onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
-                                className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
-                              >
-                                <i className="bi bi-calendar pe-2"></i>
-                                <span>List All Orders</span>
-                              </button>}
-                              {!isMobile &&
+                            <div>
+                              <div className={`${true ? 'flex' : ''}`}>
+
                                 <button
-                                  onClick={() => { OpenCashDraw() }}
-                                  className="btn btn-sm btn-info d-flex align-items-center mx-1 mt-1 mb-2"
+                                  onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(null) }}
+                                  className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
                                 >
-                                  <i className="bi bi-cash-stack pe-2"></i>
-                                  <span>Cash Drawer</span>
+
+                                  <span>Today's Orders</span>
                                 </button>
-                              }
+                                <button
+                                  onClick={() => { setStartDate(parseDate(format12Oclock((new Date(new Date().setDate(new Date().getDate() - 1))).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(null) }}
+                                  className="btn btn-sm btn-outline-primary d-flex align-items-center mx-1 mt-1 mb-2"
+                                >
+                                  <span>Yesterday Orders</span>
+                                </button>
+                              </div>
+
+                              <div className={`${true ? 'flex' : ''}`}>
+                                <button
+                                  onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                  className="btn btn-sm btn-dark d-flex align-items-center mx-1 mb-2"
+                                >
+                                  <span>
+                                    {
+                                      (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                                        ["一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单", "十二月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })).getMonth()] :
+                                        ["January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders", "December Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })).getMonth()])
+                                    }
+                                  </span>
+                                </button>
+
+                                <button
+                                  onClick={() => { getMonthDates(((format12Oclock((new Date(new Date().setMonth(new Date().getMonth() - 1))).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                  className="btn btn-sm btn-outline-dark d-flex align-items-center mx-1 mb-2"
+                                >
+                                  <span>
+                                    {
+                                      (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                                        ["十二月订单", "一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })).getMonth()] :
+                                        ["December Orders", "January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })).getMonth()])
+                                    }</span>
+                                </button>
+                              </div>
+
                             </div>
                             {showChart ?
                               <div>
@@ -3275,23 +3459,26 @@ const Account = () => {
 
                               </div> : null
                             }
-                            {isMobile ? <hr class="opacity-50 border-t-2 border-black-1000" /> : <hr class="opacity-50 border-t-2 border-black-1000" />}
+
+                            <hr class="opacity-50 border-t-2 border-black-1000" />
                             {isMobile ? <div >
-                              <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
-                                <option value="">Filter Payment Status</option>
-                                {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
-                                  <option class="notranslate" key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
-                                ))}
-                                {/* The options will be dynamically created here */}
-                              </select>
-                              &nbsp;
                               <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
-                                <option value="">Filter Dining Table</option>
+                                <option value="">Select Specific Dining Table Type</option>
                                 {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
                                   <option className='notranslate' key={index} value={option}>{option}</option>
                                 ))}
                                 {/* The options will be dynamically created here */}
                               </select>
+                              &nbsp;
+                              <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
+                                <option value="">Select Specific Payment Type</option>
+                                {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
+                                  <option class="notranslate" key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
+                                ))}
+                                {/* The options will be dynamically created here */}
+                              </select>
+                              <div><b>Hint: Click on an order to see more details.</b></div>
+
                             </div> : null
                             }
 
@@ -3307,124 +3494,137 @@ const Account = () => {
                               >
 
                                 <thead>
+
+
                                   <tr>
-                                    {isMobile ? null : <th className="notranslate" style={{ width: "10%" }}>Number.</th>}
-                                    <th className="order-number" style={isMobile ? {} : { width: "10%" }}>Order ID</th>
-                                    <th className="order-name" style={isMobile ? {} : { width: "15%" }}>
-                                      <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
-                                        <option value="">Filter Dining Table</option>
-                                        {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
-                                          <option className='notranslate' key={index} value={option}>{option}</option>
-                                        ))}
-                                        {/* The options will be dynamically created here */}
-                                      </select>
+                                    {isMobile ? null : <th className="notranslate" >Number.</th>}
+                                    {(isLocalHost)
+                                      ?
+                                      <th className="order-number" >Order ID</th>
+                                      :
+                                      <></>
+                                    }
+                                    <th className="order-name" >
+                                      {!isMobile ?
+                                        <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
+                                          <option value="">Select Specific Dining Table Type</option>
+                                          {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
+                                            <option className='notranslate' key={index} value={option}>{option}</option>
+                                          ))}
+                                          {/* The options will be dynamically created here */}
+                                        </select> : "ID"
+                                      }
 
                                     </th>
-                                    <th className="order-status" style={isMobile ? {} : { width: "15%" }}>
-                                      <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
-                                        <option value="">Filter Payment Status</option>
-                                        {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
-                                          <option key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
-                                        ))}
-                                        {/* The options will be dynamically created here */}
-                                      </select>
+                                    <th className="order-status" >
+                                      {!isMobile ?
+                                        <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
+                                          <option value="">Select Specific Payment Type</option>
+                                          {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
+                                            <option key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
+                                          ))}
+                                          {/* The options will be dynamically created here */}
+                                        </select>
+                                        : "Type"
+                                      }
                                     </th>
-                                    <th className="order-total" style={isMobile ? {} : { width: "15%" }}>Total Price</th>
-                                    <th className="order-date" style={isMobile ? {} : { width: "10%" }}>Date</th>
+                                    <th className="order-total" >Price</th>
+                                    <th className="order-date" >Date</th>
                                   </tr>
                                 </thead>
+                                {/* {!loading && (
+                                  <button className="btn btn-primary btn-block" onClick={handleLoadMore}>
+                                    Next
+                                  </button>
+                                )} */}
 
-                                <tbody>
-                                  {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).map((order, index) => (
-                                    <div style={{ display: 'contents' }}>
+                                <tbody
+                                >
+                                  {items?.map((order, index) => (
 
-                                      {isMobile ? <div className='notranslate'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - index}</div> :
-                                        null
+                                    < div onClick={() => {
+                                      if (!expandedOrderIds.includes(order.id) && isMobile) {
+                                        toggleExpandedOrderId(order.id)
                                       }
+                                    }
+                                    }
+
+                                      style={{ display: 'contents' }}>
                                       <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
+
                                         {isMobile ? null : <td className='notranslate'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - index}</td>}
-                                        <td className="order-number notranslate" data-title="OrderID"><a>{order.id.substring(0, 4)}</a></td>
-                                        <td className="order-name notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>{order.tableNum === "" ? "Takeout" : order.tableNum}</td>
+                                        {(isLocalHost)
+                                          ?
+                                          <td className="order-number notranslate" data-title="OrderID">
+                                            <a>
+                                              {order.id.substring(0, 4)}
+                                            </a>
+                                          </td> :
+                                          <></>
+                                        }
+
+                                        <td className="order-name notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>
+                                          {isMobile ? <span className='notranslate'>#{orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - index} </span> :
+                                            null
+                                          }
+                                          {order.tableNum === "" ? "Takeout" : order.tableNum}</td>
                                         <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
-                                        <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="notranslate amount">{"$" + roundToTwoDecimalsTofix(order.total)}</span></td>
+                                        <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="notranslate amount">
+                                          {"$" + roundToTwoDecimalsTofix(order.total)}
+                                          {/* <i class="fa-solid fa-circle-info"></i>
+                                          {order?.transaction_json?.net !== undefined ?
+                                            roundToTwoDecimalsTofix(order?.transaction_json?.net) : 0
+                                          } */}
+                                        </span></td>
                                         <td className="order-date" data-title="Date" style={{ whiteSpace: "nowrap" }}>
                                           <time dateTime={order.date} title={order.date} nowrap>
-                                            <span className='notranslate'>{order.date}</span>
+                                            <span className='notranslate'>
+                                              {order.date}</span>
                                           </time>
                                         </td>
-
-                                        {isMobile ?
-                                          <div className="order-details" style={{ whiteSpace: "nowrap" }} data-title="Details">
-                                            <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
-
-                                            >
-                                              {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
-                                            </button>
-                                            <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)} style={{ cursor: "pointer", border: "1px solid black" }}>
-                                              {"MerchantReceipt"}
-                                            </button>
-                                            {/* {order?.status === 'Paid by Cash' ? (
-                                              <button
-                                                className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                              >
-                                                Add Gratuity
-                                              </button>
-                                            ) :
-                                              <button
-                                                className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
-                                              >
-                                                Bank Receipt
-                                              </button>} */}
-                                            {true ?
-                                              <button
-                                                className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                              >
-                                                Add Gratuity
-                                              </button> : null
-                                            }
-                                          </div>
-                                          :
-                                          <td className="order-details" style={{ whiteSpace: "nowrap", textAlign: "right" }}
+                                        {!isMobile ?
+                                          <td className="order-details" style={{
+                                            width: "400px",
+                                            whiteSpace: "nowrap", textAlign: "right"
+                                          }}
                                             data-title="Details">
                                             {/* {order?.status === 'Paid by Cash' ? (
-                                              <button
-                                                className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                              >
-                                                Add Gratuity
-                                              </button>
-                                            ) :
-                                              <button
-                                                className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
-                                              >
-                                                Bank Receipt
-                                              </button>} */}
-                                            {true ?
-                                              <button
-                                                className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                              >
-                                                Add Gratuity
-                                              </button> : null
-                                            }
-                                            <button className="border-black p-2 m-2" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)} style={{ cursor: "pointer", border: "1px solid black" }}>
-                                              {"MerchantReceipt"}
+                                                                                    <button
+                                                                                      className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                                                      onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                                                                    >
+                                                                                      Add Gratuity
+                                                                                    </button>
+                                                                                  ) :
+                                                                                    <button
+                                                                                      className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                                                      onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
+                                                                                    >
+                                                                                      Bank Receipt
+                                                                                    </button>} */}
+                                            <button
+                                              className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                            >
+                                              Add Gratuity
+                                            </button>
+                                            <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
+
+                                              Print Receipt
                                             </button>
                                             {/* <button onClick={() => deleteDocument(order.id)}>
-                                              Delete Document
-                                            </button> */}
+                                                                                    Delete Document
+                                                                                  </button> */}
                                             <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
                                             >
-                                              {expandedOrderIds.includes(order.id) ? "Hide Details" : "View Details"}
+                                              {expandedOrderIds.includes(order.id) ? "Close Details" : "View Details"}
                                             </button>
                                           </td>
+                                          :
+                                          null
                                         }
-                                      </tr>
 
+                                      </tr>
 
 
                                       {
@@ -3432,6 +3632,31 @@ const Account = () => {
                                           <tr style={{ backgroundColor: '#f8f9fa' }}>
                                             <td colSpan={8} style={{ padding: "10px" }}>
                                               <div className="receipt">
+                                                {isMobile ?
+                                                  <div>
+                                                    <button
+                                                      className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                      onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                                    >
+                                                      Add Gratuity
+                                                    </button>
+                                                    <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
+
+                                                      Print Receipt
+                                                    </button>
+                                                    {/* <button onClick={() => deleteDocument(order.id)}>
+                                                                                                                                  Delete Document
+                                                                                                                                </button> */}
+                                                    <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
+                                                    >
+                                                      {expandedOrderIds.includes(order.id) ? "Close Details" : "View Details"}
+                                                    </button>
+                                                  </div>
+                                                  : null
+                                                }
+
+                                                Order ID: {order.id.substring(0, 4)}
+
                                                 <p><span className='notranslate'>{order.name}</span></p>
                                                 {/* <p>{order.email}</p> */}
                                                 {/* <p><span className='notranslate'>{order.date}</span></p> */}
@@ -3452,7 +3677,9 @@ const Account = () => {
                                                 <p>Gratuity: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tips)}</span></p>
                                                 <p>Total: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.total)}</span></p>
                                               </div>
+
                                             </td>
+
                                           </tr>
                                         )
                                       }
@@ -3516,7 +3743,7 @@ const renderLegend = (props) => {
         <div>
           <li key="revenue" style={{ fontWeight: 'bold', fontWeight: 'bold', fontSize: '13px' }}>
             {fanyi("Revenue")}
-            <span class='notranslate'> (${((revenue-(payload[4].payload.value*2)).toFixed(2))})</span>
+            <span class='notranslate'> (${((revenue - (payload[4].payload.value * 2)).toFixed(2))})</span>
           </li>
           {payload.map((entry, index) => (
             <li key={`item-${index}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }} >

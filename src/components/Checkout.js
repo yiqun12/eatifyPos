@@ -50,7 +50,7 @@ function Checkout(props) {
   }
 
   const { user, user_loading } = useUserContext();
-  const { totalPrice, isDineIn,directoryType } = props;
+  const { totalPrice, isDineIn, directoryType } = props;
   console.log("isDineIn")
   console.log(isDineIn)
 
@@ -544,7 +544,7 @@ function CardSection(props) {
     setNewCardAdded(false);
   }
   const { user, user_loading } = useUserContext();
-  const { totalPrice, isDineIn,directoryType } = props;
+  const { totalPrice, isDineIn, directoryType } = props;
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -1301,6 +1301,20 @@ function PayHistory(props) {
 
   return (
     <div>
+      {/* {true ?
+        <button
+          class="text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+          style={{ "borderRadius": "0.2rem", width: "100%" }}
+          onClick={() => {
+            checkgeolocation();
+            PendingDineInOrder(sessionStorage.getItem('table'), user.displayName)
+          }}>
+
+          {t("Place Order, Pay At Front Desk")}
+        </button>
+
+        : <div>
+        </div>} */}
       {/* {
         !isKiosk ? <form id="payment-form" onSubmit={handleAli}>
           <button

@@ -5,6 +5,8 @@ import { collection, doc, setDoc, addDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
 import { onSnapshot, query } from 'firebase/firestore';
+import styled from 'styled-components';
+import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
 
 
 function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, setSortedData }) {
@@ -12,6 +14,46 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
   // const exampleJSON = [{orderId: "1", date: "10/7/2023", amount: "100", Status: "Review"},{orderId: "2", date: "10/7/2023", amount: "300", Status: "Review"},{orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid"}]
 
   // const [sortedData, setSortedData] = useState(exampleJSON);
+  const ResponsiveTable = styled.table`
+  @media only screen and (max-width: 600px) {
+    &,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
+      display: block;
+    }
+
+    thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+
+    td {
+      border: none;
+      border-bottom: 1px solid #eee;
+      position: relative;
+      padding-left: 35%;
+    }
+
+    td:last-child {
+      border-width: 0;
+    }
+
+    td:before {
+      content: attr(data-title);
+      color: #ccc;
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 15%;
+      padding-right: 10px;
+      white-space: nowrap;
+    }
+  }
+`;
 
   var reviewCount = sortedData.length;
   setReviewVar(reviewCount)
@@ -321,7 +363,8 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
 
   return (
     // <div>Hello</div>
-    <div>
+    
+    <ResponsiveTable >
       <style>
         {`
           /* Webpixels CSS */
@@ -563,7 +606,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
 
         }
       </div>
-    </div >
+    </ResponsiveTable >
   );
 }
 
