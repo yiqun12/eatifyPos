@@ -255,7 +255,7 @@ function PayFullhistory() {
                                           }
                                         </p>
                                         <p className="mb-1 text-black text-right text-base font-semibold notranslate">
-                                          ${(Math.round(item.quantity * item.subtotal * 100) / 100).toFixed(2)}
+                                          ${(Math.round(item.quantity * item.itemTotalPrice * 100) / 100).toFixed(2)}
                                         </p>
                                       </div>
 

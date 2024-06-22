@@ -570,21 +570,21 @@ function Container(props) {
   }
 
   const translations = [
-    { input: "Change Dining Desk", output: "更换餐桌" },
-    { input: "Turn on Dish Revise", output: "打开菜品修改" },
-    { input: "Turn off Dish Revise", output: "关闭菜品修改" },
+    { input: "Change Desk", output: "更换餐桌" },
+    { input: "Allow Dish Revise", output: "打开菜品修改" },
+    { input: "Disallow Dish Revise", output: "关闭菜品修改" },
     { input: "Add Service Fee", output: "添加服务费" },
     { input: "Add Discount", output: "添加折扣" },
     { input: "Send to kitchen", output: "送到厨房" },
     { input: "Print Order", output: "打印订单" },
-    { input: "Merchant Receipt", output: "商户收据" },
+    { input: "Print Receipt", output: "商户收据" },
     { input: "Split payment", output: "分单付款" },
     { input: "Mark as Unpaid", output: "未付款" },
     { input: "Card Pay", output: "信用卡支付" },
     { input: "Cash Pay", output: "现金支付" },
     { input: "Subtotal", output: "小计" },
     { input: "Tax", output: "税" },
-    { input: "Total Amount", output: "总额" },
+    { input: "Total", output: "总额" },
     { input: "Discount", output: "折扣" },
     { input: "Service Fee", output: "服务费" },
     { input: "Gratuity", output: "小费" },
@@ -874,7 +874,7 @@ function Container(props) {
               className="mt-3 btn btn-sm btn-secondary mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              <span>{"Merchant Receipt"}</span>
+              <span>{"Print Receipt"}</span>
             </a>
 
             <a
@@ -1039,7 +1039,7 @@ function Container(props) {
               <div className={`text-right`}>Gratuity: <span className='notranslate'>{Math.round((extra) * 100) / 100} </span></div>
             )}
             <div className={`text-right `}>Tax: <span className='notranslate'>${Math.round(subtotal * 0.0825 * 100) / 100}</span>  </div>
-            <div className={`text-right `}>Total Amount: <span className='notranslate'>${finalPrice}</span>  </div>
+            <div className={`text-right `}>Total: <span className='notranslate'>${finalPrice}</span>  </div>
 
           </div>
         </div>

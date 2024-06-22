@@ -14,46 +14,6 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
   // const exampleJSON = [{orderId: "1", date: "10/7/2023", amount: "100", Status: "Review"},{orderId: "2", date: "10/7/2023", amount: "300", Status: "Review"},{orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid"}]
 
   // const [sortedData, setSortedData] = useState(exampleJSON);
-  const ResponsiveTable = styled.table`
-  @media only screen and (max-width: 600px) {
-    &,
-    thead,
-    tbody,
-    th,
-    td,
-    tr {
-      display: block;
-    }
-
-    thead tr {
-      position: absolute;
-      top: -9999px;
-      left: -9999px;
-    }
-
-    td {
-      border: none;
-      border-bottom: 1px solid #eee;
-      position: relative;
-      padding-left: 35%;
-    }
-
-    td:last-child {
-      border-width: 0;
-    }
-
-    td:before {
-      content: attr(data-title);
-      color: #ccc;
-      position: absolute;
-      top: 6px;
-      left: 6px;
-      width: 15%;
-      padding-right: 10px;
-      white-space: nowrap;
-    }
-  }
-`;
 
   var reviewCount = sortedData.length;
   setReviewVar(reviewCount)
@@ -363,8 +323,8 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
 
   return (
     // <div>Hello</div>
-    
-    <ResponsiveTable >
+
+    <div >
       <style>
         {`
           /* Webpixels CSS */
@@ -496,10 +456,9 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
             <thead>
               <tr>
                 <th style={{ "font-size": "16px" }} scope="col">Order ID</th>
-                <th style={{ "font-size": "16px" }} scope="col">State</th>
-                <th style={{ "font-size": "16px" }} scope="col">Name</th>
+                {/* <th style={{ "font-size": "16px" }} scope="col">Name</th> */}
                 <th style={{ "font-size": "16px" }} scope="col">Dining Table</th>
-                <th style={{ "font-size": "16px" }} scope="col">Date</th>
+                {/* <th style={{ "font-size": "16px" }} scope="col">Date</th> */}
                 <th style={{ "font-size": "16px" }} scope="col">Total Price</th>
               </tr>
             </thead>
@@ -510,12 +469,9 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
 
                   <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
                     <td className="rder-number notranslate" data-title="OrderID">{order.orderId.substring(0, 4)}</td>
-                    <td className="order-status notranslate" data-title="status" style={{ whiteSpace: "nowrap" }}> {order.Status}</td>
-                    <td className="order-name notranslate" data-title="name" style={{ whiteSpace: "nowrap" }}>{order.username}</td>
+                    {/* <td className="order-status notranslate" data-title="status" style={{ whiteSpace: "nowrap" }}> {order.Status}</td> */}
+                    {/* <td className="order-name notranslate" data-title="name" style={{ whiteSpace: "nowrap" }}>{order.username}</td> */}
                     <td className="order-Table notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>{order.table ? order.table : "no table"}</td>
-                    <td className="order-date notranslate" data-title="Time" style={{ whiteSpace: "nowrap" }}>
-                      {order.date}
-                    </td>
                     <td className="order-Total notranslate" data-title="Total" style={{ whiteSpace: "nowrap" }}>
                       ${roundToTwoDecimalsTofix(order.amount)}
                     </td>
@@ -565,6 +521,11 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                   <tr style={{ backgroundColor: '#f8f9fa' }}>
                     <td colSpan={8} style={{ padding: "10px" }}>
                       <div className="receipt">
+                        <div className='flex justify-between '>
+                          <span className='notranslate'>{order.username}</span>
+                          <span className='notranslate'>Time: {order.date}</span>
+                        </div>
+
                         {order.items && order.items.map(item => (
                           <div key={item.id}>
                             <p className='notranslate'>
@@ -606,7 +567,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
 
         }
       </div>
-    </ResponsiveTable >
+    </div >
   );
 }
 

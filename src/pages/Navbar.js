@@ -228,6 +228,11 @@ const Navbar = () => {
 
 
   const openModal = () => {
+    if (user) {
+      //window.location.href = "/";
+    } else {
+      signInWithGuest()
+    }
     setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
     modalRef.current.style.display = 'block';
     // Retrieve the array from local storage
@@ -349,11 +354,7 @@ const Navbar = () => {
   //console.log(storeValue)
   //console.log(tableValue)
   const HandleCheckout_local_stripe = async () => {
-    if (user) {
-      //window.location.href = "/";
-    } else {
-      signInWithGuest()
-    }
+
     setOpenCheckout(true)
 
     // if (isKiosk) {
@@ -560,6 +561,7 @@ const Navbar = () => {
           </a>
         </a>
       )}
+
       {(/\/account/.test(location.pathname) && new URLSearchParams(location.hash.split('?')[1]).has('store')) && (
         <a className="float ">
           <a

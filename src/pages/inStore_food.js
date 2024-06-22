@@ -27,7 +27,7 @@ function convertToPinyin(text) {
   }).join('');
 }
 
-const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, view }) => {
+const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, view }) => {
   //const params = new URLSearchParams(window.location.search);
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
@@ -65,8 +65,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
     // Create a copy of the selectedAttributes state
     //const updatedSelectedAttributes = { ...selectedAttributes };
-    console.log("sabniojwosww")
-    console.log(selectedFoodItem)
+
     //console.log(updatedSelectedAttributes[attributeName])
     //console.log(selectedFoodItem.attributesArr[attributeName].isSingleSelected)
     if (selectedFoodItem.attributesArr[attributeName].isSingleSelected) {
@@ -120,18 +119,13 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     const newTotalPrice = TotalAttributePrice(updatedSelectedAttributes, selectedFoodItem.attributesArr);
     const products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
     const product = products.find((product) => product.id === id && product.count === count);
-    console.log("asjioawjiosj")
-    console.log(product, selectedFoodItem)
-    console.log(Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) / 100) >= 0)
+
     if (Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100 >= 0) {
       setTotalPrice(newTotalPrice);
       // Update the state with the new selected attributes
       setSelectedAttributes(updatedSelectedAttributes);
 
       // After updating selectedAttributes, recalculate the total price
-      console.log(product)
-      console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
-
       product.attributeSelected = updatedSelectedAttributes
       product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
       SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
@@ -388,18 +382,12 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
       SetTableInfo(store + "-" + selectedTable, JSON.stringify([]))
     }
     // Retrieve the array from local storage
-    console.log('bbbbb')
-    console.log(store)
-    console.log(selectedTable)
-    console.log(localStorage.getItem(store + "-" + selectedTable))
-    console.log(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
+
     let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
 
     // Find the product with the matching id
     //let product = products.find((product) => product.id === id);
     const product = products?.find((product) => product.id === id && product.count === count);
-    console.log("snaiojwkoasn")
-    console.log(attributeSelected)
     // If the product exists, update its name, subtotal, image, and timesClicked values
     if (product) {
       product.name = name;
@@ -423,10 +411,13 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     //SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
     //  handleAttributeSelect("Customized Option", "外卖TakeOut", id, count, {}, false)
     //8   console.log(selectedFoodItem)
+
     if (!item || !item.attributesArr) {
+
       SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
       return;
     }
+
     SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(products)));
     // setSelectedFoodItem(products)
 
@@ -453,7 +444,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
           setModalVisibility(false);
           handleRemoveAllCustomVariants();
           return
-          //hideModal()
         }
         // If the quantity becomes 0, remove the product from the array
         if (products[productIndex].quantity <= 0) {
@@ -463,7 +453,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
           saveId(Math.random());
           setModalVisibility(false);
           handleRemoveAllCustomVariants();
-          //hideModal()
           return
         }
         const product = products.find((product) => product.id === id && product.count === count);
@@ -475,7 +464,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
       }
 
     }
-    //SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
     saveId(Math.random());
   };
   const searchSpeicalFoodQuantity = (id, count) => {
@@ -653,9 +641,6 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
     saveId(Math.random)
 
   }
-  // const groupedItems = groupAndSumItems(items);
-  // console.log("groupedItems:")
-  // console.log(groupedItems);
 
   function groupAndSumItems(items) {
     const groupedItems = {};
@@ -986,7 +971,7 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                           JSON.parse(localStorage.getItem(store + "-" + selectedTable)).find(product => product.count === selectedFoodItem.count).attributeSelected);
                         const sortedObj2 = sortObject(
                           JSON.parse(localStorage.getItem(store + "-" + selectedTable)).find(product => product.count === count).attributeSelected);
-                        
+
                         const serializedObj1 = JSON.stringify(sortedObj1);
                         const serializedObj2 = JSON.stringify(sortedObj2);
                         return serializedObj1 === serializedObj2;
@@ -1113,34 +1098,25 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                 }}>
                   {foods.map((item, index) => (
                     <motion.div
+                      onClick={(e) => {
+                        e.stopPropagation(); // This stops the click from propagating to the parent elements
+
+                        if (Object.keys(item.attributesArr).length > 0) {
+                          showModal(item);
+                        } else {
+                          const randomNum = uuidv4()
+                          setCount(randomNum);  // Increment the count every time the modal is opened
+                          setSelectedAttributes({})
+                          setTotalPrice(0);
+                          addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item, item.availability, item.attributesArr)
+                        }
+                      }}
                       layout
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.1 }}
                       key={item.id}
-                      onClick={() => {
-
-                        if (!isAllowed) {
-
-                          if (Object.keys(item.attributesArr).length > 0) {
-                            showModal(item);
-                          } else {
-                            const randomNum = uuidv4()
-                            setCount(randomNum);  // Increment the count every time the modal is opened
-                            setSelectedAttributes({})
-                            setTotalPrice(0);
-                            addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item, item.availability, item.attributesArr)
-                            //console.log("helllllllllllllllllllllllllllllllllllllo")
-                            //console.log(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable))))
-                            //SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
-                          }
-                        } else {
-                          showModal(item);
-
-                        }
-                      }}
-
                       className=" border border-black rounded cursor-pointer">
                       <div className='flex'>
                         <div style={{ width: "100%" }}>
@@ -1149,8 +1125,8 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
                             {/* parent div of title + quantity and button parent div */}
                             <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                               <div className="col-span-4 ">
-                                <p class="notranslate">
-
+                                <p class="notranslate text-md">
+                                  ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}&nbsp;
                                   {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
                                 </p>                          </div>
 
@@ -1158,67 +1134,60 @@ const Food = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllo
 
                               {/* ^ end of parent div of quantity and button */}
                             </div>
-                            <div style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              marginBottom: "10px"
-                            }}>
-                              <div className="col-span-2" style={{
+                            <div
+                              className='mt-2'
+                              style={{
                                 display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                                alignItems: "center"
+                                justifyContent: "space-between",
+                                marginBottom: "10px"
                               }}>
-                                <p style={{ marginBottom: "0" }}>
-                                  <span className='notranslate'>
-                                    ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}
-                                  </span>
-                                </p>
 
+                              <div >
+                                <a
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // This stops the click from propagating to the parent elements
+                                    showModal(item)
+                                  }}
+                                  class="btn d-inline-flex btn-sm btn-outline-dark mx-1">
+                                  <span>Revise And Add</span>
+                                </a>
                               </div>
-                              <div className="col-span-2 flex justify-end">
+                              <div
+                                className="black_hover"
+                                style={{
+                                  padding: '4px',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  display: "flex",
+                                  border: "1px solid", // Adjust the border
+                                  borderRadius: "50%", // Set borderRadius to 50% for a circle
+                                  width: "30px", // Make sure width and height are equal
+                                  height: "30px",
 
-                                <div className="quantity"
-                                  style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '80px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
-
-                                  <div
-                                    className="black_hover"
+                                }}
+                              >
+                                <button
+                                  className="minus-btn"
+                                  type="button"
+                                  name="button"
+                                  style={{
+                                    marginTop: '0px',
+                                    width: '20px',
+                                    height: '20px',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    display: "flex",
+                                  }}
+                                >
+                                  <PlusSvg
                                     style={{
-                                      padding: '4px',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      display: "flex",
-                                      border: "1px solid", // Adjust the border
-                                      borderRadius: "50%", // Set borderRadius to 50% for a circle
-                                      width: "30px", // Make sure width and height are equal
-                                      height: "30px",
-
+                                      margin: '0px',
+                                      width: '10px',
+                                      height: '10px',
                                     }}
-                                  >
-                                    <button
-                                      className="minus-btn"
-                                      type="button"
-                                      name="button"
-                                      style={{
-                                        marginTop: '0px',
-                                        width: '20px',
-                                        height: '20px',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        display: "flex",
-                                      }}
-                                    >
-                                      <PlusSvg
-                                        style={{
-                                          margin: '0px',
-                                          width: '10px',
-                                          height: '10px',
-                                        }}
-                                        alt=""
-                                      />
-                                    </button>
-                                  </div>
-                                </div>
+                                    alt=""
+                                  />
+                                </button>
                               </div>
 
                             </div>

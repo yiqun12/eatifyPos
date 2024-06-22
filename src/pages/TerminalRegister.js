@@ -281,7 +281,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
       {items?.map((item, index) => (
         <div key={item.id}>
           <label className='flex'>
-            POS Machine( {item.id}) No.{items.length - index} --- Added in {formatDate(item.date)}
+            POS Machine( {item.id}) No.{items.length - index} --- Added in&nbsp;{formatDate(item.date)}
           </label>
         </div>
       ))}

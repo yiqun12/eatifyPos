@@ -37,13 +37,27 @@ import "./inStore_shop_cart.css";
 import PaymentRegular from "../pages/PaymentRegular";
 
 import Dnd_Test from '../pages/dnd_test';
-import { isMobile } from 'react-device-detect';
+//import { isMobile } from 'react-device-detect';
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faExclamation } from '@fortawesome/free-solid-svg-icons'; // Import the exclamation mark icon
 
 const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   const { user, user_loading } = useUserContext();
+
+  const [width_, setWidth_] = useState(window.innerWidth - 64);
+
+  useEffect(() => {
+    function handleResize() {
+      setWidth_(window.innerWidth - 64);
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  const isMobile = width_ <= 768;
+
 
   const [isSplitPaymentModalOpen, setSplitPaymentModalOpen] = useState(false);
 
@@ -53,21 +67,21 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   }, [id]);
 
   const translations = [
-    { input: "Change Dining Desk", output: "更换餐桌" },
-    { input: "Turn on Dish Revise", output: "打开菜品修改" },
-    { input: "Turn off Dish Revise", output: "关闭菜品修改" },
+    { input: "Change Desk", output: "更换餐桌" },
+    { input: "Allow Dish Revise", output: "打开菜品修改" },
+    { input: "Disallow Dish Revise", output: "关闭菜品修改" },
     { input: "Add Service Fee", output: "添加服务费" },
     { input: "Add Discount", output: "添加折扣" },
     { input: "Send to kitchen", output: "送到厨房" },
     { input: "Print Order", output: "打印订单" },
-    { input: "Merchant Receipt", output: "商户收据" },
+    { input: "Print Receipt", output: "商户收据" },
     { input: "Split payment", output: "分单付款" },
     { input: "Mark as Unpaid", output: "未付款" },
     { input: "Card Pay", output: "信用卡支付" },
     { input: "Cash Pay", output: "现金支付" },
     { input: "Subtotal", output: "小计" },
     { input: "Tax", output: "税" },
-    { input: "Total Amount", output: "总额" },
+    { input: "Total", output: "总额" },
     { input: "Discount", output: "折扣" },
     { input: "Service Fee", output: "服务费" },
     { input: "Gratuity", output: "小费" },
@@ -109,6 +123,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       window.removeEventListener('resize', handleWindowSizeChange);
     }
   }, []);
+
+  
   const [tips, setTips] = useState('');
   const [discount, setDiscount] = useState('');
 
@@ -327,6 +343,24 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       }
       compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
       SetTableIsSent(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
+
+  const SendToKitchenMarkAsUnPaid = async () => {
+
+    try {
+      if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
+        if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
+          console.log("//no item in the array no item isSent.")
+          return //no item in the array no item isSent.
+        } else {//delete all items
+        }
+      }
+      compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
+      SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]")
 
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -630,7 +664,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
           subtotal: Math.round(100 * totalPrice) / 100,
           tax: tax,
           tips: roundToTwoDecimals
-          (roundToTwoDecimals(extra_tip)+roundToTwoDecimals(tips === "" ? 0 : tips)),
+            (roundToTwoDecimals(extra_tip) + roundToTwoDecimals(tips === "" ? 0 : tips)),
           total: total
         }, // Assuming an empty map converts to an empty object
         next_action: null,
@@ -1029,7 +1063,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
             ))}
           </div>
-          <div className='flex flex-col space-y-2'>
+          <div className='flex flex-col space-y-2' style={isMobile?{ minWidth: "170px" }:{minWidth: "200px"}}>
             <a
               onClick={() => { setChangeTableModal(true) }}
               className="mt-3 btn btn-sm btn-link mx-1 border-black"
@@ -1040,9 +1074,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <FontAwesomeIcon icon={faShare} />
                 </span>
               }
-              <span className='notranslate'>{fanyi("Change Dining Desk")}</span>
+              <span className='notranslate'>{fanyi("Change Desk")}</span>
             </a>
-            <a
+            {/* <a
               onClick={toggleAllowance}
               className={`mt-3 btn btn-sm ${isAllowed ? 'btn-light' : 'btn-dark'} mx-1`}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
@@ -1052,8 +1086,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <FontAwesomeIcon icon={isAllowed ? faToggleOn : faToggleOff} />
                 </span>
               )}
-              <span className='notranslate'>{isAllowed ? fanyi('Turn off Dish Revise') : fanyi('Turn on Dish Revise')}</span>
-            </a>
+              <span className='notranslate'>{isAllowed ? fanyi('Allow Dish Revise') : fanyi('Disallow Dish Revise')}</span>
+            </a> */}
 
             <a
               onClick={handleAddTipClick}
@@ -1117,7 +1151,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <FontAwesomeIcon icon={faPrint} />
                 </span>
               }
-              <span className='notranslate'>{fanyi("Merchant Receipt")}</span>
+              <span className='notranslate'>{fanyi("Print Receipt")}</span>
             </a>
 
             <a
@@ -1135,7 +1169,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <span className='notranslate'>{fanyi("Split Payment")}</span>
             </a>
             <a
-              onClick={() => { SendToKitchen(); MarkAsUnPaid(); }}
+              onClick={() => { SendToKitchenMarkAsUnPaid(); MarkAsUnPaid(); }}
               className="mt-3 btn btn-sm btn-outline-danger mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -1184,7 +1218,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''} `}>{fanyi("Gratuity")}: <span className='notranslate'>${stringTofixed(Math.round((extra) * 100) / 100)}</span></div>
             )}
             <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''} `}>{fanyi("Tax")}(8.25%): <span className='notranslate'>${stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))}</span>    </div>
-            <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''} `}>{fanyi("Total Amount")}: <span className='notranslate'>${stringTofixed(finalPrice)}</span> </div>
+            <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''} `}>{fanyi("Total")}: <span className='notranslate'>${stringTofixed(finalPrice)}</span> </div>
           </div>
         </div>
         <div>
@@ -1281,8 +1315,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                             // tips: Math.round((result - finalPrice +extra) * 100) / 100
                             // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
                             // total: inputValue
-                            CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)), 
-                            inputValue);
+                            CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)),
+                              inputValue);
                             closeUniqueModal();
                           }}
                           style={uniqueModalStyles.buttonStyle}
@@ -1305,8 +1339,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         // tips: Math.round((extra) * 100) / 100
                         // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
                         // total: finalPrice
-                        CashCheckOut(extra, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)), 
-                        finalPrice);
+                        CashCheckOut(extra, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)),
+                          finalPrice);
                         closeUniqueModal();
 
                       }}//service_fee,finalnum,givebackcash,
@@ -1434,8 +1468,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   </div>
                   <div className="modal-body pt-0">
 
-                    <PaymentRegular setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} 
-                    chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} />
+                    <PaymentRegular setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store}
+                      chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} />
 
                   </div>
                   <div className="modal-footer">

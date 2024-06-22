@@ -169,7 +169,7 @@ const Account = () => {
             <h1 style={{ "font-size": "40px", "font-weight": "600", "margin-bottom": "2rem" }}>About Eatifydash</h1>
             <p style={{ "color: #525252; line-height": "1.5" }}>
               With latest AI tech at our fingertips, setting up your bilingual, picture-powered ordering tools takes no more than five minutes. Eatifydash brings down language walls with support for several languages and quick printing of bilingual receipts. You can choose from a variety of popular payment methods, including WeChat Pay, AliPay, Visa, Mastercard, Amex, Apple Pay, and Google Pay. Say goodbye to the steep 10%-30% fees that platforms like Uber and DoorDash charge. With us, you're looking at a fixed fee of $4 for each delivery that's successfully made.
-              </p>
+            </p>
             <p style={{ "color": "#525252", "border-top": "0.5px solid #919191", "padding-top": "2%" }}>Contact us for sales at admin@eatifydash.com</p>
             <button className='button_demo' style={{ "margin-top": "5%" }} onClick={() => window.location.href = "/account"}>Set up your account right now</button>
           </div>
@@ -399,8 +399,8 @@ const Account = () => {
 
       <footer class="flex_">
         <section class="flex_content_">
-        <Link to="/">Home</Link>
-      <Link to="/career">Career</Link>
+          <Link to="/">Home</Link>
+          <Link to="/career">Career</Link>
         </section>
         <section class="flex_content_ padding_1x" style={{ marginTop: "10px" }}>
           <p>© 2023 Eatifydash LLC || All rights reserved</p>

@@ -13,7 +13,10 @@ class ErrorBoundary extends Component {
 
     // Refresh the page after a set delay
     setTimeout(() => {
-      window.location.reload();
+      if (window.location.hostname === 'localhost') {
+      } else {
+        window.location.reload();
+      }
     }, 2000); // 5000 milliseconds = 5 seconds
   }
 

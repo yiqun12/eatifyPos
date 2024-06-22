@@ -145,16 +145,19 @@ function Checkout(props) {
         setPaymentRequest(pr);
       }
     });//google/apple pay
+    //alert("pr.removeAllListeners())")
     pr.removeAllListeners()
     pr.off('paymentmethod');
-
+    alert(JSON.stringify(user.uid))
+    //alert("pr.off('paymentmethod')")
     pr.on('paymentmethod', async (e) => {
       console.log("paymentmethod" + totalPrice)
-
+      //alert("pr.on('paymentmethod'")
+      //alert(totalPrice)
       const { paymentMethod } = e; // Extract the paymentMethod object from the event
 
       const paymentMethodId = paymentMethod.id; // Extract the id from the paymentMethod object
-
+      //alert(paymentMethod.id)
       // console.log('Payment Method ID:', paymentMethodId);
 
       // Remember to handle the promise returned by fetch and implement error handling
@@ -163,6 +166,7 @@ function Checkout(props) {
       //  console.log(currency)
       console.log("dollar pay")
       console.log(amount)
+      //alert(JSON.stringify(user.uid))
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const data = {
@@ -191,11 +195,12 @@ function Checkout(props) {
         })
         .catch((error) => {
           setReceiptToken("")
+          //alert(JSON.stringify(error))
           console.error("Error adding document: ", error);
         });
       //e.complete('success'); // Notify the browser that the payment is successful
     });
-  }, [stripe, elements, totalPrice]);
+  }, [stripe, elements, totalPrice, user]);
 
   // function startDataListeners() {
   //   /**

@@ -66,7 +66,7 @@ const Iframe = forwardRef(({ src, width, height, storeName, title }, ref) => {
     return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
 });
 
-function App({ store, acct }) {
+function App({ setIsVisible, store, acct }) {
 
     const [divWidth, setDivWidth] = useState(0);
     const divRef = useRef();
@@ -294,7 +294,7 @@ function App({ store, acct }) {
             setSelectedTable(tableNumber);
             console.log(tableNumber);
             setModalOpen(true);
-
+            setIsVisible(false)
             if (localStorage.getItem(store + "-" + tableNumber) === null) {
                 // If it doesn't exist, set the value to an empty array
                 //localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
@@ -608,7 +608,7 @@ function App({ store, acct }) {
                     <div className='flex flex-col' style={{ alignItems: 'flex-start' }}>
 
                         <div style={{ margin: "10px", display: "flex" }} >
-                            <div style={isMobile?{ position: 'static' }:{ position: 'relative' }}>
+                            <div style={isMobile ? { position: 'static' } : { position: 'relative' }}>
 
                                 <Iframe
                                     className="notranslate" key={changeEvent}
@@ -641,6 +641,7 @@ function App({ store, acct }) {
                                                                 setView(false)
                                                             } else {
                                                                 setModalOpen(false);
+                                                                setIsVisible(true)
                                                             }
                                                         }}
                                                         class="btn d-inline-flex btn-sm btn-primary mx-1">
@@ -648,6 +649,7 @@ function App({ store, acct }) {
                                                     </a> : <a
                                                         onClick={() => {
                                                             setModalOpen(false);
+                                                            setIsVisible(true)
                                                         }}
                                                         class="btn d-inline-flex btn-sm btn-primary mx-1">
                                                         <span>Back</span>
@@ -672,6 +674,7 @@ function App({ store, acct }) {
                                                                         openSplitPaymentModal={openSplitPaymentModal}
                                                                     />
                                                                     <InStore_food
+                                                                        setIsVisible={setIsVisible}
                                                                         OpenChangeAttributeModal={OpenChangeAttributeModal}
                                                                         setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                         isAllowed={isAllowed}
@@ -682,6 +685,7 @@ function App({ store, acct }) {
                                                                 </div>
                                                                 :
                                                                 <InStore_food
+                                                                setIsVisible={setIsVisible}
                                                                     OpenChangeAttributeModal={OpenChangeAttributeModal}
                                                                     setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                     isAllowed={isAllowed}
@@ -697,6 +701,7 @@ function App({ store, acct }) {
 
                                                         <div className='w-1/2'>
                                                             <InStore_food
+                                                                setIsVisible={setIsVisible}
                                                                 OpenChangeAttributeModal={OpenChangeAttributeModal}
                                                                 setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                 isAllowed={isAllowed}

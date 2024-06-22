@@ -16,6 +16,7 @@ import { useRef } from "react";
 import { onSnapshot, query } from "firebase/firestore";
 import mySound from '../pages/new_order_english.mp3'; // Replace with your sound file's path
 import mySound_CHI from '../pages/new_order_chinese.mp3'; // Replace with your sound file's path
+import dingDong from '../components/ding-dong-sound.mp3'; // Replace with your sound file's path
 import $ from 'jquery';
 import useGeolocation from './useGeolocation';
 import QRCode from 'qrcode.react'; // import QRCode component
@@ -165,13 +166,32 @@ const Account = () => {
   }
   // This function plays the sound
   const playSound = () => {
-    const sound = new Audio(mySound);
-    sound.play();
+
+    // Create Audio objects for both sounds
+    const dingDongSound = new Audio(dingDong);
+    const mySoundSound = new Audio(mySound);
+
+    // Play the dingDong sound
+    dingDongSound.play();
+
+    // Set a timeout to play the second sound after 0.03 seconds (30 milliseconds)
+    setTimeout(() => {
+      mySoundSound.play();
+    }, 30);
   };
 
   const playSound_CHI = () => {
-    const sound = new Audio(mySound_CHI);
-    sound.play();
+    // Create Audio objects for both sounds
+    const dingDongSound = new Audio(dingDong);
+    const mySoundSound = new Audio(mySound_CHI);
+
+    // Play the dingDong sound
+    dingDongSound.play();
+
+    // Set a timeout to play the second sound after 0.03 seconds (30 milliseconds)
+    setTimeout(() => {
+      mySoundSound.play();
+    }, 30);
   };
 
 
@@ -583,10 +603,13 @@ const Account = () => {
           Charge_ID: item.latest_charge,
           transaction_json: item.transaction_json,
         };
-
+        console.log(item.id)
         if (!(newItem.total === 0 && newItem.receiptData === "[]")) {
           if (newItem.receiptData === "[]" && newItem.status === "POS Machine") {
+            console.log(newItem.receiptData)
+            console.log(newItem.intent_ID)
             getDoc(doc(db, 'intent', newItem.intent_ID)).then(documentSnapshot => {
+              console.log(documentSnapshot.data())
               if (documentSnapshot.exists()) {
                 const data = documentSnapshot.data();
                 if (data.receipt_JSON !== '[]') {
@@ -855,9 +878,22 @@ const Account = () => {
 
         }
       });
+      function sortArrayByTime(arr) {
+        // Sorting the array using the JavaScript sort function
+        arr.sort((a, b) => {
+          // Converting the time strings to Date objects
+          let dateA = new Date(a.date);
+          let dateB = new Date(b.date);
+
+          // Sorting in descending order (latest to oldest)
+          return dateB - dateA;
+        });
+
+        return arr;
+      }
 
 
-      setNotificationData(docs)
+      setNotificationData(sortArrayByTime(docs))
       setDocuments(docs);
     }, (error) => {
       // Handle any errors
@@ -1335,11 +1371,11 @@ const Account = () => {
         setTimeout(() => {
           ringbell.removeClass('shake');
         }, 0);
-        if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
-          playSound_CHI()
-        } else {
-          playSound()
-        }
+        // if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
+        //   playSound_CHI()
+        // } else {
+        //   playSound()
+        // }
       }
 
 
@@ -2763,16 +2799,16 @@ const Account = () => {
                           </div> : <div></div>
                           }
                           <div style={{ display: showSection === 'qrCode' ? 'block' : 'none' }}>
-                            <IframeDesk store={data.id} acct={data.stripe_store_acct}></IframeDesk>
+                            <IframeDesk setIsVisible={setIsVisible} store={data.id} acct={data.stripe_store_acct}></IframeDesk>
                             {/* Assuming you want the QRCode hidden or shown together with IframeDesk, otherwise adjust the condition as needed */}
                           </div>
 
                           {showSection === 'stripeCard' ? <div>
-                            <Test_Notification_Page storeID={data.id} 
-                            reviewVar={numberReviewVariable} 
-                            setReviewVar={setNumberReviewVariable} 
-                            sortedData={notificationData} 
-                            setSortedData={setNotificationData} />
+                            <Test_Notification_Page storeID={data.id}
+                              reviewVar={numberReviewVariable}
+                              setReviewVar={setNumberReviewVariable}
+                              sortedData={notificationData}
+                              setSortedData={setNotificationData} />
                           </div> : <div></div>
                           }
 
@@ -3192,6 +3228,13 @@ const Account = () => {
                                     <div>
                                     </div>
                                   </div>
+                                  {!isMobile && <button
+                                    onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                    className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
+                                  >
+                                    <i className="bi bi-calendar pe-2"></i>
+                                    <span>List All Orders</span>
+                                  </button>}
                                   {
                                     <button
                                       onClick={() => { OpenCashDraw() }}
@@ -3201,13 +3244,7 @@ const Account = () => {
                                       <span>Cash Drawer</span>
                                     </button>
                                   }
-                                  {!isMobile && <button
-                                    onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
-                                    className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
-                                  >
-                                    <i className="bi bi-calendar pe-2"></i>
-                                    <span>List All Orders</span>
-                                  </button>}
+
 
                                   {/* {JSON.stringify(startDate)}
                                   {JSON.stringify(endDate)} */}
@@ -3588,6 +3625,12 @@ const Account = () => {
                                             whiteSpace: "nowrap", textAlign: "right"
                                           }}
                                             data-title="Details">
+                                            {/* <button
+                                              className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                              onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
+                                            >
+                                              Bank Receipt
+                                            </button> */}
                                             {/* {order?.status === 'Paid by Cash' ? (
                                                                                     <button
                                                                                       className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
@@ -3666,8 +3709,9 @@ const Account = () => {
                                                       {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
                                                         : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
                                                       &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
-                                                      &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.quantity * item.subtotal)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) : item.subtotal}
-                                                      &nbsp;each = ${roundToTwoDecimalsTofix(item.quantity * item.subtotal)}</p>
+                                                      &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.itemTotalPrice)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) :
+                                                        roundToTwoDecimalsTofix(roundToTwoDecimalsTofix(item.itemTotalPrice) / roundToTwoDecimalsTofix(Math.round(item.quantity)))}
+                                                      &nbsp;each = ${roundToTwoDecimalsTofix(item.itemTotalPrice)}</p>
                                                   </div>
                                                 ))}
                                                 <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.discount)}</span> </p>
