@@ -146,7 +146,7 @@ const Food = () => {
           stripe_store_acct: "",
           storeOwnerId: user.uid,
           restaurant_seat_arrangement: JSON.stringify(restaurant_seat_arrangement),
-          storeNameCHI: '',
+          storeNameCHI: storeName,
           ZipCode: '90011',
           State: 'CA',
           Phone: '4155551234',
@@ -155,7 +155,7 @@ const Food = () => {
 
         try {
           await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
-
+          window.location.hash = `${DemoStorename}`;
           console.log("Document added successfully!");
         } catch (error) {
           console.error("Error adding document: ", error);
@@ -181,10 +181,7 @@ const Food = () => {
 
   const isMobile = width <= 768;
 
-  const handleButtonClick = () => {
-    // Append "#123" to the URL
-    window.location.hash = `${DemoStorename}`;
-  };
+
 
   return (
 
@@ -232,7 +229,6 @@ const Food = () => {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 style={{ height: "56px" }}
-                onClick={handleButtonClick}
               >
                 Generate QR Code
               </Button_>

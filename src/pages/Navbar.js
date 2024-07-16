@@ -692,7 +692,8 @@ const Navbar = () => {
                       </span>
                     }
                     {directoryType ?
-                      <div className='text-base'> This dining table has unpaid orders. Please settle the existing bill before engaging in other activities.</div>
+                      <div className='text-base'>
+                        There is an unpaid order at this dining table that has already been sent to the kitchen. Please settle the existing bill before proceeding with other activities.</div>
                       : null
                     }
                     <div className='text-base'>Scroll down to checkout</div>

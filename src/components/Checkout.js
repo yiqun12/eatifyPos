@@ -148,7 +148,7 @@ function Checkout(props) {
     //alert("pr.removeAllListeners())")
     pr.removeAllListeners()
     pr.off('paymentmethod');
-    alert(JSON.stringify(user.uid))
+    //alert(JSON.stringify(user.uid))
     //alert("pr.off('paymentmethod')")
     pr.on('paymentmethod', async (e) => {
       console.log("paymentmethod" + totalPrice)
@@ -1260,7 +1260,7 @@ function PayHistory(props) {
   const [isKiosk, setIsKiosk] = useState(false);
   const [kioskHash, setkioskHash] = useState("");
   useEffect(() => {
-    checkgeolocation()
+    //checkgeolocation()
   }, []); // Empty dependency array means this effect runs only once after the initial render
 
   useEffect(() => {
@@ -1383,12 +1383,12 @@ function PayHistory(props) {
 
         : <div>
         </div>} */}
-
+{/* 
       {location ? (
         distanceStatus === 'near' ? (
           <div>
 
-            {/* {(isMobileOrTablet
+            {(isMobileOrTablet
               &&
               !(sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "")
             ) ?
@@ -1404,7 +1404,7 @@ function PayHistory(props) {
 
               : <div>
               </div>
-            } */}
+            }
           </div>
         ) : (
           <div>
@@ -1416,7 +1416,7 @@ function PayHistory(props) {
         <div>
           Loading...
         </div>
-      )}
+      )} */}
 
       <div style={{ display: 'flex', marginTop: "10px" }}>
         <img style={{ height: '35px', width: 'auto' }} src={discover} alt="Discover" />

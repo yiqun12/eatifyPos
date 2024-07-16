@@ -977,12 +977,23 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                         return serializedObj1 === serializedObj2;
                       }
                       //1st is old, second is new.
+                      console.log(selectedFoodItem.attributeSelected)
+                      console.log(selectedAttributes)
                       if (compareObjects(selectedFoodItem.attributeSelected, selectedAttributes)) {//no attr changes
-                        deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 0);//delete new one
+                        if(totalPrice!=selectedFoodItem.totalPrice){
+                          deleteSpecialFood(selectedFoodItem.id, selectedFoodItem.count, selectedAttributes, 0);//delete old one
 
-                        console.log("cancel the change")
-                        setOpenChangeAttributeTrigger(false);
-                        setOpenChangeAttributeModal(false)
+                          console.log("confirm the change")
+                          setOpenChangeAttributeTrigger(false);//confirm the change
+                          setOpenChangeAttributeModal(false)
+                        }else{
+                          deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 0);//delete new one
+                    
+                          console.log("cancel the change")
+                          setOpenChangeAttributeTrigger(false);
+                          setOpenChangeAttributeModal(false)
+  
+                        }
 
                       } else {
                         deleteSpecialFood(selectedFoodItem.id, selectedFoodItem.count, selectedAttributes, 0);//delete old one

@@ -63,7 +63,7 @@ const App = () => {
     const docRef = firebase.firestore()
       .collection('TitleLogoNameContent')
       .doc(store)
-      .collection('Table')
+      .collection('TableIsSent')
       .doc(`${store}-${table}`);
 
     const unsubscribe = docRef.onSnapshot((snapshot) => {
@@ -301,7 +301,7 @@ const Item = (props) => {
     const docRef = firebase.firestore()
       .collection('TitleLogoNameContent')
       .doc(store)
-      .collection('Table')
+      .collection('TableIsSent')
       .doc(`${store}-${table}`);
 
     const unsubscribe = docRef.onSnapshot((snapshot) => {

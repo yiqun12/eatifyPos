@@ -265,7 +265,7 @@ const Food = ({ store }) => {
     await updateDoc(docRef, {
       key: localStorage.getItem(store)
     });
-    localStorage.setItem("Old_TitleLogoNameContent", localStorage.getItem(store));
+    localStorage.setItem("Old_"+store, localStorage.getItem(store));
     alert("Saved Successful");
 
   };
@@ -297,10 +297,10 @@ const Food = ({ store }) => {
         }
         if (sessionData === undefined || sessionData === null) {
           // If rest is undefined or null, do something else (e.g., set an empty array as the value)
-          localStorage.setItem("Old_TitleLogoNameContent", JSON.stringify([]));
+          localStorage.setItem("Old_"+store, JSON.stringify([]));
         } else {
           // If rest is not undefined or null, proceed with the original operations
-          localStorage.setItem("Old_TitleLogoNameContent", sessionData);
+          localStorage.setItem("Old_"+store, sessionData);
         }
 
         setArr(JSON.parse(sessionData));

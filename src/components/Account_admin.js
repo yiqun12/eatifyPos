@@ -911,7 +911,7 @@ const Account = () => {
     const handleHashChange = () => {
       const currentHash = window.location.hash;
       // Retrieve items from localStorage
-      const oldData = localStorage.getItem("Old_TitleLogoNameContent");
+      const oldData = localStorage.getItem("Old_"+storeID);
       const newData = localStorage.getItem(storeID);
 
       // Parse the JSON strings into objects
@@ -940,7 +940,7 @@ const Account = () => {
       const isEqual = areArraysEqual(sortedOldArray, sortedNewArray);
       // Check if the previous hash was '#cards' and the current hash is different
       if (previousHash.includes('#book') && currentHash !== '#book') {
-        if (localStorage.getItem("Old_TitleLogoNameContent") === localStorage.getItem(storeID)) {
+        if (localStorage.getItem("Old_"+storeID) === localStorage.getItem(storeID)) {
 
         } else {
           setAlertModal(true)
@@ -1500,9 +1500,13 @@ const Account = () => {
 
   };
   function handlePrint() {
+    console.log("osjaopwiajsojwaosw")
+    //console.log(docIds)
+    sendMessageToIframes('PrintQRcode', docIds)
     document.body.classList.add('printing');
     window.print();
     document.body.classList.remove('printing');
+    
   }
   const [order_status, setOrder_status] = useState("");
   const [order_table, setOrder_table] = useState("");
@@ -2157,7 +2161,7 @@ const Account = () => {
                 justifyContent: 'space-between',
               }}>
                 <button
-                  onClick={() => { setAlertModal(false); localStorage.setItem(storeID, localStorage.getItem("Old_TitleLogoNameContent")) }}
+                  onClick={() => { setAlertModal(false); localStorage.setItem(storeID, localStorage.getItem("Old_"+storeID)) }}
                   style={{
                     background: '#f44336', // Red background for cancel
                     color: 'white',
@@ -2500,15 +2504,16 @@ const Account = () => {
                         <div className="text-sm-end">
                           <div className="mx-n1">
 
-                            <a className="btn d-inline-flex btn-sm btn-secondary mx-1">
+                            <a className="btn d-inline-flex btn-sm btn-secondary mx-1"
+                              onClick={() => {
+                                logoutUser();
+                                removeFromLocalStorage();
+                              }}>
                               <span className="">
                                 <i className="bi bi-exclamation-triangle"></i>
                               </span>
                               <span
-                                onClick={() => {
-                                  logoutUser();
-                                  removeFromLocalStorage();
-                                }}>
+                              >
                                 {t("Sign Out")}
                               </span>
 
@@ -2759,15 +2764,16 @@ const Account = () => {
                           {isPC ?
                             <div>
 
-                              <a className="btn d-inline-flex btn-sm btn-danger mx-1">
+                              <a className="btn d-inline-flex btn-sm btn-danger mx-1"
+                                onClick={() => {
+                                  logoutUser();
+                                  removeFromLocalStorage();
+                                }}>
                                 <span className="">
                                   <i className="bi bi-exclamation-triangle"></i>
                                 </span>
                                 <span
-                                  onClick={() => {
-                                    logoutUser();
-                                    removeFromLocalStorage();
-                                  }}>
+                                >
                                   {t("Sign Out")}
                                 </span>
 
@@ -2983,7 +2989,8 @@ const Account = () => {
                             </div>
                             <div className="flex justify-end">
                               <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                onClick={handlePrint}>
+                               onClick={() => handlePrint()}
+                                >
                                 <i class="bi bi-printer-fill me-2"></i>
                                 Create A4 Sized QR Code Prints</button>
 
