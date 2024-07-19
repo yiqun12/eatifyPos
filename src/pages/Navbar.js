@@ -290,7 +290,7 @@ const Navbar = () => {
     const docRef = firebase.firestore()
       .collection('TitleLogoNameContent')
       .doc(store)
-      .collection('Table')
+      .collection('TableIsSent')
       .doc(`${store}-${table}`);
 
     const unsubscribe = docRef.onSnapshot((snapshot) => {
