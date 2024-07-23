@@ -1400,9 +1400,9 @@ const Account = () => {
   const [modalTips, setModalTips] = useState('');
   const [modalTotal, setModalTotal] = useState('');
   const [modalSubtotal, setModalSubtotal] = useState('');
+  
 
-
-  const [isVisible, setIsVisible] = useState(!isMobileOrTablet);
+  const [isVisible, setIsVisible] = useState(!isMobile);
 
   const toggleVisibility = () => {
     setIsVisible(!isVisible);

@@ -231,7 +231,8 @@ const Navbar = () => {
     if (user) {
       //window.location.href = "/";
     } else {
-      signInWithGuest()
+      return
+      //signInWithGuest()
     }
     setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
     modalRef.current.style.display = 'block';
@@ -283,14 +284,14 @@ const Navbar = () => {
       console.error("Store or Table is not defined");
       return;
     }
+    if (!user) {
+      return
+    }
     console.log("executing")
-    // if (!directoryType) {
-    //   return
-    // }
     const docRef = firebase.firestore()
       .collection('TitleLogoNameContent')
       .doc(store)
-      .collection('TableIsSent')
+      .collection('Table')
       .doc(`${store}-${table}`);
 
     const unsubscribe = docRef.onSnapshot((snapshot) => {
@@ -302,6 +303,7 @@ const Navbar = () => {
         if (JSON.parse(data.product).length > 0) {
           setDirectoryType(true)
           openModal()
+
           setProducts(directoryType ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
         }
       } else {
@@ -313,7 +315,7 @@ const Navbar = () => {
 
     // Cleanup function to unsubscribe from the listener when the component unmounts or dependencies change
     return () => unsubscribe();
-  }, [directoryType]);
+  }, [user,directoryType]);
 
   useEffect(() => {
     const path = window.location.pathname; // Get the current URL path

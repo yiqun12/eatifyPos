@@ -60,6 +60,21 @@ export const UserContextProvider = ({ children }) => {
       setError("");
       setLoading(false);
     });
+    const autoSignInAsGuest = async () => {
+      const path = window.location.pathname; // Get the current URL path
+
+      if (!path.includes('/store')) {
+        //auto login in the store page
+        return
+      }
+      try {
+        await signInAnonymously(auth);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    autoSignInAsGuest();
     return unsubscribe;
   }, []);
 
