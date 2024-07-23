@@ -291,8 +291,8 @@ const Navbar = () => {
     const docRef = firebase.firestore()
       .collection('TitleLogoNameContent')
       .doc(store)
-      .collection('Table')
-      .doc(`${store}-${table}`);
+      .collection('TableIsSent')
+      .doc(`${store}-${table}-isSent`);
 
     const unsubscribe = docRef.onSnapshot((snapshot) => {
       if (snapshot.exists) {
