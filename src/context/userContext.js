@@ -54,17 +54,22 @@ export const UserContextProvider = ({ children }) => {
         currentUser = firebaseUser;
         //sessionStorage.setItem('user', JSON.stringify(filteredProperties));
       } else {
+        
         setUser(null);
         //sessionStorage.setItem('user', JSON.stringify(null));
       }
       setError("");
       setLoading(false);
     });
+
     const autoSignInAsGuest = async () => {
       const path = window.location.pathname; // Get the current URL path
 
       if (!path.includes('/store')) {
         //auto login in the store page
+        return
+      }
+      if (user){
         return
       }
       try {
