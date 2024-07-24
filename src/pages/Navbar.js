@@ -42,6 +42,8 @@ import { query, where, limit, doc, onSnapshot } from "firebase/firestore";
 import firebase from 'firebase/compat/app';
 
 const Navbar = () => {
+  const { user, user_loading } = useUserContext();
+
   const [tipAmount, setTipAmount] = useState(0);
   const [customTip, setCustomTip] = useState('');
   const [showCustomTipInput, setShowCustomTipInput] = useState(false);
@@ -105,6 +107,11 @@ const Navbar = () => {
 
 
   useEffect(() => {
+    if(!user){
+      return
+    }
+    console.log(user)
+    console.log("1 widget")
     // Check if the script is already loaded
     if (window.google && window.google.translate) {
       googleTranslateElementInit();
@@ -121,7 +128,7 @@ const Navbar = () => {
     };
     document.body.appendChild(addScript);
     window.googleTranslateElementInit = googleTranslateElementInit;
-  }, []);
+  }, [user]);
   const params = new URLSearchParams(window.location.search);
 
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
@@ -151,7 +158,6 @@ const Navbar = () => {
 
 
   const { logoutUser } = useUserContext();
-  const { user, user_loading } = useUserContext();
 
   const location = useLocation();
   const [totalPrice, setTotalPrice] = useState(0);
@@ -229,10 +235,11 @@ const Navbar = () => {
 
   const openModal = () => {
     if (user) {
+      console.log(user)
       //window.location.href = "/";
     } else {
       return
-      //signInWithGuest()
+      signInWithGuest()
     }
     setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
     modalRef.current.style.display = 'block';
@@ -663,7 +670,7 @@ const Navbar = () => {
                 <div className='flex' style={{ justifyContent: "space-between" }}>
                   <Hero directoryType={directoryType} isDineIn={isDineIn} setIsDineIn={setIsDineIn} className="mr-auto" style={{ marginBottom: "5px" }}>
                   </Hero>
-                  {!directoryType ? null :
+                  {!directoryType&&user ? null :
                     <div className='mt-2' id="google_translate_element"></div>}
                 </div>
                 {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => { }}>show unpaid</button> */}

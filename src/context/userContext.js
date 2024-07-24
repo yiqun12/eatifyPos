@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import {
+
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -54,32 +55,40 @@ export const UserContextProvider = ({ children }) => {
         currentUser = firebaseUser;
         //sessionStorage.setItem('user', JSON.stringify(filteredProperties));
       } else {
-        
+        console.log(auth)
         setUser(null);
+        console.log("2 widget")
+        autoSignInAsGuest(firebaseUser);
         //sessionStorage.setItem('user', JSON.stringify(null));
       }
       setError("");
       setLoading(false);
     });
 
-    const autoSignInAsGuest = async () => {
+    const autoSignInAsGuest = async (firebaseUser) => {
       const path = window.location.pathname; // Get the current URL path
 
       if (!path.includes('/store')) {
         //auto login in the store page
         return
       }
-      if (user){
+      if (firebaseUser) {
         return
       }
+      if (user) {
+        return
+      }
+      console.log(firebaseUser)
+      console.log(user)
       try {
-        await signInAnonymously(auth);
+        console.log("2 widget")
+        signInWithGuest()
+
       } catch (err) {
         setError(err.message);
       }
     };
 
-    autoSignInAsGuest();
     return unsubscribe;
   }, []);
 
