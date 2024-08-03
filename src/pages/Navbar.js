@@ -40,6 +40,7 @@ import Dashboard from "../components/dashboard";
 import { db } from '../firebase/index';
 import { query, where, limit, doc, onSnapshot } from "firebase/firestore";
 import firebase from 'firebase/compat/app';
+import { faTruck } from '@fortawesome/free-solid-svg-icons';
 
 const Navbar = () => {
   const { user, user_loading } = useUserContext();
@@ -107,10 +108,11 @@ const Navbar = () => {
 
 
   useEffect(() => {
-    if(!user){
+    if (!user) {
       return
     }
-    console.log(user)
+    //alert(JSON.stringify(user))
+    //console.log(user)
     console.log("1 widget")
     // Check if the script is already loaded
     if (window.google && window.google.translate) {
@@ -306,7 +308,7 @@ const Navbar = () => {
         const data = snapshot.data();
         console.log(data.product)
 
-        sessionStorage.setItem("ReceiptDataDineIn", data.product)
+        //sessionStorage.setItem("ReceiptDataDineIn", data.product)
         if (JSON.parse(data.product).length > 0) {
           setDirectoryType(true)
           openModal()
@@ -322,7 +324,7 @@ const Navbar = () => {
 
     // Cleanup function to unsubscribe from the listener when the component unmounts or dependencies change
     return () => unsubscribe();
-  }, [user,directoryType]);
+  }, [user, directoryType]);
 
   useEffect(() => {
     const path = window.location.pathname; // Get the current URL path
@@ -362,6 +364,8 @@ const Navbar = () => {
 
   //console.log(storeValue)
   //console.log(tableValue)
+  const [pickup, setPickup] = useState(true);
+
   const HandleCheckout_local_stripe = async () => {
 
     setOpenCheckout(true)
@@ -448,6 +452,141 @@ const Navbar = () => {
   }, []); // Empty dependency array means this effect runs only once after the initial render
   // Example usage of the checkDirectory function;
 
+  const [showInputs, setShowInputs] = useState(false);
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [deliveryID, setDeliveryID] = useState('');
+
+  const [dropoffEmail, setDropoffEmail] = useState('');
+  const [dropoffAddress, setDropoffAddress] = useState('');
+  const [dropoffPhoneNumber, setDropoffPhoneNumber] = useState('');
+  const [dropoffInstructions, setDropoffInstructions] = useState('');
+  const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const handleClickDelivery = () => {
+    setShowInputs(!showInputs);
+    setPickup(!pickup)
+    setSuccessMessage(''); // Reset success message when showing inputs again
+  };
+
+  const validatePhoneNumber = (phoneNumber) => {
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phoneNumber);
+  };
+
+  const validateAddress = (address) => {
+    const addressRegex = /^\d+\s[A-z]+\s[A-z]+/;
+    return addressRegex.test(address);
+  };
+
+  const validateEmail = (email) => {
+    // Regular expression to validate email address
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleSubmitDelivery = async () => {
+    let validationErrors = {};
+
+    if (!dropoffAddress) {
+      validationErrors.dropoffAddress = 'Dropoff Address cannot be empty';
+    } else if (!validateAddress(dropoffAddress)) {
+      validationErrors.dropoffAddress = 'Invalid address format';
+    }
+    if (!dropoffEmail) {
+      validationErrors.dropoffEmail = 'Dropoff Email cannot be empty';
+    } else if (!validateEmail(dropoffEmail)) {
+      validationErrors.dropoffEmail = 'Invalid Email format';
+    }
+    if (!dropoffPhoneNumber) {
+      validationErrors.dropoffPhoneNumber = 'Dropoff Phone Number cannot be empty';
+    } else if (!validatePhoneNumber(dropoffPhoneNumber)) {
+      validationErrors.dropoffPhoneNumber = 'Invalid phone number format. Example: 4155552671';
+    }
+
+    if (!dropoffInstructions) {
+      validationErrors.dropoffInstructions = 'Dropoff Instructions cannot be empty';
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setSuccessMessage(''); // Ensure success message is hidden if there are errors
+      return;
+    }
+
+    setErrors({});
+    setSuccessMessage('');
+
+    console.log({
+      dropoffEmail: dropoffEmail,
+      dropoff_address: dropoffAddress,
+      dropoff_phone_number: dropoffPhoneNumber,
+      dropoff_instructions: dropoffInstructions,
+    });
+
+    const currency = 'usd';
+    function formatAmountForStripe(amount, currency) {
+      return zeroDecimalCurrency(amount, currency) ? amount : Math.round(amount * 100);
+    }
+    function zeroDecimalCurrency(amount, currency) {
+      let numberFormat = new Intl.NumberFormat(['en-US'], {
+        style: 'currency',
+        currency: currency,
+        currencyDisplay: 'symbol',
+      });
+      const parts = numberFormat.formatToParts(amount);
+      let zeroDecimalCurrency = true;
+      for (let part of parts) {
+        if (part.type === 'decimal') {
+          zeroDecimalCurrency = false;
+        }
+      }
+      return zeroDecimalCurrency;
+    }
+    console.log(stringTofixed(tipAmount));
+    console.log(sessionStorage.getItem(store));
+    console.log(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).storeOwnerId);
+    console.log(parseFloat(totalPrice));
+    const transformedItems = JSON.parse(sessionStorage.getItem(store)).map(item => ({
+      name: item.name,
+      quantity: item.quantity,
+      external_id: item.id
+    }));
+    console.log(transformedItems);
+    try {
+      const myFunction = firebase.functions().httpsCallable('requestQuoteDoordash');
+      const response = await myFunction({
+        dropOffUserId:user.uid,
+        dropoffEmail: dropoffEmail,
+        dropoff_address: dropoffAddress,
+        dropoff_phone_number: dropoffPhoneNumber,
+        dropoff_instructions: dropoffInstructions,
+        tips: Math.round(stringTofixed(tipAmount) * 100),
+        items: transformedItems,
+        businessId: JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).storeOwnerId,
+        storeId: store,
+        orderValue: Math.round(parseFloat(totalPrice).toFixed(2) * 100),
+      });
+
+      console.log('Quote Response:', response.data);
+      setSuccessMessage(response.data.message || '');
+      if (response.data.message) {
+        //ERROR
+      } else {
+        setDeliveryFee(response.data.fee)
+        setDeliveryID(response.data.external_delivery_id)
+
+        HandleCheckout_local_stripe()
+      }
+    } catch (error) {
+      console.error('Error requesting quote:', error);
+      // Handle the error appropriately
+    }
+
+    // Add any other logic you need to handle the form submission
+  };
+
+
 
   useEffect(() => {
     const path = window.location.pathname; // Get the current URL path
@@ -472,7 +611,7 @@ const Navbar = () => {
         console.log("exist")
         console.log(data.product)
         //setProducts(directoryType ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
-        sessionStorage.setItem("ReceiptDataDineIn", data.product)
+        //sessionStorage.setItem("ReceiptDataDineIn", data.product)
 
         saveId(Math.random());
       } else {
@@ -541,6 +680,7 @@ const Navbar = () => {
 
 
   const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
+
 
 
 
@@ -670,7 +810,7 @@ const Navbar = () => {
                 <div className='flex' style={{ justifyContent: "space-between" }}>
                   <Hero directoryType={directoryType} isDineIn={isDineIn} setIsDineIn={setIsDineIn} className="mr-auto" style={{ marginBottom: "5px" }}>
                   </Hero>
-                  {!directoryType&&user ? null :
+                  {!directoryType && user ? null :
                     <div className='mt-2' id="google_translate_element"></div>}
                 </div>
                 {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => { }}>show unpaid</button> */}
@@ -871,23 +1011,24 @@ const Navbar = () => {
                       </div>
                     </div>
                     <div>
-                      {!isDineIn ? (
-                        <div className="flex space-x-2 mb-2">
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(15)}>15%</button>
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(18)}>18%</button>
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(20)}>20%</button>
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
+                      {pickup ? (
+                        !isDineIn ? (
+                          <div className="flex space-x-2 mb-2">
+                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(15)}>15%</button>
+                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(18)}>18%</button>
+                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(20)}>20%</button>
+                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
+                          </div>
+                        ) : (
+                          <div className="flex space-x-2 mb-2">
+                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(0)}>0%</button>
+                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(3)}>3%</button>
+                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(5)}>5%</button>
+                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
+                          </div>
+                        )
+                      ) : null}
 
-                        </div>
-                      ) : (
-                        <div className="flex space-x-2 mb-2">
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(0)}>0%</button>
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(3)}>3%</button>
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(5)}>5%</button>
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
-
-                        </div>
-                      )}
                       {showCustomTipInput && (
                         <div className="my-2">
                           <input
@@ -898,11 +1039,10 @@ const Navbar = () => {
                             placeholder="Enter gratuity amount"
                           />
                           <button className="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" onClick={handleCustomTip}>
-                            Add Gratuity Amount</button>
+                            Add Gratuity Amount
+                          </button>
                         </div>
                       )}
-
-
                     </div>
 
                     <div className="row">
@@ -921,7 +1061,7 @@ const Navbar = () => {
 
                     </div>
                   </div> : null}
-                <div className="mb-3" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div className="mb-3" >
 
                   {totalPrice === 0 ?
                     <div className='mx-4'>
@@ -933,25 +1073,140 @@ const Navbar = () => {
                       </div>
                     </div>
                     :
-                    <button
-                      style={{ width: "100%", border: "0px", margin: "auto" }}
-                      class="rounded-md mx-4 border-0 text-white bg-orange-700 hover:bg-orange-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex justify-between"
-                      onClick={HandleCheckout_local_stripe}>
-                      <span class="text-left">
-                        <span >
-                          <FontAwesomeIcon icon={faCreditCard} />
-                        </span>
-                        <span> &nbsp;Checkout Order
-                        </span>
-                      </span>
+                    <div class=" mx-4">
+                      {pickup ?
+                        <button
+                          style={{ width: "100%", border: "0px", margin: "auto" }}
+                          class="rounded-md border-0 text-white bg-orange-700 hover:bg-orange-800 focus:outline-none focus:ring-4 focus:ring-orange-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex justify-between"
+                          onClick={HandleCheckout_local_stripe}>
+                          <span class="text-left">
+                            <span >
+                              <FontAwesomeIcon icon={faCreditCard} />
+                            </span>
+                            <span> &nbsp;Pickup/Dine-In Only
+                            </span>
+                          </span>
 
-                      <span class="text-right notranslate">
-                        ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
-                          + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
+                          <span class="text-right notranslate">
+                            ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                              + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
+                            )
+                            }
+                          </span>
+                        </button> : null
+
+                      }
+
+                      {!isKiosk && !isDineIn && (
+                        !showInputs ? (
+                          <button
+                            style={{ width: "100%", border: "0px", margin: "auto" }}
+                            className="rounded-md border-0 text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex"
+                            onClick={handleClickDelivery}
+                          >
+                            <span >
+                              <FontAwesomeIcon icon={faTruck} />
+                            </span>
+                            <span> &nbsp;Food Delivery
+                            </span>
+                          </button>
+                        ) : (
+                          <button
+                            style={{ border: "0px" }}
+                            className="rounded-md border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-2.5 py-2.5 text-center mr-2 mb-2 flex"
+                            onClick={handleClickDelivery}
+                          >
+                            Back
+                          </button>
                         )
-                        }
-                      </span>
-                    </button>
+                      )}
+
+
+                      {showInputs && (
+                        <div>
+                          <div className="mb-2">
+                            <label htmlFor="dropoffEmail" className="block text-sm font-medium text-gray-700">
+                              Contact Email For Tracking Delivery
+                            </label>
+                            <input
+                              type="text"
+                              id="dropoffEmail"
+                              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              value={dropoffEmail}
+                              onChange={(e) => setDropoffEmail(e.target.value)}
+                            />
+                            {errors.dropoffEMail && <p className="text-red-500 text-xs mt-1">{errors.dropoffAddress}</p>}
+                          </div>
+                          <div className="mb-2">
+                            <label htmlFor="dropoffAddress" className="block text-sm font-medium text-gray-700">
+                              Delivery Address
+                            </label>
+                            <input
+                              type="text"
+                              id="dropoffAddress"
+                              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              value={dropoffAddress}
+                              onChange={(e) => setDropoffAddress(e.target.value)}
+                            />
+                            {errors.dropoffAddress && <p className="text-red-500 text-xs mt-1">{errors.dropoffAddress}</p>}
+                          </div>
+                          <div className="mb-2">
+                            <label htmlFor="dropoffPhoneNumber" className="block text-sm font-medium text-gray-700">
+                              Contact Phone Number
+                            </label>
+                            <input
+                              type="text"
+                              id="dropoffPhoneNumber"
+                              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              value={dropoffPhoneNumber}
+                              onChange={(e) => setDropoffPhoneNumber(e.target.value)}
+                            />
+                            {errors.dropoffPhoneNumber && <p className="text-red-500 text-xs mt-1">{errors.dropoffPhoneNumber}</p>}
+                          </div>
+                          <div className="mb-2">
+                            <label htmlFor="dropoffInstructions" className="block text-sm font-medium text-gray-700">
+                              Delivery Instructions
+                            </label>
+                            <input
+                              type="text"
+                              id="dropoffInstructions"
+                              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              value={dropoffInstructions}
+                              onChange={(e) => setDropoffInstructions(e.target.value)}
+                            />
+                            {errors.dropoffInstructions && <p className="text-red-500 text-xs mt-1">{errors.dropoffInstructions}</p>}
+                          </div>
+                          <button
+                            style={{ borderRadius: "0.2rem", width: "100%" }}
+                            class="rounded-md border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex justify-between"
+                            onClick={handleSubmitDelivery}
+                          >
+                            <span class="text-left">
+                              <span >
+                                <FontAwesomeIcon icon={faCreditCard} />
+                              </span>
+                              <span> &nbsp;Checkout Delivery
+                              </span>
+                            </span>
+
+                            <span class="text-right notranslate">
+                              ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                                + parseFloat(isDineIn ? totalPrice * 0.15 : 0) + (deliveryFee / 100)
+                              )
+                              }
+                            </span>
+                          </button>
+                        </div>
+                      )}
+                      {successMessage && (
+                        <div className='text-red'>
+                          Error:
+                          {successMessage}
+                        </div>
+
+                      )}
+                    </div>
+
                   }
 
 
@@ -975,10 +1230,12 @@ const Navbar = () => {
                   </div>
                   {loading && !loadedAcct ? <h2>{t("Loading Payment")}...</h2> :
                     <div>
-                      <Dashboard directoryType={directoryType} isDineIn={isDineIn} totalPrice={stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
-                        + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
-                      )
-                      } />
+                      <Dashboard
+                        products={products}
+                        deliveryID={deliveryID} deliveryFee={deliveryFee} directoryType={directoryType} isDineIn={isDineIn} totalPrice={stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                          + parseFloat(isDineIn ? totalPrice * 0.15 : 0) + (deliveryFee / 100)
+                        )
+                        } />
                     </div>}
 
                 </React.Fragment>

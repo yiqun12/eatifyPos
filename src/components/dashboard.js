@@ -5,7 +5,7 @@ import { loadStripe } from '@stripe/stripe-js';
 
 const Dashboard = (props) => {
 
-  const { directoryType,totalPrice,isDineIn } = props;
+  const { products,directoryType, totalPrice, isDineIn, deliveryID, deliveryFee } = props;
 
   //pk_live_51MLJBWBuo6dxSribckKazcKBLmCf3gSXs6JHKLZbwPS19dscgaVb7bBH48ua3zj8m2xh3oUoByvojdBzcl9Voegu00HyKvJ54W
   //pk_test_51MLJBWBuo6dxSribRhCcbf8dzFRYyPISzipz3fguPcItmpCnpKV0Ym1k37GTz3lpnS657H1a1XBBl0YV2bCHLIzv00tzsE3BHS
@@ -24,7 +24,7 @@ const Dashboard = (props) => {
           <div className="notranslate text-black select-none text-2xl">
             CHECKOUT ${stringTofixed(Math.round(100 * totalPrice) / 100)}
           </div>
-          <Checkout directoryType={directoryType} isDineIn={isDineIn} totalPrice={totalPrice} />
+          <Checkout products={JSON.stringify(products)} deliveryID={deliveryID} deliveryFee={deliveryFee} directoryType={directoryType} isDineIn={isDineIn} totalPrice={totalPrice} />
 
         </div>
       </Elements>

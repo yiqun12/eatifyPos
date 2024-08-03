@@ -50,7 +50,8 @@ function Checkout(props) {
   }
 
   const { user, user_loading } = useUserContext();
-  const { totalPrice, isDineIn, directoryType } = props;
+  const { products, totalPrice, isDineIn, directoryType, deliveryID, deliveryFee } = props;
+
   console.log("isDineIn")
   console.log(isDineIn)
 
@@ -98,7 +99,7 @@ function Checkout(props) {
       currency,
       amount: amount,
       status: 'new',
-      receipt: sessionStorage.getItem(store),
+      receipt: products,
       dateTime: date,
       user_email: user.email,
       uid: user.uid,
@@ -175,29 +176,55 @@ function Checkout(props) {
         currency,
         amount: amount,
         status: 'new',
-        receipt: directoryType ? sessionStorage.getItem("ReceiptDataDineIn") : sessionStorage.getItem(store),
+        receipt: products,
         dateTime: date,
         user_email: user.email,
         uid: user.uid,
         isDinein: isDineIn ? "DineIn" : "TakeOut",
         tableNum: isDineIn ? sessionStorage.getItem("table") : "外卖TakeOut",
-        directoryType: directoryType
+        directoryType: directoryType,
+        deliveryFee: deliveryFee
       };
+      console.log(deliveryID)
+      console.log(deliveryFee)
       // send to db
-      await firebase
-        .firestore()
-        .collection('stripe_customers')
-        .doc(user.uid)
-        .collection('payments')
-        .add(data).then((docRef) => {
-          setReceiptToken(docRef.id)
-          console.log("Document ID is:", docRef.id);
-        })
-        .catch((error) => {
-          setReceiptToken("")
-          //alert(JSON.stringify(error))
-          console.error("Error adding document: ", error);
-        });
+      if (deliveryID === "") {//no delivery
+        console.log("no delivery")
+        await firebase
+          .firestore()
+          .collection('stripe_customers')
+          .doc(user.uid)
+          .collection('payments')
+          .add(data).then((docRef) => {
+            setReceiptToken(docRef.id)
+            console.log("Document ID is:", docRef.id);
+          })
+          .catch((error) => {
+            setReceiptToken("")
+            //alert(JSON.stringify(error))
+            console.error("Error adding document: ", error);
+          });
+      } else {
+        console.log("delivery")
+
+        await firebase
+          .firestore()
+          .collection('stripe_customers')
+          .doc(user.uid)
+          .collection('payments')
+          .doc(deliveryID)
+          .set(data)
+          .then(() => {
+            setReceiptToken(deliveryID);
+            console.log("Document ID is:", '1');
+          })
+          .catch((error) => {
+            setReceiptToken("");
+            console.error("Error adding document: ", error);
+          });
+
+      }
+
       //e.complete('success'); // Notify the browser that the payment is successful
     });
   }, [stripe, elements, totalPrice, user]);
@@ -440,7 +467,7 @@ function Checkout(props) {
     <div>
       {!isKiosk ? <div>
         <div style={{ color: "white", fontSize: "5px" }}>.</div>
-        <CardSection directoryType={directoryType} isDineIn={isDineIn} receiptToken={receiptToken} setReceiptToken={setReceiptToken} totalPrice={totalPrice} />
+        <CardSection products={products} directoryType={directoryType} isDineIn={isDineIn} receiptToken={receiptToken} setReceiptToken={setReceiptToken} totalPrice={totalPrice} deliveryID={deliveryID} deliveryFee={deliveryFee} />
       </div> : null
 
       }
@@ -489,6 +516,7 @@ function Checkout(props) {
                 <>
                   <div>
                     <PaymentRequestButtonElement options={{ paymentRequest }} />
+
                   </div>
                   <div style={{ marginBottom: "10px" }}></div>
                 </>
@@ -527,7 +555,7 @@ function Checkout(props) {
           </div>
         </div>
       </div>
-      <PayHistory isDineIn={isDineIn} receiptToken={receiptToken} setReceiptToken={setReceiptToken} totalPrice={totalPrice} />
+      <PayHistory products={products} isDineIn={isDineIn} receiptToken={receiptToken} setReceiptToken={setReceiptToken} totalPrice={totalPrice} />
     </div>
   );
 };
@@ -549,7 +577,7 @@ function CardSection(props) {
     setNewCardAdded(false);
   }
   const { user, user_loading } = useUserContext();
-  const { totalPrice, isDineIn, directoryType } = props;
+  const { products, totalPrice, isDineIn, directoryType, deliveryID, deliveryFee } = props;
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -634,6 +662,7 @@ function CardSection(props) {
   // Example usage of the checkDirectory function
 
   const handleSubmit = async (e) => {
+
     console.log("handleSubmit", totalPrice)
     e.preventDefault();
 
@@ -673,7 +702,7 @@ function CardSection(props) {
       currency,
       amount,
       status: 'new',
-      receipt: directoryType ? sessionStorage.getItem("ReceiptDataDineIn") : sessionStorage.getItem(store),
+      receipt: products,
       dateTime: date,
       user_email: user.email,
       uid: user.uid,
@@ -681,23 +710,48 @@ function CardSection(props) {
       saveCard: saveCard, // Include the saveCard value in the data
       tableNum: isDineIn ? sessionStorage.getItem("table") : "外卖TakeOut",
       directoryType: directoryType,
+      deliveryFee: deliveryFee
     };
+    console.log(deliveryID)
+    console.log(deliveryFee)
+    if (deliveryID === "") {//no delivery
+      console.log("no delivery")
 
+      await firebase
+        .firestore()
+        .collection('stripe_customers')
+        .doc(user.uid)
+        .collection('payments')
+        .add(data).then((docRef) => {
+          props.setReceiptToken(docRef.id)
+          console.log("Document ID is:", docRef.id);
+        })
+        .catch((error) => {
+          props.setReceiptToken("")
+          console.error("Error adding document: ", error);
+        });
+    } else {
+      console.log(" delivery")
 
+      await firebase
+        .firestore()
+        .collection('stripe_customers')
+        .doc(user.uid)
+        .collection('payments')
+        .doc(deliveryID)
+        .set(data)
+        .then(() => {
+          props.setReceiptToken(deliveryID);
+          console.log("Document ID is:", '1');
+        })
+        .catch((error) => {
+          props.setReceiptToken("");
+          console.error("Error adding document: ", error);
+        });
+
+    }
     //send to db 2
-    await firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('payments')
-      .add(data).then((docRef) => {
-        props.setReceiptToken(docRef.id)
-        console.log("Document ID is:", docRef.id);
-      })
-      .catch((error) => {
-        props.setReceiptToken("")
-        console.error("Error adding document: ", error);
-      });
+
 
     // if (saveCard) {
     //   await firebase
@@ -740,8 +794,6 @@ function CardSection(props) {
     setIsKiosk(result)
     console.log("URL format check result:", result);
   }, []); // Empty dependency array means this effect runs only once after the initial render
-
-
 
   return (
     <div>
@@ -845,7 +897,9 @@ function CardSection(props) {
               <FontAwesomeIcon icon={faCreditCard} />
               &nbsp; {t("Pay with Credit Card")}
             </button>
+
           </form>
+
 
         </div>
       </div>
@@ -863,7 +917,7 @@ function PayHistory(props) {
 
 
   const { user, user_loading } = useUserContext();
-  const { totalPrice, tips, isDineIn } = props;
+  const { totalPrice, tips, isDineIn, deliveryFee, products } = props;
 
   let stripe; // Declare stripe variable outside of your function
 
@@ -901,7 +955,7 @@ function PayHistory(props) {
       currency,
       amount: amount,
       status: 'new',
-      receipt: sessionStorage.getItem(store),
+      receipt: products,
       dateTime: date,
       user_email: user.email,
       uid: user.uid,
@@ -939,7 +993,7 @@ function PayHistory(props) {
       payment = error.payment_intent;
     } else if (paymentIntent) {
       payment = paymentIntent;
-      payment['receiptData'] = sessionStorage.getItem(store);
+      payment['receiptData'] = products;
       payment['user_email'] = user.email;
       payment['uid'] = user.uid
     }
@@ -988,7 +1042,7 @@ function PayHistory(props) {
       payment = error.payment_intent;
     } else if (paymentIntent) {
       payment = paymentIntent;
-      payment['receiptData'] = sessionStorage.getItem(store);
+      payment['receiptData'] = products;
       payment['user_email'] = user.email;
       payment['uid'] = user.uid;
     }
@@ -1008,13 +1062,6 @@ function PayHistory(props) {
   const dateTime = new Date().toISOString();
   const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
   const { id, saveId } = useMyHook(null);
-  const [products, setProducts] = useState(sessionStorage.getItem(store));
-
-  //let products = JSON.parse(sessionStorage.getItem(store));
-  useEffect(() => {
-    setProducts(JSON.parse(sessionStorage.getItem(store)))
-    //console.log(JSON.parse(sessionStorage.getItem(store)))
-  }, [id]);
 
   useEffect(() => {
     if (props.receiptToken != "") {
@@ -1135,7 +1182,7 @@ function PayHistory(props) {
       }
       if (paymentIntent) {
         payment = paymentIntent;
-        payment['receiptData'] = sessionStorage.getItem(store);
+        payment['receiptData'] = products;
         payment['user_email'] = user.email;
         payment['uid'] = user.uid;
       }
@@ -1229,7 +1276,7 @@ function PayHistory(props) {
       const data = {
         store: store,
         stripe_account_store_owner: JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).storeOwnerId,
-        items: products,
+        items: JSON.parse(products),
         amount: "0", //NO USE
         status: "Review", //NO USE
         table: table ? table : "",
@@ -1366,7 +1413,7 @@ function PayHistory(props) {
                   storeID={"demo"} chargeAmount={1} connected_stripe_account_id={"acct_1OWU8KBUAXdEY4mJ"} service_fee={0} selectedTable={"测试"} /> */}
       {
         isKiosk ?
-          <PaymentKiosk receipt_JSON={sessionStorage.getItem(store)}
+          <PaymentKiosk receipt_JSON={products}
             storeID={store} chargeAmount={parseFloat(totalPrice)} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
             service_fee={0} selectedTable={'点餐机kiosk'} /> : null
       }
@@ -1383,7 +1430,7 @@ function PayHistory(props) {
 
         : <div>
         </div>} */}
-{/* 
+      {/* 
       {location ? (
         distanceStatus === 'near' ? (
           <div>
@@ -1422,8 +1469,11 @@ function PayHistory(props) {
         <img style={{ height: '35px', width: 'auto' }} src={discover} alt="Discover" />
 
         <img style={{ height: '35px', width: 'auto', marginLeft: "15px" }} src={visa} alt="Visa" />
+
+
       </div>
       <div style={{ display: 'flex', marginTop: "5px" }}>
+        <img style={{ height: '35px', width: 'auto', marginRight: "15px" }} src={amex} alt="amex" />
         <img style={{ height: '35px', width: 'auto' }} src={applepay} alt="Apple Pay" />
       </div>
       <ul id="payments-list"></ul>

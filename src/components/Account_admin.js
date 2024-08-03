@@ -763,6 +763,8 @@ const Account = () => {
     city: '',
     picture: '',
     physical_address: '',
+    Description: '',
+
     State: '',
     ZipCode: '',
     Phone: ''
@@ -823,7 +825,7 @@ const Account = () => {
   // using the below to control if suboption popping and popping out depending on which store is selected on the side bar
   const [activeStoreId, setActiveStoreId] = useState(null);
   // Rename function for form submission
-  const handleFormSubmit = async (e, name, storeNameCHI, address, image, id, physical_address, State, ZipCode, Phone) => {
+  const handleFormSubmit = async (e, name, storeNameCHI, address, image, id, physical_address,Description, State, ZipCode, Phone) => {
 
     e.preventDefault();
     // Here you can access formValues and perform actions like sending it to a server
@@ -841,6 +843,8 @@ const Account = () => {
       ZipCode: formValues.ZipCode !== '' ? formValues.ZipCode : ZipCode,
       State: formValues.State !== '' ? formValues.State : State,
       physical_address: formValues.physical_address !== '' ? formValues.physical_address : physical_address,
+      Description: formValues.Description !== '' ? formValues.Description : Description,
+
     });
     alert("Updated Successful");
   };
@@ -911,7 +915,7 @@ const Account = () => {
     const handleHashChange = () => {
       const currentHash = window.location.hash;
       // Retrieve items from localStorage
-      const oldData = localStorage.getItem("Old_"+storeID);
+      const oldData = localStorage.getItem("Old_" + storeID);
       const newData = localStorage.getItem(storeID);
 
       // Parse the JSON strings into objects
@@ -940,7 +944,7 @@ const Account = () => {
       const isEqual = areArraysEqual(sortedOldArray, sortedNewArray);
       // Check if the previous hash was '#cards' and the current hash is different
       if (previousHash.includes('#book') && currentHash !== '#book') {
-        if (localStorage.getItem("Old_"+storeID) === localStorage.getItem(storeID)) {
+        if (localStorage.getItem("Old_" + storeID) === localStorage.getItem(storeID)) {
 
         } else {
           setAlertModal(true)
@@ -1400,7 +1404,7 @@ const Account = () => {
   const [modalTips, setModalTips] = useState('');
   const [modalTotal, setModalTotal] = useState('');
   const [modalSubtotal, setModalSubtotal] = useState('');
-  
+
 
   const [isVisible, setIsVisible] = useState(!isMobile);
 
@@ -1506,7 +1510,7 @@ const Account = () => {
     document.body.classList.add('printing');
     window.print();
     document.body.classList.remove('printing');
-    
+
   }
   const [order_status, setOrder_status] = useState("");
   const [order_table, setOrder_table] = useState("");
@@ -1744,6 +1748,8 @@ const Account = () => {
             jsonObject.storeId = selectedStore.id;
             jsonObject.storeName = selectedStore.Name;
             jsonObject.storeAddress = selectedStore.physical_address;
+            jsonObject.Description = selectedStore.Description;
+
             jsonObject.storeState = selectedStore.State;
             jsonObject.storeZipCode = selectedStore.ZipCode;
             jsonObject.storePhone = selectedStore.Phone;
@@ -1844,6 +1850,9 @@ const Account = () => {
             jsonObject.storeId = selectedStore.id;
             jsonObject.storeName = selectedStore.Name;
             jsonObject.storeAddress = selectedStore.physical_address;
+            jsonObject.Description = selectedStore.Description;
+
+            
             jsonObject.storeState = selectedStore.State;
             jsonObject.storeZipCode = selectedStore.ZipCode;
             jsonObject.storePhone = selectedStore.Phone;
@@ -1890,6 +1899,7 @@ const Account = () => {
             jsonObject.storeId = selectedStore.id;
             jsonObject.storeName = selectedStore.Name;
             jsonObject.storeAddress = selectedStore.physical_address;
+            jsonObject.Description = selectedStore.Description;
             jsonObject.storeState = selectedStore.State;
             jsonObject.storeZipCode = selectedStore.ZipCode;
             jsonObject.storePhone = selectedStore.Phone;
@@ -2161,7 +2171,7 @@ const Account = () => {
                 justifyContent: 'space-between',
               }}>
                 <button
-                  onClick={() => { setAlertModal(false); localStorage.setItem(storeID, localStorage.getItem("Old_"+storeID)) }}
+                  onClick={() => { setAlertModal(false); localStorage.setItem(storeID, localStorage.getItem("Old_" + storeID)) }}
                   style={{
                     background: '#f44336', // Red background for cancel
                     color: 'white',
@@ -2830,7 +2840,7 @@ const Account = () => {
                                 </div>
                               </div>
                             </div> */}
-                            <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.State, data?.ZipCode, data?.Phone)}>
+                            <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address,data?.Description, data?.State, data?.ZipCode, data?.Phone)}>
                               <div className="flex flex-wrap -mx-3 mb-6">
                                 <div className="w-full px-3">
                                   <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
@@ -2847,6 +2857,7 @@ const Account = () => {
                                     translate="no"
                                   />
                                 </div>
+
                                 <div className="w-full px-3">
                                   <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeNameCHI">
                                     Store Display Name in Second Language (Optional)
@@ -2862,6 +2873,21 @@ const Account = () => {
                                     translate="no"
                                   />
 
+                                </div>
+                                <div className="w-full px-3">
+                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="Description">
+                                    Business Description
+                                  </label>
+                                  <input
+                                    className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+                                    id="Description"
+                                    type="text"
+                                    name="Description"
+                                    value={formValues.Description}
+                                    onChange={handleInputChange}
+                                    placeholder={data?.Description}
+                                    translate="no"
+                                  />
                                 </div>
                                 <div className="w-full px-3">
                                   <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="physical_address">
@@ -2989,8 +3015,8 @@ const Account = () => {
                             </div>
                             <div className="flex justify-end">
                               <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                               onClick={() => handlePrint()}
-                                >
+                                onClick={() => handlePrint()}
+                              >
                                 <i class="bi bi-printer-fill me-2"></i>
                                 Create A4 Sized QR Code Prints</button>
 

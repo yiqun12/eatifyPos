@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import {
 
   signInWithEmailAndPassword,
@@ -58,39 +58,42 @@ export const UserContextProvider = ({ children }) => {
         console.log(auth)
         setUser(null);
         console.log("2 widget")
+        const autoSignInAsGuest = async (firebaseUser) => {
+          const path = window.location.pathname; // Get the current URL path
+
+          if (!path.includes('/store')) {
+            //auto login in the store page
+            return
+          }
+          if (firebaseUser) {
+            return
+          }
+          if (user) {
+            return
+          }
+          console.log(firebaseUser)
+          console.log(user)
+          try {
+            console.log("3 widget");
+            signInWithGuest()
+
+          } catch (err) {
+            setError(err.message);
+          }
+        };
         autoSignInAsGuest(firebaseUser);
+        //autoSignInAsGuest(firebaseUser);
         //sessionStorage.setItem('user', JSON.stringify(null));
       }
       setError("");
       setLoading(false);
     });
 
-    const autoSignInAsGuest = async (firebaseUser) => {
-      const path = window.location.pathname; // Get the current URL path
 
-      if (!path.includes('/store')) {
-        //auto login in the store page
-        return
-      }
-      if (firebaseUser) {
-        return
-      }
-      if (user) {
-        return
-      }
-      console.log(firebaseUser)
-      console.log(user)
-      try {
-        console.log("2 widget")
-        signInWithGuest()
-
-      } catch (err) {
-        setError(err.message);
-      }
-    };
 
     return unsubscribe;
   }, []);
+
 
   // logout untill full filled.
   const registerUser = async (email, password, name) => {

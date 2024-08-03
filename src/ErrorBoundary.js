@@ -17,7 +17,7 @@ class ErrorBoundary extends Component {
       } else {
         window.location.reload();
       }
-    }, 2000); // 5000 milliseconds = 5 seconds
+    }, 1); // 5000 milliseconds = 5 seconds
   }
 
   render() {
@@ -25,7 +25,7 @@ class ErrorBoundary extends Component {
       // Render an error message or fallback UI
       return (
         <div>
-          Something went wrong. The page will refresh in 2 seconds.
+          Loading...
         </div>
       );
     }

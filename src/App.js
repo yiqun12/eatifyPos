@@ -6,7 +6,6 @@ import Navbar from './pages/Navbar'
 import Home from './pages/Home'
 import ForgotPassword from './pages/ForgotPassword'
 import Reservation from './pages/reservation'
-import Checkout from './pages/Checkout'
 import ErrorBoundary from './ErrorBoundary'; // Import the ErrorBoundary component
 
 import Admin_new from './components/Admin_new'
@@ -104,13 +103,6 @@ function App() {
 
                 {/* <Route path="QRcode" element={
                     <Html /> }></Route> */}
-
-                <Route path="Admin" element={
-                  user != null &&
-                    user.uid === process.env.REACT_APP_ADMIN_UID ?
-                    <Admin_new /> :
-                    <LogIn />} />
-
                 {/* <Route path="orders" element={<Receipt />} /> */}
 
                 {/* <Route path="orderhasreceived" element={<OrderHasReceived />} /> */}
@@ -121,22 +113,29 @@ function App() {
                 {user ? <Route path="/checkout" element={<Checkout />}></Route> : <Route path="/checkout" element={<LogIn />}></Route>} */}
                 {/* {user ? <Route path="/DemoFood" element={<DemoFood />}></Route> : <Route path="/DemoFood" element={<LogIn />}></Route>} */}
 
-                {user ?
-                  <Route path="Account" element=
-                    {
-                      user != null &&
-                        user.uid === process.env.REACT_APP_ADMIN_UID ?
-                        <Account_admin /> :
-                        <Account_admin />}
-                  ></Route> : <Route path="Account" element={<LogIn />}></Route>
-                }
-                {user ?
-                  <Route path="LogIn" element={
-                    user.uid === process.env.REACT_APP_ADMIN_UID ?
-                      <Account_admin /> :
-                      <Account_admin />}></Route> :
-                  <Route path="LogIn" element={<LogIn />}></Route>
-                }
+                {user ? (
+                  <Route
+                    path="Account"
+                    element={<Account_admin />}
+                  />
+                ) : (
+                  <Route
+                    path="Account"
+                    element={<LogIn />}
+                  />
+                )}
+
+                {user ? (
+                  <Route
+                    path="LogIn"
+                    element={<Account_admin />}
+                  />
+                ) : (
+                  <Route
+                    path="LogIn"
+                    element={<LogIn />}
+                  />
+                )}
 
                 <Route path="SignUp" element={<SignUp />}></Route>
 
@@ -167,7 +166,7 @@ function App() {
                 {/* <Route exact path="/DemoFood" element={<DemoFood />} />
                 <Route exact path="/AdminFood" element={<Admin_food />} />
                 <Route exact path="/Refresh" element={<Refresh />} /> */}
-                <Route path="/career" element={<Career/>} />
+                <Route path="/career" element={<Career />} />
 
                 <Route path='*' exact={true} element={<Home />} />
                 <Route exact path="/" element={<Home />} />

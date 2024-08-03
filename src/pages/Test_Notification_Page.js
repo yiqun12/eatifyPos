@@ -7,6 +7,7 @@ import { useUserContext } from "../context/userContext";
 import { onSnapshot, query } from 'firebase/firestore';
 import styled from 'styled-components';
 import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
+import firebase from 'firebase/compat/app';
 
 
 function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, setSortedData }) {
@@ -95,6 +96,19 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
 
 
   const deleteDocument = async (orderId) => {
+    console.log(orderId)
+    try {
+      const myFunction = firebase.functions().httpsCallable('acceptQuoteDoordash');
+      const response = await myFunction({
+        uid: orderId,
+      });
+
+      console.log('Quote Response:', response.data);
+    } catch (error) {
+      console.error('Error requesting quote:', error);
+      // Handle the error appropriately
+    }
+
     try {
 
       const docRef = doc(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', storeID, 'PendingDineInOrder', orderId);
@@ -477,7 +491,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                     </td>
                     {isMobile ? null :
                       <td className="pr-2 text-end">
-                        {order.Status === "Paid" ?
+                        {order.Status === "Paid" || order.Status === "Delivery" ?
                           <div>
 
                             <button type="button" className="btn btn-sm btn-primary text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
@@ -497,7 +511,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                     }
                     {isMobile ?
                       <div className="pr-2 text-end">
-                        {order.Status === "Paid" ?
+                        {order.Status === "Paid" || order.Status === "Delivery"?
                           <div>
 
                             <button type="button" className="mb-1 btn btn-sm btn-primary text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
@@ -523,6 +537,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                       <div className="receipt">
                         <div className='flex justify-between '>
                           <span className='notranslate'>{order.username}</span>
+                          <span>{order.orderId}</span>
                           <span className='notranslate'>Time: {order.date}</span>
                         </div>
 

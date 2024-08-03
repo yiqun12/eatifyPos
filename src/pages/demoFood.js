@@ -151,11 +151,14 @@ const Food = () => {
           State: 'CA',
           Phone: '4155551234',
           physical_address: '123 Main Street',
+          Description: 'chinese restaurant that sells food product',
+
         };
 
         try {
           await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
           window.location.hash = `${DemoStorename}`;
+          window.location.reload();
           console.log("Document added successfully!");
         } catch (error) {
           console.error("Error adding document: ", error);
@@ -230,7 +233,7 @@ const Food = () => {
                 sx={{ mt: 3, mb: 2 }}
                 style={{ height: "56px" }}
               >
-                Generate QR Code
+                Create Store Now
               </Button_>
               {(isMobile) &&
                 <div style={{ marginTop: "30px" }}>
