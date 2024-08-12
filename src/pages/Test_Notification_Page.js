@@ -1,7 +1,7 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState, useEffect } from 'react';
-import { collection, doc, setDoc, addDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, deleteDoc,updateDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
 import { onSnapshot, query } from 'firebase/firestore';
@@ -112,8 +112,10 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
     try {
 
       const docRef = doc(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', storeID, 'PendingDineInOrder', orderId);
-      await deleteDoc(docRef);
-      console.log("Document successfully deleted!");
+      await updateDoc(docRef, {
+        isConfirm: true  // Replace "newStatus" with the actual status you want to update to
+      });
+      console.log("Document successfully updated!");
     } catch (error) {
       console.error("Error deleting document: ", error);
     }

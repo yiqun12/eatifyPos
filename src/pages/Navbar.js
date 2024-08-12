@@ -38,12 +38,18 @@ import CountdownTimer from './CountdownTimer'; // Adjust the import path as need
 import Eshopingcart from '../components/e-shopingcart.png';  // Import the image
 import Dashboard from "../components/dashboard";
 import { db } from '../firebase/index';
-import { query, where, limit, doc, onSnapshot } from "firebase/firestore";
+import { query, where, limit, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp } from "firebase/firestore";
 import firebase from 'firebase/compat/app';
 import { faTruck } from '@fortawesome/free-solid-svg-icons';
+import { collection, addDoc } from "firebase/firestore";
+import { FaTrash } from 'react-icons/fa';
+import { faEdit } from '@fortawesome/free-solid-svg-icons';
 
 const Navbar = () => {
   const { user, user_loading } = useUserContext();
+  const [loadingContact, setLoadingContact] = useState(true);
+  const [activeAddressId, setActiveAddressId] = useState(null);
+  const [addNewAdress, setAddNewAdress] = useState(false);
 
   const [tipAmount, setTipAmount] = useState(0);
   const [customTip, setCustomTip] = useState('');
@@ -256,6 +262,7 @@ const Navbar = () => {
       modalRef.current.style.display = 'none';
       setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
       setOpenCheckout(false)
+      setAddNewAdress(false)
     }
 
   };
@@ -456,12 +463,63 @@ const Navbar = () => {
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [deliveryID, setDeliveryID] = useState('');
 
-  const [dropoffEmail, setDropoffEmail] = useState('');
   const [dropoffAddress, setDropoffAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [zipCode, setZipCode] = useState('');
+
   const [dropoffPhoneNumber, setDropoffPhoneNumber] = useState('');
-  const [dropoffInstructions, setDropoffInstructions] = useState('');
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
+
+  const [deliveryContacts, setDeliveryContacts] = useState([]);
+  const deleteDeliveryContact = async (contactId) => {
+    try {
+      const contactDoc = doc(db, "stripe_customers", user.uid, "deliveryContact", contactId);
+      await deleteDoc(contactDoc);
+      console.log("Document successfully deleted!");
+    } catch (error) {
+      console.error("Error removing document: ", error);
+    }
+  };
+  // useEffect hook to listen for updates on the collection
+  useEffect(() => {
+    console.log("isauwojsaio")
+    console.log(pickup)
+
+    if (pickup) {
+      return
+    }
+    if (user && user.uid) {
+      const unsubscribe = onSnapshot(collection(db, "stripe_customers", user.uid, "deliveryContact"), (snapshot) => {
+        const contacts = [];
+        snapshot.forEach(doc => {
+          contacts.push({ id: doc.id, ...doc.data() });
+        });
+        console.log(contacts)
+        setDeliveryContacts(contacts.sort((a, b) => b.modifiedAt.seconds - a.modifiedAt.seconds));
+        console.log("Updated contacts: ", contacts);
+        setActiveAddressId(contacts[0]?.id); // Set the first contact as active initially
+        setDropoffPhoneNumber(contacts[0].dropoffPhoneNumber);
+        setZipCode(contacts[0].zipCode);
+        setState(contacts[0].state);
+        setCity(contacts[0].city);
+        setDropoffAddress(contacts[0].dropoffAddress);
+        setLoadingContact(false);
+      }, (error) => {
+        setLoadingContact(false);
+        console.error("Failed to subscribe to collection changes: ", error);
+      });
+
+      return () => unsubscribe(); // Cleanup subscription
+    }
+  }, [user, pickup]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    console.log("deliveryContacts has changed:", deliveryContacts);
+    // Perform any additional actions here when deliveryContacts changes
+  }, [deliveryContacts]); // This effect runs whenever deliveryContacts changes
 
   const handleClickDelivery = () => {
     setShowInputs(!showInputs);
@@ -476,41 +534,61 @@ const Navbar = () => {
 
   const validateAddress = (address) => {
     const addressRegex = /^\d+\s[A-z]+\s[A-z]+/;
+    return address;
     return addressRegex.test(address);
   };
+  const validateZipCode = (zipCode) => {
+    const zipCodeRegex = /^\d{5}(-\d{4})?$/; // Validates standard 5-digit or 9-digit ZIP codes
+    return zipCodeRegex.test(zipCode);
+  };
 
-  const validateEmail = (email) => {
-    // Regular expression to validate email address
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  const validateCity = (city) => {
+    const cityRegex = /^[a-zA-Z\s]+$/; // Validates that city contains only letters and spaces
+    return cityRegex.test(city);
+  };
+
+  const validateState = (state) => {
+    const stateRegex = /^[a-zA-Z\s]+$/; // Validates that state contains only letters and spaces
+    return stateRegex.test(state);
   };
 
   const handleSubmitDelivery = async () => {
+    setIsSubmitting(true); // Disable the button when the submission starts
     let validationErrors = {};
+    if (!city) {
+      validationErrors.city = 'City cannot be empty';
+    } else if (!validateCity(city)) {
+      validationErrors.city = 'Invalid city format. Only letters and spaces are allowed';
+    }
+    if (!zipCode) {
+      validationErrors.zipCode = 'ZIP Code cannot be empty';
+    } else if (!validateZipCode(zipCode)) {
+      validationErrors.zipCode = 'Invalid ZIP Code format. Use 5 or 9 digits (e.g., 12345 or 12345-6789)';
+    }
+    if (!state) {
+      validationErrors.state = 'State cannot be empty';
+    } else if (!validateState(state)) {
+      validationErrors.state = 'Invalid state format. Only letters and spaces are allowed';
+    }
 
     if (!dropoffAddress) {
       validationErrors.dropoffAddress = 'Dropoff Address cannot be empty';
     } else if (!validateAddress(dropoffAddress)) {
       validationErrors.dropoffAddress = 'Invalid address format';
     }
-    if (!dropoffEmail) {
-      validationErrors.dropoffEmail = 'Dropoff Email cannot be empty';
-    } else if (!validateEmail(dropoffEmail)) {
-      validationErrors.dropoffEmail = 'Invalid Email format';
-    }
+
     if (!dropoffPhoneNumber) {
       validationErrors.dropoffPhoneNumber = 'Dropoff Phone Number cannot be empty';
     } else if (!validatePhoneNumber(dropoffPhoneNumber)) {
       validationErrors.dropoffPhoneNumber = 'Invalid phone number format. Example: 4155552671';
     }
 
-    if (!dropoffInstructions) {
-      validationErrors.dropoffInstructions = 'Dropoff Instructions cannot be empty';
-    }
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       setSuccessMessage(''); // Ensure success message is hidden if there are errors
+      setIsSubmitting(false); // Re-enable the button if an exception occurs
+
       return;
     }
 
@@ -518,10 +596,9 @@ const Navbar = () => {
     setSuccessMessage('');
 
     console.log({
-      dropoffEmail: dropoffEmail,
       dropoff_address: dropoffAddress,
       dropoff_phone_number: dropoffPhoneNumber,
-      dropoff_instructions: dropoffInstructions,
+      dropoff_instructions: "Please Call or Text " + formatPhoneNumber(dropoffPhoneNumber) + " when you are here",
     });
 
     const currency = 'usd';
@@ -543,24 +620,28 @@ const Navbar = () => {
       }
       return zeroDecimalCurrency;
     }
-    console.log(stringTofixed(tipAmount));
-    console.log(sessionStorage.getItem(store));
-    console.log(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).storeOwnerId);
-    console.log(parseFloat(totalPrice));
+    console.log(dropoffAddress + " " + city + " " + state);
     const transformedItems = JSON.parse(sessionStorage.getItem(store)).map(item => ({
       name: item.name,
       quantity: item.quantity,
       external_id: item.id
     }));
     console.log(transformedItems);
+    console.log(user.uid)
+    function formatPhoneNumber(number) {
+      return `(${number.slice(0, 3)}) ${number.slice(3, 6)}-${number.slice(6)}`;
+    }
+
+    console.log("addNewAdress")
+    console.log(addNewAdress)
+
     try {
       const myFunction = firebase.functions().httpsCallable('requestQuoteDoordash');
       const response = await myFunction({
-        dropOffUserId:user.uid,
-        dropoffEmail: dropoffEmail,
-        dropoff_address: dropoffAddress,
+        dropOffUserId: user.uid,
+        dropoff_address: dropoffAddress + " " + city + " " + state + " " + zipCode,
         dropoff_phone_number: dropoffPhoneNumber,
-        dropoff_instructions: dropoffInstructions,
+        dropoff_instructions: "Please Call or Text " + formatPhoneNumber(dropoffPhoneNumber) + " when you are here",
         tips: Math.round(stringTofixed(tipAmount) * 100),
         items: transformedItems,
         businessId: JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).storeOwnerId,
@@ -568,20 +649,67 @@ const Navbar = () => {
         orderValue: Math.round(parseFloat(totalPrice).toFixed(2) * 100),
       });
 
-      console.log('Quote Response:', response.data);
-      setSuccessMessage(response.data.message || '');
-      if (response.data.message) {
-        //ERROR
+      if (response.data.message) {//error
+        setSuccessMessage((JSON.stringify(response.data)) || '');
       } else {
+        if (addNewAdress && activeAddressId != null) {//edit
+          try {
+            const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "deliveryContact"), {
+              dropoffAddress,
+              city,
+              state,
+              zipCode,
+              dropoffPhoneNumber,
+              modifiedAt: serverTimestamp() // This adds the timestamp
+            });
+            console.log("Document written with ID: ", docRef.id);
+          } catch (error) {
+            console.error("Error adding document: ", error);
+          }
+          try {
+            const contactDoc = doc(db, "stripe_customers", user.uid, "deliveryContact", activeAddressId);
+            await deleteDoc(contactDoc);
+            console.log("Document successfully deleted!");
+          } catch (error) {
+            console.error("Error removing document: ", error);
+          }
+        } else if (!addNewAdress && activeAddressId != null) {//use existing address
+          try {
+            const contactDoc = doc(db, "stripe_customers", user.uid, "deliveryContact", activeAddressId);
+            await updateDoc(contactDoc, {
+              modifiedAt: serverTimestamp()  // Update only the modifiedAt field
+            });
+            console.log("Document successfully deleted!");
+          } catch (error) {
+            console.error("Error removing document: ", error);
+          }
+        } else {//use new address
+          try {
+            const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "deliveryContact"), {
+              dropoffAddress,
+              city,
+              state,
+              zipCode,
+              dropoffPhoneNumber,
+              modifiedAt: serverTimestamp() // This adds the timestamp
+            });
+            console.log("Document written with ID: ", docRef.id);
+          } catch (error) {
+            console.error("Error adding document: ", error);
+          }
+        }
+
         setDeliveryFee(response.data.fee)
         setDeliveryID(response.data.external_delivery_id)
 
         HandleCheckout_local_stripe()
+
       }
     } catch (error) {
       console.error('Error requesting quote:', error);
       // Handle the error appropriately
     }
+    setIsSubmitting(false); // Re-enable the button if an exception occurs
 
     // Add any other logic you need to handle the form submission
   };
@@ -801,7 +929,9 @@ const Navbar = () => {
               <div className="title pb-1">
 
                 <div className=' flex justify-end mb-2'>
+
                   {!directoryType ?
+
                     <DeleteSvg className="delete-btn " style={{ cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></DeleteSvg>
                     : null}
                 </div>
@@ -832,8 +962,10 @@ const Navbar = () => {
                               </b>
                               &nbsp;
                             </b> :
-                            <b>You did not select dining table</b>
-
+                            <div>
+                              <b>You are currently in takeout Mode.
+                              </b>
+                            </div>
                           }
 
                         </div>
@@ -856,106 +988,110 @@ const Navbar = () => {
               <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
 
                 {/* generates each food entry */}
-                {products?.map((product) => (
-                  // the parent div
-                  // can make the parent div flexbox
-                  <div key={product.count} className={` ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`} >
+                {
+                  pickup ? (products?.map((product) => (
+                    // the parent div
+                    // can make the parent div flexbox
+                    <div key={product.count} className={` ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`} >
 
-                    {/* the delete button */}
-                    {/* <div className="buttons">
+                      {/* the delete button */}
+                      {/* <div className="buttons">
                   <DeleteSvg className="delete-btn"
                     onClick={() => {
                       handleDeleteClick(product.id, product.count)
                     }}></DeleteSvg>
                 </div> */}
-                    {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
+                      {/* <span className={`like-btn ${product.liked ? 'is-active' : ''}`} onClick = {() => handleLikeClick(product.id)}></span> */}
 
-                    {/* the image */}
-                    {/* <div className="image">
+                      {/* the image */}
+                      {/* <div className="image">
                   <div class="image-container" >
                     <img style={{ marginLeft: '-7px' }} src={product.image} alt="" />
                   </div>
                 </div> */}
 
-                    {/* the name + quantity parent div*/}
-                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available" }}>
-                      {/* the name */}
-                      <div className="description" style={{ width: "-webkit-fill-available" }}>
+                      {/* the name + quantity parent div*/}
+                      <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", width: "-webkit-fill-available" }}>
+                        {/* the name */}
+                        <div className="description" style={{ width: "-webkit-fill-available" }}>
 
-                        <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
-                          <div class='notranslate text-black text-lg font-bold flex' style={{ justifyContent: "space-between", color: "black", width: "-webkit-fill-available" }}>
-                            <div>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product.CHI) : (product.name)}
+                          <div className='flex-row' style={{ width: "-webkit-fill-available" }}>
+                            <div class='notranslate text-black text-lg font-bold flex' style={{ justifyContent: "space-between", color: "black", width: "-webkit-fill-available" }}>
+                              <div>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product.CHI) : (product.name)}
+                              </div>
+                              {!directoryType ? <div style={{ display: "flex" }}>
+
+                                {/* the start of minus button set up */}
+                                <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                                  <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                                    onClick={() => {
+                                      if (product.quantity === 1) {
+                                        handleDeleteClick(product.id, product.count);
+                                      } else {
+                                        handleMinusClick(product.id, product.count)
+                                        //handleMinusClick(product.id);
+                                      }
+                                    }}>
+                                    <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                                  </button>
+                                </div>
+                                {/* the end of minus button set up */}
+
+                                { /* start of the quantity number */}
+                                <span
+                                  class="notranslate"
+                                  type="text"
+                                  style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                                >{product.quantity}</span>
+                                { /* end of the quantity number */}
+
+                                { /* start of the add button */}
+                                <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                                  <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                                    onClick={() => {
+                                      handlePlusClick(product.id, product.count)
+                                    }}>
+                                    <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                                  </button>
+                                </div>
+                                { /* end of the add button */}
+                              </div> : null
+
+
+                              }
+
                             </div>
-                            {!directoryType ? <div style={{ display: "flex" }}>
 
-                              {/* the start of minus button set up */}
-                              <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                                <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                                  onClick={() => {
-                                    if (product.quantity === 1) {
-                                      handleDeleteClick(product.id, product.count);
-                                    } else {
-                                      handleMinusClick(product.id, product.count)
-                                      //handleMinusClick(product.id);
-                                    }
-                                  }}>
-                                  <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                                </button>
-                              </div>
-                              {/* the end of minus button set up */}
-
-                              { /* start of the quantity number */}
-                              <span
-                                class="notranslate"
-                                type="text"
-                                style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                              >{product.quantity}</span>
-                              { /* end of the quantity number */}
-
-                              { /* start of the add button */}
-                              <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                                <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                                  onClick={() => {
-                                    handlePlusClick(product.id, product.count)
-                                  }}>
-                                  <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                                </button>
-                              </div>
-                              { /* end of the add button */}
-                            </div> : null
-
-
-                            }
+                            <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
 
                           </div>
-
-                          <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
-
                         </div>
+
+                        {/* <div className="theset"> */}
+                        {/* start of quantity (quantity = quantity text + buttons div) */}
+                        <div className="text-lg quantity p-0"
+                          style={{ marginRight: "0px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <div className='span'>
+                            <div className="text-muted notranslate">@ ${
+                              (Math.round(100 * product.itemTotalPrice / product.quantity) / 100).toFixed(2)
+                            } {t("each")} x {product.quantity}</div>
+                          </div>
+                          {/* Using a pseudo-element to create a dashed line */}
+                          <div className="dashed-line "></div>
+                          <div className='notranslate'>${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}</div>
+                        </div>
+
+                        {/* end of quantity */}
                       </div>
 
-                      {/* <div className="theset"> */}
-                      {/* start of quantity (quantity = quantity text + buttons div) */}
-                      <div className="text-lg quantity p-0"
-                        style={{ marginRight: "0px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div className='span'>
-                          <div className="text-muted notranslate">@ ${
-                            (Math.round(100 * product.itemTotalPrice / product.quantity) / 100).toFixed(2)
-                          } {t("each")} x {product.quantity}</div>
-                        </div>
-                        {/* Using a pseudo-element to create a dashed line */}
-                        <div className="dashed-line "></div>
-                        <div className='notranslate'>${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}</div>
-                      </div>
-
-                      {/* end of quantity */}
+                      {/* end of name + quantity parent div*/}
                     </div>
 
-                    {/* end of name + quantity parent div*/}
-                  </div>
+                  ))
+                  ) : null
+                }
+                {totalPrice !== 0 && pickup ?
 
-                ))}
-                {totalPrice !== 0 ?
                   <div className={`total ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`}>
                     <div className="row">
                       <div className="col">
@@ -1107,36 +1243,140 @@ const Navbar = () => {
                             <span >
                               <FontAwesomeIcon icon={faTruck} />
                             </span>
-                            <span> &nbsp;Food Delivery
+                            <span> &nbsp;Request Food Delivery
                             </span>
                           </button>
                         ) : (
-                          <button
-                            style={{ border: "0px" }}
-                            className="rounded-md border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-2.5 py-2.5 text-center mr-2 mb-2 flex"
-                            onClick={handleClickDelivery}
-                          >
-                            Back
-                          </button>
+                          <div>
+                            <div className='flex justify-between'>
+                              <button
+                                style={{ border: "0px" }}
+                                className="mt-2 rounded-md border-0 text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-2.5 py-2.5 text-center mr-2 mb-2 flex"
+                                onClick={() => {
+                                  setDropoffPhoneNumber('');
+                                  setZipCode('');
+                                  setState('');
+                                  setCity('');
+                                  setDropoffAddress('');
+                                  setActiveAddressId(null);  // Set this to null at the end after clearing other states                                  
+                                  setAddNewAdress(true)
+                                }}
+
+                              >
+                                Add New Address
+                              </button>
+                              <button
+                                style={{ border: "0px" }}
+                                className="mt-2 rounded-md border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-2.5 py-2.5 text-center mr-2 mb-2 flex"
+                                onClick={() => {
+                                  handleClickDelivery();
+                                  setDropoffPhoneNumber('');
+                                  setZipCode('');
+                                  setState('');
+                                  setCity('');
+                                  setDropoffAddress('');
+                                  setActiveAddressId(null);  // Set this to null at the end after clearing other states
+                                  setDeliveryFee(0)
+                                  setAddNewAdress(false);
+                                }}
+
+                              >
+                                Back
+                              </button>
+                            </div>
+                            {loadingContact ?
+                              <div>loading...</div>
+                              :
+                              <div className="grid grid-cols-2 gap-2 mb-2">
+                                {deliveryContacts.map((address) => (
+                                  <div
+                                    key={address.id}
+                                    className={`p-2 bg-white rounded border transition-all duration-300 
+                                    ${activeAddressId === address.id ? 'border-gray-300' : 'border-gray-300'}`}
+                                    onClick={() => {
+                                      // Handle the click event on the whole box
+                                      // if (activeAddressId === address.id) {
+                                      //   setActiveAddressId(null);
+                                      // } else {
+                                      //   setDropoffPhoneNumber(address.dropoffPhoneNumber);
+                                      //   setZipCode(address.zipCode);
+                                      //   setState(address.state);
+                                      //   setCity(address.city);
+                                      //   setDropoffAddress(address.dropoffAddress);
+                                      //   setActiveAddressId(address.id);
+                                      // }
+                                      setDropoffPhoneNumber(address.dropoffPhoneNumber);
+                                      setZipCode(address.zipCode);
+                                      setState(address.state);
+                                      setCity(address.city);
+                                      setDropoffAddress(address.dropoffAddress);
+                                      setActiveAddressId(address.id);
+                                      setAddNewAdress(false)
+                                    }}
+                                  >
+                                    <div className="flex justify-between items-center mb-1">
+                                      <div className='flex'>
+                                        <label className="flex items-center">
+                                          <input
+                                            type="checkbox"
+                                            className="mr-2"
+                                            checked={activeAddressId === address.id}
+                                            readOnly
+                                            onClick={(e) => {
+                                              e.stopPropagation(); // Prevents the checkbox click from stopping the parent div's onClick
+                                            }}
+                                          />
+                                        </label>
+                                        <span className="text-black text-md notranslate">{address.dropoffAddress}</span>
+                                      </div>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation(); // Prevents the setActiveAddressId from triggering when the button is clicked
+                                          deleteDeliveryContact(address.id);
+                                        }}
+                                        className="text-red-500 hover:text-red-600 transition-colors"
+                                      >
+                                        <FaTrash size={14} />
+                                      </button>
+                                    </div>
+                                    <span className="notranslate text-gray-500 text-sm block mb-1">
+                                      {address.city}, {address.state} {address.zipCode}
+                                    </span>
+                                    <div className=" flex justify-between items-center mb-1">
+                                      <span className="text-gray-500 text-sm notranslate">Phone: {address.dropoffPhoneNumber}</span>
+                                      <div
+                                        onClick={(e) => {
+                                          e.stopPropagation(); // Prevents the setActiveAddressId from triggering when the button is clicked
+                                          setAddNewAdress(true)
+                                          setDropoffPhoneNumber(address.dropoffPhoneNumber);
+                                          setZipCode(address.zipCode);
+                                          setState(address.state);
+                                          setCity(address.city);
+                                          setDropoffAddress(address.dropoffAddress);
+                                          setActiveAddressId(address.id);
+                                        }}
+                                        className="cursor-pointer px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm">
+                                        <FontAwesomeIcon icon={faEdit} />
+                                        <span>&nbsp;Edit</span>
+                                      </div>
+                                    </div>
+
+                                  </div>
+                                ))}
+                              </div>
+
+
+
+                            }
+
+
+                          </div>
                         )
                       )}
 
 
-                      {showInputs && (
+                      {((!loadingContact && showInputs && !deliveryContacts.length > 0) || (showInputs && addNewAdress)) && (
                         <div>
-                          <div className="mb-2">
-                            <label htmlFor="dropoffEmail" className="block text-sm font-medium text-gray-700">
-                              Contact Email For Tracking Delivery
-                            </label>
-                            <input
-                              type="text"
-                              id="dropoffEmail"
-                              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                              value={dropoffEmail}
-                              onChange={(e) => setDropoffEmail(e.target.value)}
-                            />
-                            {errors.dropoffEMail && <p className="text-red-500 text-xs mt-1">{errors.dropoffAddress}</p>}
-                          </div>
                           <div className="mb-2">
                             <label htmlFor="dropoffAddress" className="block text-sm font-medium text-gray-700">
                               Delivery Address
@@ -1149,6 +1389,47 @@ const Navbar = () => {
                               onChange={(e) => setDropoffAddress(e.target.value)}
                             />
                             {errors.dropoffAddress && <p className="text-red-500 text-xs mt-1">{errors.dropoffAddress}</p>}
+                          </div>
+
+                          <div className="mb-2">
+                            <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                              City
+                            </label>
+                            <input
+                              type="text"
+                              id="city"
+                              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              value={city}
+                              onChange={(e) => setCity(e.target.value)}
+                            />
+                            {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+                          </div>
+
+                          <div className="mb-2">
+                            <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+                              State
+                            </label>
+                            <input
+                              type="text"
+                              id="state"
+                              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              value={state}
+                              onChange={(e) => setState(e.target.value)}
+                            />
+                            {errors.state && <p className="text-red-500 text-xs mt-1">{errors.state}</p>}
+                          </div>
+                          <div className="mb-2">
+                            <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
+                              ZIP Code
+                            </label>
+                            <input
+                              type="text"
+                              id="zipCode"
+                              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              value={zipCode}
+                              onChange={(e) => setZipCode(e.target.value)}
+                            />
+                            {errors.zipCode && <p className="text-red-500 text-xs mt-1">{errors.zipCode}</p >}
                           </div>
                           <div className="mb-2">
                             <label htmlFor="dropoffPhoneNumber" className="block text-sm font-medium text-gray-700">
@@ -1163,41 +1444,32 @@ const Navbar = () => {
                             />
                             {errors.dropoffPhoneNumber && <p className="text-red-500 text-xs mt-1">{errors.dropoffPhoneNumber}</p>}
                           </div>
-                          <div className="mb-2">
-                            <label htmlFor="dropoffInstructions" className="block text-sm font-medium text-gray-700">
-                              Delivery Instructions
-                            </label>
-                            <input
-                              type="text"
-                              id="dropoffInstructions"
-                              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                              value={dropoffInstructions}
-                              onChange={(e) => setDropoffInstructions(e.target.value)}
-                            />
-                            {errors.dropoffInstructions && <p className="text-red-500 text-xs mt-1">{errors.dropoffInstructions}</p>}
-                          </div>
-                          <button
-                            style={{ borderRadius: "0.2rem", width: "100%" }}
-                            class="rounded-md border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex justify-between"
-                            onClick={handleSubmitDelivery}
-                          >
-                            <span class="text-left">
-                              <span >
-                                <FontAwesomeIcon icon={faCreditCard} />
-                              </span>
-                              <span> &nbsp;Checkout Delivery
-                              </span>
-                            </span>
 
-                            <span class="text-right notranslate">
-                              ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
-                                + parseFloat(isDineIn ? totalPrice * 0.15 : 0) + (deliveryFee / 100)
-                              )
-                              }
-                            </span>
-                          </button>
                         </div>
                       )}
+                      {showInputs && (
+                        <button
+                          style={{ borderRadius: "0.2rem", width: "100%" }}
+                          class="rounded-md border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex justify-between"
+                          onClick={handleSubmitDelivery}
+                          disabled={isSubmitting}
+                        >
+                          <span class="text-left">
+                            <span >
+                              <FontAwesomeIcon icon={faCreditCard} />
+                            </span>
+                            <span> &nbsp;Checkout order with
+                              ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                                + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
+                              )
+                              } plus delivery fee
+                            </span>
+                          </span>
+
+                        </button>)
+
+                      }
+
                       {successMessage && (
                         <div className='text-red'>
                           Error:
@@ -1224,6 +1496,7 @@ const Navbar = () => {
                 <React.Fragment>
 
                   <div className="title pb-1 flex justify-end ml-auto pb-1" style={{ "borderBottom": "0" }}>
+
                     <DeleteSvg className="delete-btn " style={{ cursor: 'pointer', margin: '0' }}
                       ref={spanRef} onClick={closeModal}>
                     </DeleteSvg>
@@ -1231,6 +1504,7 @@ const Navbar = () => {
                   {loading && !loadedAcct ? <h2>{t("Loading Payment")}...</h2> :
                     <div>
                       <Dashboard
+                        dropoffAddress={dropoffAddress}
                         products={products}
                         deliveryID={deliveryID} deliveryFee={deliveryFee} directoryType={directoryType} isDineIn={isDineIn} totalPrice={stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
                           + parseFloat(isDineIn ? totalPrice * 0.15 : 0) + (deliveryFee / 100)

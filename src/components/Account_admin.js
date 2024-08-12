@@ -634,17 +634,20 @@ const Account = () => {
 
       setOrders(newItems);
       saveId(Math.random());
-      console.log(orders);
 
       const dailyRevenue = {};
       newItems.forEach(receipt => {
         const date = receipt.date.split(' ')[0];
         const revenue = receipt.total;
+        console.log(receipt)
+        console.log(receipt.total)
+        console.log(revenue)
         if (dailyRevenue[date]) {
           dailyRevenue[date] += revenue;
         } else {
           dailyRevenue[date] = revenue;
         }
+        console.log(dailyRevenue[date])
       });
 
       const dailyRevenueArray = Object.keys(dailyRevenue).map(date => ({
@@ -825,7 +828,7 @@ const Account = () => {
   // using the below to control if suboption popping and popping out depending on which store is selected on the side bar
   const [activeStoreId, setActiveStoreId] = useState(null);
   // Rename function for form submission
-  const handleFormSubmit = async (e, name, storeNameCHI, address, image, id, physical_address,Description, State, ZipCode, Phone) => {
+  const handleFormSubmit = async (e, name, storeNameCHI, address, image, id, physical_address, Description, State, ZipCode, Phone) => {
 
     e.preventDefault();
     // Here you can access formValues and perform actions like sending it to a server
@@ -1852,7 +1855,7 @@ const Account = () => {
             jsonObject.storeAddress = selectedStore.physical_address;
             jsonObject.Description = selectedStore.Description;
 
-            
+
             jsonObject.storeState = selectedStore.State;
             jsonObject.storeZipCode = selectedStore.ZipCode;
             jsonObject.storePhone = selectedStore.Phone;
@@ -2766,6 +2769,13 @@ const Account = () => {
                                   {(user) ? user.email : ""}
 
                                 </span>
+                                <span class="d-block text-base text-muted font-regular notranslate">
+                                <i class="bi bi-person-badge"></i> 
+                                  {" id: "}
+
+                                  {(user) ? user.uid : ""}
+
+                                </span>
                               </div>
 
 
@@ -2840,7 +2850,7 @@ const Account = () => {
                                 </div>
                               </div>
                             </div> */}
-                            <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address,data?.Description, data?.State, data?.ZipCode, data?.Phone)}>
+                            <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.Description, data?.State, data?.ZipCode, data?.Phone)}>
                               <div className="flex flex-wrap -mx-3 mb-6">
                                 <div className="w-full px-3">
                                   <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeName">

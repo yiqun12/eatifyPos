@@ -124,7 +124,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     }
   }, []);
 
-  
+
   const [tips, setTips] = useState('');
   const [discount, setDiscount] = useState('');
 
@@ -609,6 +609,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     return Math.round(n * 100) / 100;
   }
   const CashCheckOut = async (extra, tax, total) => {
+
     // tips: Math.round((result - finalPrice +extra) * 100) / 100
     // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
     // total: inputValue
@@ -617,6 +618,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     if (extra !== null) {
       extra_tip = Math.round(extra * 100) / 100
     }
+    console.log(extra)
+    console.log(extra_tip)
+    console.log(tips)
+    console.log(roundToTwoDecimals
+      (roundToTwoDecimals(extra_tip) + roundToTwoDecimals(tips === "" ? 0 : tips)))
     //console.log(typeof extra_tip)//number
     //console.log(typeof (tips === "" ? 0 : tips))//string
     if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
@@ -813,6 +819,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   const handleChange = (event) => {
     setInputValue(event.target.value);
+    setResult(null)
   };
 
   const handleCustomAmountChange = (event) => {
@@ -1063,7 +1070,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
             ))}
           </div>
-          <div className='flex flex-col space-y-2' style={isMobile?{ minWidth: "170px" }:{minWidth: "200px"}}>
+          <div className='flex flex-col space-y-2' style={isMobile ? { minWidth: "170px" } : { minWidth: "200px" }}>
             <a
               onClick={() => { setChangeTableModal(true) }}
               className="mt-3 btn btn-sm btn-link mx-1 border-black"
@@ -1317,6 +1324,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                             // total: inputValue
                             CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)),
                               inputValue);
+                              
                             closeUniqueModal();
                           }}
                           style={uniqueModalStyles.buttonStyle}

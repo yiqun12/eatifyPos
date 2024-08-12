@@ -138,6 +138,7 @@ function Container(props) {
 
   const handleChange = (event) => {
     setInputValue(event.target.value);
+    setResult(null)
   };
 
   const handleCustomAmountChange = (event) => {

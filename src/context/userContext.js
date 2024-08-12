@@ -58,30 +58,7 @@ export const UserContextProvider = ({ children }) => {
         console.log(auth)
         setUser(null);
         console.log("2 widget")
-        const autoSignInAsGuest = async (firebaseUser) => {
-          const path = window.location.pathname; // Get the current URL path
-
-          if (!path.includes('/store')) {
-            //auto login in the store page
-            return
-          }
-          if (firebaseUser) {
-            return
-          }
-          if (user) {
-            return
-          }
-          console.log(firebaseUser)
-          console.log(user)
-          try {
-            console.log("3 widget");
-            signInWithGuest()
-
-          } catch (err) {
-            setError(err.message);
-          }
-        };
-        autoSignInAsGuest(firebaseUser);
+        console.log(user)
         //autoSignInAsGuest(firebaseUser);
         //sessionStorage.setItem('user', JSON.stringify(null));
       }
@@ -93,6 +70,61 @@ export const UserContextProvider = ({ children }) => {
 
     return unsubscribe;
   }, []);
+
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
+  const DebounceDueTime = 200; // 200 milliseconds
+
+  useEffect(() => {
+    setLoading(true);
+
+    const onAuthStateChangedHandler = (firebaseUser) => {
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
+
+      setDebounceTimeout(setTimeout(() => {
+        if (firebaseUser) {
+        } else {
+
+          const autoSignInAsGuest = async (firebaseUser) => {
+            const path = window.location.pathname; // Get the current URL path
+
+            if (!path.includes('/store')) {
+              //auto login in the store page
+              return
+            }
+            if (firebaseUser) {
+              return
+            }
+            if (user) {
+              return
+            }
+
+            try {
+              console.log("3 widget");
+              signInWithGuest()
+
+            } catch (err) {
+              setError(err.message);
+            }
+          };
+          autoSignInAsGuest(firebaseUser);
+
+        }
+
+
+      }, DebounceDueTime));
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, onAuthStateChangedHandler);
+
+    return () => {
+      unsubscribe();
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
+    };
+  }, [auth]);
 
 
   // logout untill full filled.

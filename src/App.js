@@ -8,7 +8,6 @@ import ForgotPassword from './pages/ForgotPassword'
 import Reservation from './pages/reservation'
 import ErrorBoundary from './ErrorBoundary'; // Import the ErrorBoundary component
 
-import Admin_new from './components/Admin_new'
 import IframeDesk from './components/iframeDesk'
 
 import Account_admin from './components/Account_admin'
