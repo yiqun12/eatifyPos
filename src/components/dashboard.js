@@ -36,16 +36,16 @@ const Dashboard = (props) => {
                 <div className="payment-summary">
                   <div className="summary-item flex justify-between">
                     <span className="label">Item Total (with tax & tips):</span>
-                    <span className="value">${stringTofixed((Math.round(100 * totalPrice) - deliveryFee) / 100)}</span>
+                    <span className="value notranslate">${stringTofixed((Math.round(100 * totalPrice) - deliveryFee) / 100)}</span>
                   </div>
                   <div className="summary-item flex justify-between">
                     <span className="label">Delivery Fee to
                       <span className='notranslate'>({dropoffAddress})</span>:</span>
-                    <span className="value">${(deliveryFee / 100).toFixed(2)}</span>
+                    <span className="value notranslate">${(deliveryFee / 100).toFixed(2)}</span>
                   </div>
                   <div className="summary-item total-payment flex justify-between">
                     <span className="label">Total Payment:</span>
-                    <span className="value">${stringTofixed(Math.round(100 * totalPrice) / 100)}</span>
+                    <span className="value notranslate">${stringTofixed(Math.round(100 * totalPrice) / 100)}</span>
                   </div>
                 </div>)
             }

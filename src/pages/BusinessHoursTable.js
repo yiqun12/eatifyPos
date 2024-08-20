@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 
 import "./BusinessHoursTable.css";
 import { json } from 'react-router-dom';
+import L from 'leaflet';  // Import Leaflet
 
 
 function parseTime(timeStr) {
@@ -241,6 +242,17 @@ function BusinessHoursTable() {
     });
   }
 
+  function formatPhoneNumber(phoneNumber) {
+    // Convert the phone number to a string if it's not already
+    const phoneStr = phoneNumber?.toString();
+
+    // Check if the phone number has 10 digits
+    if (phoneStr?.length === 10) {
+      return `+1 (${phoneStr?.slice(0, 3)}) ${phoneStr?.slice(3, 6)}-${phoneStr?.slice(6)}`;
+    } else {
+      return 'Invalid phone number';
+    }
+  }
   var isOpen = false;
   if (getNextCloseTimeRange() === null) {
     isOpen = false;
@@ -258,29 +270,77 @@ function BusinessHoursTable() {
       Closed
       </Button> } */}
 
-      <h6 onClick={handleShow} className="notranslate px-2" style={{ cursor: "pointer" }}>
-        {grabDayTime()}
-      </h6>
+      <div >
+        <span onClick={handleShow} style={{ cursor: "pointer" }} className="underline text-base text-black"><i className="fas fa-store" style={{ marginRight: '8px' }}></i>Store Info:</span>
+
+        <span className="notranslate px-2">{grabDayTime()}</span>
+      </div>
       {/* <Button variant="primary" onClick={handleShow}>
       Business Hours
       </Button> */}
 
       <Modal className="my-custom-modal" show={show} onHide={handleClose} size="large" centered style={{ width: "100%" }}>
         <Modal.Header>
-          <Modal.Title>{t("Business Hours")}</Modal.Title>
+          <Modal.Title>{t("Business Information")}</Modal.Title>
           <Button variant="secondary" onClick={handleClose}>
             {t("Close")}
           </Button>
+
         </Modal.Header>
         <Modal.Body>
+          <div>
+            View Store Address on Google Maps:
+            <br></br>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+            <div className='notranslate'>
+              <a
+                href={`https://www.google.com/maps/place/${(
+                  JSON.parse(sessionStorage.getItem('TitleLogoNameContent'))?.physical_address + " " +
+                  JSON.parse(sessionStorage.getItem('TitleLogoNameContent'))?.Address + " " +
+                  JSON.parse(sessionStorage.getItem('TitleLogoNameContent'))?.State + " " +
+                  JSON.parse(sessionStorage.getItem('TitleLogoNameContent'))?.ZipCode
+                ).replace(/\s+/g, '+')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'none', color: '#007bff', display: 'flex', alignItems: 'center' }}
+              >
+                <i className="fas fa-map-marker-alt" style={{ fontSize: '20px', marginRight: '8px' }}></i>
+                <span>
+                  {JSON.parse(sessionStorage.getItem('TitleLogoNameContent'))?.physical_address + " " +
+                    JSON.parse(sessionStorage.getItem('TitleLogoNameContent'))?.Address + " " +
+                    JSON.parse(sessionStorage.getItem('TitleLogoNameContent'))?.State + " " +
+                    JSON.parse(sessionStorage.getItem('TitleLogoNameContent'))?.ZipCode}
+                </span>
+              </a>
+            </div>
+
+
+
+          </div>
+          <div>
+            Phone Number:
+            <span className='notranslate'>
+              <a
+                href={`tel:+1${JSON.parse(sessionStorage.getItem('TitleLogoNameContent'))?.Phone}`}
+                style={{ textDecoration: 'none', color: '#007bff' }}
+              >
+                {formatPhoneNumber(JSON.parse(sessionStorage.getItem('TitleLogoNameContent'))?.Phone)}
+              </a>
+            </span>
+          </div>
+
+
+
+
           {/* everything here to the Modal.Body end is the table */}
-          <Table striped bordered hover style={{ width: "100%" }}>
-            <thead>
+          <Table className='mt-1' striped bordered hover style={{ width: "100%" }}>
+            {/* <thead>
               <tr>
                 <th>{t("Day")}</th>
                 <th><span>{`${t("Hours")} (` + timezone + `)`}</span> </th>
               </tr>
-            </thead>
+            </thead> */}
             <tbody>
               {Object.entries(businessHours).map(([day, hourArray]) => (
                 <tr key={day}>
@@ -296,7 +356,9 @@ function BusinessHoursTable() {
                   </td>
                 </tr>
               ))}
+
             </tbody>
+
           </Table>
           {/* the code for the table ends here */}
 

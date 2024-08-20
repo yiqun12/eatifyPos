@@ -263,6 +263,7 @@ const Navbar = () => {
       setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
       setOpenCheckout(false)
       setAddNewAdress(false)
+      setSuccessMessage('')
     }
 
   };
@@ -485,11 +486,11 @@ const Navbar = () => {
   // useEffect hook to listen for updates on the collection
   useEffect(() => {
     console.log("isauwojsaio")
-    console.log(pickup)
 
     if (pickup) {
       return
     }
+
     if (user && user.uid) {
       const unsubscribe = onSnapshot(collection(db, "stripe_customers", user.uid, "deliveryContact"), (snapshot) => {
         const contacts = [];
@@ -587,6 +588,9 @@ const Navbar = () => {
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       setSuccessMessage(''); // Ensure success message is hidden if there are errors
+      if (activeAddressId === null && deliveryContacts.length > 0 && !addNewAdress) {
+        setSuccessMessage('No delivery address box selected. Please choose a delivery address box to proceed.'); // Ensure success message is hidden if there are errors
+      }
       setIsSubmitting(false); // Re-enable the button if an exception occurs
 
       return;
@@ -622,7 +626,7 @@ const Navbar = () => {
     }
     console.log(dropoffAddress + " " + city + " " + state);
     const transformedItems = JSON.parse(sessionStorage.getItem(store)).map(item => ({
-      name: item.name,
+      name: item.name + " " + item.CHI + " " + Object.entries(item.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' '),
       quantity: item.quantity,
       external_id: item.id
     }));
@@ -1267,7 +1271,7 @@ const Navbar = () => {
                               </button>
                               <button
                                 style={{ border: "0px" }}
-                                className="mt-2 rounded-md border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-2.5 py-2.5 text-center mr-2 mb-2 flex"
+                                className="mt-2 rounded-md border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-2.5 py-2.5 text-center mb-2 flex"
                                 onClick={() => {
                                   handleClickDelivery();
                                   setDropoffPhoneNumber('');
@@ -1278,6 +1282,7 @@ const Navbar = () => {
                                   setActiveAddressId(null);  // Set this to null at the end after clearing other states
                                   setDeliveryFee(0)
                                   setAddNewAdress(false);
+                                  setSuccessMessage('')
                                 }}
 
                               >
@@ -1287,7 +1292,7 @@ const Navbar = () => {
                             {loadingContact ?
                               <div>loading...</div>
                               :
-                              <div className="grid grid-cols-2 gap-2 mb-2">
+                              <div className="grid grid-cols-1 gap-2 mb-2">
                                 {deliveryContacts.map((address) => (
                                   <div
                                     key={address.id}

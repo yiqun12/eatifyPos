@@ -100,8 +100,7 @@ function App() {
               <Navbar />
               <Routes>
 
-                {/* <Route path="QRcode" element={
-                    <Html /> }></Route> */}
+
                 {/* <Route path="orders" element={<Receipt />} /> */}
 
                 {/* <Route path="orderhasreceived" element={<OrderHasReceived />} /> */}

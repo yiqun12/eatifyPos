@@ -16,7 +16,7 @@ import { FiSearch } from 'react-icons/fi';
 import { collection, getDocs } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useParams } from 'react-router-dom';
-import { query, where, limit, doc, getDoc,onSnapshot  } from "firebase/firestore";
+import { query, where, limit, doc, getDoc, onSnapshot } from "firebase/firestore";
 import LazyLoad from 'react-lazy-load';
 
 import BusinessHoursTable from './BusinessHoursTable.js'
@@ -137,7 +137,7 @@ const Food = () => {
     // console.log(parseFloat(searchSpeicalFoodQuantity(id, count)))
 
     product.attributeSelected = updatedSelectedAttributes
-    product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) )/ 100
+    product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
 
     console.log(JSON.stringify(products))
 
@@ -213,7 +213,7 @@ const Food = () => {
   };
   const fetchPost = (name) => {
     const docRef = doc(db, "TitleLogoNameContent", name);
-  
+
     // Subscribe to document updates
     const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
@@ -230,6 +230,7 @@ const Food = () => {
         setStoreInfo(docData)
         setFoodTypes([...new Set(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use").map(item => item.category))])
         setFoodTypesCHI([...new Set(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use").map(item => item.categoryCHI))])
+        console.log([...new Set(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use").map(item => item.category))])
         // console.log(JSON.parse(docData.key))
         // console.log([...new Set(JSON.parse(docData.key).map(item => item.category))])
 
@@ -240,7 +241,7 @@ const Food = () => {
         // window.location.reload();      } else {
         // No document found
         console.log("No such document!");
-      }else{
+      } else {
         sessionStorage.setItem("Food_arrays", "[]");
 
 
@@ -259,7 +260,7 @@ const Food = () => {
       setFoods([])
 
     });
-  
+
     return unsubscribe; // Call this function to unsubscribe from updates when needed
   }
 
@@ -429,7 +430,7 @@ const Food = () => {
       product.quantity++;
       product.attributeSelected = attributeSelected;
       product.count = count;
-      product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) )/ 100
+      product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
       product.CHI = CHI
     } else {
       // If the product doesn't exist, add it to the array
@@ -478,7 +479,7 @@ const Food = () => {
         }
         const product = products.find((product) => product.id === id && product.count === count);
 
-        product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity)) )/ 100
+        product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
         // Save the updated array in local storage
         sessionStorage.setItem(store, JSON.stringify(products));
         setProducts(products)
@@ -669,6 +670,7 @@ const Food = () => {
     return (
 
       <div>
+
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
         {isOpen && (
           <div className="modal-backdrop">
@@ -708,28 +710,24 @@ const Food = () => {
                   </h3>
 
                   {/* Attributes Section */}
-                  {Object.entries(selectedFoodItem?.attributesArr)?.map(([attributeName, attributeDetails]) => (
-                    <div key={attributeName}>
-                      <div className='flex flex-wrap'>
-                        {Object.entries(selectedFoodItem?.attributesArr)?.map(([attributeName, attributeDetails]) => (
-                          <div key={attributeName} className="my-2">
-                            <p className="mb-1 font-medium">
-                              {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : ""}
-                            </p>
-                            <div className="flex flex-wrap">
-                              {attributeDetails.variations.map((variation, idx) => (
-                                <div key={idx} className={`mb-1 mr-1 mt-1 p-2 border rounded-lg cursor-pointer ${attributeDetails.isSingleSelected ? (selectedAttributes[attributeName] === variation.type ? 'bg-green-300 border-green-300' : 'bg-white border-gray-300') : (selectedAttributes[attributeName]?.includes(variation.type) ? 'bg-green-300 border-green-300' : 'bg-white border-green-300')} hover:bg-green-300`}
-                                  onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count)}>
-                                  {variation.type}({formatPriceDisplay(variation.price)})
-                                </div>
-                              ))}
+                  <div>
+                    {Object.entries(selectedFoodItem?.attributesArr)?.map(([attributeName, attributeDetails]) => (
+                      <div key={attributeName} className="my-2">
+                        <p className="mb-1 font-medium">
+                          {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : ""}
+                        </p>
+                        <div className="flex flex-wrap">
+                          {attributeDetails.variations.map((variation, idx) => (
+                            <div key={idx} className={`mb-1 mr-1 mt-1 p-2 border rounded-lg cursor-pointer ${attributeDetails.isSingleSelected ? (selectedAttributes[attributeName] === variation.type ? 'bg-green-300 border-green-300' : 'bg-white border-gray-300') : (selectedAttributes[attributeName]?.includes(variation.type) ? 'bg-green-300 border-green-300' : 'bg-white border-green-300')} hover:bg-green-300`}
+                              onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count)}>
+                              {variation.type}({formatPriceDisplay(variation.price)})
                             </div>
-                          </div>
-                        ))}
-
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+
+                  </div>
 
                   <div className="flex justify-between mt-4">
                     <span class="notranslate font-medium notranslate">
@@ -816,77 +814,133 @@ const Food = () => {
             <div className='' style={{ background: 'rgba(255,255,255,0.9)', }} >
               <div className='flex'>
 
-                <div>
-                  <h5 className='notranslate px-2 font-bold '>
+                {isMobile ?
+
+
+                  <h5 className='notranslate font-bold '>
 
                     {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
-                  </h5>
-                  <BusinessHoursTable></BusinessHoursTable>
-                </div>
-                <div className='ml-auto w-1/2 max-w-[500px]'>
+                  </h5> :
+                  <h1 className='notranslate font-bold '>
 
-                  <div className="m-2 flex justify-center bg-gray-200 h-10 rounded-md items-center">
-                    <input
-                      type="search"
-                      className='flex bg-transparent p-2 focus:outline-none text-black'
-                      placeholder={t('Search Food Item')}
-                      onChange={handleInputChange}
-                      translate="no"
-                    />
-                    <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
-                  </div>
-                </div>
-              </div>
-
-              <div ref={scrollingWrapperRef} className={`mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''} mb-2 rounded-lg`}>
-
-                <button onClick={() => {
-                  setFoods(data)
-                  setSelectedFoodType(null);
-                }}
-                  className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === null ? 'underline' : ''}`}
-                  style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
-
-                {
-                  translationsMode_ === 'ch'
-                    ? foodTypesCHI.map((foodType) => (
-                      <button
-                        key={foodType}
-                        onClick={() => {
-                          filterTypeCHI(foodType);
-                          setSelectedFoodType(foodType);
-                        }}
-                        className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
-                          }`}
-                        style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-                      >
-                        <div>
-                          {foodType && foodType.length > 1
-                            ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-                            : ''}
-                        </div>
-                      </button>
-                    ))
-                    : foodTypes.map((foodType) => (
-                      <button
-                        key={foodType}
-                        onClick={() => {
-                          filterType(foodType);
-                          setSelectedFoodType(foodType);
-                        }}
-                        className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
-                          }`}
-                        style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-                      >
-                        <div>
-                          {foodType && foodType.length > 1
-                            ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-                            : ''}
-                        </div>
-                      </button>
-                    ))
+                    {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
+                  </h1>
                 }
+                {!isMobile && (
+                  <div className='ml-auto w-1/2 max-w-[500px]'>
 
+
+                    <div className='hstack gap-2  mt-2'>
+                      <form className="w-full w-lg-full">
+                        <div className='input-group input-group-sm input-group-inline shadow-none'>
+                          <span className='input-group-text pe-2 rounded-start-pill'>
+                            <i className='bi bi-search'></i>
+                          </span>
+
+                          <input
+                            type="search"
+                            class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
+                            placeholder={t('Search Food Item')}
+                            onChange={handleInputChange}
+                            translate="no"
+                          />
+
+                        </div>
+                      </form >
+                    </div>
+                  </div>)
+                }
+              </div>
+              <BusinessHoursTable></BusinessHoursTable>
+              {isMobile && (
+                <div>
+
+
+                  <div className='hstack gap-2  mt-2'>
+                    <form className="w-full w-lg-full">
+                      <div className='input-group input-group-sm input-group-inline shadow-none'>
+                        <span className='input-group-text pe-2 rounded-start-pill'>
+                          <i className='bi bi-search'></i>
+                        </span>
+
+                        <input
+                          type="search"
+                          class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
+                          placeholder={t('Search Food Item')}
+                          onChange={handleInputChange}
+                          translate="no"
+                        />
+
+                      </div>
+                    </form >
+                  </div>
+                </div>)
+              }
+              <div className='mb-2 rounded-lg'>
+                <div
+                  class="m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg absolute z-10 left-0 scroll-gradient-left"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  &nbsp;
+                </div>
+                <div
+                  className="m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg absolute z-10 right-0 scroll-gradient-right"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  &nbsp;
+                </div>
+                <div ref={scrollingWrapperRef}
+                  className={`relative mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''}`}>
+
+
+                  <button onClick={() => {
+                    setFoods(data)
+                    setSelectedFoodType(null);
+                  }}
+                    className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg  ${selectedFoodType === null ? 'underline' : ''}`}
+                    style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
+
+                  {
+                    translationsMode_ === 'ch'
+                      ? foodTypesCHI.map((foodType) => (
+                        <button
+                          key={foodType}
+                          onClick={() => {
+                            filterTypeCHI(foodType);
+                            setSelectedFoodType(foodType);
+                          }}
+                          className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg  ${selectedFoodType === foodType ? 'underline' : ''
+                            }`}
+                          style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+                        >
+                          <div>
+                            {foodType && foodType.length > 1
+                              ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                              : ''}
+                          </div>
+                        </button>
+                      ))
+                      : foodTypes.map((foodType) => (
+                        <button
+                          key={foodType}
+                          onClick={() => {
+                            filterType(foodType);
+                            setSelectedFoodType(foodType);
+                          }}
+                          className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
+                            }`}
+                          style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+                        >
+                          <div>
+                            {foodType && foodType.length > 1
+                              ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                              : ''}
+                          </div>
+                        </button>
+                      ))
+                  }
+
+                </div>
               </div>
             </div>
           </div>
@@ -916,7 +970,9 @@ const Food = () => {
                     overflowY: 'auto',
                     maxHeight: "calc(100vh - 300px)",
                   }}> {/* group food by category */}
-                  {Object.values(foods.reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().map((item, index) => (
+                  {Object.values(foods.sort((a, b) => {
+                    return foodTypes.indexOf(a.category) - foodTypes.indexOf(b.category);
+                  }).reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().map((item, index) => (
 
 
                     <motion.div
@@ -943,9 +999,9 @@ const Food = () => {
                             {/* parent div of title + quantity and button parent div */}
                             <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                               <div className="col-span-4">
-                                <h3 className="notranslate text-lg font-semibold">
+                                <div className="notranslate text-lg font-medium	">
                                   {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
-                                </h3 >
+                                </div >
                               </div>
 
                               {/* parent div of the quantity and buttons */}
@@ -955,7 +1011,7 @@ const Food = () => {
                                 justifyContent: "space-between",
                                 marginBottom: "10px"
                               }}>
-                                <div className="col-span-2 text-lg" style={{
+                                <div className="col-span-2 text-lg font-normal" style={{
                                   display: "flex",
                                   flexDirection: "column",
                                   justifyContent: "center",
@@ -963,7 +1019,7 @@ const Food = () => {
                                 }}>
                                   <p style={{ marginBottom: "0" }}>
                                     <span className='notranslate'>
-                                   ${(Math.round(item.subtotal*100)/100).toFixed(2)}
+                                      ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}
 
                                     </span>
                                   </p>

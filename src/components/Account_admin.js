@@ -539,6 +539,9 @@ const Account = () => {
     } else {
       return
     }
+    if(showSection !== 'sales'){
+      //return
+    }
 
     // Construct query
     const paymentsQuery = query(

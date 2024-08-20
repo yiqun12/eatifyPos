@@ -265,7 +265,7 @@ const Food = ({ store }) => {
     await updateDoc(docRef, {
       key: localStorage.getItem(store)
     });
-    localStorage.setItem("Old_"+store, localStorage.getItem(store));
+    localStorage.setItem("Old_" + store, localStorage.getItem(store));
     alert("Saved Successful");
 
   };
@@ -297,10 +297,10 @@ const Food = ({ store }) => {
         }
         if (sessionData === undefined || sessionData === null) {
           // If rest is undefined or null, do something else (e.g., set an empty array as the value)
-          localStorage.setItem("Old_"+store, JSON.stringify([]));
+          localStorage.setItem("Old_" + store, JSON.stringify([]));
         } else {
           // If rest is not undefined or null, proceed with the original operations
-          localStorage.setItem("Old_"+store, sessionData);
+          localStorage.setItem("Old_" + store, sessionData);
         }
 
         setArr(JSON.parse(sessionData));
@@ -399,8 +399,8 @@ const Food = ({ store }) => {
     const newItemWithPlaceholders = {
       id: newItemId,
       image: previewUrl,
-      name: newItem.name || "Blank",
-      CHI: newItem.CHI || "空白的",
+      name: newItem.name || "Enter Meal Name",
+      CHI: newItem.CHI || "填写菜品名称",
       subtotal: newItem.subtotal || "1",
       category: selectedFoodType === "" ? newItem.category || "Temporary Use" : selectedFoodType,
       categoryCHI: newItem.categoryCHI || "类别",
@@ -561,7 +561,7 @@ const Food = ({ store }) => {
 
   return (
 
-    <div className='max-w-[1597px] '>
+    <div>
       <Helmet>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha384-xxz5vNXM/dz2Uk5KA02wmbzm9KpPL5Sgt1JwBrJZ4tUfS5B/R5F/h5A5J7J5C5P9i" crossorigin="anonymous" />
@@ -782,23 +782,17 @@ const Food = ({ store }) => {
                     <div className=' text-md font-semibold'>
 
                       <div className="mb-1 flex ml-2 items-center">
-                        <span className='text-black'>
-
-                          {t("Dish:")}&nbsp;
-                        </span>
-
                         <input
                           className='text-md font-semibold'
-                          style={{ width: "50%" }}
                           type="text"
                           name="name"
-                          placeholder={t("Blank")}
+                          placeholder={t("Enter Meal Name")}
                           value={newItem.name}
                           onChange={handleInputChange}
                           translate="no"
                         />
                         <span onClick={async () => {  //Auto Fill Chinese
-                          let translatedText = "Blank";
+                          let translatedText = "Enter Meal Name";
                           if (newItem.name) {
                             translatedText = newItem.name;
                           }
@@ -814,23 +808,18 @@ const Food = ({ store }) => {
 
                       </div>
                       <div className="mb-1 ml-2 flex  items-center">
-                        <span className='text-black'>
-
-                          {t("菜品:")}&nbsp;
-                        </span>
                         <input
                           className='text-md font-semibold'
-                          style={{ width: "40%" }}
                           type="text"
                           name="CHI"
-                          placeholder={"空白的"}
+                          placeholder={"填写菜品名称"}
                           value={newItem.CHI}
                           onChange={handleInputChange}
                           translate="no"
                         />
 
                         <span onClick={async () => {  // Auto Fill English
-                          let translatedText = "空白的";
+                          let translatedText = "填写菜品名称";
                           if (newItem.CHI) {
                             translatedText = newItem.CHI;
                           }
