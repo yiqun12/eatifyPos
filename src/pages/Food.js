@@ -27,6 +27,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import 'leaflet/dist/leaflet.css';
 import pinyin from "pinyin";
+import { faList } from '@fortawesome/free-solid-svg-icons';
+import { ReactComponent as DeleteSvg } from './delete-icn.svg';
 
 import myImage from '../components/check-mark.png';  // Import the image
 
@@ -226,10 +228,19 @@ const Food = () => {
         // Assuming you want to store the key from the fetched data as "Food_arrays"
         sessionStorage.setItem("Food_arrays", JSON.stringify(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use")));
         setData(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use"))
-        setFoods(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use"))
+        //setFoods(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use"))
         setStoreInfo(docData)
         setFoodTypes([...new Set(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use").map(item => item.category))])
         setFoodTypesCHI([...new Set(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use").map(item => item.categoryCHI))])
+
+
+        setFoods(
+          JSON.parse(docData.key).filter(item => item.category !== "Temporary Use").filter((item) => {
+            return item.category === [...new Set(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use").map(item => item.category))][0];
+          })
+        )
+        setSelectedFoodType([...new Set(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use").map(item => item.category))][0]);
+
         console.log([...new Set(JSON.parse(docData.key).filter(item => item.category !== "Temporary Use").map(item => item.category))])
         // console.log(JSON.parse(docData.key))
         // console.log([...new Set(JSON.parse(docData.key).map(item => item.category))])
@@ -327,6 +338,7 @@ const Food = () => {
   const scrollingWrapperRef = useRef(null);
 
   useEffect(() => {
+    if (!isMobile) { return }
     const handleWheel = (e) => {
       if (e.deltaY !== 0) {
         scrollingWrapperRef.current.scrollLeft += e.deltaY;
@@ -659,7 +671,17 @@ const Food = () => {
   const hideModal = () => {
     setModalVisibility(false);
   }
+  const modalRef = useRef(null);
+  const openModalList = () => {
+    modalRef.current.style.display = 'block';
+    // Retrieve the array from local storage
+  };
+  const closeModalList = () => {
 
+    modalRef.current.style.display = 'none';
+
+
+  };
   if (false) {
     return <p>  <div className="pan-loader">
       Loading...
@@ -672,6 +694,7 @@ const Food = () => {
       <div>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
+        <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/uber-move-text"></link>
         {isOpen && (
           <div className="modal-backdrop">
 
@@ -688,6 +711,66 @@ const Food = () => {
             </div>
           </div>
         )}
+
+        <div ref={modalRef} className="foodcart-modal modal">
+
+
+          {/* popup content */}
+          <div className="shopping-cart" >
+            <div className='title pb-1 border-0'>
+
+              <div className=' flex justify-end mb-2'>
+
+
+                <DeleteSvg className="delete-btn " style={{ cursor: 'pointer', margin: '0' }} onClick={closeModalList}></DeleteSvg>
+              </div>
+              {/* shoppig cart */}
+
+            </div>
+            <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
+              <div className={` ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`} >
+
+                <div style={{ width: "-webkit-fill-available" }}>
+                  <div className="description" style={{ width: "-webkit-fill-available" }}>
+
+                    <div className='' style={{ width: "-webkit-fill-available" }}>
+                      <div
+                        className="text-black text-lg"
+                        style={{ color: "black", width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}
+                      >
+                        {foodTypes.map((foodType) => (
+                          <button
+                            key={foodType}
+                            onClick={() => {
+                              filterType(foodType);
+                              setSelectedFoodType(foodType);
+                              closeModalList()
+                            }}
+
+                            className={`border-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}
+                            style={{ width: "100%", display: 'block', textUnderlineOffset: '0.5em', textAlign: 'left' }}
+                          >
+                            <div>
+                              {foodType && foodType.length > 1
+                                ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                                : ''}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+
+
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+
         {isModalVisible && (
           <div className="fixed inset-0 z-50 flex justify-center bg-black bg-opacity-50 p-4 overflow-x-hidden overflow-y-auto">
             <div className="relative w-full max-w-2xl max-h-full">
@@ -698,7 +781,7 @@ const Food = () => {
                   {selectedFoodItem.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
                     <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg" src={selectedFoodItem.image} alt={selectedFoodItem.name} />
                     :
-                    <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg"
+                    <img loading="lazy" class="w-full h-[10px] transition-all cursor-pointer object-cover rounded-lg"
                       src={'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/89cb3a8a-0904-4774-76c9-3ffaa41c5200/public'} alt="White placeholder" />
 
                   }
@@ -709,8 +792,10 @@ const Food = () => {
                     {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : selectedFoodItem?.name}
                   </h3>
 
+
                   {/* Attributes Section */}
                   <div>
+
                     {Object.entries(selectedFoodItem?.attributesArr)?.map(([attributeName, attributeDetails]) => (
                       <div key={attributeName} className="my-2">
                         <p className="mb-1 font-medium">
@@ -856,7 +941,7 @@ const Food = () => {
                 <div>
 
 
-                  <div className='hstack gap-2  mt-2'>
+                  <div className='hstack gap-2 mt-2'>
                     <form className="w-full w-lg-full">
                       <div className='input-group input-group-sm input-group-inline shadow-none'>
                         <span className='input-group-text pe-2 rounded-start-pill'>
@@ -865,70 +950,66 @@ const Food = () => {
 
                         <input
                           type="search"
-                          class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
+                          className="form-control text-sm shadow-none rounded-end-pill"
+                          placeholder="Search for items..."
                           placeholder={t('Search Food Item')}
                           onChange={handleInputChange}
                           translate="no"
+                          style={{ fontSize: '16px' }}
                         />
 
                       </div>
-                    </form >
+                    </form>
                   </div>
+
                 </div>)
               }
-              <div className='mb-2 rounded-lg'>
-                <div
-                  class="m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg absolute z-10 left-0 scroll-gradient-left"
-                  style={{ pointerEvents: 'none' }}
-                >
-                  &nbsp;
-                </div>
-                <div
-                  className="m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg absolute z-10 right-0 scroll-gradient-right"
-                  style={{ pointerEvents: 'none' }}
-                >
-                  &nbsp;
-                </div>
-                <div ref={scrollingWrapperRef}
-                  className={`relative mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''}`}>
+              <div className='rounded-lg'>
+                {isMobile && (
+                  <>
+                    {/* <div
+                      className="m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg absolute z-10 left-0 scroll-gradient-left"
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      &nbsp;
+                    </div> */}
+
+                    <div
+                      className="m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg absolute z-10 right-0 scroll-gradient-right"
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      &nbsp;
+                    </div>
+                  </>
+                )}
+                {isMobile && (
+                  <div className='flex'>
+
+                    <div onClick={() => {
+                      openModalList()
+                    }} className="mt-2 m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg ">
+                      <FontAwesomeIcon icon={faList} />
+                    </div>
+                    <div ref={scrollingWrapperRef}
+                      className={`relative mt-2 scrolling-wrapper-filter`}>
 
 
-                  <button onClick={() => {
-                    setFoods(data)
-                    setSelectedFoodType(null);
-                  }}
-                    className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg  ${selectedFoodType === null ? 'underline' : ''}`}
-                    style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
+                      {/* <button onClick={() => {
+                        setFoods(data)
+                        setSelectedFoodType(null);
+                      }}
+                        className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg  ${selectedFoodType === null ? 'underline' : ''}`}
+                        style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button> */}
 
-                  {
-                    translationsMode_ === 'ch'
-                      ? foodTypesCHI.map((foodType) => (
-                        <button
-                          key={foodType}
-                          onClick={() => {
-                            filterTypeCHI(foodType);
-                            setSelectedFoodType(foodType);
-                          }}
-                          className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg  ${selectedFoodType === foodType ? 'underline' : ''
-                            }`}
-                          style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-                        >
-                          <div>
-                            {foodType && foodType.length > 1
-                              ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-                              : ''}
-                          </div>
-                        </button>
-                      ))
-                      : foodTypes.map((foodType) => (
+                      {foodTypes.map((foodType) => (
                         <button
                           key={foodType}
                           onClick={() => {
                             filterType(foodType);
                             setSelectedFoodType(foodType);
+
                           }}
-                          className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
-                            }`}
+                          className={`border-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline text-black-600' : 'text-gray-600'}`}
                           style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
                         >
                           <div>
@@ -937,168 +1018,199 @@ const Food = () => {
                               : ''}
                           </div>
                         </button>
-                      ))
-                  }
+                      ))}
 
-                </div>
+                    </div>
+
+                  </div>
+                )}
+
+
               </div>
             </div>
           </div>
 
         </div>
-        <div style={{ backgroundColor: "#eef0f2" }
-        }
-          className='m-auto px-4 flex-grow-1 overflow-y-auto relative min-h-screen w-full'>
+        <div className='mt-1 flex m-auto px-4 flex-grow-1 relative min-h-screen w-full'>
+          {/* Sidebar */}
+          {!isMobile && (
+            <aside className='h-full w-64 p-4 absolute top-0 left-0 z-20 pt-0 overflow-y-auto'>
+              <ul className="space-y-2">
+                {foodTypes.map((foodType) => (
+                  <li
+                    key={foodType}
+                    onClick={() => {
+                      filterType(foodType);
+                      setSelectedFoodType(foodType);
+                      //alert(foodType)
+                    }}
 
-          {/* <div
-            className="absolute inset-0 bg-cover bg-center "
+                    className={`border-black-600 rounded-xl px-2 py-2 cursor-pointer ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}
+                    style={{ width: "100%", display: 'block', textUnderlineOffset: '0.5em', textAlign: 'left' }}
+                  >
+                    <div>
+                      {foodType && foodType.length > 1
+                        ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                        : ''}
+                    </div>
+                  </li>
+                ))}
+                {/* <li className="cursor-pointer hover:bg-gray-200 p-2 rounded-md">Option 1</li>
+            <li className="cursor-pointer hover:bg-gray-200 p-2 rounded-md">Option 2</li>
+            <li className="cursor-pointer hover:bg-gray-200 p-2 rounded-md">Option 3</li> */}
+              </ul>
+            </aside>
+          )}
 
-          >
 
-          </div> */}
 
           {/* diplay food */}
-          <div className='lg:ml-10 lg:mr-10 mt-3'>
-            <LazyLoad height={762}>
-              <AnimatePresence>
-                <div className={
-                  isMobile ? 'grid grid-cols-1 gap-3 pt-2' :
-                    isPC ? 'grid lg:grid-cols-4 gap-3' :
-                      'grid lg:grid-cols-2 gap-3'
-                }
-                  style={{
-                    overflowY: 'auto',
-                    maxHeight: "calc(100vh - 300px)",
-                  }}> {/* group food by category */}
-                  {Object.values(foods.sort((a, b) => {
-                    return foodTypes.indexOf(a.category) - foodTypes.indexOf(b.category);
-                  }).reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().map((item, index) => (
+          <div className={`${!isMobile ? 'ml-64' : ''} flex-grow overflow-y-auto`}>
+
+            <div className='lg:ml-10 lg:mr-10 mt-2'>
+              <LazyLoad height={762}>
+                <AnimatePresence>
+                  <div className={
+                    isMobile ? 'grid grid-cols-1 gap-2 pt-2' :
+                      isPC ? 'grid lg:grid-cols-3 gap-2' :
+                        'grid lg:grid-cols-2 gap-2'
+                  }
+                    style={{
+                      overflowY: 'auto',
+                      maxHeight: isMobile ? 'calc(100vh - 300px)' : 'calc(100vh - 150px)'
+                    }}> {/* group food by category */}
+                    {Object.values(foods.sort((a, b) => {
+                      return foodTypes.indexOf(a.category) - foodTypes.indexOf(b.category);
+                    }).reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().map((item, index) => (
 
 
-                    <motion.div
+                      <motion.div
 
-                      layout
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.1 }}
-                      key={item.id}
-                      onClick={() => {
-                        setSelectedFoodItem(item);;
-                        showModal(item);
-                        handleDropFood();
-                      }}
-                      style={{
-                        background: 'rgba(255,255,255,0.9)',
-                      }} className="z-200 border rounded-lg cursor-pointer">
-                      <div className=' flex'>
+                        layout
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.1 }}
+                        key={item.id}
+                        onClick={() => {
+                          setSelectedFoodItem(item);;
+                          showModal(item);
+                          handleDropFood();
+                        }}
+                        style={{
+                          background: 'rgba(255,255,255,0.9)',
+                        }} className="z-200 border rounded-lg cursor-pointer">
+                        <div className=' flex'>
 
-                        <div style={{ width: 'calc(100% - 90px)' }}>
-                          <div className='flex justify-between px-2 pb-1 grid grid-cols-4 w-full z-20'>
+                          <div style={{ width: 'calc(100% - 90px)' }}>
+                            <div className='flex justify-between px-2 pb-1 grid grid-cols-4 w-full z-20'>
 
-                            {/* parent div of title + quantity and button parent div */}
-                            <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                              <div className="col-span-4">
-                                <div className="notranslate text-lg font-medium	">
-                                  {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
-                                </div >
-                              </div>
-
-                              {/* parent div of the quantity and buttons */}
-                              <div style={{
-                                display: "flex",
-                                flexDirection: "row",
-                                justifyContent: "space-between",
-                                marginBottom: "10px"
-                              }}>
-                                <div className="col-span-2 text-lg font-normal" style={{
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  justifyContent: "center",
-                                  alignItems: "center"
-                                }}>
-                                  <p style={{ marginBottom: "0" }}>
-                                    <span className='notranslate'>
-                                      ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}
-
-                                    </span>
-                                  </p>
-
+                              {/* parent div of title + quantity and button parent div */}
+                              <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                                <div className="col-span-4">
+                                  <div className="notranslate text-lg font-medium	">
+                                    {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
+                                  </div >
                                 </div>
 
-                              </div>
-                              {/* ^ end of parent div of quantity and button */}
-                            </div>
-                            {/* ^ end of parent div of title + quantity and buttons */}
-                          </div>
-                          {/* This is Tony added code */}
-                        </div>
-                        <div class="h-min overflow-hidden rounded-md flex justify-end">
-
-                          <div className='m-2 rounded-lg max-h-[220px] relative'>
-                            <div className='absolute w-[80px] h-[80px] flex flex-col justify-end items-end'>
-                              <div
-                                className="black_hover "
-                                style={{
-                                  padding: '4px',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
+                                {/* parent div of the quantity and buttons */}
+                                <div style={{
                                   display: "flex",
-                                  border: "1px solid", // Adjust the border
-                                  borderRadius: "50%", // Set borderRadius to 50% for a circle
-                                  width: "30px", // Make sure width and height are equal
-                                  height: "30px",
-                                  backgroundColor: 'white' // Set the background color to white
-                                }}
-                              >
-                                <button
-                                  className="minus-btn"
-                                  type="button"
-                                  name="button"
+                                  flexDirection: "row",
+                                  justifyContent: "space-between",
+                                  marginBottom: "10px"
+                                }}>
+                                  <div className="col-span-2 text-lg font-normal" style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                    alignItems: "center"
+                                  }}>
+                                    <p style={{ marginBottom: "0" }}>
+                                      <span className='notranslate'>
+                                        ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}
+
+                                      </span>
+                                    </p>
+
+                                  </div>
+
+                                </div>
+                                {/* ^ end of parent div of quantity and button */}
+                              </div>
+                              {/* ^ end of parent div of title + quantity and buttons */}
+                            </div>
+                            {/* This is Tony added code */}
+                          </div>
+                          <div class="h-min overflow-hidden rounded-md flex justify-end">
+
+                            <div className='m-2 rounded-lg max-h-[220px] relative'>
+                              <div className='absolute w-[80px] h-[80px] flex flex-col justify-end items-end'>
+                                <div
+                                  className="black_hover "
                                   style={{
-                                    marginTop: '0px',
-                                    width: '20px',
-                                    height: '20px',
+                                    padding: '4px',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     display: "flex",
+                                    border: "1px solid", // Adjust the border
+                                    borderRadius: "50%", // Set borderRadius to 50% for a circle
+                                    width: "30px", // Make sure width and height are equal
+                                    height: "30px",
+                                    backgroundColor: 'white' // Set the background color to white
                                   }}
                                 >
-                                  <PlusSvg
+                                  <button
+                                    className="minus-btn"
+                                    type="button"
+                                    name="button"
                                     style={{
-                                      margin: '0px',
-                                      width: '10px',
-                                      height: '10px',
+                                      marginTop: '0px',
+                                      width: '20px',
+                                      height: '20px',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      display: "flex",
                                     }}
-                                    alt=""
-                                  />
-                                </button>
+                                  >
+                                    <PlusSvg
+                                      style={{
+                                        margin: '0px',
+                                        width: '10px',
+                                        height: '10px',
+                                      }}
+                                      alt=""
+                                    />
+                                  </button>
+                                </div>
                               </div>
+                              {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
+                                <img loading="lazy" class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={item.image} />
+                                :
+                                <img class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/89cb3a8a-0904-4774-76c9-3ffaa41c5200/public'} alt="White placeholder" />
+
+                              }
                             </div>
-                            {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
-                              <img loading="lazy" class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={item.image} />
-                              :
-                              <img class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/89cb3a8a-0904-4774-76c9-3ffaa41c5200/public'} alt="White placeholder" />
 
-                            }
                           </div>
-
                         </div>
-                      </div>
 
 
 
-                    </motion.div>
+                      </motion.div>
 
-                  ))}
-                </div>
-              </AnimatePresence>
-            </LazyLoad>
+                    ))}
+                  </div>
+                </AnimatePresence>
+              </LazyLoad>
 
+            </div>
           </div>
+
 
         </div>
       </div>
+
     )
   }
 }
