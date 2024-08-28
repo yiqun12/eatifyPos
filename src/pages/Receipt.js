@@ -73,7 +73,7 @@ const Item = () => {
   }, [payment_data]);
 
   useEffect(() => {
-    if (receiptToken && receiptToken.length === 20) {
+    if (receiptToken) {
       const unsubscribe =
         firebase
           .firestore()

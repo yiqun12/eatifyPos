@@ -35,7 +35,7 @@ const Item = () => {
     const receiptToken = urlParams.get('docId');  // '12345'
     console.log(receiptToken)
     useEffect(() => {
-        if (receiptToken && receiptToken.length === 20) {
+        if (receiptToken) {
             const unsubscribe = firebase
                 .firestore()
                 .collection("stripe_customers")

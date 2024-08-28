@@ -44,8 +44,10 @@ import { faTruck } from '@fortawesome/free-solid-svg-icons';
 import { collection, addDoc } from "firebase/firestore";
 import { FaTrash } from 'react-icons/fa';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
 
 const Navbar = () => {
+
   const { user, user_loading } = useUserContext();
   const [loadingContact, setLoadingContact] = useState(true);
   const [activeAddressId, setActiveAddressId] = useState(null);
@@ -641,7 +643,10 @@ const Navbar = () => {
 
     try {
       const myFunction = firebase.functions().httpsCallable('requestQuoteDoordash');
+      const uid = uuidv4()
+
       const response = await myFunction({
+        uid: uid,
         dropOffUserId: user.uid,
         dropoff_address: dropoffAddress + " " + city + " " + state + " " + zipCode,
         dropoff_phone_number: dropoffPhoneNumber,
@@ -1239,17 +1244,19 @@ const Navbar = () => {
 
                       {!isKiosk && !isDineIn && (
                         !showInputs ? (
-                          <button
-                            style={{ width: "100%", border: "0px", margin: "auto" }}
-                            className="rounded-md border-0 text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex"
-                            onClick={handleClickDelivery}
-                          >
-                            <span >
-                              <FontAwesomeIcon icon={faTruck} />
-                            </span>
-                            <span> &nbsp;Request Food Delivery
-                            </span>
-                          </button>
+                          <div>
+                            <button
+                              style={{ width: "100%", border: "0px", margin: "auto" }}
+                              className="rounded-md border-0 text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex"
+                              onClick={handleClickDelivery}
+                            >
+                              <span >
+                                <FontAwesomeIcon icon={faTruck} />
+                              </span>
+                              <span> &nbsp;Request Food Delivery
+                              </span>
+                            </button>
+                          </div>
                         ) : (
                           <div>
                             <div className='flex justify-between'>
@@ -1290,7 +1297,7 @@ const Navbar = () => {
                               </button>
                             </div>
                             {loadingContact ?
-                              <div>loading...</div>
+                              null
                               :
                               <div className="grid grid-cols-1 gap-2 mb-2">
                                 {deliveryContacts.map((address) => (

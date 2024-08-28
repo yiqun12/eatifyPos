@@ -19,7 +19,9 @@ import { v4 as uuidv4 } from 'uuid';
 import pinyin from "pinyin";
 import LazyLoad from 'react-lazy-load';
 import { onSnapshot } from "firebase/firestore"; // Make sure to import onSnapshot
-
+import { faList } from '@fortawesome/free-solid-svg-icons';
+import { ReactComponent as DeleteSvg } from './delete-icn.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function convertToPinyin(text) {
   return pinyin(text, {
@@ -207,7 +209,12 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
           setFoodTypesCHI([...new Set(JSON.parse(docData.key).map(item => item.categoryCHI))]);
           console.log(JSON.parse(docData.key));
           console.log([...new Set(JSON.parse(docData.key).map(item => item.category))]);
-
+          setFoods(
+            JSON.parse(docData.key).filter((item) => {
+              return item.category === [...new Set(JSON.parse(docData.key).map(item => item.category))][0];
+            })
+          )
+          setSelectedFoodType([...new Set(JSON.parse(docData.key).map(item => item.category))][0]);
 
         } else {
           if (!localStorage.getItem("Food_arrays") || localStorage.getItem("Food_arrays") === "") {
@@ -281,6 +288,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   const [width, setWidth] = useState(window.innerWidth - 64);
 
   useEffect(() => {
+
     function handleResize() {
       setWidth(window.innerWidth - 64);
     }
@@ -295,6 +303,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   const scrollingWrapperRef = useRef(null);
 
   useEffect(() => {
+
     const handleWheel = (e) => {
       if (e.deltaY !== 0) {
         scrollingWrapperRef.current.scrollLeft += e.deltaY;
@@ -364,7 +373,18 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   }
   // timesClicked is an object that stores the number of times a item is clicked
   //const timesClicked = new Map();
+  const modalRef = useRef(null);
 
+  const openModalList = () => {
+    modalRef.current.style.display = 'block';
+    // Retrieve the array from local storage
+  };
+  const closeModalList = () => {
+
+    modalRef.current.style.display = 'none';
+
+
+  };
 
   const divStyle = {
     color: 'black',
@@ -785,6 +805,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
       <div>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
+
         {isModalVisible && (
 
           <div id={count} className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
@@ -980,19 +1001,19 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                       console.log(selectedFoodItem.attributeSelected)
                       console.log(selectedAttributes)
                       if (compareObjects(selectedFoodItem.attributeSelected, selectedAttributes)) {//no attr changes
-                        if(totalPrice!=selectedFoodItem.totalPrice){
+                        if (totalPrice != selectedFoodItem.totalPrice) {
                           deleteSpecialFood(selectedFoodItem.id, selectedFoodItem.count, selectedAttributes, 0);//delete old one
 
                           console.log("confirm the change")
                           setOpenChangeAttributeTrigger(false);//confirm the change
                           setOpenChangeAttributeModal(false)
-                        }else{
+                        } else {
                           deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 0);//delete new one
-                    
+
                           console.log("cancel the change")
                           setOpenChangeAttributeTrigger(false);
                           setOpenChangeAttributeModal(false)
-  
+
                         }
 
                       } else {
@@ -1012,7 +1033,63 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
           </div>
         )
         }
+        <div ref={modalRef} className="foodcart-modal modal">
 
+
+          {/* popup content */}
+          <div className="shopping-cart" >
+            <div className='title pb-1 border-0'>
+
+              <div className=' flex justify-end mb-2'>
+
+
+                <DeleteSvg className="delete-btn " style={{ cursor: 'pointer', margin: '0' }} onClick={closeModalList}></DeleteSvg>
+              </div>
+              {/* shoppig cart */}
+
+            </div>
+            <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
+              <div className={` ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`} >
+
+                <div style={{ width: "-webkit-fill-available" }}>
+                  <div className="description" style={{ width: "-webkit-fill-available" }}>
+
+                    <div className='' style={{ width: "-webkit-fill-available" }}>
+                      <div
+                        className="text-black text-lg"
+                        style={{ color: "black", width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}
+                      >
+                        {foodTypes.slice().reverse().map((foodType) => (
+                          <button
+                            key={foodType}
+                            onClick={() => {
+                              filterType(foodType);
+                              setSelectedFoodType(foodType);
+                              closeModalList()
+                            }}
+
+                            className={`border-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}
+                            style={{ width: "100%", display: 'block', textUnderlineOffset: '0.5em', textAlign: 'left' }}
+                          >
+                            <div>
+                              {foodType && foodType.length > 1
+                                ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                                : ''}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+
+
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
         <div className='m-auto '>
 
           <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
@@ -1023,76 +1100,83 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
               {/* web mode */}
               {!view ?
                 <div>
+                  <div className='hstack gap-2  mt-2'>
+                    <form className="w-full w-lg-full">
+                      <div className='input-group input-group-sm input-group-inline shadow-none'>
+                        <span className='input-group-text pe-2 rounded-start-pill'>
+                          <i className='bi bi-search'></i>
+                        </span>
 
-                  <div className='flex' style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                        <input
+                          type="search"
+                          class="form-control text-base shadow-none rounded-end-pill" placeholder="Search for items..."
+                          placeholder={t('Search Food Item')}
+                          onChange={handleInputChange}
+                          translate="no"
+                          style={{ fontSize: '16px' }}
 
-                    <div className="mt-2 flex justify-center bg-gray-200 h-10 rounded-md pl-2 w-full items-center">
-                      <input
-                        type="search"
-                        className='flex bg-transparent p-2 w-full focus:outline-none text-black'
-                        placeholder={t('Search Food Item')}
-                        onChange={handleInputChange}
-                        translate="no"
-                      />
-                      <FiSearch size={5} className="bg-black text-white p-[10px] h-10 rounded-md w-10 font-bold" />
-                    </div>
+                        />
+
+                      </div>
+                    </form >
                   </div>
                 </div>
                 : null}
               {/* end of the top */}
-              <div ref={scrollingWrapperRef} className={`mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''} mb-0`}>
+              <div ref={scrollingWrapperRef}>
                 {!view ?
-                  <div className=
-                    {`${isMobile ? '' : 'bg-gray-100 p-4 rounded-lg flex flex-wrap gap-1 justify-content: space-between;'}`}
-                    style={{ overflowX: 'auto' }}>
-                    <button onClick={() => {
+
+
+                  <div className='flex rounded-lg'>
+                    {isMobile && (<div
+                      className="m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg absolute z-10 right-0 scroll-gradient-right"
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      &nbsp;
+                    </div>)}
+
+                    <div onClick={() => {
+                      openModalList()
+                    }} className="mt-2 m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg ">
+                      <FontAwesomeIcon icon={faList} />
+                    </div>
+                    <div
+                      className={`relative mt-2 scrolling-wrapper-filter`}>
+
+
+                      {/* <button onClick={() => {
                       setFoods(data)
                       setSelectedFoodType(null);
                     }}
-                      className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg ${selectedFoodType === null ? 'underline' : ''}`}
-                      style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
+                      className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg  ${selectedFoodType === null ? 'underline' : ''}`}
+                      style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button> */}
 
-                    {
-                      translationsMode_ === 'ch'
-                        ? foodTypesCHI.map((foodType) => (
-                          <button
-                            key={foodType}
-                            onClick={() => {
-                              filterTypeCHI(foodType);
-                              setSelectedFoodType(foodType);
-                            }}
-                            className={`m-0 border-black-600 text-black-600 rounded-xl text-lg px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
-                              }`}
-                            style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-                          >
-                            <div>
-                              {foodType && foodType.length > 1
-                                ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-                                : ''}
-                            </div>
-                          </button>
-                        ))
-                        : foodTypes.map((foodType) => (
-                          <button
-                            key={foodType}
-                            onClick={() => {
-                              filterType(foodType);
-                              setSelectedFoodType(foodType);
-                            }}
-                            className={`m-0 border-black-600 text-black-600 text-lg rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
-                              }`}
-                            style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-                          >
-                            <div>
-                              {foodType && foodType.length > 1
-                                ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-                                : ''}
-                            </div>
-                          </button>
-                        ))
-                    }
+                      {foodTypes.map((foodType) => (
+                        <button
+                          key={foodType}
+                          onClick={() => {
+                            filterType(foodType);
+                            setSelectedFoodType(foodType);
+
+                          }}
+                          className={`border-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}
+                          style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
+                        >
+                          <div>
+                            {foodType && foodType.length > 1
+                              ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                              : ''}
+                          </div>
+                        </button>
+                      ))}
+
+                    </div>
+
                   </div> : null}
+
               </div>
+
+
             </div>
 
           </div>

@@ -617,18 +617,22 @@ const Food = ({ store }) => {
               {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                 <input
                   translate="no"
-                  class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
+                  class="form-control text-base shadow-none rounded-end-pill" placeholder="Search for items..."
                   type="text"
                   value={selectedCHI}
                   onChange={handleCHIChange}
+                  style={{ fontSize: '16px' }}
+
                 />
                 :
                 <input
                   translate="no"
-                  class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
+                  class="form-control text-base shadow-none rounded-end-pill" placeholder="Search for items..."
                   type="text"
                   value={selectedName}
                   onChange={handleNameChange}
+                  style={{ fontSize: '16px' }}
+
                 />
               }
 

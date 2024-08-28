@@ -889,18 +889,24 @@ const Account = () => {
         }
       });
       function sortArrayByTime(arr) {
-        // Sorting the array using the JavaScript sort function
+        // Sorting the array first by status and then by time
         arr.sort((a, b) => {
-          // Converting the time strings to Date objects
-          let dateA = new Date(a.date);
-          let dateB = new Date(b.date);
-
-          // Sorting in descending order (latest to oldest)
-          return dateB - dateA;
+            // Prioritize 'delivery' status
+            if (a.Status === 'Delivery' && b.Status !== 'Delivery') {
+                return -1; // a comes first
+            } else if (a.Status !== 'Delivery' && b.Status === 'Delivery') {
+                return 1; // b comes first
+            }
+    
+            // If both have the same status or neither is 'delivery', sort by date
+            let dateA = new Date(a.date);
+            let dateB = new Date(b.date);
+            return dateB - dateA; // Sorting in descending order (latest to oldest)
         });
-
+    
         return arr;
-      }
+    }
+    
 
 
       setNotificationData(sortArrayByTime(docs))
@@ -3744,7 +3750,7 @@ const Account = () => {
                                                   : null
                                                 }
 
-                                                Order ID: {order.id.substring(0, 4)}
+                                                Order ID: {order.id}
 
                                                 <p><span className='notranslate'>{order.name}</span></p>
                                                 {/* <p>{order.email}</p> */}

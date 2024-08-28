@@ -738,7 +738,7 @@ const Food = () => {
                         className="text-black text-lg"
                         style={{ color: "black", width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}
                       >
-                        {foodTypes.map((foodType) => (
+                        {foodTypes.slice().reverse().map((foodType) => (
                           <button
                             key={foodType}
                             onClick={() => {
@@ -779,10 +779,9 @@ const Food = () => {
                 <div className="flex justify-between">
                   {/* Conditional rendering for image with a more relevant placeholder */}
                   {selectedFoodItem.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
-                    <img loading="lazy" class="w-full h-[120px] transition-all cursor-pointer object-cover rounded-lg" src={selectedFoodItem.image} alt={selectedFoodItem.name} />
+                    <img loading="lazy" class={`${isMobile ? " h-[150px] " : "h-[200px]"} w-full transition-all cursor-pointer object-cover rounded-lg`} src={selectedFoodItem.image} alt={selectedFoodItem.name} />
                     :
-                    <img loading="lazy" class="w-full h-[10px] transition-all cursor-pointer object-cover rounded-lg"
-                      src={'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/89cb3a8a-0904-4774-76c9-3ffaa41c5200/public'} alt="White placeholder" />
+                    null
 
                   }
                 </div>
@@ -928,6 +927,8 @@ const Food = () => {
                             placeholder={t('Search Food Item')}
                             onChange={handleInputChange}
                             translate="no"
+                            style={{ fontSize: '16px' }}
+
                           />
 
                         </div>
@@ -1031,10 +1032,14 @@ const Food = () => {
           </div>
 
         </div>
-        <div className='mt-1 flex m-auto px-4 flex-grow-1 relative min-h-screen w-full'>
+        <div
+
+          className='mt-1 flex m-auto px-4 flex-grow-1 relative min-h-screen w-full'>
           {/* Sidebar */}
           {!isMobile && (
-            <aside className='h-full w-64 p-4 absolute top-0 left-0 z-20 pt-0 overflow-y-auto'>
+            <aside style={{
+              maxHeight: isMobile ? 'calc(100vh - 300px)' : 'calc(100vh - 150px)'
+            }} className='h-full w-64 p-4 absolute top-0 left-0 z-20 pt-0 overflow-y-auto'>
               <ul className="space-y-2">
                 {foodTypes.map((foodType) => (
                   <li
@@ -1100,6 +1105,10 @@ const Food = () => {
                         style={{
                           background: 'rgba(255,255,255,0.9)',
                         }} className="z-200 border rounded-lg cursor-pointer">
+                        {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
+                          <img loading="lazy" class={`${isMobile ? " h-[150px] " : "h-[200px]"} w-full transition-all cursor-pointer object-cover rounded-lg`} src={item.image} />
+                          : null
+                        }
                         <div className=' flex'>
 
                           <div style={{ width: 'calc(100% - 90px)' }}>
@@ -1184,12 +1193,8 @@ const Food = () => {
                                   </button>
                                 </div>
                               </div>
-                              {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
-                                <img loading="lazy" class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={item.image} />
-                                :
-                                <img class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/89cb3a8a-0904-4774-76c9-3ffaa41c5200/public'} alt="White placeholder" />
 
-                              }
+                              <img class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/89cb3a8a-0904-4774-76c9-3ffaa41c5200/public'} alt="White placeholder" />
                             </div>
 
                           </div>

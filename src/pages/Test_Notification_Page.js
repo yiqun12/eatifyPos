@@ -1,7 +1,7 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState, useEffect } from 'react';
-import { collection, doc, setDoc, addDoc, deleteDoc,updateDoc } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
 import { onSnapshot, query } from 'firebase/firestore';
@@ -10,11 +10,8 @@ import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parse
 import firebase from 'firebase/compat/app';
 
 
-function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, setSortedData }) {
+function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }) {
 
-  // const exampleJSON = [{orderId: "1", date: "10/7/2023", amount: "100", Status: "Review"},{orderId: "2", date: "10/7/2023", amount: "300", Status: "Review"},{orderId: "3", date: "10/7/2023", amount: "1000", Status: "Paid"}]
-
-  // const [sortedData, setSortedData] = useState(exampleJSON);
 
   var reviewCount = sortedData.length;
   setReviewVar(reviewCount)
@@ -32,35 +29,6 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
     return (Math.round(n * 100) / 100).toFixed(2);
   }
 
-  useEffect(() => {
-    // Ensure the user is defined
-    if (!user || !user.uid) return;
-    console.log("docs");
-
-    const collectionRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "Table");
-
-    // Listen for changes in the collection
-    const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-      const docs = [];
-      snapshot.forEach((doc) => {
-        docs.push({ id: doc.id, ...doc.data() });
-      });
-      console.log("docs")
-      console.log(docs);
-      setArrEmpty(docs
-        .filter(element => element.product === "[]")
-        .map(element => element.id.slice((storeID + "-").length)))
-      setArrOccupied(docs
-        .filter(element => element.product !== "[]")
-        .map(element => element.id.slice((storeID + "-").length)))
-    }, (error) => {
-      // Handle any errors
-      console.error("Error getting documents:", error);
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, []); // Dependencies for useEffect
 
 
   const [width, setWidth] = useState(window.innerWidth);
@@ -80,34 +48,61 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
   const isMobile = width <= 600;
 
 
-  useEffect(() => {
-    const sorted = [...sortedData].sort((a, b) => { // Sort based on sortedData
-      if (statusPriority[a.Status] !== statusPriority[b.Status]) {
-        return statusPriority[a.Status] - statusPriority[b.Status];
-      } else {
-        const dateA = new Date(a.date.split('/').reverse().join('-'));
-        const dateB = new Date(b.date.split('/').reverse().join('-'));
-        return dateA - dateB;
-      }
-    });
-    setSortedData(sorted);
-
-  }, []);
-
-
-  const deleteDocument = async (orderId) => {
-    console.log(orderId)
+  const deleteDocument = async (orderId, orderStatus, order) => {
+    console.log("deleteDocument")
+    console.log(order)
     try {
-      const myFunction = firebase.functions().httpsCallable('acceptQuoteDoordash');
-      const response = await myFunction({
-        uid: orderId,
-      });
+      const docRef = firebase.firestore()
+        .collection('RequestQuoteDoordash')
+        .doc(orderId);
 
-      console.log('Quote Response:', response.data);
-    } catch (error) {
-      console.error('Error requesting quote:', error);
-      // Handle the error appropriately
+      const docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        const data = docSnapshot.data();
+        console.log("Document exists:");
+        data.uid = "Merchant" + orderId; // Append the document ID as a new field
+        console.log(data);
+
+        try {
+          const myFunction = firebase.functions().httpsCallable('requestQuoteDoordash');
+          const response = await myFunction(data);
+
+          if (response.data.message) {//error
+            // console.error('Error requesting quote:', error);
+          } else {
+            try {
+
+
+              if (orderStatus === 'Delivery') {
+
+                const myFunction = firebase.functions().httpsCallable('acceptQuoteDoordash');
+                const response = await myFunction({
+                  uid: "Merchant" + orderId,
+                });
+                console.log('Quote Response:', response.data);
+              } else {//successful deploy
+
+              }
+            } catch (error) {
+              console.error('Error requesting quote:', error);
+              // Handle the error appropriately
+            }
+          }
+        }
+        catch (error) {
+          console.error("Error deleting document: ", error);
+        }
+      } else {
+        console.log("No such document!");
+      }
+    } catch (err) {
+      console.error("Error getting document:", err);
     }
+
+
+
+
 
     try {
 
@@ -122,220 +117,9 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
   };
 
 
-  const [isChangeTableModal, setChangeTableModal] = useState(false);
-  const [arrEmpty, setArrEmpty] = useState([]);
-  const [arrOccupied, setArrOccupied] = useState([]);
-  const [isUniqueModalOpen, setUniqueModalOpen] = useState(false);
 
-  const uniqueModalStyles = {
-    overlayStyle: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: isUniqueModalOpen ? 'flex' : 'none',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    modalStyle: {
-      backgroundColor: '#fff',
-      padding: '20px',
-      borderRadius: '8px',
-      width: '100%',
-      maxWidth: '400px',
-      position: 'relative',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    },
-    closeBtnStyle: {
-      position: 'absolute',
-      right: '30px',
-      top: '0',
-      background: 'none',
-      border: 'none',
-      fontSize: '48px',
-      cursor: 'pointer',
-    },
-    inputStyle: {
-      width: '100%',
-      padding: '12px',
-      boxSizing: 'border-box',
-      marginBottom: '10px',
-      borderRadius: '4px',
-      border: '1px solid #ccc',
-    },
-    buttonStyle: {
-      backgroundColor: '#007bff',
-      color: '#fff',
-      padding: '12px 15px',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      width: '100%',
-      marginBottom: '10px',
-    },
-  };
-  function groupAndSumItems(items) {
-    const groupedItems = {};
-    items.reverse();
-    items.forEach(item => {
-      // Create a unique key based on id and JSON stringified attributes
-      const key = `${item.id}-${JSON.stringify(item.attributeSelected)}`;
 
-      if (!groupedItems[key]) {
-        // If this is the first item of its kind, clone it (to avoid modifying the original item)
-        groupedItems[key] = { ...item };
-      } else {
-        // If this item already exists, sum up the quantity and itemTotalPrice
-        groupedItems[key].quantity += item.quantity;
-        groupedItems[key].itemTotalPrice += item.itemTotalPrice;
-        // The count remains from the first item
-      }
-    });
 
-    // Convert the grouped items object back to an array
-    return Object.values(groupedItems).reverse();
-  }
-  const SetTableIsSent = async (table_name, product) => {
-    try {
-      if (localStorage.getItem(table_name) === product) {
-        return
-      }
-      const dateTime = new Date().toISOString();
-      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docData = { product: product, date: date };
-      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "TableIsSent", table_name);
-      await setDoc(docRef, docData);
-
-    } catch (error) {
-      console.error("Error adding document: ", error);
-    }
-  };
-
-  const SetTableInfo_ = async (table_name, product, TableId) => {
-    try {
-
-      const dateTime = new Date().toISOString();
-      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docData = { product: product, date: date };
-      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "Table", table_name);
-      await setDoc(docRef, docData);
-      setTimeout(() => SendToKitchen(TableId), 200);
-    } catch (error) {
-      console.error("Error adding document: ", error);
-    }
-  };
-  const mergeProduct = async (table_name) => {
-    // console.log(JSON.stringify(selectedOrder.items));
-    SetTableInfo_(`${storeID}-${table_name}`, JSON.stringify(groupAndSumItems(
-      [...selectedOrder.items, ...JSON.parse(localStorage.getItem(`${storeID}-${table_name}`))]
-    )), table_name)
-
-    //SetTableIsSent(`${storeID}-${table_name}-isSent`, JSON.stringify(groupAndSumItems(selectedOrder.items, JSON.parse(localStorage.getItem(storeID + "-" + table_name + "-isSent")))))
-
-  };
-
-  const SendToKitchen = async (selectedTable) => {
-
-    try {
-      if (localStorage.getItem(storeID + "-" + selectedTable) === null || localStorage.getItem(storeID + "-" + selectedTable) === "[]") {
-        if (localStorage.getItem(storeID + "-" + selectedTable + "-isSent") === null || localStorage.getItem(storeID + "-" + selectedTable + "-isSent") === "[]") {
-          console.log(1)
-          return //no item in the array no item isSent.
-        } else {//delete all items
-          console.log(2)
-        }
-      }
-      compareArrays(JSON.parse(localStorage.getItem(storeID + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(storeID + "-" + selectedTable)), selectedTable)
-      SetTableIsSent(storeID + "-" + selectedTable + "-isSent", localStorage.getItem(storeID + "-" + selectedTable) !== null ? localStorage.getItem(storeID + "-" + selectedTable) : "[]")
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
-  }
-  async function compareArrays(array1, array2, selectedTable) {//array1 isSent array2 is full array
-    const array1ById = Object.fromEntries(array1.map(item => [item.count, item]));
-    const array2ById = Object.fromEntries(array2.map(item => [item.count, item]));
-    const add_array = []
-    const delete_array = []
-    for (const [count, item1] of Object.entries(array1ById)) {
-      const item2 = array2ById[count];
-      if (item2) {
-        // If item exists in both arrays
-        if (item1.quantity > item2.quantity) {
-          console.log('Deleted trigger:', {
-            ...item1,
-            quantity: item1.quantity - item2.quantity,
-            itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
-          });
-          delete_array.push({
-            ...item1,
-            quantity: item1.quantity - item2.quantity,
-            itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
-          })
-
-        } else if (item1.quantity < item2.quantity) {
-          console.log('Added trigger:', {
-            ...item2,
-            quantity: item2.quantity - item1.quantity,
-            itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
-          });
-          add_array.push({
-            ...item2,
-            quantity: item2.quantity - item1.quantity,
-            itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
-          })
-        }
-      } else {
-        // If item exists in array 1 but not in array 2
-        console.log('Deleted trigger:', item1);
-        delete_array.push(item1)
-      }
-    }
-
-    for (const [count, item2] of Object.entries(array2ById)) {
-      const item1 = array1ById[count];
-      if (!item1) {
-        // If item exists in array 2 but not in array 1
-        console.log('Added trigger:', item2);
-        add_array.push(item2)
-      }
-    }
-    const promises = [];//make them call at the same time
-
-    if (add_array.length !== 0) {
-      const dateTime = new Date().toISOString();
-      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const addPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "SendToKitchen"), {
-        date: date,
-        data: add_array,
-        selectedTable: selectedTable
-      }).then(docRef => {
-        console.log("Document written with ID: ", docRef.id);
-      });
-      promises.push(addPromise);
-    }
-
-    if (delete_array.length !== 0) {
-      const dateTime = new Date().toISOString();
-      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const deletePromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "DeletedSendToKitchen"), {
-        date: date,
-        data: delete_array,
-        selectedTable: selectedTable
-      }).then(docRef => {
-        console.log("DeleteSendToKitchen Document written with ID: ", docRef.id);
-      });
-      promises.push(deletePromise);
-    }
-
-    // Execute both promises in parallel
-    Promise.all(promises).then(() => {
-      console.log("All operations completed");
-    }).catch(error => {
-      console.error("Error in executing parallel operations", error);
-    });
-  }
 
   return (
     // <div>Hello</div>
@@ -351,91 +135,6 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
         `}
       </style>
 
-
-      {isChangeTableModal && (
-        <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <div className="modal-dialog" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Select Dining Desk to Merge</h5>
-                <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setChangeTableModal(false); }}>
-                  &times;
-                </button>
-              </div>
-              <div className="modal-body pt-0">
-                <div>Customer's Chosen Dining Table:{
-                  arrOccupied.includes(selectedOrder.table) || arrEmpty.includes(selectedOrder.table) ? "" : "Customer's Table Not Found"
-                }</div>
-
-                {arrEmpty.includes(selectedOrder.table) ?
-                  <button
-                    type="button"
-                    className="btn btn-primary mb-2 mr-2 notranslate"
-                    onClick={() => {
-                      mergeProduct(selectedOrder.table);//A1
-                      setChangeTableModal(false);
-                      deleteDocument(selectedOrder.orderId)
-                    }}
-                    style={{ backgroundColor: '#966f33' }}
-                  >
-                    {selectedOrder.table}
-                  </button> : ""}
-
-                {arrOccupied.includes(selectedOrder.table) ?
-                  <button
-                    type="button"
-                    className="btn btn-primary mb-2 mr-2 notranslate"
-                    onClick={() => {
-                      mergeProduct(selectedOrder.table);
-                      setChangeTableModal(false);
-                      deleteDocument(selectedOrder.orderId)
-                    }}
-                  >
-                    {selectedOrder.table}
-                  </button> : ""}
-                <div>Select Other Empty Dining Desk:</div>
-                {arrEmpty.map((option) => (
-
-                  <button
-                    type="button"
-                    className="btn btn-primary mb-2 mr-2 notranslate"
-                    onClick={() => {
-                      mergeProduct(option);//A1
-                      setChangeTableModal(false);
-                      deleteDocument(selectedOrder.orderId)
-                    }}
-                    style={{ backgroundColor: '#966f33' }}
-                  >
-                    {option}
-                  </button>
-
-                ))}
-                <hr></hr>
-                <div>Select Other Dining Desk(s) in Use:</div>
-                {arrOccupied.map((option) => (
-
-                  <button
-                    type="button"
-                    className="btn btn-primary mb-2 mr-2 notranslate"
-                    onClick={() => {
-                      mergeProduct(option);
-                      setChangeTableModal(false);
-                      deleteDocument(selectedOrder.orderId)
-                    }}
-                  >
-                    {option}
-                  </button>
-
-                ))}
-              </div>
-              <div className="modal-footer">
-              </div>
-            </div>
-          </div>
-        </div>
-
-      )
-      }
 
       <div class="">
         <div class="card-header">
@@ -475,7 +174,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                 {/* <th style={{ "font-size": "16px" }} scope="col">Name</th> */}
                 <th style={{ "font-size": "16px" }} scope="col">Dining Table</th>
                 {/* <th style={{ "font-size": "16px" }} scope="col">Date</th> */}
-                <th style={{ "font-size": "16px" }} scope="col">Total Price</th>
+                <th style={{ "font-size": "16px" }} scope="col">Time</th>
               </tr>
             </thead>
             <tbody>
@@ -484,63 +183,48 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData, 
                 <div style={{ display: 'contents' }}>
 
                   <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
-                    <td className="rder-number notranslate" data-title="OrderID">{order.orderId.substring(0, 4)}</td>
+                    <td className="order-number notranslate" data-title="OrderID">
+                      {order.orderId.substring(0, 4)}
+
+                    </td>
                     {/* <td className="order-status notranslate" data-title="status" style={{ whiteSpace: "nowrap" }}> {order.Status}</td> */}
                     {/* <td className="order-name notranslate" data-title="name" style={{ whiteSpace: "nowrap" }}>{order.username}</td> */}
-                    <td className="order-Table notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>{order.table ? order.table : "no table"}</td>
-                    <td className="order-Total notranslate" data-title="Total" style={{ whiteSpace: "nowrap" }}>
-                      ${roundToTwoDecimalsTofix(order.amount)}
+                    <td className="order-Table notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>
+                      {order.table ? order.table : "no table"}
                     </td>
-                    {isMobile ? null :
-                      <td className="pr-2 text-end">
-                        {order.Status === "Paid" || order.Status === "Delivery" ?
-                          <div>
+                    <td className="order-Total notranslate" data-title="Total" style={{ whiteSpace: "nowrap" }}>
+                      {order.date}
+                    </td>
+                    <td className="text-right">
+                      {order.Status === "Delivery" ?
+                        <button type="button" className="mb-1 btn btn-sm btn-danger text-danger-hover" onClick={() => deleteDocument(order.orderId, order.Status, order)}>
+                          Request Pickup Driver
+                        </button>
+                        :
+                        <button type="button" className="mb-1 btn btn-sm btn-primary text-primary-hover" onClick={() => deleteDocument(order.orderId, order.Status, order)}>
+                          Confirm
+                        </button>
+                      }
 
-                            <button type="button" className="btn btn-sm btn-primary text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
-                              Confirm
-                            </button>
-                          </div>
-                          :
-                          <div>
-                            <button className="btn btn-sm btn-primary mr-2" onClick={() => { setChangeTableModal(true); setSelectedOrder(order) }}>Add to Dining Table</button>
-                            <button type="button" className="btn btn-sm btn-danger text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
-                              Delete
-                            </button>
-                          </div>
-                        }
 
-                      </td>
-                    }
-                    {isMobile ?
-                      <div className="pr-2 text-end">
-                        {order.Status === "Paid" || order.Status === "Delivery"?
-                          <div>
-
-                            <button type="button" className="mb-1 btn btn-sm btn-primary text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
-                              Confirm
-                            </button>
-                          </div>
-                          : <div>
-
-                            <button className="mb-1 btn btn-sm btn-primary mr-2" onClick={() => { setChangeTableModal(true); setSelectedOrder(order) }}>Add to Dining Table</button>
-
-                            <button type="button" className="mb-1 btn btn-sm btn-danger text-danger-hover" onClick={() => deleteDocument(order.orderId)}>
-                              Delete
-                            </button>
-                          </div>
-                        }
-
-                      </div> : null
-                    }
+                    </td>
                   </tr>
 
                   <tr style={{ backgroundColor: '#f8f9fa' }}>
                     <td colSpan={8} style={{ padding: "10px" }}>
                       <div className="receipt">
-                        <div className='flex justify-between '>
-                          <span className='notranslate'>{order.username}</span>
-                          <span>{order.orderId}</span>
-                          <span className='notranslate'>Time: {order.date}</span>
+                        <div className='flex'>
+                          <span>Order ID:</span>
+
+                          <span className='notranslate'>{order.orderId}</span>
+                        </div>
+                        <div className='flex'>
+
+                          {order.Status === "Delivery" ?
+
+                            <span>Reference Tag: Order Number is {order.orderId.substring(0, 2)}</span>
+                            : null
+                          }
                         </div>
 
                         {order.items && order.items.map(item => (
