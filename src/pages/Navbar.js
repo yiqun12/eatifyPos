@@ -18,6 +18,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import E_logo from './E_logo.png'
+import PaymentKiosk from "../pages/PaymentKiosk";
+import { faLanguage } from '@fortawesome/free-solid-svg-icons';
+
 //import { flexbox } from '@mui/system';
 import "./navbar.css";
 import { useMyHook } from './myHook';
@@ -253,6 +256,7 @@ const Navbar = () => {
     }
     setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
     modalRef.current.style.display = 'block';
+    setShoppingCartOpen(true)
     // Retrieve the array from local storage
   };
 
@@ -262,6 +266,8 @@ const Navbar = () => {
       setOpenCheckout(false)
     } else {
       modalRef.current.style.display = 'none';
+      setShoppingCartOpen(false)
+
       setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
       setOpenCheckout(false)
       setAddNewAdress(false)
@@ -431,6 +437,7 @@ const Navbar = () => {
     window.onclick = (event) => {
       if (event.target === modal && directoryType === false) {
         modal.style.display = "none";
+        setShoppingCartOpen(false)
       }
     }
 
@@ -646,6 +653,7 @@ const Navbar = () => {
       const uid = uuidv4()
 
       const response = await myFunction({
+        storeNickName: JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).Name + " " + JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).storeNameCHI,
         uid: uid,
         dropOffUserId: user.uid,
         dropoff_address: dropoffAddress + " " + city + " " + state + " " + zipCode,
@@ -830,10 +838,13 @@ const Navbar = () => {
           /* Bootstrap Icons */
           @import url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.4.0/font/bootstrap-icons.min.css");
         `}
+
       </style>
 
-      {((location.pathname.includes('/store')) && !shoppingCartOpen) && (
-        <a className="float" style={{ zIndex: "1000" }}>
+      {((location.pathname.includes('/store'))) && (
+        <a className="float"
+
+        > {/* Fixed z-index to zIndex */}
           <a
             style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
 
@@ -849,9 +860,11 @@ const Navbar = () => {
       )}
 
       {(/\/account/.test(location.pathname) && new URLSearchParams(location.hash.split('?')[1]).has('store')) && (
-        <a className="float ">
+        <a className="floatBell ">
           <a
-            style={{ 'cursor': "pointer", "user-select": "none" }} onClick={() => { window.location.hash = `cards?store=${store}`; }}>
+            style={{ 'cursor': "pointer", "user-select": "none" }} onClick={() => {
+              window.location.hash = `cards?store=${new URLSearchParams(window.location.hash.split('?')[1]).get('store')}`;
+            }}>
 
             <div id="ringbell"
               style={{ width: "60px", height: "60px", 'color': '#444444' }}
@@ -950,7 +963,10 @@ const Navbar = () => {
                   <Hero directoryType={directoryType} isDineIn={isDineIn} setIsDineIn={setIsDineIn} className="mr-auto" style={{ marginBottom: "5px" }}>
                   </Hero>
                   {!directoryType && user ? null :
-                    <div className='mt-2' id="google_translate_element"></div>}
+                    <div className='flex mt-2'>
+
+                      <div className='' id="google_translate_element"></div>
+                    </div>}
                 </div>
                 {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => { }}>show unpaid</button> */}
                 <div className='flex' style={{ justifyContent: "space-between" }}>
@@ -1158,12 +1174,14 @@ const Navbar = () => {
                     <div>
                       {pickup ? (
                         !isDineIn ? (
-                          <div className="flex space-x-2 mb-2">
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(15)}>15%</button>
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(18)}>18%</button>
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(20)}>20%</button>
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
-                          </div>
+                          !isKiosk ? (
+                            <div className="flex space-x-2 mb-2">
+                              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(15)}>15%</button>
+                              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(18)}>18%</button>
+                              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(20)}>20%</button>
+                              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
+
+                            </div>) : null
                         ) : (
                           <div className="flex space-x-2 mb-2">
                             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(0)}>0%</button>
@@ -1219,7 +1237,7 @@ const Navbar = () => {
                     </div>
                     :
                     <div class=" mx-4">
-                      {pickup ?
+                      {pickup && !isKiosk ?
                         <button
                           style={{ width: "100%", border: "0px", margin: "auto" }}
                           class="rounded-md border-0 text-white bg-orange-700 hover:bg-orange-800 focus:outline-none focus:ring-4 focus:ring-orange-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex justify-between"
@@ -1240,6 +1258,14 @@ const Navbar = () => {
                           </span>
                         </button> : null
 
+                      }
+                      {
+                        isKiosk ?
+                          <PaymentKiosk openCheckout={shoppingCartOpen} receipt_JSON={JSON.stringify(products)}
+                            storeID={store} chargeAmount={parseFloat(stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                              + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
+                            ))} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
+                            service_fee={0} selectedTable={'点餐机kiosk'} /> : null
                       }
 
                       {!isKiosk && !isDineIn && (
@@ -1565,20 +1591,25 @@ const Navbar = () => {
                     objectFit: 'cover',   // this makes the image co0ver the entire dimensions
                   }} />
                 <span onClick={event => {
-                  if (storeFromURL !== '' && storeFromURL !== null) {
-                    if (isKiosk) {
-                      window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
-                    } else {
-                      window.location.href = `/store?store=${storeFromURL}`;
-                    }
-                    if (!sessionStorage.getItem("table")) {
-                      window.location.href = `/store?store=${storeFromURL}`
-                    } else {
-                      window.location.href = `/store?store=${storeFromURL}&table=${sessionStorage.getItem("table")}`
-                    }
+                  if (window.location.hash.slice(1).split('?')[0] === 'code') {
+
                   } else {
-                    window.location.href = '/';
+                    if (storeFromURL !== '' && storeFromURL !== null) {
+                      if (isKiosk) {
+                        window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
+                      } else {
+                        window.location.href = `/store?store=${storeFromURL}`;
+                      }
+                      if (!sessionStorage.getItem("table")) {
+                        window.location.href = `/store?store=${storeFromURL}`
+                      } else {
+                        window.location.href = `/store?store=${storeFromURL}&table=${sessionStorage.getItem("table")}`
+                      }
+                    } else {
+                      window.location.href = '/';
+                    }
                   }
+
                 }} className='notranslate text-black text-xl font-bold'>
                   EatifyDash
                 </span>
@@ -1587,7 +1618,10 @@ const Navbar = () => {
 
             <div className='flex ml-auto pr-4 '>
               {!directoryType ?
-                <div className='mt-2' id="google_translate_element"></div>
+                <div className='flex mt-2'>
+
+                  <div className='' id="google_translate_element"></div>
+                </div>
                 : null}
               {((location.pathname.includes('/store')) || (location.pathname.includes('/Checkout'))) && (
 
@@ -1603,6 +1637,25 @@ const Navbar = () => {
                   }
 
                 </button>
+              )}
+
+
+              {((location.pathname.includes('/store'))) && (
+                <button
+                  className="ml-3"
+                  onClick={() => openModal()}
+                  style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
+                >
+                  <i className="bi bi-cart"></i>
+                  {isMobile ?
+                    <span></span> : <span className='notranslate'>
+                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t("购物车") : ("Cart")}
+                    </span>
+
+                  }
+
+                </button>
+
               )}
               {/* {((location.pathname.includes('/store'))) && (
                 <>
@@ -1635,9 +1688,13 @@ const Navbar = () => {
                       <button
                         className="ml-3"
                         onClick={(event) => {
-                          // Determine the redirection URL based on the storeFromURL value
-                          const redirectUrl = storeFromURL ? `/account?store=${storeFromURL}` : '/account';
-                          window.location.href = redirectUrl;
+                          if (window.location.hash.slice(1).split('?')[0] === 'code') {
+                          } else {
+                            // Determine the redirection URL based on the storeFromURL value
+                            const redirectUrl = storeFromURL ? `/account?store=${storeFromURL}` : '/account';
+                            window.location.href = redirectUrl;
+                          }
+
                         }}
                         style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
                       >

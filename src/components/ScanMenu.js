@@ -58,7 +58,7 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
     const data = await response.json();
     if (data.responses && data.responses[0] && data.responses[0].textAnnotations) {
       const extractedTextData = data.responses[0].textAnnotations[0].description;
-      let scann_json = await generateJSON(extractedTextData.replace(/[\s\r\n]+/g, ' '), img, "other", "no")
+      let scann_json = await generateJSON(extractedTextData.replace(/[\s\r\n]+/g, ' '), img, "other", "yes")
       const mergedArray = scann_json.concat(JSON.parse(localStorage.getItem(store)))
       reload(mergedArray)//result
     }

@@ -194,7 +194,7 @@ const Food = () => {
 
 
       <div className='flex'>
-        <div style={isMobile ? {} : { width: "45%" }}>
+        <div >
           <div>
             <form
               className='mt-5 mr-5'
@@ -253,35 +253,6 @@ const Food = () => {
             </form>
 
           </div>
-        </div>
-        <div className="mr-2" style={isMobile ? {} : { width: "45%" }}>
-
-          {(!isMobile) &&
-            <div
-              className='mt-5'
-
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                padding: "20px",
-                borderRadius: !isMobile ? "8px" : "0px", // Apply borderRadius if isMobile is true, otherwise, set it to 0px
-                boxShadow: !isMobile ? "0px 0px 10px rgba(0,0,0,0.1)" : "none" // Apply boxShadow if isMobile is true, otherwise, set it to "none"
-              }}>
-              <div style={{ marginTop: "30px" }}>
-                {DemoStorename ? <div style={{ marginBottom: "20px" }}>Your QR Code:</div> : <div></div>}
-                <div style={{ display: "flex", justifyContent: "center", width: "100%", marginBottom: "20px", padding: "10px", border: "1px solid #ddd", borderRadius: "4px" }}>
-                  {DemoStorename ? <QRCode value={`https://eatifylab.com/store?store=${DemoStorename}`} /> : <img src={intro_pic}></img>}
-                </div>
-
-                <div style={{ marginBottom: "20px" }}>
-                  {DemoStorename ? <div>Visit: <a href={`https://eatifylab.com/store?store=${DemoStorename}`} target="_blank" rel="noopener noreferrer">{`https://eatifylab.com/store?store=${DemoStorename}`}</a></div> : <div></div>}
-                </div>
-              </div>
-            </div>
-
-          }
-
         </div>
       </div>
     </div>

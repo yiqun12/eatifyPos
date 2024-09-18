@@ -86,6 +86,7 @@ const Item = () => {
               const payment = doc.data();
               console.log("formattedDate" + parseDateUTC(payment.dateTime))
               const paymentData = {
+                amount: payment.amount,
                 receipt_data: payment.receiptData,
                 document_id: doc.id.substring(0, 4),
                 time: parseDateUTC(payment.dateTime),
@@ -118,6 +119,7 @@ const Item = () => {
                     console.log("formattedDate" + parseDateUTC(payment.dateTime))
 
                     const paymentData = {
+                      amount: payment.amount,
                       receipt_data: payment.receiptData,
                       document_id: doc.id.substring(0, 4),
                       time: parseDateUTC(payment.dateTime),
@@ -229,7 +231,7 @@ const Item = () => {
               <b> {t("Subtotal")}:</b>
             </div>
             <div className="col d-flex justify-content-end">
-              <b className=" notranslate" 
+              <b className=" notranslate"
               >${roundToTwoDecimalsTofix(payment_data.subtotal)}</b>
             </div>
           </div>
@@ -241,7 +243,7 @@ const Item = () => {
               <b className=" notranslate" >${roundToTwoDecimalsTofix(payment_data.tax)}</b>
             </div>
           </div>
-          {(payment_data.tips && payment_data.tips != 0.00)? 
+          {(payment_data.tips && payment_data.tips != 0.00) ?
             <div className="row">
               <div className="col">
                 <b>Gratuity:</b>
@@ -250,14 +252,33 @@ const Item = () => {
                 <b className=" notranslate" >${roundToTwoDecimalsTofix(payment_data.tips)}</b>
               </div>
             </div>
-          :null}
+            : null}
+
+          {(roundToTwoDecimalsTofix(payment_data.amount / 100) == roundToTwoDecimalsTofix(payment_data.total)) ?
+            null
+            :
+            <>
+              <div className="row">
+                <div className="col">
+                  <b>Delivery Fee:</b>
+                </div>
+                <div className="col d-flex justify-content-end">
+                  <b className=" notranslate" >${roundToTwoDecimalsTofix(roundToTwoDecimalsTofix(payment_data.amount / 100) - roundToTwoDecimalsTofix(payment_data.total))}</b>
+                </div>
+              </div>
+
+            </>
+
+          }
           <div className="row">
             <div className="col">
               <b> {t("Total Price")}:</b>
             </div>
+
             <div className="col d-flex justify-content-end">
-              <b className=" notranslate" >${roundToTwoDecimalsTofix(payment_data.total)}</b>
+              <b className=" notranslate" >${roundToTwoDecimalsTofix(payment_data.amount / 100)}</b>
             </div>
+
           </div>
         </div>
       </div>

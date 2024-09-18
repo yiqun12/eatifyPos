@@ -42,6 +42,7 @@ import Checklist from './pages/Checklist'
 import DemoFood from './pages/demoFood'
 import Refresh from './pages/Refresh'
 import Career from './pages/CareerPage'; // Your Career component
+import SendMessage from './pages/SendMessage';
 
 // import the time change page for testing
 import ChangeTimeForm from "./pages/ChangeTimeForm"
@@ -100,6 +101,7 @@ function App() {
               <Navbar />
               <Routes>
 
+                <Route path="/SendMessage" element={<SendMessage />} />
 
                 {/* <Route path="orders" element={<Receipt />} /> */}
 

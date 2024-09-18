@@ -735,7 +735,6 @@ const Food = () => {
 
                     <div className='' style={{ width: "-webkit-fill-available" }}>
                       <div
-                        className="text-black text-lg"
                         style={{ color: "black", width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}
                       >
                         {foodTypes.slice().reverse().map((foodType) => (
@@ -747,10 +746,10 @@ const Food = () => {
                               closeModalList()
                             }}
 
-                            className={`border-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}
+                            className={`border-black-600 rounded-xl px-2 py-2 text-xl ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}
                             style={{ width: "100%", display: 'block', textUnderlineOffset: '0.5em', textAlign: 'left' }}
                           >
-                            <div>
+                            <div className='text-xl F'>
                               {foodType && foodType.length > 1
                                 ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
                                 : ''}
@@ -779,7 +778,7 @@ const Food = () => {
                 <div className="flex justify-between">
                   {/* Conditional rendering for image with a more relevant placeholder */}
                   {selectedFoodItem.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
-                    <img loading="lazy" class={`${isMobile ? " h-[150px] " : "h-[200px]"} w-full transition-all cursor-pointer object-cover rounded-lg`} src={selectedFoodItem.image} alt={selectedFoodItem.name} />
+                    <img loading="lazy" class={`${isMobile ? " h-[150px] " : "h-[200px]"} w-full transition-all cursor-pointer object-cover rounded-t-lg`} src={selectedFoodItem.image} alt={selectedFoodItem.name} />
                     :
                     null
 
@@ -787,7 +786,7 @@ const Food = () => {
                 </div>
 
                 <div className="p-4 ">
-                  <h3 className="notranslate text-lg font-semibold">
+                  <h3 className="notranslate text-xl font-semibold">
                     {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : selectedFoodItem?.name}
                   </h3>
 
@@ -797,12 +796,12 @@ const Food = () => {
 
                     {Object.entries(selectedFoodItem?.attributesArr)?.map(([attributeName, attributeDetails]) => (
                       <div key={attributeName} className="my-2">
-                        <p className="mb-1 font-medium">
+                        <p className="mb-1 text-xl">
                           {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : ""}
                         </p>
                         <div className="flex flex-wrap">
                           {attributeDetails.variations.map((variation, idx) => (
-                            <div key={idx} className={`mb-1 mr-1 mt-1 p-2 border rounded-lg cursor-pointer ${attributeDetails.isSingleSelected ? (selectedAttributes[attributeName] === variation.type ? 'bg-green-300 border-green-300' : 'bg-white border-gray-300') : (selectedAttributes[attributeName]?.includes(variation.type) ? 'bg-green-300 border-green-300' : 'bg-white border-green-300')} hover:bg-green-300`}
+                            <div key={idx} className={`mb-1 mr-1 mt-1 p-2 border rounded-lg text-xl cursor-pointer ${attributeDetails.isSingleSelected ? (selectedAttributes[attributeName] === variation.type ? 'bg-green-300 border-green-300' : 'bg-white border-gray-300') : (selectedAttributes[attributeName]?.includes(variation.type) ? 'bg-green-300 border-green-300' : 'bg-white border-green-300')} hover:bg-green-300`}
                               onClick={() => handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count)}>
                               {variation.type}({formatPriceDisplay(variation.price)})
                             </div>
@@ -814,7 +813,7 @@ const Food = () => {
                   </div>
 
                   <div className="flex justify-between mt-4">
-                    <span class="notranslate font-medium notranslate">
+                    <span class="notranslate text-xl notranslate ">
                       ${(Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100).toFixed(2)}
                     </span>
                     {/* Quantity Selector */}
@@ -965,7 +964,7 @@ const Food = () => {
 
                 </div>)
               }
-              <div className='rounded-lg'>
+              <div className='rounded-lg text-lg'>
                 {isMobile && (
                   <>
                     {/* <div
@@ -1039,7 +1038,7 @@ const Food = () => {
           {!isMobile && (
             <aside style={{
               maxHeight: isMobile ? 'calc(100vh - 300px)' : 'calc(100vh - 150px)'
-            }} className='h-full w-64 p-4 absolute top-0 left-0 z-20 pt-0 overflow-y-auto'>
+            }} className='h-full w-72 p-4 absolute top-0 left-0 z-20 pt-0 overflow-y-auto'>
               <ul className="space-y-2">
                 {foodTypes.map((foodType) => (
                   <li
@@ -1050,7 +1049,7 @@ const Food = () => {
                       //alert(foodType)
                     }}
 
-                    className={`border-black-600 rounded-xl px-2 py-2 cursor-pointer ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}
+                    className={`text-xl border-black-600 rounded-xl px-2 py-2 cursor-pointer ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}
                     style={{ width: "100%", display: 'block', textUnderlineOffset: '0.5em', textAlign: 'left' }}
                   >
                     <div>
@@ -1070,9 +1069,9 @@ const Food = () => {
 
 
           {/* diplay food */}
-          <div className={`${!isMobile ? 'ml-64' : ''} flex-grow overflow-y-auto`}>
+          <div className={`${!isMobile ? 'ml-72' : ''} flex-grow overflow-y-auto`}>
 
-            <div className='lg:ml-10 lg:mr-10 mt-2'>
+            <div className='mt-2'>
               <LazyLoad height={762}>
                 <AnimatePresence>
                   <div className={
@@ -1086,7 +1085,7 @@ const Food = () => {
                     }}> {/* group food by category */}
                     {Object.values(foods.sort((a, b) => {
                       return foodTypes.indexOf(a.category) - foodTypes.indexOf(b.category);
-                    }).reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().map((item, index) => (
+                    }).reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称")).sort((a, b) => (b.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public") - (a.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public")).map((item, index) => (
 
 
                       <motion.div
@@ -1106,7 +1105,7 @@ const Food = () => {
                           background: 'rgba(255,255,255,0.9)',
                         }} className="z-200 border rounded-lg cursor-pointer">
                         {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
-                          <img loading="lazy" class={`${isMobile ? " h-[150px] " : "h-[200px]"} w-full transition-all cursor-pointer object-cover rounded-lg`} src={item.image} />
+                          <img loading="lazy" class={`${isMobile ? " h-[150px] " : "h-[200px]"} w-full transition-all cursor-pointer object-cover rounded-t-lg`} src={item.image} />
                           : null
                         }
                         <div className=' flex'>
@@ -1116,35 +1115,15 @@ const Food = () => {
 
                               {/* parent div of title + quantity and button parent div */}
                               <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                                <div className="col-span-4">
-                                  <div className="notranslate text-lg font-medium	">
-                                    {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
-                                  </div >
+                                <div className="notranslate text-xl">
+                                  {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
+                                </div >
+                                <div>
+                                  <span className='notranslate text-xl'>
+                                    ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}
+                                  </span>
                                 </div>
 
-                                {/* parent div of the quantity and buttons */}
-                                <div style={{
-                                  display: "flex",
-                                  flexDirection: "row",
-                                  justifyContent: "space-between",
-                                  marginBottom: "10px"
-                                }}>
-                                  <div className="col-span-2 text-lg font-normal" style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    justifyContent: "center",
-                                    alignItems: "center"
-                                  }}>
-                                    <p style={{ marginBottom: "0" }}>
-                                      <span className='notranslate'>
-                                        ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}
-
-                                      </span>
-                                    </p>
-
-                                  </div>
-
-                                </div>
                                 {/* ^ end of parent div of quantity and button */}
                               </div>
                               {/* ^ end of parent div of title + quantity and buttons */}

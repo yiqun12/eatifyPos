@@ -403,7 +403,7 @@ const Account = () => {
           <Link to="/career">Career</Link>
         </section>
         <section class="flex_content_ padding_1x" style={{ marginTop: "10px" }}>
-          <p>© 2023 Eatifydash LLC || All rights reserved</p>
+          <p>© 2024 Eatifydash LLC || All rights reserved</p>
         </section>
       </footer>
 

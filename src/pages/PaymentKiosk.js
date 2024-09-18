@@ -7,10 +7,14 @@ import myImage from '../components/check-mark.png';  // Import the image
 import { doc, addDoc, collection, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/index'; // Make sure to import necessary functions
 import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 
-
-const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id, receipt_JSON, selectedTable, service_fee }) => {
+const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_stripe_account_id, receipt_JSON, selectedTable, service_fee }) => {
     const [currentHash, setCurrentHash] = useState(window.location.hash ? window.location.hash : "abc");
+    function stringTofixed(n) {
+        return (Math.round(n * 100) / 100).toFixed(2)
+    }
     useEffect(() => {
         const handleHashChange = () => {
             setCurrentHash(window.location.hash);
@@ -166,7 +170,6 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id, 
                     setSelectedId(readId); // As an example, if you want to set it as selectedId
                     // console.log(readId); // Log the readId or do something with it
                     cancelPayment(readId)
-
                 } else {
                     console.log("No such document!");
                 }
@@ -176,7 +179,7 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id, 
             });
 
         // Since there's no subscription, no need to return a cleanup function here
-    }, [currentHash]); // Include dependencies here
+    }, [currentHash, openCheckout]); // Include dependencies here
 
 
     useEffect(() => {
@@ -268,11 +271,6 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id, 
                         console.error("Error writing document: ", error);
 
                     });
-
-
-                    //sendToKitchen
-                    //sendToMerchantPrinter
-                    //console.log("newTerminalsData is not empty");
                 }
             });
 
@@ -324,11 +322,11 @@ const PaymentComponent = ({ storeID, chargeAmount, connected_stripe_account_id, 
                     class="text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2"
                     style={{ "borderRadius": "0.2rem", width: "100%" }}
                 >
-                    <i class="bi bi-arrow-down-circle"></i>
-                    Pay By Kiosk
+                    <span> &nbsp;Pay by Kiosk
+                    </span>
                 </button>
             }
-            {error && <p style={{ color: 'red' }}>Ask the staff for help if you pay by credit card reader: {error}</p>}
+            {error && <p style={{ color: 'red' }}>Ask the staff for help if you cannot pay by credit card reader: {error}</p>}
 
         </>
     );

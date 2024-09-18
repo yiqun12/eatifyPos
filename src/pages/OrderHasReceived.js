@@ -124,6 +124,7 @@ const Item = () => {
                             <div className="col-3 d-flex justify-content-end">
                                 <p>
                                     <b>${roundToTwoDecimalsTofix(Math.round(100 * product.subtotal * product.quantity) / 100)}</b>
+                                    
                                 </p>
                             </div>
                         </div>

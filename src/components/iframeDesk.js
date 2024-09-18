@@ -66,7 +66,7 @@ const Iframe = forwardRef(({ src, width, height, storeName, title }, ref) => {
     return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
 });
 
-function App({ setIsVisible, store, acct }) {
+function App({isModalOpen, setModalOpen,setSelectedTable,selectedTable,setIsVisible, store, acct }) {
 
     const [divWidth, setDivWidth] = useState(0);
     const divRef = useRef();
@@ -279,7 +279,6 @@ function App({ setIsVisible, store, acct }) {
         }
     }
     // the selectedTable variable allows you to keep track which table you have selected
-    const [selectedTable, setSelectedTable] = useState("null");
     const [selectedSeatMode, setSelectedSeatMode] = useState("customer");
     // the below messageHandler + useEffect() below allows for communication from iframe to parent window
     const messageHandler = useCallback((event) => {
@@ -436,7 +435,6 @@ function App({ setIsVisible, store, acct }) {
         sessionStorage.setItem(sessionStorage.getItem("tableMode"), JSON.stringify(cartItems));
     }
 
-    const [isModalOpen, setModalOpen] = useState(false);
     function compareLayouts(layout1, layout2) {
         const getTableNames = (layout) => layout.table.map(t => t.tableName);
         const tableNames1 = getTableNames(layout1);
@@ -532,7 +530,124 @@ function App({ setIsVisible, store, acct }) {
 
     const [OpenChangeAttributeModal, setOpenChangeAttributeModal] = useState(false);
 
+    const SetTableIsSent = async (table_name, product) => {
+        try {
+            if (localStorage.getItem(table_name) === product) {
+                return
+            }
+            const dateTime = new Date().toISOString();
+            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+            const docData = { product: product, date: date };
+            const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "TableIsSent", table_name);
+            await setDoc(docRef, docData);
 
+        } catch (error) {
+            console.error("Error adding document: ", error);
+        }
+    };
+
+    const SendToKitchen = async () => {
+        console.log(selectedTable)
+        console.log(store)
+
+        try {
+            if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
+                if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
+                    console.log("//no item in the array no item isSent.")
+                    return //no item in the array no item isSent.
+                } else {//delete all items
+                }
+            }
+            compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
+            SetTableIsSent(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+    }
+    async function compareArrays(array1, array2) {//array1 isSent array2 is full array
+        const array1ById = Object.fromEntries(array1.map(item => [item.count, item]));
+        const array2ById = Object.fromEntries(array2.map(item => [item.count, item]));
+        const add_array = []
+        const delete_array = []
+        for (const [count, item1] of Object.entries(array1ById)) {
+            const item2 = array2ById[count];
+            if (item2) {
+                // If item exists in both arrays
+                if (item1.quantity > item2.quantity) {
+                    console.log('Deleted trigger:', {
+                        ...item1,
+                        quantity: item1.quantity - item2.quantity,
+                        itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
+                    });
+                    delete_array.push({
+                        ...item1,
+                        quantity: item1.quantity - item2.quantity,
+                        itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
+                    })
+
+                } else if (item1.quantity < item2.quantity) {
+                    console.log('Added trigger:', {
+                        ...item2,
+                        quantity: item2.quantity - item1.quantity,
+                        itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
+                    });
+                    add_array.push({
+                        ...item2,
+                        quantity: item2.quantity - item1.quantity,
+                        itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
+                    })
+                }
+            } else {
+                // If item exists in array 1 but not in array 2
+                console.log('Deleted trigger:', item1);
+                delete_array.push(item1)
+            }
+        }
+
+        for (const [count, item2] of Object.entries(array2ById)) {
+            const item1 = array1ById[count];
+            if (!item1) {
+                // If item exists in array 2 but not in array 1
+                console.log('Added trigger:', item2);
+                add_array.push(item2)
+            }
+        }
+        const promises = [];//make them call at the same time
+
+        if (add_array.length !== 0) {
+            const dateTime = new Date().toISOString();
+            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+            const addPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
+                date: date,
+                data: add_array,
+                selectedTable: selectedTable
+            }).then(docRef => {
+                console.log("Document written with ID: ", docRef.id);
+            });
+            promises.push(addPromise);
+        }
+
+        if (delete_array.length !== 0) {
+            const dateTime = new Date().toISOString();
+            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+            const deletePromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
+                date: date,
+                data: delete_array,
+                selectedTable: selectedTable
+            }).then(docRef => {
+                console.log("DeleteSendToKitchen Document written with ID: ", docRef.id);
+            });
+            promises.push(deletePromise);
+        }
+
+        // Execute both promises in parallel
+        Promise.all(promises).then(() => {
+            console.log("All operations completed");
+        }).catch(error => {
+            console.error("Error in executing parallel operations", error);
+        });
+    }
 
 
 
@@ -616,7 +731,10 @@ function App({ setIsVisible, store, acct }) {
                                     title={title} />
 
                                 {isModalOpen && (
-                                    <div id="addTableModal" className="modal fade show" role="dialog" style={{ display: 'block', position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,1)', overflow: 'hidden' }}>
+                                    <div id="addTableModal" className="modal fade show" role="dialog" style={{
+
+                                        display: 'block', position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,1)', overflow: 'hidden'
+                                    }}>
                                         <div role="document" className='m-2' style={{ overflowY: 'hidden' }}>
                                             <div className="modal-content" style={{ overflowY: 'hidden', /* Add scrollbar styles inline */ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' }}>
                                                 <div className="modal-header flex p-0 pb-3 ">
@@ -643,13 +761,15 @@ function App({ setIsVisible, store, acct }) {
                                                                 setModalOpen(false);
                                                                 setIsVisible(true)
                                                             }
+                                                            SendToKitchen();
                                                         }}
                                                         class="btn d-inline-flex btn-sm btn-primary mx-1">
                                                         <span>Back</span>
                                                     </a> : <a
                                                         onClick={() => {
                                                             setModalOpen(false);
-                                                            setIsVisible(true)
+                                                            setIsVisible(true);
+                                                            SendToKitchen();
                                                         }}
                                                         class="btn d-inline-flex btn-sm btn-primary mx-1">
                                                         <span>Back</span>
@@ -685,7 +805,7 @@ function App({ setIsVisible, store, acct }) {
                                                                 </div>
                                                                 :
                                                                 <InStore_food
-                                                                setIsVisible={setIsVisible}
+                                                                    setIsVisible={setIsVisible}
                                                                     OpenChangeAttributeModal={OpenChangeAttributeModal}
                                                                     setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                     isAllowed={isAllowed}

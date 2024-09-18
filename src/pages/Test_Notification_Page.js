@@ -51,58 +51,56 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
   const deleteDocument = async (orderId, orderStatus, order) => {
     console.log("deleteDocument")
     console.log(order)
-    try {
-      const docRef = firebase.firestore()
-        .collection('RequestQuoteDoordash')
-        .doc(orderId);
+    if (order.Status === "Delivery") {
+      try {
+        const docRef = firebase.firestore()
+          .collection('RequestQuoteDoordash')
+          .doc(orderId);
 
-      const docSnapshot = await docRef.get();
+        const docSnapshot = await docRef.get();
 
-      if (docSnapshot.exists) {
-        const data = docSnapshot.data();
-        console.log("Document exists:");
-        data.uid = "Merchant" + orderId; // Append the document ID as a new field
-        console.log(data);
+        if (docSnapshot.exists) {
+          const data = docSnapshot.data();
+          console.log("Document exists:");
+          data.uid = "Merchant" + orderId; // Append the document ID as a new field
+          console.log(data);
+          //orderStatus === 'Delivery'
+          try {
+            const myFunction = firebase.functions().httpsCallable('requestQuoteDoordash');
+            const response = await myFunction(data);
 
-        try {
-          const myFunction = firebase.functions().httpsCallable('requestQuoteDoordash');
-          const response = await myFunction(data);
-
-          if (response.data.message) {//error
-            // console.error('Error requesting quote:', error);
-          } else {
-            try {
+            if (response.data.message) {//error
+              // console.error('Error requesting quote:', error);
+            } else {
+              try {
 
 
-              if (orderStatus === 'Delivery') {
+                if (true) {
 
-                const myFunction = firebase.functions().httpsCallable('acceptQuoteDoordash');
-                const response = await myFunction({
-                  uid: "Merchant" + orderId,
-                });
-                console.log('Quote Response:', response.data);
-              } else {//successful deploy
+                  const myFunction = firebase.functions().httpsCallable('acceptQuoteDoordash');
+                  const response = await myFunction({
+                    uid: "Merchant" + orderId,
+                  });
+                  console.log('Quote Response:', response.data);
+                } else {//successful deploy
 
+                }
+              } catch (error) {
+                console.error('Error requesting quote:', error);
+                // Handle the error appropriately
               }
-            } catch (error) {
-              console.error('Error requesting quote:', error);
-              // Handle the error appropriately
             }
           }
+          catch (error) {
+            console.error("Error deleting document: ", error);
+          }
+        } else {
+          console.log("No such document!");
         }
-        catch (error) {
-          console.error("Error deleting document: ", error);
-        }
-      } else {
-        console.log("No such document!");
+      } catch (err) {
+        console.error("Error getting document:", err);
       }
-    } catch (err) {
-      console.error("Error getting document:", err);
     }
-
-
-
-
 
     try {
 
@@ -179,7 +177,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
             </thead>
             <tbody>
 
-              {sortedData.map((order, index) => (
+              {sortedData.filter(order => order.isConfirm === false).map((order, index) => (
                 <div style={{ display: 'contents' }}>
 
                   <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
@@ -197,13 +195,22 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
                     </td>
                     <td className="text-right">
                       {order.Status === "Delivery" ?
-                        <button type="button" className="mb-1 btn btn-sm btn-danger text-danger-hover" onClick={() => deleteDocument(order.orderId, order.Status, order)}>
-                          Request Pickup Driver
-                        </button>
+                        (
+                          !isMobile ?
+                            <button type="button " className="mb-1 btn btn-sm btn-danger text-danger-hover" onClick={() => deleteDocument(order.orderId, order.Status, order)}>
+                              Request driver Pickup
+                            </button> :
+                            null
+                        )
                         :
-                        <button type="button" className="mb-1 btn btn-sm btn-primary text-primary-hover" onClick={() => deleteDocument(order.orderId, order.Status, order)}>
-                          Confirm
-                        </button>
+                        (
+                          !isMobile ?
+                            <button type="button" className="mb-1 btn btn-sm btn-primary text-primary-hover" onClick={() => deleteDocument(order.orderId, order.Status, order)}>
+                              Confirm
+                            </button> :
+                            null
+                        )
+
                       }
 
 
@@ -221,8 +228,9 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
                         <div className='flex'>
 
                           {order.Status === "Delivery" ?
-
-                            <span>Reference Tag: Order Number is {order.orderId.substring(0, 2)}</span>
+                            <div>
+                              <div>Reference Tag: Order Number is {order.orderId.substring(0, 2)}</div>
+                            </div>
                             : null
                           }
                         </div>
@@ -248,8 +256,26 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
 
                           </div>
                         ))}
+                        {order.Status === "Delivery" && isMobile ?
+                          <button type="button " className="mb-1 mt-1 btn btn-sm btn-danger text-danger-hover w-full" onClick={() => deleteDocument(order.orderId, order.Status, order)}>
+                            Request driver Pickup
+                          </button> :
+                          null
+                        }
+                        {order.Status !== "Delivery" && isMobile ? (
+                          <button
+                            type="button"
+                            className="mb-1 btn btn-sm btn-primary text-primary-hover w-full"
+                            onClick={() => deleteDocument(order.orderId, order.Status, order)}
+                          >
+                            Confirm
+                          </button>
+                        ) : null}
+
+
                       </div>
                     </td>
+
                   </tr>
                 </div>
 

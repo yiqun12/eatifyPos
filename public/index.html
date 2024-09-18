@@ -46,6 +46,7 @@
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
   <script>
+    console.log("root")
     const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
     link.type = 'image/x-icon';
     link.rel = 'shortcut icon';
@@ -68,8 +69,13 @@
       // Append the manifest link to the document head
       document.head.appendChild(manifestLink);
     });
-
+    console.log("You need to enable JavaScript to run this app.")
   </script>
+  <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
+  <!-- <script>
+    // VConsole will be exported to `window.VConsole` by default.
+    var vConsole = new window.VConsole();
+  </script> -->
   <!--  change title logo-->
   <!--
       This HTML file is a template.

@@ -204,6 +204,8 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
           // Assuming you want to store the key from the fetched data as "Food_arrays"
           localStorage.setItem("Food_arrays", docData.key);
           setData(JSON.parse(docData.key));
+          console.log("JSON.parse(docData.key)")
+          console.log(JSON.parse(docData.key))
           setFoods(JSON.parse(docData.key));
           setFoodTypes([...new Set(JSON.parse(docData.key).map(item => item.category))]);
           setFoodTypesCHI([...new Set(JSON.parse(docData.key).map(item => item.categoryCHI))]);
@@ -1191,7 +1193,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                   overflowY: 'auto',
                   maxHeight: dynamicHeight
                 }}>
-                  {foods.map((item, index) => (
+                  {foods.filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称")).map((item, index) => (
                     <motion.div
                       onClick={(e) => {
                         e.stopPropagation(); // This stops the click from propagating to the parent elements

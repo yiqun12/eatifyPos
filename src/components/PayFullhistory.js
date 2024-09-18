@@ -43,7 +43,9 @@ function PayFullhistory() {
   }, []);
 
   const isMobile = width <= 768;
-
+  function roundToTwoDecimalsTofix(n) {
+    return (Math.round(n * 100) / 100).toFixed(2);
+  }
   const { user, user_loading } = useUserContext();
   /**
  * Get all payments for the logged in customer
@@ -123,6 +125,7 @@ function PayFullhistory() {
               total: parseFloat(item.metadata.total),
               tableNum: item.tableNum,
               metadata: item.metadata,
+              amount: item.amount,
             };
             newItems.push(newItem); // Push the new item into the array
           });
@@ -187,15 +190,6 @@ function PayFullhistory() {
                           <div className="mt-2 flex justify-between">
 
                             <div className='flex'>
-                              {!isMobile ?
-                                <img
-                                  src={Eshopingcart}
-                                  style={{
-                                    maxHeight: '50px',
-                                    maxWidth: '50px',
-                                    objectFit: 'cover',   // this makes the image co0ver the entire dimensions
-                                  }} /> : <></>
-                              }
 
                               <div>
                                 <div className="text-blue-700 d-block text-md font-semibold"
@@ -209,7 +203,10 @@ function PayFullhistory() {
                                   </span>
                                 </div>
                                 <div className="mb-1 d-block text-base text-muted font-semibold">
-                                  Paid <span>${order.metadata.total}</span> at<span className='notranslate'>&nbsp;{order.date.split(" ")[0]}</span></div>
+                                  Paid <span>
+
+
+                                    ${order.amount / 100}</span> at<span className='notranslate'>&nbsp;{order.date.split(" ")[0]}</span></div>
                               </div>
 
                             </div>
@@ -280,6 +277,18 @@ function PayFullhistory() {
                                 <p className="mb-1 text-orange-700 d-block text-base font-semibold">{t("Total")}</p>
                                 <p className="mb-1 text-orange-700 d-block text-base font-semibold notranslate">${(Math.round(order.metadata.total * 100) / 100).toFixed(2)}</p>
                               </div>
+
+                              {(roundToTwoDecimalsTofix(order.amount / 100) == roundToTwoDecimalsTofix(order.metadata.total)) ?
+                                null
+                                :
+                                <div className=" flex justify-between">
+                                  <p className="mb-1 text-orange-700 d-block text-base font-semibold">{t("Delivery Fee:")}</p>
+                                  <p className="mb-1 text-orange-700 d-block text-base font-semibold notranslate">${roundToTwoDecimalsTofix(roundToTwoDecimalsTofix(order.amount / 100) - roundToTwoDecimalsTofix(order.metadata.total))}</p>
+                                </div>
+
+
+
+                              }
                             </div>
                           </div>
                         </div>

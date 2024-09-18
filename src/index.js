@@ -12,8 +12,9 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById("root")
 );
-
+console.log('serviceWorker')
 if ('serviceWorker' in navigator) {
+  console.log('serviceWorker2')
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
       .then(registration => {

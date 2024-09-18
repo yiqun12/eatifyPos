@@ -261,7 +261,7 @@ function BusinessHoursTable() {
   }
 
   return (
-    <div>
+    <div className='mb-2'>
       {/* <BusinessHoursTable></BusinessHoursTable> */}
       {/* the modal that when the button is pressed shows */}
       {/* {storeStatus ?     <Button variant="primary" onClick={handleShow}>
@@ -271,9 +271,9 @@ function BusinessHoursTable() {
       </Button> } */}
 
       <div >
-        <span onClick={handleShow} style={{ cursor: "pointer" }} className="underline text-base text-black"><i className="fas fa-store" style={{ marginRight: '8px' }}></i>Store Info:</span>
+        <span onClick={handleShow} style={{ cursor: "pointer" }} className="underline text-xl"><i className="fas fa-store" style={{ marginRight: '8px' }}></i>Store Info:</span>
 
-        <span className="notranslate px-2">{grabDayTime()}</span>
+        <span className="notranslate px-2 text-xl">{grabDayTime()}</span>
       </div>
       {/* <Button variant="primary" onClick={handleShow}>
       Business Hours

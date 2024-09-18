@@ -42,7 +42,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { startOfMonth, endOfMonth } from 'date-fns';
 import { registerLocale, setDefaultLocale } from "react-datepicker";
 import ScrollableFeed from 'react-scrollable-feed'
-
 import barchar_logo from './file_barchar.png';
 import files_icon from './files_icon.png';
 import calendar_logo from './calendar_logo.png';
@@ -68,6 +67,7 @@ import { json } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandPointer } from '@fortawesome/free-solid-svg-icons';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 
 registerLocale('zh-CN', zhCN);
 
@@ -158,6 +158,7 @@ const Account = () => {
     { input: "Tax", output: "税" },
     { input: "Service Fee", output: "服务费" },
     { input: "Discount", output: "折扣" },
+    { input: "Canceled", output: "取消送厨" },
 
   ];
   function translate(input) {
@@ -419,6 +420,8 @@ const Account = () => {
   const epochDate = parseDate(format12Oclock((new Date("2023-11-30T00:00:00")).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })));
   const [startDate, setStartDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
   const [endDate, setEndDate] = useState(null);
+  const [cancelOrder, setCancelOrder] = useState(null);
+
   useEffect(() => {
     // Ensure endDate is defined and startDate is before endDate
     if (endDate && startDate < endDate) {
@@ -539,9 +542,46 @@ const Account = () => {
     } else {
       return
     }
-    if(showSection !== 'sales'){
+    if (showSection !== 'sales') {
       //return
     }
+    const paymentsQueryDelete = query(
+      collection(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', activeStoreTab, 'DeletedSendToKitchen'),
+      where('date', '>=', convertDateFormat(startDate)),
+      where('date', '<', convertDateFormat(endDate ? addDays(endDate, 1) : addDays(startDate, 1)))
+    );
+
+    onSnapshot(paymentsQueryDelete, async (snapshot) => {
+      console.log("new added");
+      const newData = snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+        receiptData: JSON.stringify(doc.data().data),
+        tableNum: doc.data().selectedTable,
+        total: Math.round(doc.data().data.reduce((acc, item) => acc + parseFloat(item.itemTotalPrice), 0) * 100) / 100
+      }));
+      console.log("new added");
+
+      newData.sort(
+        (a, b) =>
+          moment(b.date, "YYYY-MM-DD-HH-mm-ss-SS").valueOf() -
+          moment(a.date, "YYYY-MM-DD-HH-mm-ss-SS").valueOf()
+      );
+      console.log("new added");
+
+      const newItems = newData.map((item) => {
+        const formattedDate = parseDateUTC(item.date);
+        return {
+          ...item,
+          date: formattedDate,
+          status: "Canceled"
+        };
+      });
+      console.log("cancelOrder")
+      console.log(newItems)
+      setCancelOrder(newItems)
+      //setOrders(newItems);
+    });
 
     // Construct query
     const paymentsQuery = query(
@@ -606,7 +646,7 @@ const Account = () => {
           Charge_ID: item.latest_charge,
           transaction_json: item.transaction_json,
         };
-        console.log(item.id)
+
         if (!(newItem.total === 0 && newItem.receiptData === "[]")) {
           if (newItem.receiptData === "[]" && newItem.status === "POS Machine") {
             console.log(newItem.receiptData)
@@ -634,10 +674,9 @@ const Account = () => {
           newItems.push(newItem);
         }
       });
-
       setOrders(newItems);
       saveId(Math.random());
-
+      console.log(cancelOrder)
       const dailyRevenue = {};
       newItems.forEach(receipt => {
         const date = receipt.date.split(' ')[0];
@@ -878,12 +917,14 @@ const Account = () => {
       console.log(docs);
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added" || change.type === "modified") {
-
-          if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
-            playSound_CHI()
-          } else {
-            playSound()
+          if (change.doc.data().isConfirm === false) {
+            if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
+              playSound_CHI()
+            } else {
+              playSound()
+            }
           }
+
         } else {
 
         }
@@ -891,26 +932,26 @@ const Account = () => {
       function sortArrayByTime(arr) {
         // Sorting the array first by status and then by time
         arr.sort((a, b) => {
-            // Prioritize 'delivery' status
-            if (a.Status === 'Delivery' && b.Status !== 'Delivery') {
-                return -1; // a comes first
-            } else if (a.Status !== 'Delivery' && b.Status === 'Delivery') {
-                return 1; // b comes first
-            }
-    
-            // If both have the same status or neither is 'delivery', sort by date
-            let dateA = new Date(a.date);
-            let dateB = new Date(b.date);
-            return dateB - dateA; // Sorting in descending order (latest to oldest)
+          // Prioritize 'delivery' status
+          if (a.Status === 'Delivery' && b.Status !== 'Delivery') {
+            return -1; // a comes first
+          } else if (a.Status !== 'Delivery' && b.Status === 'Delivery') {
+            return 1; // b comes first
+          }
+
+          // If both have the same status or neither is 'delivery', sort by date
+          let dateA = new Date(a.date);
+          let dateB = new Date(b.date);
+          return dateB - dateA; // Sorting in descending order (latest to oldest)
         });
-    
+
         return arr;
-    }
-    
+      }
 
 
-      setNotificationData(sortArrayByTime(docs))
-      setDocuments(docs);
+
+      setNotificationData(sortArrayByTime(docs.filter(order => order.isConfirm === false)))
+      setDocuments(docs.filter(order => order.isConfirm === false));
     }, (error) => {
       // Handle any errors
       console.error("Error getting documents:", error);
@@ -1801,12 +1842,22 @@ const Account = () => {
 
   // Filter and set displayed orders based on status and table number
   useEffect(() => {
-    const filteredOrders = orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table));
-    // console.log("sssssddddddd")
-    // console.log(orders)
+    console.log("Filter and set displayed orders based on status and table number")
+    if (!cancelOrder) {
+      return
+    }
+    if (!orders) {
+      return
+    }
+    // Function to convert a time string to a Date object
+    function parseTime(timeString) {
+      // Assuming the time string is in local time and adding '20' to convert 'YY' to 'YYYY'
+      return new Date('20' + timeString);
+    }
+    const filteredOrders = orders.concat(cancelOrder)?.sort((a, b) => parseTime(b.date) - parseTime(a.date))?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table));
     setDisplayedOrders(filteredOrders);
     setItems([])
-  }, [orders, order_status, order_table]);
+  }, [orders, order_status, order_table, cancelOrder]);
 
   // Initialize the chunk generator and load the initial set of items
   useEffect(() => {
@@ -1829,6 +1880,7 @@ const Account = () => {
     const chunk = chunkGeneratorRef.current.next();
     if (!chunk.done) {
       setItems(prevItems => [...prevItems, ...chunk.value.itemList]);
+
     } else {
       setLoading(true); // When no more data to load, hide the button
     }
@@ -1928,6 +1980,10 @@ const Account = () => {
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [storeID]); // Dependencies for useEffect
+  let displayIndex = 1;
+  const [selectedTableIframe, setSelectedTableIframe] = useState("null");
+  const [isModalOpenIframe, setModalOpenIframe] = useState(false);
+
 
   return (
     <div>
@@ -2218,7 +2274,7 @@ const Account = () => {
         )}
         {isPC ?
           <div className="d-flex justify-acontent-between mx-3 ">
-            <button onClick={toggleVisibility}>
+            {/* <button onClick={toggleVisibility}>
               {!isVisible ?
                 <div>
 
@@ -2232,7 +2288,7 @@ const Account = () => {
                 <div>
                 </div>
               }
-            </button>
+            </button> */}
             {/* {//
               (previousHash.includes('#charts') && storeID !== '') || (previousHash.includes('#code') && storeID !== '') ?
                 <div>
@@ -2265,7 +2321,7 @@ const Account = () => {
               >
 
                 <div className="container-fluid" style={{ minHeight: "0px" }}>
-                  <button onClick={toggleVisibility}>
+                  {/* <button onClick={toggleVisibility}>
                     {isVisible ?
                       <div>
                         <button>
@@ -2278,7 +2334,7 @@ const Account = () => {
                       <div>
                       </div>
                     }
-                  </button>
+                  </button> */}
                   {isOnline ? <button
                     className={`mt-2 btn mr-2 ml-2 ${activeTab === '#profile' ? 'border-black' : ''}`}
                     onClick={(e) => {
@@ -2500,11 +2556,12 @@ const Account = () => {
             </div>
           )}
 
-          <div className="flex-grow-1 overflow-y-auto"
+          <div className="flex-grow-1 overflow-y-auto "
             ref={divRef}
             style={{
               backgroundColor: 'white', // Set the background color to white
               height: divHeight, // Use the dynamically calculated height
+              ...(isModalOpenIframe && isPC ? { zIndex: 1400 } : {}), // Conditionally apply zIndex
             }}>
             {!isPC ?
               <header className="bg-surface-primary border-bottom pt-0">
@@ -2779,7 +2836,7 @@ const Account = () => {
 
                                 </span>
                                 <span class="d-block text-base text-muted font-regular notranslate">
-                                <i class="bi bi-person-badge"></i> 
+                                  <i class="bi bi-person-badge"></i>
                                   {" id: "}
 
                                   {(user) ? user.uid : ""}
@@ -2834,7 +2891,7 @@ const Account = () => {
                           </div> : <div></div>
                           }
                           <div style={{ display: showSection === 'qrCode' ? 'block' : 'none' }}>
-                            <IframeDesk setIsVisible={setIsVisible} store={data.id} acct={data.stripe_store_acct}></IframeDesk>
+                            <IframeDesk isModalOpen={isModalOpenIframe} setModalOpen={setModalOpenIframe} setSelectedTable={setSelectedTableIframe} selectedTable={selectedTableIframe} setIsVisible={setIsVisible} store={data.id} acct={data.stripe_store_acct}></IframeDesk>
                             {/* Assuming you want the QRCode hidden or shown together with IframeDesk, otherwise adjust the condition as needed */}
                           </div>
 
@@ -3312,131 +3369,11 @@ const Account = () => {
                               </div>
 
                               <div style={isMobile ? { "width": "50%" } : {}}>
-
-                                <PieChart className='notranslate' width={isMobile ? width2 / 2 : 300} height={250}>
-                                  <Pie
-                                    cx={80} // Move the pie to the left by adjusting the cx value
-                                    data={[
-                                      {
-                                        name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                          (accumulator, receipt) => {
-                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                            //accumulator.total += parseFloat(receipt.total);
-                                            return accumulator;
-                                          },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                        ).subtotal * 100) / 100
-                                      },
-                                      {
-                                        name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                          (accumulator, receipt) => {
-                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                            //accumulator.total += parseFloat(receipt.total);
-                                            return accumulator;
-                                          },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                        ).tax * 100) / 100
-                                      }, {
-                                        name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                          (accumulator, receipt) => {
-                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                            //accumulator.total += parseFloat(receipt.total);
-                                            return accumulator;
-                                          },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                        ).tips * 100) / 100
-                                      },
-                                      {
-                                        name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                          (accumulator, receipt) => {
-                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                            //accumulator.total += parseFloat(receipt.total);
-                                            return accumulator;
-                                          },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                        ).service_fee * 100) / 100
-                                      },
-                                      {
-                                        name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                          (accumulator, receipt) => {
-                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                            //accumulator.total += parseFloat(receipt.total);
-                                            return accumulator;
-                                          },
-                                          { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                        ).discount * 100) / 100
-                                      },
-                                    ]}
-                                    labelLine={false}
-                                    label={renderCustomizedLabel}
-                                    outerRadius={75}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                  >
-                                    {
-                                      [
-                                        {
-                                          name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                            (accumulator, receipt) => {
-                                              accumulator.tips += parseFloat(receipt.metadata.tips);
-                                              accumulator.tax += parseFloat(receipt.metadata.tax);
-                                              accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                              accumulator.discount += parseFloat(receipt.metadata.discount);
-                                              accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                              //accumulator.total += parseFloat(receipt.total);
-                                              return accumulator;
-                                            },
-                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                          ).tips * 100) / 100
-                                        },
-                                        {
-                                          name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                            (accumulator, receipt) => {
-                                              accumulator.tips += parseFloat(receipt.metadata.tips);
-                                              accumulator.tax += parseFloat(receipt.metadata.tax);
-                                              accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                              accumulator.discount += parseFloat(receipt.metadata.discount);
-                                              accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                              //accumulator.total += parseFloat(receipt.total);
-                                              return accumulator;
-                                            },
-                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                          ).service_fee * 100) / 100
-                                        },
-                                        {
-                                          name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                            (accumulator, receipt) => {
-                                              accumulator.tips += parseFloat(receipt.metadata.tips);
-                                              accumulator.tax += parseFloat(receipt.metadata.tax);
-                                              accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                              accumulator.discount += parseFloat(receipt.metadata.discount);
-                                              accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                              //accumulator.total += parseFloat(receipt.total);
-                                              return accumulator;
-                                            },
-                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                          ).tax * 100) / 100
-                                        },
+                                {isMobile && (
+                                  <PieChart className='notranslate' width={isMobile ? width2 / 2 : 300} height={250}>
+                                    <Pie
+                                      cx={80} // Move the pie to the left by adjusting the cx value
+                                      data={[
                                         {
                                           name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
@@ -3452,6 +3389,47 @@ const Account = () => {
                                           ).subtotal * 100) / 100
                                         },
                                         {
+                                          name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                            (accumulator, receipt) => {
+                                              accumulator.tips += parseFloat(receipt.metadata.tips);
+                                              accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                              accumulator.discount += parseFloat(receipt.metadata.discount);
+                                              accumulator.tax += parseFloat(receipt.metadata.tax);
+                                              accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                              //accumulator.total += parseFloat(receipt.total);
+                                              return accumulator;
+                                            },
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                          ).tax * 100) / 100
+                                        }, {
+                                          name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                            (accumulator, receipt) => {
+                                              accumulator.tips += parseFloat(receipt.metadata.tips);
+                                              accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                              accumulator.discount += parseFloat(receipt.metadata.discount);
+                                              accumulator.tax += parseFloat(receipt.metadata.tax);
+                                              accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                              //accumulator.total += parseFloat(receipt.total);
+                                              return accumulator;
+                                            },
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                          ).tips * 100) / 100
+                                        },
+                                        {
+                                          name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                            (accumulator, receipt) => {
+                                              accumulator.tips += parseFloat(receipt.metadata.tips);
+                                              accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                              accumulator.discount += parseFloat(receipt.metadata.discount);
+                                              accumulator.tax += parseFloat(receipt.metadata.tax);
+                                              accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                              //accumulator.total += parseFloat(receipt.total);
+                                              return accumulator;
+                                            },
+                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                          ).service_fee * 100) / 100
+                                        },
+                                        {
                                           name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
@@ -3464,19 +3442,98 @@ const Account = () => {
                                             },
                                             { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                           ).discount * 100) / 100
-                                        }
-                                      ].map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
-                                    }
-                                  </Pie>
-                                  <Tooltip />
-                                  {isMobile ? (
-                                    <Legend verticalAlign="top" content={renderLegend} />
-                                  ) : (
-                                    <Legend layout="vertical" align="right" verticalAlign="top" content={renderLegend} />
-                                  )}
-                                </PieChart>
+                                        },
+                                      ]}
+                                      labelLine={false}
+                                      label={renderCustomizedLabel}
+                                      outerRadius={75}
+                                      fill="#8884d8"
+                                      dataKey="value"
+                                    >
+                                      {
+                                        [
+                                          {
+                                            name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                              (accumulator, receipt) => {
+                                                accumulator.tips += parseFloat(receipt.metadata.tips);
+                                                accumulator.tax += parseFloat(receipt.metadata.tax);
+                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                                accumulator.discount += parseFloat(receipt.metadata.discount);
+                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                //accumulator.total += parseFloat(receipt.total);
+                                                return accumulator;
+                                              },
+                                              { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                            ).tips * 100) / 100
+                                          },
+                                          {
+                                            name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                              (accumulator, receipt) => {
+                                                accumulator.tips += parseFloat(receipt.metadata.tips);
+                                                accumulator.tax += parseFloat(receipt.metadata.tax);
+                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                                accumulator.discount += parseFloat(receipt.metadata.discount);
+                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                //accumulator.total += parseFloat(receipt.total);
+                                                return accumulator;
+                                              },
+                                              { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                            ).service_fee * 100) / 100
+                                          },
+                                          {
+                                            name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                              (accumulator, receipt) => {
+                                                accumulator.tips += parseFloat(receipt.metadata.tips);
+                                                accumulator.tax += parseFloat(receipt.metadata.tax);
+                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                                accumulator.discount += parseFloat(receipt.metadata.discount);
+                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                //accumulator.total += parseFloat(receipt.total);
+                                                return accumulator;
+                                              },
+                                              { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                            ).tax * 100) / 100
+                                          },
+                                          {
+                                            name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                              (accumulator, receipt) => {
+                                                accumulator.tips += parseFloat(receipt.metadata.tips);
+                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                                accumulator.discount += parseFloat(receipt.metadata.discount);
+                                                accumulator.tax += parseFloat(receipt.metadata.tax);
+                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                //accumulator.total += parseFloat(receipt.total);
+                                                return accumulator;
+                                              },
+                                              { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                            ).subtotal * 100) / 100
+                                          },
+                                          {
+                                            name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                              (accumulator, receipt) => {
+                                                accumulator.tips += parseFloat(receipt.metadata.tips);
+                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                                accumulator.discount += parseFloat(receipt.metadata.discount);
+                                                accumulator.tax += parseFloat(receipt.metadata.tax);
+                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                //accumulator.total += parseFloat(receipt.total);
+                                                return accumulator;
+                                              },
+                                              { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                            ).discount * 100) / 100
+                                          }
+                                        ].map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
+                                      }
+                                    </Pie>
+                                    <Tooltip />
+                                    {isMobile ? (
+                                      <Legend verticalAlign="top" content={renderLegend} />
+                                    ) : (
+                                      <Legend layout="vertical" align="right" verticalAlign="top" content={renderLegend} />
+                                    )}
+                                  </PieChart>
 
-
+                                )}
                               </div>
 
 
@@ -3527,7 +3584,8 @@ const Account = () => {
                               </div>
 
                             </div>
-                            {showChart ?
+
+                            {showChart && isMobile ?
                               <div>
                                 <button onClick={() => setShowChart(false)} className="btn btn-sm mt-1 mb-1 notranslate" style={{
                                   float: "right",
@@ -3629,158 +3687,188 @@ const Account = () => {
 
                                 <tbody
                                 >
-                                  {items?.map((order, index) => (
 
-                                    < div onClick={() => {
-                                      if (!expandedOrderIds.includes(order.id) && isMobile) {
-                                        toggleExpandedOrderId(order.id)
-                                      }
+                                  {items?.map((order, index) => {
+                                    if (order.status === "Canceled") {
+                                    } else {
+                                      displayIndex++;
+
                                     }
-                                    }
 
-                                      style={{ display: 'contents' }}>
-                                      <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
-
-                                        {isMobile ? null : <td className='notranslate'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - index}</td>}
-                                        {(isLocalHost)
-                                          ?
-                                          <td className="order-number notranslate" data-title="OrderID">
-                                            <a>
-                                              {order.id.substring(0, 4)}
-                                            </a>
-                                          </td> :
-                                          <></>
+                                    return (
+                                      < div onClick={() => {
+                                        if (!expandedOrderIds.includes(order.id) && isMobile) {
+                                          toggleExpandedOrderId(order.id)
                                         }
+                                      }
+                                      }
 
-                                        <td className="order-name notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>
-                                          {isMobile ? <span className='notranslate'>#{orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - index} </span> :
-                                            null
+                                        style={{ display: 'contents' }}>
+                                        <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
+                                          {isMobile ? null :
+                                            (
+                                              (order.status !== "Canceled") ?
+                                                <td className='notranslate'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex}</td>
+                                                : <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
+
+                                            )
                                           }
-                                          {order.tableNum === "" ? "Takeout" : order.tableNum}</td>
-                                        <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
-                                        <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="notranslate amount">
-                                          {"$" + roundToTwoDecimalsTofix(order.total)}
-                                          {/* <i class="fa-solid fa-circle-info"></i>
+                                          {(isLocalHost)
+                                            ?
+                                            <td className="order-number notranslate" data-title="OrderID">
+                                              <a>
+                                                {order.id.substring(0, 4)}
+                                              </a>
+                                            </td> :
+                                            <></>
+                                          }
+
+                                          <td className="order-name notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>
+                                            {isMobile ?
+                                              (
+                                                (order.status !== "Canceled") ?
+                                                  <span className='notranslate'>#{orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex} </span>
+                                                  :
+                                                  <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
+                                              )
+                                              :
+                                              null
+                                            }
+                                            {order.tableNum === "" ? "Takeout" : order.tableNum}</td>
+                                          <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
+                                          <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="notranslate amount">
+                                            {"$" + roundToTwoDecimalsTofix(order.total)}
+                                            {/* <i class="fa-solid fa-circle-info"></i>
                                           {order?.transaction_json?.net !== undefined ?
                                             roundToTwoDecimalsTofix(order?.transaction_json?.net) : 0
                                           } */}
-                                        </span></td>
-                                        <td className="order-date" data-title="Date" style={{ whiteSpace: "nowrap" }}>
-                                          <time dateTime={order.date} title={order.date} nowrap>
-                                            <span className='notranslate'>
-                                              {order.date}</span>
-                                          </time>
-                                        </td>
-                                        {!isMobile ?
-                                          <td className="order-details" style={{
-                                            width: "400px",
-                                            whiteSpace: "nowrap", textAlign: "right"
-                                          }}
-                                            data-title="Details">
-                                            {/* <button
-                                              className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                              onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
-                                            >
-                                              Bank Receipt
-                                            </button> */}
-                                            {/* {order?.status === 'Paid by Cash' ? (
-                                                                                    <button
-                                                                                      className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                                                      onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                                                                    >
-                                                                                      Add Gratuity
-                                                                                    </button>
-                                                                                  ) :
-                                                                                    <button
-                                                                                      className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                                                      onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
-                                                                                    >
-                                                                                      Bank Receipt
-                                                                                    </button>} */}
-                                            <button
-                                              className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                              onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                            >
-                                              Add Gratuity
-                                            </button>
-                                            <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
-
-                                              Print Receipt
-                                            </button>
-                                            {/* <button onClick={() => deleteDocument(order.id)}>
-                                                                                    Delete Document
-                                                                                  </button> */}
-                                            <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
-                                            >
-                                              {expandedOrderIds.includes(order.id) ? "Close Details" : "View Details"}
-                                            </button>
+                                          </span></td>
+                                          <td className="order-date" data-title="Date" style={{ whiteSpace: "nowrap" }}>
+                                            <time dateTime={order.date} title={order.date} nowrap>
+                                              <span className='notranslate'>
+                                                {order.date}</span>
+                                            </time>
                                           </td>
-                                          :
-                                          null
-                                        }
+                                          {!isMobile && (
+                                            (order.status !== "Canceled") && (
+                                              <td className="order-details" style={{
+                                                width: "400px",
+                                                whiteSpace: "nowrap", textAlign: "right"
+                                              }}
+                                                data-title="Details">
+                                                {/* <button
+                                                className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
+                                              >
+                                                Bank Receipt
+                                              </button> */}
+                                                {/* {order?.status === 'Paid by Cash' ? (
+                                                                                      <button
+                                                                                        className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                                                        onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                                                                      >
+                                                                                        Add Gratuity
+                                                                                      </button>
+                                                                                    ) :
+                                                                                      <button
+                                                                                        className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                                                        onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
+                                                                                      >
+                                                                                        Bank Receipt
+                                                                                      </button>} */}
+                                                <button
+                                                  className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                  onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                                >
+                                                  Add Gratuity
+                                                </button>
+                                                <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
 
-                                      </tr>
+                                                  Print Receipt
+                                                </button>
+                                                {/* <button onClick={() => deleteDocument(order.id)}>
+                                                  Delete Document
+                                                </button> */}
+                                                <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
+                                                >
+                                                  {expandedOrderIds.includes(order.id) ? "Close Details" : "View Details"}
+                                                </button>
+                                              </td>
+                                            )
+
+                                          )
+                                          }
+
+                                        </tr>
 
 
-                                      {
-                                        expandedOrderIds.includes(order.id) && (
-                                          <tr style={{ backgroundColor: '#f8f9fa' }}>
-                                            <td colSpan={8} style={{ padding: "10px" }}>
-                                              <div className="receipt">
-                                                {isMobile ?
-                                                  <div>
-                                                    <button
-                                                      className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                      onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                                    >
-                                                      Add Gratuity
-                                                    </button>
-                                                    <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
+                                        {
+                                          (expandedOrderIds.includes(order.id) || order?.status === "Canceled") && (
+                                            <tr style={{ backgroundColor: '#f8f9fa' }}>
+                                              <td colSpan={8} style={{ padding: "10px" }}>
+                                                <div className="receipt">
+                                                  {isMobile && order.status === "canceled" ?
+                                                    <div>
+                                                      <button
+                                                        className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                        onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                                      >
+                                                        Add Gratuity
+                                                      </button>
+                                                      <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
 
-                                                      Print Receipt
-                                                    </button>
-                                                    {/* <button onClick={() => deleteDocument(order.id)}>
+                                                        Print Receipt
+                                                      </button>
+                                                      {/* <button onClick={() => deleteDocument(order.id)}>
                                                                                                                                   Delete Document
                                                                                                                                 </button> */}
-                                                    <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
-                                                    >
-                                                      {expandedOrderIds.includes(order.id) ? "Close Details" : "View Details"}
-                                                    </button>
-                                                  </div>
-                                                  : null
-                                                }
+                                                      <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
+                                                      >
+                                                        {expandedOrderIds.includes(order.id) ? "Close Details" : "View Details"}
+                                                      </button>
+                                                    </div>
+                                                    : null
+                                                  }
+                                                  {order.status !== "Canceled" &&
+                                                    <span>
+                                                      Order ID: {order.id}</span>
+                                                  }
+                                                  <p><span className='notranslate'>{order.name}</span></p>
+                                                  {/* <p>{order.email}</p> */}
+                                                  {/* <p><span className='notranslate'>{order.date}</span></p> */}
+                                                  {JSON.parse(order.receiptData).map((item, index) => (
+                                                    <div className="receipt-item" key={item.id}>
+                                                      <p className='notranslate'>
+                                                        {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
+                                                          : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
+                                                        &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
+                                                        &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.itemTotalPrice)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) :
+                                                          roundToTwoDecimalsTofix(roundToTwoDecimalsTofix(item.itemTotalPrice) / roundToTwoDecimalsTofix(Math.round(item.quantity)))}
+                                                        &nbsp;each = ${roundToTwoDecimalsTofix(item.itemTotalPrice)}</p>
+                                                    </div>
+                                                  ))}
+                                                  {order.status !== "Canceled" && (
+                                                    <>
+                                                      <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.discount)}</span></p>
+                                                      <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.subtotal)}</span></p>
+                                                      <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.service_fee)}</span></p>
+                                                      <p>Tax: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.tax)}</span></p>
+                                                      <p>Gratuity: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.tips)}</span></p>
+                                                      <p>Total: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.total)}</span></p>
+                                                    </>
+                                                  )}
 
-                                                Order ID: {order.id}
 
-                                                <p><span className='notranslate'>{order.name}</span></p>
-                                                {/* <p>{order.email}</p> */}
-                                                {/* <p><span className='notranslate'>{order.date}</span></p> */}
-                                                {JSON.parse(order.receiptData).map((item, index) => (
-                                                  <div className="receipt-item" key={item.id}>
-                                                    <p className='notranslate'>
-                                                      {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
-                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
-                                                      &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
-                                                      &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.itemTotalPrice)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) :
-                                                        roundToTwoDecimalsTofix(roundToTwoDecimalsTofix(item.itemTotalPrice) / roundToTwoDecimalsTofix(Math.round(item.quantity)))}
-                                                      &nbsp;each = ${roundToTwoDecimalsTofix(item.itemTotalPrice)}</p>
-                                                  </div>
-                                                ))}
-                                                <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.discount)}</span> </p>
-                                                <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.subtotal)}</span> </p>
-                                                <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.service_fee)}</span></p>
-                                                <p>Tax: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tax)}</span></p>
-                                                <p>Gratuity: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.tips)}</span></p>
-                                                <p>Total: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order.metadata.total)}</span></p>
-                                              </div>
+                                                </div>
 
-                                            </td>
+                                              </td>
 
-                                          </tr>
-                                        )
-                                      }
-                                    </div>
-                                  ))}
+                                            </tr>
+                                          )
+                                        }
+                                      </div>
+                                    )
+                                  })}
                                 </tbody>
                               </table>
                             </LazyLoad>
