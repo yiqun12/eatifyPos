@@ -7,7 +7,7 @@ import { useRef, useEffect, useMemo } from 'react';
 import "./modal.css"
 import "./shopping_cart.css"
 import item_1_pic from "./item-1.png"
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useUserContext } from "../context/userContext";
 import 'bootstrap/dist/css/bootstrap.css';
 import './group_list.css';
@@ -173,6 +173,20 @@ const Navbar = () => {
   const { logoutUser } = useUserContext();
 
   const location = useLocation();
+  const navigate = useNavigate();  // To modify the URL without a page refresh
+  // Function to toggle the 'modal' parameter in the URL
+  const toggleModal = () => {
+    const searchParams = new URLSearchParams(location.search); // Get current URL search params
+    const currentModalValue = searchParams.get('modal'); // Get the current 'modal' value
+
+    searchParams.set('modal', 'false');
+
+    // Update the URL with the modified search params
+    navigate({
+      pathname: location.pathname,
+      search: searchParams.toString() // Convert the search params back to a string
+    });
+  };
   const [totalPrice, setTotalPrice] = useState(0);
 
   //console.log(user)
@@ -508,6 +522,15 @@ const Navbar = () => {
         });
         console.log(contacts)
         setDeliveryContacts(contacts.sort((a, b) => b.modifiedAt.seconds - a.modifiedAt.seconds));
+        if (contacts.length === 0) {
+          setDropoffPhoneNumber('');
+          setZipCode('');
+          setState('');
+          setCity('');
+          setDropoffAddress('');
+          setActiveAddressId(null);  // Set this to null at the end after clearing other states                                  
+          setAddNewAdress(true)
+        }
         console.log("Updated contacts: ", contacts);
         setActiveAddressId(contacts[0]?.id); // Set the first contact as active initially
         setDropoffPhoneNumber(contacts[0].dropoffPhoneNumber);
@@ -529,6 +552,7 @@ const Navbar = () => {
   useEffect(() => {
     console.log("deliveryContacts has changed:", deliveryContacts);
     // Perform any additional actions here when deliveryContacts changes
+
   }, [deliveryContacts]); // This effect runs whenever deliveryContacts changes
 
   const handleClickDelivery = () => {
@@ -889,7 +913,10 @@ const Navbar = () => {
                   <DeleteSvg
                     className="cursor-pointer"
                     ref={spanRef2}
-                    onClick={() => setOpenModal2(false)}
+                    onClick={() => {
+                      setOpenModal2(false); // First, close the modal
+                      toggleModal();        // Then, toggle the modal parameter in the URL
+                    }}
                   />
                 </div>
                 <OrderHasReceived />
@@ -898,7 +925,11 @@ const Navbar = () => {
 
               <div className="flex justify-end space-x-2 p-4">
 
-                <button onClick={() => setOpenModal2(false)}
+                <button onClick={() => {
+                  setOpenModal2(false); // First, close the modal
+                  toggleModal();        // Then, toggle the modal parameter in the URL
+                }}
+
                   // Updated to use hideModal
                   className="px-4 py-2 bg-blue-500 rounded hover:bg-blue-600 text-white">
                   Confirm
@@ -960,11 +991,13 @@ const Navbar = () => {
 
 
                 <div className='flex' style={{ justifyContent: "space-between" }}>
-                  <Hero directoryType={directoryType} isDineIn={isDineIn} setIsDineIn={setIsDineIn} className="mr-auto" style={{ marginBottom: "5px" }}>
+                  <Hero isKiosk={isKiosk} directoryType={directoryType} isDineIn={isDineIn} setIsDineIn={setIsDineIn} className="mr-auto" style={{ marginBottom: "5px" }}>
                   </Hero>
                   {!directoryType && user ? null :
                     <div className='flex mt-2'>
-
+                      {!isMobile ?
+                        <FontAwesomeIcon size="lg" className='' icon={faLanguage} />
+                        : null}
                       <div className='' id="google_translate_element"></div>
                     </div>}
                 </div>
@@ -977,19 +1010,31 @@ const Navbar = () => {
                         <div className='flex'>
 
                           {sessionStorage.getItem('table') != null && sessionStorage.getItem('table') != "" ?
-                            <b >
-                              <b style={{ borderRadius: "3px" }}>
-                                Your dining table number is&nbsp;
-                                <span className='notranslate'>
-                                  {sessionStorage.getItem('table')}
-                                </span>
-                                &nbsp;
-                              </b>
-                              &nbsp;
-                            </b> :
                             <div>
-                              <b>You are currently in takeout Mode.
-                              </b>
+                              <div >
+                                <b style={{ borderRadius: "3px" }}>
+                                  Your dining table number is&nbsp;
+                                  <span className='notranslate'>
+                                    {sessionStorage.getItem('table')}
+                                  </span>
+                                  &nbsp;
+                                </b>
+                                &nbsp;
+                              </div>
+                              <div>
+                                <b>
+                                  You can switch to ToGo to request delivery.
+                                </b>
+
+                              </div>
+                            </div>
+                            :
+                            <div>
+                              <div>
+
+                                <b>You are currently in takeout mode.</b>
+                              </div>
+
                             </div>
                           }
 
@@ -999,7 +1044,7 @@ const Navbar = () => {
                     }
                     {directoryType ?
                       <div className='text-base'>
-                        There is an unpaid order at this dining table that has already been sent to the kitchen. Please settle the existing bill before proceeding with other activities.</div>
+                        An unpaid order has been sent to the kitchen. Please settle the bill before ordering again.</div>
                       : null
                     }
                     <div className='text-base'>Scroll down to checkout</div>
@@ -1137,92 +1182,100 @@ const Navbar = () => {
                         </b>
                       </div>
                     </div>
-                    {isDineIn ?
+                    {!isKiosk && (
+                      isDineIn ? (
+                        <div>
+                          <div className="row">
+                            <div className="col">
+                              <b>{t("Service Fee (15%):")}</b>
+                            </div>
+                            <div className="col d-flex justify-end notranslate">
+                              <b>${(Math.round(100 * totalPrice * 0.15) / 100).toFixed(2)}</b>
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div className="col">
+                              <div>{t("A service charge is applied only for dining in.")}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : null
+                    )}
+
+
+                    {isKiosk ? null :
                       <div>
-                        <div className="row">
-                          <div className="col">
-                            <b> {t("Service Fee (15%):")}</b>
+                        <div className="flex">
+                          <div style={{ marginBottom: "5px" }}>
+                            {
+                              isDineIn ?
+                                <b> {t("Extra Gratuity:")}</b> : <b> {t("Gratuity:")}</b>
+
+                            }
+                            <b className='notranslate'>({stringTofixed(parseFloat(tipAmount) / parseFloat(totalPrice) * 100)}%)</b>
+
                           </div>
-                          <div className="col d-flex justify-end notranslate">
-                            <b>${(Math.round(100 * totalPrice * 0.15) / 100).toFixed(2)}
-                            </b>
+                          <div className="notranslate col d-flex justify-content-end">
+                            <b className='notranslate'>${stringTofixed(tipAmount)}</b>
+
                           </div>
                         </div>
-                        <div className="row">
-                          <div className="col">
-                            <div> {t("A service charge is applied only for dining in.")}</div>
-                          </div>
+
+
+                        <div>
+                          {pickup ? (
+                            !isDineIn ? (
+                              <div className="flex space-x-2 mb-2">
+                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(15)}>15%</button>
+                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(18)}>18%</button>
+                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(20)}>20%</button>
+                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
+
+                              </div>
+                            ) : (
+                              <div className="flex space-x-2 mb-2">
+                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(0)}>0%</button>
+                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(3)}>3%</button>
+                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(5)}>5%</button>
+                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
+                              </div>
+                            )
+                          ) : null}
+
+                          {showCustomTipInput && (
+                            <div className="my-2">
+                              <input
+                                type="number"
+                                className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                value={customTip}
+                                onChange={handleCustomTipChange}
+                                placeholder="Enter gratuity amount"
+                              />
+                              <button className="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" onClick={handleCustomTip}>
+                                Add Gratuity Amount
+                              </button>
+                            </div>
+                          )}
                         </div>
+                      </div>}
+                    {isKiosk ? null :
+                      <div className="row">
+                        <div className="col">
+                          <b> {t("Total Amount")}:</b>
+                        </div>
+                        <div className="notranslate col d-flex justify-content-end">
+                          <b>
+                            ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                              + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
+                            )
+
+                            }
+                          </b>
+                        </div>
+
                       </div>
-                      : <div></div>
                     }
-                    <div className="flex">
-                      <div style={{ marginBottom: "5px" }}>
-                        {
-                          isDineIn ?
-                            <b> {t("Extra Gratuity:")}</b> : <b> {t("Gratuity:")}</b>
 
-                        }
-                        <b className='notranslate'>({stringTofixed(parseFloat(tipAmount) / parseFloat(totalPrice) * 100)}%)</b>
-
-                      </div>
-                      <div className="notranslate col d-flex justify-content-end">
-                        <b className='notranslate'>${stringTofixed(tipAmount)}</b>
-
-                      </div>
-                    </div>
-                    <div>
-                      {pickup ? (
-                        !isDineIn ? (
-                          !isKiosk ? (
-                            <div className="flex space-x-2 mb-2">
-                              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(15)}>15%</button>
-                              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(18)}>18%</button>
-                              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(20)}>20%</button>
-                              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
-
-                            </div>) : null
-                        ) : (
-                          <div className="flex space-x-2 mb-2">
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(0)}>0%</button>
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(3)}>3%</button>
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => handleTip(5)}>5%</button>
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={toggleCustomTipInput}>Other</button>
-                          </div>
-                        )
-                      ) : null}
-
-                      {showCustomTipInput && (
-                        <div className="my-2">
-                          <input
-                            type="number"
-                            className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            value={customTip}
-                            onChange={handleCustomTipChange}
-                            placeholder="Enter gratuity amount"
-                          />
-                          <button className="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" onClick={handleCustomTip}>
-                            Add Gratuity Amount
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="row">
-                      <div className="col">
-                        <b> {t("Total Amount")}:</b>
-                      </div>
-                      <div className="notranslate col d-flex justify-content-end">
-                        <b>
-                          ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
-                            + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
-                          )
-
-                          }
-                        </b>
-                      </div>
-
-                    </div>
                   </div> : null}
                 <div className="mb-3" >
 
@@ -1263,7 +1316,7 @@ const Navbar = () => {
                         isKiosk ?
                           <PaymentKiosk openCheckout={shoppingCartOpen} receipt_JSON={JSON.stringify(products)}
                             storeID={store} chargeAmount={parseFloat(stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
-                              + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
+
                             ))} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
                             service_fee={0} selectedTable={'点餐机kiosk'} /> : null
                       }
@@ -1286,22 +1339,25 @@ const Navbar = () => {
                         ) : (
                           <div>
                             <div className='flex justify-between'>
-                              <button
-                                style={{ border: "0px" }}
-                                className="mt-2 rounded-md border-0 text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-2.5 py-2.5 text-center mr-2 mb-2 flex"
-                                onClick={() => {
-                                  setDropoffPhoneNumber('');
-                                  setZipCode('');
-                                  setState('');
-                                  setCity('');
-                                  setDropoffAddress('');
-                                  setActiveAddressId(null);  // Set this to null at the end after clearing other states                                  
-                                  setAddNewAdress(true)
-                                }}
+                              {
+                                addNewAdress ? null :
+                                  <button
+                                    style={{ border: "0px" }}
+                                    className="mt-2 rounded-md border-0 text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-2.5 py-2.5 text-center mr-2 mb-2 flex"
+                                    onClick={() => {
+                                      setDropoffPhoneNumber('');
+                                      setZipCode('');
+                                      setState('');
+                                      setCity('');
+                                      setDropoffAddress('');
+                                      setActiveAddressId(null);  // Set this to null at the end after clearing other states                                  
+                                      setAddNewAdress(true)
+                                    }}
+                                  >
+                                    Add New Address
+                                  </button>
+                              }
 
-                              >
-                                Add New Address
-                              </button>
                               <button
                                 style={{ border: "0px" }}
                                 className="mt-2 rounded-md border-0 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-2.5 py-2.5 text-center mb-2 flex"
@@ -1569,19 +1625,27 @@ const Navbar = () => {
                 <img
 
                   onClick={event => {
-                    if (storeFromURL !== '' && storeFromURL !== null) {
-                      if (isKiosk) {
-                        window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
-                      } else {
-                        window.location.href = `/store?store=${storeFromURL}`;
-                      }
-                      if (!sessionStorage.getItem("table")) {
-                        window.location.href = `/store?store=${storeFromURL}`
-                      } else {
-                        window.location.href = `/store?store=${storeFromURL}&table=${sessionStorage.getItem("table")}`
-                      }
+                    if (isKiosk) {
+
                     } else {
-                      window.location.href = '/';
+                      if (window.location.hash.slice(1).split('?')[0] === 'code') {
+
+                      } else {
+                        if (storeFromURL !== '' && storeFromURL !== null) {
+                          if (isKiosk) {
+                            window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
+                          } else {
+                            window.location.href = `/store?store=${storeFromURL}`;
+                          }
+                          if (!sessionStorage.getItem("table")) {
+                            window.location.href = `/store?store=${storeFromURL}`
+                          } else {
+                            window.location.href = `/store?store=${storeFromURL}&table=${sessionStorage.getItem("table")}`
+                          }
+                        } else {
+                          window.location.href = '/';
+                        }
+                      }
                     }
                   }}
                   src={Eshopingcart}
@@ -1591,24 +1655,29 @@ const Navbar = () => {
                     objectFit: 'cover',   // this makes the image co0ver the entire dimensions
                   }} />
                 <span onClick={event => {
-                  if (window.location.hash.slice(1).split('?')[0] === 'code') {
+                  if (isKiosk) {
 
                   } else {
-                    if (storeFromURL !== '' && storeFromURL !== null) {
-                      if (isKiosk) {
-                        window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
-                      } else {
-                        window.location.href = `/store?store=${storeFromURL}`;
-                      }
-                      if (!sessionStorage.getItem("table")) {
-                        window.location.href = `/store?store=${storeFromURL}`
-                      } else {
-                        window.location.href = `/store?store=${storeFromURL}&table=${sessionStorage.getItem("table")}`
-                      }
+                    if (window.location.hash.slice(1).split('?')[0] === 'code') {
+
                     } else {
-                      window.location.href = '/';
+                      if (storeFromURL !== '' && storeFromURL !== null) {
+                        if (isKiosk) {
+                          window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
+                        } else {
+                          window.location.href = `/store?store=${storeFromURL}`;
+                        }
+                        if (!sessionStorage.getItem("table")) {
+                          window.location.href = `/store?store=${storeFromURL}`
+                        } else {
+                          window.location.href = `/store?store=${storeFromURL}&table=${sessionStorage.getItem("table")}`
+                        }
+                      } else {
+                        window.location.href = '/';
+                      }
                     }
                   }
+
 
                 }} className='notranslate text-black text-xl font-bold'>
                   EatifyDash
@@ -1619,7 +1688,9 @@ const Navbar = () => {
             <div className='flex ml-auto pr-4 '>
               {!directoryType ?
                 <div className='flex mt-2'>
-
+                  {!isMobile ?
+                    <FontAwesomeIcon size="lg" className='' icon={faLanguage} />
+                    : null}
                   <div className='' id="google_translate_element"></div>
                 </div>
                 : null}

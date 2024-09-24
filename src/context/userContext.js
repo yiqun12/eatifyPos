@@ -36,6 +36,7 @@ export const useUserContext = () => {
 };
 
 export const UserContextProvider = ({ children }) => {
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -101,8 +102,33 @@ export const UserContextProvider = ({ children }) => {
             }
 
             try {
-              console.log("3 widget");
-              signInWithGuest()
+              // Function to check the URL format
+              const checkUrlFormat = () => {
+                try {
+                  // Assuming you want to check the current window's URL
+                  const url = new URL(window.location.href);
+
+                  // Check if hash matches the specific pattern
+                  // This pattern matches hashes like #string-string-string
+                  const hashPattern = /^#(\w+)-(\w+)-(\w+)$/;
+                  //console.log(url.hash)
+                  return hashPattern.test(url.hash);
+                } catch (error) {
+                  // Handle potential errors, e.g., invalid URL
+                  console.error("Invalid URL:", error);
+                  return false;
+                }
+              };
+
+              // Call the checkUrlFormat function and log the result
+              const result = checkUrlFormat();
+              console.log("URL format check result:", result);
+              if (!result) {
+                console.log("3 widget");
+
+                signInWithGuest()
+              }
+
 
             } catch (err) {
               setError(err.message);

@@ -18,6 +18,7 @@ import { db } from '../firebase/index';
 import { useParams } from 'react-router-dom';
 import { query, where, limit, doc, getDoc, onSnapshot } from "firebase/firestore";
 import LazyLoad from 'react-lazy-load';
+import firebase from 'firebase/compat/app';
 
 import BusinessHoursTable from './BusinessHoursTable.js'
 import { v4 as uuidv4 } from 'uuid';
@@ -47,7 +48,74 @@ const customMarkerIcon = L.icon({
 });
 
 const Food = () => {
+  async function processPayment() {
+    console.log("processPayment");
 
+    try {
+      const processPaymentFunction = firebase.functions().httpsCallable('processPayment');
+
+      const response = await processPaymentFunction({
+        keepWarm: true
+      });
+
+      console.log("the response was okay");
+      return response.data;
+    } catch (error) {
+      console.error("There was an error with processPayment:", error.message);
+      throw error; // rethrow to handle it outside of the function or display to user
+    }
+  }
+
+
+
+  async function cancel() {
+    console.log("cancel");
+    try {
+      const cancelActionFunction = firebase.functions().httpsCallable('cancelAction');
+
+      const response = await cancelActionFunction({
+        keepWarm: true
+      });
+
+      console.log("the response was okay");
+      return response.data;
+
+    } catch (error) {
+      console.error("There was an error with cancel:", error.message);
+      throw error; // rethrow to handle it outside of the function or display to user
+    }
+  }
+
+  //processPayment()//kepp the cloud function warm and get ready
+  //cancel()//kepp the cloud function warm and get ready
+  const [isKiosk, setIsKiosk] = useState(false);
+  const [kioskHash, setkioskHash] = useState("");
+
+  useEffect(() => {
+    // Function to check the URL format
+    const checkUrlFormat = () => {
+      try {
+        // Assuming you want to check the current window's URL
+        const url = new URL(window.location.href);
+
+        // Check if hash matches the specific pattern
+        // This pattern matches hashes like #string-string-string
+        const hashPattern = /^#(\w+)-(\w+)-(\w+)$/;
+        //console.log(url.hash)
+        setkioskHash(url.hash)
+        return hashPattern.test(url.hash);
+      } catch (error) {
+        // Handle potential errors, e.g., invalid URL
+        console.error("Invalid URL:", error);
+        return false;
+      }
+    };
+
+    // Call the checkUrlFormat function and log the result
+    const result = checkUrlFormat();
+    setIsKiosk(result)
+    console.log("URL format check result:", result);
+  }, []); // Empty dependency array means this effect runs only once after the initial render
 
   const [divHeight, setDivHeight] = useState('calc(100vh - 100px)');
   useEffect(() => {
@@ -1097,7 +1165,13 @@ const Food = () => {
                         transition={{ duration: 0.1 }}
                         key={item.id}
                         onClick={() => {
-                          setSelectedFoodItem(item);;
+
+                          setSelectedFoodItem(item);
+                          if (isKiosk) {
+                            processPayment()//kepp the cloud function warm and get ready
+                            cancel()//kepp the cloud function warm and get ready
+                          }
+
                           showModal(item);
                           handleDropFood();
                         }}

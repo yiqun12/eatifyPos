@@ -18,6 +18,7 @@ const firebaseConfig = {
   measurementId: "G-Y7WG36CDV3"
 };
 
+
 firebase.initializeApp(firebaseConfig);
 // Immediately set Firestore settings
 firebase.firestore().settings({

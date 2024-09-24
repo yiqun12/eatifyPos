@@ -1094,8 +1094,8 @@ function PayHistory(props) {
 
           } else if (payment.status === 'succeeded') {
             sessionStorage.removeItem(store);
-            window.location.href = '/store?store=' + store + '&order=' + doc.id + '&modal=true' + kioskHash;
-
+            window.location.href = '/store?store=' + store + '&order=' + doc.id + '&modal=true'
+            //+ "&table=" + sessionStorage.getItem("table");
           } else if (payment.status === 'requires_action') {
             content = `🚨 ` + t("Payment status: ") + `${payment.status}`;
 

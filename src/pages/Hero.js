@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useMyHook } from './myHook';
 import { useMemo } from 'react';
 
-const Hero = ({ directoryType, isDineIn, setIsDineIn }) => {
+const Hero = ({ isKiosk, directoryType, isDineIn, setIsDineIn }) => {
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
@@ -57,35 +57,47 @@ const Hero = ({ directoryType, isDineIn, setIsDineIn }) => {
           translate="no"
         />
         <label htmlFor="switchTakeOut" onClick={() => {
-          if (sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "") {
-            alert(localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-              "您需要扫描餐桌上的二维码来选取堂食" : "You need to scan the qr code from the table to switch to dine in mode");
+          if (isKiosk) {
+            setIsDineIn(!isDineIn)
+
           } else {
-            if (!directoryType) {
-              setIsDineIn(!isDineIn)
-            } else {
+            if (sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "") {
+
               alert(localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                "自助服务不能转换成外卖。"
-                : "Self-service cannot be converted to takeout.");
+                "您需要扫描餐桌上的二维码来选取堂食" : "You need to scan the qr code from the table to switch to dine in mode");
+            } else {
+              if (!directoryType) {
+                setIsDineIn(!isDineIn)
+              } else {
+                alert(localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                  "自助服务不能转换成外卖。"
+                  : "Self-service cannot be converted to takeout.");
+              }
             }
           }
+
         }
         }
           style={{ "fontSize": "14px" }}>{t("ToGo")}</label>
         <label htmlFor="switchDineIn" onClick={() => {
+          if (isKiosk) {
+            setIsDineIn(!isDineIn)
 
-          if (sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "") {
-            alert(localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-              "您需要扫描餐桌上的二维码来选取堂食" : "You need to scan the qr code from the table to switch to dine in mode");
           } else {
-            if (!directoryType) {
-              setIsDineIn(!isDineIn)
-            } else {
+            if (sessionStorage.getItem('table') === null || sessionStorage.getItem('table') === "") {
               alert(localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                "自助服务不能转换成外卖。"
-                : "Self-service cannot be converted to takeout.");
+                "您需要扫描餐桌上的二维码来选取堂食" : "You need to scan the qr code from the table to switch to dine in mode");
+            } else {
+              if (!directoryType) {
+                setIsDineIn(!isDineIn)
+              } else {
+                alert(localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                  "自助服务不能转换成外卖。"
+                  : "Self-service cannot be converted to takeout.");
+              }
             }
           }
+
         }
         }
           style={{ "fontSize": "14px" }}>{t("DineIn")}</label>

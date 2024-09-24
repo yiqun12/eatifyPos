@@ -108,8 +108,8 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
             return response.data;
 
         } catch (error) {
-            setError("There was an error with cancel:", error.message);
-            console.error("There was an error with cancel:", error.message);
+            // setError("There was an error with cancel:", error.message);
+            // console.error("There was an error with cancel:", error.message);
             throw error; // rethrow to handle it outside of the function or display to user
         }
     }
@@ -286,9 +286,9 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
             const reader = await cancel(readerId);
             console.log("canceled payment at: ", reader);
         } catch (error) {
-            setError("Error in Reset Terminal. ", error.message);
+            // setError("Error in Reset Terminal. ", error.message);
 
-            console.error("Error in Reset Terminal. ", error.message);
+            // console.error("Error in Reset Terminal. ", error.message);
         } finally {
 
         }
@@ -319,11 +319,11 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
                     id="create-payment-button"
                     onClick={makePayment}
                     name="pay"
-                    class="text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                    class="text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium px-5 py-2.5 text-center mr-2 mb-2"
                     style={{ "borderRadius": "0.2rem", width: "100%" }}
                 >
-                    <span> &nbsp;Pay by Kiosk
-                    </span>
+                    <div> &nbsp;Pay by Kiosk ${chargeAmount}
+                    </div>
                 </button>
             }
             {error && <p style={{ color: 'red' }}>Ask the staff for help if you cannot pay by credit card reader: {error}</p>}

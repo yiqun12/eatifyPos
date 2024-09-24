@@ -67,6 +67,35 @@ import Dnd_Test from "./pages/dnd_test";
 
 function App() {
   const { user, user_loading } = useUserContext();
+  const [isKiosk, setIsKiosk] = useState(false);
+  const [kioskHash, setkioskHash] = useState("");
+
+  useEffect(() => {
+    // Function to check the URL format
+    const checkUrlFormat = () => {
+      try {
+        // Assuming you want to check the current window's URL
+        const url = new URL(window.location.href);
+
+        // Check if hash matches the specific pattern
+        // This pattern matches hashes like #string-string-string
+        const hashPattern = /^#(\w+)-(\w+)-(\w+)$/;
+        //console.log(url.hash)
+        setkioskHash(url.hash)
+        return hashPattern.test(url.hash);
+      } catch (error) {
+        // Handle potential errors, e.g., invalid URL
+        console.error("Invalid URL:", error);
+        return false;
+      }
+    };
+
+    // Call the checkUrlFormat function and log the result
+    const result = checkUrlFormat();
+    setIsKiosk(result)
+    console.log("URL format check result:", result);
+  }, []); // Empty dependency array means this effect runs only once after the initial render
+
 
   const [loading, setLoading] = useState(true);
 
@@ -162,7 +191,19 @@ function App() {
                   storeID={"demo"} chargeAmount={1} connected_stripe_account_id={"acct_1OWU8KBUAXdEY4mJ"} service_fee={0} selectedTable={"测试"} />} /> */}
 
                 {user ? <Route path="ForgotPassword" element={<Account_admin />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
-                <Route exact path="/store" element={<Food />} />
+                {user || !isKiosk ? (
+                  <Route
+                    exact path="/store"
+                    element={<Food />}
+                  />
+                ) : (
+                  <Route
+                    exact path="/store"
+                    element={<LogIn />}
+                  />
+                )}
+
+                {/* <Route exact path="/store" element={<Food />} /> */}
                 {/* <Route exact path="/DemoFood" element={<DemoFood />} />
                 <Route exact path="/AdminFood" element={<Admin_food />} />
                 <Route exact path="/Refresh" element={<Refresh />} /> */}

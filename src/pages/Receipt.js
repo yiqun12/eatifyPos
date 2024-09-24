@@ -210,17 +210,19 @@ const Item = () => {
                 <div className="row d-flex">
                   <b>
                     {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                    <div>{Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}</div>
                   </b>
                 </div>
                 <div className="row d-flex notranslate">
-                  <p className="text-muted mb-0 pb-0" >@ ${roundToTwoDecimalsTofix(product.subtotal)} {t("each")} x {product.quantity}</p>
+                  <p className="text-muted mb-0 pb-0" >@ ${roundToTwoDecimalsTofix(product.itemTotalPrice)} {t("each")} x {product.quantity}</p>
                 </div>
               </div>
               <div className="col-3 d-flex justify-content-end">
                 <p>
-                  <b className=" notranslate" >${roundToTwoDecimalsTofix(Math.round(100 * product.subtotal * product.quantity) / 100)}</b>
+                  <b className=" notranslate" >${roundToTwoDecimalsTofix(Math.round(100 * product.itemTotalPrice * product.quantity) / 100)}</b>
                 </p>
               </div>
+
             </div>
           );
         })}
