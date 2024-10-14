@@ -117,10 +117,22 @@ const Navbar = () => {
     }
   };
 
+
   useEffect(() => {
-    if (!user) {
-      return
+    if (window.location.pathname.includes('/store')) {
+      if (!user) {
+        return
+      }
     }
+
+    if (window.location.pathname.includes('/account')) {
+      if (!user) {
+        console.log("0 widget")
+        return
+      }
+    }
+
+    
     //alert(JSON.stringify(user))
     //console.log(user)
     console.log("1 widget")
@@ -141,7 +153,6 @@ const Navbar = () => {
     document.body.appendChild(addScript);
     window.googleTranslateElementInit = googleTranslateElementInit;
   }, [user]);
-
   const params = new URLSearchParams(window.location.search);
 
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
@@ -1003,10 +1014,12 @@ const Navbar = () => {
                       {!isMobile ?
                         <FontAwesomeIcon size="lg" className='' icon={faLanguage} />
                         : null}
-                      <div className='' id="google_translate_element"></div>
+
+                      {location.pathname.includes('/store') ?
+                        <div className='' id="google_translate_element"></div>
+                        : <div></div>
+                      }
                     </div>}
-
-
                 </div>
                 {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => { }}>show unpaid</button> */}
                 <div className='flex' style={{ justifyContent: "space-between" }}>
@@ -1662,7 +1675,7 @@ const Navbar = () => {
                       }
                     }
                   }}
-                  src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/948a1e3f-8204-4847-7f75-732bacd78400/public"
+                  src={Eshopingcart}
                   style={{
                     maxHeight: '30px',
                     maxWidth: '30px',
@@ -1694,7 +1707,7 @@ const Navbar = () => {
 
 
                 }} className='notranslate text-black text-xl font-bold'>
-                  .DELIVERY
+                  EatifyDash
                 </span>
               </React.Fragment>
               : null}
@@ -1708,7 +1721,6 @@ const Navbar = () => {
                   <div className='' id="google_translate_element"></div>
                 </div>
                 : null}
-
               {((location.pathname.includes('/store')) || (location.pathname.includes('/Checkout'))) && (
 
                 <button
