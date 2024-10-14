@@ -117,7 +117,6 @@ const Navbar = () => {
     }
   };
 
-
   useEffect(() => {
     if (!user) {
       return
@@ -142,6 +141,7 @@ const Navbar = () => {
     document.body.appendChild(addScript);
     window.googleTranslateElementInit = googleTranslateElementInit;
   }, [user]);
+
   const params = new URLSearchParams(window.location.search);
 
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
@@ -179,14 +179,19 @@ const Navbar = () => {
     const searchParams = new URLSearchParams(location.search); // Get current URL search params
     const currentModalValue = searchParams.get('modal'); // Get the current 'modal' value
 
-    searchParams.set('modal', 'false');
+    searchParams.set('modal', 'false'); // Update the 'modal' parameter
 
-    // Update the URL with the modified search params
+    // Preserve the hash in the URL
+    const currentHash = location.hash;
+
+    // Update the URL with the modified search params and hash
     navigate({
       pathname: location.pathname,
-      search: searchParams.toString() // Convert the search params back to a string
+      search: searchParams.toString(), // Convert the search params back to a string
+      hash: currentHash // Include the current hash in the URL
     });
   };
+
   const [totalPrice, setTotalPrice] = useState(0);
 
   //console.log(user)
@@ -1000,6 +1005,8 @@ const Navbar = () => {
                         : null}
                       <div className='' id="google_translate_element"></div>
                     </div>}
+
+
                 </div>
                 {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => { }}>show unpaid</button> */}
                 <div className='flex' style={{ justifyContent: "space-between" }}>
@@ -1022,10 +1029,6 @@ const Navbar = () => {
                                 &nbsp;
                               </div>
                               <div>
-                                <b>
-                                  You can switch to ToGo to request delivery.
-                                </b>
-
                               </div>
                             </div>
                             :
@@ -1258,7 +1261,20 @@ const Navbar = () => {
                           )}
                         </div>
                       </div>}
-                    {isKiosk ? null :
+                    {isKiosk ?
+                      <div className="row">
+                        <div className="col">
+                          <b> {t("Total Amount")}:</b>
+                        </div>
+                        <div className="notranslate col d-flex justify-content-end">
+                          <b>
+                            ${parseFloat(stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)))
+                            }
+                          </b>
+                        </div>
+
+                      </div>
+                      :
                       <div className="row">
                         <div className="col">
                           <b> {t("Total Amount")}:</b>
@@ -1315,10 +1331,8 @@ const Navbar = () => {
                       {
                         isKiosk ?
                           <PaymentKiosk openCheckout={shoppingCartOpen} receipt_JSON={JSON.stringify(products)}
-                            storeID={store} chargeAmount={parseFloat(stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
-
-                            ))} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
-                            service_fee={0} selectedTable={'点餐机kiosk'} /> : null
+                            storeID={store} chargeAmount={parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
+                            service_fee={0} selectedTable={isDineIn ? '堂食DineIn' : "外卖TakeOut"} /> : null
                       }
 
                       {!isKiosk && !isDineIn && (
@@ -1648,7 +1662,7 @@ const Navbar = () => {
                       }
                     }
                   }}
-                  src={Eshopingcart}
+                  src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/948a1e3f-8204-4847-7f75-732bacd78400/public"
                   style={{
                     maxHeight: '30px',
                     maxWidth: '30px',
@@ -1680,7 +1694,7 @@ const Navbar = () => {
 
 
                 }} className='notranslate text-black text-xl font-bold'>
-                  EatifyDash
+                  .DELIVERY
                 </span>
               </React.Fragment>
               : null}
@@ -1694,6 +1708,7 @@ const Navbar = () => {
                   <div className='' id="google_translate_element"></div>
                 </div>
                 : null}
+
               {((location.pathname.includes('/store')) || (location.pathname.includes('/Checkout'))) && (
 
                 <button

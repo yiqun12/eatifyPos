@@ -70,15 +70,15 @@ const Hero = ({ isKiosk, directoryType, isDineIn, setIsDineIn }) => {
                 setIsDineIn(!isDineIn)
               } else {
                 alert(localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                  "自助服务不能转换成外卖。"
-                  : "Self-service cannot be converted to takeout.");
+                  "请先结清已有订单后再进行外卖点单。"
+                  : "Please settle your existing order before placing a new delivery order.");
               }
             }
           }
 
         }
         }
-          style={{ "fontSize": "14px" }}>{t("ToGo")}</label>
+          style={{ "fontSize": "14px" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? "外卖" : "ToGo"}</label>
         <label htmlFor="switchDineIn" onClick={() => {
           if (isKiosk) {
             setIsDineIn(!isDineIn)
@@ -92,19 +92,19 @@ const Hero = ({ isKiosk, directoryType, isDineIn, setIsDineIn }) => {
                 setIsDineIn(!isDineIn)
               } else {
                 alert(localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                  "自助服务不能转换成外卖。"
-                  : "Self-service cannot be converted to takeout.");
+                  "请先结清已有订单后再进行外卖点单。"
+                  : "Please settle your existing order before placing a new delivery order.");
               }
             }
           }
 
         }
         }
-          style={{ "fontSize": "14px" }}>{t("DineIn")}</label>
+          style={{ "fontSize": "14px" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? "堂食" : "DineIn"}</label>
         <div className="switch-wrapper">
           <div className="switch">
-            <div style={{ "fontSize": "14px" }}>{t("ToGo")}</div>
-            <div style={{ "fontSize": "14px" }}>{t("DineIn")}</div>
+            <div style={{ "fontSize": "14px" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? "外卖" : "ToGo"}</div>
+            <div style={{ "fontSize": "14px" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? "堂食" : "DineIn"}</div>
           </div>
         </div>
       </div>

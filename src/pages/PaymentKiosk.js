@@ -15,6 +15,7 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
     function stringTofixed(n) {
         return (Math.round(n * 100) / 100).toFixed(2)
     }
+
     useEffect(() => {
         const handleHashChange = () => {
             setCurrentHash(window.location.hash);
@@ -27,7 +28,10 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
             window.removeEventListener('hashchange', handleHashChange);
         };
     }, []); // Empty array means this effect runs only on mount and unmount
+    useEffect(() => {
+        console.log(chargeAmount)
 
+    }, [chargeAmount]); // Empty array means this effect runs only on mount and unmount
     //console.log(currentHash)
     // State to store the error message
     const [received, setReceived] = useState(false);
@@ -64,7 +68,7 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
 
         } catch (error) {
             console.error("There was an error with createPaymentIntent:", error.message);
-            setError("There was an error with createPaymentIntent:", error.message);
+            //setError("There was an error with createPaymentIntent:", error.message);
             throw error; // rethrow to handle it outside of the function or display to user
         }
     }
@@ -72,7 +76,6 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
 
     async function processPayment(amount) {
         console.log("processPayment");
-
         try {
             const processPaymentFunction = firebase.functions().httpsCallable('processPayment');
 
@@ -86,7 +89,7 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
             console.log("the response was okay");
             return response.data;
         } catch (error) {
-            setError("There was an error with processPayment:", error.message);
+            //setError("There was an error with processPayment:", error.message);
             console.error("There was an error with processPayment:", error.message);
             throw error; // rethrow to handle it outside of the function or display to user
         }
@@ -121,6 +124,8 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
         createPaymentButton.textContent = "Awaiting for Process. Do not close window."; // Change button text
         createPaymentButton.className = "loading";
         createPaymentButton.disabled = true;
+        console.log("chargeamount")
+        console.log(chargeAmount)
 
         try {
             let amount = Math.round(chargeAmount * 100);
@@ -128,7 +133,7 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
             console.log("payment intent: ", paymentIntent);
             paymentIntentId = paymentIntent["id"];
             //const reader = await processPayment(amount);
-            const reader = await processPayment(chargeAmount * 100);
+            const reader = await processPayment(amount);
             console.log("payment processed at reader: ", reader);
 
             if (simulation_mode == true) {
@@ -140,7 +145,7 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
 
         } catch (error) {
             console.error("Error in makePayment: ", error.message);
-            setError("Error in makePayment: ", error.message);
+            //setError("Error in makePayment: ", error.message);
 
         } finally {
             createPaymentButton.className = "btn btn-primary";
@@ -315,16 +320,18 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
                         />
                         We have received the payment.</div>
                 </div> :
-                <button
-                    id="create-payment-button"
-                    onClick={makePayment}
-                    name="pay"
-                    class="text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium px-5 py-2.5 text-center mr-2 mb-2"
-                    style={{ "borderRadius": "0.2rem", width: "100%" }}
-                >
-                    <div> &nbsp;Pay by Kiosk ${chargeAmount}
-                    </div>
-                </button>
+                <div>
+                    <button
+                        id="create-payment-button"
+                        onClick={makePayment}
+                        name="pay"
+                        class="text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium px-5 py-2.5 text-center mr-2 mb-2"
+                        style={{ "borderRadius": "0.2rem", width: "100%" }}
+                    >
+                        <div> &nbsp;Pay by Kiosk
+                        </div>
+                    </button>
+                </div>
             }
             {error && <p style={{ color: 'red' }}>Ask the staff for help if you cannot pay by credit card reader: {error}</p>}
 

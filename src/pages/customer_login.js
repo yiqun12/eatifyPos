@@ -181,14 +181,14 @@ export default function SignIn() {
                                 <Grid container>
                               <Grid item xs>
                                 <Link style={{cursor: 'pointer' }} onClick={forgotPasswordHandler} variant="body2">
-                                  {t("Forgot password")}?
+                                  {t("Reset password")}?
                                 </Link>
                               </Grid>
-                              <Grid item>
+                              {/* <Grid item>
                                 <Link href='/signup' variant="body2">
                                   {t("Don't have an account? Sign Up")}
                                 </Link>
-                              </Grid>
+                              </Grid> */}
                             </Grid>
                             </Grid>
 

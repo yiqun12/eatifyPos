@@ -50,7 +50,7 @@ export const UserContextProvider = ({ children }) => {
         const filteredProperties = Object.assign({}, { uid }, { displayName }, { email });
         if (filteredProperties.uid != null && filteredProperties.displayName == null && email == null) {
           filteredProperties.displayName = "Guest"
-          filteredProperties.email = "Guest@Eatifydash.App"
+          filteredProperties.email = "Guest@7dollar.delivery"
         }
         setUser(filteredProperties);
         currentUser = firebaseUser;

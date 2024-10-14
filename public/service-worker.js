@@ -19,8 +19,8 @@ self.addEventListener('fetch', (event) => {
 
                 // Define your manifest with a dynamic start_url
                 const manifest = {
-                    short_name: "Eatifydash",
-                    name: "Eatifydash",
+                    short_name: "7dollar.delivery",
+                    name: "7dollar.delivery",
                     start_url: startUrl,
                     display: "standalone",
                     icons: [

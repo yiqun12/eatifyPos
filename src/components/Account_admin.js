@@ -131,13 +131,13 @@ const Account = () => {
     const tableParam = item.split('-'); // This will split the string into an array
     const prefix = tableParam[0]; // This will be 'demo'
     const suffix = tableParam[1]; // This will be 'a2'
-    return `https://eatifydash.com/store?store=${prefix}&table=${suffix}`;
+    return `https://7dollar.delivery/store?store=${prefix}&table=${suffix}`;
   };
   const generateQRLinkSelfCheckout = (item) => {
     const tableParam = item.split('-'); // This will split the string into an array
     const prefix = tableParam[0]; // This will be 'demo'
     const suffix = tableParam[1]; // This will be 'a2'
-    return `https://eatifydash.com/selfCheckout?store=${prefix}&table=${suffix}`;
+    return `https://7dollar.delivery/selfCheckout?store=${prefix}&table=${suffix}`;
   };
   const [bounds, setBounds] = useState(null);
   const [error, setError] = useState('');

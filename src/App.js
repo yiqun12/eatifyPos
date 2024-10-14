@@ -137,10 +137,7 @@ function App() {
                 {/* <Route path="orderhasreceived" element={<OrderHasReceived />} /> */}
 
                 <Route path="Reservation" element={<Reservation />} />
-                {/* {user ? <Route path="/selfCheckout" element={<Checkout />}></Route> : <Route path="/selfCheckout" element={<LogIn />}></Route>}
 
-                {user ? <Route path="/checkout" element={<Checkout />}></Route> : <Route path="/checkout" element={<LogIn />}></Route>} */}
-                {/* {user ? <Route path="/DemoFood" element={<DemoFood />}></Route> : <Route path="/DemoFood" element={<LogIn />}></Route>} */}
 
                 {user ? (
                   <Route
@@ -150,18 +147,6 @@ function App() {
                 ) : (
                   <Route
                     path="Account"
-                    element={<LogIn />}
-                  />
-                )}
-
-                {user ? (
-                  <Route
-                    path="LogIn"
-                    element={<Account_admin />}
-                  />
-                ) : (
-                  <Route
-                    path="LogIn"
                     element={<LogIn />}
                   />
                 )}

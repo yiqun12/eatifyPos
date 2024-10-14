@@ -1278,14 +1278,10 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
     setPreviewUrl(add_image)
     try {
       const myFunction = firebase.functions().httpsCallable('generatePic');
-      const resultCHI = await myFunction({ name: item.CHI });
-      const result = await myFunction({ name: item.name });
-      let ARRimageCHI = resultCHI.data.result
+      const result = await myFunction({ CHI: item.CHI, name: item.name });
       let ARRimage = result.data.result
-      console.log(ARRimageCHI.length)
-      console.log(ARRimage)
-
-      setImgGallery(ARRimage.concat(ARRimageCHI))
+      console.log(ARRimage.length)
+      setImgGallery(ARRimage)
       //console.log(result.data.result)
       //return(result.data.result)
       //setResponse(result);
@@ -1393,9 +1389,9 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.1 }}
-                  className="flex justify-center items-center gap-4 rounded-lg cursor-pointer"
+                  className="flex justify-center items-center gap-4 rounded-lg mb-2"
                 >
-                  <label className="border">
+                  <label className="border cursor-pointer">
                     <input
                       type="file"
                       onChange={handleFileChangeAndUpload}
@@ -1409,7 +1405,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     />
                   </label>
 
-                  <label className="border">
+                  <label className="border cursor-pointer">
                     <img
                       className="w-64 h-64 object-cover" // same size for both images
                       src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/eaac003d-724b-483e-ac29-d44db0513600/public"
@@ -1469,6 +1465,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
             handleModalGeneratePicOpen();
             generatePic(item);
           }}
+
         />
         <div style={{
           display: 'flex',

@@ -51,7 +51,7 @@ export default function SignIn() {
         emailRef.current.value = "";
        // console.log("send")
         alert("Email was sent")
-        window.location.href = "/login";
+        window.location.href = "/account";
       });
 
   };

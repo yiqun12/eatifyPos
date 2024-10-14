@@ -977,7 +977,7 @@ const Food = () => {
                     {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
                   </h1>
                 }
-                {!isMobile && (
+                {!isMobile && !isKiosk && (
                   <div className='ml-auto w-1/2 max-w-[500px]'>
 
 
@@ -1114,7 +1114,10 @@ const Food = () => {
                     onClick={() => {
                       filterType(foodType);
                       setSelectedFoodType(foodType);
-                      //alert(foodType)
+                      if (isKiosk) {
+                        processPayment()//kepp the cloud function warm and get ready
+                        cancel()//kepp the cloud function warm and get ready
+                      }
                     }}
 
                     className={`text-xl border-black-600 rounded-xl px-2 py-2 cursor-pointer ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}

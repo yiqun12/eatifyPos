@@ -47,7 +47,7 @@ export default function SignUp() {
   };
   if (user) {
     setErrorVisibility("block");
-    window.location.href = "/login";
+    window.location.href = "/account";
   }
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -172,7 +172,7 @@ export default function SignUp() {
                             </Button>
                             <Grid container justifyContent="flex-end">
                               <Grid item>
-                                <Link href="/login" variant="body2">
+                                <Link href="/account" variant="body2">
                                   {t("Already have an account? Sign in")}
                                 </Link>
                               </Grid>

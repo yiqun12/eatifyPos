@@ -1,4 +1,4 @@
 var data = {
-    title: "Eatifydash",
-    favicon: 'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/a6dbaa1a-5a08-4125-adec-83f41f9a6300/public'
+    title: "7dollar.delivery",
+    favicon: 'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/948a1e3f-8204-4847-7f75-732bacd78400/public'
 };
