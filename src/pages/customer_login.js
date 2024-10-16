@@ -18,6 +18,30 @@ import { useState, useEffect } from 'react';
 import { useMyHook } from './myHook';
 
 const theme = createTheme();
+// Static translation object
+const translations = {
+  en: {
+    signIn: 'Sign in',
+    email: 'Email Address',
+    password: 'Password',
+    signInButton: 'SIGN IN',
+    googleSignIn: 'Google Sign in',
+    guestSignIn: 'One Time Sign in',
+    resetPassword: 'Reset password',
+    loading: 'Loading...',
+  },
+  zh: {
+    signIn: '登录',
+    email: '电子邮件地址',
+    password: '密码',
+    signInButton: '登录',
+    googleSignIn: '谷歌登录',
+    guestSignIn: '一次性登录',
+    resetPassword: '重置密码',
+    loading: '加载中...',
+  },
+};
+
 
 export default function SignIn() {
   /**listen to localtsorage */
@@ -72,141 +96,147 @@ export default function SignIn() {
     };
   }, []);
 
-        // for translations sake
-        const trans = JSON.parse(sessionStorage.getItem("translations"))
-        const t = (text) => {
-          // const trans = sessionStorage.getItem("translations")
-          //console.log(trans)
-          //console.log(sessionStorage.getItem("translationsMode"))
-      
-          if (trans != null) {
-            if (sessionStorage.getItem("translationsMode") != null) {
-            // return the translated text with the right mode
-              if (trans[text] != null) {
-                if (trans[text][sessionStorage.getItem("translationsMode")] != null)
-                  return trans[text][sessionStorage.getItem("translationsMode")]
-              }
-            }
-          } 
-          // base case to just return the text if no modes/translations are found
-          return text
-        }
+  // Language state (default is English)
+  const [language, setLanguage] = useState('en');
+
+  // Handle language change from the dropdown
+  const handleLanguageChange = (selectedLang) => {
+    setLanguage(selectedLang);
+  };
+
+  // Get the current translation based on selected language
+  const t = translations[language];
 
   return (
-    <div
-      style={{
-      }}
-    >
-      {user_loading ?
+    <div>
+      {user_loading ? (
+        <div>{t.loading}</div>
+      ) : (
         <div>
-          {t("Loading...")}
-        </div>
-        :
-        <div>
-          <div>
-            <div className="container">
-              <div style={width > 768 ? { width: "550px", margin: "0 auto" } : {}}>
-                <div className={width > 768 ? "card2 mt-50 mb-50" : ""}>
-                  <div style={{ 'padding': '0px 12px' }} className={width > 768 ? "main" : ""}>
-                    <ThemeProvider theme={theme} >
+          <div className="container">
+            <div style={width > 768 ? { width: '550px', margin: '0 auto' } : {}}>
+              <div className={width > 768 ? 'card2 mt-50 mb-50' : ''}>
+                <div style={{ padding: '0px 12px' }} className={width > 768 ? 'main' : ''}>
+                  <ThemeProvider theme={theme}>
+                    <Container component="main" maxWidth="xs">
+                      <CssBaseline />
+                      <Box
+                        sx={{
+                          marginTop: 0,
+                          marginLeft: 2,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                          <LockOutlinedIcon />
+                        </Avatar>
+                        <Typography component="h1" variant="h5">
+                          {t.signIn}
+                        </Typography>
+                        <div className="error message" style={{ display: errorVisibility, color: 'red' }}>
+                          {error}
+                        </div>
+                        {user_not_verified ? (
+                          <div style={{ color: 'red' }}>{user_not_verified}</div>
+                        ) : (
+                          <div></div>
+                        )}
 
-                      <Container component="main" maxWidth="xs">
-
-                        <CssBaseline />
-                        <Box
-                          sx={{
-                            marginTop: 0,
-
-                            marginLeft: 2,
-
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                            <LockOutlinedIcon />
-                          </Avatar>
-                          <Typography component="h1" variant="h5">
-                            {t("Sign in")}
-                          </Typography>
-                          <div className='error message' style={{ display: errorVisibility, color: 'red' }}>{error}</div>
-                          {user_not_verified ? <div style={{ color: 'red' }}>{user_not_verified}</div> : <div></div>}
-                          <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
-                            <Grid container spacing={2}>
-                              <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="email"
-                                label={t("Email Address")}
-                                name="email"
-                                autoComplete="email"
-                                autoFocus
-                                inputRef={emailRef}
+                        {/* Language Selection Dropdown */}
+                        <Box sx={{ mt: 2 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <label>
+                              <input
+                                type="checkbox"
+                                checked={language === 'en'}
+                                onChange={() => handleLanguageChange('en')}
                               />
-                              <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                name="password"
-                                label={t("Password")}
-                                type="password"
-                                id="password"
-                                autoComplete="current-password"
-
+                              English
+                            </label>
+                            <label>
+                              <input
+                                type="checkbox"
+                                checked={language === 'zh'}
+                                onChange={() => handleLanguageChange('zh')}
                               />
-                            </Grid>
-                            <Grid container spacing={2}>
-                              <Button
-                                type="submit"
-                                fullWidth
-                                variant="contained"
-                                sx={{ mt: 3, mb: 2 }}
-                              >
-                                {t("SIGN IN")}
-                              </Button>
-
-
-                              <Button onClick={signInWithGoogle}
-                                fullWidth
-                                variant="contained"
-                                sx={{ mb: 2 }} role="button" >
-                                {t("Google Sign in")}</Button>
-                              <Button
-                                fullWidth
-                                variant="contained"
-                                sx={{ mb: 2 }} role="button" onClick={signInWithGuest} >
-                                {t("One Time Sign in")}</Button>
-                                <Grid container>
-                              <Grid item xs>
-                                <Link style={{cursor: 'pointer' }} onClick={forgotPasswordHandler} variant="body2">
-                                  {t("Reset password")}?
-                                </Link>
-                              </Grid>
-                              {/* <Grid item>
-                                <Link href='/signup' variant="body2">
-                                  {t("Don't have an account? Sign Up")}
-                                </Link>
-                              </Grid> */}
-                            </Grid>
-                            </Grid>
-
-                          </Box>
+                              中文
+                            </label>
+                          </div>
                         </Box>
 
+                        <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
+                          <Grid container spacing={2}>
+                            <TextField
+                              margin="normal"
+                              required
+                              fullWidth
+                              id="email"
+                              label={t.email}
+                              name="email"
+                              autoComplete="email"
+                              autoFocus
+                              inputRef={emailRef}
+                            />
+                            <TextField
+                              margin="normal"
+                              required
+                              fullWidth
+                              name="password"
+                              label={t.password}
+                              type="password"
+                              id="password"
+                              autoComplete="current-password"
+                            />
+                          </Grid>
+                          <Grid container spacing={2}>
+                            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+                              {t.signInButton}
+                            </Button>
 
-                      </Container>
+                            <Button
+                              onClick={signInWithGoogle}
+                              fullWidth
+                              variant="contained"
+                              sx={{ mb: 2 }}
+                              role="button"
+                            >
+                              {t.googleSignIn}
+                            </Button>
 
-                    </ThemeProvider>
-                  </div>
+                            <Button
+                              fullWidth
+                              variant="contained"
+                              sx={{ mb: 2 }}
+                              role="button"
+                              onClick={signInWithGuest}
+                            >
+                              {t.guestSignIn}
+                            </Button>
+
+                            <Grid container>
+                              <Grid item xs>
+                                <Link
+                                  style={{ cursor: 'pointer' }}
+                                  onClick={forgotPasswordHandler}
+                                  variant="body2"
+                                >
+                                  {t.resetPassword}?
+                                </Link>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      </Box>
+                    </Container>
+                  </ThemeProvider>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
-      }
+      )}
     </div>
   );
 }

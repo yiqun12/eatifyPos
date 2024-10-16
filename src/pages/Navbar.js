@@ -132,7 +132,7 @@ const Navbar = () => {
       }
     }
 
-    
+
     //alert(JSON.stringify(user))
     //console.log(user)
     console.log("1 widget")
@@ -371,7 +371,11 @@ const Navbar = () => {
     // Cleanup function to unsubscribe from the listener when the component unmounts or dependencies change
     return () => unsubscribe();
   }, [user, directoryType]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
   useEffect(() => {
     const path = window.location.pathname; // Get the current URL path
 
@@ -999,10 +1003,36 @@ const Navbar = () => {
 
                 <div className=' flex justify-end mb-2'>
 
-                  {!directoryType ?
+                  {!directoryType && (
+                    (!isKiosk && !isDineIn && (
+                      !showInputs ? (
+                        <DeleteSvg
+                          className="delete-btn"
+                          style={{ cursor: 'pointer', margin: '0' }}
+                          ref={spanRef}
+                          onClick={closeModal}
+                        />
+                      ) : <DeleteSvg
+                        className="delete-btn"
+                        style={{ cursor: 'pointer', margin: '0' }}
+                        ref={spanRef}
+                        onClick={() => {
+                          handleClickDelivery();
+                          setDropoffPhoneNumber('');
+                          setZipCode('');
+                          setState('');
+                          setCity('');
+                          setDropoffAddress('');
+                          setActiveAddressId(null);  // Set this to null at the end after clearing other states
+                          setDeliveryFee(0)
+                          setAddNewAdress(false);
+                          setSuccessMessage('')
+                        }}
+                        // onClick={closeModal}
+                      />
+                    ))
+                  )}
 
-                    <DeleteSvg className="delete-btn " style={{ cursor: 'pointer', margin: '0' }} ref={spanRef} onClick={closeModal}></DeleteSvg>
-                    : null}
                 </div>
 
 
@@ -1649,6 +1679,39 @@ const Navbar = () => {
           <div className="col-span-4 pl-4 lg:ml-10 lg:mr-10" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
             {isOnline ?
               <React.Fragment>
+
+                {(isMobile && window.location.pathname === '/') && (
+                  <>
+                    {/* Hamburger Icon */}
+                    <button
+                      className="hamburger-btn"
+                      onClick={toggleMenu}
+                      style={{ fontSize: '24px', cursor: 'pointer' }}
+                    >
+                      <i className="bi bi-list"></i> {/* Hamburger icon */}
+                    </button>
+
+                    {/* Menu Items (conditionally rendered based on menuOpen state) */}
+                    {(menuOpen) && (
+                      <div className="menu-items" style={{ display: 'flex', flexDirection: 'column', position: 'absolute', top: '50px', background: 'white', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', padding: '10px' }}>
+                        <button
+                          className="ml-3"
+                          style={{ cursor: 'pointer', fontSize: '20px', marginBottom: '10px' }}
+                        >
+                          <i className="bi bi-box"></i> {/* Product Icon */}
+                          <span>Product</span>
+                        </button>
+                        <button
+                          className="ml-3"
+                          style={{ cursor: 'pointer', fontSize: '20px' }}
+                        >
+                          <i className="bi bi-briefcase"></i> {/* Career Icon */}
+                          <span>Career</span>
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
                 <img
 
                   onClick={event => {
@@ -1675,7 +1738,7 @@ const Navbar = () => {
                       }
                     }
                   }}
-                  src={Eshopingcart}
+                  src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/948a1e3f-8204-4847-7f75-732bacd78400/public"
                   style={{
                     maxHeight: '30px',
                     maxWidth: '30px',
@@ -1707,7 +1770,7 @@ const Navbar = () => {
 
 
                 }} className='notranslate text-black text-xl font-bold'>
-                  EatifyDash
+                  .DELIVERY
                 </span>
               </React.Fragment>
               : null}
@@ -1779,6 +1842,25 @@ const Navbar = () => {
 
 
               )} */}
+
+              {(!isMobile && window.location.pathname === '/') && (
+                <>
+                  <button
+                    className="ml-3"
+                    style={{ cursor: 'pointer', top: '-10px', fontSize: '20px' }}
+                  >
+                    <i className="bi bi-box"></i> {/* Changed icon */}
+                    <span>Product</span>
+                  </button>
+                  <button
+                    className="ml-3"
+                    style={{ cursor: 'pointer', top: '-10px', fontSize: '20px' }}
+                  >
+                    <i className="bi bi-briefcase"></i> {/* Career icon */}
+                    <span>Career</span>
+                  </button>
+                </>
+              )}
               {
                 !isKiosk && (
                   !user_loading ? (
@@ -1811,7 +1893,6 @@ const Navbar = () => {
                   )
                 )
               }
-
 
 
             </div>
