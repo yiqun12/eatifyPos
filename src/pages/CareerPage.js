@@ -80,7 +80,7 @@ At EatifyDash, collaboration is key. Our success hinges on collective problem-so
               &nbsp;Apply Now</button>
             </a>          </div>
           <div className="position">
-            <h3>Sales Specialist (0025)</h3>
+            <h3>Sales Specialist (0026)</h3>
             <p>As a Sales Specialist, you'll play a key role in driving our company's revenue growth by identifying and converting potential leads into loyal customers. You'll work closely with our marketing and product teams to develop sales strategies that align with our business goals. Your responsibilities will include conducting market research, reaching out to potential clients, negotiating contracts, and providing exceptional after-sales support. If you're results-driven and have a talent for communication and negotiation, join us to help expand our market presence and achieve sales targets.</p>
             <h4>Qualification:</h4>
               <li>Proven sales experience, preferably in the POS industry.</li>

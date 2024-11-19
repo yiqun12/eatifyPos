@@ -68,12 +68,52 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandPointer } from '@fortawesome/free-solid-svg-icons';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { DateTime } from 'luxon';
+import { lookup } from 'zipcode-to-timezone';
 
 registerLocale('zh-CN', zhCN);
 
 
 
 const Account = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [timeZone, setTimeZone] = useState('America/New_York'); // Default to Eastern Time Zone
+
+  const toggleModal = () => setIsOpen(!isOpen);
+
+  // Define U.S. time zones
+  const timeZones = {
+    "America/New_York": "Eastern",
+    "America/Chicago": "Central",
+    "America/Denver": "Mountain",
+    "America/Los_Angeles": "Pacific",
+    "America/Anchorage": "Alaska",
+    "Pacific/Honolulu": "Hawaii"
+  };
+  function getTimeZoneByZip(zipCode) {
+    // Use the library to find the timezone ID from the ZIP code
+    const timeZoneId = lookup(zipCode);
+
+    // Check if the timezone ID is in our timeZones list
+    return timeZones[timeZoneId] || "Unknown Time Zone";
+  }
+  // Get the equivalent time for UTC 0:00 in the selected time zone
+  const cutoffTime = DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE);
+
+  const handleTimeZoneChange = (zone) => setTimeZone(zone);
+
+  const handleCheckboxChange = async (e) => {
+    const isChecked = e.target.checked;
+    const documentRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID);
+
+    try {
+      // Update the `dailyPayout` field based on checkbox status
+      await updateDoc(documentRef, { dailyPayout: isChecked });
+      console.log(isChecked);
+    } catch (error) {
+      console.error("Error updating document:", error);
+    }
+  };
 
   const fetchSingleBalance = async (Charge_ID, account_ID) => {
     try {
@@ -630,7 +670,13 @@ const Account = () => {
         // console.log(item.dateTime)
         // console.log(parseDateUTC(item.dateTime))
         const formattedDate = parseDateUTC(item.dateTime)
-
+        console.log(item.metadata)
+        if (item.id.length) if (item && item.id && item.id.length === 36) {
+          item.metadata.total = parseFloat(item.metadata.total) - item.metadata.service_fee
+          item.metadata.tip = 0
+          item.metadata.service_fee = 0
+          // Your code here
+        }
         const newItem = {
           id: item.id,
           receiptData: item.receiptData,
@@ -719,7 +765,9 @@ const Account = () => {
         ...doc.data(),
         id: doc.id,
       }));
+      console.log("storeData")
       console.log(storeData);
+
       setStorelist(storeData.reverse());
     }, (error) => {
       console.error("Error fetching data: ", error);
@@ -3129,7 +3177,6 @@ const Account = () => {
                                 :
                                 <div>
                                   <div className='mb-1' style={{ fontWeight: 'bold' }}>Online Payment Options:</div>
-
                                   <div className='mb-1' style={{ display: 'flex' }}>
 
                                     <img className='mr-2'
@@ -3141,10 +3188,141 @@ const Account = () => {
                                       }}
                                     />
                                     You already connect with Stripe to receive online payment!
+
                                   </div>
+
+                                  <div className="bg-white rounded-md">
+                                    <label className="flex items-center space-x-2 text-blue-500 font-bold mt-2">
+                                      <input
+                                        type="checkbox"
+                                        onChange={handleCheckboxChange}
+                                        className="form-checkbox h-5 w-5 text-blue-500"
+                                        checked={data?.dailyPayout}
+                                      />
+                                      <span>Enable Daily Payout</span>
+                                    </label>
+                                    <p className="text-gray-600 mt-2">
+                                      Enable daily payout to receive automatic transfers to your bank account every morning at 4:00 AM ~ 5:00 AM .
+                                      By selecting this option, your earnings will be deposited consistently each day, ensuring prompt access to your funds.
+                                    </p>
+                                    <p className="text-gray-500 text-sm mt-2">
+                                      <strong>Note:</strong> Enabling this option will incur an additional charge of 1.5% and a flat fee of $1 per payout.
+                                    </p>
+                                    {isOpen ?
+                                      <button
+                                        className="px-4 py-2 bg-red-500 mt-2 text-white rounded-lg"
+                                        onClick={toggleModal}
+                                      >
+                                        Collapse Standard Payout Schedule
+                                      </button> :
+                                      <button
+                                        className="px-4 py-2 bg-blue-500 mt-2 text-white rounded-lg"
+                                        onClick={toggleModal}
+                                      >
+                                        View Standard Payout Schedule
+                                      </button>
+                                    }
+                                    <p className="text-gray-500 text-sm mt-2 mb-2 ">
+                                      <strong>Note:</strong> Opting for the standard payout schedule means your earnings will be deposited according to our regular payout cycle without any additional fees.
+                                    </p>
+
+                                    <div className="text-center">
+
+
+                                      {/* Modal */}
+                                      {isOpen && (
+                                        <div className='' >
+                                          <table className="w-full border-collapse">
+                                            <thead>
+                                              <tr>
+                                                <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Day of Transaction</th>
+                                                <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Time Range</th>
+                                                <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Deposit Date</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Monday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span> </td>
+                                                <td className="p-3 border-b text-gray-800">Thursday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Monday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                <td className="p-3 border-b text-gray-800">Friday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Tuesday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span> </td>
+                                                <td className="p-3 border-b text-gray-800">Friday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Tuesday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                <td className="p-3 border-b text-gray-800">Monday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Wednesday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                <td className="p-3 border-b text-gray-800">Monday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Wednesday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                <td className="p-3 border-b text-gray-800">Tuesday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Thursday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                <td className="p-3 border-b text-gray-800">Tuesday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Thursday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Friday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Friday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Saturday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Saturday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Sunday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                              </tr>
+                                              <tr className="odd:bg-white even:bg-gray-50">
+                                                <td className="p-3 border-b text-gray-800">Sunday</td>
+                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                <td className="p-3 border-b text-gray-800">Thursday Early Morning</td>
+                                              </tr>
+                                              {/* Add other rows as needed */}
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+
 
                                   <TerminalRegister City={data?.Address} Address={data?.physical_address} State={data?.State} storeDisplayName={data?.Name} ZipCode={data?.ZipCode} storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
                                 </div>
+
                               }
                             </div>
                             <hr />
@@ -3369,7 +3547,7 @@ const Account = () => {
                               </div>
 
                               <div style={isMobile ? { "width": "50%" } : {}}>
-                                {isMobile && (
+                                {(isMobile || window.location.hostname === 'localhost') && (
                                   <PieChart className='notranslate' width={isMobile ? width2 / 2 : 300} height={250}>
                                     <Pie
                                       cx={80} // Move the pie to the left by adjusting the cx value

@@ -1028,7 +1028,7 @@ const Navbar = () => {
                           setAddNewAdress(false);
                           setSuccessMessage('')
                         }}
-                        // onClick={closeModal}
+                      // onClick={closeModal}
                       />
                     ))
                   )}
@@ -1696,17 +1696,24 @@ const Navbar = () => {
                       <div className="menu-items" style={{ display: 'flex', flexDirection: 'column', position: 'absolute', top: '50px', background: 'white', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', padding: '10px' }}>
                         <button
                           className="ml-3"
-                          style={{ cursor: 'pointer', fontSize: '20px', marginBottom: '10px' }}
+                          style={{ cursor: 'pointer', fontSize: '20px' }}
+
                         >
-                          <i className="bi bi-box"></i> {/* Product Icon */}
+                          <i className="bi bi-briefcase"></i> {/* Career Icon */}
                           <span>Product</span>
                         </button>
+
+
                         <button
                           className="ml-3"
                           style={{ cursor: 'pointer', fontSize: '20px' }}
+                          onClick={() => {
+                            window.location.href = `/career`;
+                          }}
                         >
                           <i className="bi bi-briefcase"></i> {/* Career Icon */}
                           <span>Career</span>
+
                         </button>
                       </div>
                     )}
@@ -1848,6 +1855,7 @@ const Navbar = () => {
                   <button
                     className="ml-3"
                     style={{ cursor: 'pointer', top: '-10px', fontSize: '20px' }}
+
                   >
                     <i className="bi bi-box"></i> {/* Changed icon */}
                     <span>Product</span>
@@ -1855,9 +1863,14 @@ const Navbar = () => {
                   <button
                     className="ml-3"
                     style={{ cursor: 'pointer', top: '-10px', fontSize: '20px' }}
+                    onClick={() => {
+                      window.location.href = `/career`;
+                    }}
                   >
                     <i className="bi bi-briefcase"></i> {/* Career icon */}
-                    <span>Career</span>
+                    <span
+
+                    >Career</span>
                   </button>
                 </>
               )}

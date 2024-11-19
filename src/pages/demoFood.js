@@ -152,7 +152,7 @@ const Food = () => {
           Phone: '4155551234',
           physical_address: '123 Main Street',
           Description: 'chinese restaurant that sells food product',
-
+          dailyPayout: false,
         };
 
         try {

@@ -1100,7 +1100,6 @@ const Food = () => {
 
         </div>
         <div
-
           className='mt-1 flex m-auto px-4 flex-grow-1 relative min-h-screen w-full'>
           {/* Sidebar */}
           {!isMobile && (

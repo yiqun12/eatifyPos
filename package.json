@@ -14,6 +14,7 @@
         "@fortawesome/free-solid-svg-icons": "^6.3.0",
         "@fortawesome/react-fontawesome": "^0.2.0",
         "@headlessui/react": "^1.7.17",
+        "@heroicons/react": "^2.1.5",
         "@mui/icons-material": "^5.15.10",
         "@react-icons/all-files": "^4.1.0",
         "@stripe/react-stripe-js": "^1.16.1",
@@ -41,6 +42,7 @@
         "i": "^0.3.7",
         "i18next": "^23.16.0",
         "leaflet": "^1.9.4",
+        "luxon": "^3.5.0",
         "mdb-react-ui-kit": "^5.1.0",
         "mobiscroll": "^3.0.0-beta6",
         "moment": "^2.29.4",
@@ -70,6 +72,7 @@
         "react-router-dom": "^6.5.0",
         "react-scripts": "^5.0.1",
         "react-scrollable-feed": "^2.0.2",
+        "react-shadow": "^20.5.0",
         "react-swipeable-views-react-18-fix": "^0.14.1",
         "react-swiper": "^0.1.5",
         "react-use-gesture": "^9.1.3",
@@ -81,7 +84,8 @@
         "styled-components": "^6.1.11",
         "swiper": "^10.1.0",
         "use-local-storage-state": "^18.1.2",
-        "web-vitals": "^1.1.2"
+        "web-vitals": "^1.1.2",
+        "zipcode-to-timezone": "^0.0.9"
     },
     "scripts": {
         "start": "react-scripts start",
