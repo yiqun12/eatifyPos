@@ -92,38 +92,7 @@ const Food = () => {
       }
     ])
     const clock = { "0": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "1": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "2": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "3": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "4": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "5": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "6": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" }, "7": { "timeRanges": [{ "openTime": "0000", "closeTime": "2359" }], "timezone": "ET" } }
-    const restaurant_seat_arrangement = {
-      "table": [
-        {
-          "type": "rect",
-          "left": 45,
-          "top": 75,
-          "width": 60,
-          "height": 60,
-          "scaleX": 1,
-          "scaleY": 1,
-          "tableName": "A12",
-          "id": "j57opywg",
-          "snapAngle": 45,
-          "angle": 0
-        },
-        {
-          "type": "rect",
-          "left": 165,
-          "top": 75,
-          "width": 60,
-          "height": 60,
-          "scaleX": 1,
-          "scaleY": 1,
-          "tableName": "A3",
-          "id": "spkjh6o6",
-          "snapAngle": 45,
-          "angle": 0
-        }
-      ],
-      "chair": [],
-      "wall": []
-    }
+    const restaurant_seat_arrangement = { "table": [{ "type": "rect", "left": 165, "top": 75, "width": 60, "height": 60, "scaleX": 1, "scaleY": 1, "tableName": "A3", "id": "spkjh6o6", "snapAngle": 45, "angle": 0 }, { "type": "rect", "left": 15, "top": 75, "width": 60, "height": 60, "scaleX": 1, "scaleY": 1, "tableName": "A1", "id": "6od2zceo", "snapAngle": 45, "angle": 0 }, { "type": "rect", "left": 90, "top": 75, "width": 60, "height": 60, "scaleX": 1, "scaleY": 1, "tableName": "A2", "id": "cf9612mu", "snapAngle": 45, "angle": 0 }], "chair": [], "wall": [] }
     let docRef;
 
     try {
@@ -154,9 +123,21 @@ const Food = () => {
           Description: 'chinese restaurant that sells food product',
           dailyPayout: false,
         };
-
+        const tableData = {
+          product: "[]",
+        };
         try {
           await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
+          // Using the same variable without redeclaring
+          await setDoc(doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName,
+            "Table", storeName + "-A1"
+          ), tableData);  // We use setDoc since we're specifying the document ID (storeName)
+          await setDoc(doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName,
+            "Table", storeName + "-A2"
+          ), tableData);  // We use setDoc since we're specifying the document ID (storeName)
+          await setDoc(doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName,
+            "Table", storeName + "-A3"
+          ), tableData);  // We use setDoc since we're specifying the document ID (storeName)
           window.location.hash = `${DemoStorename}`;
           window.location.reload();
           console.log("Document added successfully!");
@@ -235,21 +216,6 @@ const Food = () => {
               >
                 Create Store Now
               </Button_>
-              {(isMobile) &&
-                <div style={{ marginTop: "30px" }}>
-                  {DemoStorename ? <div style={{ marginBottom: "20px" }}>Your QR Code:</div> : <div></div>}
-
-
-                  <div style={{ display: "flex", justifyContent: "center", width: "100%", marginBottom: "20px", padding: "10px", border: "1px solid #ddd", borderRadius: "4px" }}>
-                    {DemoStorename ? <QRCode value={`https://eatifylab.com/store?store=${DemoStorename}`} /> : <img src={intro_pic}></img>}
-
-                  </div>
-
-                  <div style={{ marginBottom: "20px" }}>
-                    {DemoStorename ? <div>Visit: <a href={`https://eatifylab.com/store?store=${DemoStorename}`} target="_blank" rel="noopener noreferrer">{`https://eatifylab.com/store?store=${DemoStorename}`}</a></div> : <div></div>}
-                  </div>
-                </div>
-              }
             </form>
 
           </div>

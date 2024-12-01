@@ -63,7 +63,9 @@ const Food = ({ store }) => {
 
     return initialState;
   };
-
+  useEffect(() => {
+    resetAttributes(transformJsonToInitialState({}));
+  }, []);
   /**
    * 
   {
@@ -158,6 +160,7 @@ const Food = ({ store }) => {
     console.log(selectedOptions)
   };
 
+  console.log(store)
   const [data, setData] = useState(JSON.parse(localStorage.getItem(store) || "[]"));
 
   const [foods, setFoods] = useState(data);
@@ -228,37 +231,25 @@ const Food = ({ store }) => {
   const containerStyle = {
     display: 'flex',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
   };
-  const isBigPC = width >= 1280;
   const itemStyle = isMobile
     ? {
       minWidth: 'calc(100% - 10px)',
-      maxWidth: 'calc(100% - 10px)', // 100% when width >= 1280
       margin: '5px',
       padding: '10px',
       paddingLeft: '0px',
       paddingRight: '0px',
       boxSizing: 'border-box',
     }
-    : isBigPC
-      ? {
-        minWidth: 'calc(33% - 10px)', // 33% when width >= 1280
-        maxWidth: 'calc(33% - 10px)', // 33% when width >= 1280
-        margin: '5px',
-        padding: '10px',
-        paddingLeft: '0px',
-        paddingRight: '0px',
-        boxSizing: 'border-box',
-      }
-      : {
-        minWidth: 'calc(50% - 10px)', // 50% for screens smaller than 1280 but not mobile
-        maxWidth: 'calc(50% - 10px)', // 50% when width >= 1280
-        margin: '5px',
-        padding: '10px',
-        paddingLeft: '0px',
-        paddingRight: '0px',
-        boxSizing: 'border-box',
-      };
+    : {
+      minWidth: 'calc(50% - 10px)',
+      margin: '5px',
+      padding: '10px',
+      paddingLeft: '0px',
+      paddingRight: '0px',
+      boxSizing: 'border-box',
+    };
   useEffect(() => {
   }, [id]);
 
@@ -277,7 +268,7 @@ const Food = ({ store }) => {
     await updateDoc(docRef, {
       key: localStorage.getItem(store)
     });
-    localStorage.setItem("Old_" + store, localStorage.getItem(store));
+    localStorage.setItem("Old_TitleLogoNameContent", localStorage.getItem(store));
     alert("Saved Successful");
 
   };
@@ -309,10 +300,10 @@ const Food = ({ store }) => {
         }
         if (sessionData === undefined || sessionData === null) {
           // If rest is undefined or null, do something else (e.g., set an empty array as the value)
-          localStorage.setItem("Old_" + store, JSON.stringify([]));
+          localStorage.setItem("Old_TitleLogoNameContent", JSON.stringify([]));
         } else {
           // If rest is not undefined or null, proceed with the original operations
-          localStorage.setItem("Old_" + store, sessionData);
+          localStorage.setItem("Old_TitleLogoNameContent", sessionData);
         }
 
         setArr(JSON.parse(sessionData));
@@ -387,6 +378,7 @@ const Food = ({ store }) => {
     attributes2: "",
     attributesArr: ""
   });
+  console.log(newItem)
 
 
   const [arr, setArr] = useState(JSON.parse(localStorage.getItem(store) || "[]"));
@@ -407,14 +399,15 @@ const Food = ({ store }) => {
     if (isDuplicateId) {
       return handleAddNewItem(); // Recursively call the function to generate a new UUID
     }
+
     // Check if any input box is empty and use the placeholder values
     const newItemWithPlaceholders = {
       id: newItemId,
       image: previewUrl,
-      name: newItem.name || "Enter Meal Name",
-      CHI: newItem.CHI || "填写菜品名称",
+      name: newItem.name || "Blank",
+      CHI: newItem.CHI || "空白的",
       subtotal: newItem.subtotal || "1",
-      category: selectedFoodType === "" ? newItem.category || "Temporary Use" : selectedFoodType,
+      category: newItem.category || selectedFoodType === "" ? "Temporary Use" : selectedFoodType,
       categoryCHI: newItem.categoryCHI || "类别",
       availability: newItem.availability || ['Morning', 'Afternoon', 'Evening'],
       attributes: newItem.attributes || [],
@@ -544,11 +537,11 @@ const Food = ({ store }) => {
   useEffect(() => {
     //console.log("hellooooooooooooooooooooo")
     syncData();
+
   }, []);
   const [ChangeCategoryName, setChangeCategoryName] = useState(false);
   const [SelectChangeCategoryName, setSelectChangeCategoryName] = useState('');
   const [categoryName, setCategoryName] = useState(''); // Initialize with an empty string
-  const [showAdjustion, setShowAdjustion] = useState(false);
 
   const ChangeCategoryNameSubmit = () => {
     // Use the categoryName state variable here
@@ -573,7 +566,7 @@ const Food = ({ store }) => {
 
   return (
 
-    <div>
+    <div className='max-w-[1597px] '>
       <Helmet>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha384-xxz5vNXM/dz2Uk5KA02wmbzm9KpPL5Sgt1JwBrJZ4tUfS5B/R5F/h5A5J7J5C5P9i" crossorigin="anonymous" />
@@ -629,22 +622,18 @@ const Food = ({ store }) => {
               {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                 <input
                   translate="no"
-                  class="form-control text-base shadow-none rounded-end-pill" placeholder="Search for items..."
+                  class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
                   type="text"
                   value={selectedCHI}
                   onChange={handleCHIChange}
-                  style={{ fontSize: '16px' }}
-
                 />
                 :
                 <input
                   translate="no"
-                  class="form-control text-base shadow-none rounded-end-pill" placeholder="Search for items..."
+                  class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..."
                   type="text"
                   value={selectedName}
                   onChange={handleNameChange}
-                  style={{ fontSize: '16px' }}
-
                 />
               }
 
@@ -766,43 +755,55 @@ const Food = ({ store }) => {
                 transition={{ duration: 0.1 }}
                 key={""}
                 className="">
-                <label className='cursor-pointer'
-                  style={{ display: 'block', width: '100%' }}
 
-                >
-                  <input
-                    type="file"
-                    onChange={handleFileChangeAndUpload}
-                    style={{ display: 'none' }} // hides the input
-                    translate="no"
-                  />
-
-                  <img
-                    class={`${isMobile ? " h-[150px] " : "h-[200px]"} w-full transition-all cursor-pointer object-cover rounded-t-lg`}
-                    src={previewUrl}
-                    loading="lazy"
-                  />
-                </label>
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                 }}>
+                  <div
+                    style={{
+                      width: '80px',
+                    }}>
+                    <label className='cursor-pointer'
+                      style={{ display: 'block', width: '100%' }}
 
-                  <div style={{ width: 'calc(100%)' }}>  {/* adjust width */}
+                    >
+                      <input
+                        type="file"
+                        onChange={handleFileChangeAndUpload}
+                        style={{ display: 'none' }} // hides the input
+                        translate="no"
+                      />
+
+                      <img
+                        className="h-[80px] w-[80px] transition-all object-cover rounded-md"
+                        src={previewUrl}
+                        loading="lazy"
+                      />
+                    </label>
+                  </div>
+
+                  <div style={{ width: 'calc(100% - 80px)' }}>  {/* adjust width */}
                     <div className=' text-md font-semibold'>
 
                       <div className="mb-1 flex ml-2 items-center">
+                        <span className='text-black'>
+
+                          {t("Dish:")}&nbsp;
+                        </span>
+
                         <input
                           className='text-md font-semibold'
+                          style={{ width: "50%" }}
                           type="text"
                           name="name"
-                          placeholder={t("Enter Meal Name")}
+                          placeholder={t("Blank")}
                           value={newItem.name}
                           onChange={handleInputChange}
                           translate="no"
                         />
                         <span onClick={async () => {  //Auto Fill Chinese
-                          let translatedText = "Enter Meal Name";
+                          let translatedText = "Blank";
                           if (newItem.name) {
                             translatedText = newItem.name;
                           }
@@ -814,22 +815,27 @@ const Food = ({ store }) => {
                           }
 
                         }}
-                          className={`cursor-pointer text-black ml-auto notranslate`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(CN)")}</span></span>
+                          className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(CN)")}</span></span>
 
                       </div>
                       <div className="mb-1 ml-2 flex  items-center">
+                        <span className='text-black'>
+
+                          {t("菜品:")}&nbsp;
+                        </span>
                         <input
                           className='text-md font-semibold'
+                          style={{ width: "40%" }}
                           type="text"
                           name="CHI"
-                          placeholder={"填写菜品名称"}
+                          placeholder={"空白的"}
                           value={newItem.CHI}
                           onChange={handleInputChange}
                           translate="no"
                         />
 
                         <span onClick={async () => {  // Auto Fill English
-                          let translatedText = "填写菜品名称";
+                          let translatedText = "空白的";
                           if (newItem.CHI) {
                             translatedText = newItem.CHI;
                           }
@@ -840,7 +846,7 @@ const Food = ({ store }) => {
                             console.error("Translation error:", error);
                           }
                         }}
-                          className={`cursor-pointer text-black ml-auto notranslate`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span className='notranslate'>&nbsp;{t("(EN)")}</span></span>
+                          className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(EN)")}</span></span>
 
                       </div>
 
@@ -894,33 +900,23 @@ const Food = ({ store }) => {
                         </span>
                       </p>
                       {expandOptions ? <div><div className='d-block text-md font-semibold'>
-                        <button onClick={() => setShowAdjustion(!showAdjustion)}
-                          className="btn d-inline-flex d-inline-flex btn-sm btn-light">
-                          Edit Dish Revision Category
-                        </button>
-                        {
-                          showAdjustion ? (
-                            <>
-                              <div className='flex'>
-                                <span className='text-black'>
-                                  Dish Revise Category:&nbsp;
-                                </span>
-                                <input
-                                  className='text-md font-semibold'
-                                  style={{ width: "50%" }}
-                                  value={currentAttribute}
-                                  onChange={(e) => setCurrentAttribute(e.target.value)}
-                                  placeholder="Size"
-                                  translate="no"
-                                />
-                              </div>
-                              <small className='text-blue-500'>default: 'Option' (E.g.: Portion Size)</small>
-                            </>
-                          ) : null
-                        }
+                        <div className='flex'>
 
+                          <span className='text-black'>
+                            Dish Revise Category:&nbsp;
 
+                          </span>
 
+                          <input
+                            className='text-md font-semibold'
+                            style={{ width: "50%" }}
+                            value={currentAttribute}
+                            onChange={(e) => setCurrentAttribute(e.target.value)}
+                            placeholder=" Size"
+                            translate="no"
+                          />
+                        </div>
+                        <small>E.g.: Portion Size</small>
                         <div className='flex'>
 
                           <span className='text-black'>
@@ -936,7 +932,7 @@ const Food = ({ store }) => {
                             translate="no"
                           />
                         </div>
-                        <small className='text-blue-500'>E.g.: Big</small>
+                        <small>E.g.: Big</small>
                         <div className='flex'>
 
                           <span className='text-black'>
@@ -966,14 +962,13 @@ const Food = ({ store }) => {
                             if (!expandOptions) {
                               setExpandOptions(true);
                             } else {
-                              resetAttributes(transformJsonToInitialState(attributes))
                               addOrUpdateAttributeVariation();
                             }
                           }}
-                          className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-warning"
+                          className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light"
                         >
                           <span>
-                            {!expandOptions ? "Adjust Dish Revision Option" : "Confirm"}
+                            {!expandOptions ? "Add or Update Option" : "Confirm"}
                           </span>
                         </a>
                       </div>
@@ -1093,9 +1088,7 @@ const Food = ({ store }) => {
                   }
                   const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
                   return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
-                })
-                .filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称"))
-                ?.map((item, index) => (
+                })?.map((item, index) => (
 
                   <div style={itemStyle}>
 
@@ -1118,7 +1111,6 @@ const Food = ({ store }) => {
 
 
 const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id, translateToEnglish, translateToChinese, foodTypes }) => {
-  const [showAdjustion, setShowAdjustion] = useState(false);
 
   const {
     attributes,
@@ -1153,7 +1145,10 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
 
     return initialState;
   };
+  useEffect(() => {
 
+    resetAttributes(transformJsonToInitialState(item.attributesArr));// init
+  }, []);
 
   /**
    * 
@@ -1278,10 +1273,12 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
     setPreviewUrl(add_image)
     try {
       const myFunction = firebase.functions().httpsCallable('generatePic');
-      const result = await myFunction({ CHI: item.CHI, name: item.name });
+      const resultCHI = await myFunction({ name: item.CHI });
+      const result = await myFunction({ name: item.name });
+      let ARRimageCHI = resultCHI.data.result
       let ARRimage = result.data.result
-      console.log(ARRimage.length)
-      setImgGallery(ARRimage)
+
+      setImgGallery(ARRimage.concat(ARRimageCHI))
       //console.log(result.data.result)
       //return(result.data.result)
       //setResponse(result);
@@ -1364,13 +1361,12 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
 
       )}
       {isModalGeneratePicOpen && (
-        <div id="defaultModal"
-          className={`${isMobile ? " w-full " : "w-[700px]"} fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50`}>
+        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
           <div className="relative w-full max-w-2xl max-h-full mt-20">
             <div className="relative bg-white rounded-lg border-black shadow">
               <div className="flex items-start justify-between p-4 border-b rounded-t ">
                 <h3 className="text-xl font-semibold text-gray-900 ">
-                  {t("We recommend these pictures for")} <span className='notranslate'>{item.name} {item.CHI}</span>
+                  {t("We recommend these pictures...")}
                 </h3>
                 <button
                   onClick={handleModalGeneratePicClose}
@@ -1382,49 +1378,45 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                   <span className="sr-only">{t("Close modal")}</span>
                 </button>
               </div>
-              <div className='p-4 pt-3 '>
+              <div className='p-4 pt-3 flex justify-between'>
                 <div
                   layout
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.1 }}
-                  className="flex justify-center items-center gap-4 rounded-lg mb-2"
+                  className="border rounded-lg h-[80px] w-[80px] cursor-pointer"
+                  // The inline style for motion.div changes based on isMobile
+                  style={
+                    isMobile
+                      ? { display: "block", margin: "auto" }
+                      : {}
+                  }
                 >
-                  <label className="border cursor-pointer">
+                  <label
+                    className=''
+                    style={{ backgroundColor: "rgba(246,246,248,1)" }}>
                     <input
                       type="file"
                       onChange={handleFileChangeAndUpload}
-                      style={{ display: "none" }} // hides the input
+                      style={{ display: 'none' }} // hides the input
                       translate="no"
                     />
                     <img
-                      className="w-64 h-64 object-cover" // same size for both images
-                      src={previewUrl || "https://via.placeholder.com/150"} // fallback to a placeholder if previewUrl is not available
+                      className=" h-[80px] w-[80px] hover:scale-125 transition-all cursor-pointer object-cover rounded-t-lg"
+                      src={previewUrl} // you can use a default placeholder image
                       loading="lazy"
-                    />
-                  </label>
-
-                  <label className="border cursor-pointer">
-                    <img
-                      className="w-64 h-64 object-cover" // same size for both images
-                      src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/eaac003d-724b-483e-ac29-d44db0513600/public"
-                      loading="lazy"
-                      onClick={() => {
-                        selectPic("https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public", item)
-                      }}
                     />
                   </label>
                 </div>
-
-                {imgGallery.slice(0, 19).map(gen_img => (
+                {imgGallery.slice(0, 3).map(gen_img => (
                   <div
                     layout
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.1 }}
-                    className="border rounded-lg cursor-pointer mb-2"
+                    className="border rounded-lg h-[80px] w-[80px] cursor-pointer"
                     // The inline style for motion.div changes based on isMobile
                     style={
                       isMobile
@@ -1433,7 +1425,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     }
                   >
                     <div className="h-min overflow-hidden rounded-md">
-                      <img class={`${isMobile ? " h-[150px] " : "h-[200px]"} w-full transition-all cursor-pointer object-cover rounded-t-lg`} src={gen_img}
+                      <img loading="lazy" className=" h-[80px] w-[80px] hover:scale-125 transition-all cursor-pointer object-cover rounded-t-lg" src={gen_img}
                         onClick={() => {
                           selectPic(gen_img, item)
                         }}
@@ -1443,8 +1435,32 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                 ))}
 
               </div>
-
-
+              <div className='p-4 pt-3 flex justify-between'>
+                {imgGallery.slice(3, 7).map(gen_img => (
+                  <div
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.1 }}
+                    className="border rounded-lg h-[80px] w-[80px] cursor-pointer"
+                    // The inline style for motion.div changes based on isMobile
+                    style={
+                      isMobile
+                        ? { display: "block", margin: "auto", marginTop: "10px" }
+                        : {}
+                    }
+                  >
+                    <div className="h-min overflow-hidden rounded-md">
+                      <img loading="lazy" className=" h-[80px] w-[80px] hover:scale-125 transition-all cursor-pointer object-cover rounded-t-lg" src={gen_img}
+                        onClick={() => {
+                          selectPic(gen_img, item)
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -1457,26 +1473,34 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
         transition={{ duration: 0.1 }}
         key={""}
         className="">
-        <img
-          class={`${isMobile ? " h-[150px] " : "h-[200px]"} w-full transition-all cursor-pointer object-cover rounded-t-lg`}
-          src={item.image}
-          loading="lazy"
-          onClick={() => {
-            handleModalGeneratePicOpen();
-            generatePic(item);
-          }}
 
-        />
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
         }}>
+          <div
+            style={{
+              width: '80px',
+            }}>
+            <label className='cursor-pointer'
+              style={{ display: 'block', width: '100%' }}
+            >
+              <img
+                className="h-[80px] w-[80px] transition-all object-cover rounded-md"
+                src={item.image}
+                loading="lazy"
+                onClick={() => {
+                  handleModalGeneratePicOpen();
+                  generatePic(item);
+                }}
+              />
+            </label>
+          </div>
 
+          <div style={{ width: 'calc(100% - 80px)' }}>  {/* adjust width */}
+            <div className='text-md font-semibold'>
 
-          <div style={{ width: 'calc(100%)' }}>  {/* adjust width */}
-            <div className='text-md font-semibold '>
-
-              <div className="mb-1 mt-1 ml-2 flex  items-center">
+              <div className="mb-1 ml-2 flex  items-center">
                 <input
                   className='text-md font-semibold'
                   type="text"
@@ -1506,7 +1530,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     console.error("Translation error:", error);
                   }
                 }}
-                  className={`cursor-pointer text-black ml-auto notranslate`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(CN)")}</span></span>
+                  className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(CN)")}</span></span>
 
               </div>
               <div className="mb-1 flex ml-2 items-center">
@@ -1540,7 +1564,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                   }
 
                 }}
-                  className={`cursor-pointer text-black ml-auto notranslate`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span className='notranslate'>&nbsp;{t("(EN)")}</span></span>
+                  className={`cursor-pointer text-black ml-auto`} style={{ display: 'flex', alignItems: 'center', position: 'relative', background: 'rgb(244, 229, 208)', borderRadius: '8px', padding: '10px 10px 10px 10px', height: '32px', fontFamily: "Suisse Int'l", fontStyle: 'normal', fontWeight: 600, fontSize: '12px', lineHeight: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', color: 'black', whiteSpace: 'nowrap' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" /><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z" /></svg><span>&nbsp;{t("(EN)")}</span></span>
 
               </div>
 
@@ -1609,33 +1633,22 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                 </span>
               </p>
               {expandOptions ? <div><div className='d-block text-md font-semibold'>
-                <button onClick={() => setShowAdjustion(!showAdjustion)}
-                  className="btn d-inline-flex d-inline-flex btn-sm btn-light">
-                  Edit Dish Revision Category
-                </button>
-                {
-                  showAdjustion ? (
-                    <div>
-                      <div className='flex'>
+                <div className='flex'>
 
-                        <span className='text-black'>
-                          Dish Revise Category:&nbsp;
+                  <span className='text-black'>
+                    Dish Revise Category:&nbsp;
 
-                        </span>
-                        <input
-                          className='text-md font-semibold'
-                          style={{ width: "50%" }}
-                          value={currentAttribute}
-                          onChange={(e) => setCurrentAttribute(e.target.value)}
-                          placeholder="Size"
-                          translate="no"
-                        />
-                      </div>
-                      <small className='text-blue-500'>default: 'Option'(E.g.: Portion Size)</small>
-                    </div>
-                  ) : null
-                }
-
+                  </span>
+                  <input
+                    className='text-md font-semibold'
+                    style={{ width: "50%" }}
+                    value={currentAttribute}
+                    onChange={(e) => setCurrentAttribute(e.target.value)}
+                    placeholder="Size"
+                    translate="no"
+                  />
+                </div>
+                <small>E.g.: Portion Size</small>
 
                 <div className='flex'>
 
@@ -1653,7 +1666,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     translate="no"
                   />
                 </div>
-                <small className='text-blue-500'>E.g.: Big</small>
+                <small>E.g.: Big</small>
 
                 <div className='flex'>
 
@@ -1684,14 +1697,13 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     if (!expandOptions) {
                       setExpandOptions(true);
                     } else {
-                      resetAttributes(transformJsonToInitialState(item.attributesArr));// init
                       addOrUpdateAttributeVariation();
                     }
                   }}
-                  className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-warning"
+                  className="mr-1 btn d-inline-flex d-inline-flex btn-sm btn-light"
                 >
                   <span>
-                    {!expandOptions ? "Adjust Dish Revision Option" : "Confirm"}
+                    {!expandOptions ? "Add or Update Option" : "Confirm"}
                   </span>
                 </a>
               </div>

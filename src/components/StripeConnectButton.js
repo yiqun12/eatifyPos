@@ -13,7 +13,7 @@ function StripeOnboardingButton(props) {
             const result = await myFunction(payload);
             //console.log(result.data.url)
             //console.log(result.data.accountId)
-            window.open(result.data.url)
+            window.location.href = result.data.url;
             //setLink(result.data.url);
             //setAccountId(result.data.accountId);
         } catch (error) {

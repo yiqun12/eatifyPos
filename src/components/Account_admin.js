@@ -2627,6 +2627,7 @@ const Account = () => {
 
                         </h1>
                       </div>
+
                       {activeTab === `#profile` || storeName_ === '' ?
                         <div className="text-sm-end">
                           <div className="mx-n1">
@@ -2724,6 +2725,9 @@ const Account = () => {
                           window.location.reload(); // Reload the page
                         }} className="btn d-inline-flex btn-sm btn-danger mx-1">
                         <i className="bi bi-arrow-clockwise"></i>&nbsp;Refresh </a>
+                      <div>
+
+                      </div>
                     </div>
 
                     <ul className={`nav nav-tabs mt-4 overflow-x border-0 ${isMobile ? 'd-flex justify-content-between' : ''}`}>
@@ -2964,6 +2968,9 @@ const Account = () => {
                                 </div>
                               </div>
                             </div> */}
+
+
+
                             <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.Description, data?.State, data?.ZipCode, data?.Phone)}>
                               <div className="flex flex-wrap -mx-3 mb-6">
                                 <div className="w-full px-3">
@@ -3122,6 +3129,21 @@ const Account = () => {
                             <div style={{ fontWeight: 'bold' }}>
                               QR code generator:
                             </div>
+                            <div className="qrCodeItem mt-2 flex flex-col space-y-2">
+                            <div className="">
+                                <span
+                                  onClick={() =>
+                                    window.open(`https://7dollar.delivery/store?store=${storeID}`, "_blank", "noopener,noreferrer")
+                                  }
+                                  className="cursor-pointer text-blue-500 hover:underline break-all"
+                                >
+                                  {`https://7dollar.delivery/store?store=${storeID}`}
+                                </span>
+                              </div>
+                              <QRCode value={`https://7dollar.delivery/store?store=${storeID}`} size={100} />
+
+                            </div>
+
                             <div className="printContainer hidden print:block">
                               {docIds.map((item, index) => (
                                 <div key={index} className="qrCodeItem">

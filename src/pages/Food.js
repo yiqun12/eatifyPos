@@ -1156,108 +1156,151 @@ const Food = () => {
                     {Object.values(foods.sort((a, b) => {
                       return foodTypes.indexOf(a.category) - foodTypes.indexOf(b.category);
                     }).reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称")).sort((a, b) => (b.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public") - (a.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public")).map((item, index) => (
+                      <div>
 
+                        <motion.div
+                          layout
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.1 }}
+                          key={item.id}
+                          onClick={() => {
 
-                      <motion.div
+                            setSelectedFoodItem(item);
+                            if (isKiosk) {
+                              processPayment()//kepp the cloud function warm and get ready
+                              cancel()//kepp the cloud function warm and get ready
+                            }
 
-                        layout
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.1 }}
-                        key={item.id}
-                        onClick={() => {
+                            showModal(item);
+                            handleDropFood();
+                          }}
+                          className=" rounded-lg cursor-pointer">
+                          <div className='flex'>
+                            {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
+                              <div style={{ width: "40%" }}>
+                                <div class="h-min overflow-hidden rounded-md">
+                                  <img loading="lazy" class="w-full h-[80px] hover:scale-125 transition-all cursor-pointer md:h-[95px] object-cover rounded-t-lg"
 
-                          setSelectedFoodItem(item);
-                          if (isKiosk) {
-                            processPayment()//kepp the cloud function warm and get ready
-                            cancel()//kepp the cloud function warm and get ready
-                          }
+                                    src={item.image} alt={item.name} />
 
-                          showModal(item);
-                          handleDropFood();
-                        }}
-                        style={{
-                          background: 'rgba(255,255,255,0.9)',
-                        }} className="z-200 border rounded-lg cursor-pointer">
-                        {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
-                          <img loading="lazy" class={`${isMobile ? " h-[150px] " : "h-[200px]"} w-full transition-all cursor-pointer object-cover rounded-t-lg`} src={item.image} />
-                          : null
-                        }
-                        <div className=' flex'>
-
-                          <div style={{ width: 'calc(100% - 90px)' }}>
-                            <div className='flex justify-between px-2 pb-1 grid grid-cols-4 w-full z-20'>
-
-                              {/* parent div of title + quantity and button parent div */}
-                              <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                                <div className="notranslate text-xl">
-                                  {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
-                                </div >
-                                <div>
-                                  <span className='notranslate text-xl'>
-                                    ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}
-                                  </span>
                                 </div>
-
-                                {/* ^ end of parent div of quantity and button */}
                               </div>
-                              {/* ^ end of parent div of title + quantity and buttons */}
-                            </div>
-                            {/* This is Tony added code */}
-                          </div>
-                          <div class="h-min overflow-hidden rounded-md flex justify-end">
+                              : null
+                            }
 
-                            <div className='m-2 rounded-lg max-h-[220px] relative'>
-                              <div className='absolute w-[80px] h-[80px] flex flex-col justify-end items-end'>
-                                <div
-                                  className="black_hover "
-                                  style={{
-                                    padding: '4px',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
+                            <div style={{ width: "100%" }}>
+                              <div className='flex justify-between px-2 pb-1 grid grid-cols-4 w-full'>
+
+                                {/* parent div of title + quantity and button parent div */}
+                                <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                                  <div className="col-span-4">
+                                    <span class="notranslate text-xl">
+                                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
+                                    </span >
+                                  </div>
+
+                                  {/* parent div of the quantity and buttons */}
+                                  <div style={{
                                     display: "flex",
-                                    border: "1px solid", // Adjust the border
-                                    borderRadius: "50%", // Set borderRadius to 50% for a circle
-                                    width: "30px", // Make sure width and height are equal
-                                    height: "30px",
-                                    backgroundColor: 'white' // Set the background color to white
-                                  }}
-                                >
-                                  <button
-                                    className="minus-btn"
-                                    type="button"
-                                    name="button"
-                                    style={{
-                                      marginTop: '0px',
-                                      width: '20px',
-                                      height: '20px',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
+                                    flexDirection: "row",
+                                    justifyContent: "space-between",
+                                    marginBottom: "10px"
+                                  }}>
+                                    <div className="col-span-2" style={{
                                       display: "flex",
-                                    }}
-                                  >
-                                    <PlusSvg
-                                      style={{
-                                        margin: '0px',
-                                        width: '10px',
-                                        height: '10px',
-                                      }}
-                                      alt=""
-                                    />
-                                  </button>
+                                      flexDirection: "column",
+                                      justifyContent: "center",
+                                      alignItems: "center"
+                                    }}>
+                                      <div className="flex" style={{ marginBottom: "0" }}>
+                                        <span className="notranslate">
+                                          <span className="text-base align-baseline">
+                                            $
+                                          </span>
+                                          <span className="text-xl">
+                                            {Math.floor(item.subtotal)}.
+                                          </span>
+                                          <span className="text-base align-baseline">
+                                            {(item.subtotal % 1).toFixed(2).substring(2)}
+                                          </span>
+                                        </span>
+
+
+                                        {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
+                                          <span
+                                            className={`inline-flex items-center space-x-1 px-1 py-0.5 rounded bg-orange-500 text-white text-sm align-middle`}
+                                            style={{ marginLeft: "8px" }}
+                                          >
+                                            <span className="font-medium">Top-rated</span>
+                                          </span>
+                                          : null
+                                        }
+                                      </div>
+
+                                    </div>
+                                    <div className="col-span-2 flex justify-end">
+
+                                      <div className="quantity"
+                                        style={{ margin: '0px', display: 'flex', whiteSpace: 'nowrap', width: '50px', marginTop: "-17px", paddingTop: "20px", height: "fit-content", display: "flex", justifyContent: "flex-end" }} >
+
+                                        <div
+                                          className="black_hover"
+                                          style={{
+                                            padding: '4px',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            display: "flex",
+                                            border: "1px solid", // Adjust the border
+                                            borderRadius: "50%", // Set borderRadius to 50% for a circle
+                                            width: "30px", // Make sure width and height are equal
+                                            height: "30px",
+
+                                          }}
+                                        >
+                                          <button
+                                            className="minus-btn"
+                                            type="button"
+                                            name="button"
+                                            style={{
+                                              marginTop: '0px',
+                                              width: '20px',
+                                              height: '20px',
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                              display: "flex",
+                                            }}
+                                          >
+                                            <PlusSvg
+                                              style={{
+                                                margin: '0px',
+                                                width: '10px',
+                                                height: '10px',
+                                              }}
+                                              alt=""
+                                            />
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                  </div>
+                                  {/* ^ end of parent div of quantity and button */}
                                 </div>
+                                {/* ^ end of parent div of title + quantity and buttons */}
                               </div>
-
-                              <img class="w-[80px] h-[80px] transition-all cursor-pointer object-cover border-0 " src={'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/89cb3a8a-0904-4774-76c9-3ffaa41c5200/public'} alt="White placeholder" />
+                              {/* This is Tony added code */}
                             </div>
-
                           </div>
-                        </div>
 
 
 
-                      </motion.div>
+                        </motion.div>
+
+                      </div>
+
+
 
                     ))}
                   </div>
@@ -1276,3 +1319,5 @@ const Food = () => {
 }
 
 export default Food
+
+
