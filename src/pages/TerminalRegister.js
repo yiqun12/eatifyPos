@@ -124,74 +124,74 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
       //console.log("registered reader: ", reader);
       readerId = reader["id"]
       let docRef;
-        try {
+      try {
+        docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals", stripeTerminalRegistrationCode)
+        const doc_ = await getDoc(docRef);
+
+        if (doc_.exists()) {
+          console.log("Document exists!");
+          throw new Error('Document already exists!');
+        } else {
           docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals", stripeTerminalRegistrationCode)
-          const doc_ = await getDoc(docRef);
 
-          if (doc_.exists()) {
-            console.log("Document exists!");
-            throw new Error('Document already exists!');
-          } else {
-            docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals", stripeTerminalRegistrationCode)
+          // If the document doesn't exist, add a new one
+          const dateTime = new Date().toISOString();
+          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
 
-            // If the document doesn't exist, add a new one
-            const dateTime = new Date().toISOString();
-            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+          const newDoc = {
+            locationId: locationId,
+            readerId: readerId,
+            isActive: true,
+            date: date
+          };
 
-            const newDoc = {
-              locationId: locationId,
-              readerId: readerId,
-              isActive: true,
-              date: date
-            };
-
-            try {
-              await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
-              alert("Terminal registers successfully");
-              setIsExpanded(false)
-            } catch (error) {
-              setError("Error adding document: ");
-              throw new Error("")
-            }
+          try {
+            await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
+            alert("Terminal registers successfully");
+            setIsExpanded(false)
+          } catch (error) {
+            setError("Error adding document: ");
+            throw new Error("")
           }
-        } catch (error) {
-          setError(`Error`);
-          console.error(error);
         }
-        try {
+      } catch (error) {
+        setError(`Error`);
+        console.error(error);
+      }
+      try {
+        docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "kiosk", stripeTerminalRegistrationCode)
+        const doc_ = await getDoc(docRef);
+
+        if (doc_.exists()) {
+          console.log("Document exists!");
+          throw new Error('Document already exists!');
+        } else {
           docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "kiosk", stripeTerminalRegistrationCode)
-          const doc_ = await getDoc(docRef);
 
-          if (doc_.exists()) {
-            console.log("Document exists!");
-            throw new Error('Document already exists!');
-          } else {
-            docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "kiosk", stripeTerminalRegistrationCode)
+          // If the document doesn't exist, add a new one
+          const dateTime = new Date().toISOString();
+          const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
 
-            // If the document doesn't exist, add a new one
-            const dateTime = new Date().toISOString();
-            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+          const newDoc = {
+            locationId: locationId,
+            readerId: readerId,
+            isActive: true,
+            date: date
+          };
 
-            const newDoc = {
-              locationId: locationId,
-              readerId: readerId,
-              isActive: true,
-              date: date
-            };
-
-            try {
-              await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
-              alert("Terminal registers successfully");
-              setIsExpanded(false)
-            } catch (error) {
-              setError("Error adding document: ");
-              throw new Error("")
-            }
+          try {
+            await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
+            alert("Terminal registers successfully");
+            setIsExpanded(false)
+          } catch (error) {
+            setError("Error adding document: ");
+            throw new Error("")
           }
-        } catch (error) {
-          setError(`Error`);
-          console.error(error);
         }
+      } catch (error) {
+        setError(`Error`);
+        console.error(error);
+      }
 
 
     } catch (error) {
@@ -301,21 +301,17 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
       <div>
 
 
-        <div className="flex mt-3">
-          <div style={{ width: "50%" }}></div>
-          <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
-            {!isExpanded && (
-              <button
-                id="register-terminal-button"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => setIsExpanded(true)}
-              >
-                <i class="bi bi-arrows-expand me-2"></i>
-                Register New POS Machine
-              </button>
-            )}
-
-          </div>
+        <div className="flex justify-end mt-3">
+          {!isExpanded && (
+            <button
+              id="register-terminal-button"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => setIsExpanded(true)}
+            >
+              <i className="bi bi-arrows-expand me-2"></i>
+              Register New POS Machine
+            </button>
+          )}
         </div>
 
         {isExpanded && <form className="form-group">

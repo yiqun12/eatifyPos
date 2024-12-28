@@ -30,6 +30,9 @@ import 'leaflet/dist/leaflet.css';
 import pinyin from "pinyin";
 import { faList } from '@fortawesome/free-solid-svg-icons';
 import { ReactComponent as DeleteSvg } from './delete-icn.svg';
+import { handleOpenModal } from '../pages/Navbar';
+
+import { getGlobalDirectoryType } from '../pages/Navbar';
 
 import myImage from '../components/check-mark.png';  // Import the image
 
@@ -38,6 +41,7 @@ function convertToPinyin(text) {
     style: pinyin.STYLE_NORMAL,
   }).join('');
 }
+let globalFailedItem = "";
 
 
 const customMarkerIcon = L.icon({
@@ -48,6 +52,8 @@ const customMarkerIcon = L.icon({
 });
 
 const Food = () => {
+  const directoryType = getGlobalDirectoryType();
+
   async function processPayment() {
     console.log("processPayment");
 
@@ -90,6 +96,10 @@ const Food = () => {
   //cancel()//kepp the cloud function warm and get ready
   const [isKiosk, setIsKiosk] = useState(false);
   const [kioskHash, setkioskHash] = useState("");
+
+
+  const [failedItem, setFailedItem] = useState("");
+  globalFailedItem = failedItem;
 
   useEffect(() => {
     // Function to check the URL format
@@ -744,6 +754,18 @@ const Food = () => {
     modalRef.current.style.display = 'block';
     // Retrieve the array from local storage
   };
+
+  const [isPopupVisible, setPopupVisible] = useState(false);
+
+  const handleImageClick = (e) => {
+    e.stopPropagation(); // 阻止事件冒泡
+    setPopupVisible(true); // 显示大图弹窗
+  };
+
+  const handleClosePopup = () => {
+    setPopupVisible(false); // 关闭弹窗
+  };
+
   const closeModalList = () => {
 
     modalRef.current.style.display = 'none';
@@ -763,6 +785,7 @@ const Food = () => {
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
         <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/uber-move-text"></link>
+        {/* <>hello{String(directoryType)}</> */}
         {isOpen && (
           <div className="modal-backdrop">
 
@@ -1166,15 +1189,24 @@ const Food = () => {
                           transition={{ duration: 0.1 }}
                           key={item.id}
                           onClick={() => {
+                            if (directoryType) {
+                              setFailedItem(item); // Set the failed item immediately
 
-                            setSelectedFoodItem(item);
-                            if (isKiosk) {
-                              processPayment()//kepp the cloud function warm and get ready
-                              cancel()//kepp the cloud function warm and get ready
+                              setTimeout(() => {
+                                handleOpenModal();
+                              }, 10);
+                            } else {
+                              setSelectedFoodItem(item);
+                              if (isKiosk) {
+                                processPayment()//kepp the cloud function warm and get ready
+                                cancel()//kepp the cloud function warm and get ready
+                              }
+
+                              showModal(item);
+                              handleDropFood();
                             }
 
-                            showModal(item);
-                            handleDropFood();
+
                           }}
                           className=" rounded-lg cursor-pointer">
                           <div className='flex'>
@@ -1321,3 +1353,4 @@ const Food = () => {
 export default Food
 
 
+export const getGlobalFailedItem = () => globalFailedItem;

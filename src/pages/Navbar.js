@@ -48,8 +48,17 @@ import { collection, addDoc } from "firebase/firestore";
 import { FaTrash } from 'react-icons/fa';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
+import { getGlobalFailedItem } from '../pages/Food';
+
+import useGeolocation from '../components/useGeolocation';
+// 定义一个变量来存储全局函数
+let handleOpenModalGlobal = () => {
+  console.error("handleOpenModal has not been initialized.");
+};
+let globalDirectoryType = false;
 
 const Navbar = () => {
+  const failedItem = getGlobalFailedItem();
 
   const { user, user_loading } = useUserContext();
   const [loadingContact, setLoadingContact] = useState(true);
@@ -273,8 +282,6 @@ const Navbar = () => {
   const btnRef = useRef(null);
   const spanRef = useRef(null);
   const [shoppingCartOpen, setShoppingCartOpen] = useState(false);
-  const [containerHeight, setContainerHeight] = useState(0); // State to store the container height
-
 
   const openModal = () => {
     if (user) {
@@ -282,7 +289,6 @@ const Navbar = () => {
       //window.location.href = "/";
     } else {
       return
-      signInWithGuest()
     }
     setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
     modalRef.current.style.display = 'block';
@@ -290,11 +296,20 @@ const Navbar = () => {
     // Retrieve the array from local storage
   };
 
+  handleOpenModalGlobal = openModal;
+
+  const [forceCancel, setForceCancel] = useState(0); // State to store the container height
+
   const closeModal = () => {
     //console.log(products)
+    if (totalPrice === 0) {
+      setShoppingCartOpen(false)
+    }
     if (openCheckout && directoryType === true) {
       setOpenCheckout(false)
+
     } else {
+
       modalRef.current.style.display = 'none';
       setShoppingCartOpen(false)
 
@@ -774,7 +789,59 @@ const Navbar = () => {
 
     // Add any other logic you need to handle the form submission
   };
+  const [location2, getLocation] = useGeolocation();
 
+  function checkGeolocation() {
+    console.log("hello")
+    getLocation().then((newLocation) => {
+      console.log(newLocation.latitude, newLocation.longitude);
+      async function getAddress(lat, lng, apiKey) {
+        const url = `https://maps.googleapis.com/maps/api/geocode/json`;
+        try {
+          const response = await fetch(`${url}?latlng=${lat},${lng}&key=${apiKey}`);
+          const data = await response.json();
+          if (data.results && data.results.length > 0) {
+            return data.results[0].formatted_address;
+          } else {
+            return "No address found for the given coordinates.";
+          }
+        } catch (error) {
+          return `Error: ${error.message}`;
+        }
+      }
+
+      // Example usage
+      const latitude = newLocation.latitude;
+      const longitude = newLocation.longitude;
+      const apiKey = "AIzaSyCzQFlkWHAXd9NUcxXA2Xl7eCj6lM_w6Ww"; // Replace with your API key
+
+      getAddress(latitude, longitude, apiKey)
+        .then(address => {
+          const addressParts = address.split(", ");
+          const [street, city, stateZip] = addressParts;
+          const [state, zipCode] = stateZip.split(" ");
+
+          console.log(address)
+          // setFormValues({
+          //   ...formValues,
+          //   ["physical_address"]: street.trim(),
+          //   ["city"]: city.trim(),
+          //   ["State"]: state.trim(),
+          //   ["ZipCode"]: zipCode.trim(),
+          // });
+          setTimeout(() => {
+            setDropoffAddress(street.trim());
+            setZipCode(zipCode.trim());
+            setState(state.trim());
+            setCity(city.trim());
+          }, 120); // Delay of 1 second (1000 milliseconds)
+
+          //alert(address + " added successfully!"); // Alert message for successful upload
+        })
+        .catch(err => console.error(err));
+
+    });
+  }
 
 
   useEffect(() => {
@@ -871,6 +938,8 @@ const Navbar = () => {
   const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
 
 
+
+  globalDirectoryType = directoryType;
 
 
 
@@ -1003,35 +1072,35 @@ const Navbar = () => {
 
                 <div className=' flex justify-end mb-2'>
 
-                  {!directoryType && (
-                    (!isKiosk && !isDineIn && (
-                      !showInputs ? (
-                        <DeleteSvg
-                          className="delete-btn"
-                          style={{ cursor: 'pointer', margin: '0' }}
-                          ref={spanRef}
-                          onClick={closeModal}
-                        />
-                      ) : <DeleteSvg
-                        className="delete-btn"
-                        style={{ cursor: 'pointer', margin: '0' }}
-                        ref={spanRef}
-                        onClick={() => {
-                          handleClickDelivery();
-                          setDropoffPhoneNumber('');
-                          setZipCode('');
-                          setState('');
-                          setCity('');
-                          setDropoffAddress('');
-                          setActiveAddressId(null);  // Set this to null at the end after clearing other states
-                          setDeliveryFee(0)
-                          setAddNewAdress(false);
-                          setSuccessMessage('')
-                        }}
-                      // onClick={closeModal}
-                      />
-                    ))
+                  {!showInputs && (
+                    <DeleteSvg
+                      className="delete-btn"
+                      style={{ cursor: 'pointer', margin: '0' }}
+                      ref={spanRef}
+                      onClick={closeModal}
+                    />
                   )}
+
+                  {showInputs && (
+                    <DeleteSvg
+                      className="delete-btn"
+                      style={{ cursor: 'pointer', margin: '0' }}
+                      ref={spanRef}
+                      onClick={() => {
+                        handleClickDelivery();
+                        setDropoffPhoneNumber('');
+                        setZipCode('');
+                        setState('');
+                        setCity('');
+                        setDropoffAddress('');
+                        setActiveAddressId(null); // Clear the state
+                        setDeliveryFee(0);
+                        setAddNewAdress(false);
+                        setSuccessMessage('');
+                      }}
+                    />
+                  )}
+
 
                 </div>
 
@@ -1039,17 +1108,6 @@ const Navbar = () => {
                 <div className='flex' style={{ justifyContent: "space-between" }}>
                   <Hero isKiosk={isKiosk} directoryType={directoryType} isDineIn={isDineIn} setIsDineIn={setIsDineIn} className="mr-auto" style={{ marginBottom: "5px" }}>
                   </Hero>
-                  {!directoryType && user ? null :
-                    <div className='flex mt-2'>
-                      {!isMobile ?
-                        <FontAwesomeIcon size="lg" className='' icon={faLanguage} />
-                        : null}
-
-                      {location.pathname.includes('/store') ?
-                        <div className='' id="google_translate_element"></div>
-                        : <div></div>
-                      }
-                    </div>}
                 </div>
                 {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => { }}>show unpaid</button> */}
                 <div className='flex' style={{ justifyContent: "space-between" }}>
@@ -1088,6 +1146,14 @@ const Navbar = () => {
 
                       </span>
                     }
+                    {failedItem ?
+                      <span class='text-red-700'>
+                        <span className='notranslate'>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(failedItem.CHI) : (failedItem.name)}
+                        </span>
+                        &nbsp;Failed to add
+                      </span>
+                      :
+                      <span></span>}
                     {directoryType ?
                       <div className='text-base'>
                         An unpaid order has been sent to the kitchen. Please settle the bill before ordering again.</div>
@@ -1345,6 +1411,22 @@ const Navbar = () => {
                           <i style={{ fontSize: "35px" }} className="bi bi-cart-check"></i>
                           <span >&nbsp;{t("Your cart is currently empty.")}</span>
                         </span>
+                        {
+                          isKiosk ?
+                            <div style={{ display: "none" }}>
+                              <PaymentKiosk
+                                openCheckout={shoppingCartOpen}
+                                receipt_JSON={JSON.stringify(products)}
+                                storeID={store}
+                                chargeAmount={parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)}
+                                connected_stripe_account_id={
+                                  JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct
+                                }
+                                service_fee={0}
+                                selectedTable={isDineIn ? "堂食DineIn" : "外卖TakeOut"}
+                              />
+                            </div> : null
+                        }
                       </div>
                     </div>
                     :
@@ -1375,7 +1457,9 @@ const Navbar = () => {
                         isKiosk ?
                           <PaymentKiosk openCheckout={shoppingCartOpen} receipt_JSON={JSON.stringify(products)}
                             storeID={store} chargeAmount={parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
-                            service_fee={0} selectedTable={isDineIn ? '堂食DineIn' : "外卖TakeOut"} /> : null
+                            service_fee={0} selectedTable={isDineIn ? '堂食DineIn' : "外卖TakeOut"}
+                            forceCancel={forceCancel}
+                          /> : null
                       }
 
                       {!isKiosk && !isDineIn && (
@@ -1384,7 +1468,11 @@ const Navbar = () => {
                             <button
                               style={{ width: "100%", border: "0px", margin: "auto" }}
                               className="rounded-md border-0 text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex"
-                              onClick={handleClickDelivery}
+                              onClick={() => {
+                                handleClickDelivery();
+                                checkGeolocation();
+                              }}
+
                             >
                               <span >
                                 <FontAwesomeIcon icon={faTruck} />
@@ -1409,6 +1497,7 @@ const Navbar = () => {
                                       setDropoffAddress('');
                                       setActiveAddressId(null);  // Set this to null at the end after clearing other states                                  
                                       setAddNewAdress(true)
+                                      checkGeolocation()
                                     }}
                                   >
                                     Add New Address
@@ -1530,7 +1619,7 @@ const Navbar = () => {
                         <div>
                           <div className="mb-2">
                             <label htmlFor="dropoffAddress" className="block text-sm font-medium text-gray-700">
-                              Delivery Address
+                              Delivery Street
                             </label>
                             <input
                               type="text"
@@ -1783,14 +1872,13 @@ const Navbar = () => {
               : null}
 
             <div className='flex ml-auto pr-4 '>
-              {!directoryType ?
-                <div className='flex mt-2'>
-                  {!isMobile ?
-                    <FontAwesomeIcon size="lg" className='' icon={faLanguage} />
-                    : null}
-                  <div className='' id="google_translate_element"></div>
-                </div>
-                : null}
+              <div className='flex mt-2'>
+                {!isMobile ?
+                  <FontAwesomeIcon size="lg" className='' icon={faLanguage} />
+                  : null}
+                <div className='' id="google_translate_element"></div>
+              </div>
+
               {((location.pathname.includes('/store')) || (location.pathname.includes('/Checkout'))) && (
 
                 <button
@@ -1919,4 +2007,8 @@ const Navbar = () => {
   )
 }
 
+export const handleOpenModal = () => handleOpenModalGlobal();
+export const getGlobalDirectoryType = () => globalDirectoryType;
+
 export default Navbar
+

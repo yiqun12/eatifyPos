@@ -866,6 +866,8 @@ const Account = () => {
   // Rename function for form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(name)
+    console.log(value)
     setFormValues({
       ...formValues,
       [name]: value,
@@ -1634,6 +1636,44 @@ const Account = () => {
     getLocation().then((newLocation) => {
       console.log(newLocation.latitude, newLocation.longitude);
       const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID);
+      async function getAddress(lat, lng, apiKey) {
+        const url = `https://maps.googleapis.com/maps/api/geocode/json`;
+        try {
+          const response = await fetch(`${url}?latlng=${lat},${lng}&key=${apiKey}`);
+          const data = await response.json();
+          if (data.results && data.results.length > 0) {
+            return data.results[0].formatted_address;
+          } else {
+            return "No address found for the given coordinates.";
+          }
+        } catch (error) {
+          return `Error: ${error.message}`;
+        }
+      }
+
+      // Example usage
+      const latitude = newLocation.latitude;
+      const longitude = newLocation.longitude;
+      const apiKey = "AIzaSyCzQFlkWHAXd9NUcxXA2Xl7eCj6lM_w6Ww"; // Replace with your API key
+
+      getAddress(latitude, longitude, apiKey)
+        .then(address => {
+          const addressParts = address.split(", ");
+          const [street, city, stateZip] = addressParts;
+          const [state, zipCode] = stateZip.split(" ");
+
+
+          setFormValues({
+            ...formValues,
+            ["physical_address"]: street.trim(),
+            ["city"]: city.trim(),
+            ["State"]: state.trim(),
+            ["ZipCode"]: zipCode.trim(),
+          });
+          alert(address + " added successfully!"); // Alert message for successful upload
+        })
+        .catch(err => console.error(err));
+
 
       // Update the lat and long fields within the latNlong map
       updateDoc(docRef, {
@@ -1641,7 +1681,6 @@ const Account = () => {
         "latNlong.long": newLocation.longitude
       }).then(() => {
         console.log("Document successfully updated with new latitude and longitude");
-        alert("Upload successful!"); // Alert message for successful upload
 
       }).catch((error) => {
         console.error("Error updating document: ", error);
@@ -2970,7 +3009,12 @@ const Account = () => {
                             </div> */}
 
 
-
+                            <div className="mt-2 flex ">
+                              <button onClick={() => checkGeolocation()} className="bg-gray-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                <i class="bi bi-geo-alt-fill me-2"></i>
+                                Sync Your Current Location
+                              </button>
+                            </div>
                             <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.Description, data?.State, data?.ZipCode, data?.Phone)}>
                               <div className="flex flex-wrap -mx-3 mb-6">
                                 <div className="w-full px-3">
@@ -3022,7 +3066,7 @@ const Account = () => {
                                 </div>
                                 <div className="w-full px-3">
                                   <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="physical_address">
-                                    Display Address
+                                    Display Street
                                   </label>
                                   <input
                                     className=
@@ -3129,8 +3173,8 @@ const Account = () => {
                             <div style={{ fontWeight: 'bold' }}>
                               QR code generator:
                             </div>
-                            <div className="qrCodeItem mt-2 flex flex-col space-y-2">
-                            <div className="">
+                            <div className="qrCodeItem mt-2 mb-2 flex flex-col space-y-2">
+                              <div className="">
                                 <span
                                   onClick={() =>
                                     window.open(`https://7dollar.delivery/store?store=${storeID}`, "_blank", "noopener,noreferrer")
@@ -3170,21 +3214,6 @@ const Account = () => {
 
                             <hr />
 
-                            <div style={{ fontWeight: 'bold' }}>
-                              Location Verification:
-                            </div>
-                            <div>
-                              Please stay within the store area for a location verification, ensuring you are no further than 24 meters away. This is to secure the use of QR codes for your store's operations. This step guarantees that QR code orders are accessible only to those present within the store. Utilizing your phone's GPS will provide greater accuracy for this process.
-                            </div>
-                            <div className="flex justify-end">
-                              <button onClick={() => checkGeolocation()} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                <i class="bi bi-geo-alt-fill me-2"></i>
-                                Start Location Verification
-                              </button>
-                            </div>
-
-
-                            <hr />
                             <div className=' mb-6' >
 
                               {data?.stripe_store_acct === "" ?

@@ -17,6 +17,8 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
   const [resultScan, setResultScan] = useState('');  // Possible values: 'idle', 'loading', 'success'
   const [autoGenerateImage, setAutoGenerateImage] = useState(true);
   const [nonEnglishLanguage, setNonEnglishLanguage] = useState(true);
+  const [recommendation, setRecommendation] = useState([]);
+
   useEffect(() => {
     saveId(Math.random());
   }, []);
@@ -24,21 +26,59 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
 
   const generateJSON = async (ocr_scan, url, LanMode, imgBool) => {
     console.log(ocr_scan, url, LanMode, imgBool)
-    try {
-      const myFunction = firebase.functions().httpsCallable('generateJSON');
-      const response = await myFunction({
-        url,
-        ocr_scan,
-        LanMode,
-        imgBool,
-      });
-      //console.log(response.data.result)
-      setUploadStatus('success')
 
-      return response.data.result
+
+    try {
+      const [recommendationResult, jsonResult] = await Promise.allSettled([
+        (async () => {
+          if (window.location.pathname === "/scan") {
+            const myFunction = firebase.functions().httpsCallable('recommendation');
+            const response = await myFunction({ url, ocr_scan });
+            console.log(response.data.result);
+            const processMenu = (menu) => {
+              return menu.filter(section => section.trim() !== "") // Remove empty strings
+                .map(item => {
+                  const [title, ...details] = item.split(":");
+                  const entries = [];
+                  for (let i = 0; i < details.length; i += 2) {
+                    entries.push({
+                      name: details[i]?.trim(),
+                      description: details[i + 1]?.trim(),
+                    });
+                  }
+                  return { title: title.trim(), entries };
+                });
+            };
+
+            setRecommendation(processMenu(response.data.result));
+          }
+        })(),
+        (async () => {
+          const myFunction = firebase.functions().httpsCallable('generateJSON');
+          const response = await myFunction({ url, ocr_scan, LanMode, imgBool });
+          setUploadStatus('success');
+          return response.data.result;
+        })()
+      ]);
+
+      if (recommendationResult.status === 'fulfilled') {
+        console.log('Recommendation Success:', recommendationResult.value);
+      } else {
+        console.error('Recommendation Failed:', recommendationResult.reason);
+      }
+
+      if (jsonResult.status === 'fulfilled') {
+        console.log('JSON Generation Success:', jsonResult.value);
+        return jsonResult.value;
+      } else {
+        console.error('JSON Generation Failed:', jsonResult.reason);
+      }
     } catch (error) {
-      //return []
+      console.error('Unexpected error:', error);
     }
+
+
+
   };
 
   const extractTextFromImage = async (img, selectedFile) => {
@@ -106,6 +146,25 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
     setUploadStatus('loading');
     setIsModalOpen(false)
     extractTextFromImage("", selectedFile);
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await fetch('https://hello-world-twilight-art-645c.eatify12.workers.dev/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log(data.result.variants[0])
+      } else {
+        //setUploadStatus(`Failed to upload image: ${JSON.stringify(data.errors)}`);
+      }
+    } catch (error) {
+      //setUploadStatus(`Error: ${error.message}`);
+    }
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -121,9 +180,11 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
     }
   }, []);
 
+
   const isMobile = width <= 768;
   return (
     <div>
+
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
 
       <div >
@@ -148,9 +209,32 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
             <span>
               {"Scan Menu"}
             </span>
+
           </div>
 
         </label>
+
+        {window.location.pathname === "/scan" ?
+          <div style={{ padding: "5px", fontFamily: "Arial, sans-serif", fontSize: "12px" }}>
+            {recommendation?.map((section, index) => (
+              <div key={index} style={{ marginBottom: "12px" }}>
+                <h2 style={{ fontSize: "16px" }}>{section?.title}</h2>
+                <ul style={{ paddingLeft: "18px" }}>
+                  {section?.entries.map((entry, idx) => (
+                    <li key={idx} style={{ marginBottom: "6px", fontSize: "12px" }}>
+                      <strong >{entry?.name} </strong>
+                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                        <strong className='notranslate'>{entry?.name}</strong> : null}: {entry?.description}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div> : null
+
+        }
+
+
 
       </div>
       {isModalOpen && (
@@ -173,18 +257,25 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
               </div>
               <div className="flex items-start justify-between p-4 border-b rounded-t ">
                 <div className='flex-col'>
-                  <div className="form-check">
-                    <input
-                      className='form-check-input'
-                      type="checkbox"
-                      id="autoGenerateImage"
-                      checked={autoGenerateImage}
-                      onChange={(e) => setAutoGenerateImage(e.target.checked)}
-                      style={{ marginRight: "5px" }}
-                      translate="no"
-                    />
-                    <label htmlFor="autoGenerateImage">Automatically generate image</label>
-                  </div>
+
+
+                  {window.location.pathname === "/scan" ?
+                    null : <div className="form-check">
+
+                      <input
+                        className='form-check-input'
+                        type="checkbox"
+                        id="autoGenerateImage"
+                        checked={autoGenerateImage}
+                        onChange={(e) => setAutoGenerateImage(e.target.checked)}
+                        style={{ marginRight: "5px" }}
+                        translate="no"
+                      />
+                      <label htmlFor="autoGenerateImage">Automatically generate image</label>
+                    </div>
+
+                  }
+
 
                   {/* Main language is non-English checkbox */}
                   <div className="form-check">
@@ -197,7 +288,7 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
                       style={{ marginRight: "5px" }}
                       translate="no"
                     />
-                    <label htmlFor="nonEnglishLanguage">Main language is non-English</label>
+                    <label htmlFor="nonEnglishLanguage">Menu Main language is non-English</label>
                   </div>
                 </div>
 

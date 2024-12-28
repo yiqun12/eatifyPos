@@ -10,7 +10,8 @@ import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parse
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 
-const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_stripe_account_id, receipt_JSON, selectedTable, service_fee }) => {
+const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_stripe_account_id, receipt_JSON, selectedTable, service_fee, forceCancel }) => {
+    console.log("hello")
     const [currentHash, setCurrentHash] = useState(window.location.hash ? window.location.hash : "abc");
     function stringTofixed(n) {
         return (Math.round(n * 100) / 100).toFixed(2)

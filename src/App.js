@@ -4,8 +4,13 @@ import LogIn from './pages/customer_login';
 import Navbar from './pages/Navbar'
 //import Account from './components/Account';
 import Home from './pages/Home'
+import Home2 from './pages/Home2'
+
 import ForgotPassword from './pages/ForgotPassword'
 import Reservation from './pages/reservation'
+import FreeScan from './pages/freeScan'
+import Resume from './pages/resume'
+
 import ErrorBoundary from './ErrorBoundary'; // Import the ErrorBoundary component
 
 import IframeDesk from './components/iframeDesk'
@@ -137,6 +142,8 @@ function App() {
                 {/* <Route path="orderhasreceived" element={<OrderHasReceived />} /> */}
 
                 <Route path="Reservation" element={<Reservation />} />
+                <Route path="scan" element={<FreeScan store="freescan" />} />
+                <Route path="resume" element={<Resume />} />
 
 
                 {user ? (
@@ -193,10 +200,12 @@ function App() {
                 <Route exact path="/AdminFood" element={<Admin_food />} />
                 <Route exact path="/Refresh" element={<Refresh />} /> */}
                 <Route path="/career" element={<Career />} />
+                <Route path="/home2" element={<Home2 />} />
 
                 <Route path='*' exact={true} element={<Home />} />
                 <Route exact path="/" element={<Home />} />
-                <Route exact path="/Checklist" element={<Checklist />} />
+
+                {/* <Route exact path="/Checklist" element={<Checklist />} /> */}
 
               </Routes>
 
