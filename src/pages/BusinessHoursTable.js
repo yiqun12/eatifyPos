@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 import "./BusinessHoursTable.css";
 import { json } from 'react-router-dom';
 import L from 'leaflet';  // Import Leaflet
+import { ReactComponent as DeleteSvg } from './delete-icn.svg';
 
 
 function parseTime(timeStr) {
@@ -282,9 +283,9 @@ function BusinessHoursTable() {
       <Modal className="my-custom-modal" show={show} onHide={handleClose} size="large" centered style={{ width: "100%" }}>
         <Modal.Header>
           <Modal.Title>{t("Business Information")}</Modal.Title>
-          <Button variant="secondary" onClick={handleClose}>
-            {t("Close")}
-          </Button>
+          <button variant="secondary" onClick={handleClose}>
+          <DeleteSvg/>
+          </button>
 
         </Modal.Header>
         <Modal.Body>

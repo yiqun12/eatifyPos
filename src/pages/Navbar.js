@@ -1420,7 +1420,7 @@ const Navbar = () => {
                                 storeID={store}
                                 chargeAmount={parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)}
                                 connected_stripe_account_id={
-                                  JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct
+                                  JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))?.stripe_store_acct
                                 }
                                 service_fee={0}
                                 selectedTable={isDineIn ? "堂食DineIn" : "外卖TakeOut"}
@@ -1765,7 +1765,7 @@ const Navbar = () => {
       <div className={`pb-2 sticky top-0 z-20 ${!isMobile ? "mx-auto justify-between" : "justify-between"}`}>
         <div >
           {/* Your navbar content here */}
-          <div className="col-span-4 pl-4 lg:ml-10 lg:mr-10" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
+          <div className="col-span-4 pl-4 lg:pl-0 lg:ml-10 lg:mr-10" style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }} >
             {isOnline ?
               <React.Fragment>
 
@@ -1842,6 +1842,7 @@ const Navbar = () => {
                   }} />
                 <span onClick={event => {
                   if (isKiosk) {
+                    window.location.reload();
 
                   } else {
                     if (window.location.hash.slice(1).split('?')[0] === 'code') {
@@ -1849,6 +1850,7 @@ const Navbar = () => {
                     } else {
                       if (storeFromURL !== '' && storeFromURL !== null) {
                         if (isKiosk) {
+
                           window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
                         } else {
                           window.location.href = `/store?store=${storeFromURL}`;

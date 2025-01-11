@@ -16,6 +16,7 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
     function stringTofixed(n) {
         return (Math.round(n * 100) / 100).toFixed(2)
     }
+    const [selectedId, setSelectedId] = useState("");
 
     useEffect(() => {
         const handleHashChange = () => {
@@ -30,8 +31,13 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
         };
     }, []); // Empty array means this effect runs only on mount and unmount
     useEffect(() => {
-        console.log(chargeAmount)
+        if (selectedId !== "") {
+            cancel(selectedId)
 
+        } else {
+            console.log("hey")
+        }
+        console.log(chargeAmount)
     }, [chargeAmount]); // Empty array means this effect runs only on mount and unmount
     //console.log(currentHash)
     // State to store the error message
@@ -105,7 +111,8 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
 
             const response = await cancelActionFunction({
                 reader_id: readerId,
-                connected_stripe_account_id: connected_stripe_account_id
+                connected_stripe_account_id: connected_stripe_account_id,
+                storeID: storeID
             });
 
             console.log("the response was okay");
@@ -161,7 +168,7 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
         firebase
             .firestore()
             .collection('stripe_customers')
-            .doc(user.uid)
+            .doc(user?.uid)
             .collection('TitleLogoNameContent')
             .doc(storeID)
             .collection('kiosk')
@@ -192,7 +199,7 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
         const unsubscribe = firebase
             .firestore()
             .collection('stripe_customers')
-            .doc(user.uid)
+            .doc(user?.uid)
             .collection('TitleLogoNameContent')
             .doc(storeID)
             .collection('success_payment')
@@ -285,16 +292,15 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
     }, [intent]); // Remove the empty dependency array to listen to real-time changes
 
 
-    const [selectedId, setSelectedId] = useState("");
     async function cancelPayment(readerId) {
-
+        console.log("cancel")
         try {
             const reader = await cancel(readerId);
             console.log("canceled payment at: ", reader);
         } catch (error) {
+            console.log()
             // setError("Error in Reset Terminal. ", error.message);
-
-            // console.error("Error in Reset Terminal. ", error.message);
+            console.error("Error in Reset Terminal. ", error);
         } finally {
 
         }

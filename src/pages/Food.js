@@ -63,7 +63,11 @@ const Food = () => {
       const response = await processPaymentFunction({
         keepWarm: true
       });
+      const createPaymentIntent = firebase.functions().httpsCallable('createPaymentIntent');
 
+      const response2 = await createPaymentIntent({
+        keepWarm: true
+      });
       console.log("the response was okay");
       return response.data;
     } catch (error) {
@@ -502,6 +506,11 @@ const Food = () => {
 
   const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI) => {
 
+    if (isKiosk) {
+      processPayment()//kepp the cloud function warm and get ready
+      cancel()//kepp the cloud function warm and get ready
+    }
+    
     // Check if the array exists in local storage
     if (sessionStorage.getItem(store) === null) {
       // If it doesn't exist, set the value to an empty array
@@ -789,7 +798,7 @@ const Food = () => {
         {isOpen && (
           <div className="modal-backdrop">
 
-            <div className="modal-content_ flex">
+            <div className="modal-content_ flex notranslate">
               <img className='mr-2'
                 src={myImage}  // Use the imported image here
                 alt="Description"
@@ -983,7 +992,7 @@ const Food = () => {
         )}
         <div className='sticky top-0 z-20 lg:ml-10 lg:mr-10'>
           {/* Filter Type */}
-          <div className='px-3' >
+          <div className={!isMobile ? '' : 'px-3'}>
             {/* end of the top */}
             <div className='' style={{ background: 'rgba(255,255,255,0.9)', }} >
               <div className='flex'>
@@ -991,11 +1000,11 @@ const Food = () => {
                 {isMobile ?
 
 
-                  <h5 className='notranslate font-bold '>
+                  <h5 className='notranslate font-bold text-xl'>
 
                     {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
                   </h5> :
-                  <h1 className='notranslate font-bold '>
+                  <h1 className='notranslate font-bold text-xl'>
 
                     {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(storeInfo?.storeNameCHI) : (storeInfo?.Name)}
                   </h1>
@@ -1055,6 +1064,109 @@ const Food = () => {
 
                 </div>)
               }
+              <div className='mt-2 text-lg'>
+                ★★★★★ Strongly recommend:
+              </div>
+
+
+              <div className='mt-1'>
+                <div ref={scrollingWrapperRef} className="relative mt-2 scrolling-wrapper-filter">
+
+                  {Object.values(data.filter(item => item.isFeatured === true)).filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称")).sort((a, b) => (b.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public") - (a.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public")).sort((a, b) => b.name.length - a.name.length).map((item, index) => (
+
+                    <button
+                      onClick={() => {
+                        if (directoryType) {
+                          setFailedItem(item); // Set the failed item immediately
+
+                          setTimeout(() => {
+                            handleOpenModal();
+                          }, 10);
+                        } else {
+                          setSelectedFoodItem(item);
+                          if (isKiosk) {
+                            processPayment()//kepp the cloud function warm and get ready
+                            cancel()//kepp the cloud function warm and get ready
+                          }
+
+                          showModal(item);
+                          handleDropFood();
+                        }
+
+
+                      }}
+                      key={index}
+                      className="h-full border-black-600 rounded-xl text-gray-600 transition duration-200 ease-in-out space-x-2 flex flex-col justify-start items-start"
+                      style={{ display: 'inline-block', textUnderlineOffset: '0.5em', width: '190px' }}
+                    >
+                      <div className='m-2 rounded-lg relative'>
+                        <div className='absolute w-[160px] h-[90px] flex flex-col justify-start items-start'>
+                          <span className="notranslate bg-green-700 text-white rounded-lg m-1 p-1">
+                            <span className="text-base align-baseline">$</span>
+                            <span className="text-xl">{Math.floor(item.subtotal)}.</span>
+                            <span className="text-base align-baseline">{(item.subtotal % 1).toFixed(2).substring(2)}</span>
+                          </span>
+                        </div>
+
+                        <div className='absolute w-[160px] h-[90px] flex flex-col justify-end items-end'>
+                          <div className="black_hover" style={{
+                            padding: '4px',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            display: "flex",
+                            border: "1px solid",
+                            borderRadius: "50%",
+                            width: "30px",
+                            height: "30px",
+                            backgroundColor: 'white'
+                          }}>
+                            <button
+                              className="minus-btn"
+                              type="button"
+                              name="button"
+                              style={{
+                                marginTop: '0px',
+                                width: '20px',
+                                height: '20px',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                display: "flex",
+                              }}
+                            >
+                              {/* Assuming PlusSvg is a component that renders a plus icon */}
+                              <PlusSvg
+                                style={{
+                                  margin: '0px',
+                                  width: '10px',
+                                  height: '10px',
+                                }}
+                                alt=""
+                              />
+                            </button>
+                          </div>
+                        </div>
+
+                        {item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ?
+                          <img loading="lazy" className="w-[190px] h-[100px] transition-all cursor-pointer object-cover border-0" src={item.image} alt="" />
+                          :
+                          <img className="w-[190px] h-[100px] transition-all cursor-pointer object-cover border-0" src={'https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/89cb3a8a-0904-4774-76c9-3ffaa41c5200/public'} alt="White placeholder" />
+                        }
+                      </div>
+                      <div className="text-align-top" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'flex-start' }}>
+                        <span className="block whitespace-normal overflow-hidden" style={{ maxWidth: '170px' }}>
+
+                          {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? item?.CHI : item?.name}
+                        </span>
+                      </div>
+                    </button>
+
+                  ))}
+
+                </div>
+              </div>
+
+
+
               <div className='rounded-lg text-lg'>
                 {isMobile && (
                   <>
@@ -1122,13 +1234,14 @@ const Food = () => {
           </div>
 
         </div>
+
         <div
           className='mt-1 flex m-auto px-4 flex-grow-1 relative min-h-screen w-full'>
           {/* Sidebar */}
           {!isMobile && (
             <aside style={{
               maxHeight: isMobile ? 'calc(100vh - 300px)' : 'calc(100vh - 150px)'
-            }} className='h-full w-72 p-4 absolute top-0 left-0 z-20 pt-0 overflow-y-auto'>
+            }} className='ml-2 h-full w-72 p-4 absolute top-0 left-0 z-20 pt-0 overflow-y-auto'>
               <ul className="space-y-2">
                 {foodTypes.map((foodType) => (
                   <li

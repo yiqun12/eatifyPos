@@ -251,6 +251,13 @@ function App({isModalOpen, setModalOpen,setSelectedTable,selectedTable,setIsVisi
                 keepWarm: true
             });
 
+
+            const createPaymentIntent = firebase.functions().httpsCallable('createPaymentIntent');
+
+            const response2 = await createPaymentIntent({
+                keepWarm: true
+            });
+
             console.log("the response was okay");
             return response.data;
         } catch (error) {

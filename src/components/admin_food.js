@@ -1105,7 +1105,9 @@ const Food = ({ store }) => {
                   <div style={itemStyle}>
 
 
-                    <Item selectedFoodType={selectedFoodType} key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} foodTypes={foodTypes} />
+                    <Item selectedFoodType={selectedFoodType} key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} foodTypes={foodTypes}
+                      fullItems={arr}
+                    />
 
                   </div>
                 ))}
@@ -1122,7 +1124,7 @@ const Food = ({ store }) => {
 
 
 
-const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id, translateToEnglish, translateToChinese, foodTypes }) => {
+const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id, translateToEnglish, translateToChinese, foodTypes, fullItems }) => {
   const [showAdjustion, setShowAdjustion] = useState(false);
 
   const {
@@ -1606,6 +1608,77 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                   translate="no"
                 />
               </div>
+              <div className="flex ">
+                {item.category !== "Temporary Use" && fullItems.filter(item => item.isFeatured === true).length < 10 && item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public"
+                  ?
+                  <div
+                    className="custom-control custom-switch"
+                    style={{ display: "inline-block", verticalAlign: "middle" }}
+                  >
+                    <input
+                      className='form-check-input'
+                      type="checkbox"
+                      style={{ marginRight: "5px" }}
+                      // Set checkbox state, treating undefined as false
+                      checked={item?.isFeatured || false}
+                      onChange={(e) => {
+                        // Handle the change event to toggle the isFeatured state
+                        const isChecked = e.target.checked;
+                        console.log('Featured status:', isChecked);
+
+                        // Assuming updateItem is a function to update the item in your state or backend
+                        updateItem(item.id, { ...item, isFeatured: isChecked });
+                      }}
+                      translate="no"
+                    />
+                    {/* <span className='notranslate'>
+                  {fullItems.filter(item => item.isFeatured === true).length}
+                  {String(item.isFeatured)}
+                </span> */}
+                    <span className="font-size: 16px; font-weight: bold">Strongly recommend
+                    </span>
+                    <div>
+                      <span className="font-size: 14px">You can add up to 10 strongly recommended food items with images.</span>
+                    </div>
+
+                    {/* <p>{fullItems.filter(item => item.isFeatured === true).length}</p> */}
+                  </div>
+                  :
+                  item.isFeatured === true && item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public" ? <div
+                    className="custom-control custom-switch"
+                    style={{ display: "inline-block", verticalAlign: "middle" }}
+                  >
+                    <input
+                      className='form-check-input'
+                      type="checkbox"
+                      style={{ marginRight: "5px" }}
+                      // Set checkbox state, treating undefined as false
+                      checked={item?.isFeatured || false}
+                      onChange={(e) => {
+                        // Handle the change event to toggle the isFeatured state
+                        const isChecked = e.target.checked;
+                        console.log('Featured status:', isChecked);
+
+                        // Assuming updateItem is a function to update the item in your state or backend
+                        updateItem(item.id, { ...item, isFeatured: isChecked });
+                      }}
+                      translate="no"
+                    />
+                    {/* <span className='notranslate'>
+                {fullItems.filter(item => item.isFeatured === true).length}
+                {String(item.isFeatured)}
+              </span> */}
+                    <span className="font-size: 16px; font-weight: bold">Strongly recommend
+                    </span>
+                    <div>
+                      <span className="font-size: 14px">You can add up to 10 strongly recommended food items with images.</span>
+                    </div>
+
+                    {/* <p>{fullItems.filter(item => item.isFeatured === true).length}</p> */}
+                  </div> : <></>
+                }
+              </div>
+
             </div>
 
           </div>

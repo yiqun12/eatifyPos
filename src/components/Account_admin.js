@@ -517,6 +517,59 @@ const Account = () => {
     //console.log(lastDayOfMonth.toISOString())
   };
 
+  const getSeason = (inputDate, quarter) => {
+    function formatDate_(year, month, day) {
+      const date = new Date(year, month, day);
+      const formattedYear = date.getFullYear();
+      const formattedMonth = (date.getMonth() + 1).toString().padStart(2, '0');
+      const formattedDay = date.getDate().toString().padStart(2, '0');
+      const hours = '00';
+      const minutes = '00';
+      const seconds = '00';
+      // Parse the custom date format
+      const date_ = moment.tz(`${formattedYear}${formattedMonth}${formattedDay}${hours}${minutes}${seconds}`, "YYYYMMDDHHmmss", "America/Los_Angeles");
+
+      // Format the date in the desired output
+      const losAngelesDate = date_.format('ddd MMM DD YYYY HH:mm:ss [GMT]Z (zz)');
+      // console.log(new Date(losAngelesDate))
+      return new Date(losAngelesDate);
+    }
+    // Parse the input date string
+    const year = parseInt(inputDate.substring(0, 4), 10);
+    const month = parseInt(inputDate.substring(5, 7), 10) - 1; // Subtract 1 because months are 0-indexed in JavaScript Date
+
+    //2024-01-31T05:00:00.000Z
+    if (quarter === "Q1") {
+      setStartDate(formatDate_(year, 0, 1).toISOString());
+      setEndDate(formatDate_(year, 2, 31).toISOString());
+    } else if (quarter === "Q2") {
+      setStartDate(formatDate_(year, 3, 1).toISOString());
+      setEndDate(formatDate_(year, 5, 30).toISOString());
+    } else if (quarter === "Q3") {
+      setStartDate(formatDate_(year, 6, 1).toISOString());
+      setEndDate(formatDate_(year, 8, 30).toISOString());
+    } else if (quarter === "Q4") {
+      setStartDate(formatDate_(year, 9, 1).toISOString());
+      setEndDate(formatDate_(year, 11, 31).toISOString());
+    } else if (quarter === "lastQ1") {
+      setStartDate(formatDate_(year - 1, 0, 1).toISOString());
+      setEndDate(formatDate_(year - 1, 2, 31).toISOString());
+    } else if (quarter === "lastQ2") {
+      setStartDate(formatDate_(year - 1, 3, 1).toISOString());
+      setEndDate(formatDate_(year - 1, 5, 30).toISOString());
+    } else if (quarter === "lastQ3") {
+      setStartDate(formatDate_(year - 1, 6, 1).toISOString());
+      setEndDate(formatDate_(year - 1, 8, 30).toISOString());
+    } else if (quarter === "lastQ4") {
+      setStartDate(formatDate_(year - 1, 9, 1).toISOString());
+      setEndDate(formatDate_(year - 1, 11, 31).toISOString());
+    }
+
+
+    //console.log(lastDayOfMonth.toISOString())
+  };
+
+
   const wrapperRef = useRef(null);
 
   const handleChangeStartDay = (date) => {
@@ -575,6 +628,50 @@ const Account = () => {
       ('0' + date.getSeconds()).slice(-2) + '-00';
   }
 
+
+  const [selectedTime, setSelectedTime] = useState("00-00"); // Default value as 00-00
+
+  // Generate time options with a 30-minute interval
+  const generateTimeOptions = () => {
+    const times = [];
+    for (let hours = 0; hours < 24; hours++) {
+      for (let minutes = 0; minutes < 60; minutes += 30) {
+        const formattedTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+        times.push(formattedTime);
+      }
+    }
+    return times;
+  };
+
+  const handleChange = (event) => {
+    const timeWithHyphen = event.target.value.replace(":", "-");
+    setSelectedTime(timeWithHyphen);
+  };
+
+  const timeOptions = generateTimeOptions();
+
+  const [currentTime, setCurrentTime] = useState("23-30"); // Default value as 00-00
+
+  // Generate an array of time strings with 30-minute intervals
+  const createTimeOptions = () => {
+    const timeIntervals = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const formattedTime = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+        timeIntervals.push(formattedTime);
+      }
+    }
+    return timeIntervals;
+  };
+
+  const handleTimeChange = (event) => {
+    const formattedTimeWithHyphen = event.target.value.replace(":", "-");
+    setCurrentTime(formattedTimeWithHyphen);
+  };
+
+  const timeIntervalOptions = createTimeOptions();
+
+
   const fetchPostAll = async () => {
     if (activeStoreTab !== '') {
       console.log(activeStoreTab)
@@ -622,14 +719,58 @@ const Account = () => {
       setCancelOrder(newItems)
       //setOrders(newItems);
     });
+    function addTimeToDateTime(datetimeStr, timeStr) {
+      // Parse the datetime string
+      function parseCustomDateTime(input) {
+        const parts = input.split('-');
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-indexed
+        const day = parseInt(parts[2], 10);
+        const hours = parseInt(parts[3], 10);
+        const minutes = parseInt(parts[4], 10);
+        const seconds = parseInt(parts[5], 10);
+        return new Date(year, month, day, hours, minutes, seconds);
+      }
+
+      // Format the Date object into the custom datetime string
+      function formatCustomDateTime(date) {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const seconds = date.getSeconds().toString().padStart(2, '0');
+        return `${year}-${month}-${day}-${hours}-${minutes}-${seconds}-00`;
+      }
+
+      // Parse the time string
+      const timeParts = timeStr.split('-');
+      const additionalHours = parseInt(timeParts[0], 10);
+      const additionalMinutes = parseInt(timeParts[1], 10);
+
+      // Get the datetime object from the datetime string
+      const date = parseCustomDateTime(datetimeStr);
+
+      // Add the time from the time string
+      date.setHours(date.getHours() + additionalHours);
+      date.setMinutes(date.getMinutes() + additionalMinutes);
+
+      // Return the formatted new datetime string
+      return formatCustomDateTime(date);
+    }
+
+    console.log("bbbbbbbbbbbbb")
 
     // Construct query
     const paymentsQuery = query(
       collection(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', activeStoreTab, 'success_payment'),
-      where('dateTime', '>=', convertDateFormat(startDate)),
-      where('dateTime', '<', convertDateFormat(endDate ? addDays(endDate, 1) : addDays(startDate, 1)))
+      where('dateTime', '>=', addTimeToDateTime(convertDateFormat(startDate), selectedTime)),
+      where('dateTime', '<', addTimeToDateTime(convertDateFormat(endDate ? endDate : startDate), currentTime))
     );
 
+
+    console.log(addTimeToDateTime(convertDateFormat(endDate ? addDays(endDate, 0) : addDays(startDate, 1)), currentTime))
+    console.log(addTimeToDateTime(convertDateFormat(startDate), selectedTime))
     onSnapshot(paymentsQuery, async (snapshot) => {
       console.log("new added");
       const newData = snapshot.docs.map(doc => ({
@@ -755,7 +896,7 @@ const Account = () => {
       fetchPostAll();
     }
 
-  }, [activeStoreTab, endDate, startDate])
+  }, [activeStoreTab, endDate, startDate, currentTime, selectedTime])
 
 
   useEffect(() => {
@@ -3396,28 +3537,47 @@ const Account = () => {
                                   <div className={`${isMobile ? '' : 'flex'}`} >
                                     <div >
                                       <div>Start Date:</div>
-                                      <button className=" btn btn-sm mt-1 mb-1 mr-2 notranslate " style={{
-                                        border: '1px solid #ccc',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        // Add other styles as needed
-                                      }} onClick={() => {
-                                        setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
-                                        if (endDate === null) {
-                                          setEndDate(null);
-                                        } else {
-                                          setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
-                                        }
-                                        setIsPickerOpenMonth(false);
-                                        setIsPickerOpenEndDay(false);
-                                        setIsPickerOpenStartDay(!isPickerOpenStartDay);
+                                      <div className={!isMobile ? "flex" : ""}>
+                                        <button className=" btn btn-sm mt-1 mb-1 mr-2 notranslate " style={{
+                                          border: '1px solid #ccc',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          // Add other styles as needed
+                                        }} onClick={() => {
+                                          setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
+                                          if (endDate === null) {
+                                            setEndDate(null);
+                                          } else {
+                                            setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                          }
+                                          setIsPickerOpenMonth(false);
+                                          setIsPickerOpenEndDay(false);
+                                          setIsPickerOpenStartDay(!isPickerOpenStartDay);
 
-                                      }}>
-                                        <i class="bi-calendar-range"></i>
-                                        &nbsp;
-                                        {startDate ? format(startDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
+                                        }}>
+                                          <i class="bi-calendar-range"></i>
+                                          &nbsp;
+                                          {startDate ? format(startDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
 
-                                      </button>
+                                        </button>
+
+                                        <select
+                                          className=" btn btn-sm mt-1 mb-1 mr-2 notranslate "
+                                          style={{
+                                            border: '1px solid #ccc',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            // Add other styles as needed
+                                          }}
+                                          id="time-select" value={selectedTime.replace("-", ":")} onChange={handleChange}>
+
+                                          {timeOptions.map((time, index) => (
+                                            <option key={index} value={time}>
+                                              {time}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      </div>
                                     </div>
 
                                     <div>
@@ -3435,36 +3595,59 @@ const Account = () => {
                                           Add End Date
                                         </button>
                                         : <div className='flex'>
-                                          <button className="btn btn-sm mt-1 mb-1 notranslate" style={{
-                                            border: '1px solid #ccc',
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            // Add other styles as needed
-                                          }} onClick={() => {
-                                            setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
-                                            if (endDate === null) {
-                                              setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
-                                            } else {
-                                              setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
-                                            }
-                                            setIsPickerOpenMonth(false);
-                                            setIsPickerOpenStartDay(false);
-                                            setIsPickerOpenEndDay(!isPickerOpenEndDay);
+                                          <div className={`${isMobile ? '' : 'flex'}`} >
 
-                                          }}>
-                                            <i class="bi-calendar-range"></i>
-                                            &nbsp;
-                                            {endDate ? format(endDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
+                                            <button className="btn btn-sm mt-1 mb-1 mr-2 notranslate" style={{
+                                              border: '1px solid #ccc',
+                                              display: 'inline-flex',
+                                              alignItems: 'center',
+                                              // Add other styles as needed
+                                            }} onClick={() => {
+                                              setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
+                                              if (endDate === null) {
+                                                setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                              } else {
+                                                setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                              }
+                                              setIsPickerOpenMonth(false);
+                                              setIsPickerOpenStartDay(false);
+                                              setIsPickerOpenEndDay(!isPickerOpenEndDay);
 
-                                          </button>
-                                          <button onClick={() => setEndDate(null)} className="btn btn-sm btn-danger mt-1 mb-1 notranslate" style={{
-                                            border: '1px solid #ccc',
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            // Add other styles as needed
-                                          }}>
-                                            <i className="bi bi-trash"></i>
-                                          </button>
+                                            }}>
+                                              <i class="bi-calendar-range"></i>
+                                              &nbsp;
+                                              {endDate ? format(endDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
+
+                                            </button>
+                                            <div className='flex'>
+                                              <select
+                                                className="btn btn-sm mt-1 mb-1 mr-2 notranslate"
+                                                style={{
+                                                  border: '1px solid #ccc',
+                                                  display: 'inline-flex',
+                                                  alignItems: 'center',
+                                                  // Additional styles can be added as needed
+                                                }}
+                                                id="time-dropdown"
+                                                value={currentTime.replace("-", ":")}
+                                                onChange={handleTimeChange}
+                                              >
+                                                {timeIntervalOptions.map((timeOption, index) => (
+                                                  <option key={index} value={timeOption}>
+                                                    {timeOption}
+                                                  </option>
+                                                ))}
+                                              </select>
+                                              <button onClick={() => setEndDate(null)} className="btn btn-sm btn-danger mt-1 mb-1 notranslate" style={{
+                                                border: '1px solid #ccc',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                // Add other styles as needed
+                                              }}>
+                                                <i className="bi bi-trash"></i>
+                                              </button>
+                                            </div>
+                                          </div>
                                         </div>
                                       }
 
@@ -3768,6 +3951,21 @@ const Account = () => {
 
                             </div>
                             <div>
+
+                              <select
+                                onChange={(e) => getSeason(format12Oclock(new Date(Date.now()).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })), e.target.value)}
+                                className="btn btn-sm border-black d-flex align-items-center mx-1 mb-2"
+                              >
+
+                                <option value="Q1">Show First Quarter of This Year</option>
+                                <option value="Q2">Show Second Quarter of This Year</option>
+                                <option value="Q3">Show Third Quarter of This Year</option>
+                                <option value="Q4">Show Fourth Quarter of This Year</option>
+                                <option value="lastQ1">Show First Quarter of Last Year</option>
+                                <option value="lastQ2">Show Second Quarter of Last Year</option>
+                                <option value="lastQ3">Show Third Quarter of Last Year</option>
+                                <option value="lastQ4">Show Fourth Quarter of Last Year</option>
+                              </select>
                               <div className={`${true ? 'flex' : ''}`}>
 
                                 <button
@@ -3810,7 +4008,12 @@ const Account = () => {
                                         ["December Orders", "January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })).getMonth()])
                                     }</span>
                                 </button>
+
+
+
+
                               </div>
+
 
                             </div>
 
@@ -3925,73 +4128,134 @@ const Account = () => {
                                     }
 
                                     return (
-                                      < div onClick={() => {
-                                        if (!expandedOrderIds.includes(order.id) && isMobile) {
-                                          toggleExpandedOrderId(order.id)
+                                      <>
+                                        <div className="order" style={{ borderBottom: "1px solid #ddd" }}>
+                                          {
+                                            (() => {
+                                              function compareDates(date1, date2) {
+                                                // Check for null or invalid dates
+                                                if (!date1 || !date2) return "Invalid dates to compare";
+
+                                                // Parse the dates
+                                                const parsedDate1 = new Date(`20${date1.split('/')[2]}`, date1.split('/')[0] - 1, date1.split('/')[1]);
+                                                const parsedDate2 = new Date(`20${date2.split('/')[2]}`, date2.split('/')[0] - 1, date2.split('/')[1]);
+
+                                                // Compare the dates
+                                                if (parsedDate1 > parsedDate2) {
+                                                  return ` 📅 ${date2}`;
+                                                } else if (parsedDate1 < parsedDate2) {
+                                                  return ``;
+                                                } else {
+                                                  return ``;
+                                                }
+                                              }
+
+                                              // Ensure index > 0 before calling compareDates
+                                              return index > 0
+                                                ? compareDates(items[index - 1].date.split(' ')[0], items[index].date.split(' ')[0])
+                                                : `📅 ${items[index].date.split(' ')[0]}`;
+                                            })()
+                                          }
+                                        </div>
+                                        < div onClick={() => {
+                                          if (isMobile) {
+                                            toggleExpandedOrderId(order.id)
+                                          }
                                         }
-                                      }
-                                      }
+                                        }
 
-                                        style={{ display: 'contents' }}>
-                                        <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
-                                          {isMobile ? null :
-                                            (
-                                              (order.status !== "Canceled") ?
-                                                <td className='notranslate'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex}</td>
-                                                : <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
-
-                                            )
-                                          }
-                                          {(isLocalHost)
-                                            ?
-                                            <td className="order-number notranslate" data-title="OrderID">
-                                              <a>
-                                                {order.id.substring(0, 4)}
-                                              </a>
-                                            </td> :
-                                            <></>
-                                          }
-
-                                          <td className="order-name notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>
-                                            {isMobile ?
+                                          style={{ display: 'contents' }}>
+                                          <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
+                                            {isMobile ? null :
                                               (
                                                 (order.status !== "Canceled") ?
-                                                  <span className='notranslate'>#{orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex} </span>
-                                                  :
-                                                  <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
+                                                  <td className='notranslate'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex}</td>
+                                                  : <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
+
                                               )
-                                              :
-                                              null
                                             }
-                                            {order.tableNum === "" ? "Takeout" : order.tableNum}</td>
-                                          <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
-                                          <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className="notranslate amount">
-                                            {"$" + roundToTwoDecimalsTofix(order.total)}
-                                            {/* <i class="fa-solid fa-circle-info"></i>
+                                            {(isLocalHost)
+                                              ?
+                                              <td className="order-number notranslate" data-title="OrderID">
+                                                <a>
+                                                  {order.id.substring(0, 4)}
+                                                </a>
+                                              </td> :
+                                              <></>
+                                            }
+
+                                            <td className="order-name notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>
+                                              {isMobile ?
+                                                (
+                                                  (order.status !== "Canceled") ?
+                                                    <span className='notranslate'>#{orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex} </span>
+                                                    :
+                                                    <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
+                                                )
+                                                :
+                                                null
+                                              }
+                                              {order.tableNum === "" ? "Takeout" : order.tableNum}</td>
+                                            <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
+                                            <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className=" amount">
+                                              <span className='notranslate'>
+                                                {"$" + roundToTwoDecimalsTofix(order.total)}
+                                              </span>
+
+                                              <span style={{ color: 'red' }}>
+
+                                                {(() => {
+                                                  const subtotal = roundToTwoDecimalsTofix(order?.metadata?.subtotal);
+                                                  const serviceFee = roundToTwoDecimalsTofix(order?.metadata?.service_fee);
+                                                  const tips = roundToTwoDecimalsTofix(order?.metadata?.tips);
+
+                                                  // 检查 subtotal 是否有效
+                                                  if (isNaN(subtotal) || subtotal <= 0) {
+                                                    return null; // 不显示任何内容
+                                                  }
+
+                                                  // 根据 serviceFee 的值计算相应的百分比
+                                                  const percentage = serviceFee == 0
+                                                    ? (tips / subtotal) * 100
+                                                    : (serviceFee / subtotal) * 100;
+
+                                                  // 如果计算结果是 NaN，则返回 null 不显示任何内容
+                                                  return !isNaN(percentage)
+                                                    ? ` (${percentage.toFixed(2)}${!isMobile ? "% Gratuity)" : "%)"}`
+                                                    : null;
+                                                })()}
+                                              </span>
+
+                                              {/* <i class="fa-solid fa-circle-info"></i>
                                           {order?.transaction_json?.net !== undefined ?
                                             roundToTwoDecimalsTofix(order?.transaction_json?.net) : 0
                                           } */}
-                                          </span></td>
-                                          <td className="order-date" data-title="Date" style={{ whiteSpace: "nowrap" }}>
-                                            <time dateTime={order.date} title={order.date} nowrap>
-                                              <span className='notranslate'>
-                                                {order.date}</span>
-                                            </time>
-                                          </td>
-                                          {!isMobile && (
-                                            (order.status !== "Canceled") && (
-                                              <td className="order-details" style={{
-                                                width: "400px",
-                                                whiteSpace: "nowrap", textAlign: "right"
-                                              }}
-                                                data-title="Details">
-                                                {/* <button
+                                            </span></td>
+                                            <td className="order-date" data-title="Date" style={{ whiteSpace: "nowrap" }}>
+                                              <time dateTime={order.date} title={order.date} nowrap>
+                                                <span className='notranslate'>
+
+                                                  {isMobile ?
+                                                    order.date.split(' ').slice(1).join(' ') :
+                                                    order.date
+                                                  }
+                                                </span>
+                                              </time>
+                                            </td>
+                                            {!isMobile && (
+                                              (order.status !== "Canceled") && (
+                                                <td className="order-details" style={{
+                                                  width: "400px",
+                                                  whiteSpace: "nowrap", textAlign: "right"
+                                                }}
+                                                  data-title="Details">
+                                                  {/* <button
                                                 className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
                                                 onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
                                               >
                                                 Bank Receipt
                                               </button> */}
-                                                {/* {order?.status === 'Paid by Cash' ? (
+                                                  {/* {order?.status === 'Paid by Cash' ? (
                                                                                       <button
                                                                                         className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
                                                                                         onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
@@ -4005,97 +4269,103 @@ const Account = () => {
                                                                                       >
                                                                                         Bank Receipt
                                                                                       </button>} */}
-                                                <button
-                                                  className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                  onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                                >
-                                                  Add Gratuity
-                                                </button>
-                                                <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
+                                                  <button
+                                                    className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                    onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                                  >
+                                                    Add Gratuity
+                                                  </button>
+                                                  <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
 
-                                                  Print Receipt
-                                                </button>
-                                                {/* <button onClick={() => deleteDocument(order.id)}>
+                                                    Print Receipt
+                                                  </button>
+                                                  {/* <button onClick={() => deleteDocument(order.id)}>
                                                   Delete Document
                                                 </button> */}
-                                                <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
-                                                >
-                                                  {expandedOrderIds.includes(order.id) ? "Close Details" : "View Details"}
-                                                </button>
-                                              </td>
+                                                  <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
+                                                  >
+                                                    {expandedOrderIds.includes(order.id) ? "Close Details" : "View Details"}
+                                                  </button>
+                                                </td>
+                                              )
+
                                             )
+                                            }
 
-                                          )
-                                          }
-
-                                        </tr>
+                                          </tr>
 
 
-                                        {
-                                          (expandedOrderIds.includes(order.id) || order?.status === "Canceled") && (
-                                            <tr style={{ backgroundColor: '#f8f9fa' }}>
-                                              <td colSpan={8} style={{ padding: "10px" }}>
-                                                <div className="receipt">
-                                                  {isMobile && order.status === "canceled" ?
-                                                    <div>
-                                                      <button
-                                                        className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                        onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                                      >
-                                                        Add Gratuity
-                                                      </button>
-                                                      <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
+                                          {
+                                            (expandedOrderIds.includes(order.id) || order?.status === "Canceled") && (
+                                              <tr style={{ backgroundColor: '#f8f9fa' }}>
+                                                <td colSpan={8} style={{ padding: "10px" }}>
+                                                  <div className="receipt">
+                                                    {isMobile && order.status === "canceled" ?
+                                                      <div>
+                                                        <button
+                                                          className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                                                          onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
+                                                        >
+                                                          Add Gratuity
+                                                        </button>
+                                                        <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
 
-                                                        Print Receipt
-                                                      </button>
-                                                      {/* <button onClick={() => deleteDocument(order.id)}>
+                                                          Print Receipt
+                                                        </button>
+                                                        {/* <button onClick={() => deleteDocument(order.id)}>
                                                                                                                                   Delete Document
                                                                                                                                 </button> */}
-                                                      <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
-                                                      >
-                                                        {expandedOrderIds.includes(order.id) ? "Close Details" : "View Details"}
-                                                      </button>
-                                                    </div>
-                                                    : null
-                                                  }
-                                                  {order.status !== "Canceled" &&
-                                                    <span>
-                                                      Order ID: {order.id}</span>
-                                                  }
-                                                  <p><span className='notranslate'>{order.name}</span></p>
-                                                  {/* <p>{order.email}</p> */}
-                                                  {/* <p><span className='notranslate'>{order.date}</span></p> */}
-                                                  {JSON.parse(order.receiptData).map((item, index) => (
-                                                    <div className="receipt-item" key={item.id}>
-                                                      <p className='notranslate'>
-                                                        {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
-                                                          : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
-                                                        &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
-                                                        &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.itemTotalPrice)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) :
-                                                          roundToTwoDecimalsTofix(roundToTwoDecimalsTofix(item.itemTotalPrice) / roundToTwoDecimalsTofix(Math.round(item.quantity)))}
-                                                        &nbsp;each = ${roundToTwoDecimalsTofix(item.itemTotalPrice)}</p>
-                                                    </div>
-                                                  ))}
-                                                  {order.status !== "Canceled" && (
-                                                    <>
-                                                      <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.discount)}</span></p>
-                                                      <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.subtotal)}</span></p>
-                                                      <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.service_fee)}</span></p>
-                                                      <p>Tax: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.tax)}</span></p>
-                                                      <p>Gratuity: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.tips)}</span></p>
-                                                      <p>Total: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.total)}</span></p>
-                                                    </>
-                                                  )}
+                                                        <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
+                                                        >
+                                                          {expandedOrderIds.includes(order.id) ? "Close Details" : "View Details"}
+                                                        </button>
+                                                      </div>
+                                                      : null
+                                                    }
+                                                    {order.status !== "Canceled" &&
+                                                      <span>
+                                                        Order ID: {order.id}</span>
+                                                    }
+                                                    {isMobile
+                                                      ? <p>Date: <span className='notranslate'>{order.date}</span></p>
+                                                      : null}
 
 
-                                                </div>
+                                                    <p><span className='notranslate'>{order.name}</span></p>
+                                                    {/* <p>{order.email}</p> */}
+                                                    {/* <p><span className='notranslate'>{order.date}</span></p> */}
+                                                    {JSON.parse(order.receiptData).map((item, index) => (
+                                                      <div className="receipt-item" key={item.id}>
+                                                        <p className='notranslate'>
+                                                          {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
+                                                            : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
+                                                          &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
+                                                          &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.itemTotalPrice)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) :
+                                                            roundToTwoDecimalsTofix(roundToTwoDecimalsTofix(item.itemTotalPrice) / roundToTwoDecimalsTofix(Math.round(item.quantity)))}
+                                                          &nbsp;each = ${roundToTwoDecimalsTofix(item.itemTotalPrice)}</p>
+                                                      </div>
+                                                    ))}
+                                                    {order.status !== "Canceled" && (
+                                                      <>
+                                                        <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.discount)}</span></p>
+                                                        <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.subtotal)}</span></p>
+                                                        <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.service_fee)}</span></p>
+                                                        <p>Tax: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.tax)}</span></p>
+                                                        <p>Gratuity: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.tips)}</span></p>
+                                                        <p>Total: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.total)}</span></p>
+                                                      </>
+                                                    )}
 
-                                              </td>
 
-                                            </tr>
-                                          )
-                                        }
-                                      </div>
+                                                  </div>
+
+                                                </td>
+
+                                              </tr>
+                                            )
+                                          }
+                                        </div>
+                                      </>
                                     )
                                   })}
                                 </tbody>

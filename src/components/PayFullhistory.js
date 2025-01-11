@@ -236,7 +236,7 @@ function PayFullhistory() {
                       {expandedOrderIds.includes(order.id) && (
                         <div className="p-0 p-0 rounded-b-lg">
                           <div style={{ paddingTop: "0px", paddingBottom: "10px" }}>
-                            <div className="receipt">
+                          <div className={isMobile ? "receipt-mobile" : "receipt w-50"}>
                               <p className="mb-1 text-gray-500 d-block text-base font-semibold">{order.dineMode === "DineIn" ? "Table Number: " + order.tableNum : "Take Out Order"}
                                 ({order.id.substring(0, 4)})
                               </p>
@@ -274,7 +274,7 @@ function PayFullhistory() {
                                 <p className="mb-1 text-orange-700 d-block text-base font-semibold notranslate">${(Math.round(order.metadata.tips * 100) / 100).toFixed(2)}</p>
                               </div>
                               <div className=" flex justify-between">
-                                <p className="mb-1 text-orange-700 d-block text-base font-semibold">{t("Total")}</p>
+                                <p className="mb-1 text-orange-700 d-block text-base font-semibold">{t("Total Price")}</p>
                                 <p className="mb-1 text-orange-700 d-block text-base font-semibold notranslate">${(Math.round(order.metadata.total * 100) / 100).toFixed(2)}</p>
                               </div>
 

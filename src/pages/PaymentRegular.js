@@ -78,7 +78,8 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
 
       const response = await cancelActionFunction({
         reader_id: items.find(item => item.id === selectedId).readerId,
-        connected_stripe_account_id: connected_stripe_account_id
+        connected_stripe_account_id: connected_stripe_account_id,
+        storeID:storeID
       });
 
       console.log("the response was okay");
