@@ -68,6 +68,7 @@
         "react-lazy-load-image-component": "^1.6.0",
         "react-leaflet": "^4.2.1",
         "react-modal": "^3.16.1",
+        "react-remove-scroll": "^2.6.2",
         "react-resize-detector": "^9.1.0",
         "react-responsive-carousel": "^3.2.23",
         "react-router-dom": "^6.5.0",

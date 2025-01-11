@@ -31,6 +31,7 @@ import pinyin from "pinyin";
 import { faList } from '@fortawesome/free-solid-svg-icons';
 import { ReactComponent as DeleteSvg } from './delete-icn.svg';
 import { handleOpenModal } from '../pages/Navbar';
+import { RemoveScroll } from 'react-remove-scroll';
 
 import { getGlobalDirectoryType } from '../pages/Navbar';
 
@@ -510,7 +511,7 @@ const Food = () => {
       processPayment()//kepp the cloud function warm and get ready
       cancel()//kepp the cloud function warm and get ready
     }
-    
+
     // Check if the array exists in local storage
     if (sessionStorage.getItem(store) === null) {
       // If it doesn't exist, set the value to an empty array
@@ -781,6 +782,11 @@ const Food = () => {
 
 
   };
+  function isWeChatBrowser() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    return userAgent.includes('micromessenger');
+  }
+
   if (false) {
     return <p>  <div className="pan-loader">
       Loading...
@@ -790,7 +796,7 @@ const Food = () => {
 
     return (
 
-      <div>
+      <RemoveScroll className='overflow-hidden'>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
         <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/uber-move-text"></link>
@@ -1065,7 +1071,7 @@ const Food = () => {
                 </div>)
               }
               <div className='mt-2 text-lg'>
-                ★★★★★ Strongly recommend:
+                ★★★★★ Strongly Recommend:
               </div>
 
 
@@ -1240,7 +1246,7 @@ const Food = () => {
           {/* Sidebar */}
           {!isMobile && (
             <aside style={{
-              maxHeight: isMobile ? 'calc(100vh - 300px)' : 'calc(100vh - 150px)'
+              maxHeight: isMobile ? 'calc(100vh - 500px)' : 'calc(100vh - 350px)'
             }} className='ml-2 h-full w-72 p-4 absolute top-0 left-0 z-20 pt-0 overflow-y-auto'>
               <ul className="space-y-2">
                 {foodTypes.map((foodType) => (
@@ -1287,13 +1293,12 @@ const Food = () => {
                   }
                     style={{
                       overflowY: 'auto',
-                      maxHeight: isMobile ? 'calc(100vh - 300px)' : 'calc(100vh - 150px)'
+                      maxHeight: isMobile ? 'calc(100vh - 500px)' : isWeChatBrowser() ? 'calc(100vh - 450px)' : 'calc(100vh - 350px)'
                     }}> {/* group food by category */}
                     {Object.values(foods.sort((a, b) => {
                       return foodTypes.indexOf(a.category) - foodTypes.indexOf(b.category);
-                    }).reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称")).sort((a, b) => (b.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public") - (a.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public")).map((item, index) => (
+                    }).reduce((acc, food) => ((acc[food.category] = acc[food.category] || []).push(food), acc), {})).flat().filter(item => !(item?.name === "Enter Meal Name")).sort((a, b) => (b.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public") - (a.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public")).map((item, index) => (
                       <div>
-
                         <motion.div
                           layout
                           initial={{ opacity: 0 }}
@@ -1457,7 +1462,7 @@ const Food = () => {
 
 
         </div>
-      </div>
+      </RemoveScroll>
 
     )
   }

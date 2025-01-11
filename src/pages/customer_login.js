@@ -16,6 +16,9 @@ import { useUserContext } from "../context/userContext";
 import Navbar from './Navbar'
 import { useState, useEffect } from 'react';
 import { useMyHook } from './myHook';
+import GoogleIcon from '@mui/icons-material/Google';
+import GuestIcon from '@mui/icons-material/AccountCircle'; // Example icon for guest
+import SignUpIcon from '@mui/icons-material/AppRegistration'; // Example icon for signup
 
 const theme = createTheme();
 // Static translation object
@@ -54,9 +57,9 @@ export default function SignIn() {
   const [error, setError] = useState("");
 
   const emailRef = useRef();
-  const { signInUser, signInWithGuestLink,forgotPassword } = useUserContext();
+  const { signInUser, signInWithGuestLink, forgotPassword } = useUserContext();
   const { signInWithGoogle, signInWithGuest } = useUserContext();
-  const { user, user_loading} = useUserContext();
+  const { user, user_loading } = useUserContext();
   const user_not_verified = JSON.parse(sessionStorage.getItem('user_not_verified'));
   if (user) {
     //window.location.href = "/";
@@ -113,8 +116,10 @@ export default function SignIn() {
         <div>{t.loading}</div>
       ) : (
         <div>
+          
           <div className="container">
             <div style={width > 768 ? { width: '550px', margin: '0 auto' } : {}}>
+  
               <div className={width > 768 ? 'card2 mt-50 mb-50' : ''}>
                 <div style={{ padding: '0px 12px' }} className={width > 768 ? 'main' : ''}>
                   <ThemeProvider theme={theme}>
@@ -145,26 +150,6 @@ export default function SignIn() {
                         )}
 
                         {/* Language Selection Dropdown */}
-                        <Box sx={{ mt: 2 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <label>
-                              <input
-                                type="checkbox"
-                                checked={language === 'en'}
-                                onChange={() => handleLanguageChange('en')}
-                              />
-                              English
-                            </label>
-                            <label>
-                              <input
-                                type="checkbox"
-                                checked={language === 'zh'}
-                                onChange={() => handleLanguageChange('zh')}
-                              />
-                              中文
-                            </label>
-                          </div>
-                        </Box>
 
                         <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
                           <Grid container spacing={2}>
@@ -191,7 +176,13 @@ export default function SignIn() {
                             />
                           </Grid>
                           <Grid container spacing={2}>
-                            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+                            <Button
+                              type="submit"
+                              fullWidth
+                              variant="contained"
+                              sx={{ mt: 3, mb: 2, backgroundColor: '#1976d2', color: 'white' }} // Softer blue
+                              startIcon={<SignUpIcon />}
+                            >
                               {t.signInButton}
                             </Button>
 
@@ -199,7 +190,8 @@ export default function SignIn() {
                               onClick={signInWithGoogle}
                               fullWidth
                               variant="contained"
-                              sx={{ mb: 2 }}
+                              sx={{ mb: 2, backgroundColor: '#db4437', color: 'white' }} // Softer red
+                              startIcon={<GoogleIcon />}
                               role="button"
                             >
                               {t.googleSignIn}
@@ -208,17 +200,31 @@ export default function SignIn() {
                             <Button
                               fullWidth
                               variant="contained"
-                              sx={{ mb: 2 }}
+                              sx={{ mb: 2, backgroundColor: '#9e9e9e', color: 'white' }} // Softer gray
+                              startIcon={<GuestIcon />}
                               role="button"
                               onClick={signInWithGuest}
                             >
                               {t.guestSignIn}
                             </Button>
 
+                            <Button
+                              fullWidth
+                              variant="contained"
+                              sx={{ mb: 2, backgroundColor: '#388e3c', color: 'white' }} // Softer green
+                              startIcon={<SignUpIcon />}
+                              role="button"
+                              onClick={() => {
+                                window.location.href = `/signup`;
+                              }}
+                            >
+                              Sign Up
+                            </Button>
+
                             <Grid container>
                               <Grid item xs>
                                 <Link
-                                  style={{ cursor: 'pointer' }}
+                                  style={{ cursor: 'pointer', color: '#1976d2' }} // Softer link color
                                   onClick={forgotPasswordHandler}
                                   variant="body2"
                                 >
@@ -227,6 +233,7 @@ export default function SignIn() {
                               </Grid>
                             </Grid>
                           </Grid>
+
                         </Box>
                       </Box>
                     </Container>

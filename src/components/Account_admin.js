@@ -101,7 +101,42 @@ const Account = () => {
   const cutoffTime = DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE);
 
   const handleTimeZoneChange = (zone) => setTimeZone(zone);
+  const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
+  const [isJointAdvertised, setIsJointAdvertised] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
+
+  const handlePasswordSubmit = (password) => {
+    if (password === '123') {
+      setIsPasswordCorrect(true);
+      setIsJointAdvertised(!isJointAdvertised);
+      setShowModal(false);
+    } else {
+      alert('Incorrect password, please enter the correct password to join the program.');
+    }
+  };
+
+
+  const toggleAdvertisingProgram = async (e) => {
+    if (!isPasswordCorrect) {
+      setShowModal(true);
+    } else {
+      setIsJointAdvertised(!isJointAdvertised);
+      const isChecked = e.target.checked;
+      const documentRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID);
+
+      try {
+        // Update the `dailyPayout` field based on checkbox status
+        await updateDoc(documentRef, { isJointAdvertised: isChecked });
+        console.log(isChecked);
+      } catch (error) {
+        console.error("Error updating document:", error);
+      }
+    }
+
+
+
+  };
   const handleCheckboxChange = async (e) => {
     const isChecked = e.target.checked;
     const documentRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID);
@@ -275,6 +310,8 @@ const Account = () => {
   }, []);
 
   const isMobile = width <= 768;
+  const [showSyncButton, setShowSyncButton] = useState(false);
+
 
   const isPC = width >= 1024;
   const { promise, logoutUser } = useUserContext();
@@ -1083,6 +1120,8 @@ const Account = () => {
 
     });
     alert("Updated Successful");
+    setShowSyncButton(false)
+
   };
   const [documents, setDocuments] = useState([]);
   useEffect(() => {
@@ -3148,185 +3187,194 @@ const Account = () => {
                                 </div>
                               </div>
                             </div> */}
+                            <div className="max-w-lg rounded-lg overflow-hidden flex">
+                              <div className="w-2/3 p-1">
+                                <h3 className="font-bold text-xl text-gray-900 notranslate">{data?.Name}</h3>
+                                <p className="font-semibold text-gray-800 notranslate">{data?.storeNameCHI}</p>
+                                <p className="text-gray-700 font-semibold mt-2 notranslate">{data?.Description}</p>
+                                <p className="text-gray-700 text-sm mt-1 notranslate">{data?.physical_address}, {data?.Address}, {data?.City}, {data?.State} {data?.ZipCode}</p>
+                                <p className="text-gray-700 text-sm mt-1 notranslate">Phone: {data?.Phone}</p>
+                                <p className="text-blue-600 hover:text-blue-800 font-semibold mt-1 notranslate cursor-pointer hover:underline break-all" onClick={() => window.open(`https://7dollar.delivery/store?store=${storeID}`, "_blank", "noopener,noreferrer")}
+                                >
+                                  {`7dollar.delivery/store?store=${storeID}`}
+                                </p>
+                              </div>
+                              <div className="w-1/3 flex flex-col items-center justify-center">
+                                <div className="qrCodeItem my-2 flex flex-col items-center space-y-2">
+                                  <QRCode value={`https://7dollar.delivery/store?store=${storeID}`} size={100} />
+                                </div>
 
-
-                            <div className="mt-2 flex ">
-                              <button onClick={() => checkGeolocation()} className="bg-gray-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                <i class="bi bi-geo-alt-fill me-2"></i>
-                                Sync Your Current Location
-                              </button>
+                              </div>
                             </div>
-                            <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.Description, data?.State, data?.ZipCode, data?.Phone)}>
-                              <div className="flex flex-wrap -mx-3 mb-6">
-                                <div className="w-full px-3">
-                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
-                                    Store Display Name
-                                  </label>
-                                  <input
-                                    className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-                                    id="storeName"
-                                    type="text"
-                                    name="storeName"
-                                    value={formValues.storeName}
-                                    onChange={handleInputChange}
-                                    placeholder={data?.Name}
-                                    translate="no"
-                                  />
-                                </div>
+                            {!showSyncButton && (
+                              <button onClick={() => setShowSyncButton(true)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded translate-none mt-4">
+                                Edit Store Info
+                              </button>
+                            )}
 
-                                <div className="w-full px-3">
-                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeNameCHI">
-                                    Store Display Name in Second Language (Optional)
-                                  </label>
-                                  <input
-                                    className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-                                    id="storeNameCHI"
-                                    type="text"
-                                    name="storeNameCHI"
-                                    value={formValues.storeNameCHI}
-                                    onChange={handleInputChange}
-                                    placeholder={data?.storeNameCHI}
-                                    translate="no"
-                                  />
 
-                                </div>
-                                <div className="w-full px-3">
-                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="Description">
-                                    Business Description
-                                  </label>
-                                  <input
-                                    className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-                                    id="Description"
-                                    type="text"
-                                    name="Description"
-                                    value={formValues.Description}
-                                    onChange={handleInputChange}
-                                    placeholder={data?.Description}
-                                    translate="no"
-                                  />
-                                </div>
-                                <div className="w-full px-3">
-                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="physical_address">
-                                    Display Street
-                                  </label>
-                                  <input
-                                    className=
-                                    "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                    id="physical_address"
-                                    type="text"
-                                    name="physical_address"
-                                    value={formValues.physical_address}
-                                    onChange={handleInputChange}
-                                    placeholder={data?.physical_address}
-                                    translate="no"
-                                  />
-                                </div>
-                                <div className="w-full px-3">
-                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="city">
-                                    Display City
-                                  </label>
-                                  <input
-                                    className="no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                    id="city"
-                                    type="text"
-                                    name="city"
-                                    value={formValues.city}
-                                    onChange={handleInputChange}
-                                    placeholder={data?.Address}
-                                    translate="no"
-                                  />
-                                </div>
 
-                                <div className="w-full px-3">
-                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="State">
-                                    State
-                                  </label>
-                                  <input
-                                    className=
-                                    "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                    id="State"
-                                    type="text"
-                                    name="State"
-                                    value={formValues.State}
-                                    onChange={handleInputChange}
-                                    placeholder={data?.State}
-                                    translate="no"
-                                  />
-                                </div>
-                                <div className="w-full px-3">
-                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="ZipCode">
-                                    Zip Code
-                                  </label>
-                                  <input
-                                    className=
-                                    "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                    id="ZipCode"
-                                    type="text"
-                                    name="ZipCode"
-                                    value={formValues.ZipCode}
-                                    onChange={handleInputChange}
-                                    placeholder={data?.ZipCode}
-                                    translate="no"
-                                  />
-                                </div>
-                                <div className="w-full px-3">
-                                  <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="Phone">
-                                    Phone
-                                  </label>
-                                  <input
-                                    className=
-                                    "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                    id="Phone"
-                                    type="text"
-                                    name="Phone"
-                                    value={formValues.Phone}
-                                    onChange={handleInputChange}
-                                    placeholder={data?.Phone}
-                                    translate="no"
-                                  />
-                                </div>
+
+
+
+                            {showSyncButton ? <div>
+                              <div className="mt-2 flex ">
+
+
+                                <button onClick={() => checkGeolocation()} className="bg-gray-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                  <i class="bi bi-geo-alt-fill me-2"></i>
+                                  Sync Your Current Location
+                                </button>
                               </div>
-                              {/* <div className="mb-6">
-                                <label style={{ fontWeight: 'bold' }} htmlFor="formFileLg" className="mb-2 inline-block text-neutral-700">
-                                  Submit Your Online Store Background Here
-                                </label>
-                                <input
-                                  className="relative m-0 block w-full min-w-0 flex-auto cursor-pointer rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] font-normal leading-[2.15] text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:cursor-pointer file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none"
-                                  id="formFileLg"
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={handleFileInputChange}
-                                  translate="no"
-                                />
-                              </div> */}
+                              <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.Description, data?.State, data?.ZipCode, data?.Phone)}>
+                                <div className="flex flex-wrap -mx-3 mb-6">
+                                  <div className="w-full px-3">
+                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
+                                      Store Display Name
+                                    </label>
+                                    <input
+                                      className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+                                      id="storeName"
+                                      type="text"
+                                      name="storeName"
+                                      value={formValues.storeName}
+                                      onChange={handleInputChange}
+                                      placeholder={data?.Name}
+                                      translate="no"
+                                    />
+                                  </div>
 
-                              <div className="flex mt-3">
-                                <div style={{ width: "50%" }}></div>
-                                <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
-                                  <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                    <i className="bi bi-house me-2" style={{ color: "#FFFFFF" }}></i>
-                                    Submit
-                                  </button>
+                                  <div className="w-full px-3">
+                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeNameCHI">
+                                      Store Display Name in Second Language (Optional)
+                                    </label>
+                                    <input
+                                      className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+                                      id="storeNameCHI"
+                                      type="text"
+                                      name="storeNameCHI"
+                                      value={formValues.storeNameCHI}
+                                      onChange={handleInputChange}
+                                      placeholder={data?.storeNameCHI}
+                                      translate="no"
+                                    />
+
+                                  </div>
+                                  <div className="w-full px-3">
+                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="Description">
+                                      Business Description
+                                    </label>
+                                    <input
+                                      className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+                                      id="Description"
+                                      type="text"
+                                      name="Description"
+                                      value={formValues.Description}
+                                      onChange={handleInputChange}
+                                      placeholder={data?.Description}
+                                      translate="no"
+                                    />
+                                  </div>
+                                  <div className="w-full px-3">
+                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="physical_address">
+                                      Display Street
+                                    </label>
+                                    <input
+                                      className=
+                                      "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                      id="physical_address"
+                                      type="text"
+                                      name="physical_address"
+                                      value={formValues.physical_address}
+                                      onChange={handleInputChange}
+                                      placeholder={data?.physical_address}
+                                      translate="no"
+                                    />
+                                  </div>
+                                  <div className="w-full px-3">
+                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="city">
+                                      Display City
+                                    </label>
+                                    <input
+                                      className="no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                      id="city"
+                                      type="text"
+                                      name="city"
+                                      value={formValues.city}
+                                      onChange={handleInputChange}
+                                      placeholder={data?.Address}
+                                      translate="no"
+                                    />
+                                  </div>
+
+                                  <div className="w-full px-3">
+                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="State">
+                                      State
+                                    </label>
+                                    <input
+                                      className=
+                                      "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                      id="State"
+                                      type="text"
+                                      name="State"
+                                      value={formValues.State}
+                                      onChange={handleInputChange}
+                                      placeholder={data?.State}
+                                      translate="no"
+                                    />
+                                  </div>
+                                  <div className="w-full px-3">
+                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="ZipCode">
+                                      Zip Code
+                                    </label>
+                                    <input
+                                      className=
+                                      "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                      id="ZipCode"
+                                      type="text"
+                                      name="ZipCode"
+                                      value={formValues.ZipCode}
+                                      onChange={handleInputChange}
+                                      placeholder={data?.ZipCode}
+                                      translate="no"
+                                    />
+                                  </div>
+                                  <div className="w-full px-3">
+                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="Phone">
+                                      Phone
+                                    </label>
+                                    <input
+                                      className=
+                                      "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                      id="Phone"
+                                      type="text"
+                                      name="Phone"
+                                      value={formValues.Phone}
+                                      onChange={handleInputChange}
+                                      placeholder={data?.Phone}
+                                      translate="no"
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                            </form>
+                                <div className="flex mt-3">
+                                  <div style={{ width: "50%" }}></div>
+                                  <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
+
+                                    <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                      <i className="bi bi-house me-2" style={{ color: "#FFFFFF" }}></i>
+                                      Submit
+                                    </button>
+                                  </div>
+                                </div>
+                              </form>
+                            </div> : <></>
+
+                            }
+
+
                             <hr />
                             <div style={{ fontWeight: 'bold' }}>
                               QR code generator:
-                            </div>
-                            <div className="qrCodeItem mt-2 mb-2 flex flex-col space-y-2">
-                              <div className="">
-                                <span
-                                  onClick={() =>
-                                    window.open(`https://7dollar.delivery/store?store=${storeID}`, "_blank", "noopener,noreferrer")
-                                  }
-                                  className="cursor-pointer text-blue-500 hover:underline break-all"
-                                >
-                                  {`https://7dollar.delivery/store?store=${storeID}`}
-                                </span>
-                              </div>
-                              <QRCode value={`https://7dollar.delivery/store?store=${storeID}`} size={100} />
-
                             </div>
 
                             <div className="printContainer hidden print:block">
@@ -3384,6 +3432,40 @@ const Account = () => {
                                   </div>
 
                                   <div className="bg-white rounded-md">
+                                    <div class="mt-4">
+                                      <label class="flex items-center space-x-2 text-blue-500 font-bold">
+                                        <input
+                                          type="checkbox"
+                                          onClick={toggleAdvertisingProgram}
+                                          class="form-checkbox h-5 w-5 text-blue-500"
+                                          checked={data?.isJointAdvertised}
+                                          readOnly
+                                        />
+                                        <span>Join Our Advertising Program</span>
+                                      </label>
+                                      {showModal && (
+                                        <div class="mt-4 p-4 border border-gray-300 rounded-lg">
+                                          <h2 class="text-xl font-semibold mb-2">Enter Promotion Code</h2>
+                                          <input
+                                            type="password"
+                                            placeholder="Password"
+                                            class="border-2 border-gray-300 p-2 w-full rounded mb-4"
+                                          />
+                                          <button
+                                            onClick={() => handlePasswordSubmit(document.querySelector('input[type="password"]').value)}
+                                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                          >
+                                            Submit
+                                          </button>
+                                        </div>
+                                      )}
+                                      <p class="text-sm text-gray-600 mt-2">
+                                        We will offer premier promotional resources for up to ten products in your store, ensuring a minimum of 100 orders. Please note that we will take a 30% commission on those 10 items. To boost order volumes and enhance advertising effectiveness, we also provide shipping subsidies for participating customers. Join our advertising program and let’s boost your store’s foot traffic and achieve great results together!
+                                      </p>
+                                    </div>
+
+
+
                                     <label className="flex items-center space-x-2 text-blue-500 font-bold mt-2">
                                       <input
                                         type="checkbox"
