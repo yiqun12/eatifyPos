@@ -28,6 +28,88 @@ function convertToPinyin(text) {
 }
 
 const Food = ({ store }) => {
+  const initialGlobal = [
+    { "type": "外卖", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加酱料", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加饭", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加面", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加粉", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加米", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加肉", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加菜", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加辣", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加盐", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加油", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加醋", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加糖", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加葱", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加芫荽", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加蒜", "price": 0, "typeCategory": "要求添加" },
+    { "type": "堂食", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要酱料", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要饭", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要面", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要粉", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要米", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要肉", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要菜", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要辣", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要盐", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要油", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要醋", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要糖", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要葱", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要芫荽", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要蒜", "price": 0, "typeCategory": "要求减少" }
+  ]
+  const [global, setGlobal] = useState(initialGlobal);
+  const [error, setError] = useState('');
+
+
+  const handleChange = (index, field, value) => {
+    const updatedGlobal = [...global];
+    updatedGlobal[index][field] = value;
+    setGlobal(updatedGlobal);
+    if (error) setError('');  // Clear error when changes are made
+  };
+
+  const saveGlobalChanges = async () => {
+    // Validate for empty types or duplicate types
+    const typeSet = new Set();
+    for (const item of global) {
+      if (!item.type.trim()) {
+        setError('Error: Type cannot be empty.');
+        return;
+      }
+      if (typeSet.has(item.type)) {
+        setError('Error: Duplicate types are not allowed.');
+        return;
+      }
+      typeSet.add(item.type);
+    }
+
+    try {
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
+      await updateDoc(docRef, {
+        globalModification: JSON.stringify(global)
+      });
+      console.log("Global changes saved.");
+      setError('Changes saved successfully.');
+    } catch (error) {
+      setError(`Saving failed: ${error.message}`);
+    }
+  };
+
+  const addNewItem = () => {
+    const newItem = { type: "", price: 0, typeCategory: "要求添加" };
+    setGlobal([...global, newItem]);
+  };
+
+  const handleDelete = (index) => {
+    const updatedGlobal = [...global];
+    updatedGlobal.splice(index, 1);
+    setGlobal(updatedGlobal);
+  };
 
   const {
     attributes,
@@ -288,14 +370,17 @@ const Food = ({ store }) => {
 
     let sessionData;
 
+
     try {
       // Get a reference to the specific document with ID equal to store
       const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store);
+
       console.log("syncData1")
       // Fetch the document
       const docSnapshot = await getDoc(docRef);
 
       if (docSnapshot.exists()) {
+        setGlobal(JSON.parse(docSnapshot.data().globalModification || [])); // Assuming the data structure includes `globalModification`
         // The document exists
         sessionData = docSnapshot.data()?.key;
         const { key, ...rest } = docSnapshot.data();
@@ -546,6 +631,7 @@ const Food = ({ store }) => {
     syncData();
   }, []);
   const [ChangeCategoryName, setChangeCategoryName] = useState(false);
+  const [globalModal, setGlobalModal] = useState(false);
   const [SelectChangeCategoryName, setSelectChangeCategoryName] = useState('');
   const [categoryName, setCategoryName] = useState(''); // Initialize with an empty string
   const [showAdjustion, setShowAdjustion] = useState(false);
@@ -615,9 +701,102 @@ const Food = ({ store }) => {
           </span>
         </div>
       </div>
+      <div className="ml-1 mr-1 flex justify-between mt-1" onClick={() => {
+        setGlobalModal(true)
 
+      }}>
+        <div className="mb-2 btn d-inline-flex btn-sm btn-danger">
+          <span className="pe-2">
+            <i class="bi bi-gear-wide-connected"></i>
+          </span>
+          <span>
+            Add Global Changes
+          </span>
+        </div>
+      </div>
 
-
+      {globalModal && (
+        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+          <div className="relative w-full max-w-2xl max-h-full mt-20">
+            <div className="relative bg-white rounded-lg border-black shadow ">
+              <div className="flex items-start justify-between p-4 border-b rounded-t ">
+                <h3 className="text-l font-semibold text-gray-900">
+                  {t("Global Food Customization Option Manager")}
+                </h3>
+                <button onClick={() => {
+                  setGlobalModal(false)
+                }} style={{ fontSize: '24px', lineHeight: '1', color: 'black', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', position: 'absolute', top: '15px', right: '20px' }}>
+                  &times;
+                </button>
+              </div>
+              <div className="p-4">
+                {error && <p className="mb-4 text-red-500">{error}</p>}
+                <button
+                  onClick={addNewItem}
+                  className="mb-4 mr-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Add New Item
+                </button>
+                <button
+                  onClick={saveGlobalChanges}
+                  className="mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Global Save
+                </button>
+                <div className="overflow-x-auto relative">
+                  <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                      <tr>
+                        <th scope="col" className="py-3 px-6">Type</th>
+                        <th scope="col" className="py-3 px-6">Price</th>
+                        <th scope="col" className="py-3 px-6">Type Category</th>
+                        <th scope="col" className="py-3 px-6">Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...global].reverse().map((item, index) => (
+                        <tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                          <td className="py-4 px-6">
+                            <input
+                              type="text"
+                              value={item.type}
+                              onChange={(e) => handleChange(global.length - 1 - index, 'type', e.target.value)}
+                              className="text-black"
+                            />
+                          </td>
+                          <td className="py-4 px-6">
+                            <input
+                              type="number"
+                              value={item.price}
+                              onChange={(e) => handleChange(global.length - 1 - index, 'price', parseInt(e.target.value, 10))}
+                              className="text-black"
+                            />
+                          </td>
+                          <td className="py-4 px-6">
+                            <input
+                              type="text"
+                              value={item.typeCategory}
+                              onChange={(e) => handleChange(global.length - 1 - index, 'typeCategory', e.target.value)}
+                              className="text-black"
+                            />
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            <button onClick={() => handleDelete(global.length - 1 - index)}>
+                              <svg className="w-6 h-6 text-red-500 hover:text-red-700" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                                <path d="M6 18L18 6M6 6l12 12"></path>
+                              </svg>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className='m-auto '>
         <div className='hstack gap-2  mt-2'>

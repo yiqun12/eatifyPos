@@ -14,6 +14,7 @@ import Resume from './pages/resume'
 import ErrorBoundary from './ErrorBoundary'; // Import the ErrorBoundary component
 
 import IframeDesk from './components/iframeDesk'
+import { RemoveScroll } from 'react-remove-scroll';
 
 import Account_admin from './components/Account_admin'
 import {
@@ -186,7 +187,8 @@ function App() {
                 {user || !isKiosk ? (
                   <Route
                     exact path="/store"
-                    element={<Food />}
+                    element=
+                    {<Food />}
                   />
                 ) : (
                   <Route

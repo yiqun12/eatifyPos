@@ -57,6 +57,8 @@ let handleOpenModalGlobal = () => {
 };
 let globalDirectoryType = false;
 
+
+
 const Navbar = () => {
   const failedItem = getGlobalFailedItem();
 
@@ -133,14 +135,6 @@ const Navbar = () => {
         return
       }
     }
-
-    if (window.location.pathname.includes('/account')) {
-      if (!user) {
-        console.log("0 widget")
-        return
-      }
-    }
-
 
     //alert(JSON.stringify(user))
     //console.log(user)
@@ -1059,12 +1053,10 @@ const Navbar = () => {
 
       )} */}
 
-      <div ref={modalRef} className="foodcart-modal modal">
-
+      <div ref={modalRef} className="foodcart-modal modal" >
 
         {/* popup content */}
-        <div className="shopping-cart" >
-
+        <div className="shopping-cart"  style={{ overflow: "auto" }}>
           {/* shoppig cart */}
           {!openCheckout ?
             <React.Fragment>

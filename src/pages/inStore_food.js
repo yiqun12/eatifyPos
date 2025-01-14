@@ -22,6 +22,7 @@ import { onSnapshot } from "firebase/firestore"; // Make sure to import onSnapsh
 import { faList } from '@fortawesome/free-solid-svg-icons';
 import { ReactComponent as DeleteSvg } from './delete-icn.svg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { getDoc, updateDoc } from "firebase/firestore";
 
 function convertToPinyin(text) {
   return pinyin(text, {
@@ -30,6 +31,41 @@ function convertToPinyin(text) {
 }
 
 const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, view }) => {
+  const initialGlobal = [
+    { "type": "外卖", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加酱料", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加饭", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加面", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加粉", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加米", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加肉", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加菜", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加辣", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加盐", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加油", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加醋", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加糖", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加葱", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加芫荽", "price": 0, "typeCategory": "要求添加" },
+    { "type": "加蒜", "price": 0, "typeCategory": "要求添加" },
+    { "type": "堂食", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要酱料", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要饭", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要面", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要粉", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要米", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要肉", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要菜", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要辣", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要盐", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要油", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要醋", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要糖", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要葱", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要芫荽", "price": 0, "typeCategory": "要求减少" },
+    { "type": "不要蒜", "price": 0, "typeCategory": "要求减少" }
+  ]
+  const [global, setGlobal] = useState(initialGlobal);
   //const params = new URLSearchParams(window.location.search);
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
@@ -187,9 +223,9 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     return price > 0 ? `+$${price.toFixed(2)}` : `-$${Math.abs(price).toFixed(2)}`;
   };
 
-  const fetchPost = (name) => {
+  const fetchPost = async (name) => {
     const docRef = doc(db, "TitleLogoNameContent", name);
-
+    // Get a reference to the specific document with ID equal to store
     try {
       // Listen for document updates
       const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
@@ -198,6 +234,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         if (docSnapshot.exists()) {
           // The document exists
           const docData = docSnapshot.data();
+          setGlobal(JSON.parse(docSnapshot.data().globalModification || [])); // Assuming the data structure includes `globalModification`
 
           // Save the fetched data to sessionStorage
           sessionStorage.setItem("TitleLogoNameContent", JSON.stringify(docData));
@@ -219,6 +256,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
           setSelectedFoodType([...new Set(JSON.parse(docData.key).map(item => item.category))][0]);
 
         } else {
+          setGlobal(JSON.parse(docSnapshot.data().globalModification || [])); // Assuming the data structure includes `globalModification`
           if (!localStorage.getItem("Food_arrays") || localStorage.getItem("Food_arrays") === "") {
             localStorage.setItem("Food_arrays", "[]");
             setFoodTypes([...new Set([].map(item => item.category))]);
@@ -640,6 +678,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
   // Function to show the modal
   const showModal = (item) => {
+    setCustomVariant({ name: '改价', price: '0' })
     const randomNum = uuidv4()
     setSelectedFoodItem(item);//attributeSelected
     console.log("sajows")
@@ -689,7 +728,79 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   }
 
 
-  const [customVariant, setCustomVariant] = useState({ name: '外卖TakeOut', price: '0' });
+  const [customVariant, setCustomVariant] = useState({ name: '改价', price: '0' });
+
+
+  const handleAddSpecialVariant = (name, priceString, count, id, category) => {
+    const price = parseFloat(priceString) || 0;  // Convert price to number here
+
+    if (!name || isNaN(priceString)) {
+      alert('Please enter a valid name and price');
+      return;
+    }
+
+    const updatedFoodItem = { ...selectedFoodItem };
+    const updatedAttributes = { ...selectedAttributes };
+
+    if (!updatedFoodItem.attributesArr[category]) {
+      updatedFoodItem.attributesArr[category] = {
+        isSingleSelected: false,
+        variations: [],
+      };
+    }
+
+    const existingVariantIndex = updatedFoodItem.attributesArr[category].variations.findIndex(
+      (variation) => variation.type === name
+    );
+
+    if (existingVariantIndex !== -1) {
+      // Update price if variant already exists
+      updatedFoodItem.attributesArr[category].variations[existingVariantIndex].price = price;
+    } else {
+      // Add new variant if it doesn't exist
+      updatedFoodItem.attributesArr[category].variations.push({
+        type: name,
+        price: price,
+      });
+    }
+
+    // Automatically select the new or updated variant
+    updatedAttributes[category] = updatedAttributes[category] || [];
+    console.log(updatedAttributes[category])
+    console.log(name)
+    if (!updatedAttributes[category].includes(name)) {
+      updatedAttributes[category].push(name);
+
+    }
+    console.log(category, name, id, count, {})
+    console.log(updatedFoodItem.attributesArr)
+
+    // Assuming 'store', 'selectedTable', 'count', and 'updatedFoodItem' are your variables
+    let storeKey = store + "-" + selectedTable;
+    let items = JSON.parse(localStorage.getItem(storeKey)); // Step 1 & 2
+    console.log(items)
+    console.log(updatedFoodItem.attributesArr)
+    // Update the item with a specific 'count' ID
+    items.forEach(item => { // Step 3
+      if (item.count === count) {
+        item.attributesArr = updatedFoodItem.attributesArr; // Step 4: Assuming you want to set it to updatedFoodItem's attributesArr
+      }
+    });
+
+    // Convert the updated array back to a JSON string and save it in local storage
+    localStorage.setItem(storeKey, JSON.stringify(items)); // Step 5 & 6
+    //handleAttributeSelect(category, name, id, count, {}, true)
+    //setSelectedFoodItem(updatedFoodItem);
+    //setSelectedAttributes(updatedAttributes);
+
+    setTotalPrice(TotalAttributePrice(updatedAttributes, updatedFoodItem.attributesArr));
+
+
+    //setCustomVariant({ name: name, price: 0 }); // Reset custom variant input
+
+  };
+
+
 
   const handleAddCustomVariant = (name, priceString, count, id) => {
     const price = parseFloat(priceString) || 0;  // Convert price to number here
@@ -754,7 +865,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     setSelectedAttributes(updatedAttributes);
 
     setTotalPrice(TotalAttributePrice(updatedAttributes, updatedFoodItem.attributesArr));
-    setCustomVariant({ name: '外卖TakeOut', price: 0 }); // Reset custom variant input
+    setCustomVariant({ name: '改价', price: 0 }); // Reset custom variant input
 
   };
 
@@ -811,7 +922,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         {isModalVisible && (
 
           <div id={count} className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
-            <div className="relative w-full max-w-2xl max-h-full ">
+            <div className="relative w-full max-h-full ">
               <div className="relative bg-white rounded-lg border-black shadow">
 
                 <div className='p-4 pt-3'>
@@ -852,17 +963,33 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                       Enter a positive or negative number for the price adjustment.
                     </small>
                   </div>
+                  <div className='flex '>
+                    <button
+                      className="btn btn-warning mb-3 mr-2"
+                      type="button"
+                      style={{ whiteSpace: 'nowrap', "display": "inline" }}
+                      onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
+                    >
+                      Add <span
+                        className='notranslate'>{customVariant.name}</span>
+                    </button>
+                    <br>
+                    </br>
+                    <button
+                      className="btn btn-primary mb-3"
+                      type="button"
+                      onClick={() => {
+                        //    {"type": "加饭", "price":"0","typeCategory": "要求添加"},
+                        for (let i = 0; i < global?.length; i++) {
+                          handleAddSpecialVariant(global[i].type, global[i].price, count, selectedFoodItem?.id, global[i].typeCategory);
+                        }
 
-                  <button
-                    className="btn btn-primary mb-3"
-                    type="button"
-                    onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
-                  >
-                    Add Dish Revise (Default:<span
-                      className='notranslate'>{customVariant.name}</span> )
-                  </button>
 
-
+                      }}
+                    >
+                      Quick Revision
+                    </button>
+                  </div>
 
                   {Object.keys(selectedFoodItem?.attributesArr).length > 0 && (
                     <div>
@@ -900,8 +1027,12 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                                 whiteSpace: 'nowrap',
                                 cursor: 'pointer',
                               }}
-                              onClick={() =>
-                                handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count, {}, false)}
+                              onClick={(e) => {
+                                handleAttributeSelect(attributeName, variation.type, selectedFoodItem.id, count, {}, false);
+                                if (attributeName === "Customized Option") {
+                                  setCustomVariant({ ...customVariant, name: variation.type });
+                                }
+                              }}
                             >
                               <span class="notranslate">
                                 {variation.type}
@@ -1116,6 +1247,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                           onChange={handleInputChange}
                           translate="no"
                           style={{ fontSize: '16px' }}
+                          value={input}
 
                         />
 
@@ -1136,14 +1268,16 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                     >
                       &nbsp;
                     </div>)}
+                    {
+                      isMobile ? <div onClick={() => {
+                        openModalList()
+                      }} className="mt-2 m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg ">
+                        <FontAwesomeIcon icon={faList} />
+                      </div> : <></>
+                    }
 
-                    <div onClick={() => {
-                      openModalList()
-                    }} className="mt-2 m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg ">
-                      <FontAwesomeIcon icon={faList} />
-                    </div>
                     <div
-                      className={`relative mt-2 scrolling-wrapper-filter`}>
+                      className={isMobile ? "scrolling-wrapper-filter relative mt-2" : "relative mt-2"} >
 
 
                       {/* <button onClick={() => {
@@ -1159,9 +1293,14 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                           onClick={() => {
                             filterType(foodType);
                             setSelectedFoodType(foodType);
-
+                            setInput("")
                           }}
-                          className={`border-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}
+                          className={
+                            !isMobile
+                              ? `rounded-xl px-2 py-2 text-black m-2 ${selectedFoodType === foodType ? 'bg-gray-400' : 'bg-gray-200'}`
+                              : `border-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`
+                          }
+
                           style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
                         >
                           <div>

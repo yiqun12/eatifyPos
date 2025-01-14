@@ -133,9 +133,6 @@ const Account = () => {
         console.error("Error updating document:", error);
       }
     }
-
-
-
   };
   const handleCheckboxChange = async (e) => {
     const isChecked = e.target.checked;
@@ -3187,7 +3184,7 @@ const Account = () => {
                                 </div>
                               </div>
                             </div> */}
-                            <div className="max-w-lg rounded-lg overflow-hidden flex">
+                            <div className="mt-1 max-w-lg rounded-lg overflow-hidden flex">
                               <div className="w-2/3 p-1">
                                 <h3 className="font-bold text-xl text-gray-900 notranslate">{data?.Name}</h3>
                                 <p className="font-semibold text-gray-800 notranslate">{data?.storeNameCHI}</p>
@@ -3217,157 +3214,158 @@ const Account = () => {
 
 
 
-                            {showSyncButton ? <div>
-                              <div className="mt-2 flex ">
+                            {showSyncButton ?
+                              <div>
+                                <div className="mt-2 flex ">
 
 
-                                <button onClick={() => checkGeolocation()} className="bg-gray-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                  <i class="bi bi-geo-alt-fill me-2"></i>
-                                  Sync Your Current Location
-                                </button>
-                              </div>
-                              <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.Description, data?.State, data?.ZipCode, data?.Phone)}>
-                                <div className="flex flex-wrap -mx-3 mb-6">
-                                  <div className="w-full px-3">
-                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
-                                      Store Display Name
-                                    </label>
-                                    <input
-                                      className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-                                      id="storeName"
-                                      type="text"
-                                      name="storeName"
-                                      value={formValues.storeName}
-                                      onChange={handleInputChange}
-                                      placeholder={data?.Name}
-                                      translate="no"
-                                    />
-                                  </div>
-
-                                  <div className="w-full px-3">
-                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeNameCHI">
-                                      Store Display Name in Second Language (Optional)
-                                    </label>
-                                    <input
-                                      className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-                                      id="storeNameCHI"
-                                      type="text"
-                                      name="storeNameCHI"
-                                      value={formValues.storeNameCHI}
-                                      onChange={handleInputChange}
-                                      placeholder={data?.storeNameCHI}
-                                      translate="no"
-                                    />
-
-                                  </div>
-                                  <div className="w-full px-3">
-                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="Description">
-                                      Business Description
-                                    </label>
-                                    <input
-                                      className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-                                      id="Description"
-                                      type="text"
-                                      name="Description"
-                                      value={formValues.Description}
-                                      onChange={handleInputChange}
-                                      placeholder={data?.Description}
-                                      translate="no"
-                                    />
-                                  </div>
-                                  <div className="w-full px-3">
-                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="physical_address">
-                                      Display Street
-                                    </label>
-                                    <input
-                                      className=
-                                      "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                      id="physical_address"
-                                      type="text"
-                                      name="physical_address"
-                                      value={formValues.physical_address}
-                                      onChange={handleInputChange}
-                                      placeholder={data?.physical_address}
-                                      translate="no"
-                                    />
-                                  </div>
-                                  <div className="w-full px-3">
-                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="city">
-                                      Display City
-                                    </label>
-                                    <input
-                                      className="no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                      id="city"
-                                      type="text"
-                                      name="city"
-                                      value={formValues.city}
-                                      onChange={handleInputChange}
-                                      placeholder={data?.Address}
-                                      translate="no"
-                                    />
-                                  </div>
-
-                                  <div className="w-full px-3">
-                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="State">
-                                      State
-                                    </label>
-                                    <input
-                                      className=
-                                      "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                      id="State"
-                                      type="text"
-                                      name="State"
-                                      value={formValues.State}
-                                      onChange={handleInputChange}
-                                      placeholder={data?.State}
-                                      translate="no"
-                                    />
-                                  </div>
-                                  <div className="w-full px-3">
-                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="ZipCode">
-                                      Zip Code
-                                    </label>
-                                    <input
-                                      className=
-                                      "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                      id="ZipCode"
-                                      type="text"
-                                      name="ZipCode"
-                                      value={formValues.ZipCode}
-                                      onChange={handleInputChange}
-                                      placeholder={data?.ZipCode}
-                                      translate="no"
-                                    />
-                                  </div>
-                                  <div className="w-full px-3">
-                                    <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="Phone">
-                                      Phone
-                                    </label>
-                                    <input
-                                      className=
-                                      "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                      id="Phone"
-                                      type="text"
-                                      name="Phone"
-                                      value={formValues.Phone}
-                                      onChange={handleInputChange}
-                                      placeholder={data?.Phone}
-                                      translate="no"
-                                    />
-                                  </div>
+                                  <button onClick={() => checkGeolocation()} className="bg-gray-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                    <i class="bi bi-geo-alt-fill me-2"></i>
+                                    Sync Your Current Location
+                                  </button>
                                 </div>
-                                <div className="flex mt-3">
-                                  <div style={{ width: "50%" }}></div>
-                                  <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
+                                <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.Description, data?.State, data?.ZipCode, data?.Phone)}>
+                                  <div className="flex flex-wrap -mx-3 mb-6">
+                                    <div className="w-full px-3">
+                                      <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
+                                        Store Display Name
+                                      </label>
+                                      <input
+                                        className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+                                        id="storeName"
+                                        type="text"
+                                        name="storeName"
+                                        value={formValues.storeName}
+                                        onChange={handleInputChange}
+                                        placeholder={data?.Name}
+                                        translate="no"
+                                      />
+                                    </div>
 
-                                    <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                      <i className="bi bi-house me-2" style={{ color: "#FFFFFF" }}></i>
-                                      Submit
-                                    </button>
+                                    <div className="w-full px-3">
+                                      <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeNameCHI">
+                                        Store Display Name in Second Language (Optional)
+                                      </label>
+                                      <input
+                                        className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+                                        id="storeNameCHI"
+                                        type="text"
+                                        name="storeNameCHI"
+                                        value={formValues.storeNameCHI}
+                                        onChange={handleInputChange}
+                                        placeholder={data?.storeNameCHI}
+                                        translate="no"
+                                      />
+
+                                    </div>
+                                    <div className="w-full px-3">
+                                      <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="Description">
+                                        Business Description
+                                      </label>
+                                      <input
+                                        className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
+                                        id="Description"
+                                        type="text"
+                                        name="Description"
+                                        value={formValues.Description}
+                                        onChange={handleInputChange}
+                                        placeholder={data?.Description}
+                                        translate="no"
+                                      />
+                                    </div>
+                                    <div className="w-full px-3">
+                                      <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="physical_address">
+                                        Street
+                                      </label>
+                                      <input
+                                        className=
+                                        "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                        id="physical_address"
+                                        type="text"
+                                        name="physical_address"
+                                        value={formValues.physical_address}
+                                        onChange={handleInputChange}
+                                        placeholder={data?.physical_address}
+                                        translate="no"
+                                      />
+                                    </div>
+                                    <div className="w-full px-3">
+                                      <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="city">
+                                        City
+                                      </label>
+                                      <input
+                                        className="no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                        id="city"
+                                        type="text"
+                                        name="city"
+                                        value={formValues.city}
+                                        onChange={handleInputChange}
+                                        placeholder={data?.Address}
+                                        translate="no"
+                                      />
+                                    </div>
+
+                                    <div className="w-full px-3">
+                                      <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="State">
+                                        State
+                                      </label>
+                                      <input
+                                        className=
+                                        "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                        id="State"
+                                        type="text"
+                                        name="State"
+                                        value={formValues.State}
+                                        onChange={handleInputChange}
+                                        placeholder={data?.State}
+                                        translate="no"
+                                      />
+                                    </div>
+                                    <div className="w-full px-3">
+                                      <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="ZipCode">
+                                        Zip Code
+                                      </label>
+                                      <input
+                                        className=
+                                        "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                        id="ZipCode"
+                                        type="text"
+                                        name="ZipCode"
+                                        value={formValues.ZipCode}
+                                        onChange={handleInputChange}
+                                        placeholder={data?.ZipCode}
+                                        translate="no"
+                                      />
+                                    </div>
+                                    <div className="w-full px-3">
+                                      <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="Phone">
+                                        Phone
+                                      </label>
+                                      <input
+                                        className=
+                                        "no translate appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                        id="Phone"
+                                        type="text"
+                                        name="Phone"
+                                        value={formValues.Phone}
+                                        onChange={handleInputChange}
+                                        placeholder={data?.Phone}
+                                        translate="no"
+                                      />
+                                    </div>
                                   </div>
-                                </div>
-                              </form>
-                            </div> : <></>
+                                  <div className="flex mt-3">
+                                    <div style={{ width: "50%" }}></div>
+                                    <div className="flex justify-end" style={{ margin: "auto", width: "50%" }}>
+
+                                      <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                        <i className="bi bi-house me-2" style={{ color: "#FFFFFF" }}></i>
+                                        Submit
+                                      </button>
+                                    </div>
+                                  </div>
+                                </form>
+                              </div> : <></>
 
                             }
 
