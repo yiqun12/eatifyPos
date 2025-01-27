@@ -53,6 +53,7 @@ const customMarkerIcon = L.icon({
 });
 
 const Food = () => {
+  
   const directoryType = getGlobalDirectoryType();
 
   async function processPayment() {
@@ -1292,7 +1293,7 @@ const Food = () => {
                   }
                     style={{
                       overflowY: 'auto',
-                      maxHeight: isMobile ? isWeChatBrowser() ? 'calc(100vh - 450px)' : 'calc(100vh - 450px)' : 'calc(100vh - 350px)'
+                      maxHeight: isMobile ? isWeChatBrowser() ? 'calc(100vh - 480px)' : 'calc(100vh - 480px)' : 'calc(100vh - 350px)'
                     }}> {/* group food by category */}
                     {Object.values(foods.sort((a, b) => {
                       return foodTypes.indexOf(a.category) - foodTypes.indexOf(b.category);

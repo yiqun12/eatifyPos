@@ -135,6 +135,12 @@ const Navbar = () => {
         return
       }
     }
+    if (window.location.pathname.includes('/account')) {
+      if (!user) {
+        console.log("0 widget")
+        return
+      }
+    }
 
     //alert(JSON.stringify(user))
     //console.log(user)
@@ -704,7 +710,8 @@ const Navbar = () => {
     try {
       const myFunction = firebase.functions().httpsCallable('requestQuoteDoordash');
       const uid = uuidv4()
-
+      console.log("helloooo")
+      console.log(dropoffAddress + " " + city + " " + state + " " + zipCode)
       const response = await myFunction({
         storeNickName: JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).Name + " " + JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).storeNameCHI,
         uid: uid,
@@ -823,12 +830,10 @@ const Navbar = () => {
           //   ["State"]: state.trim(),
           //   ["ZipCode"]: zipCode.trim(),
           // });
-          setTimeout(() => {
-            setDropoffAddress(street.trim());
-            setZipCode(zipCode.trim());
-            setState(state.trim());
-            setCity(city.trim());
-          }, 120); // Delay of 1 second (1000 milliseconds)
+          setDropoffAddress(street.trim());
+          setZipCode(zipCode.trim());
+          setState(state.trim());
+          setCity(city.trim());
 
           //alert(address + " added successfully!"); // Alert message for successful upload
         })
@@ -1056,7 +1061,7 @@ const Navbar = () => {
       <div ref={modalRef} className="foodcart-modal modal" >
 
         {/* popup content */}
-        <div className="shopping-cart"  style={{ overflow: "auto" }}>
+        <div className="shopping-cart" style={{ overflow: "auto" }}>
           {/* shoppig cart */}
           {!openCheckout ?
             <React.Fragment>
@@ -1462,7 +1467,6 @@ const Navbar = () => {
                               className="rounded-md border-0 text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 flex"
                               onClick={() => {
                                 handleClickDelivery();
-                                checkGeolocation();
                               }}
 
                             >
@@ -1477,7 +1481,17 @@ const Navbar = () => {
                           <div>
                             <div className='flex justify-between'>
                               {
-                                addNewAdress ? null :
+                                addNewAdress ?
+                                  <button
+                                    className="mt-2 rounded-md border-0 text-white bg-red-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-2.5 py-2.5 text-center mr-2 mb-2 flex"
+
+                                    onClick={() => {
+                                      checkGeolocation()
+                                    }}
+                                  >
+                                    Detect Location
+                                  </button>
+                                  :
                                   <button
                                     style={{ border: "0px" }}
                                     className="mt-2 rounded-md border-0 text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium text-sm px-2.5 py-2.5 text-center mr-2 mb-2 flex"
@@ -1489,7 +1503,6 @@ const Navbar = () => {
                                       setDropoffAddress('');
                                       setActiveAddressId(null);  // Set this to null at the end after clearing other states                                  
                                       setAddNewAdress(true)
-                                      checkGeolocation()
                                     }}
                                   >
                                     Add New Address
@@ -1761,45 +1774,46 @@ const Navbar = () => {
             {isOnline ?
               <React.Fragment>
 
-                {(isMobile && window.location.pathname === '/') && (
-                  <>
-                    {/* Hamburger Icon */}
-                    <button
-                      className="hamburger-btn"
-                      onClick={toggleMenu}
-                      style={{ fontSize: '24px', cursor: 'pointer' }}
-                    >
-                      <i className="bi bi-list"></i> {/* Hamburger icon */}
-                    </button>
+                {(isMobile && (window.location.pathname === '/'
+                  || window.location.pathname === '/merchant'
+                  || window.location.pathname === '/career'
+                )) && (
+                    <>
+                      {/* Hamburger Icon */}
+                      <button
+                        className="hamburger-btn"
+                        onClick={toggleMenu}
+                        style={{ fontSize: '24px', cursor: 'pointer' }}
+                      >
+                        <i className="bi bi-list"></i> {/* Hamburger icon */}
+                      </button>
 
-                    {/* Menu Items (conditionally rendered based on menuOpen state) */}
-                    {(menuOpen) && (
-                      <div className="menu-items" style={{ display: 'flex', flexDirection: 'column', position: 'absolute', top: '50px', background: 'white', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', padding: '10px' }}>
-                        <button
-                          className="ml-3"
-                          style={{ cursor: 'pointer', fontSize: '20px' }}
+                      {/* Menu Items (conditionally rendered based on menuOpen state) */}
+                      {(menuOpen) && (
+                        <div className="menu-items" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', position: 'absolute', top: '50px', background: 'white', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', padding: '10px' }}>
+                          <button
+                            style={{ cursor: 'pointer', fontSize: '20px', textAlign: 'left', width: '100%' }}
+                            onClick={() => {
+                              window.location.href = `/merchant`;
+                            }}
+                          >
+                            <i className="bi bi-box"></i> {/* Changed icon */}
+                            <span>Merchant</span>
+                          </button>
 
-                        >
-                          <i className="bi bi-briefcase"></i> {/* Career Icon */}
-                          <span>Product</span>
-                        </button>
-
-
-                        <button
-                          className="ml-3"
-                          style={{ cursor: 'pointer', fontSize: '20px' }}
-                          onClick={() => {
-                            window.location.href = `/career`;
-                          }}
-                        >
-                          <i className="bi bi-briefcase"></i> {/* Career Icon */}
-                          <span>Career</span>
-
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
+                          <button
+                            style={{ cursor: 'pointer', fontSize: '20px', textAlign: 'left', width: '100%' }}
+                            onClick={() => {
+                              window.location.href = `/career`;
+                            }}
+                          >
+                            <i className="bi bi-briefcase"></i> {/* Career Icon */}
+                            <span>Career</span>
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 <img
 
                   onClick={event => {
@@ -1932,30 +1946,38 @@ const Navbar = () => {
 
               )} */}
 
-              {(!isMobile && window.location.pathname === '/') && (
-                <>
-                  <button
-                    className="ml-3"
-                    style={{ cursor: 'pointer', top: '-10px', fontSize: '20px' }}
+              {(!isMobile && (window.location.pathname === '/'
+                || window.location.pathname === '/merchant'
+                || window.location.pathname === '/career'
+              )) && (
 
-                  >
-                    <i className="bi bi-box"></i> {/* Changed icon */}
-                    <span>Product</span>
-                  </button>
-                  <button
-                    className="ml-3"
-                    style={{ cursor: 'pointer', top: '-10px', fontSize: '20px' }}
-                    onClick={() => {
-                      window.location.href = `/career`;
-                    }}
-                  >
-                    <i className="bi bi-briefcase"></i> {/* Career icon */}
-                    <span
 
-                    >Career</span>
-                  </button>
-                </>
-              )}
+
+                  <>
+                    <button
+                      className="ml-3"
+                      style={{ cursor: 'pointer', top: '-10px', fontSize: '20px' }}
+                      onClick={() => {
+                        window.location.href = `/merchant`;
+                      }}
+                    >
+                      <i className="bi bi-box"></i> {/* Changed icon */}
+                      <span>Merchant</span>
+                    </button>
+                    <button
+                      className="ml-3"
+                      style={{ cursor: 'pointer', top: '-10px', fontSize: '20px' }}
+                      onClick={() => {
+                        window.location.href = `/career`;
+                      }}
+                    >
+                      <i className="bi bi-briefcase"></i> {/* Career icon */}
+                      <span
+
+                      >Career</span>
+                    </button>
+                  </>
+                )}
               {
                 !isKiosk && (
                   !user_loading ? (
@@ -1997,7 +2019,7 @@ const Navbar = () => {
         </div>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       </div>
-    </div>
+    </div >
   )
 }
 

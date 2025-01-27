@@ -82,8 +82,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Subtotal", output: "小计" },
     { input: "Tax", output: "税" },
     { input: "Total", output: "总额" },
-    { input: "Discount", output: "折扣" },
-    { input: "Service Fee", output: "服务费" },
+    { input: "Discount", output: "折扣" },//Disc
+    { input: "Disc.", output: "折扣" },//Disc
+    { input: "Service Fee", output: "服务费" },//Tips
+    { input: "Tips", output: "小费" },
     { input: "Gratuity", output: "小费" },
     { input: "Revise", output: "修订" },
     { input: "Cash Pay", output: "现金支付" },
@@ -983,104 +985,149 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
       <div class=''>
         <div className="flex w-full">
-          <div style={{ overflowY: 'auto', maxHeight: '700px' }} className={`flex-grow  ${!isMobile ? 'm-6' : 'm-2'}`}>
-            {(Array.isArray(products) ? products : []).map((product) => (
-              // the parent div
-              // can make the parent div flexbox
-              <div>
-                <div className='flex'>
-                  <DeleteSvg className='mt-2 ml-1 mr-2'
-                    onClick={() => {
-                      handleDeleteClick(product.id, product.count)
-                    }}></DeleteSvg>
-                  <div className={`flex justify-between w-full mb-1 ${!isMobile ? 'text-lg' : ''} notranslate`}>
-                    <span>
-                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
-                    </span>
-                    <span>${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}</span>
-                  </div>
-
-
-
-                </div>
-                <div className='items-center'>
-                  <div>
-                    <span class="notranslate">
-                      {Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}
-                    </span>
-                  </div>
-
-                  <div className="quantity p-0"
-                    style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
-                    <a
-                      onClick={() => {
-                        setOpenChangeAttributeModal(product)
-                      }}
-                      class="btn d-inline-flex btn-sm btn-outline-dark mx-1">
-                      <span>Revise</span>
-                    </a>
-
-                    {/* the add minus box set up */}
-                    <div style={{ display: "flex" }}>
-
-                      {/* the start of minus button set up */}
-                      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                        <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                          onClick={() => {
-                            if (product.quantity === 1) {
-                              handleDeleteClick(product.id, product.count);
-                            } else {
-                              handleMinusClick(product.id, product.count)
-                            }
-                          }}>
-                          <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                        </button>
-                      </div>
-                      {/* the end of minus button set up */}
-
-                      { /* start of the quantity number */}
-                      <span
-                        className='notranslate'
-                        type="text"
-                        style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                      >{product.quantity}</span>
-                      { /* end of the quantity number */}
-
-                      { /* start of the add button */}
-                      <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                        <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                          onClick={() => {
-                            handlePlusClick(product.id, product.count)
-                          }}>
-                          <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                        </button>
-                      </div>
-                      { /* end of the add button */}
+          <div className={`flex-grow  ${!isMobile ? 'm-6' : 'm-2'}`} >
+            <div className="mb-1 bg-gray-100 p-4 rounded-lg space-y-3">
+              <div className="flex justify-between w-full">
+                <div className="text-left">
+                  {(extra !== null && extra !== 0) && (
+                    <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                      {fanyi("Tips")}: <span className="notranslate text-green-600">${stringTofixed(Math.round((extra) * 100) / 100)}</span>
                     </div>
-                    { /* end of the add minus setup*/}
-                  </div>
-
-                  {/* end of quantity */}
-
-
-
+                  )}
                 </div>
-                <hr></hr>
+                <div className="text-left">
+                  <div className={`text-right notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                    {fanyi("Subtotal")}: <span className="notranslate text-blue-600">${stringTofixed(Math.round(100 * totalPrice) / 100)}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-between w-full">
+                <div className="text-left">
+                  {tips && (
+                    <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                      {fanyi("Tips")}: <span className="notranslate text-green-600">${stringTofixed(tips)}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="text-left">
+                  <div className={`text-right notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                    {fanyi("Tax")}: <span className="notranslate text-blue-600">${stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-between w-full">
+                <div className="text-left">
+                  {discount && (
+                    <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                      {fanyi("Disc.")}: <span className="notranslate text-red-600">${stringTofixed(discount)}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="text-left">
+                  <div className={`text-right notranslate ${!isMobile ? 'text-lg font-bold' : 'font-semibold'}`}>
+                    {fanyi("Total")}: <span className="notranslate text-red-600">${stringTofixed(finalPrice)}</span>
+                  </div>
+                </div>
               </div>
 
-            ))}
+            </div>
+            <div style={{ overflowY: 'auto', height: `calc(100vh - 325px)` }} >
+              {(Array.isArray(products) ? products : []).map((product) => (
+                // the parent div
+                // can make the parent div flexbox
+                <div>
+                  <div className='flex'>
+                    <DeleteSvg className='mt-2 ml-1 mr-2'
+                      onClick={() => {
+                        handleDeleteClick(product.id, product.count)
+                      }}></DeleteSvg>
+                    <div className={`flex justify-between w-full mb-1 ${!isMobile ? 'text-lg' : ''} notranslate`}>
+                      <span>
+                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                      </span>
+                      <span>${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}</span>
+                    </div>
+
+
+
+                  </div>
+                  <div className='items-center'>
+                    <div>
+                      <span class="notranslate">
+                        {Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}
+                      </span>
+                    </div>
+
+                    <div className="quantity p-0"
+                      style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
+                      <a
+                        onClick={() => {
+                          setOpenChangeAttributeModal(product)
+                        }}
+                        class="btn d-inline-flex btn-sm btn-outline-dark mx-1">
+                        <span>Revise</span>
+                      </a>
+
+                      {/* the add minus box set up */}
+                      <div style={{ display: "flex" }}>
+
+                        {/* the start of minus button set up */}
+                        <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
+                          <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                            onClick={() => {
+                              if (product.quantity === 1) {
+                                handleDeleteClick(product.id, product.count);
+                              } else {
+                                handleMinusClick(product.id, product.count)
+                              }
+                            }}>
+                            <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                          </button>
+                        </div>
+                        {/* the end of minus button set up */}
+
+                        { /* start of the quantity number */}
+                        <span
+                          className='notranslate'
+                          type="text"
+                          style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
+                        >{product.quantity}</span>
+                        { /* end of the quantity number */}
+
+                        { /* start of the add button */}
+                        <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
+                          <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
+                            onClick={() => {
+                              handlePlusClick(product.id, product.count)
+                            }}>
+                            <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
+                          </button>
+                        </div>
+                        { /* end of the add button */}
+                      </div>
+                      { /* end of the add minus setup*/}
+                    </div>
+
+                    {/* end of quantity */}
+
+
+
+                  </div>
+                  <hr></hr>
+                </div>
+
+              ))}
+
+            </div>
+
           </div>
-          <div className='flex flex-col space-y-2' style={isMobile ? { minWidth: "170px" } : { minWidth: "200px" }}>
+          <div className='flex flex-col space-y-2' style={isMobile ? { minWidth: "120px" } : { minWidth: "150px" }}>
             <a
               onClick={() => { setChangeTableModal(true) }}
               className="mt-3 btn btn-sm btn-link mx-1 border-black"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              {isMobile ? <div></div> :
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faShare} />
-                </span>
-              }
+
               <span className='notranslate'>{fanyi("Change Desk")}</span>
             </a>
             {/* <a
@@ -1101,11 +1148,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               className="mt-3 btn btn-sm btn-success mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              {isMobile ? <div></div> :
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faPencilAlt} />
-                </span>
-              }
+
               <span className='notranslate'>{fanyi("Add Service Fee")}</span>
             </a>
 
@@ -1114,37 +1157,24 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               className="mt-3 btn btn-sm btn-danger mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              {isMobile ? <div></div> :
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faGift} />
-                </span>
-              }
+
               <span className='notranslate'>{fanyi("Add Discount")}</span>
             </a>
-
-            <a
-              onClick={() => { SendToKitchen(); }}
-              className="mt-3 btn btn-sm btn-light mx-1"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
-            >
-              {isMobile ? <div></div> :
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faArrowRight} />
-                </span>
-              }
-              <span className='notranslate'>{fanyi("Send to kitchen")}</span>
-            </a>
-
+            {isPC ?
+              <a
+                onClick={() => { SendToKitchen(); }}
+                className="mt-3 btn btn-sm btn-light mx-1"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+              >
+                <span className='notranslate'>{fanyi("Send to kitchen")}</span>
+              </a> : null
+            }
             <a
               onClick={() => { listOrder(); }}
               className="mt-3 btn btn-sm btn-secondary mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              {isMobile ? <div></div> :
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faPrint} />
-                </span>
-              }
+
               <span className='notranslate'>{fanyi("Print Order")}</span>
             </a>
 
@@ -1153,11 +1183,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               className="mt-3 btn btn-sm btn-secondary mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              {isMobile ? <div></div> :
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faPrint} />
-                </span>
-              }
+
               <span className='notranslate'>{fanyi("Print Receipt")}</span>
             </a>
 
@@ -1166,11 +1192,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               className="mt-3 btn btn-sm btn-warning mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              {isMobile ? <div></div> :
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faExchangeAlt} />
-                </span>
-              }
+
 
 
               <span className='notranslate'>{fanyi("Split Payment")}</span>
@@ -1180,11 +1202,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               className="mt-3 btn btn-sm btn-outline-danger mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              {isMobile ? <div></div> :
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faExclamation} />
-                </span>
-              }
+
               <span className='notranslate'>{fanyi("Mark as Unpaid")}</span>
             </a>
             <a
@@ -1192,10 +1210,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               className="mt-3 btn btn-sm btn-primary mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              {isMobile ? <div></div> : <span className="pe-2">
-                <FontAwesomeIcon icon={faCreditCard} />
-              </span>
-              }
+
               <span className='notranslate'>{fanyi("Card Pay")}</span>
             </a>
 
@@ -1204,28 +1219,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               className="mt-3 btn btn-sm btn-info mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              {isMobile ? <div></div> :
-                <span className="pe-2">
-                  <FontAwesomeIcon icon={faDollarSign} />
-                </span>
-              }
+
               <span className='notranslate'>{fanyi("Cash Pay")}</span>
             </a>
-
-            <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''}`}>{fanyi("Subtotal")}: <span className='notranslate'>${stringTofixed(Math.round(100 * totalPrice) / 100)}</span> </div>
-
-            {discount && (
-              <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''}`}>{fanyi("Discount")}: <span className='notranslate'>-${stringTofixed(discount)} </span></div>
-            )}
-
-            {tips && (
-              <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''}`}>{fanyi("Service Fee")}: <span className='notranslate'>${stringTofixed(tips)}</span> </div>
-            )}
-            {(extra !== null && extra !== 0) && (
-              <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''} `}>{fanyi("Gratuity")}: <span className='notranslate'>${stringTofixed(Math.round((extra) * 100) / 100)}</span></div>
-            )}
-            <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''} `}>{fanyi("Tax")}(8.25%): <span className='notranslate'>${stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))}</span>    </div>
-            <div className={`text-right notranslate ${!isMobile ? 'text-lg' : ''} `}>{fanyi("Total")}: <span className='notranslate'>${stringTofixed(finalPrice)}</span> </div>
           </div>
         </div>
         <div>
@@ -1324,7 +1320,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                             // total: inputValue
                             CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)),
                               inputValue);
-                              
+
                             closeUniqueModal();
                           }}
                           style={uniqueModalStyles.buttonStyle}

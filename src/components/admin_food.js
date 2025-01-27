@@ -1787,6 +1787,31 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                   translate="no"
                 />
               </div>
+              <div className='flex'>
+
+                <input
+                  className='form-check-input'
+                  type="checkbox"
+                  style={{ marginRight: "5px" }}
+                  // Set checkbox state, treating undefined as false
+                  checked={item?.isValid || false}
+                  onChange={(e) => {
+                    // Handle the change event to toggle the isFeatured state
+                    const isChecked = e.target.checked;
+                    console.log('Featured status:', isChecked);
+
+                    // Assuming updateItem is a function to update the item in your state or backend
+                    updateItem(item.id, { ...item, isValid: isChecked });
+                  }}
+                  translate="no"
+                />
+                {/* {fullItems.filter(item => item.isValid === true).length}
+                {String(item.isValid)} */}
+                <span className="font-size: 16px; font-weight: bold">
+                  Currently Unavailable
+                </span>
+              </div>
+
               <div className="flex ">
                 {item.category !== "Temporary Use" && fullItems.filter(item => item.isFeatured === true).length < 10 && item.image !== "https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public"
                   ?

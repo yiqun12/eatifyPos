@@ -66,13 +66,33 @@ const Iframe = forwardRef(({ src, width, height, storeName, title }, ref) => {
     return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
 });
 
-function App({isModalOpen, setModalOpen,setSelectedTable,selectedTable,setIsVisible, store, acct }) {
+function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIsVisible, store, acct }) {
 
     const [divWidth, setDivWidth] = useState(0);
     const divRef = useRef();
 
     const [title, setTitle] = useState(0);
 
+    const [iframeHeight, setIframeHeight] = useState(0); // Start with a default value
+
+    useEffect(() => {
+        // Function to update height based on the viewport
+        const updateHeight = () => {
+            const vhInPx = window.innerHeight; // 100vh equivalent in pixels
+            setIframeHeight(vhInPx - 100); // Set the state to this value
+        };
+
+        // Calculate height on mount
+        updateHeight();
+
+        // Listen to resize events to adjust the height dynamically
+        window.addEventListener('resize', updateHeight);
+
+        // Cleanup function
+        return () => {
+            window.removeEventListener('resize', updateHeight);
+        };
+    }, []); // Empty dependency array means this effect will only run on mount and unmount
 
 
     useEffect(() => {
@@ -734,7 +754,7 @@ function App({isModalOpen, setModalOpen,setSelectedTable,selectedTable,setIsVisi
 
                                 <Iframe
                                     className="notranslate" key={changeEvent}
-                                    ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width={(divWidth) + "px"} height="800px" storeName={store}
+                                    ref={iframeRef} src={`${process.env.PUBLIC_URL}/seat.html`} width={(divWidth) + "px"} height={`${iframeHeight}px`} storeName={store}
                                     title={title} />
 
                                 {isModalOpen && (
@@ -771,7 +791,7 @@ function App({isModalOpen, setModalOpen,setSelectedTable,selectedTable,setIsVisi
                                                             SendToKitchen();
                                                         }}
                                                         class="btn d-inline-flex btn-sm btn-primary mx-1">
-                                                        <span>Back</span>
+                                                        <span>Send To Kitchen and Back</span>
                                                     </a> : <a
                                                         onClick={() => {
                                                             setModalOpen(false);
@@ -779,7 +799,7 @@ function App({isModalOpen, setModalOpen,setSelectedTable,selectedTable,setIsVisi
                                                             SendToKitchen();
                                                         }}
                                                         class="btn d-inline-flex btn-sm btn-primary mx-1">
-                                                        <span>Back</span>
+                                                        <span>Send To Kitchen and Back</span>
                                                     </a>
 
                                                     }

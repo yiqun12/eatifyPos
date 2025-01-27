@@ -891,7 +891,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     // Function to calculate the dynamic height
     const updateHeight = () => {
       if (scrollingWrapperRef.current) {
-        const wrapperHeight = scrollingWrapperRef.current.offsetHeight; // Get the height of the scrolling wrapper
+        const wrapperHeight = scrollingWrapperRef.current.getBoundingClientRect().height;
         const viewportHeight = window.innerHeight; // Get the viewport height
         const dynamicHeightValue = isMobile ? `calc(80vh - ${wrapperHeight}px)` : `calc(60vh - ${wrapperHeight}px)`; // Calculate the dynamic height
         setDynamicHeight(dynamicHeightValue); // Set the dynamic height
@@ -925,44 +925,64 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
             <div className="relative w-full max-h-full ">
               <div className="relative bg-white rounded-lg border-black shadow">
 
-                <div className='p-4 pt-3'>
+                <div className='p-4 pt-3 pb-0'>
                   <div className='flex justify-between'>
                     <h4 class="notranslate">
                       {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
                     </h4>
                   </div>
-                  <div className="mb-3">
-                    <label htmlFor="customVariantName" className="form-label">Explanation for the Updated Ingredients of the Dish
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="customVariantName"
-                      placeholder="Enter the reason of the price change"
-                      value={customVariant.name}
-                      onChange={(e) => setCustomVariant({ ...customVariant, name: e.target.value })}
-                      translate="no"
-                    />
-                    <small id="customVariantNameHelp" className="form-text text-muted">
-                      Indicate any change in the dish's price, for example, if no price change then enter 0
-                    </small>
+                  <div className='mb-2' style={{ display: 'flex', gap: '1rem' }}>
+                    <div
+                      style={{
+                        border: '1px solid #ccc',
+                        padding: '1rem',
+                        borderRadius: '5px',
+                      }}
+                    >
+                      <label htmlFor="customVariantName" className="form-label">
+                        Ingredient Update
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="customVariantName"
+                        placeholder="Reason for price change"
+                        value={customVariant.name}
+                        onChange={(e) =>
+                          setCustomVariant({ ...customVariant, name: e.target.value })
+                        }
+                        translate="no"
+                      />
+                      <small id="customVariantNameHelp" className="form-text text-muted">
+                        Enter "0" if no change.
+                      </small>
+                    </div>
+
+                    <div
+                      style={{
+                        border: '1px solid #ccc',
+                        padding: '1rem',
+                        borderRadius: '5px',
+                      }}
+                    >
+                      <label htmlFor="customVariantPrice" className="form-label">Price</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="customVariantPrice"
+                        placeholder="Enter price (can be negative)"
+                        value={customVariant.price}
+                        onChange={(e) =>
+                          setCustomVariant({ ...customVariant, price: e.target.value })
+                        }
+                        translate="no"
+                      />
+                      <small id="customVariantPriceHelp" className="form-text text-muted">
+                        Positive or negative price.
+                      </small>
+                    </div>
                   </div>
 
-                  <div className="mb-3">
-                    <label htmlFor="customVariantPrice" className="form-label">Price</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="customVariantPrice"
-                      placeholder="Enter the price of the custom variant (can be negative)"
-                      value={customVariant.price}
-                      onChange={(e) => setCustomVariant({ ...customVariant, price: e.target.value })}
-                      translate="no"
-                    />
-                    <small id="customVariantPriceHelp" className="form-text text-muted">
-                      Enter a positive or negative number for the price adjustment.
-                    </small>
-                  </div>
                   <div className='flex '>
                     <button
                       className="btn btn-warning mb-3 mr-2"
@@ -1052,24 +1072,23 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                   {/* <pre>{JSON.stringify(selectedAttributes, null, 2)}</pre>
                   <div>{searchSpeicalFoodQuantity(selectedFoodItem.id, count)}</div> */}
                 </div>
-                <div className='p-4 pt-3 flex justify-between'>
-                  <div>
-                    {OpenChangeAttributeTrigger ?
-                      null
-                      :
+                {/* {OpenChangeAttributeTrigger ?
+                  null
+                  :
+                  <div className='p-4 pt-3 flex justify-between'>
+                    <div>
+
                       <div>
                         <span class="text-lg notranslate">
                           ${(Math.round(100 * ((parseFloat(selectedFoodItem.subtotal) + parseFloat(totalPrice)) * parseFloat(searchSpeicalFoodQuantity(selectedFoodItem.id, count)))) / 100).toFixed(2)}
                         </span>
                         {priceError}
                       </div>
-                    }
-                  </div>
-                  <div>
-                    <span>
-                      {OpenChangeAttributeTrigger ?
-                        null
-                        :
+
+                    </div>
+                    <div>
+                      <span>
+
                         <div>
                           <div className="d-flex align-items-center">
                             <button
@@ -1097,11 +1116,11 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
                         </div>
 
-                      }
-                    </span>
-                  </div>
 
-                </div>
+                      </span>
+                    </div>
+
+                  </div>} */}
                 <div className="flex justify-between p-4 ">
 
                   <button type="button" onClick={() => {
@@ -1257,63 +1276,77 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                 </div>
                 : null}
               {/* end of the top */}
+
               <div ref={scrollingWrapperRef}>
                 {!view ?
 
 
                   <div className='flex rounded-lg'>
-                    {isMobile && (<div
+                    {/* <div
                       className="m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg absolute z-10 right-0 scroll-gradient-right"
                       style={{ pointerEvents: 'none' }}
                     >
                       &nbsp;
-                    </div>)}
-                    {
-                      isMobile ? <div onClick={() => {
-                        openModalList()
-                      }} className="mt-2 m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg ">
-                        <FontAwesomeIcon icon={faList} />
-                      </div> : <></>
-                    }
+                    </div> */}
 
+                    {/* <div onClick={() => {
+                      openModalList()
+                    }} className="mt-2 m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg ">
+                      <FontAwesomeIcon icon={faList} />
+                    </div> */}
+
+                    <></>
                     <div
-                      className={isMobile ? "scrolling-wrapper-filter relative mt-2" : "relative mt-2"} >
+                      className="scrolling-wrapper-filter relative mt-2">
+                      {foodTypes.map((foodType, index) => {
+                        // Ensure we don't go out of bounds
+                        if (index % 2 !== 0) return null;
 
+                        const nextFoodType = foodTypes[index + 1];
 
-                      {/* <button onClick={() => {
-                      setFoods(data)
-                      setSelectedFoodType(null);
-                    }}
-                      className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 text-lg  ${selectedFoodType === null ? 'underline' : ''}`}
-                      style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button> */}
+                        return (
+                          <button
+                            key={foodType}
 
-                      {foodTypes.map((foodType) => (
-                        <button
-                          key={foodType}
-                          onClick={() => {
-                            filterType(foodType);
-                            setSelectedFoodType(foodType);
-                            setInput("")
-                          }}
-                          className={
-                            !isMobile
-                              ? `rounded-xl px-2 py-2 text-black m-2 ${selectedFoodType === foodType ? 'bg-gray-400' : 'bg-gray-200'}`
-                              : `border-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`
-                          }
+                            style={{ display: "inline-block", textUnderlineOffset: "0.5em" }}
+                          >
+                            <div
+                              onClick={() => {
+                                filterType(foodType);
+                                setSelectedFoodType(foodType);
+                                setInput("");
+                              }}
+                              className={`rounded-xl px-2 py-2 text-black m-2 ${selectedFoodType === foodType ? "bg-gray-400" : "bg-gray-200"
+                                }`}
+                            >
+                              {foodType && foodType.length > 1
+                                ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                                : ""}
+                            </div>
+                            {nextFoodType && (
+                              <div
+                                onClick={() => {
+                                  filterType(nextFoodType);
+                                  setSelectedFoodType(nextFoodType);
+                                  setInput("");
+                                }}
+                                className={`rounded-xl px-2 py-2 text-black m-2 ${selectedFoodType === nextFoodType ? "bg-gray-400" : "bg-gray-200"
+                                  }`}
+                              >
+                                {nextFoodType.length > 1
+                                  ? t(nextFoodType.charAt(0).toUpperCase() + nextFoodType.slice(1))
+                                  : ""}
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
 
-                          style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-                        >
-                          <div>
-                            {foodType && foodType.length > 1
-                              ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-                              : ''}
-                          </div>
-                        </button>
-                      ))}
 
                     </div>
-
-                  </div> : null}
+                  </div>
+                  :
+                  null}
 
               </div>
 
@@ -1322,7 +1355,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
           </div>
           {!view ?
-            <LazyLoad height={dynamicHeightLazy}>
+            <LazyLoad >
 
               {/* diplay food */}
               <AnimatePresence>
@@ -1330,7 +1363,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                   gridTemplateRows: `repeat(1, 1fr)`,
                   gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
                   overflowY: 'auto',
-                  maxHeight: dynamicHeight
+                  maxHeight: `calc(100vh - 350px)`
                 }}>
                   {foods.filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称")).map((item, index) => (
                     <motion.div

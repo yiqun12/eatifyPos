@@ -76,6 +76,7 @@
         "react-scrollable-feed": "^2.0.2",
         "react-select": "^5.8.3",
         "react-shadow": "^20.5.0",
+        "react-swipeable": "^7.0.2",
         "react-swipeable-views-react-18-fix": "^0.14.1",
         "react-swiper": "^0.1.5",
         "react-use-gesture": "^9.1.3",

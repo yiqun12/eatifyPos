@@ -78,13 +78,18 @@ const Account = () => {
                   </button>
                 </div>
               </div>
-              <div class="text-center">
-                <img
-                  src="https://i.postimg.cc/c4D1L41Y/header-2.png"
-                  alt="Header"
-                  class="max-w-xs md:max-w-sm mx-auto h-auto"
-                />
-              </div>
+              {!isMobile ?
+
+                <div class="text-center" >
+                  <img
+                    src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/7220ae95-4ee7-4af7-78f1-573fa98f1e00/public"
+                    alt="Header"
+                    class="max-w-xs md:max-w-sm mx-auto h-auto"
+                  />
+                </div> :
+                <></>
+              }
+
             </div>
           </div>
         </section>
@@ -313,14 +318,16 @@ const Account = () => {
         </section>
 
 
-        <footer class="flex_">
-          <section class="flex_content_">
-            <Link to="/">Home</Link>
-            <Link to="/career">Career</Link>
-          </section>
-          <section class="flex_content_ padding_1x" style={{ marginTop: "10px" }}>
-            <p>© 2024 Eatifydash LLC || All rights reserved</p>
-          </section>
+        <footer class="bg-gray-800 text-white p-4">
+          <div class="max-w-screen-xl mx-auto flex flex-wrap justify-between items-center">
+            <section class="flex gap-4">
+              <Link to="/" class="hover:text-gray-300">Home</Link>
+              <Link to="/career" class="hover:text-gray-300">Career</Link>
+            </section>
+            <section class="text-sm mt-4 md:mt-0">
+              <p>© 2024 Eatifydash LLC || All rights reserved</p>
+            </section>
+          </div>
         </footer>
 
       </div>

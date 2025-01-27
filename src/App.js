@@ -202,10 +202,10 @@ function App() {
                 <Route exact path="/AdminFood" element={<Admin_food />} />
                 <Route exact path="/Refresh" element={<Refresh />} /> */}
                 <Route path="/career" element={<Career />} />
-                <Route path="/home2" element={<Home2 />} />
+                <Route path="/merchant" element={<Home2 />} />
 
-                <Route path='*' exact={true} element={<Home />} />
-                <Route exact path="/" element={<Home />} />
+                <Route path='*' exact={true} element={<Home2 />} />
+                <Route exact path="/" element={<Home2 />} />
 
                 {/* <Route exact path="/Checklist" element={<Checklist />} /> */}
 

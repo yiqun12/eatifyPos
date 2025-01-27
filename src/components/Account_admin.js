@@ -1785,7 +1785,8 @@ const Account = () => {
   };
   function handlePrint() {
     console.log("osjaopwiajsojwaosw")
-    //console.log(docIds)
+    console.log(docIds)
+
     sendMessageToIframes('PrintQRcode', docIds)
     document.body.classList.add('printing');
     window.print();
@@ -3221,7 +3222,7 @@ const Account = () => {
 
                                   <button onClick={() => checkGeolocation()} className="bg-gray-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                                     <i class="bi bi-geo-alt-fill me-2"></i>
-                                    Sync Your Current Location
+                                    Auto Fill Address
                                   </button>
                                 </div>
                                 <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.Description, data?.State, data?.ZipCode, data?.Phone)}>
@@ -3371,6 +3372,28 @@ const Account = () => {
 
 
                             <hr />
+
+                            <div style={{ fontWeight: 'bold' }}>
+                              Edit Your Menu:
+                            </div>
+
+                            <div className="flex justify-start">
+                              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
+                                onClick={() => {
+                                  setShowSection('menu')
+                                  window.location.hash = `book?store=${data.id}`;
+                                }}
+                              >
+                                {/* SVG icon for editing */}
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L12 18H8v-4l8.768-8.768z" />
+                                </svg>
+                                Menu Settings
+                              </button>
+                            </div>
+
+
+
                             <div style={{ fontWeight: 'bold' }}>
                               QR code generator:
                             </div>
@@ -3390,7 +3413,7 @@ const Account = () => {
                               ))} */}
 
                             </div>
-                            <div className="flex justify-end">
+                            <div className="flex justify-start">
                               <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                 onClick={() => handlePrint()}
                               >
