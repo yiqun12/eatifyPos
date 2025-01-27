@@ -1703,12 +1703,12 @@ const Navbar = () => {
                             <span >
                               <FontAwesomeIcon icon={faCreditCard} />
                             </span>
-                            <span> &nbsp;Checkout order with
-                              ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
-                                + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
-                              )
-                              } plus delivery fee
-                            </span>
+
+                            <span>Order Total: ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                              + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
+                            )
+                            } + delivery</span>
+
                           </span>
 
                         </button>)
