@@ -1032,7 +1032,7 @@ const Account = () => {
     picture: '',
     physical_address: '',
     Description: '',
-
+    TaxRate: '',
     State: '',
     ZipCode: '',
     Phone: ''
@@ -1043,10 +1043,24 @@ const Account = () => {
     const { name, value } = e.target;
     console.log(name)
     console.log(value)
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
+    // 特别为 'TaxRate' 字段进行数字验证
+    if (name === 'TaxRate') {
+      if (/^\d*\.?\d*$/.test(value) || value === "") { // 允许数字和小数点
+        setFormValues({
+          ...formValues,
+          [name]: value
+        });
+        setError(''); // 清除错误信息
+      } else {
+        setError('Please enter a valid number for the tax rate.'); // 显示错误信息
+      }
+    } else {
+      // 其他字段不进行数字验证
+      setFormValues({
+        ...formValues,
+        [name]: value
+      });
+    }
   };
   const [previewUrl, setPreviewUrl] = useState('');
 
@@ -1095,7 +1109,7 @@ const Account = () => {
   // using the below to control if suboption popping and popping out depending on which store is selected on the side bar
   const [activeStoreId, setActiveStoreId] = useState(null);
   // Rename function for form submission
-  const handleFormSubmit = async (e, name, storeNameCHI, address, image, id, physical_address, Description, State, ZipCode, Phone) => {
+  const handleFormSubmit = async (e, name, storeNameCHI, address, image, id, physical_address, Description, TaxRate, State, ZipCode, Phone) => {
 
     e.preventDefault();
     // Here you can access formValues and perform actions like sending it to a server
@@ -1114,7 +1128,7 @@ const Account = () => {
       State: formValues.State !== '' ? formValues.State : State,
       physical_address: formValues.physical_address !== '' ? formValues.physical_address : physical_address,
       Description: formValues.Description !== '' ? formValues.Description : Description,
-
+      TaxRate: formValues.TaxRate !== '' ? formValues.TaxRate : TaxRate,
     });
     alert("Updated Successful");
     setShowSyncButton(false)
@@ -2067,7 +2081,7 @@ const Account = () => {
             jsonObject.storeName = selectedStore.Name;
             jsonObject.storeAddress = selectedStore.physical_address;
             jsonObject.Description = selectedStore.Description;
-
+            jsonObject.TaxRate = selectedStore.TaxRate;
             jsonObject.storeState = selectedStore.State;
             jsonObject.storeZipCode = selectedStore.ZipCode;
             jsonObject.storePhone = selectedStore.Phone;
@@ -2180,8 +2194,7 @@ const Account = () => {
             jsonObject.storeName = selectedStore.Name;
             jsonObject.storeAddress = selectedStore.physical_address;
             jsonObject.Description = selectedStore.Description;
-
-
+            jsonObject.TaxRate = selectedStore.TaxRate;
             jsonObject.storeState = selectedStore.State;
             jsonObject.storeZipCode = selectedStore.ZipCode;
             jsonObject.storePhone = selectedStore.Phone;
@@ -2229,6 +2242,7 @@ const Account = () => {
             jsonObject.storeName = selectedStore.Name;
             jsonObject.storeAddress = selectedStore.physical_address;
             jsonObject.Description = selectedStore.Description;
+            jsonObject.TaxRate = selectedStore.TaxRate;
             jsonObject.storeState = selectedStore.State;
             jsonObject.storeZipCode = selectedStore.ZipCode;
             jsonObject.storePhone = selectedStore.Phone;
@@ -2665,9 +2679,11 @@ const Account = () => {
 
                   {storelist?.map((data, index) => (
                     <div style={{ display: 'contents' }}>
+
                       <button
                         className={`mt-2 btn mr-2 ml-2 ${activeTab === `#${data.id}` ? 'border-black' : ''}`}
                         onClick={(e) => {
+
                           handleTabClick(e, `#${data.id}`);
                           setActiveStoreTab(data.id);
                           setShowSection('sales');
@@ -3160,7 +3176,10 @@ const Account = () => {
                           </div> : <div></div>
                           }
                           <div style={{ display: showSection === 'qrCode' ? 'block' : 'none' }}>
-                            <IframeDesk isModalOpen={isModalOpenIframe} setModalOpen={setModalOpenIframe} setSelectedTable={setSelectedTableIframe} selectedTable={selectedTableIframe} setIsVisible={setIsVisible} store={data.id} acct={data.stripe_store_acct}></IframeDesk>
+             
+                            <IframeDesk isModalOpen={isModalOpenIframe} setModalOpen={setModalOpenIframe} setSelectedTable={setSelectedTableIframe} selectedTable={selectedTableIframe} setIsVisible={setIsVisible} store={data.id} acct={data.stripe_store_acct}
+                              TaxRate={data.TaxRate}
+                            ></IframeDesk>
                             {/* Assuming you want the QRCode hidden or shown together with IframeDesk, otherwise adjust the condition as needed */}
                           </div>
 
@@ -3190,6 +3209,7 @@ const Account = () => {
                                 <h3 className="font-bold text-xl text-gray-900 notranslate">{data?.Name}</h3>
                                 <p className="font-semibold text-gray-800 notranslate">{data?.storeNameCHI}</p>
                                 <p className="text-gray-700 font-semibold mt-2 notranslate">{data?.Description}</p>
+                                <p className="text-gray-700 font-semibold mt-2">Tax Rate: {data?.TaxRate}%</p>
                                 <p className="text-gray-700 text-sm mt-1 notranslate">{data?.physical_address}, {data?.Address}, {data?.City}, {data?.State} {data?.ZipCode}</p>
                                 <p className="text-gray-700 text-sm mt-1 notranslate">Phone: {data?.Phone}</p>
                                 <p className="text-blue-600 hover:text-blue-800 font-semibold mt-1 notranslate cursor-pointer hover:underline break-all" onClick={() => window.open(`https://7dollar.delivery/store?store=${storeID}`, "_blank", "noopener,noreferrer")}
@@ -3225,7 +3245,12 @@ const Account = () => {
                                     Auto Fill Address
                                   </button>
                                 </div>
-                                <form className="w-full mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.Description, data?.State, data?.ZipCode, data?.Phone)}>
+                                <form
+                                  style={{
+
+                                    width: isMobile ? '100%' : '45%'
+                                  }}
+                                  className="mb-2" onSubmit={(e) => handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.Description, data?.TaxRate, data?.State, data?.ZipCode, data?.Phone)}>
                                   <div className="flex flex-wrap -mx-3 mb-6">
                                     <div className="w-full px-3">
                                       <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="storeName">
@@ -3273,6 +3298,22 @@ const Account = () => {
                                         placeholder={data?.Description}
                                         translate="no"
                                       />
+                                    </div>
+                                    <div className="w-full px-3">
+                                      <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="TaxRate">
+                                        Tax Rate (%)
+                                      </label>
+                                      <input
+                                        className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${error ? 'border-red-500' : 'border-gray-300'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white`}
+                                        id="TaxRate"
+                                        type="text"
+                                        name="TaxRate"
+                                        value={formValues.TaxRate}
+                                        onChange={handleInputChange}
+                                        placeholder={data?.TaxRate}
+                                        translate="no"
+                                      />
+                                      {error && <p className="text-red-500 text-xs italic">{error}</p>}
                                     </div>
                                     <div className="w-full px-3">
                                       <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="physical_address">
@@ -3859,15 +3900,16 @@ const Account = () => {
                                     <i className="bi bi-calendar pe-2"></i>
                                     <span>List All Orders</span>
                                   </button>}
-                                  {
-                                    <button
-                                      onClick={() => { OpenCashDraw() }}
-                                      className="btn btn-sm btn-info d-flex align-items-center mx-1 mt-1 mb-2"
-                                    >
-                                      <i className="bi bi-cash-stack pe-2"></i>
-                                      <span>Cash Drawer</span>
-                                    </button>
-                                  }
+
+
+                                  <button
+                                    onClick={() => { OpenCashDraw() }}
+                                    className="btn btn-sm btn-info d-flex align-items-center mx-1 mt-1 mb-2"
+                                  >
+                                    <i className="bi bi-cash-stack pe-2"></i>
+                                    <span>Cash Drawer</span>
+                                  </button>
+
 
 
                                   {/* {JSON.stringify(startDate)}

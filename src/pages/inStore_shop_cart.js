@@ -30,6 +30,7 @@ import Hero from './Hero'
 import cuiyuan from './cuiyuan.png'
 import { collection, doc, setDoc, addDoc } from "firebase/firestore";
 import { onSnapshot, query } from 'firebase/firestore';
+import QRCode from 'qrcode.react';
 
 import { db } from '../firebase/index';
 import cartImage from './shopcart.png';
@@ -41,7 +42,7 @@ import Dnd_Test from '../pages/dnd_test';
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faExclamation } from '@fortawesome/free-solid-svg-icons'; // Import the exclamation mark icon
 
-const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal }) => {
+const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal, TaxRate }) => {
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   const { user, user_loading } = useUserContext();
 
@@ -168,10 +169,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))
       console.log("finalPrice")
-      console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
+      console.log((Math.round(100 * (total * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
       setFinalPrice(
-        (Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
-      //console.log((Math.round(100 * (total * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
+        (Math.round(100 * (total * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
     }
     calculateTotalPrice();
     console.log("change price")
@@ -546,7 +546,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
           isDine: true,
           service_fee: tips === "" ? 0 : tips,
           subtotal: Math.round(100 * totalPrice) / 100,
-          tax: Math.round(100 * totalPrice * 0.0825) / 100,
+          tax: Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100,
           tips: Math.round(100 * extra_tip) / 100,
           total: Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100,
         }, // Assuming an empty map converts to an empty object
@@ -612,9 +612,6 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   }
   const CashCheckOut = async (extra, tax, total) => {
 
-    // tips: Math.round((result - finalPrice +extra) * 100) / 100
-    // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
-    // total: inputValue
     console.log("CashCheckOut")
     let extra_tip = 0
     if (extra !== null) {
@@ -1011,7 +1008,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 </div>
                 <div className="text-left">
                   <div className={`text-right notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
-                    {fanyi("Tax")}: <span className="notranslate text-blue-600">${stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))}</span>
+                    {fanyi("Tax")} ({Number(TaxRate)})%: <span className="notranslate text-blue-600">${stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100))}</span>
                   </div>
                 </div>
               </div>
@@ -1160,15 +1157,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
               <span className='notranslate'>{fanyi("Add Discount")}</span>
             </a>
-            {isPC ?
-              <a
-                onClick={() => { SendToKitchen(); }}
-                className="mt-3 btn btn-sm btn-light mx-1"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
-              >
-                <span className='notranslate'>{fanyi("Send to kitchen")}</span>
-              </a> : null
-            }
+
             <a
               onClick={() => { listOrder(); }}
               className="mt-3 btn btn-sm btn-secondary mx-1"
@@ -1215,7 +1204,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
             </a>
 
             <a
-              onClick={() => { OpenCashDraw(); openUniqueModal(); SendToKitchen() }}
+              onClick={() => { openUniqueModal(); SendToKitchen() }}
               className="mt-3 btn btn-sm btn-info mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -1236,8 +1225,15 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
               <div className="modal-dialog">
                 <div className="modal-content">
-                  <div className="modal-header">
-                    <h2 className="text-2xl font-semibold mb-4">{fanyi("Cash Pay")}</h2>
+                  <div className="modal-header mb-2">
+                    <a
+                      onClick={() => { OpenCashDraw(); }}
+                      className="mt-3 btn btn-md btn-info "
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+                    >
+
+                      <span>Open Cash Drawer</span>
+                    </a>
                     <button style={uniqueModalStyles.closeBtnStyle} onClick={() => {
                       setUniqueModalOpen(false);
                       setInputValue("")
@@ -1315,16 +1311,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         <button
                           onClick={() => {
                             setCustomAmount(Math.round((result - finalPrice) * 100) / 100); calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
-                            // tips: Math.round((result - finalPrice +extra) * 100) / 100
-                            // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
-                            // total: inputValue
-                            CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)),
+                            CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
                               inputValue);
 
                             closeUniqueModal();
                           }}
                           style={uniqueModalStyles.buttonStyle}
-                          className="notranslate mt-2 mb-2 bg-green-500 text-white px-4 py-2 rounded-md w-full"
+                          className="notranslate mt-2 mb-2 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
                         >
                           {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
                           {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
@@ -1340,10 +1333,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                     )}
                     <button
                       onClick={() => {
-                        // tips: Math.round((extra) * 100) / 100
-                        // tax: stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100))
-                        // total: finalPrice
-                        CashCheckOut(extra, stringTofixed((Math.round(100 * totalPrice * 0.0825) / 100)),
+                        CashCheckOut(extra, stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
                           finalPrice);
                         closeUniqueModal();
 
@@ -1405,7 +1395,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         &times;
                       </button>
                     </div>
-                    <Dnd_Test store={store} acct={acct} selectedTable={selectedTable} key={dndTestKey} main_input={products} />
+                    <Dnd_Test store={store} acct={acct} selectedTable={selectedTable} key={dndTestKey} main_input={products} 
+                    TaxRate={TaxRate}
+                    />
                   </div>
                 </div>
               </div>
@@ -1474,8 +1466,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
                     <PaymentRegular setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store}
                       chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} />
+                    <span className="mb-2 notranslate">Or Customer Can Scan To Pay The Whole Table (扫码支付本桌)</span>
+
+                    <div className="qrCodeItem flex flex-col items-center mt-1">
+                      <QRCode value={`https://7dollar.delivery/store?store=${store}&table=${selectedTable}`} size={100} />
+                    </div>
 
                   </div>
+
                   <div className="modal-footer">
                   </div>
                 </div>

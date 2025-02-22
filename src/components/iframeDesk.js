@@ -66,7 +66,7 @@ const Iframe = forwardRef(({ src, width, height, storeName, title }, ref) => {
     return <iframe ref={iframeRef} title="Seat" width={width} height={height} />;
 });
 
-function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIsVisible, store, acct }) {
+function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIsVisible, store, acct, TaxRate }) {
 
     const [divWidth, setDivWidth] = useState(0);
     const divRef = useRef();
@@ -694,54 +694,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
 
                 <div>
 
-                    {isSplitPaymentModalOpen && (
-                        <div
-                            id="addDiscountModal"
-                            className="modal fade show"
-                            role="dialog"
-                            style={{
-                                display: 'block',
-                                position: 'fixed', // Set to 'fixed' to make it stay fixed on the screen
-                                top: '0',
-                                left: '0',
-                                right: '0',
-                                bottom: '0',
-                                backgroundColor: 'rgba(255,255,255,1)',
-                                overflow: 'auto', // Use 'hidden' to prevent the modal itself from scrolling
-                                zIndex: '9999',
-                            }}
-                        >
-                            <div
-                                className="modal-dialog modal-xl"
-                                role="document"
-                                style={{
-                                    height: "80vh",
-                                    margin: 'auto', // Center the modal on the screen
-                                    position: 'relative', // Add relative positioning
-                                }}
-                            >
-                                <div className="modal-content" style={{ overflowY: 'hidden' }}>
-                                    <div className="modal-header">
-                                        <h5 className="modal-title">Split Payment</h5>
-                                    </div>
-                                    <div className="modal-body">
-                                        <div>Main column will be divided equally between groups, each group sums its items separately</div>
-                                        {/* Set a maxHeight for the modal body */}
-                                        <Dnd_Test />
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button
-                                            type="button"
-                                            className="btn btn-secondary"
-                                            onClick={closeSplitPaymentModal}
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+
 
 
 
@@ -776,7 +729,11 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                             </a>
 
                                                             :
-                                                            <div className='text-lg'>Dining table : {selectedTable}</div>
+                                                            <div>
+                                                                <div className='text-lg'>Dining table : {selectedTable}
+                                                                </div>
+                                                            </div>
+
                                                         }
 
                                                     </div>
@@ -819,6 +776,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                         isAllowed={isAllowed}
                                                                         setIsAllowed={setIsAllowed}
                                                                         openSplitPaymentModal={openSplitPaymentModal}
+                                                                        TaxRate={TaxRate}
                                                                     />
                                                                     <InStore_food
                                                                         setIsVisible={setIsVisible}
@@ -861,7 +819,11 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                 setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                 isAllowed={isAllowed}
                                                                 setIsAllowed={setIsAllowed}
-                                                                store={store} acct={acct} selectedTable={selectedTable} openSplitPaymentModal={openSplitPaymentModal}  ></InStore_shop_cart>
+                                                                store={store} acct={acct} selectedTable={selectedTable}
+                                                                openSplitPaymentModal={openSplitPaymentModal}
+                                                                TaxRate={TaxRate}
+
+                                                            ></InStore_shop_cart>
                                                         </div>
                                                     </div>
                                                 }

@@ -1284,10 +1284,11 @@ const Navbar = () => {
                     </div>
                     <div className="row">
                       <div className="col">
-                        <b> {t("Tax")} 	&#40;8.25%&#41;:</b>
+                        <b> {t("Tax")} 	&#40;{JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))?.TaxRate}%&#41;:</b>
                       </div>
+
                       <div className="col d-flex justify-content-end notranslate">
-                        <b>${(Math.round(100 * totalPrice * 0.0825) / 100).toFixed(2)}
+                        <b>${(Math.round(100 * totalPrice * (Number(JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))?.TaxRate) / 100 + 1)) / 100).toFixed(2)}
                         </b>
                       </div>
                     </div>
@@ -1374,7 +1375,7 @@ const Navbar = () => {
                         </div>
                         <div className="notranslate col d-flex justify-content-end">
                           <b>
-                            ${parseFloat(stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)))
+                            ${parseFloat(stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * (Number(JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))?.TaxRate) / 100 + 1))))
                             }
                           </b>
                         </div>
@@ -1387,7 +1388,7 @@ const Navbar = () => {
                         </div>
                         <div className="notranslate col d-flex justify-content-end">
                           <b>
-                            ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                            ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * (Number(JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))?.TaxRate) / 100 + 1))
                               + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
                             )
 
@@ -1415,7 +1416,7 @@ const Navbar = () => {
                                 openCheckout={shoppingCartOpen}
                                 receipt_JSON={JSON.stringify(products)}
                                 storeID={store}
-                                chargeAmount={parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)}
+                                chargeAmount={parseFloat(tipAmount) + parseFloat(totalPrice * (Number(JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))?.TaxRate) / 100 + 1))}
                                 connected_stripe_account_id={
                                   JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))?.stripe_store_acct
                                 }
@@ -1442,7 +1443,7 @@ const Navbar = () => {
                           </span>
 
                           <span class="text-right notranslate">
-                            ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                            ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * (Number(JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))?.TaxRate) / 100 + 1))
                               + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
                             )
                             }
@@ -1453,7 +1454,7 @@ const Navbar = () => {
                       {
                         isKiosk ?
                           <PaymentKiosk openCheckout={shoppingCartOpen} receipt_JSON={JSON.stringify(products)}
-                            storeID={store} chargeAmount={parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
+                            storeID={store} chargeAmount={parseFloat(tipAmount) + parseFloat(totalPrice * (Number(JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))?.TaxRate) / 100 + 1))} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
                             service_fee={0} selectedTable={isDineIn ? '堂食DineIn' : "外卖TakeOut"}
                             forceCancel={forceCancel}
                           /> : null
@@ -1704,7 +1705,7 @@ const Navbar = () => {
                               <FontAwesomeIcon icon={faCreditCard} />
                             </span>
 
-                            <span>Order Total: ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                            <span>Order Total: ${stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * (Number(JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))?.TaxRate) / 100 + 1))
                               + parseFloat(isDineIn ? totalPrice * 0.15 : 0)
                             )
                             } + delivery</span>
@@ -1751,7 +1752,7 @@ const Navbar = () => {
                       <Dashboard
                         dropoffAddress={dropoffAddress}
                         products={products}
-                        deliveryID={deliveryID} deliveryFee={deliveryFee} directoryType={directoryType} isDineIn={isDineIn} totalPrice={stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * 1.0825)
+                        deliveryID={deliveryID} deliveryFee={deliveryFee} directoryType={directoryType} isDineIn={isDineIn} totalPrice={stringTofixed(parseFloat(tipAmount) + parseFloat(totalPrice * (Number(JSON.parse(sessionStorage.getItem("TitleLogoNameContent"))?.TaxRate) / 100 + 1))
                           + parseFloat(isDineIn ? totalPrice * 0.15 : 0) + (deliveryFee / 100)
                         )
                         } />

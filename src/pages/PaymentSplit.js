@@ -247,7 +247,7 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
       <div className="">
         <div >
           {items?.length === 0 ?
-            <span>No Pos Machine Was Registered</span>
+            <span>Merchant Does Not Have Available Credit Card Swiper</span>
             :
             <div>
               <div>

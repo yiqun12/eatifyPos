@@ -121,6 +121,9 @@ function Container(props) {
   const store = props.store
   const selectedTable = props.selectedTable
   const acct = props.acct
+  const TaxRate = props.TaxRate
+  console.log("TaxRate")
+  console.log(TaxRate)
   const { user, user_loading } = useUserContext();
   const [isMyModalVisible, setMyModalVisible] = useState(false);
   const [received, setReceived] = useState(false)
@@ -394,7 +397,7 @@ function Container(props) {
       newSubtotal += pricePerGroup;
     });
     setSubtotal(newSubtotal);
-    setFinalPrice((Math.round(100 * (newSubtotal * 1.0825 + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
+    setFinalPrice((Math.round(100 * (newSubtotal * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
   }, [items, numberOfGroups, tips, discount, extra]); // Dependency array includes 'items'
   const CustomerReceipt = async () => {
     try {
@@ -487,7 +490,7 @@ function Container(props) {
           subtotal: Math.round(100 * subtotal) / 100,
           tax: tax,
           tips: roundToTwoDecimals
-          (roundToTwoDecimals(extra)+roundToTwoDecimals(tips === "" ? 0 : tips)),
+            (roundToTwoDecimals(extra) + roundToTwoDecimals(tips === "" ? 0 : tips)),
           total: total,
         }, // Assuming an empty map converts to an empty object
         next_action: null,
@@ -626,8 +629,7 @@ function Container(props) {
       <div style={{ display: "flex", flexDirection: "column" }}>
         <div className="text-center font-black text-gray-700 ml-1 mr-1">
           <div style={{ display: "flex", marginTop: "auto", justifyContent: "space-between" }}>
-
-            {containerId}
+            <span className="notranslate">{containerId}</span>
 
             <Button variant="danger" style={{ marginTop: "auto" }} onClick={() => openPopup(containerId)}>
               <FontAwesomeIcon icon={faTrash} color="white" size="1x" />
@@ -680,8 +682,7 @@ function Container(props) {
                   className="modal-dialog"
                   role="document"
                   style={{
-                    maxWidth: '15%',
-                    width: '15%',
+
                     margin: '0 auto',
                     position: 'fixed',  // Use fixed positioning
                     top: '30%',         // Center vertically
@@ -724,7 +725,10 @@ function Container(props) {
                 style={{ opacity: 0, height: 0, pointerEvents: 'none' }}
               ></div>
               {items.map((item) => (
-                <SortableItem className="bordered" key={item.id} id={item.id} item={item.item} updateItems={updateItems} whole_item_groups={whole_item_groups} numberOfGroups={numberOfGroups} />
+
+                <SortableItem className="bordered" key={item.id} id={item.id} item={item.item} updateItems={updateItems} whole_item_groups={whole_item_groups} numberOfGroups={numberOfGroups}
+
+                />
               ))}
               {/* </div> */}
 
@@ -897,14 +901,14 @@ function Container(props) {
                       </button>
                     </div>
                     <div className="modal-body pt-0">
-                    <PaymentSplit subtotal={subtotal} setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} checkout_JSON={checkout(containerId)} totalPrice={Math.round(subtotal * 100)} />
+                      <PaymentSplit subtotal={subtotal} setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} checkout_JSON={checkout(containerId)} totalPrice={Math.round(subtotal * 100)} />
                     </div>
                   </div>
                 </div>
               </div>
             )}
             <a
-              onClick={() => { OpenCashDraw(); openUniqueModal() }}
+              onClick={() => { openUniqueModal() }}
               className="mt-3 btn btn-sm btn-info mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
               <span>{"Cash Pay"}</span>
@@ -913,8 +917,15 @@ function Container(props) {
               <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
                 <div className="modal-dialog" role="document">
                   <div className="modal-content">
-                    <div className="modal-header">
-                      <h2 className="text-2xl font-semibold mb-4">Cash Pay</h2>
+                    <div className="modal-header mb-2">
+                      <a
+                        onClick={() => { OpenCashDraw(); }}
+                        className="mt-3 btn btn-md btn-info "
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+                      >
+
+                        <span>Open Cash Drawer</span>
+                      </a>
                       <button style={uniqueModalStyles.closeBtnStyle} onClick={() => {
                         setUniqueModalOpen(false);
                         setInputValue("")
@@ -991,14 +1002,11 @@ function Container(props) {
                           <button
                             onClick={() => {
                               setCustomAmount(Math.round((result - finalPrice) * 100) / 100); calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
-                              // tips: Math.round((result - finalPrice +extra) * 100) / 100
-                              // tax: Math.round(subtotal * 0.0825 * 100) / 100
-                              // total: inputValue
-                              CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, Math.round(subtotal * 0.0825 * 100) / 100, inputValue);
+                              CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, Math.round(subtotal * (Number(TaxRate) / 100) * 100) / 100, inputValue);
                               closeUniqueModal();
                             }}
                             style={uniqueModalStyles.buttonStyle}
-                            className="mt-2 mb-2 bg-green-500 text-white px-4 py-2 rounded-md w-full"
+                            className="mt-2 mb-2 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
                           >
                             {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
                             {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
@@ -1010,10 +1018,7 @@ function Container(props) {
 
                       <button
                         onClick={() => {
-                          // tips: Math.round((extra) * 100) / 100
-                          // tax: Math.round(subtotal * 0.0825 * 100) / 100
-                          // total: finalPrice
-                          CashCheckOut(extra, Math.round(subtotal * 0.0825 * 100) / 100, finalPrice); closeUniqueModal();
+                          CashCheckOut(extra, Math.round(subtotal * (Number(TaxRate) / 100) * 100) / 100, finalPrice); closeUniqueModal();
                         }}
                         style={uniqueModalStyles.buttonStyle}
                         className="mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
@@ -1039,7 +1044,7 @@ function Container(props) {
             {(extra !== null && extra !== 0) && (
               <div className={`text-right`}>Gratuity: <span className='notranslate'>{Math.round((extra) * 100) / 100} </span></div>
             )}
-            <div className={`text-right `}>Tax: <span className='notranslate'>${Math.round(subtotal * 0.0825 * 100) / 100}</span>  </div>
+            <div className={`text-right `}>Tax ({(Number(TaxRate))}%): <span className='notranslate'>${Math.round(subtotal * (Number(TaxRate) / 100) * 100) / 100}</span>  </div>
             <div className={`text-right `}>Total: <span className='notranslate'>${finalPrice}</span>  </div>
 
           </div>

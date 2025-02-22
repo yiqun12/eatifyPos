@@ -259,6 +259,7 @@ function Dnd_Test(props) {
     // setItems(items_copy)
 
     const { active, over } = event;
+
     const activeId = active.id;
     const overId = over.id;
     const activeContainer = findContainer(activeId);
@@ -267,6 +268,8 @@ function Dnd_Test(props) {
     console.log("handleDragEnd active: ", activeContainer)
     console.log("handleDragEnd over: ", overContainer)
 
+
+    // Prevent cross-container drops (if needed)
 
     if (!activeContainer || !overContainer || activeContainer !== overContainer) {
 
@@ -535,7 +538,9 @@ function Dnd_Test(props) {
   const containerItems = useMemo(() => {
 
     return Object.keys(items).map((key) => (
-      <Container store={props.store} acct={props.acct} selectedTable={props.selectedTable} key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} numberOfGroups={numberOfGroups} dirty={dirty} activeId={activeId} />
+      <Container store={props.store} acct={props.acct} selectedTable={props.selectedTable} key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} numberOfGroups={numberOfGroups} dirty={dirty} activeId={activeId}
+        TaxRate={props.TaxRate}
+      />
     ));
   }, [items, handleDelete, checkout]);
 
@@ -721,6 +726,7 @@ function Dnd_Test(props) {
       // }}
       >
         {/* <div style={{width:"100%" ,overflowX:"auto", }}> */}
+
         {containerItems}
         {/* </div> */}
 

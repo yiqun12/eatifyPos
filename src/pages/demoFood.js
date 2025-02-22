@@ -18,12 +18,13 @@ import pinyin from 'pinyin';
 
 const Food = () => {
   const [location, getLocation] = useGeolocation();
-  const handleFormSubmit = async (e, name, storeNameCHI, address, image, id, physical_address, Description, State, ZipCode, Phone) => {
-
+  const handleFormSubmit = async (e, name, storeNameCHI, TaxRate,address, image, id, physical_address, Description, State, ZipCode, Phone) => {
+    console.log(name)
     e.preventDefault();
     const submitData = {
       storeName: formValues.storeName !== '' ? formValues.storeName : name ? name : "",
       storeNameCHI: formValues.storeNameCHI !== '' ? formValues.storeNameCHI : storeNameCHI,
+      TaxRate:formValues.TaxRate !== '' ? formValues.TaxRate : TaxRate,
       Image: formValues.picture !== '' ? formValues.picture : image,
       city: formValues.city !== '' ? formValues.city : address,
       Phone: formValues.Phone !== '' ? formValues.Phone : Phone,
@@ -65,6 +66,7 @@ const Food = () => {
   const [formValues, setFormValues] = useState({
     storeName: '',
     storeNameCHI: '',
+    TaxRate:"",
     city: '',
     picture: '',
     physical_address: '',
@@ -77,8 +79,9 @@ const Food = () => {
 
 
   const [data, setData] = useState({
-    storeName: '',
-    storeNameCHI: '',
+    storeName: 'demo',
+    storeNameCHI: 'demoStore',
+    TaxRate:"8.625",
     Address: 'San Francisco',
     picture: '',
     physical_address: '123 Main Street',
@@ -89,13 +92,29 @@ const Food = () => {
     Phone: '4155551234'
   });
   const handleInputChange = (e) => {
+
+
     const { name, value } = e.target;
-    //console.log(name)
-    //console.log(value)
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
+    console.log(name)
+    console.log(value)
+    // 特别为 'TaxRate' 字段进行数字验证
+    if (name === 'TaxRate') {
+      if (/^\d*\.?\d*$/.test(value) || value === "") { // 允许数字和小数点
+        setFormValues({
+          ...formValues,
+          [name]: value
+        });
+        setError(''); // 清除错误信息
+      } else {
+        setError('Please enter a valid number for the tax rate.'); // 显示错误信息
+      }
+    } else {
+      // 其他字段不进行数字验证
+      setFormValues({
+        ...formValues,
+        [name]: value
+      });
+    }
   };
   function checkGeolocation() {
     getLocation().then((newLocation) => {
@@ -261,6 +280,7 @@ const Food = () => {
           storeOwnerId: user.uid,
           restaurant_seat_arrangement: JSON.stringify(restaurant_seat_arrangement),
           storeNameCHI: submitData.storeNameCHI,
+          TaxRate:submitData.TaxRate,
           ZipCode: submitData.ZipCode,
           State: submitData.State,
           Phone: submitData.Phone,
@@ -351,6 +371,7 @@ const Food = () => {
 
   const [newIds, setNewIds] = useState([]);
 
+  const [error, setError] = useState('');
 
 
 
@@ -368,7 +389,7 @@ const Food = () => {
           className='mt-4'
           onSubmit={(e) => {
             e.preventDefault(); // Prevent form submission
-            handleFormSubmit(e, data?.Name, data?.storeNameCHI, data?.Address, data?.Image, data?.id, data?.physical_address, data?.Description, data?.State, data?.ZipCode, data?.Phone);
+            handleFormSubmit(e, data?.storeName, data?.storeNameCHI, data?.TaxRate, data?.Address, data?.Image, data?.id, data?.physical_address, data?.Description, data?.State, data?.ZipCode, data?.Phone);
           }}
           style={{
             display: "flex",
@@ -413,7 +434,7 @@ const Food = () => {
                 name="storeName"
                 value={formValues.storeName}
                 onChange={handleInputChange}
-                placeholder={data?.Name}
+                placeholder={data?.storeName}
                 translate="no"
               />
             </div>
@@ -434,7 +455,22 @@ const Food = () => {
               />
 
             </div>
-
+            <div className="w-full px-3">
+              <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="TaxRate">
+                Tax Rate (%)
+              </label>
+              <input
+                className={`appearance-none block w-full bg-gray-200 text-gray-700 border ${error ? 'border-red-500' : 'border-gray-300'} rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white`}
+                id="TaxRate"
+                type="text"
+                name="TaxRate"
+                value={formValues.TaxRate}
+                onChange={handleInputChange}
+                placeholder={data?.TaxRate}
+                translate="no"
+              />
+              {error && <p className="text-red-500 text-xs italic">{error}</p>}
+            </div>
             <div className="w-full px-3">
               <label style={{ fontWeight: 'bold' }} className="text-gray-700 mt-3 mb-2" htmlFor="physical_address">
                 Street
