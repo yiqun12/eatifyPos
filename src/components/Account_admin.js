@@ -505,7 +505,9 @@ const Account = () => {
     }
   }, [startDate, endDate]); // Depend on both startDate and endDate
 
-
+  // useEffect(() => {
+  //   getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
+  // }, []);
   const [isPickerOpenEndDay, setIsPickerOpenEndDay] = useState(false);
 
   const [isPickerOpenStartDay, setIsPickerOpenStartDay] = useState(false);
