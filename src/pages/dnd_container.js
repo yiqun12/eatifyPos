@@ -117,6 +117,7 @@ function ConfirmationPopup({ onConfirm, onCancel }) {
 
 function Container(props) {
   const [products, setProducts] = useState([]);
+  const { isPaidArray, setIsPaidArray } = props;
 
   const store = props.store
   const selectedTable = props.selectedTable
@@ -524,19 +525,28 @@ function Container(props) {
         user_email: user.email,
       });
       localStorage.setItem("splitSubtotalCurrentPrice", Math.round((Number(localStorage.getItem("splitSubtotalCurrentPrice")) + Number(subtotal)) * 100) / 100)
-      if (Number(localStorage.getItem("splitSubtotalCurrentPrice")) === Number(localStorage.getItem("splitSubtotalTotalPrice"))) {
-        // Assuming SetTableInfo and SetTableIsSent are asynchronous and return promises
-        // If they are not asynchronous, you can wrap their calls in Promise.resolve to treat them as promises
-        const setTableInfoPromise = Promise.resolve(SetTableInfo(store + "-" + selectedTable, "[]"));
-        const setTableIsSentPromise = Promise.resolve(SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]"));
 
-        // Execute all promises in parallel
-        Promise.all([addDocPromise, setTableInfoPromise, setTableIsSentPromise]).then(() => {
-          console.log("All operations completed successfully.");
-        }).catch((error) => {
-          console.error("Error executing operations:", error);
-        });
-      }
+      setIsPaidArray((prev) => {
+        const updatedArray = [...prev, containerId];
+        if (updatedArray.length === numberOfGroups) {
+          console.log("✅ All groups are paid!");
+          // Assuming SetTableInfo and SetTableIsSent are asynchronous and return promises
+          // If they are not asynchronous, you can wrap their calls in Promise.resolve to treat them as promises
+          const setTableInfoPromise = Promise.resolve(SetTableInfo(store + "-" + selectedTable, "[]"));
+          const setTableIsSentPromise = Promise.resolve(SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]"));
+
+          // Execute all promises in parallel
+          Promise.all([addDocPromise, setTableInfoPromise, setTableIsSentPromise]).then(() => {
+            console.log("All operations completed successfully.");
+          }).catch((error) => {
+            console.error("Error executing operations:", error);
+          });
+        }
+        return updatedArray;
+      });
+
+
+
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -727,8 +737,8 @@ function Container(props) {
               {items.map((item) => (
 
                 <SortableItem className="bordered" key={item.id} id={item.id} item={item.item} updateItems={updateItems} whole_item_groups={whole_item_groups} numberOfGroups={numberOfGroups}
-
                 />
+                // <Item id={item.id} item={item.item} updateItems={updateItems} whole_item_groups={whole_item_groups} numberOfGroups={numberOfGroups} />
               ))}
               {/* </div> */}
 
@@ -901,14 +911,23 @@ function Container(props) {
                       </button>
                     </div>
                     <div className="modal-body pt-0">
-                      <PaymentSplit subtotal={subtotal} setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} checkout_JSON={checkout(containerId)} totalPrice={Math.round(subtotal * 100)} />
+                      <PaymentSplit
+                        subtotal={subtotal} setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} checkout_JSON={checkout(containerId)} totalPrice={Math.round(subtotal * 100)}
+                        isPaidArray={isPaidArray}
+                        setIsPaidArray={setIsPaidArray}
+                        containerId={containerId}
+                        numberOfGroups={numberOfGroups}
+                      />
                     </div>
                   </div>
                 </div>
               </div>
             )}
             <a
-              onClick={() => { openUniqueModal() }}
+              onClick={() => {
+                openUniqueModal();
+
+              }}
               className="mt-3 btn btn-sm btn-info mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
               <span>{"Cash Pay"}</span>

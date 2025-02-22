@@ -534,15 +534,20 @@ function Dnd_Test(props) {
   }, [items, numberOfGroups]); // Add numberOfGroups to the dependency array
 
   // localStorage.setItem("splitTotalPrice", props.totalPrice)
+  const [isPaidArray, setIsPaidArray] = useState([]);
 
   const containerItems = useMemo(() => {
 
-    return Object.keys(items).map((key) => (
+    return Object.keys(items)
+    .filter((key) => !isPaidArray.includes(key))// 过滤掉已支付的项目
+    .map((key) => (
       <Container store={props.store} acct={props.acct} selectedTable={props.selectedTable} key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} numberOfGroups={numberOfGroups} dirty={dirty} activeId={activeId}
         TaxRate={props.TaxRate}
+        isPaidArray={isPaidArray}
+        setIsPaidArray={setIsPaidArray}
       />
     ));
-  }, [items, handleDelete, checkout]);
+  }, [items, handleDelete, checkout, isPaidArray]); // 确保 `isPaidArray` 变化时重新计算
 
 
   // state to display the items in modal (used in handle Plus Minus Clicks)

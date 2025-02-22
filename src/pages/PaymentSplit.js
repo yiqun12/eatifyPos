@@ -4,10 +4,12 @@ import { useUserContext } from "../context/userContext";
 import { useState, useEffect } from 'react';
 import firebase from 'firebase/compat/app';
 import myImage from '../components/check-mark.png';  // Import the image
-import { collection, doc, setDoc,query, where, onSnapshot} from "firebase/firestore";
+import { collection, doc, setDoc, query, where, onSnapshot } from "firebase/firestore";
 import { db } from '../firebase/index';
 
-const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, checkout_JSON, totalPrice, }) => {
+const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, checkout_JSON, totalPrice,
+  isPaidArray, setIsPaidArray, containerId, numberOfGroups
+}) => {
   // State to store the error message
   const [error, setError] = useState(null);
 
@@ -79,7 +81,7 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
       const response = await cancelActionFunction({
         reader_id: items.find(item => item.id === selectedId).readerId,
         connected_stripe_account_id: connected_stripe_account_id,
-        storeID:storeID
+        storeID: storeID
       });
 
       console.log("the response was okay");
@@ -158,12 +160,12 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
         ...doc.data(),
         id: doc.id,
       })).sort((a, b) => b.date.localeCompare(a.date));
-  
+
       setItems(terminalsData);
       console.log(terminalsData);
       setSelectedId(terminalsData[0].id);
     });
-  
+
     // Cleanup function to unsubscribe from the listener
     return () => unsubscribe();
   }, []);
@@ -176,11 +178,11 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
       where("id", "==", intent),
       where("status", "==", "succeeded")
     );
-  
+
     // Listen for real-time updates
     const unsubscribe = onSnapshot(successPaymentsQuery, { includeMetadataChanges: true }, (snapshot) => {
       const paymentData = snapshot.docs.map(doc => doc.data());
-  
+
       console.log("Payment update received: ", paymentData);
       if (paymentData.length === 0) {
         // newTerminalsData is an empty array
@@ -189,10 +191,17 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
       } else {
         setReceived(true)
         localStorage.setItem("splitSubtotalCurrentPrice", Math.round((Number(localStorage.getItem("splitSubtotalCurrentPrice")) + Number(subtotal)) * 100) / 100)
-        if (Number(localStorage.getItem("splitSubtotalCurrentPrice")) === Number(localStorage.getItem("splitSubtotalTotalPrice"))) {
-          SetTableInfo(storeID + "-" + selectedTable, "[]")
-          SetTableIsSent(storeID + "-" + selectedTable + "-isSent", "[]")
-        }
+
+        setIsPaidArray((prev) => {
+          const updatedArray = [...prev, containerId];
+          if (updatedArray.length === numberOfGroups) {
+            console.log("✅ All groups are paid!");
+            SetTableInfo(storeID + "-" + selectedTable, "[]")
+            SetTableIsSent(storeID + "-" + selectedTable + "-isSent", "[]")
+          }
+          return updatedArray;
+        });
+
         // newTerminalsData is not empty
         //console.log("newTerminalsData is not empty");
       }
@@ -247,7 +256,8 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
       <div className="">
         <div >
           {items?.length === 0 ?
-            <span>Merchant Does Not Have Available Credit Card Swiper</span>
+            <span >Merchant Does Not Have Available Credit Card Swiper</span>
+
             :
             <div>
               <div>
