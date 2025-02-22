@@ -54,7 +54,7 @@ import myImage from './check-mark.png';  // Import the image
 import LazyLoad from 'react-lazy-load';
 
 import Eshopingcart from './e-shopingcart.png';  // Import the image
-import { round2digtNum } from "../utils";
+
 import { ReactComponent as Dashboard_chart } from './dashboard_chart.svg';
 import { ReactComponent as Todo_icon } from './todo_icon.svg';
 import { ReactComponent as Menu_icon } from './menu_icon.svg';
@@ -729,8 +729,7 @@ const Account = () => {
         id: doc.id,
         receiptData: JSON.stringify(doc.data().data),
         tableNum: doc.data().selectedTable,
-                         
-        total: round2digtNum(doc.data().data.reduce((acc, item) => acc + parseFloat(item.itemTotalPrice), 0))
+        total: Math.round(doc.data().data.reduce((acc, item) => acc + parseFloat(item.itemTotalPrice), 0) * 100) / 100
       }));
       console.log("new added");
 
@@ -916,7 +915,7 @@ const Account = () => {
 
       const dailyRevenueArray = Object.keys(dailyRevenue).map(date => ({
         date: date,
-        revenue: round2digtNum(dailyRevenue[date])
+        revenue: Math.round(dailyRevenue[date] * 100) / 100
       }));
 
       setRevenueData(dailyRevenueArray);
@@ -1757,10 +1756,10 @@ const Account = () => {
     setTipAmount(event.target.value);
   };
   function roundToTwoDecimals(n) {
-    return Math.round(Number(n) * 100) / 100;
+    return Math.round(n * 100) / 100;
   }
   function roundToTwoDecimalsTofix(n) {
-    return roundToTwoDecimals(n).toFixed(2); // 复用 roundToTwoDecimals
+    return (Math.round(n * 100) / 100).toFixed(2);
   }
   // Function to handle the confirm action
   const handleConfirm = async () => {
@@ -3933,9 +3932,7 @@ const Account = () => {
                                       cx={80} // Move the pie to the left by adjusting the cx value
                                       data={[
                                         {
-                                          name: fanyi('Subtotal'), value: round2digtNum(orders?.filter(order => order?.status.includes(order_status))
-                                          .filter(order => order?.tableNum.includes(order_table))
-                                          .reduce(
+                                          name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -3946,70 +3943,62 @@ const Account = () => {
                                               return accumulator;
                                             },
                                             { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                          ).subtotal)
+                                          ).subtotal * 100) / 100
                                         },
                                         {
-                                          name: fanyi('Tax'), value: round2digtNum(orders?.filter(order => order?.status.includes(order_status))
-                                          .filter(order => order?.tableNum.includes(order_table))
-                                          .reduce(
+                                          name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                               accumulator.discount += parseFloat(receipt.metadata.discount);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                              // accumulator.total += parseFloat(receipt.total);
+                                              //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
                                             { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                          ).tax)
+                                          ).tax * 100) / 100
                                         }, {
-                                          name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: round2digtNum(orders?.filter(order => order?.status.includes(order_status))
-                                          .filter(order => order?.tableNum.includes(order_table))
-                                          .reduce(
+                                          name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                               accumulator.discount += parseFloat(receipt.metadata.discount);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                              // accumulator.total += parseFloat(receipt.total);
+                                              //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
                                             { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                          ).tips)
+                                          ).tips * 100) / 100
                                         },
                                         {
-                                          name: fanyi('Service Fee'), value: round2digtNum(orders?.filter(order => order?.status.includes(order_status))
-                                          .filter(order => order?.tableNum.includes(order_table))
-                                          .reduce(
+                                          name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                               accumulator.discount += parseFloat(receipt.metadata.discount);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                              // accumulator.total += parseFloat(receipt.total);
+                                              //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
                                             { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                          ).service_fee)
+                                          ).service_fee * 100) / 100
                                         },
                                         {
-                                          name: fanyi('Discount'), value: round2digtNum(orders?.filter(order => order?.status.includes(order_status))
-                                          .filter(order => order?.tableNum.includes(order_table))
-                                          .reduce(
+                                          name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                               accumulator.discount += parseFloat(receipt.metadata.discount);
                                               accumulator.tax += parseFloat(receipt.metadata.tax);
                                               accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                              // accumulator.total += parseFloat(receipt.total);
+                                              //accumulator.total += parseFloat(receipt.total);
                                               return accumulator;
                                             },
                                             { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                          ).discount)
+                                          ).discount * 100) / 100
                                         },
                                       ]}
                                       labelLine={false}
@@ -4021,85 +4010,74 @@ const Account = () => {
                                       {
                                         [
                                           {
-                                            name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: round2digtNum(orders?.filter(order => order?.status.includes(order_status))
-                                            .filter(order => order?.tableNum.includes(order_table))
-                                            .reduce(
+                                            name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                               (accumulator, receipt) => {
                                                 accumulator.tips += parseFloat(receipt.metadata.tips);
                                                 accumulator.tax += parseFloat(receipt.metadata.tax);
                                                 accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                                 accumulator.discount += parseFloat(receipt.metadata.discount);
                                                 accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                // accumulator.total += parseFloat(receipt.total);
+                                                //accumulator.total += parseFloat(receipt.total);
                                                 return accumulator;
                                               },
                                               { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                            ).tips)
+                                            ).tips * 100) / 100
                                           },
                                           {
-                                            name: fanyi('Service Fee'), value: round2digtNum(orders?.filter(order => order?.status.includes(order_status))
-                                            .filter(order => order?.tableNum.includes(order_table))
-                                            .reduce(
+                                            name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                               (accumulator, receipt) => {
                                                 accumulator.tips += parseFloat(receipt.metadata.tips);
                                                 accumulator.tax += parseFloat(receipt.metadata.tax);
                                                 accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                                 accumulator.discount += parseFloat(receipt.metadata.discount);
                                                 accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                // accumulator.total += parseFloat(receipt.total);
+                                                //accumulator.total += parseFloat(receipt.total);
                                                 return accumulator;
                                               },
                                               { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                            ).service_fee)
+                                            ).service_fee * 100) / 100
                                           },
                                           {
-                                            name: fanyi('Tax'), value: round2digtNum(orders?.filter(order => order?.status.includes(order_status))
-                                            .filter(order => order?.tableNum.includes(order_table))
-                                            .reduce(
+                                            name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                               (accumulator, receipt) => {
                                                 accumulator.tips += parseFloat(receipt.metadata.tips);
                                                 accumulator.tax += parseFloat(receipt.metadata.tax);
                                                 accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                                 accumulator.discount += parseFloat(receipt.metadata.discount);
                                                 accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                // accumulator.total += parseFloat(receipt.total);
+                                                //accumulator.total += parseFloat(receipt.total);
                                                 return accumulator;
                                               },
                                               { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                            ).tax)
+                                            ).tax * 100) / 100
                                           },
                                           {
-                                            name: fanyi('Subtotal'), value: round2digtNum(orders?.filter(order => order?.status.includes(order_status))
-                                            .filter(order => order?.tableNum.includes(order_table))
-                                            .reduce(
+                                            name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                               (accumulator, receipt) => {
                                                 accumulator.tips += parseFloat(receipt.metadata.tips);
                                                 accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
                                                 accumulator.discount += parseFloat(receipt.metadata.discount);
                                                 accumulator.tax += parseFloat(receipt.metadata.tax);
                                                 accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                // accumulator.total += parseFloat(receipt.total);
+                                                //accumulator.total += parseFloat(receipt.total);
                                                 return accumulator;
                                               },
                                               { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                            ).subtotal)
+                                            ).subtotal * 100) / 100
                                           },
                                           {
-                                            name: fanyi('Discount'), 
-                                            value: round2digtNum(orders?.filter(order => order?.status.includes(order_status))
-                                              .filter(order => order?.tableNum.includes(order_table))
-                                              .reduce(
-                                                (accumulator, receipt) => {
-                                                  accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                  accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                  accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                  accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                  accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                  // accumulator.total += parseFloat(receipt.total);
-                                                  return accumulator;
-                                                },
-                                                { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                              ).discount)
+                                            name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                              (accumulator, receipt) => {
+                                                accumulator.tips += parseFloat(receipt.metadata.tips);
+                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                                accumulator.discount += parseFloat(receipt.metadata.discount);
+                                                accumulator.tax += parseFloat(receipt.metadata.tax);
+                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                //accumulator.total += parseFloat(receipt.total);
+                                                return accumulator;
+                                              },
+                                              { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                            ).discount * 100) / 100
                                           }
                                         ].map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
                                       }
