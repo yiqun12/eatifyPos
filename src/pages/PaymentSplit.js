@@ -190,11 +190,11 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
         //console.log("newTerminalsData is empty");
       } else {
         setReceived(true)
-        localStorage.setItem("splitSubtotalCurrentPrice", Math.round((Number(localStorage.getItem("splitSubtotalCurrentPrice")) + Number(subtotal)) * 100) / 100)
+        localStorage.setItem("splitSubtotalCurrentPrice", (Number(localStorage.getItem("splitSubtotalCurrentPrice")) + Number(subtotal)))
 
         setIsPaidArray((prev) => {
           const updatedArray = [...prev, containerId];
-          if (updatedArray.length === numberOfGroups) {
+          if (Number(localStorage.getItem("splitSubtotalCurrentPrice")) == Number(localStorage.getItem("splitSubtotalTotalPrice"))) {
             console.log("✅ All groups are paid!");
             SetTableInfo(storeID + "-" + selectedTable, "[]")
             SetTableIsSent(storeID + "-" + selectedTable + "-isSent", "[]")

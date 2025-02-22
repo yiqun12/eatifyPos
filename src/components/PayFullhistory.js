@@ -110,7 +110,7 @@ function PayFullhistory() {
         fetchCollectionAsMap().then(tempStoreMap => {
           console.log(tempStoreMap);
           newPayments.forEach((item) => {
-            const formattedDate = parseDateUTC(item.dateTime)
+            const formattedDate = parseDateUTC(item.dateTime,'America/Los_Angeles')
 
             const newItem = {
               storeName: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store) ? tempStoreMap[payment.store].storeName : payment.store,

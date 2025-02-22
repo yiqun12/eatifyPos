@@ -269,7 +269,7 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
                         store: storeID,
                         stripe_account_store_owner: user.uid,
                         items: JSON.parse(receipt_JSON),
-                        date: parseDateUTC(date),
+                        date: parseDateUTC(date,'America/Los_Angeles'),
                         amount: chargeAmount,
                         Status: "Paid", // Assuming "NO USE" is a comment and not part of the value
                         table: selectedTable,

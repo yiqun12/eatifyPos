@@ -491,8 +491,8 @@ const Account = () => {
   const [revenueData, setRevenueData] = useState([
     { date: '1/1/1900', revenue: 1 }
   ]);
-  const epochDate = parseDate(format12Oclock((new Date("2023-11-30T00:00:00")).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })));
-  const [startDate, setStartDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
+  const epochDate = parseDate(format12Oclock((new Date("2023-11-30T00:00:00")).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })),"America/Los_Angeles");
+  const [startDate, setStartDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })),"America/Los_Angeles") );
   const [endDate, setEndDate] = useState(null);
   const [cancelOrder, setCancelOrder] = useState(null);
 
@@ -505,9 +505,7 @@ const Account = () => {
     }
   }, [startDate, endDate]); // Depend on both startDate and endDate
 
-  // useEffect(() => {
-  //   getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
-  // }, []);
+
   const [isPickerOpenEndDay, setIsPickerOpenEndDay] = useState(false);
 
   const [isPickerOpenStartDay, setIsPickerOpenStartDay] = useState(false);
@@ -741,7 +739,7 @@ const Account = () => {
       console.log("new added");
 
       const newItems = newData.map((item) => {
-        const formattedDate = parseDateUTC(item.date);
+        const formattedDate = parseDateUTC(item.date,'America/Los_Angeles');
         return {
           ...item,
           date: formattedDate,
@@ -843,8 +841,7 @@ const Account = () => {
       newData.forEach(item => {
         // console.log("sawsssssssss")
         // console.log(item.dateTime)
-        // console.log(parseDateUTC(item.dateTime))
-        const formattedDate = parseDateUTC(item.dateTime)
+        const formattedDate = parseDateUTC(item.dateTime,'America/Los_Angeles')
         console.log(item.metadata)
         if (item.id.length) if (item && item.id && item.id.length === 36) {
           item.metadata.total = parseFloat(item.metadata.total) - item.metadata.service_fee
@@ -3688,11 +3685,15 @@ const Account = () => {
                                           alignItems: 'center',
                                           // Add other styles as needed
                                         }} onClick={() => {
-                                          setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
+                                          setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })),"America/Los_Angeles")
+                                          
+                                          );
                                           if (endDate === null) {
                                             setEndDate(null);
                                           } else {
-                                            setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                            setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))),"America/Los_Angeles")
+                                            
+                                            );
                                           }
                                           setIsPickerOpenMonth(false);
                                           setIsPickerOpenEndDay(false);
@@ -3727,7 +3728,10 @@ const Account = () => {
                                     <div>
                                       <div>End Date:</div>
                                       {(endDate === null) ?
-                                        <button onClick={() => setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))}
+                                        <button onClick={() => setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))),"America/Los_Angeles"
+                                        )
+                                        
+                                        )}
                                           className="btn btn-sm btn-success mt-1 mb-1" style={{
                                             border: '1px solid #ccc',
                                             display: 'inline-flex',
@@ -3747,11 +3751,11 @@ const Account = () => {
                                               alignItems: 'center',
                                               // Add other styles as needed
                                             }} onClick={() => {
-                                              setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))));
+                                              setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })),"America/Los_Angeles"));
                                               if (endDate === null) {
-                                                setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                                setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))),"America/Los_Angeles" ));
                                               } else {
-                                                setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))));
+                                                setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))),"America/Los_Angeles"));
                                               }
                                               setIsPickerOpenMonth(false);
                                               setIsPickerOpenStartDay(false);
@@ -3894,7 +3898,7 @@ const Account = () => {
                                     </div>
                                   </div>
                                   {!isMobile && <button
-                                    onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                    onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))),"America/Los_Angeles")) }}
                                     className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
                                   >
                                     <i className="bi bi-calendar pe-2"></i>
@@ -4114,14 +4118,14 @@ const Account = () => {
                               <div className={`${true ? 'flex' : ''}`}>
 
                                 <button
-                                  onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(null) }}
+                                  onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })),"America/Los_Angeles")); setEndDate(null) }}
                                   className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
                                 >
 
                                   <span>Today's Orders</span>
                                 </button>
                                 <button
-                                  onClick={() => { setStartDate(parseDate(format12Oclock((new Date(new Date().setDate(new Date().getDate() - 1))).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))); setEndDate(null) }}
+                                  onClick={() => { setStartDate(parseDate(format12Oclock((new Date(new Date().setDate(new Date().getDate() - 1))).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })),"America/Los_Angeles")); setEndDate(null) }}
                                   className="btn btn-sm btn-outline-primary d-flex align-items-center mx-1 mt-1 mb-2"
                                 >
                                   <span>Yesterday Orders</span>

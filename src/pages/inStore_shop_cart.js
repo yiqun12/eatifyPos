@@ -36,6 +36,7 @@ import { db } from '../firebase/index';
 import cartImage from './shopcart.png';
 import "./inStore_shop_cart.css";
 import PaymentRegular from "../pages/PaymentRegular";
+import { round2digtNum } from "../utils";
 
 import Dnd_Test from '../pages/dnd_test';
 //import { isMobile } from 'react-device-detect';
@@ -102,7 +103,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "and finalize", output: "并最终确定" },
     { input: "Finalize the Order. Total Gratuity", output: "完成订单。小费总额" },
     { input: "Collect", output: "现收" },
-    { input: "including", output: "余" },
+    { input: "including", output: "其中包含" },
     { input: "Gratuity", output: "小费" },
 
   ];
@@ -1380,12 +1381,12 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                       <div style={{ fontWeight: 'bold', fontSize: '15px' }}>
                         <div>
                           <div>
-                            Paid Subtotal:
-                            <span className='notranslate'>${localStorage.getItem("splitSubtotalCurrentPrice")}</span>
+                            ✅ Paid Subtotal:&nbsp;
+                            <span className='notranslate'>${round2digtNum(localStorage.getItem("splitSubtotalCurrentPrice")).toFixed(2)}</span>
                           </div>
                           <div>
-                            Total Subtotal:
-                            <span className='notranslate'>${localStorage.getItem("splitSubtotalTotalPrice")}</span>
+                            💰Total Subtotal:&nbsp;
+                            <span className='notranslate'>${round2digtNum(localStorage.getItem("splitSubtotalTotalPrice")).toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
@@ -1395,8 +1396,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         &times;
                       </button>
                     </div>
-                    <Dnd_Test store={store} acct={acct} selectedTable={selectedTable} key={dndTestKey} main_input={products} 
-                    TaxRate={TaxRate}
+                    <Dnd_Test store={store} acct={acct} selectedTable={selectedTable} key={dndTestKey} main_input={products}
+                      TaxRate={TaxRate}
                     />
                   </div>
                 </div>

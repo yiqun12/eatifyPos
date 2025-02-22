@@ -18,6 +18,7 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
 import { collection, doc, setDoc, addDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { round2digtNum } from "../utils";
 
 // import { useSortable } from "@dnd-kit/sortable";
 
@@ -30,6 +31,7 @@ import { ReactComponent as MinusSvg } from './minus.svg';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faDivide } from '@fortawesome/free-solid-svg-icons';
 
 import _ from 'lodash'; // Ensure lodash is imported
 
@@ -514,10 +516,12 @@ function Dnd_Test(props) {
 
         // Divide itemTotalPrice and subtotal by numberOfGroups and fix to 2 decimal places
         if (item.itemTotalPrice) {
-          item.itemTotalPrice = (item.itemTotalPrice / numberOfGroups).toFixed(2);
+          item.itemTotalPrice = (item.itemTotalPrice / numberOfGroups)
+
         }
         if (item.subtotal) {
-          item.subtotal = (item.subtotal / numberOfGroups).toFixed(2);
+          item.subtotal = (item.subtotal / numberOfGroups)
+
         }
       }
       return item;
@@ -539,14 +543,30 @@ function Dnd_Test(props) {
   const containerItems = useMemo(() => {
 
     return Object.keys(items)
-    .filter((key) => !isPaidArray.includes(key))// 过滤掉已支付的项目
-    .map((key) => (
-      <Container store={props.store} acct={props.acct} selectedTable={props.selectedTable} key={key} containerId={key} items={items[key]} handleDelete={handleDelete} checkout={checkout} updateItems={setItems} whole_item_groups={items} numberOfGroups={numberOfGroups} dirty={dirty} activeId={activeId}
-        TaxRate={props.TaxRate}
-        isPaidArray={isPaidArray}
-        setIsPaidArray={setIsPaidArray}
-      />
-    ));
+      .map((key) =>
+        isPaidArray.includes(key) ? (
+          <div key={key}><span className="notranslate">✅&nbsp;{key}&nbsp;</span> is paid&nbsp;</div>
+        ) : (
+          <Container
+            store={props.store}
+            acct={props.acct}
+            selectedTable={props.selectedTable}
+            key={key}
+            containerId={key}
+            items={items[key]}
+            handleDelete={handleDelete}
+            checkout={checkout}
+            updateItems={setItems}
+            whole_item_groups={items}
+            numberOfGroups={numberOfGroups}
+            dirty={dirty}
+            activeId={activeId}
+            TaxRate={props.TaxRate}
+            isPaidArray={isPaidArray}
+            setIsPaidArray={setIsPaidArray}
+          />
+        )
+      );
   }, [items, handleDelete, checkout, isPaidArray]); // 确保 `isPaidArray` 变化时重新计算
 
 
@@ -737,9 +757,21 @@ function Dnd_Test(props) {
 
 
         {/* Add the Bootstrap button */}
-        <Button variant="primary" onClick={addEmptyGroup}>
-          <FontAwesomeIcon icon={faPlus} size="2x" />
-        </Button>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+          <Button style={{ backgroundColor: "#007bff", color: "white", fontSize: "16px", padding: "10px 20px", borderRadius: "8px", width: "220px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }} onClick={addEmptyGroup}>
+            <span>Add New Group</span>
+          </Button>
+
+          <Button style={{ backgroundColor: "#004494", color: "white", fontSize: "16px", padding: "10px 20px", borderRadius: "8px", width: "220px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }} onClick={() => setDirty(true)}>
+            <span>Set Min Unit: {Math.round(numberOfGroups) === 1 ? '' : '1/'}<span className="notranslate">{Math.round(numberOfGroups)}</span></span>
+          </Button>
+        </div>
+
+
+
+
+
+
 
         {/* Modal component */}
         {showModal && (
@@ -754,58 +786,47 @@ function Dnd_Test(props) {
                 <div className="modal-header">
                   <h5 className="modal-title">Select Quantity</h5>
                 </div>
-                <div className="modal-body">
-                  {/* start of quantity (quantity = quantity text + buttons div) */}
-                  <div className="quantity p-0"
-                    style={{ marginRight: "0px", display: "flex", justifyContent: "center" }}>
-                    {/* <div>
-                    <div>${quantity}</div>
 
-                  </div> */}
-                    {/* the add minus box set up */}
-                    <div style={{ display: "flex" }}>
+                <div className="modal-body text-center">
+                  <p className="text-lg font-semibold">
+                    Adjust quantity by{" "}
+                    <span>
+                      {Math.round(numberOfGroups) === 1 ? "" : "1/"}
+                      <span className="notranslate font-bold">{Math.round(numberOfGroups)}</span>
+                    </span>
+                  </p>
 
+                  {/* Quantity Control */}
+                  <div className="flex justify-center items-center gap-4 mt-4">
 
-                      {/* the start of minus button set up */}
-                      <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
-                        <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                          onClick={() => {
-                            console.log("delete 1 item")
-                            handleMinusClick()
-                          }}>
-                          <MinusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
-                        </button>
-                      </div>
-                      {/* the end of minus button set up */}
-
-                      { /* start of the quantity number */}
-                      <span
-                        class="notranslate"
-                        type="text"
-                        style={{ width: '90px', height: '90px', fontSize: '51px', alignItems: 'center', justifyContent: 'center', display: "flex", padding: '0px' }}
-                      >{
-                          Math.round((Math.round(quantity) / Math.round(numberOfGroups)) * 100) / 100
-                        }</span>
-                      { /* end of the quantity number */}
-
-                      { /* start of the add button */}
-                      <div className="black_hover" style={{ padding: '12px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "36rem 36rem 36rem 36rem", height: "90px" }}>
-                        <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '60px', height: '60px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                          onClick={() => {
-                            handlePlusClick()
-                            // console.log("add 1 item")
-                          }}>
-                          <PlusSvg style={{ margin: '0px', width: '30px', height: '30px' }} alt="" />
-                        </button>
-                      </div>
-                      { /* end of the add button */}
-
+                    {/* Minus Button */}
+                    <div className="p-3 rounded-full border border-black hover:bg-gray-200 transition">
+                      <button
+                        className="w-14 h-14 flex items-center justify-center"
+                        onClick={handleMinusClick}
+                      >
+                        <MinusSvg className="w-8 h-8" alt="Decrease" />
+                      </button>
                     </div>
-                    { /* end of the add minus setup*/}
-                  </div>
 
-                  {/* end of quantity */}
+                    {/* Quantity Display */}
+                    <span className="notranslate w-20 h-20 flex items-center justify-center text-4xl font-semibold">
+                      {Math.round((Math.round(quantity) / Math.round(numberOfGroups)) * 100) / 100}
+                    </span>
+
+                    {/* Plus Button */}
+                    <div className="p-3 rounded-full border border-black hover:bg-gray-200 transition">
+                      <button
+                        className="w-14 h-14 flex items-center justify-center"
+                        onClick={handlePlusClick}
+                      >
+                        <PlusSvg className="w-8 h-8" alt="Increase" />
+                      </button>
+                    </div>
+
+                  </div>
                 </div>
+
                 <div className="modal-footer">
                   <button
                     type="button"

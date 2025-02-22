@@ -6,6 +6,7 @@ import {
 } from "@dnd-kit/sortable";
 import { useSortable } from "@dnd-kit/sortable";
 import Button from 'react-bootstrap/Button';
+import { round2digtNum } from "../utils";
 
 import { ReactComponent as PlusSvg } from './plus.svg';
 import { ReactComponent as MinusSvg } from './minus.svg';
@@ -394,7 +395,7 @@ function Container(props) {
     // Calculate the subtotal
     let newSubtotal = 0;
     items.forEach(({ item }) => {
-      const pricePerGroup = parseFloat((item.itemTotalPrice / numberOfGroups).toFixed(2));
+      const pricePerGroup = (item.itemTotalPrice / numberOfGroups)
       newSubtotal += pricePerGroup;
     });
     setSubtotal(newSubtotal);
@@ -524,11 +525,11 @@ function Container(props) {
         uid: user.uid,
         user_email: user.email,
       });
-      localStorage.setItem("splitSubtotalCurrentPrice", Math.round((Number(localStorage.getItem("splitSubtotalCurrentPrice")) + Number(subtotal)) * 100) / 100)
+      localStorage.setItem("splitSubtotalCurrentPrice", (Number(localStorage.getItem("splitSubtotalCurrentPrice")) + Number(subtotal)))
 
       setIsPaidArray((prev) => {
         const updatedArray = [...prev, containerId];
-        if (updatedArray.length === numberOfGroups) {
+        if (Number(localStorage.getItem("splitSubtotalCurrentPrice")) == Number(localStorage.getItem("splitSubtotalTotalPrice"))) {
           console.log("✅ All groups are paid!");
           // Assuming SetTableInfo and SetTableIsSent are asynchronous and return promises
           // If they are not asynchronous, you can wrap their calls in Promise.resolve to treat them as promises
@@ -616,7 +617,7 @@ function Container(props) {
     { input: "and finalize", output: "并最终确定" },
     { input: "Finalize the Order. Total Gratuity", output: "完成订单。小费总额" },
     { input: "Collect", output: "现收" },
-    { input: "including", output: "余" },
+    { input: "including", output: "其中包含" },
     { input: "Gratuity", output: "小费" },
 
   ];
@@ -952,7 +953,7 @@ function Container(props) {
                         &times;
                       </button>
                     </div>
-                    <div className="modal-body p-2 pt-0">
+                    <div className="modal-body p-6 py-0">
                       <p className="mb-4 mt-4">Gratuity:</p>
                       <div className="flex justify-between mb-4">
                         <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
@@ -1053,18 +1054,18 @@ function Container(props) {
                 </div>
               </div>
             )}
-            <div className={`text-right`}>Subtotal: <span className='notranslate'>${Math.round(subtotal * 100) / 100}</span> </div>
+            <div className={`text-right`}>Subtotal: <span className='notranslate'>${round2digtNum(subtotal).toFixed(2)}</span> </div>
             {discount && (
-              <div className={`text-right`}>Discount: <span className='notranslate'>-${discount} </span></div>
+              <div className={`text-right`}>Discount: <span className='notranslate'>-${round2digtNum(discount)} </span></div>
             )}
             {tips && (
-              <div className={`text-right`}>Service Fee: <span className='notranslate'>${tips}</span> </div>
+              <div className={`text-right`}>Service Fee: <span className='notranslate'>${round2digtNum(tips)}</span> </div>
             )}
             {(extra !== null && extra !== 0) && (
-              <div className={`text-right`}>Gratuity: <span className='notranslate'>{Math.round((extra) * 100) / 100} </span></div>
+              <div className={`text-right`}>Gratuity: <span className='notranslate'>{round2digtNum(extra)} </span></div>
             )}
-            <div className={`text-right `}>Tax ({(Number(TaxRate))}%): <span className='notranslate'>${Math.round(subtotal * (Number(TaxRate) / 100) * 100) / 100}</span>  </div>
-            <div className={`text-right `}>Total: <span className='notranslate'>${finalPrice}</span>  </div>
+            <div className={`text-right `}>Tax ({(Number(TaxRate))}%): <span className='notranslate'>${round2digtNum(subtotal * (Number(TaxRate) / 100))}</span>  </div>
+            <div className={`text-right `}>Total Price: <span className='notranslate'>${round2digtNum(finalPrice)}</span>  </div>
 
           </div>
         </div>
@@ -1079,4 +1080,3 @@ function Container(props) {
 }
 
 export default Container;
-

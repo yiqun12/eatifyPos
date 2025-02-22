@@ -47,11 +47,11 @@ export function addOneDayAndFormat(customDateString) {
   return `${year}-${month}-${day}-${hours}-${minutes}-${seconds}-00`;
 }
 // convert YYYY-MM-DD-HH-MM-SS-SS into YYYY-MM-DD-HH-MM-SS-SS califronia then into YYYY-MM-DDTHH:mm:ss.sssZ uct
-export function parseDate(dateString) {
+export function parseDate(dateString, timezone) {//timezone = 'America/Los_Angeles'
   const formattedDate = dateString.replace(/-/g, '').slice(0, -2); // "20240103000000"
 
   // Parse the custom date format
-  const date = moment.tz(formattedDate, "YYYYMMDDHHmmss", "America/Los_Angeles");
+  const date = moment.tz(formattedDate, "YYYYMMDDHHmmss", timezone);
 
   // Format the date in the desired output
   const losAngelesDate = date.format('ddd MMM DD YYYY HH:mm:ss [GMT]Z (zz)');
@@ -62,11 +62,11 @@ export function parseDate(dateString) {
 
 // convert YYYY-MM-DD-HH-MM-SS-SS into YYYY-MM-DD-HH-MM-SS-SS califronia then into YYYY-MM-DDTHH:mm:ss.sssZ uct
 
-export function parseDateUTC(dateString) {
+export function parseDateUTC(dateString, timezone) {//timezone = 'America/Los_Angeles'
   const formattedDate = dateString.replace(/-/g, '').slice(0, -2); // "20240103000000"
   const date = moment.tz(formattedDate, "YYYYMMDDHHmmss", "UTC");
 
-  return date.tz('America/Los_Angeles').format("M/D/YY HH:mm");
+  return date.tz(timezone).format("M/D/YY HH:mm");
 }
 
 // convert YYYY-MM-DDTHH:mm:ss.sssZ into YYYY-MM-DD-HH-MM-SS-SS

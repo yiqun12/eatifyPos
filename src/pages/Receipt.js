@@ -84,12 +84,11 @@ const Item = () => {
           .onSnapshot((doc) => {
             if (doc.exists) {
               const payment = doc.data();
-              console.log("formattedDate" + parseDateUTC(payment.dateTime))
               const paymentData = {
                 amount: payment.amount,
                 receipt_data: payment.receiptData,
                 document_id: doc.id.substring(0, 4),
-                time: parseDateUTC(payment.dateTime),
+                time: parseDateUTC(payment.dateTime, 'America/Los_Angeles'),
                 email: payment.user_email,
                 status: payment.powerBy,
                 isDinein: payment.metadata.isDine === "TakeOut" ? "TakeOut" : "Table: " + payment.tableNum,
@@ -116,13 +115,13 @@ const Item = () => {
                 .onSnapshot((doc) => {
                   if (doc.exists) {
                     const payment = doc.data();
-                    console.log("formattedDate" + parseDateUTC(payment.dateTime))
+                    console.log("formattedDate" + parseDateUTC(payment.dateTime, 'America/Los_Angeles'))
 
                     const paymentData = {
                       amount: payment.amount,
                       receipt_data: payment.receiptData,
                       document_id: doc.id.substring(0, 4),
-                      time: parseDateUTC(payment.dateTime),
+                      time: parseDateUTC(payment.dateTime, 'America/Los_Angeles'),
                       email: payment.user_email,
                       status: payment.powerBy,
                       isDinein: payment.metadata.isDine === "TakeOut" ? "TakeOut" : "Table: " + payment.tableNum,

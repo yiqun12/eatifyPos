@@ -102,7 +102,7 @@ const Item = () => {
                         </div>
                         <span className="block text-black text-sm">
 
-                            {parseDateUTC(documentData?.dateTime)}</span>
+                            {parseDateUTC(documentData?.dateTime,'America/Los_Angeles')}</span>
                     </div>
                 )
                 }
