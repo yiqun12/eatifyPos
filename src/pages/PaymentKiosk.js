@@ -9,8 +9,18 @@ import { db } from '../firebase/index'; // Make sure to import necessary functio
 import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
+import { lookup } from 'zipcode-to-timezone';
 
 const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_stripe_account_id, receipt_JSON, selectedTable, service_fee, forceCancel }) => {
+    function getTimeZoneByZip(zipCode) {
+        // Use the library to find the timezone ID from the ZIP code
+        const timeZoneId = lookup(zipCode);
+    
+        // Check if the timezone ID is in our timeZones list
+        return timeZoneId;
+      }
+      //console.log("timezone")
+      //console.log(getTimeZoneByZip("94133"))//"America/Los_Angeles"
     console.log("hello")
     const [currentHash, setCurrentHash] = useState(window.location.hash ? window.location.hash : "abc");
 
@@ -269,7 +279,7 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
                         store: storeID,
                         stripe_account_store_owner: user.uid,
                         items: JSON.parse(receipt_JSON),
-                        date: parseDateUTC(date,'America/Los_Angeles'),
+                        date: parseDateUTC(date,getTimeZoneByZip(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).ZipCode)),
                         amount: chargeAmount,
                         Status: "Paid", // Assuming "NO USE" is a comment and not part of the value
                         table: selectedTable,

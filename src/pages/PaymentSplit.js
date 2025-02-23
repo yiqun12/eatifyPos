@@ -35,6 +35,7 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
         user_email: user.email,
         discount: discount,
         service_fee: service_fee,
+        mode: "split"
       });
 
       console.log("the response was okay");

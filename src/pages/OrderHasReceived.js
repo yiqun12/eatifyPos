@@ -12,6 +12,7 @@ import moment from 'moment';
 import firebase from 'firebase/compat/app';
 import { useUserContext } from "../context/userContext";
 import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
+import { lookup } from 'zipcode-to-timezone';
 
 const App = () => {
 
@@ -24,6 +25,15 @@ const App = () => {
 };
 
 const Item = () => {
+    function getTimeZoneByZip(zipCode) {
+        // Use the library to find the timezone ID from the ZIP code
+        const timeZoneId = lookup(zipCode);
+    
+        // Check if the timezone ID is in our timeZones list
+        return timeZoneId;
+      }
+      //console.log("timezone")
+      //console.log(getTimeZoneByZip("94133"))//"America/Los_Angeles"
     function roundToTwoDecimalsTofix(n) {
         return (Math.round(n * 100) / 100).toFixed(2);
     }
@@ -101,8 +111,7 @@ const Item = () => {
                             <b className="block text-black notranslate">{t("Order ID")}: {receiptToken?.substring(0, 4)}</b>
                         </div>
                         <span className="block text-black text-sm">
-
-                            {parseDateUTC(documentData?.dateTime,'America/Los_Angeles')}</span>
+                            {parseDateUTC(documentData?.dateTime,getTimeZoneByZip(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).ZipCode))}</span>
                     </div>
                 )
                 }

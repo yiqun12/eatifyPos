@@ -110,7 +110,7 @@ function PayFullhistory() {
         fetchCollectionAsMap().then(tempStoreMap => {
           console.log(tempStoreMap);
           newPayments.forEach((item) => {
-            const formattedDate = parseDateUTC(item.dateTime,'America/Los_Angeles')
+            const formattedDate = parseDateUTC(item.dateTime, Intl.DateTimeFormat().resolvedOptions().timeZone)//"America/Los_Angeles" local timezone
 
             const newItem = {
               storeName: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store) ? tempStoreMap[payment.store].storeName : payment.store,
@@ -206,7 +206,7 @@ function PayFullhistory() {
                                   Paid <span>
 
 
-                                    ${order.amount / 100}</span> at<span className='notranslate'>&nbsp;{order.date.split(" ")[0]}</span></div>
+                                    ${order.amount / 100}</span> at<span className='notranslate'>&nbsp;{order.date}</span></div>
                               </div>
 
                             </div>
@@ -222,7 +222,7 @@ function PayFullhistory() {
                                   {expandedOrderIds.includes(order.id) ? (
                                     "Hide Details"
                                   ) : (
-                                    "View Details"
+                                    "View More"
                                   )}
                                 </span>
                               </a>
@@ -236,7 +236,7 @@ function PayFullhistory() {
                       {expandedOrderIds.includes(order.id) && (
                         <div className="p-0 p-0 rounded-b-lg">
                           <div style={{ paddingTop: "0px", paddingBottom: "10px" }}>
-                          <div className={isMobile ? "receipt-mobile" : "receipt w-50"}>
+                            <div className={isMobile ? "receipt-mobile" : "receipt w-50"}>
                               <p className="mb-1 text-gray-500 d-block text-base font-semibold">{order.dineMode === "DineIn" ? "Table Number: " + order.tableNum : "Take Out Order"}
                                 ({order.id.substring(0, 4)})
                               </p>

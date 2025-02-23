@@ -90,6 +90,7 @@ const Account = () => {
     "America/Anchorage": "Alaska",
     "Pacific/Honolulu": "Hawaii"
   };
+
   function getTimeZoneByZip(zipCode) {
     // Use the library to find the timezone ID from the ZIP code
     const timeZoneId = lookup(zipCode);
@@ -100,7 +101,6 @@ const Account = () => {
   //console.log("timezone")
   //console.log(getTimeZoneByZip("94133"))//"America/Los_Angeles"
   // Get the equivalent time for UTC 0:00 in the selected time zone
-  const cutoffTime = DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE);
 
   const handleTimeZoneChange = (zone) => setTimeZone(zone);
   const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
@@ -221,6 +221,7 @@ const Account = () => {
   const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
 
   const translations = [
+    { input: "Add Cash Tips", output: "现金小费" },
     { input: "Paid by Cash", output: "现金支付" },
     { input: "POS Machine", output: "POS机" },
     { input: "Unpaid", output: "未付" },
@@ -230,7 +231,7 @@ const Account = () => {
     { input: "Revenue", output: "收入" },
     { input: "Subtotal", output: "小计" },
     { input: "Tax", output: "税" },
-    { input: "Service Fee", output: "服务费" },
+    { input: "Service Fee", output: "信用卡小费" },
     { input: "Discount", output: "折扣" },
     { input: "Canceled", output: "取消送厨" },
 
@@ -320,6 +321,7 @@ const Account = () => {
   const [storeName_, setStoreName_] = useState('');
   const [storeCHI, setStoreCHI_] = useState('');
   const [AmericanTimeZone, setAmericanTimeZone] = useState("America/Los_Angeles");
+  const [cutoffTime, setCutoffTime] = useState(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE));
 
   const [storeID, setStoreID] = useState('');
   const [storeOpenTime, setStoreOpenTime] = useState('');
@@ -494,8 +496,8 @@ const Account = () => {
   const [revenueData, setRevenueData] = useState([
     { date: '1/1/1900', revenue: 1 }
   ]);
-  const epochDate = parseDate(format12Oclock((new Date("2023-11-30T00:00:00")).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })), "America/Los_Angeles");
-  const [startDate, setStartDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })), "America/Los_Angeles"));
+  const epochDate = parseDate(format12Oclock((new Date("2023-11-30T00:00:00")).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone);
+  const [startDate, setStartDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone));
   const [endDate, setEndDate] = useState(null);
   const [cancelOrder, setCancelOrder] = useState(null);
 
@@ -526,7 +528,7 @@ const Account = () => {
       const minutes = '00';
       const seconds = '00';
       // Parse the custom date format
-      const date_ = moment.tz(`${formattedYear}${formattedMonth}${formattedDay}${hours}${minutes}${seconds}`, "YYYYMMDDHHmmss", "America/Los_Angeles");
+      const date_ = moment.tz(`${formattedYear}${formattedMonth}${formattedDay}${hours}${minutes}${seconds}`, "YYYYMMDDHHmmss", AmericanTimeZone);
 
       // Format the date in the desired output
       const losAngelesDate = date_.format('ddd MMM DD YYYY HH:mm:ss [GMT]Z (zz)');
@@ -564,7 +566,7 @@ const Account = () => {
       const minutes = '00';
       const seconds = '00';
       // Parse the custom date format
-      const date_ = moment.tz(`${formattedYear}${formattedMonth}${formattedDay}${hours}${minutes}${seconds}`, "YYYYMMDDHHmmss", "America/Los_Angeles");
+      const date_ = moment.tz(`${formattedYear}${formattedMonth}${formattedDay}${hours}${minutes}${seconds}`, "YYYYMMDDHHmmss", AmericanTimeZone);
 
       // Format the date in the desired output
       const losAngelesDate = date_.format('ddd MMM DD YYYY HH:mm:ss [GMT]Z (zz)');
@@ -618,7 +620,7 @@ const Account = () => {
   };
 
   const handleMonthChange = (date) => {
-    getMonthDates(((format12Oclock((new Date(date.getFullYear(), date.getMonth(), 2)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
+    getMonthDates(((format12Oclock((new Date(date.getFullYear(), date.getMonth(), 2)).toLocaleString("en-US", { timeZone: AmericanTimeZone })))))
   };
 
   const formatDate = (date) => {
@@ -744,7 +746,7 @@ const Account = () => {
       console.log("new added");
 
       const newItems = newData.map((item) => {
-        const formattedDate = parseDateUTC(item.date, 'America/Los_Angeles');
+        const formattedDate = parseDateUTC(item.date, AmericanTimeZone);
         return {
           ...item,
           date: formattedDate,
@@ -846,7 +848,7 @@ const Account = () => {
       newData.forEach(item => {
         // console.log("sawsssssssss")
         // console.log(item.dateTime)
-        const formattedDate = parseDateUTC(item.dateTime, 'America/Los_Angeles')
+        const formattedDate = parseDateUTC(item.dateTime, AmericanTimeZone)
         console.log(item.metadata)
         if (item.id.length) if (item && item.id && item.id.length === 36) {
           item.metadata.total = parseFloat(item.metadata.total) - item.metadata.service_fee
@@ -1388,6 +1390,8 @@ const Account = () => {
             setActiveStoreTab(selectedStore.id);
             setStoreName_(selectedStore.Name);
             setStoreCHI_(selectedStore.storeNameCHI);
+            setAmericanTimeZone(getTimeZoneByZip(selectedStore.ZipCode))
+            setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(selectedStore.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
 
             setStoreID(selectedStore.id);
             setActiveStoreId(selectedStore.id)
@@ -1433,6 +1437,9 @@ const Account = () => {
             setActiveStoreTab(selectedStore.id);
             setStoreName_(selectedStore.Name);
             setStoreCHI_(selectedStore.storeNameCHI)
+            setAmericanTimeZone(getTimeZoneByZip(selectedStore.ZipCode))
+            setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(selectedStore.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
+
             setStoreID(selectedStore.id);
             setActiveStoreId(selectedStore.id)
             setStoreOpenTime(selectedStore.Open_time)
@@ -1477,6 +1484,9 @@ const Account = () => {
             setActiveStoreTab(selectedStore.id);
             setStoreName_(selectedStore.Name);
             setStoreCHI_(selectedStore.storeNameCHI)
+            setAmericanTimeZone(getTimeZoneByZip(selectedStore.ZipCode))
+            setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(selectedStore.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
+
             setStoreID(selectedStore.id);
             setActiveStoreId(selectedStore.id)
             setStoreOpenTime(selectedStore.Open_time)
@@ -1522,6 +1532,9 @@ const Account = () => {
             setActiveStoreTab(selectedStore.id);
             setStoreName_(selectedStore.Name);
             setStoreCHI_(selectedStore.storeNameCHI)
+            setAmericanTimeZone(getTimeZoneByZip(selectedStore.ZipCode))
+            setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(selectedStore.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
+
             setStoreID(selectedStore.id);
             setActiveStoreId(selectedStore.id)
             setStoreOpenTime(selectedStore.Open_time)
@@ -1566,6 +1579,8 @@ const Account = () => {
             setActiveStoreTab(selectedStore.id);
             setStoreName_(selectedStore.Name);
             setStoreCHI_(selectedStore.storeNameCHI)
+            setAmericanTimeZone(getTimeZoneByZip(selectedStore.ZipCode))
+            setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(selectedStore.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
             setStoreID(selectedStore.id);
             setActiveStoreId(selectedStore.id)
             setStoreOpenTime(selectedStore.Open_time)
@@ -1586,6 +1601,8 @@ const Account = () => {
       setActiveTab('#Revenue_Chart');
       setStoreName_('');
       setStoreCHI_('')
+      setAmericanTimeZone(setAmericanTimeZone(getTimeZoneByZip("94133")))//dont change, this is for init
+      setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
     }
 
     function hashRedirect(hashValue) {
@@ -2624,6 +2641,8 @@ const Account = () => {
                       setShowSection('');
                       setStoreName_('');
                       setStoreCHI_('')
+                      setAmericanTimeZone(getTimeZoneByZip("94133"))//dont change this is for init
+                      setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
                       setActiveStoreId('')
                       setStoreOpenTime('')
                       setStoreID('');
@@ -2658,6 +2677,8 @@ const Account = () => {
                         setStoreID('');
                         setStoreName_('');
                         setStoreCHI_('')
+                        setAmericanTimeZone(getTimeZoneByZip("94133"))//dont change this is for init
+                        setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
                         setActiveStoreId('')
                         setStoreOpenTime('')
                         setActiveTab('#profile')
@@ -2691,6 +2712,8 @@ const Account = () => {
                           setShowSection('sales');
                           setStoreName_(data.Name);
                           setStoreCHI_(data.storeNameCHI)
+                          setAmericanTimeZone(getTimeZoneByZip(data.ZipCode))
+                          setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(data.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
                           setStoreID(data.id);
                           setActiveStoreId(data.id)
                           setStoreOpenTime(data.Open_time)
@@ -2913,6 +2936,8 @@ const Account = () => {
                                     setShowSection('sales');
                                     setStoreName_(data.Name);
                                     setStoreCHI_(data.storeNameCHI)
+                                    setAmericanTimeZone(getTimeZoneByZip(data.ZipCode))
+                                    setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(data.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
                                     setStoreID(data.id);
                                     setActiveStoreId(data.id)
                                     setStoreOpenTime(data.Open_time)
@@ -2931,6 +2956,8 @@ const Account = () => {
                             setShowSection('');
                             setStoreName_('');
                             setStoreCHI_('')
+                            setAmericanTimeZone(getTimeZoneByZip("94133"))//dont change, this is for init
+                            setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
                             setStoreID('');
                             setActiveStoreId('')
                             setStoreOpenTime('')
@@ -2975,6 +3002,8 @@ const Account = () => {
 
                           setStoreName_('');
                           setStoreCHI_('')
+                          setAmericanTimeZone(getTimeZoneByZip("94133"))//dont change, this is for init
+                          setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
                           setActiveStoreId('')
                           setStoreOpenTime('')
                           if (storeFromURL !== '' && storeFromURL !== null) {
@@ -3690,13 +3719,13 @@ const Account = () => {
                                           alignItems: 'center',
                                           // Add other styles as needed
                                         }} onClick={() => {
-                                          setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })), "America/Los_Angeles")
+                                          setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)
 
                                           );
                                           if (endDate === null) {
                                             setEndDate(null);
                                           } else {
-                                            setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))), "America/Los_Angeles")
+                                            setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone)
 
                                             );
                                           }
@@ -3733,7 +3762,7 @@ const Account = () => {
                                     <div>
                                       <div>End Date:</div>
                                       {(endDate === null) ?
-                                        <button onClick={() => setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))), "America/Los_Angeles"
+                                        <button onClick={() => setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone
                                         )
 
                                         )}
@@ -3756,11 +3785,11 @@ const Account = () => {
                                               alignItems: 'center',
                                               // Add other styles as needed
                                             }} onClick={() => {
-                                              setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })), "America/Los_Angeles"));
+                                              setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone));
                                               if (endDate === null) {
-                                                setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))), "America/Los_Angeles"));
+                                                setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone));
                                               } else {
-                                                setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))), "America/Los_Angeles"));
+                                                setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone));
                                               }
                                               setIsPickerOpenMonth(false);
                                               setIsPickerOpenStartDay(false);
@@ -3814,7 +3843,7 @@ const Account = () => {
                                     alignItems: 'center',
                                     // Add other styles as needed
                                   }} onClick={() => {
-                                    getMonthDates(((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })))))
+                                    getMonthDates(((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone })))))
                                     setIsPickerOpenStartDay(false)
                                     setIsPickerOpenEndDay(false)
                                     setIsPickerOpenMonth(!isPickerOpenMonth);
@@ -3903,7 +3932,7 @@ const Account = () => {
                                     </div>
                                   </div>
                                   {!isMobile && <button
-                                    onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))), "America/Los_Angeles")) }}
+                                    onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone)) }}
                                     className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
                                   >
                                     <i className="bi bi-calendar pe-2"></i>
@@ -3968,7 +3997,7 @@ const Account = () => {
                                             { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                           ).tax * 100) / 100
                                         }, {
-                                          name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                          name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Cash Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                             (accumulator, receipt) => {
                                               accumulator.tips += parseFloat(receipt.metadata.tips);
                                               accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -4019,7 +4048,7 @@ const Account = () => {
                                       {
                                         [
                                           {
-                                            name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                            name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Cash Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                               (accumulator, receipt) => {
                                                 accumulator.tips += parseFloat(receipt.metadata.tips);
                                                 accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -4107,7 +4136,7 @@ const Account = () => {
                             <div>
 
                               <select
-                                onChange={(e) => getSeason(format12Oclock(new Date(Date.now()).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })), e.target.value)}
+                                onChange={(e) => getSeason(format12Oclock(new Date(Date.now()).toLocaleString("en-US", { timeZone: AmericanTimeZone })), e.target.value)}
                                 className="btn btn-sm border-black d-flex align-items-center mx-1 mb-2"
                               >
 
@@ -4123,14 +4152,14 @@ const Account = () => {
                               <div className={`${true ? 'flex' : ''}`}>
 
                                 <button
-                                  onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })), "America/Los_Angeles")); setEndDate(null) }}
+                                  onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
                                   className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
                                 >
 
                                   <span>Today's Orders</span>
                                 </button>
                                 <button
-                                  onClick={() => { setStartDate(parseDate(format12Oclock((new Date(new Date().setDate(new Date().getDate() - 1))).toLocaleString("en-US", { timeZone: "America/Los_Angeles" })), "America/Los_Angeles")); setEndDate(null) }}
+                                  onClick={() => { setStartDate(parseDate(format12Oclock((new Date(new Date().setDate(new Date().getDate() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
                                   className="btn btn-sm btn-outline-primary d-flex align-items-center mx-1 mt-1 mb-2"
                                 >
                                   <span>Yesterday Orders</span>
@@ -4139,27 +4168,27 @@ const Account = () => {
 
                               <div className={`${true ? 'flex' : ''}`}>
                                 <button
-                                  onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                  onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
                                   className="btn btn-sm btn-dark d-flex align-items-center mx-1 mb-2"
                                 >
                                   <span>
                                     {
                                       (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                                        ["一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单", "十二月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })).getMonth()] :
-                                        ["January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders", "December Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })).getMonth()])
+                                        ["一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单", "十二月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
+                                        ["January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders", "December Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()])
                                     }
                                   </span>
                                 </button>
 
                                 <button
-                                  onClick={() => { getMonthDates(((format12Oclock((new Date(new Date().setMonth(new Date().getMonth() - 1))).toLocaleString("en-US", { timeZone: "America/Los_Angeles" }))))) }}
+                                  onClick={() => { getMonthDates(((format12Oclock((new Date(new Date().setMonth(new Date().getMonth() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
                                   className="btn btn-sm btn-outline-dark d-flex align-items-center mx-1 mb-2"
                                 >
                                   <span>
                                     {
                                       (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                                        ["十二月订单", "一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })).getMonth()] :
-                                        ["December Orders", "January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })).getMonth()])
+                                        ["十二月订单", "一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
+                                        ["December Orders", "January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()])
                                     }</span>
                                 </button>
 
@@ -4427,7 +4456,7 @@ const Account = () => {
                                                     className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
                                                     onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
                                                   >
-                                                    Add Gratuity
+                                                    {fanyi("Add Cash Tips")}
                                                   </button>
                                                   <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
 
@@ -4460,7 +4489,7 @@ const Account = () => {
                                                           className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
                                                           onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
                                                         >
-                                                          Add Gratuity
+                                                          {fanyi("Add Cash Tips")}
                                                         </button>
                                                         <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
 

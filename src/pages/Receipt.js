@@ -12,6 +12,7 @@ import moment from 'moment';
 import firebase from 'firebase/compat/app';
 import { useUserContext } from "../context/userContext";
 import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
+import { lookup } from 'zipcode-to-timezone';
 
 const App = () => {
 
@@ -24,6 +25,17 @@ const App = () => {
 };
 
 const Item = () => {
+  function getTimeZoneByZip(zipCode) {
+    // Use the library to find the timezone ID from the ZIP code
+    const timeZoneId = lookup(zipCode);
+
+    // Check if the timezone ID is in our timeZones list
+    return timeZoneId;
+  }
+  //console.log("timezone")
+  //console.log(getTimeZoneByZip("94133"))//"America/Los_Angeles"
+  const [AmericanTimeZone, setAmericanTimeZone] = useState("America/Los_Angeles");
+
   function roundToTwoDecimalsTofix(n) {
     return (Math.round(n * 100) / 100).toFixed(2);
   }
@@ -56,10 +68,10 @@ const Item = () => {
           console.log(doc.data().Name)
           if (localStorage.getItem("Google-language")?.includes("中") || localStorage.getItem("Google-language")?.includes("Chinese")) {
             setDocumentData(doc.data().storeNameCHI);
-
+            setAmericanTimeZone(getTimeZoneByZip(doc.data().ZipCode))//america/los_angeles
           } else {
             setDocumentData(doc.data().Name);
-
+            setAmericanTimeZone(getTimeZoneByZip(doc.data().ZipCode))//america/los_angeles
           }
         } else {
           console.log('No such document!');
@@ -88,7 +100,7 @@ const Item = () => {
                 amount: payment.amount,
                 receipt_data: payment.receiptData,
                 document_id: doc.id.substring(0, 4),
-                time: parseDateUTC(payment.dateTime, 'America/Los_Angeles'),
+                time: parseDateUTC(payment.dateTime, AmericanTimeZone),//display purpose
                 email: payment.user_email,
                 status: payment.powerBy,
                 isDinein: payment.metadata.isDine === "TakeOut" ? "TakeOut" : "Table: " + payment.tableNum,
@@ -115,13 +127,12 @@ const Item = () => {
                 .onSnapshot((doc) => {
                   if (doc.exists) {
                     const payment = doc.data();
-                    console.log("formattedDate" + parseDateUTC(payment.dateTime, 'America/Los_Angeles'))
 
                     const paymentData = {
                       amount: payment.amount,
                       receipt_data: payment.receiptData,
                       document_id: doc.id.substring(0, 4),
-                      time: parseDateUTC(payment.dateTime, 'America/Los_Angeles'),
+                      time: parseDateUTC(payment.dateTime, AmericanTimeZone),//display purpose
                       email: payment.user_email,
                       status: payment.powerBy,
                       isDinein: payment.metadata.isDine === "TakeOut" ? "TakeOut" : "Table: " + payment.tableNum,
