@@ -142,20 +142,33 @@ function Container(props) {
   const closeUniqueModal = () => setUniqueModalOpen(false);
 
   const handleChange = (event) => {
-    setInputValue(event.target.value);
-    setResult(null)
+    let value = event.target.value.replace(/。/g, '.'); // 替换中文句号
+
+    // 只允许数字、小数点、负号
+    if (/^-?\d*\.?\d*$/.test(value)) {
+      setInputValue(value);
+    }
+    setErrorMessage(``)
+
+    setResult(null);
   };
 
   const handleCustomAmountChange = (event) => {
-    setCustomAmount(event.target.value);
+    let value = event.target.value.replace(/。/g, '.'); // 替换中文句号
+
+    // 只允许数字、小数点、负号
+    if (/^-?\d*\.?\d*$/.test(value)) {
+      setCustomAmount(value);
+    }
   };
+  const [errorMessage, setErrorMessage] = useState("");
 
   const calculateResult = () => {
     const x = parseInt(inputValue);
     if (!isNaN(x) && x > finalPrice) {
       setResult(x);
     } else {
-      alert("Please enter a number greater than total amount: $" + finalPrice);
+      setErrorMessage(`Please enter a number greater than total amount`);
     }
   };
 
@@ -975,7 +988,7 @@ function Container(props) {
                           <p className="mb-2">Custom Gratuity:</p>
                           <div className="flex">
                             <input
-                              type="number"
+                              type="text"
                               value={customAmount}
                               onChange={handleCustomAmountChange}
                               style={uniqueModalStyles.inputStyle}
@@ -993,7 +1006,7 @@ function Container(props) {
                       )}
                       <p className="mb-2">Enter the Cash Received</p>
                       <input
-                        type="number"
+                        type="text"
                         value={inputValue}
                         onChange={handleChange}
                         style={uniqueModalStyles.inputStyle}
@@ -1007,6 +1020,11 @@ function Container(props) {
                       >
                         Calculate Give Back Cash
                       </button>
+                      {errorMessage && (
+                        <div className="text-red-500 font-semibold mt-2">
+                          {errorMessage}
+                        </div>
+                      )}
                       {(extra !== null && extra !== 0) && (
                         <p className="">Gratuity: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
                       )}

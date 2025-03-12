@@ -83,30 +83,3 @@ body>iframe[style*='2147483647'] {
 }
 
 
-@media print {
-
-  /* Apply styles only when the body has the 'printing' class */
-  body.printing * {
-    visibility: hidden;
-  }
-
-  body.printing .printContainer,
-  body.printing .printContainer * {
-    visibility: visible;
-  }
-
-  body.printing .printContainer {
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
-
-  body.printing .qrCodeItem {
-    page-break-inside: avoid;
-    display: inline-block;
-    width: 25%;
-    margin: 0;
-    padding: 10mm;
-  }
-}
-

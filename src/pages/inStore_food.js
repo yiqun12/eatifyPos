@@ -183,9 +183,9 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       const selectedVariations = selectedAttributes[attributeName];
       const attributeDetails = attributesArr[attributeName];
 
-      if (attributeDetails.isSingleSelected) {
+      if (attributeDetails?.isSingleSelected) {
         // For single selection attributes, find the selected variation and add its price
-        const selectedVariation = attributeDetails.variations.find(
+        const selectedVariation = attributeDetails?.variations.find(
           (variation) => variation.type === selectedVariations
         );
         if (selectedVariation) {
@@ -193,8 +193,8 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         }
       } else {
         // For multiple selection attributes, iterate through selected variations
-        selectedVariations.forEach((selectedVariation) => {
-          const variation = attributeDetails.variations.find(
+        selectedVariations?.forEach((selectedVariation) => {
+          const variation = attributeDetails?.variations?.find(
             (variation) => variation.type === selectedVariation
           );
           if (variation) {
@@ -499,7 +499,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         if (isDelete === 0) {//0 means false
           console.log("delete now")
           products.splice(productIndex, 1);
-          SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
+          SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(products)))
           saveId(Math.random());
           setModalVisibility(false);
           handleRemoveAllCustomVariants();
@@ -509,6 +509,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         if (products[productIndex].quantity <= 0) {
           console.log("delete now")
           products.splice(productIndex, 1);
+         
           SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
           saveId(Math.random());
           setModalVisibility(false);
@@ -520,6 +521,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         console.log(product)
         product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
         // Save the updated array in local storage
+        
         SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
       }
 
@@ -676,6 +678,19 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
   }, [OpenChangeAttributeModal]); // An empty dependency array means this effect runs once after the initial render
 
+  // useEffect(() => {
+  //   if (OpenChangeAttributeTrigger === false) {
+  //     setTimeout(() => {
+  //       SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+  //     }, 100);
+
+  //   }
+
+  // }, [OpenChangeAttributeTrigger]); // An empty dependency array means this effect runs once after the initial render
+
+  const [randomNum, setRandomNum] = useState(null);
+
+  
   // Function to show the modal
   const showModal = (item) => {
     setCustomVariant({ name: '改价', price: '0' })
@@ -689,10 +704,19 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     const attributeSelected = item?.attributeSelected ? item.attributeSelected : {}
     setSelectedAttributes(attributeSelected)
     addSpecialFood(item.id, item.name, item.subtotal, item.image, attributeSelected, randomNum, item.CHI, null, item.availability, item.attributesArr, item.quantity)
-
     setModalVisibility(true);
+    setRandomNum(Math.random())
     saveId(Math.random());
+
   }
+  useEffect(() => {
+    if (randomNum !== null) {
+      for (let i = 0; i < global?.length; i++) {
+        handleAddSpecialVariant(global[i].type, global[i].price, count, selectedFoodItem?.id, global[i].typeCategory);
+      }
+    }
+
+  }, [randomNum]);  // 当 count 更新后执行
 
   // Function to hide the modal
   const hideModal = () => {
@@ -700,7 +724,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     handleRemoveAllCustomVariants();
     SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
     saveId(Math.random)
-
+    setRandomNum(null)
   }
 
   function groupAndSumItems(items) {
@@ -732,6 +756,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
 
   const handleAddSpecialVariant = (name, priceString, count, id, category) => {
+    console.log(JSON.stringify(name, priceString, count, id, category))
     const price = parseFloat(priceString) || 0;  // Convert price to number here
 
     if (!name || isNaN(priceString)) {
@@ -765,15 +790,15 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     }
 
     // Automatically select the new or updated variant
-    updatedAttributes[category] = updatedAttributes[category] || [];
-    console.log(updatedAttributes[category])
-    console.log(name)
-    if (!updatedAttributes[category].includes(name)) {
-      updatedAttributes[category].push(name);
+    // updatedAttributes[category] = updatedAttributes[category] || [];
+    // console.log(updatedAttributes[category])
+    // console.log(name)
+    // if (!updatedAttributes[category].includes(name)) {
+    //   updatedAttributes[category].push(name);
 
-    }
-    console.log(category, name, id, count, {})
-    console.log(updatedFoodItem.attributesArr)
+    // }
+    // console.log(category, name, id, count, {})
+    // console.log(updatedFoodItem.attributesArr)
 
     // Assuming 'store', 'selectedTable', 'count', and 'updatedFoodItem' are your variables
     let storeKey = store + "-" + selectedTable;
@@ -995,20 +1020,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                     </button>
                     <br>
                     </br>
-                    <button
-                      className="btn btn-primary mb-3"
-                      type="button"
-                      onClick={() => {
-                        //    {"type": "加饭", "price":"0","typeCategory": "要求添加"},
-                        for (let i = 0; i < global?.length; i++) {
-                          handleAddSpecialVariant(global[i].type, global[i].price, count, selectedFoodItem?.id, global[i].typeCategory);
-                        }
 
-
-                      }}
-                    >
-                      Quick Revision
-                    </button>
                   </div>
 
                   {Object.keys(selectedFoodItem?.attributesArr).length > 0 && (
@@ -1130,7 +1142,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                   }} className="btn btn-danger">Cancel</button>
                   <button type="button" className="btn btn-success" onClick={() => {
                     if (OpenChangeAttributeTrigger === false) {
-                      hideModal();
+                      hideModal();//no change
                     } else {
                       function sortObject(obj) {
                         return Object.keys(obj).sort().reduce((result, key) => {
@@ -1155,7 +1167,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                       if (compareObjects(selectedFoodItem.attributeSelected, selectedAttributes)) {//no attr changes
                         if (totalPrice != selectedFoodItem.totalPrice) {
                           deleteSpecialFood(selectedFoodItem.id, selectedFoodItem.count, selectedAttributes, 0);//delete old one
-
+                          //SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
                           console.log("confirm the change")
                           setOpenChangeAttributeTrigger(false);//confirm the change
                           setOpenChangeAttributeModal(false)
@@ -1174,7 +1186,10 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                         console.log("confirm the change")
                         setOpenChangeAttributeTrigger(false);//confirm the change
                         setOpenChangeAttributeModal(false)
+
                       }
+
+
                     }
 
 

@@ -21,6 +21,7 @@ import $ from 'jquery';
 import useGeolocation from './useGeolocation';
 import QRCode from 'qrcode.react'; // import QRCode component
 import useNetworkStatus from './useNetworkStatus';
+import PhoneVerificationPopup from '../pages/SmsVerificatioin';
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } from 'recharts';
 import { data_ } from '../data/data.js'
@@ -1001,6 +1002,21 @@ const Account = () => {
     sessionStorage.setItem("tableMode", "table-NaN");
   }
 
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [purpose, setPurpose] = useState('login'); // 直接使用 useState
+
+  // 固定的用户列表
+  const users = [
+    { phonenumber: '9294614214', username: '群' },
+    { phonenumber: '9876543210', username: 'Bob' },
+    { phonenumber: '5556667777', username: 'Charlie' }
+  ];
+
+  const handleVerificationSuccess = () => {
+    setIsVerified(true);
+    setIsPopupOpen(false);
+  };
 
   const dateNow = (new Date().getMonth() + 1).toString().padStart(2, '0') + '/' + new Date().getDate().toString().padStart(2, '0') + '/' + new Date().getFullYear()
   // Existing state for the selected date
@@ -1772,8 +1788,10 @@ const Account = () => {
 
   // Function to handle the change in input
   const handleTipChange = (event) => {
-    setTipAmount(event.target.value);
+    let value = event.target.value.replace(/。/g, '.'); // 替换所有中文句号为英文句号
+    setTipAmount(value);
   };
+
   function roundToTwoDecimals(n) {
     return Math.round(n * 100) / 100;
   }
@@ -1819,12 +1837,7 @@ const Account = () => {
   function handlePrint() {
     console.log("osjaopwiajsojwaosw")
     console.log(docIds)
-
     sendMessageToIframes('PrintQRcode', docIds)
-    document.body.classList.add('printing');
-    window.print();
-    document.body.classList.remove('printing');
-
   }
   const [order_status, setOrder_status] = useState("");
   const [order_table, setOrder_table] = useState("");
@@ -3964,6 +3977,38 @@ const Account = () => {
                               </div>
 
                               <div style={isMobile ? { "width": "50%" } : {}}>
+                                {/* <div className="flex flex-col justify-center items-center h-screen space-y-4">
+                                  <select
+                                    className="p-2 border rounded w-64"
+                                    value={purpose}
+                                    onChange={(e) => setPurpose(e.target.value)}
+                                  >
+                                    <option value="login">Login</option>
+                                    <option value="reset_password">Reset Password</option>
+                                    <option value="confirm_payment">Confirm Payment</option>
+                                  </select>
+
+                                  <button
+                                    onClick={() => setIsPopupOpen(true)}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+                                  >
+                                    Open Verification
+                                  </button>
+
+                                  {isVerified && (
+                                    <p className="text-green-600 text-lg font-semibold">
+                                      ✅ Phone number verified successfully!
+                                    </p>
+                                  )}
+
+                                  <PhoneVerificationPopup
+                                    isOpen={isPopupOpen}
+                                    onClose={() => setIsPopupOpen(false)}
+                                    onVerificationSuccess={handleVerificationSuccess}
+                                    users={users}
+                                    purpose={purpose}
+                                  />
+                                </div> */}
                                 {(isMobile || window.location.hostname === 'localhost') && (
                                   <PieChart className='notranslate' width={isMobile ? width2 / 2 : 300} height={250}>
                                     <Pie

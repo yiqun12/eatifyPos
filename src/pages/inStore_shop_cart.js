@@ -335,8 +335,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   };
 
   const SendToKitchen = async () => {
-
     try {
+
       if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
         if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
           console.log("//no item in the array no item isSent.")
@@ -818,20 +818,35 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   const closeUniqueModal = () => setUniqueModalOpen(false);
 
   const handleChange = (event) => {
-    setInputValue(event.target.value);
-    setResult(null)
+    let value = event.target.value.replace(/。/g, '.'); // 替换中文句号
+
+    // 只允许数字、小数点、负号
+    if (/^-?\d*\.?\d*$/.test(value)) {
+      setInputValue(value);
+    }
+    setErrorMessage(``)
+
+    setResult(null);
   };
 
   const handleCustomAmountChange = (event) => {
-    setCustomAmount(event.target.value);
+    let value = event.target.value.replace(/。/g, '.'); // 替换中文句号
+
+    // 只允许数字、小数点、负号
+    if (/^-?\d*\.?\d*$/.test(value)) {
+      setCustomAmount(value);
+    }
   };
+
+
+  const [errorMessage, setErrorMessage] = useState("");
 
   const calculateResult = () => {
     const x = parseFloat(inputValue);
     if (!isNaN(x) && x > finalPrice) {
       setResult(x);
     } else {
-      alert("Please enter a number greater than total amount: $" + finalPrice);
+      setErrorMessage(`Please enter a number greater than total amount`);
     }
   };
 
@@ -930,7 +945,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       } else {
         // If this item already exists, sum up the quantity and itemTotalPrice
         groupedItems[key].quantity += item.quantity;
-        groupedItems[key].itemTotalPrice += item.itemTotalPrice;
+        groupedItems[key].itemTotalPrice = Math.round((groupedItems[key].itemTotalPrice + item.itemTotalPrice) * 100) / 100;
         // The count remains from the first item
       }
     });
@@ -1245,7 +1260,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <div className="modal-body pt-0">
                     <p className="mb-2">{fanyi("Enter the Cash Received")}</p>
                     <input
-                      type="number"
+                      type="text" // 使用 text 但限制输入内容
                       value={inputValue}
                       onChange={handleChange}
                       style={uniqueModalStyles.inputStyle}
@@ -1259,6 +1274,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                     >
                       {fanyi("Calculate Give Back Cash")}
                     </button>
+                    {errorMessage && (
+                      <div className="text-red-500 font-semibold mt-2">
+                        {errorMessage}
+                      </div>
+                    )}
                     <p className="mb-4 mt-4">{fanyi("Gratuity")}:</p>
                     <div className="flex justify-between mb-4">
                       <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
@@ -1283,7 +1303,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         <p className="mb-2">{fanyi("Custom Gratuity")}:</p>
                         <div className="flex">
                           <input
-                            type="number"
+                            type="text"
                             value={customAmount}
                             onChange={handleCustomAmountChange}
                             style={uniqueModalStyles.inputStyle}

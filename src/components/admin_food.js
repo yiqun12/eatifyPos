@@ -478,8 +478,9 @@ const Food = ({ store }) => {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setNewItem({ ...newItem, [name]: value });
-  };
+    setNewItem({ ...newItem, [name]: value.replace(/。/g, '.') }); // 替换所有中文句号为英文句号
+};
+
 
   const handleAddNewItem = () => {
     // Generate a new UUID for the item
