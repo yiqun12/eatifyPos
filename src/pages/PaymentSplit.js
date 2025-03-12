@@ -2,7 +2,7 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useUserContext } from "../context/userContext";
 import { useState, useEffect } from 'react';
-import firebase from 'firebase/compat/app';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import myImage from '../components/check-mark.png';  // Import the image
 import { collection, doc, setDoc, query, where, onSnapshot } from "firebase/firestore";
 import { db } from '../firebase/index';
@@ -15,6 +15,7 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
 
 
   // the three variables we keep track of for payment
+  const functions = getFunctions();
   var paymentIntentId;
   const { user, user_loading } = useUserContext();
 
@@ -24,7 +25,7 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
     console.log("createPaymentIntent");
 
     try {
-      const createPaymentIntentFunction = firebase.functions().httpsCallable('createPaymentIntent');
+      const createPaymentIntentFunction = httpsCallable(functions, 'createPaymentIntent');
       const response = await createPaymentIntentFunction({
         amount: amount,
         connected_stripe_account_id: connected_stripe_account_id,
@@ -53,7 +54,7 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
     console.log("processPayment");
 
     try {
-      const processPaymentFunction = firebase.functions().httpsCallable('processPayment');
+      const processPaymentFunction = httpsCallable(functions, 'processPayment');
 
       const response = await processPaymentFunction({
         reader_id: items.find(item => item.id === selectedId).readerId,
@@ -77,7 +78,7 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
     console.log("cancel");
     setIsPaymentClick(false)
     try {
-      const cancelActionFunction = firebase.functions().httpsCallable('cancelAction');
+      const cancelActionFunction = httpsCallable(functions, 'cancelAction');
 
       const response = await cancelActionFunction({
         reader_id: items.find(item => item.id === selectedId).readerId,

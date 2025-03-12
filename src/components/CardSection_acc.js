@@ -4,8 +4,8 @@ import { useStripe, useElements } from '@stripe/react-stripe-js';
 import React, { useRef, useEffect } from 'react';
 import { useState } from 'react';
 
-import firebase from 'firebase/compat/app';
-import { useUserContext } from "../context/userContext";
+import { collection, doc, onSnapshot, addDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 //import { useEffect } from 'react';
 import e from 'cors';
 import './blueButton.css';
@@ -57,18 +57,15 @@ function CardSection(props) {
   const customerData = useRef();
 
   useEffect(() => {
-    const unsubscribe = firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .onSnapshot((snapshot) => {
+    const unsubscribe = onSnapshot(
+      doc(db, 'stripe_customers', user.uid),
+      (snapshot) => {
         console.log('read card')
         if (snapshot.data()) {
           customerData.current = snapshot.data();
-          //console.log(snapshot.data())
-          
         }
-      });
+      }
+    );
 
     return () => unsubscribe();
   }, []);
@@ -125,38 +122,35 @@ function CardSection(props) {
                   .forEach((button) => (button.disabled = false));
               } else if (result.setupIntent != null) {
 
-                firebase
-                  .firestore()
-                  .collection('stripe_customers')
-                  .doc(user.uid)
-                  .collection('payment_methods')
-                  .add({ id: result.setupIntent.payment_method })
-                  .then(() => {
-                    //console.log(res)
-                    // Payment method was successfully added
-                    //console.log(result.setupIntent.payment_method)
-                    document
-                      .querySelectorAll('button')
-                      .forEach((button) => (button.disabled = false));
-                    // set the prompt message
-                    const promptMessage = document.querySelector('#prompt-message');
-                    promptMessage.textContent = t("successfully added") + "!";
+                addDoc(
+                  collection(doc(db, 'stripe_customers', user.uid), 'payment_methods'),
+                  { id: result.setupIntent.payment_method }
+                ).then(() => {
+                  //console.log(res)
+                  // Payment method was successfully added
+                  //console.log(result.setupIntent.payment_method)
+                  document
+                    .querySelectorAll('button')
+                    .forEach((button) => (button.disabled = false));
+                  // set the prompt message
+                  const promptMessage = document.querySelector('#prompt-message');
+                  promptMessage.textContent = t("successfully added") + "!";
 
-                    // hide the error message after 2 seconds
-                    setTimeout(() => {
-                      promptMessage.textContent = "";
-                    }, 6000);
-                    // reset the form inputs
-                    const form = document.querySelector('#payment-method-form');
-                    form.reset();
-                    // clear the card details input field
-                    if (elements) {
-                      const cardElement = elements.getElement(CardElement);
-                      cardElement.clear();
-                    }
-                    saveId(Math.random())
-                    //customerData.current = null //cleanup
-                  })
+                  // hide the error message after 2 seconds
+                  setTimeout(() => {
+                    promptMessage.textContent = "";
+                  }, 6000);
+                  // reset the form inputs
+                  const form = document.querySelector('#payment-method-form');
+                  form.reset();
+                  // clear the card details input field
+                  if (elements) {
+                    const cardElement = elements.getElement(CardElement);
+                    cardElement.clear();
+                  }
+                  saveId(Math.random())
+                  //customerData.current = null //cleanup
+                })
               }
             });
           }

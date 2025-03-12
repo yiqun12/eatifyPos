@@ -4,11 +4,10 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useMyHook } from '../pages/myHook';
 import { useMemo } from 'react';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../firebase/index';
 import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
 import axios from 'axios';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/functions';
 import './admin_food.css';
 import Scanner from './ScanMenu';
 import { useUserContext } from "../context/userContext";
@@ -657,6 +656,8 @@ const Food = ({ store }) => {
 
 
   };
+
+  const [showGeneratePicModal, setShowGeneratePicModal] = useState(false);
 
   return (
 
@@ -1464,19 +1465,18 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
   const generatePic = async (item) => {
     setPreviewUrl(add_image)
     try {
-      const myFunction = firebase.functions().httpsCallable('generatePic');
-      const result = await myFunction({ CHI: item.CHI, name: item.name });
+      const functions = getFunctions();
+      const generatePicFunction = httpsCallable(functions, 'generatePic');
+      const result = await generatePicFunction({ 
+        CHI: item.CHI, 
+        name: item.name 
+      });
       let ARRimage = result.data.result
       console.log(ARRimage.length)
-      setImgGallery(ARRimage)
-      //console.log(result.data.result)
-      //return(result.data.result)
-      //setResponse(result);
+      setImgGallery(ARRimage);
+      setModalGeneratePicOpen(true);
     } catch (error) {
-      setImgGallery([])
-      //console.log([])
-
-      //return []
+      console.error('Error generating pictures:', error);
     }
   };
   const selectPic = (pic_url, item) => {

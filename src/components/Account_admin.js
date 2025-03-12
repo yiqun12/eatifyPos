@@ -10,10 +10,10 @@ import Checkout from "./Checkout_acc";
 import './style.css';
 import './stripeButton.css';
 import { useCallback } from 'react';
-import { collection, doc, addDoc, getDoc, updateDoc, deleteDoc, where } from "firebase/firestore";
+import { collection, doc, addDoc, getDoc, updateDoc, deleteDoc, where, onSnapshot, query } from "firebase/firestore";
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../firebase/index';
 import { useRef } from "react";
-import { onSnapshot, query } from "firebase/firestore";
 import mySound from '../pages/new_order_english.mp3'; // Replace with your sound file's path
 import mySound_CHI from '../pages/new_order_chinese.mp3'; // Replace with your sound file's path
 import dingDong from '../components/ding-dong-sound.mp3'; // Replace with your sound file's path
@@ -30,7 +30,6 @@ import {
   LineChart,
   Line,
 } from 'recharts';
-import firebase from 'firebase/compat/app';
 import ChangeTimeForm from "../pages/ChangeTimeForm"
 import Dropdown from 'react-bootstrap/Dropdown';
 import DemoFood from '../pages/demoFood'
@@ -152,13 +151,14 @@ const Account = () => {
 
   const fetchSingleBalance = async (Charge_ID, account_ID) => {
     try {
-      const myFunction = firebase.functions().httpsCallable('fetchSingleBalance');
-      const response = await myFunction({
+      const functions = getFunctions();
+      const fetchSingleBalanceFunction = httpsCallable(functions, 'fetchSingleBalance');
+      const response = await fetchSingleBalanceFunction({
         Charge_ID,
         account_ID,
       });
 
-      return response.data
+      return response.data;
     } catch (error) {
       //return []
     }
@@ -1769,21 +1769,10 @@ const Account = () => {
 
   const [tipAmount, setTipAmount] = useState('');
   async function bankReceipt(Charge_ID, id, date) {
-    console.log(Charge_ID);
-    const bankReceiptFunction = firebase.functions().httpsCallable('bankReceipt');
-    console.log(JSON.parse(localStorage.getItem("TitleLogoNameContent" || "[]"))?.stripe_store_acct)
-    try {
-      const result = await bankReceiptFunction({ Charge_ID: Charge_ID, docId: id, displayDate: date, acct: JSON.parse(localStorage.getItem("TitleLogoNameContent" || "[]"))?.stripe_store_acct });
-      console.log('Result:', result.data.paymentCharge);
-      console.log('data:', result.data.paymentCharge);
-
-      // Handle the successful response here
-      return result.data.Charge_ID;
-    } catch (error) {
-      console.error('Error calling bankReceipt:', error);
-      // Handle errors here
-      throw error;
-    }
+    const functions = getFunctions();
+    const bankReceiptFunction = httpsCallable(functions, 'bankReceipt');
+    const result = await bankReceiptFunction({ Charge_ID, id, date });
+    return result.data;
   }
 
   // Function to handle the change in input
@@ -3566,7 +3555,7 @@ const Account = () => {
                                         </div>
                                       )}
                                       <p class="text-sm text-gray-600 mt-2">
-                                        We will offer premier promotional resources for up to ten products in your store, ensuring a minimum of 100 orders. Please note that we will take a 30% commission on those 10 items. To boost order volumes and enhance advertising effectiveness, we also provide shipping subsidies for participating customers. Join our advertising program and let’s boost your store’s foot traffic and achieve great results together!
+                                        We will offer premier promotional resources for up to ten products in your store, ensuring a minimum of 100 orders. Please note that we will take a 30% commission on those 10 items. To boost order volumes and enhance advertising effectiveness, we also provide shipping subsidies for participating customers. Join our advertising program and let's boost your store's foot traffic and achieve great results together!
                                       </p>
                                     </div>
 

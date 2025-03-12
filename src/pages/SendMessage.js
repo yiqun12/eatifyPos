@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSearchParams } from 'react-router-dom';
-import firebase from 'firebase/compat/app';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 function SendMessage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -11,6 +11,7 @@ function SendMessage() {
     const [message, setMessage] = useState(initialMessage || '');
     const [response, setResponse] = useState(null);
     const [error, setError] = useState('');
+    const functions = getFunctions();
 
     useEffect(() => {
         // Update component state when query parameters change
@@ -21,7 +22,7 @@ function SendMessage() {
     const handleSendSMS = async (event) => {
         event.preventDefault();
 
-        const sendSMS = firebase.functions().httpsCallable('sendSMS');
+        const sendSMS = httpsCallable(functions, 'sendSMS');
 
         try {
             const res = await sendSMS({ phoneNumber, message });

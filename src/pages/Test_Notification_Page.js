@@ -1,13 +1,11 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState, useEffect } from 'react';
-import { collection, doc, setDoc, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, deleteDoc, updateDoc, onSnapshot, query } from "firebase/firestore";
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
-import { onSnapshot, query } from 'firebase/firestore';
 import styled from 'styled-components';
-import firebase from 'firebase/compat/app';
-
 
 function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }) {
 
@@ -51,61 +49,13 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
     console.log("deleteDocument")
     console.log(order)
     if (order.Status === "Delivery") {
-      // try {
-      //   const docRef = firebase.firestore()
-      //     .collection('RequestQuoteDoordash')
-      //     .doc(orderId);
-
-      //   const docSnapshot = await docRef.get();
-
-      //   if (docSnapshot.exists) {
-      //     const data = docSnapshot.data();
-      //     console.log("Document exists:");
-      //     data.uid = "Merchant" + orderId; // Append the document ID as a new field
-      //     console.log(data);
-      //     //orderStatus === 'Delivery'
-      //     try {
-      //       const myFunction = firebase.functions().httpsCallable('requestQuoteDoordash');
-      //       const response = await myFunction(data);
-
-      //       if (response.data.message) {//error
-      //         // console.error('Error requesting quote:', error);
-      //       } else {
-      //         try {
-
-
-      //           if (true) {
-
-      //             const myFunction = firebase.functions().httpsCallable('acceptQuoteDoordash');
-      //             const response = await myFunction({
-      //               uid: "Merchant" + orderId,
-      //             });
-      //             console.log('Quote Response:', response.data);
-      //           } else {//successful deploy
-
-      //           }
-      //         } catch (error) {
-      //           console.error('Error requesting quote:', error);
-      //           // Handle the error appropriately
-      //         }
-      //       }
-      //     }
-      //     catch (error) {
-      //       console.error("Error deleting document: ", error);
-      //     }
-      //   } else {
-      //     console.log("No such document!");
-      //   }
-      // } catch (err) {
-      //   console.error("Error getting document:", err);
-      // }
+      // Commented out Doordash integration code
     }
 
     try {
-
       const docRef = doc(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', storeID, 'PendingDineInOrder', orderId);
       await updateDoc(docRef, {
-        isConfirm: true  // Replace "newStatus" with the actual status you want to update to
+        isConfirm: true
       });
       console.log("Document successfully updated!");
     } catch (error) {

@@ -1,10 +1,10 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState, useEffect } from 'react';
-import { db } from '../firebase/index'; // Make sure to import necessary functions
+import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
-import { doc, updateDoc, arrayUnion, collection, setDoc, getDoc } from 'firebase/firestore';
-import firebase from 'firebase/compat/app';
+import { doc, updateDoc, arrayUnion, collection, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, storeID, connected_stripe_account_id }) => {
   const country = 'US'
@@ -16,7 +16,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
 
   var paymentIntentId;
   const { user, user_loading } = useUserContext();
-
+  const functions = getFunctions();
   const [error, setError] = useState("");
   var simulation_mode;
 
@@ -36,7 +36,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
         }
       };
 
-      const createLocationFunction = firebase.functions().httpsCallable('createLocation');
+      const createLocationFunction = httpsCallable(functions, 'createLocation');
       const result = await createLocationFunction(formattedPayload);
 
       console.log("the response was okay:", result.data);
@@ -59,7 +59,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
         connected_stripe_account_id: connected_stripe_account_id,
       };
 
-      const registerReaderFunction = firebase.functions().httpsCallable('registerReader');
+      const registerReaderFunction = httpsCallable(functions, 'registerReader');
       const result = await registerReaderFunction(formattedPayload);
 
       console.log("the response was okay:", result.data);
@@ -209,47 +209,35 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
   const [items, setItems] = useState([])
 
   useEffect(() => {
-    firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('TitleLogoNameContent')
-      .doc(storeID)
-      .collection('terminals')
-      .onSnapshot((snapshot) => {
+    const q = collection(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', storeID, 'terminals');
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const terminalsData = snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
 
-        const terminalsData = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        }));
+      setItems(terminalsData.sort((a, b) => b.date.localeCompare(a.date)));
+      console.log(terminalsData);
+    });
 
-
-        setItems(terminalsData.sort((a, b) => b.date.localeCompare(a.date)))
-        console.log(terminalsData)
-      });
-  }, [])
+    return () => unsubscribe();
+  }, []);
   const [itemsKiosk, setItemsKiosk] = useState([])
 
   useEffect(() => {
-    firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('TitleLogoNameContent')
-      .doc(storeID)
-      .collection('kiosk')
-      .onSnapshot((snapshot) => {
+    const q = collection(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', storeID, 'kiosk');
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const terminalsData = snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
 
-        const terminalsData = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        }));
+      setItemsKiosk(terminalsData.sort((a, b) => b.date.localeCompare(a.date)));
+      console.log(terminalsData);
+    });
 
-
-        setItemsKiosk(terminalsData.sort((a, b) => b.date.localeCompare(a.date)))
-        console.log(terminalsData)
-      });
-  }, [])
+    return () => unsubscribe();
+  }, []);
   const formatDate = (dateString) => {
     const dateParts = dateString.split('-');
     const formattedDate = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`;

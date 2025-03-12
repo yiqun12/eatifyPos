@@ -2,10 +2,10 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useUserContext } from "../context/userContext";
 import { useState, useEffect } from 'react';
-import firebase from 'firebase/compat/app';
 import myImage from '../components/check-mark.png';  // Import the image
-import { collection, doc, setDoc,query, where, onSnapshot} from "firebase/firestore";
+import { collection, doc, setDoc, query, where, onSnapshot } from "firebase/firestore";
 import { db } from '../firebase/index';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, totalPrice }) => {
   // State to store the error message
@@ -14,6 +14,7 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
   //setDiscount,setTips,setExtra(null),setExtra,setInputValue 
   // the three variables we keep track of for payment
   var paymentIntentId;
+  const functions = getFunctions();
   const { user, user_loading } = useUserContext();
 
   var simulation_mode;
@@ -22,7 +23,7 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
     console.log("createPaymentIntent");
 
     try {
-      const createPaymentIntentFunction = firebase.functions().httpsCallable('createPaymentIntent');
+      const createPaymentIntentFunction = httpsCallable(functions, 'createPaymentIntent');
       const response = await createPaymentIntentFunction({
         amount: amount,
         connected_stripe_account_id: connected_stripe_account_id,
@@ -40,8 +41,8 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
 
     } catch (error) {
       console.error("There was an error with createPaymentIntent:", error.message);
-      setError("There was an error with createPaymentIntent:", error.message);
-      throw error; // rethrow to handle it outside of the function or display to user
+      setError("There was an error with createPaymentIntent:" + error.message);
+      throw error;
     }
   }
   //To Do: set Error
@@ -50,7 +51,7 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
     console.log("processPayment");
 
     try {
-      const processPaymentFunction = firebase.functions().httpsCallable('processPayment');
+      const processPaymentFunction = httpsCallable(functions, 'processPayment');
 
       const response = await processPaymentFunction({
         reader_id: items.find(item => item.id === selectedId).readerId,
@@ -74,7 +75,7 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
     console.log("cancel");
     setIsPaymentClick(false)
     try {
-      const cancelActionFunction = firebase.functions().httpsCallable('cancelAction');
+      const cancelActionFunction = httpsCallable(functions, 'cancelAction');
 
       const response = await cancelActionFunction({
         reader_id: items.find(item => item.id === selectedId).readerId,

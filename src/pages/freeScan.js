@@ -4,11 +4,10 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useMyHook } from '../pages/myHook';
 import { useMemo } from 'react';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../firebase/index';
 import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
 import axios from 'axios';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/functions';
 import '../components/admin_food.css';
 import Scanner from '../components/ScanMenu';
 import { useUserContext } from "../context/userContext";
@@ -590,7 +589,7 @@ const Food = ({ store }) => {
                     Visualize Your Menu with AI
                 </h2>
                 <p className="text-gray-700">
-                    We’ll provide recommendations and help you visualize your menu with AI. Simply snap a picture of your menu, and we’ll generate images of each dish to help you choose your order more easily.
+                    We'll provide recommendations and help you visualize your menu with AI. Simply snap a picture of your menu, and we'll generate images of each dish to help you choose your order more easily.
                 </p>
             </div>
             <div
@@ -959,8 +958,11 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
     const generatePic = async (item) => {
         setPreviewUrl(add_image)
         try {
-            const myFunction = firebase.functions().httpsCallable('generatePic');
-            const result = await myFunction({ CHI: item.CHI, name: item.name });
+            const myFunction = getFunctions(db);
+            const result = await httpsCallable(myFunction, 'generatePic')({
+                CHI: item.CHI,
+                name: item.name
+            });
             let ARRimage = result.data.result
             console.log(ARRimage.length)
             setImgGallery(ARRimage)

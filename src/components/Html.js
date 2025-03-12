@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/functions';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 function App() {
-
   const handleTextSubmit = async (text) => {
-    const synthesizeSpeech = firebase.functions().httpsCallable('synthesizeSpeech');
-    let languageCode = 'en-US'
+    const functions = getFunctions();
+    const synthesizeSpeechFunction = httpsCallable(functions, 'synthesizeSpeech');
+    let languageCode = 'en-US';
     try {
-      const result = await synthesizeSpeech({ text,languageCode });
+      const result = await synthesizeSpeechFunction({ text, languageCode });
       const audioContentBase64 = result.data.audioContent;
       const audioBlob = new Blob([Uint8Array.from(atob(audioContentBase64), c => c.charCodeAt(0))], { type: 'audio/mp3' });
       const url = URL.createObjectURL(audioBlob);
@@ -20,9 +19,9 @@ function App() {
     }
   };
 
-    return (
-      <button onClick={() => handleTextSubmit("New Order has been sent to kitchen")}>Convert to Speech</button>
-    );
+  return (
+    <button onClick={() => handleTextSubmit("New Order has been sent to kitchen")}>Convert to Speech</button>
+  );
 }
 
 export default App;

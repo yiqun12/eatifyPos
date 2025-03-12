@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/functions';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
 import { useMyHook } from '../pages/myHook';
 import { useMemo } from 'react';
@@ -27,13 +26,13 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
   const generateJSON = async (ocr_scan, url, LanMode, imgBool) => {
     console.log(ocr_scan, url, LanMode, imgBool)
 
-
     try {
+      const functions = getFunctions();
       const [recommendationResult, jsonResult] = await Promise.allSettled([
         (async () => {
           if (window.location.pathname === "/scan") {
-            const myFunction = firebase.functions().httpsCallable('recommendation');
-            const response = await myFunction({ url, ocr_scan });
+            const recommendationFunction = httpsCallable(functions, 'recommendation');
+            const response = await recommendationFunction({ url, ocr_scan });
             console.log(response.data.result);
             const processMenu = (menu) => {
               return menu.filter(section => section.trim() !== "") // Remove empty strings
@@ -54,8 +53,8 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
           }
         })(),
         (async () => {
-          const myFunction = firebase.functions().httpsCallable('generateJSON');
-          const response = await myFunction({ url, ocr_scan, LanMode, imgBool });
+          const generateJSONFunction = httpsCallable(functions, 'generateJSON');
+          const response = await generateJSONFunction({ url, ocr_scan, LanMode, imgBool });
           setUploadStatus('success');
           return response.data.result;
         })()
@@ -76,9 +75,6 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
     } catch (error) {
       console.error('Unexpected error:', error);
     }
-
-
-
   };
 
   const extractTextFromImage = async (img, selectedFile) => {

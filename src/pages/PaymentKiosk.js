@@ -2,10 +2,10 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useUserContext } from "../context/userContext";
 import { useState, useEffect } from 'react';
-import firebase from 'firebase/compat/app';
-import myImage from '../components/check-mark.png';  // Import the image
-import { doc, addDoc, collection, setDoc } from 'firebase/firestore';
-import { db } from '../firebase/index'; // Make sure to import necessary functions
+import { doc, addDoc, collection, setDoc, getDoc, onSnapshot, query, where } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { db } from '../firebase/index';
+import myImage from '../components/check-mark.png';
 import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
@@ -64,7 +64,8 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
         console.log("createPaymentIntent");
 
         try {
-            const createPaymentIntentFunction = firebase.functions().httpsCallable('createPaymentIntent');
+            const functions = getFunctions();
+            const createPaymentIntentFunction = httpsCallable(functions, 'createPaymentIntent');
             const response = await createPaymentIntentFunction({
                 amount: amount,
                 connected_stripe_account_id: connected_stripe_account_id,
@@ -83,39 +84,36 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
 
         } catch (error) {
             console.error("There was an error with createPaymentIntent:", error.message);
-            //setError("There was an error with createPaymentIntent:", error.message);
-            throw error; // rethrow to handle it outside of the function or display to user
+            throw error;
         }
     }
-    //To Do: set Error
 
     async function processPayment(amount) {
         console.log("processPayment");
         try {
-            const processPaymentFunction = firebase.functions().httpsCallable('processPayment');
+            const functions = getFunctions();
+            const processPaymentFunction = httpsCallable(functions, 'processPayment');
 
             const response = await processPaymentFunction({
                 reader_id: selectedId,
                 payment_intent_id: paymentIntentId,
                 connected_stripe_account_id: connected_stripe_account_id,
-                amount: amount//tipping base on this amount
+                amount: amount
             });
 
             console.log("the response was okay");
             return response.data;
         } catch (error) {
-            //setError("There was an error with processPayment:", error.message);
             console.error("There was an error with processPayment:", error.message);
-            throw error; // rethrow to handle it outside of the function or display to user
+            throw error;
         }
     }
-
-
 
     async function cancel(readerId) {
         console.log("cancel");
         try {
-            const cancelActionFunction = firebase.functions().httpsCallable('cancelAction');
+            const functions = getFunctions();
+            const cancelActionFunction = httpsCallable(functions, 'cancelAction');
 
             const response = await cancelActionFunction({
                 reader_id: readerId,
@@ -127,9 +125,7 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
             return response.data;
 
         } catch (error) {
-            // setError("There was an error with cancel:", error.message);
-            // console.error("There was an error with cancel:", error.message);
-            throw error; // rethrow to handle it outside of the function or display to user
+            throw error;
         }
     }
 
@@ -173,24 +169,15 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
 
     useEffect(() => {
         console.log(currentHash?.slice(1));
-        firebase
-            .firestore()
-            .collection('stripe_customers')
-            .doc(user?.uid)
-            .collection('TitleLogoNameContent')
-            .doc(storeID)
-            .collection('kiosk')
-            .doc(currentHash?.slice(1))
-            .get()
+        const docRef = doc(db, 'stripe_customers', user?.uid, 'TitleLogoNameContent', storeID, 'kiosk', currentHash?.slice(1));
+        
+        getDoc(docRef)
             .then((snapshot) => {
-                if (snapshot.exists) {
-                    const data = snapshot.data(); // Get the document data
-                    const readId = data.readerId; // Assuming 'readId' is the field you want
-
-                    // Now you can use the readId for something, like setting state
-                    setSelectedId(readId); // As an example, if you want to set it as selectedId
-                    // console.log(readId); // Log the readId or do something with it
-                    cancelPayment(readId)
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    const readId = data.readerId;
+                    setSelectedId(readId);
+                    cancelPayment(readId);
                 } else {
                     console.log("No such document!");
                 }
@@ -198,106 +185,94 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
             .catch(error => {
                 console.error("Error getting document:", error);
             });
-
-        // Since there's no subscription, no need to return a cleanup function here
-    }, [currentHash, openCheckout]); // Include dependencies here
+    }, [currentHash, openCheckout]);
 
 
     useEffect(() => {
-        const unsubscribe = firebase
-            .firestore()
-            .collection('stripe_customers')
-            .doc(user?.uid)
-            .collection('TitleLogoNameContent')
-            .doc(storeID)
-            .collection('success_payment')
-            .where('id', '==', intent)
-            .where('status', '==', 'succeeded')
-            .onSnapshot({ includeMetadataChanges: true }, (snapshot) => {
-                const newTerminalsData = snapshot.docs.map((doc) => ({
-                    docuId: doc.id, // This will include the document ID in the resulting object
-                    ...doc.data(),
-                }));
+        const q = query(
+            collection(db, 'stripe_customers', user?.uid, 'TitleLogoNameContent', storeID, 'success_payment'),
+            where('id', '==', intent),
+            where('status', '==', 'succeeded')
+        );
 
-                console.log("hello");
-                console.log(newTerminalsData);
-                if (newTerminalsData.length === 0) {
+        const unsubscribe = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
+            const newTerminalsData = snapshot.docs.map((doc) => ({
+                docuId: doc.id,
+                ...doc.data(),
+            }));
 
-                    // newTerminalsData is an empty array
-                    //console.log("newTerminalsData is empty");
-                } else {
-                    setReceived(true)
-                    const dateTime = new Date().toISOString();
-                    const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-                    // Add a document to the collection
-                    addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "SendToKitchen"), {
-                        date: date,
-                        data: JSON.parse(receipt_JSON),
-                        selectedTable: selectedTable
-                    })
-                        .then(docRef => {
-                            // This function is called when the document has been successfully written to the database
-                            console.log("Document written with ID: ", docRef.id);
-                        })
-                        .catch(error => {
-                            // This function is called when there's an error adding the document
-                            console.error("Error adding document: ", error);
-                        });
-                    addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "CustomerReceipt"), {
-                        date: date,
-                        data: JSON.parse(receipt_JSON),
-                        selectedTable: selectedTable,
-                        discount: 0,
-                        service_fee: service_fee,
-                        total: chargeAmount,
-                    })
-                        .then(docRef => {
-                            // This function is called when the document has been successfully written to the database
-                            console.log("Document written with ID: ", docRef.id);
-                        })
-                        .catch(error => {
-                            // This function is called when there's an error adding the document
-                            console.error("Error adding document: ", error);
-                        });
-                    addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "MerchantReceipt"), {
-                        date: date,
-                        data: JSON.parse(receipt_JSON),
-                        selectedTable: selectedTable,
-                        discount: 0,
-                        service_fee: service_fee,
-                        total: chargeAmount,
-                    })
-                        .then(docRef => {
-                            // This function is called when the document has been successfully written to the database
-                            console.log("Document written with ID: ", docRef.id);
-                        })
-                        .catch(error => {
-                            // This function is called when there's an error adding the document
-                            console.error("Error adding document: ", error);
-                        });
-                    setDoc(doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "PendingDineInOrder", newTerminalsData[0].docuId), {
-                        store: storeID,
-                        stripe_account_store_owner: user.uid,
-                        items: JSON.parse(receipt_JSON),
-                        date: parseDateUTC(date,getTimeZoneByZip(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).ZipCode)),
-                        amount: chargeAmount,
-                        Status: "Paid", // Assuming "NO USE" is a comment and not part of the value
-                        table: selectedTable,
-                        username: "kiosk",
-                    }).then(() => {
-                        sessionStorage.removeItem(storeID);
+            console.log("hello");
+            console.log(newTerminalsData);
+            if (newTerminalsData.length > 0) {
+                setReceived(true);
+                const dateTime = new Date().toISOString();
+                const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+                
+                // Add documents to collections
+                addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "SendToKitchen"), {
+                    date: date,
+                    data: JSON.parse(receipt_JSON),
+                    selectedTable: selectedTable
+                })
+                .then(docRef => {
+                    console.log("Document written with ID: ", docRef.id);
+                })
+                .catch(error => {
+                    console.error("Error adding document: ", error);
+                });
 
-                        window.location.href = '/store?store=' + storeID + '&order=' + newTerminalsData[0].docuId + '&modal=true' + currentHash
-                    }).catch((error) => {
-                        console.error("Error writing document: ", error);
+                addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "CustomerReceipt"), {
+                    date: date,
+                    data: JSON.parse(receipt_JSON),
+                    selectedTable: selectedTable,
+                    discount: 0,
+                    service_fee: service_fee,
+                    total: chargeAmount,
+                })
+                .then(docRef => {
+                    console.log("Document written with ID: ", docRef.id);
+                })
+                .catch(error => {
+                    console.error("Error adding document: ", error);
+                });
 
-                    });
-                }
-            });
+                addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "MerchantReceipt"), {
+                    date: date,
+                    data: JSON.parse(receipt_JSON),
+                    selectedTable: selectedTable,
+                    discount: 0,
+                    service_fee: service_fee,
+                    total: chargeAmount,
+                })
+                .then(docRef => {
+                    console.log("Document written with ID: ", docRef.id);
+                })
+                .catch(error => {
+                    console.error("Error adding document: ", error);
+                });
 
-        // Return a cleanup function to unsubscribe from the snapshot listener when the component unmounts
+                setDoc(doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "PendingDineInOrder", newTerminalsData[0].docuId), {
+                    store: storeID,
+                    stripe_account_store_owner: user.uid,
+                    items: JSON.parse(receipt_JSON),
+                    date: parseDateUTC(date,getTimeZoneByZip(JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).ZipCode)),
+                    amount: chargeAmount,
+                    Status: "Paid", // Assuming "NO USE" is a comment and not part of the value
+                    table: selectedTable,
+                    username: "kiosk",
+                }).then(() => {
+                    sessionStorage.removeItem(storeID);
+
+                    window.location.href = '/store?store=' + storeID + '&order=' + newTerminalsData[0].docuId + '&modal=true' + currentHash
+                }).catch((error) => {
+                    console.error("Error writing document: ", error);
+
+                });
+            }
+        });
+
         return () => unsubscribe();
-    }, [intent]); // Remove the empty dependency array to listen to real-time changes
+    }, [intent]);
 
 
     async function cancelPayment(readerId) {

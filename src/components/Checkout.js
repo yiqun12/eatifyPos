@@ -3,7 +3,9 @@
 */
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import firebase from 'firebase/compat/app';
+import { collection, doc, addDoc, setDoc, getDoc, updateDoc, deleteDoc, where, onSnapshot, query } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { db } from '../firebase/index';
 import { loadStripe } from '@stripe/stripe-js';
 import useGeolocation from './useGeolocation';
 
@@ -84,13 +86,10 @@ function Checkout(props) {
     document
       .querySelectorAll('button')
       .forEach((button) => (button.disabled = true));
-    // console.log('Payment Method ID:', paymentMethodId);
 
-    // Remember to handle the promise returned by fetch and implement error handling
     const amount = Number(totalPrice);
     const currency = 'usd';
-    //  console.log(currency)
-    console.log(amount)
+    console.log(amount);
     const dateTime = new Date().toISOString();
     const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
     const data = {
@@ -106,23 +105,16 @@ function Checkout(props) {
       isDinein: isDineIn ? "DineIn" : "TakeOut",
       tableNum: isDineIn ? sessionStorage.getItem("table") : "外卖TakeOut"
     };
-    // send to db
-    await firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('payments')
-      .add(data).then((docRef) => {
-        setReceiptToken(docRef.id)
-        console.log("Document ID is:", docRef.id);
-      })
-      .catch((error) => {
-        setReceiptToken("")
-        console.error("Error adding document: ", error);
-      });
-    // e.complete('success'); // Notify the browser that the payment is successful
 
-  }
+    try {
+      const docRef = await addDoc(collection(db, 'stripe_customers', user.uid, 'payments'), data);
+      setReceiptToken(docRef.id);
+      console.log("Document ID is:", docRef.id);
+    } catch (error) {
+      setReceiptToken("");
+      console.error("Error adding document: ", error);
+    }
+  };
 
   useEffect(() => {
     if (!stripe || !elements) {
@@ -140,34 +132,24 @@ function Checkout(props) {
       requestPayerEmail: true,
     });
 
-    // Check the availability of the Payment Request API.
     pr.canMakePayment().then(result => {
       if (result) {
         setPaymentRequest(pr);
       }
-    });//google/apple pay
-    //alert("pr.removeAllListeners())")
-    pr.removeAllListeners()
+    });
+
+    pr.removeAllListeners();
     pr.off('paymentmethod');
-    //alert(JSON.stringify(user.uid))
-    //alert("pr.off('paymentmethod')")
+
     pr.on('paymentmethod', async (e) => {
-      console.log("paymentmethod" + totalPrice)
-      //alert("pr.on('paymentmethod'")
-      //alert(totalPrice)
-      const { paymentMethod } = e; // Extract the paymentMethod object from the event
-
-      const paymentMethodId = paymentMethod.id; // Extract the id from the paymentMethod object
-      //alert(paymentMethod.id)
-      // console.log('Payment Method ID:', paymentMethodId);
-
-      // Remember to handle the promise returned by fetch and implement error handling
+      console.log("paymentmethod" + totalPrice);
+      const { paymentMethod } = e;
+      const paymentMethodId = paymentMethod.id;
       const amount = Number(totalPrice);
       const currency = 'usd';
-      //  console.log(currency)
-      console.log("dollar pay")
-      console.log(amount)
-      //alert(JSON.stringify(user.uid))
+      console.log("dollar pay");
+      console.log(amount);
+
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const data = {
@@ -185,47 +167,23 @@ function Checkout(props) {
         directoryType: directoryType,
         deliveryFee: deliveryFee
       };
-      console.log(deliveryID)
-      console.log(deliveryFee)
-      // send to db
-      if (deliveryID === "") {//no delivery
-        console.log("no delivery")
-        await firebase
-          .firestore()
-          .collection('stripe_customers')
-          .doc(user.uid)
-          .collection('payments')
-          .add(data).then((docRef) => {
-            setReceiptToken(docRef.id)
-            console.log("Document ID is:", docRef.id);
-          })
-          .catch((error) => {
-            setReceiptToken("")
-            //alert(JSON.stringify(error))
-            console.error("Error adding document: ", error);
-          });
-      } else {
-        console.log("delivery")
 
-        await firebase
-          .firestore()
-          .collection('stripe_customers')
-          .doc(user.uid)
-          .collection('payments')
-          .doc(deliveryID)
-          .set(data)
-          .then(() => {
-            setReceiptToken(deliveryID);
-            console.log("Document ID is:", '1');
-          })
-          .catch((error) => {
-            setReceiptToken("");
-            console.error("Error adding document: ", error);
-          });
-
+      try {
+        if (deliveryID === "") {
+          console.log("no delivery");
+          const docRef = await addDoc(collection(db, 'stripe_customers', user.uid, 'payments'), data);
+          setReceiptToken(docRef.id);
+          console.log("Document ID is:", docRef.id);
+        } else {
+          console.log("delivery");
+          await setDoc(doc(db, 'stripe_customers', user.uid, 'payments', deliveryID), data);
+          setReceiptToken(deliveryID);
+          console.log("Document ID is:", deliveryID);
+        }
+      } catch (error) {
+        setReceiptToken("");
+        console.error("Error adding document: ", error);
       }
-
-      //e.complete('success'); // Notify the browser that the payment is successful
     });
   }, [stripe, elements, totalPrice, user]);
 
@@ -541,7 +499,7 @@ function Checkout(props) {
                   style={{ display: "inline", verticalAlign: "middle" }}
                 >
                   <g fill="#FFF" fill-rule="evenodd">
-                    <path d="M395.846 603.585c-3.921 1.98-7.936 2.925-12.81 2.925-10.9 0-19.791-5.85-24.764-14.625l-2.006-3.864-78.106-167.913c-0.956-1.98-0.956-3.865-0.956-5.845 0-7.83 5.928-13.68 13.863-13.68 2.965 0 5.928 0.944 8.893 2.924l91.965 64.43c6.884 3.864 14.82 6.79 23.708 6.79 4.972 0 9.85-0.945 14.822-2.926L861.71 282.479c-77.149-89.804-204.684-148.384-349.135-148.384-235.371 0-427.242 157.158-427.242 351.294 0 105.368 57.361 201.017 147.323 265.447 6.88 4.905 11.852 13.68 11.852 22.45 0 2.925-0.957 5.85-2.006 8.775-6.881 26.318-18.831 69.334-18.831 71.223-0.958 2.92-2.013 6.79-2.013 10.75 0 7.83 5.929 13.68 13.865 13.68 2.963 0 5.928-0.944 7.935-2.925l92.922-53.674c6.885-3.87 14.82-6.794 22.756-6.794 3.916 0 8.889 0.944 12.81 1.98 43.496 12.644 91.012 19.53 139.48 19.53 235.372 0 427.24-157.158 427.24-351.294 0-58.58-17.78-114.143-48.467-163.003l-491.39 280.07-2.963 1.98z" fill="#FFFFFF" />
+                    <path d="M395.846 603.585c-3.921 1.98-7.936 2.925-12.81 2.925-10.9 0-19.791-5.85-24.764-14.625l-2.006-3.864-78.106-167.913c-0.956-1.98-0.956-3.865-0.956-5.845 0-7.83 5.928-13.68 13.68-13.68 2.965 0 5.928 0.944 8.893 2.924l91.965 64.43c6.884 3.864 14.82 6.79 23.708 6.79 4.972 0 9.85-0.945 14.822-2.926L861.71 282.479c-77.149-89.804-204.684-148.384-349.135-148.384-235.371 0-427.242 157.158-427.242 351.294 0 105.368 57.361 201.017 147.323 265.447 6.88 4.905 11.852 13.68 11.852 22.45 0 2.925-0.957 5.85-2.006 8.775-6.881 26.318-18.831 69.334-18.831 71.223-0.958 2.92-2.013 6.79-2.013 10.75 0 7.83 5.929 13.68 13.865 13.68 2.963 0 5.928-0.944 7.935-2.925l92.922-53.674c6.885-3.87 14.82-6.794 22.756-6.794 3.916 0 8.889 0.944 12.81 1.98 43.496 12.644 91.012 19.53 139.48 19.53 235.372 0 427.24-157.158 427.24-351.294 0-58.58-17.78-114.143-48.467-163.003l-491.39 280.07-2.963 1.98z" fill="#FFFFFF" />
 
                   </g>
                 </svg>
@@ -717,37 +675,11 @@ function CardSection(props) {
     if (deliveryID === "") {//no delivery
       console.log("no delivery")
 
-      await firebase
-        .firestore()
-        .collection('stripe_customers')
-        .doc(user.uid)
-        .collection('payments')
-        .add(data).then((docRef) => {
-          props.setReceiptToken(docRef.id)
-          console.log("Document ID is:", docRef.id);
-        })
-        .catch((error) => {
-          props.setReceiptToken("")
-          console.error("Error adding document: ", error);
-        });
+      await addDoc(collection(db, 'stripe_customers', user.uid, 'payments'), data);
     } else {
       console.log(" delivery")
 
-      await firebase
-        .firestore()
-        .collection('stripe_customers')
-        .doc(user.uid)
-        .collection('payments')
-        .doc(deliveryID)
-        .set(data)
-        .then(() => {
-          props.setReceiptToken(deliveryID);
-          console.log("Document ID is:", '1');
-        })
-        .catch((error) => {
-          props.setReceiptToken("");
-          console.error("Error adding document: ", error);
-        });
+      await setDoc(doc(db, 'stripe_customers', user.uid, 'payments', deliveryID), data);
 
     }
     //send to db 2
@@ -963,19 +895,7 @@ function PayHistory(props) {
       tableNum: isDineIn ? sessionStorage.getItem("table") : "外卖TakeOut"
     };
     // send to db
-    await firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('payments')
-      .add(data).then((docRef) => {
-        props.setReceiptToken(docRef.id)
-        console.log("Document ID is:", docRef.id);
-      })
-      .catch((error) => {
-        props.setReceiptToken("")
-        console.error("Error adding document: ", error);
-      });
+    await addDoc(collection(db, 'stripe_customers', user.uid, 'payments'), data);
     // e.complete('success'); // Notify the browser that the payment is successful
 
   };
@@ -998,13 +918,7 @@ function PayHistory(props) {
       payment['uid'] = user.uid
     }
 
-    await firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('payments')
-      .doc(docId)
-      .set(payment, { merge: true });
+    await setDoc(doc(db, 'stripe_customers', user.uid, 'payments', docId), payment, { merge: true });
   }
   async function handleAlipay(payment, docId) {
     if (!stripe) {
@@ -1047,13 +961,7 @@ function PayHistory(props) {
       payment['uid'] = user.uid;
     }
     //send to db
-    await firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('payments')
-      .doc(docId)
-      .set(payment, { merge: true });
+    await setDoc(doc(db, 'stripe_customers', user.uid, 'payments', docId), payment, { merge: true });
   }
 
   /**
@@ -1065,75 +973,67 @@ function PayHistory(props) {
 
   useEffect(() => {
     if (props.receiptToken != "") {
-      firebase
-        .firestore()
-        .collection('stripe_customers')
-        .doc(user.uid)
-        .collection('payments')
-        .doc(props.receiptToken) // Referencing the specific document by its ID
-        .onSnapshot((doc) => {
+      const docRef = doc(db, 'stripe_customers', user.uid, 'payments', props.receiptToken);
+      onSnapshot(docRef, (doc) => {
+        const payment = doc.data();
+        console.log('read card')
 
+        let liElement = document.getElementById(`payment-${doc.id}`);
+        if (!liElement) {
+          liElement = document.createElement('li');
+          liElement.id = `payment-${doc.id}`;
+        }
+        let content = '';
 
-          const payment = doc.data();
-          console.log('read card')
+        if (
+          payment.status === 'new' & !payment.error ||
+          payment.status === 'requires_confirmation'
+        ) {
 
-          let liElement = document.getElementById(`payment-${doc.id}`);
-          if (!liElement) {
-            liElement = document.createElement('li');
-            liElement.id = `payment-${doc.id}`;
-          }
-          // console.log(payment.dateTime)
-          let content = '';
+          content = `🚨 ` + t("Creating Payment");
 
-          if (
-            payment.status === 'new' & !payment.error ||
-            payment.status === 'requires_confirmation'
-          ) {
+        } else if (payment.status === 'succeeded') {
+          sessionStorage.removeItem(store);
+          window.location.href = '/store?store=' + store + '&order=' + doc.id + '&modal=true'
+          //+ "&table=" + sessionStorage.getItem("table");
+        } else if (payment.status === 'requires_action') {
+          content = `🚨 ` + t("Payment status: ") + `${payment.status}`;
 
-            content = `🚨 ` + t("Creating Payment");
-
-          } else if (payment.status === 'succeeded') {
-            sessionStorage.removeItem(store);
-            window.location.href = '/store?store=' + store + '&order=' + doc.id + '&modal=true'
-            //+ "&table=" + sessionStorage.getItem("table");
-          } else if (payment.status === 'requires_action') {
-            content = `🚨 ` + t("Payment status: ") + `${payment.status}`;
-
-            if (payment.payment_method_types[0] === 'alipay') {
-              document
-                .querySelectorAll('button')
-                .forEach((button) => (button.disabled = false));
-            } else if (payment.payment_method_types[0] === 'wechat_pay') {
-              document
-                .querySelectorAll('button')
-                .forEach((button) => (button.disabled = false));
-            } else if (payment.payment_method_types[0] === 'card') {
-              handleCardAction(payment, doc.id);
-            }
-          } else if (payment.error) {
+          if (payment.payment_method_types[0] === 'alipay') {
             document
               .querySelectorAll('button')
               .forEach((button) => (button.disabled = false));
-            content = `⚠️ ` + t("Payment failed: ") + `. ${t(payment.error)}`;
-          } else if (payment.status === 'requires_payment_method')
-            if (payment.payment_method_types[0] === 'alipay') {
-              handleAlipay(payment, doc.id);
-            } else if (payment.payment_method_types[0] === 'wechat_pay') {
-              handleWechatPay(payment, doc.id);
-            } else if (payment.payment_method_types[0] === 'card') {
-              document
-                .querySelectorAll('button')
-                .forEach((button) => (button.disabled = false));
-            }
-
-          {
-            content = `🚨 ` + t("Payment status: ") + `${payment.status}`;
+          } else if (payment.payment_method_types[0] === 'wechat_pay') {
+            document
+              .querySelectorAll('button')
+              .forEach((button) => (button.disabled = false));
+          } else if (payment.payment_method_types[0] === 'card') {
+            handleCardAction(payment, doc.id);
+          }
+        } else if (payment.error) {
+          document
+            .querySelectorAll('button')
+            .forEach((button) => (button.disabled = false));
+          content = `⚠️ ` + t("Payment failed: ") + `. ${t(payment.error)}`;
+        } else if (payment.status === 'requires_payment_method')
+          if (payment.payment_method_types[0] === 'alipay') {
+            handleAlipay(payment, doc.id);
+          } else if (payment.payment_method_types[0] === 'wechat_pay') {
+            handleWechatPay(payment, doc.id);
+          } else if (payment.payment_method_types[0] === 'card') {
+            document
+              .querySelectorAll('button')
+              .forEach((button) => (button.disabled = false));
           }
 
-          liElement.innerText = content;
-          document.querySelector('#payments-list').appendChild(liElement);
+        {
+          content = `🚨 ` + t("Payment status: ") + `${payment.status}`;
+        }
 
-        });
+        liElement.innerText = content;
+        document.querySelector('#payments-list').appendChild(liElement);
+
+      });
     }
   }, [props.receiptToken]); // empty dependency array to run once on mount
   //console.log(elements.getElement(CardElement))
@@ -1188,18 +1088,13 @@ function PayHistory(props) {
       }
 
       const docId = sessionStorage.getItem('docid');
-      const paymentRef = firebase
-        .firestore()
-        .collection('stripe_customers')
-        .doc(user.uid)
-        .collection('payments')
-        .doc(docId);
+      const paymentRef = doc(db, 'stripe_customers', user.uid, 'payments', docId);
 
       // Set initial payment information
-      await paymentRef.set(payment, { merge: true });
+      await setDoc(paymentRef, payment, { merge: true });
 
       // Listen to updates
-      paymentRef.onSnapshot((docSnapshot) => {
+      onSnapshot(paymentRef, (docSnapshot) => {
         const payment = docSnapshot.data();
         //const card = payment.charges.data[0].payment_method_details.card;
         if (payment.status === "succeeded") {
@@ -1270,7 +1165,7 @@ function PayHistory(props) {
       .forEach((button) => (button.disabled = true));
     try {
       // Create a reference to the Cloud Function
-      const myFunction = firebase.functions().httpsCallable('PendingDineInOrder');
+      const myFunction = getFunctions().httpsCallable('PendingDineInOrder');
 
       // Call the function with the provided data
       const data = {
@@ -1383,7 +1278,7 @@ function PayHistory(props) {
               style={{ display: "inline", verticalAlign: "middle" }}
             >
               <g fill="#FFF" fill-rule="evenodd"></g>
-              <path fill="#FFFFFF" d="M48.508 0C21.694 0 0 21.511 0 48.068v203.87c0 26.536 21.694 48.059 48.508 48.059h205.81c26.793 0 48.496-21.522 48.496-48.059v-2.086c-.902-.372-78.698-32.52-118.24-51.357-26.677 32.524-61.086 52.256-96.812 52.256-60.412 0-80.927-52.38-52.322-86.86 6.237-7.517 16.847-14.698 33.314-18.718 25.76-6.27 66.756 3.915 105.18 16.477 6.912-12.614 12.726-26.506 17.057-41.297H72.581v-11.88h61.057V87.168H59.687V75.28h73.951V44.89s0-5.119 5.236-5.119h29.848v35.508h73.107V87.17h-73.107v21.303h59.674c-5.71 23.176-14.38 44.509-25.264 63.236 18.111 6.49 34.368 12.646 46.484 16.666 40.413 13.397 51.74 15.034 53.201 15.205V48.069c0-26.557-21.704-48.068-48.496-48.068H48.511zm33.207 162.54a91.24 91.24 0 00-7.822.426c-7.565.753-21.768 4.06-29.533 10.865-23.274 20.109-9.344 56.87 37.762 56.87 27.383 0 54.743-17.343 76.236-45.114-27.71-13.395-51.576-23.335-76.643-23.047z" />
+              <path fill="#FFFFFF" d="M48.508 0C21.694 0 0 21.511 0 48.068v203.87c0 26.536 21.694 48.059 48.508 48.059h205.81c26.793 0 48.496-21.522 48.496-48.059v-2.086c-.902-.372-78.698-32.52-118.24-51.357-26.677 32.524-61.086 52.256-52.256 27.383 0 54.743-17.343 76.236-45.114-27.71-13.395-51.576-23.335-76.643-23.047z" />
             </svg>
 
             {t("AliPay")}
@@ -1404,32 +1299,7 @@ function PayHistory(props) {
           </button>
 
           : <div>
-          </div>}
-
-      </div> */}
-
-
-      {/* <PaymentKiosk receipt_JSON={JSON.stringify([{ "id": "9ee84ddc-c91f-47ec-981b-1c5680550837", "name": "Garlic A Choy", "subtotal": "15", "image": "https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500", "quantity": 5, "attributeSelected": {}, "count": "3c50ff94-49e1-4563-ac99-990efc15b0e9", "itemTotalPrice": 75, "CHI": "蒜蓉A菜" }, { "id": "c315164b-5afb-4330-b24a-238caf766cc4", "name": "Beef And Broccoli", "subtotal": "18", "image": "https://img2.baidu.com/it/u=3582338435,3937177930&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500", "quantity": 1, "attributeSelected": {}, "count": "9e72ec1f-9941-45be-ac26-369792e69f78", "itemTotalPrice": 18, "CHI": "牛肉西兰花" }])}
-                  storeID={"demo"} chargeAmount={1} connected_stripe_account_id={"acct_1OWU8KBUAXdEY4mJ"} service_fee={0} selectedTable={"测试"} /> */}
-      {/* {
-        isKiosk ?
-          <PaymentKiosk receipt_JSON={products}
-            storeID={store} chargeAmount={parseFloat(totalPrice)} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
-            service_fee={0} selectedTable={'点餐机kiosk'} /> : null
-      } */}
-      {/* {isKiosk ?
-        <button
-          class="text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2"
-          style={{ "borderRadius": "0.2rem", width: "100%" }}
-          onClick={() => {
-            PendingDineInOrder(sessionStorage.getItem('table'), user.displayName)
-          }}>
-
-          {t("Place Order, Pay At Front Desk")}
-        </button>
-
-        : <div>
-        </div>} */}
+          </div>} */}
       {/* 
       {location ? (
         distanceStatus === 'near' ? (

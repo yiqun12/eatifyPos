@@ -10,7 +10,7 @@ import moment from 'moment';
 import { useState, useEffect } from 'react';
 import { useMyHook } from '../pages/myHook';
 import { motion, AnimatePresence } from "framer-motion"
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, onSnapshot, doc, subcollection } from 'firebase/firestore';
 import { db } from '../firebase/index';
 import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
 import Eshopingcart from './e-shopingcart.png';  // Import the image
@@ -64,7 +64,7 @@ function PayFullhistory() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true); // Set loading to true when component mounts or dependencies change
+    setIsLoading(true);
     const fetchCollectionAsMap = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'TitleLogoNameContent'));
@@ -72,7 +72,6 @@ function PayFullhistory() {
 
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          // Using the document ID as the key for the hash map
           tempStoreMap[doc.id] = {
             storeName: data.Name,
             storeNameCHI: data.storeNameCHI,
@@ -84,64 +83,55 @@ function PayFullhistory() {
       }
     };
 
-    const unsubscribe = firebase
-      .firestore()
-      .collection('stripe_customers')
-      .doc(user.uid)
-      .collection('payments')
-      .orderBy("dateTime", "desc")
-      .onSnapshot((snapshot) => {
-        console.log('read card');
-        //setPayments(newItems);
-        const newPayments = [];
-        let payment;
-        snapshot.forEach((doc) => {
-          payment = doc.data();
+    const paymentsRef = collection(db, 'stripe_customers', user.uid, 'payments');
+    const q = query(paymentsRef, orderBy("dateTime", "desc"));
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      console.log('read card');
+      const newPayments = [];
+      let payment;
+      snapshot.forEach((doc) => {
+        payment = doc.data();
 
-          if (payment.status === 'succeeded') {
-            console.log(doc.id)
-            payment.id = doc.id
-            console.log(payment)
-            newPayments.push(payment);
-          }
-        });
-
-        const newItems = []; // Declare an empty array to hold the new items
-        fetchCollectionAsMap().then(tempStoreMap => {
-          console.log(tempStoreMap);
-          newPayments.forEach((item) => {
-            const formattedDate = parseDateUTC(item.dateTime, Intl.DateTimeFormat().resolvedOptions().timeZone)//"America/Los_Angeles" local timezone
-
-            const newItem = {
-              storeName: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store) ? tempStoreMap[payment.store].storeName : payment.store,
-              storeNameCHI: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store) ? tempStoreMap[payment.store].storeNameCHI : payment.store,
-              store: payment.store,
-              id: item.id.substring(0, 4), // use only the first 4 characters of item.id as the value for the id property
-              receiptData: item.receiptData,
-              date: formattedDate,
-              email: item.user_email,
-              dineMode: item.metadata.isDine,
-              status: item.powerBy,
-              total: parseFloat(item.metadata.total),
-              tableNum: item.tableNum,
-              metadata: item.metadata,
-              amount: item.amount,
-            };
-            newItems.push(newItem); // Push the new item into the array
-          });
-          setPayments(newItems); // Update the state with the new payments
-          setIsLoading(false); // Data has been loaded
-
-          console.log(newItems)
-        });
-
-
-
+        if (payment.status === 'succeeded') {
+          console.log(doc.id)
+          payment.id = doc.id
+          console.log(payment)
+          newPayments.push(payment);
+        }
       });
-    ;
-    return () => unsubscribe(); // Cleanup the subscription on unmount
 
-  }, []); // Make sure to update the dependencies array if you have other dependencies
+      const newItems = [];
+      fetchCollectionAsMap().then(tempStoreMap => {
+        console.log(tempStoreMap);
+        newPayments.forEach((item) => {
+          const formattedDate = parseDateUTC(item.dateTime, Intl.DateTimeFormat().resolvedOptions().timeZone)
+
+          const newItem = {
+            storeName: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store) ? tempStoreMap[payment.store].storeName : payment.store,
+            storeNameCHI: Object.keys(tempStoreMap).length > 0 && tempStoreMap.hasOwnProperty(payment.store) ? tempStoreMap[payment.store].storeNameCHI : payment.store,
+            store: payment.store,
+            id: item.id.substring(0, 4),
+            receiptData: item.receiptData,
+            date: formattedDate,
+            email: item.user_email,
+            dineMode: item.metadata.isDine,
+            status: item.powerBy,
+            total: parseFloat(item.metadata.total),
+            tableNum: item.tableNum,
+            metadata: item.metadata,
+            amount: item.amount,
+          };
+          newItems.push(newItem);
+        });
+        setPayments(newItems);
+        setIsLoading(false);
+        console.log(newItems)
+      });
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = (text) => {

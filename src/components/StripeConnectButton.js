@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import firebase from 'firebase/compat/app';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 function StripeOnboardingButton(props) {
 
     const createLink = async () => {
         try {
-            const myFunction = firebase.functions().httpsCallable('createStripeLink');
+            const functions = getFunctions();
+            const createStripeLinkFunction = httpsCallable(functions, 'createStripeLink');
             const payload = {
                 store: props.store,
                 userID: props.user
             };
-            const result = await myFunction(payload);
+            const result = await createStripeLinkFunction(payload);
             //console.log(result.data.url)
             //console.log(result.data.accountId)
             window.location.href = result.data.url;

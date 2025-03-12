@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import {
-
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -10,12 +9,9 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   sendEmailVerification,
-  signInAnonymously
+  signInAnonymously,
+  useDeviceLanguage
 } from "firebase/auth";
-
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
 
 import { auth } from "../firebase";
 
@@ -40,9 +36,11 @@ export const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  firebase.auth().languageCode = localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? "zh" : 'en'
+  
+  // Set language code using v9 syntax
+  useDeviceLanguage(auth);
 
-  useState(() => {
+  useEffect(() => {
     setLoading(true);
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
@@ -207,7 +205,8 @@ export const UserContextProvider = ({ children }) => {
     setLoading(true);
     setError("");
 
-    signInWithPopup(auth, new GoogleAuthProvider())
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
       .then((res) => console.log(res))
       .catch((err) => setError(err.code))
       .finally(() => setLoading(false));
@@ -220,21 +219,16 @@ export const UserContextProvider = ({ children }) => {
     setLoading(true);
     setError("");
 
-    signInWithPopup(auth, new GoogleAuthProvider())
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
       .then((res) => {
-        // Extract user from the result
         const user = res.user;
 
         if (adminEmails.includes(user.email)) {
-          // If user email is in the list of admin emails, the user is an admin
           console.log("User is an admin");
-          // Handle admin logic here
         } else {
-          // If not an admin, ask for store name
           const storeName = prompt("Enter your store name:");
           if (storeName) {
-            // Save store name and set user as admin
-            // ... your logic here
           }
         }
       })
@@ -287,9 +281,8 @@ export const UserContextProvider = ({ children }) => {
   };
 
   const logoutUser = () => {
-    firebase.auth().signOut(auth);
+    signOut(auth);
     setUser(null);
-    //sessionStorage.setItem('user', JSON.stringify(null));
   };
 
   const forgotPassword = (email) => {

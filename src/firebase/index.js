@@ -1,11 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
-import { getFirestore, enableMultiTabIndexedDbPersistence,enableIndexedDbPersistence, CACHE_SIZE_UNLIMITED } from 'firebase/firestore';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { getFirestore, enableMultiTabIndexedDbPersistence } from 'firebase/firestore';
+import { getFunctions } from 'firebase/functions';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCw8WmZfhBIuYJVw34gTE6LlEfOE0e1Dqo",
@@ -18,29 +14,15 @@ const firebaseConfig = {
   measurementId: "G-Y7WG36CDV3"
 };
 
-
-firebase.initializeApp(firebaseConfig);
-// Immediately set Firestore settings
-firebase.firestore().settings({
-  cacheSizeBytes: 102400000 // 100 MB in bytes
-});
-
-
-// Enable offline data persistence
-
-firebase.firestore().enablePersistence()
-  .catch((err) => {
-    if (err.code === 'failed-precondition') {
-      // Multiple tabs open, persistence can only be enabled in one tab at a time.
-    } else if (err.code === 'unimplemented') {
-      // The current browser does not support all of the features required to enable persistence.
-    }
-  });
-
+// Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 
+// Initialize services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const functions = getFunctions(app);
+
+// Enable offline data persistence
 enableMultiTabIndexedDbPersistence(db, {
   forceOwnership: true,
   cacheSizeBytes: 102400000 // Set cache size to 100 MB
@@ -57,6 +39,4 @@ enableMultiTabIndexedDbPersistence(db, {
         console.error(error)
     }
   })
-// Enable offline data persistence
-export const functions = getFunctions(app);
 
