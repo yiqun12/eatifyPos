@@ -1775,46 +1775,7 @@ const Navbar = () => {
             {isOnline ?
               <React.Fragment>
 
-                {(isMobile && (window.location.pathname === '/'
-                  || window.location.pathname === '/merchant'
-                  || window.location.pathname === '/career'
-                )) && (
-                    <>
-                      {/* Hamburger Icon */}
-                      <button
-                        className="hamburger-btn"
-                        onClick={toggleMenu}
-                        style={{ fontSize: '24px', cursor: 'pointer' }}
-                      >
-                        <i className="bi bi-list"></i> {/* Hamburger icon */}
-                      </button>
 
-                      {/* Menu Items (conditionally rendered based on menuOpen state) */}
-                      {(menuOpen) && (
-                        <div className="menu-items" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', position: 'absolute', top: '50px', background: 'white', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', padding: '10px' }}>
-                          <button
-                            style={{ cursor: 'pointer', fontSize: '20px', textAlign: 'left', width: '100%' }}
-                            onClick={() => {
-                              window.location.href = `/merchant`;
-                            }}
-                          >
-                            <i className="bi bi-box"></i> {/* Changed icon */}
-                            <span>Merchant</span>
-                          </button>
-
-                          <button
-                            style={{ cursor: 'pointer', fontSize: '20px', textAlign: 'left', width: '100%' }}
-                            onClick={() => {
-                              window.location.href = `/career`;
-                            }}
-                          >
-                            <i className="bi bi-briefcase"></i> {/* Career Icon */}
-                            <span>Career</span>
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
                 <img
 
                   onClick={event => {
@@ -1947,38 +1908,7 @@ const Navbar = () => {
 
               )} */}
 
-              {(!isMobile && (window.location.pathname === '/'
-                || window.location.pathname === '/merchant'
-                || window.location.pathname === '/career'
-              )) && (
 
-
-
-                  <>
-                    <button
-                      className="ml-3"
-                      style={{ cursor: 'pointer', top: '-10px', fontSize: '20px' }}
-                      onClick={() => {
-                        window.location.href = `/merchant`;
-                      }}
-                    >
-                      <i className="bi bi-box"></i> {/* Changed icon */}
-                      <span>Merchant</span>
-                    </button>
-                    <button
-                      className="ml-3"
-                      style={{ cursor: 'pointer', top: '-10px', fontSize: '20px' }}
-                      onClick={() => {
-                        window.location.href = `/career`;
-                      }}
-                    >
-                      <i className="bi bi-briefcase"></i> {/* Career icon */}
-                      <span
-
-                      >Career</span>
-                    </button>
-                  </>
-                )}
               {
                 !isKiosk && (
                   !user_loading ? (

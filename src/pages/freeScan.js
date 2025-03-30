@@ -586,7 +586,7 @@ const Food = ({ store }) => {
 
             <div
             >
-                <h2 className="text-2xl font-bold text-primary mb-2">
+                <h2 className="text-2xl font-bold text-orange-500 mb-2">
                     Visualize Your Menu with AI
                 </h2>
                 <p className="text-gray-700">

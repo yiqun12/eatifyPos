@@ -133,79 +133,142 @@ function App() {
           <BrowserRouter>
             <MyHookProvider>
 
-              <Navbar />
               <Routes>
 
-                <Route path="/SendMessage" element={<SendMessage />} />
+                <Route
+                  path="/SendMessage"
+                  element={
+                    <>
+                      <Navbar />
+                      <SendMessage />
+                    </>
+                  }
+                />
 
                 {/* <Route path="orders" element={<Receipt />} /> */}
 
                 {/* <Route path="orderhasreceived" element={<OrderHasReceived />} /> */}
 
-                <Route path="Reservation" element={<Reservation />} />
-                <Route path="scan" element={<FreeScan store="freescan" />} />
-                <Route path="resume" element={<Resume />} />
+                <Route
+                  path="Reservation"
+                  element={
+                    <>
+                      <Navbar />
+                      <Reservation />
+                    </>
+                  }
+                />
+                <Route
+                  path="scan"
+                  element={
+                    <>
+                      <Navbar />
+                      <FreeScan store="freescan" />
+                    </>
+                  }
+                />
+                <Route
+                  path="resume"
+                  element={
+                    <>
+                      <Navbar />
+                      <Resume />
+                    </>
+                  }
+                />
 
 
                 {user ? (
                   <Route
                     path="Account"
-                    element={<Account_admin />}
+                    element={
+                      <>
+                        <Navbar />
+                        <Account_admin />
+                      </>
+                    }
                   />
                 ) : (
                   <Route
                     path="Account"
-                    element={<LogIn />}
+                    element={
+                      <>
+                        <Navbar />
+                        <LogIn />
+                      </>
+                    }
                   />
                 )}
 
-                <Route path="SignUp" element={<SignUp />}></Route>
+                <Route
+                  path="SignUp"
+                  element={
+                    <>
+                      <Navbar />
+                      <SignUp />
+                    </>
+                  }
+                />
 
-                {/*testing from tony change Time menu */}
-                {/* <Route exact path="/change_time" element={<ChangeTimeForm />} /> */}
 
-                {/* sound button chinese for new order */}
-                {/* <Route exact path="/sound_button" element={<div><SoundButtonNewOrderChinese /> <SoundButtonNewOrderEnglish /> </div>} /> */}
-
-
-                {/* testing from tony */}
-                {/* <Route exact path="/testing_admin" element={<Account_admin />} /> */}
-                {/* <Route exact path="/testing_food" element={<Food_testing />} /> */}
-                {/* <Route exact path="/terminal_page" element={<TerminalRegister storeDisplayName={"display"} storeID={"demo"} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />} /> */}
-                {/* <Route exact path="/terminal_page2" element={<PaymentRegular storeID={"demo"} chargeAmount={"100"} connected_stripe_account_id={"acct_1NhfrBD7rxr1kqtN"} />} /> */}
-                {/* <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage />} /> */}
-                {/* <Route exact path="/test_notification_page" element={<Test_Notification_Page />} /> */}
-                {/* <Route exact path="dnd" element={<Dnd_Test store={"demo"} acct={"acct_1NhfrBD7rxr1kqtN"} selectedTable={"A2"} key={dndTestKey} main_input={[{ "id": "9ee84ddc-c91f-47ec-981b-1c5680550837", "name": "Garlic A Choy", "subtotal": "15", "image": "https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500", "quantity": 5, "attributeSelected": {}, "count": "3c50ff94-49e1-4563-ac99-990efc15b0e9", "itemTotalPrice": 75, "CHI": "蒜蓉A菜" }, { "id": "c315164b-5afb-4330-b24a-238caf766cc4", "name": "Beef And Broccoli", "subtotal": "18", "image": "https://img2.baidu.com/it/u=3582338435,3937177930&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500", "quantity": 1, "attributeSelected": {}, "count": "9e72ec1f-9941-45be-ac26-369792e69f78", "itemTotalPrice": 18, "CHI": "牛肉西兰花" }]} />} /> */}
-                {/* <Route exact path="/businesshours_testpage" element={<BusinessHoursTestPage/>}/> */}
-                {/* <Route exact path="/test_admin_new" element={<Admin_new />} /> */}
-                {/* <Route exact path="/test_iframeDesk" element={<IframeDesk store={"demo"} />} /> */}
-
-                {/* <Route exact path="/PaymentKiosk" element={<PaymentKiosk receipt_JSON={JSON.stringify([{ "id": "9ee84ddc-c91f-47ec-981b-1c5680550837", "name": "Garlic A Choy", "subtotal": "15", "image": "https://img1.baidu.com/it/u=322774879,3838779892&fm=253&fmt=auto&app=138&f=JPEG?w=463&h=500", "quantity": 5, "attributeSelected": {}, "count": "3c50ff94-49e1-4563-ac99-990efc15b0e9", "itemTotalPrice": 75, "CHI": "蒜蓉A菜" }, { "id": "c315164b-5afb-4330-b24a-238caf766cc4", "name": "Beef And Broccoli", "subtotal": "18", "image": "https://img2.baidu.com/it/u=3582338435,3937177930&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500", "quantity": 1, "attributeSelected": {}, "count": "9e72ec1f-9941-45be-ac26-369792e69f78", "itemTotalPrice": 18, "CHI": "牛肉西兰花" }])}
-                  storeID={"demo"} chargeAmount={1} connected_stripe_account_id={"acct_1OWU8KBUAXdEY4mJ"} service_fee={0} selectedTable={"测试"} />} /> */}
-
-                {user ? <Route path="ForgotPassword" element={<Account_admin />}></Route> : <Route path="ForgotPassword" element={<ForgotPassword />}></Route>}
-                {user || !isKiosk ? (
+                {user ? (
                   <Route
-                    exact path="/store"
-                    element=
-                    {<Food />}
+                    path="ForgotPassword"
+                    element={
+                      <>
+                        <Navbar />
+                        <Account_admin />
+                      </>
+                    }
                   />
                 ) : (
                   <Route
-                    exact path="/store"
-                    element={<LogIn />}
+                    path="ForgotPassword"
+                    element={
+                      <>
+                        <Navbar />
+                        <ForgotPassword />
+                      </>
+                    }
+                  />
+                )}
+                {user || !isKiosk ? (
+                  <Route
+                    exact
+                    path="/store"
+                    element={
+                      <>
+                        <Navbar />
+                        <Food />
+                      </>
+                    }
+                  />
+                ) : (
+                  <Route
+                    exact
+                    path="/store"
+                    element={
+                      <>
+                        <Navbar />
+                        <LogIn />
+                      </>
+                    }
                   />
                 )}
 
-                {/* <Route exact path="/store" element={<Food />} /> */}
-                {/* <Route exact path="/DemoFood" element={<DemoFood />} />
-                <Route exact path="/AdminFood" element={<Admin_food />} />
-                <Route exact path="/Refresh" element={<Refresh />} /> */}
-                <Route path="/career" element={<Career />} />
-                <Route path="/merchant" element={<Home2 />} />
 
-                <Route path='*' exact={true} element={<Home2 />} />
-                <Route exact path="/" element={<Home2 />} />
+                <Route
+                  path="/career"
+                  element={
+                    <>
+                      <Navbar />
+                      <Career />
+                    </>
+                  }
+                />
+
+                <Route path="*" exact={true} element={<Home />} />
+                <Route exact path="/" element={<Home />} />
 
                 {/* <Route exact path="/Checklist" element={<Checklist />} /> */}
 
