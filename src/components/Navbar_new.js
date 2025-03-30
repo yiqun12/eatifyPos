@@ -4,10 +4,14 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLanguage } from '@fortawesome/free-solid-svg-icons';
 import Logo from './Logo';
-
+import { useUserContext } from "../context/userContext";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [width, setWidth] = useState(window.innerWidth);
+  const params = new URLSearchParams(window.location.search);
+  const { user, user_loading } = useUserContext();
+
+  const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
 
   // Handle window resize
   useEffect(() => {
@@ -87,25 +91,32 @@ const Navbar = () => {
               </a>
             </div>
           </div>
-          <div className='flex mt-2'>
-            {!isMobile && (
-              <FontAwesomeIcon size="lg" className='' icon={faLanguage} />
-            )}
+          <div className='flex mt-3'>
+
             <div className='' id="google_translate_element"></div>
           </div>
           <div className="hidden md:flex items-center">
             <a
-              href="#contact"
-              className="w-full flex items-center justify-center px-5 py-2 border border-transparent text-base font-medium rounded-md text-white bg-orange-500 hover:bg-orange-700 md:py-4 md:text-lg md:px-10"
+              onClick={() => {
+                // Skip redirection if we're on the code page
+                if (window.location.hash.slice(1).split('?')[0] === 'code') {
+                  return;
+                }
+
+                // Redirect to account page with store parameter if available
+                const redirectUrl = storeFromURL ? `/account?store=${storeFromURL}` : '/account';
+                window.location.href = redirectUrl;
+              }}
+              className="w-full flex items-center justify-center px-5 py-2 border border-transparent text-base font-medium rounded-md text-white bg-orange-500 hover:bg-orange-700 md:py-4 md:text-lg md:px-10 cursor-pointer"
             >
-              Free Trial
+              {user ? "Account" : "Log In"}
             </a>
           </div>
-          
+
           <div className="-mr-2 flex items-center md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary cursor-pointer"
             >
               <span className="sr-only">Open menu</span>
               {isOpen ? (
@@ -144,8 +155,20 @@ const Navbar = () => {
           <a href="#faq" className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50">
             FAQ
           </a>
-          <a href="#contact" className="block px-3 py-2 rounded-md text-base font-medium bg-orange-500 text-white hover:bg-orange-700">
-            Free Trial
+          <a
+            onClick={() => {
+              // Skip redirection if we're on the code page
+              if (window.location.hash.slice(1).split('?')[0] === 'code') {
+                return;
+              }
+
+              // Redirect to account page with store parameter if available
+              const redirectUrl = storeFromURL ? `/account?store=${storeFromURL}` : '/account';
+              window.location.href = redirectUrl;
+            }}
+            className="block px-3 py-2 rounded-md text-base font-medium bg-orange-500 text-white hover:bg-orange-700 cursor-pointer"
+          >
+            {user ? "Account" : "LogIn"}
           </a>
         </div>
       </motion.div>

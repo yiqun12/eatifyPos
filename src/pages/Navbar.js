@@ -1843,9 +1843,7 @@ const Navbar = () => {
 
             <div className='flex ml-auto pr-4 '>
               <div className='flex mt-2'>
-                {!isMobile ?
-                  <FontAwesomeIcon size="lg" className='' icon={faLanguage} />
-                  : null}
+
                 <div className='' id="google_translate_element"></div>
               </div>
 

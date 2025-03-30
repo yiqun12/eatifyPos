@@ -258,7 +258,7 @@ function App() {
 
 
                 <Route
-                  path="/career"
+                  path="/careers"
                   element={
                     <>
                       <Navbar />

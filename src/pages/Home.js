@@ -8,7 +8,6 @@ import LogoSlider from '../components/LogoSlider';
 import Testimonials from '../components/Testimonials';
 import Pricing from '../components/Pricing';
 import FAQ from '../components/FAQ';
-import Contact from '../components/Contact';
 import Footer from '../components/Footer_new';
 import AIChat from '../components/AIChat';
 
@@ -26,7 +25,6 @@ const Food = () => {
       <Testimonials />
       <Pricing />
       <FAQ />
-      <Contact />
       <Footer />
       <AIChat />
     </div>

@@ -5,7 +5,7 @@ import '../css/AIChat.css';
 const AIChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { id: 1, text: "Hello, I can find answers from the Zams help center. How can I help?", isBot: true }
+    { id: 1, text: "Hello! I'm your POS assistant. I can help you with menu management, order processing, payment systems, and more. How can I assist you today?", isBot: true }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isThinking, setIsThinking] = useState(false);
@@ -23,6 +23,18 @@ const AIChat = () => {
       inputRef.current.focus();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    const handleToggleAIChat = () => {
+      setIsOpen(true);
+    };
+
+    window.addEventListener('toggleAIChat', handleToggleAIChat);
+
+    return () => {
+      window.removeEventListener('toggleAIChat', handleToggleAIChat);
+    };
+  }, []);
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
@@ -44,18 +56,18 @@ const AIChat = () => {
 
     setTimeout(() => {
       const botResponses = [
-        "I'm checking our knowledge base for that information.",
-        "That's a great question! Here's what I found in our documentation.",
-        "Let me help you with that. Based on our restaurant POS system features...",
-        "I understand your question. Our system supports that functionality.",
-        "Would you like me to provide more details about our POS system?"
+        "Let me check our POS system documentation for that information.",
+        "I can help you with that POS system feature. Here's what I found...",
+        "Based on our restaurant POS system capabilities...",
+        "That's a common question about our POS system. Here's what you need to know...",
+        "Would you like me to explain more about our POS system features?"
       ];
       const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
 
       setIsThinking(false);
       const botMessage = { id: messages.length + 2, text: randomResponse, isBot: true };
       setMessages(prevMessages => [...prevMessages, botMessage]);
-    }, 2000); // 思考2秒
+    }, 2000);
   };
 
   const handleSuggestionClick = (suggestion) => {
@@ -67,33 +79,33 @@ const AIChat = () => {
     setTimeout(() => {
       let botResponse = "";
       switch (suggestion) {
-        case "What are AI Agents?":
-          botResponse = "AI Agents are intelligent software components that can perform tasks autonomously. In our POS system, AI agents help with order processing, inventory management, and customer service.";
+        case "How to manage menu items?":
+          botResponse = "Our POS system offers comprehensive menu management features. You can easily add, edit, or remove items, set prices, create categories, and manage special offers. The system also supports multiple languages and currencies for international restaurants.";
           break;
-        case "Agentic AI vs. Predictive AI":
-          botResponse = "Agentic AI can take actions based on data and context, while Predictive AI primarily forecasts outcomes. Our POS system uses both: predictive AI for sales forecasting and agentic AI for automated inventory management.";
+        case "How to process payments?":
+          botResponse = "Our POS system supports various payment methods including credit cards, mobile payments, and cash. You can split bills, apply discounts, handle refunds, and generate detailed payment reports. The system is also PCI compliant for secure transactions.";
           break;
-        case "What is the onboarding process?":
-          botResponse = "Our onboarding process is simple: 1) System installation, 2) Staff training, 3) Menu setup, 4) Test transactions, and 5) Go-live with support. We provide comprehensive training materials and 24/7 support during this process.";
+        case "How to handle orders?":
+          botResponse = "Order processing is streamlined with our POS system. You can take orders at tables, for takeout, or delivery. The system automatically sends orders to the kitchen, tracks order status, and manages delivery routes. You can also handle special requests and modifications easily.";
           break;
-        case "What algorithms are supported?":
-          botResponse = "Our POS system supports various algorithms including machine learning for sales prediction, natural language processing for voice orders, and computer vision for QR code scanning and visual food recognition.";
+        case "How to manage inventory?":
+          botResponse = "Our POS system includes powerful inventory management features. You can track stock levels, set reorder points, manage suppliers, and generate inventory reports. The system also helps reduce waste by tracking usage patterns and suggesting optimal stock levels.";
           break;
         default:
-          botResponse = "I'm not sure I understand that question. Could you please provide more details?";
+          botResponse = "I'm not sure I understand that question. Could you please provide more details about what you'd like to know about our POS system?";
       }
 
       setIsThinking(false);
       const botMessage = { id: messages.length + 2, text: botResponse, isBot: true };
       setMessages(prevMessages => [...prevMessages, botMessage]);
-    }, 2000); // 思考2秒
+    }, 2000);
   };
 
   const suggestions = [
-    "What are AI Agents?",
-    "Agentic AI vs. Predictive AI",
-    "What is the onboarding process?",
-    "What algorithms are supported?"
+    "How to manage menu items?",
+    "How to process payments?",
+    "How to handle orders?",
+    "How to manage inventory?"
   ];
 
   const ThinkingIndicator = () => (
@@ -113,11 +125,11 @@ const AIChat = () => {
           <div className="ai-chat-header">
             <div className="ai-chat-title">
               <div className="ai-logo">
-                <span className="ai-logo-text">AI</span>
+                <span className="ai-logo-text">POS</span>
               </div>
               <div>
-                <h3>AI Answers</h3>
-                <p className="ai-chat-subtitle">AI assistant</p>
+                <h3>POS Assistant</h3>
+                <p className="ai-chat-subtitle">Your restaurant management expert</p>
               </div>
             </div>
             <button className="ai-chat-close-btn" onClick={toggleChat}>
@@ -139,7 +151,7 @@ const AIChat = () => {
 
           {messages.length === 1 && !isThinking && (
             <div className="ai-chat-suggestions">
-              <p className="ai-suggestions-title">Suggestions</p>
+              <p className="ai-suggestions-title">Common Questions</p>
               <div className="ai-suggestions-list">
                 {suggestions.map((suggestion, index) => (
                   <button
@@ -158,12 +170,15 @@ const AIChat = () => {
             <input
               type="text"
               className="ai-chat-input"
-              placeholder="Ask a question..."
+              placeholder="Ask about our POS system..."
               value={inputValue}
               onChange={handleInputChange}
               ref={inputRef}
             />
-            <button type="submit" className="ai-chat-send-btn">
+            <button 
+              type="submit" 
+              className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center hover:bg-orange-600 transition-colors duration-200"
+            >
               <PaperAirplaneIcon className="h-5 w-5" />
             </button>
           </form>

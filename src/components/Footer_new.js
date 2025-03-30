@@ -34,7 +34,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li className="text-gray-400">Phone: 1-929-461-4214</li>
               <li className="text-gray-400">Email: admin@eatfiydash.com</li>
-              <li className="text-gray-400">Address: 1343 Powell St, San Francisco, CA 94133</li>
+              <li className="text-gray-400">Demo Location: 1343 Powell St, San Francisco, CA 94133</li>
             </ul>
           </div>
         </div>

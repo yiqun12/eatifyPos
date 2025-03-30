@@ -322,7 +322,7 @@ const Account = () => {
           <div class="max-w-screen-xl mx-auto flex flex-wrap justify-between items-center">
             <section class="flex gap-4">
               <Link to="/" class="hover:text-gray-300">Home</Link>
-              <Link to="/career" class="hover:text-gray-300">Career</Link>
+              <Link to="/careers" class="hover:text-gray-300">Career</Link>
             </section>
             <section class="text-sm mt-4 md:mt-0">
               <p>© 2024 Eatifydash LLC || All rights reserved</p>

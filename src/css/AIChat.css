@@ -10,7 +10,7 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: #2563EB;
+  background: rgb(249 115 22);
   color: white;
   border: none;
   display: flex;
@@ -70,7 +70,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #2563EB;
+  background: rgb(249 115 22);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -154,7 +154,7 @@
 }
 
 .ai-user-message {
-  background-color: #2563EB;
+  background-color: rgb(249 115 22);
   color: white;
   align-self: flex-end;
   border-bottom-right-radius: 4px;
@@ -179,12 +179,12 @@
 }
 
 .ai-chat-input:focus {
-  border-color: #2563EB;
+  border-color: rgb(249 115 22);
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
 .ai-chat-send-btn {
-  background-color: #2563EB;
+  background-color: rgb(249 115 22);
   color: white;
   border: none;
   width: 40px;
@@ -194,11 +194,12 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  opacity: 0.9;
+  visibility: visible;
 }
 
 .ai-chat-send-btn:hover {
-  background-color: #1D4ED8;
+  background-color: rgb(249 115 22);
 }
 
 .ai-chat-suggestions {
@@ -226,7 +227,7 @@
   text-align: left;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: #2563EB;
+  color: rgb(249 115 22);
 }
 
 .ai-suggestion-btn:hover {
@@ -251,7 +252,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #2563EB;
+  background-color: rgb(249 115 22);
   animation: thinking 1.4s infinite ease-in-out both;
 }
 
