@@ -8,6 +8,11 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import EmailIcon from '@mui/icons-material/Email';
+import PasswordIcon from '@mui/icons-material/Password';
+import GoogleIcon from '@mui/icons-material/Google';
+import PersonIcon from '@mui/icons-material/Person';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import './button.css';
 import { Row, Col, Container } from "react-bootstrap"
 import * as React from 'react';
@@ -17,7 +22,49 @@ import Navbar from './Navbar'
 import { useState, useEffect } from 'react';
 import { useMyHook } from './myHook';
 
-const theme = createTheme();
+// 创建自定义主题
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#FF6B00', // 暖橙色主题
+      light: '#FF8533',
+      dark: '#CC5500',
+    },
+    secondary: {
+      main: '#FFA500', // 橙色作为次要颜色
+      light: '#FFB733',
+      dark: '#CC8400',
+    },
+  },
+  typography: {
+    fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+    h5: {
+      fontWeight: 600,
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          textTransform: 'none',
+          fontWeight: 600,
+          padding: '10px 16px',
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 8,
+          },
+        },
+      },
+    },
+  },
+});
+
 // Static translation object
 const translations = {
   en: {
@@ -108,131 +155,143 @@ export default function SignIn() {
   const t = translations[language];
 
   return (
-    <div>
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
       {user_loading ? (
-        <div>{t.loading}</div>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-xl text-orange-600">{t.loading}</div>
+        </div>
       ) : (
-        <div>
-          <div className="container">
-            <div style={width > 768 ? { width: '550px', margin: '0 auto' } : {}}>
-              <div className={width > 768 ? 'card2 mt-50 mb-50' : ''}>
-                <div style={{ padding: '0px 12px' }} className={width > 768 ? 'main' : ''}>
-                  <ThemeProvider theme={theme}>
-                    <Container component="main" maxWidth="xs">
-                      <CssBaseline />
-                      <Box
-                        sx={{
-                          marginTop: 0,
-                          marginLeft: 2,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                          <LockOutlinedIcon />
-                        </Avatar>
-                        <Typography component="h1" variant="h5">
-                          {t.signIn}
-                        </Typography>
-                        <div className="error message" style={{ display: errorVisibility, color: 'red' }}>
-                          {error}
-                        </div>
-                        {user_not_verified ? (
-                          <div style={{ color: 'red' }}>{user_not_verified}</div>
-                        ) : (
-                          <div></div>
-                        )}
+        <div className="container mx-auto px-4 py-8 sm:py-12">
+          <div className="max-w-md mx-auto">
+            <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+              <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Avatar 
+                    sx={{ 
+                      m: 1, 
+                      bgcolor: 'primary.main',
+                      width: 56,
+                      height: 56,
+                    }}
+                  >
+                    <LockOutlinedIcon sx={{ fontSize: 32 }} />
+                  </Avatar>
+                  <Typography 
+                    component="h1" 
+                    variant="h5"
+                    className="text-2xl font-bold text-gray-900 mb-6"
+                  >
+                    {t.signIn}
+                  </Typography>
+                  
+                  <div 
+                    className="error message w-full text-center mb-4 p-3 rounded-lg bg-red-50 text-red-600"
+                    style={{ display: errorVisibility }}
+                  >
+                    {error}
+                  </div>
+                  
+                  {user_not_verified && (
+                    <div className="w-full text-center mb-4 p-3 rounded-lg bg-red-50 text-red-600">
+                      {user_not_verified}
+                    </div>
+                  )}
 
-                        {/* Language Selection Dropdown */}
-                        <Box sx={{ mt: 2 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <label>
-                              <input
-                                type="checkbox"
-                                checked={language === 'en'}
-                                onChange={() => handleLanguageChange('en')}
-                              />
-                              English
-                            </label>
-                            <label>
-                              <input
-                                type="checkbox"
-                                checked={language === 'zh'}
-                                onChange={() => handleLanguageChange('zh')}
-                              />
-                              中文
-                            </label>
-                          </div>
-                        </Box>
+                  <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
+                    <Grid container spacing={3}>
+                      <Grid item xs={12}>
+                        <TextField
+                          margin="normal"
+                          required
+                          fullWidth
+                          id="email"
+                          label={t.email}
+                          name="email"
+                          autoComplete="email"
+                          autoFocus
+                          inputRef={emailRef}
+                          variant="outlined"
+                          InputProps={{
+                            startAdornment: <EmailIcon sx={{ color: 'primary.main', mr: 1 }} />
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField
+                          margin="normal"
+                          required
+                          fullWidth
+                          name="password"
+                          label={t.password}
+                          type="password"
+                          id="password"
+                          autoComplete="current-password"
+                          variant="outlined"
+                          InputProps={{
+                            startAdornment: <PasswordIcon sx={{ color: 'primary.main', mr: 1 }} />
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
 
-                        <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
-                          <Grid container spacing={2}>
-                            <TextField
-                              margin="normal"
-                              required
-                              fullWidth
-                              id="email"
-                              label={t.email}
-                              name="email"
-                              autoComplete="email"
-                              autoFocus
-                              inputRef={emailRef}
-                            />
-                            <TextField
-                              margin="normal"
-                              required
-                              fullWidth
-                              name="password"
-                              label={t.password}
-                              type="password"
-                              id="password"
-                              autoComplete="current-password"
-                            />
-                          </Grid>
-                          <Grid container spacing={2}>
-                            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                              {t.signInButton}
-                            </Button>
+                    <Grid container spacing={2} sx={{ mt: 2 }}>
+                      <Grid item xs={12}>
+                        <Button 
+                          type="submit" 
+                          fullWidth 
+                          variant="contained"
+                          className="bg-orange-600 hover:bg-orange-700 text-white py-3"
+                          startIcon={<LockOutlinedIcon />}
+                        >
+                          {t.signInButton}
+                        </Button>
+                      </Grid>
 
-                            <Button
-                              onClick={signInWithGoogle}
-                              fullWidth
-                              variant="contained"
-                              sx={{ mb: 2 }}
-                              role="button"
-                            >
-                              {t.googleSignIn}
-                            </Button>
+                      <Grid item xs={12}>
+                        <Button
+                          onClick={signInWithGoogle}
+                          fullWidth
+                          variant="outlined"
+                          className="border-orange-600 text-orange-600 hover:bg-orange-50 py-3"
+                          startIcon={<GoogleIcon />}
+                        >
+                          {t.googleSignIn}
+                        </Button>
+                      </Grid>
 
-                            <Button
-                              fullWidth
-                              variant="contained"
-                              sx={{ mb: 2 }}
-                              role="button"
-                              onClick={signInWithGuest}
-                            >
-                              {t.guestSignIn}
-                            </Button>
+                      <Grid item xs={12}>
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          className="border-orange-600 text-orange-600 hover:bg-orange-50 py-3"
+                          startIcon={<PersonIcon />}
+                          onClick={signInWithGuest}
+                        >
+                          {t.guestSignIn}
+                        </Button>
+                      </Grid>
 
-                            <Grid container>
-                              <Grid item xs>
-                                <Link
-                                  style={{ cursor: 'pointer' }}
-                                  onClick={forgotPasswordHandler}
-                                  variant="body2"
-                                >
-                                  {t.resetPassword}?
-                                </Link>
-                              </Grid>
-                            </Grid>
-                          </Grid>
-                        </Box>
-                      </Box>
-                    </Container>
-                  </ThemeProvider>
-                </div>
-              </div>
+                      <Grid item xs={12} className="text-center">
+                        <Link
+                          className="text-orange-600 hover:text-orange-700 cursor-pointer flex items-center justify-center"
+                          onClick={forgotPasswordHandler}
+                          variant="body2"
+                        >
+                          <RestartAltIcon sx={{ fontSize: 20, mr: 0.5 }} />
+                          {t.resetPassword}?
+                        </Link>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Box>
+              </ThemeProvider>
             </div>
           </div>
         </div>

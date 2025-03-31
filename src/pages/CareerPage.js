@@ -58,17 +58,7 @@ function CareerPage() {
                 ],
                 jobId: "0022"
               },
-              {
-                title: "Software Engineer (0023)",
-                description: "As a Software Engineer at our innovative company, you will be at the heart of our engineering process, building software that empowers our organization to deliver best-in-class products and services.",
-                qualifications: [
-                  "Proficiency in programming languages and cloud infrastructure (e.g., JavaScript and GCP).",
-                  "Experience with full-stack development, including front-end and back-end technologies.",
-                  "Strong understanding of software development methodologies and lifecycle.",
-                  "Excellent problem-solving, analytical, and communication skills."
-                ],
-                jobId: "0023"
-              },
+
               {
                 title: "Product Specialist (0024)",
                 description: "As a Product Specialist, you'll be the cornerstone of our product development process, transforming ideas into market-leading products. This role involves market research, strategy formulation, and cross-functional collaboration.",

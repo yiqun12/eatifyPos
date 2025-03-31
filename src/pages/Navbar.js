@@ -20,6 +20,7 @@ import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import E_logo from './E_logo.png'
 import PaymentKiosk from "../pages/PaymentKiosk";
 import { faLanguage } from '@fortawesome/free-solid-svg-icons';
+import Logo from '../components/Logo';
 
 //import { flexbox } from '@mui/system';
 import "./navbar.css";
@@ -130,20 +131,7 @@ const Navbar = () => {
 
 
   useEffect(() => {
-    if (window.location.pathname.includes('/store')) {
-      if (!user) {
-        return
-      }
-    }
-    if (window.location.pathname.includes('/account')) {
-      if (!user) {
-        console.log("0 widget")
-        return
-      }
-    }
 
-    //alert(JSON.stringify(user))
-    //console.log(user)
     console.log("1 widget")
     // Check if the script is already loaded
     if (window.google && window.google.translate) {
@@ -1776,39 +1764,9 @@ const Navbar = () => {
               <React.Fragment>
 
 
-                <img
 
-                  onClick={event => {
-                    if (isKiosk) {
-
-                    } else {
-                      if (window.location.hash.slice(1).split('?')[0] === 'code') {
-
-                      } else {
-                        if (storeFromURL !== '' && storeFromURL !== null) {
-                          if (isKiosk) {
-                            window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
-                          } else {
-                            window.location.href = `/store?store=${storeFromURL}`;
-                          }
-                          if (!sessionStorage.getItem("table")) {
-                            window.location.href = `/store?store=${storeFromURL}`
-                          } else {
-                            window.location.href = `/store?store=${storeFromURL}&table=${sessionStorage.getItem("table")}`
-                          }
-                        } else {
-                          window.location.href = '/';
-                        }
-                      }
-                    }
-                  }}
-                  src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/948a1e3f-8204-4847-7f75-732bacd78400/public"
-                  style={{
-                    maxHeight: '30px',
-                    maxWidth: '30px',
-                    objectFit: 'cover',   // this makes the image co0ver the entire dimensions
-                  }} />
-                <span onClick={event => {
+                <div
+                onClick={event => {
                   if (isKiosk) {
                     window.location.reload();
 
@@ -1835,9 +1793,10 @@ const Navbar = () => {
                   }
 
 
-                }} className='notranslate text-black text-xl font-bold'>
-                  .DELIVERY
-                </span>
+                }}
+                className="flex-shrink-0 flex items-center">
+                  <Logo />
+                </div>
               </React.Fragment>
               : null}
 
