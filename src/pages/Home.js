@@ -28,9 +28,9 @@ const Food = () => {
       <section className="py-16 bg-gradient-to-b from-white to-orange-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">Developer-Friendly Tools for Seamless Integration</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              A suite of APIs and utilities built to help developers easily integrate restaurant-focused features into their own systems.
+            <h2 className="section-title">Tools Built for Developers</h2>
+            <p className="section-subtitle">
+              Easy-to-use APIs for integrating customized features into your systems.
             </p>
           </div>
 

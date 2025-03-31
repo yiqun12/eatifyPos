@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import { ChatBubbleLeftRightIcon,RocketLaunchIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 
 const Hero = () => {
   const params = new URLSearchParams(window.location.search);
@@ -63,9 +63,11 @@ const Hero = () => {
                       const redirectUrl = storeFromURL ? `/account?store=${storeFromURL}` : '/account';
                       window.location.href = redirectUrl;
                     }}
-                     className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 transform hover:scale-105 transition-all duration-300 ease-in-out md:py-4 md:text-lg md:px-10 cursor-pointer"
+                    className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 transform hover:scale-105 transition-all duration-300 ease-in-out md:py-4 md:text-lg md:px-10 cursor-pointer"
                   >
-                    Start Free Trial
+                    <RocketLaunchIcon className="h-5 w-5 mr-2" />
+
+                    Free Trial
                   </a>
                 </div>
                 <div className="rounded-md shadow mt-3 sm:mt-0 sm:ml-3">
@@ -87,6 +89,7 @@ const Hero = () => {
                     }}
                     className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-500 hover:bg-gray-600 transform hover:scale-105 transition-all duration-300 ease-in-out md:py-4 md:text-lg md:px-10 cursor-pointer"
                   >
+                    <PlayCircleIcon className="h-5 w-5 mr-2" />
                     Watch Demo
                   </a>
                 </div>
