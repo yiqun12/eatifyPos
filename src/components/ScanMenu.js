@@ -137,7 +137,7 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
   const handleFileChangeAndUpload = async (event) => {
     console.log("scanning")
     setResultScan("")
-    const selectedFile = event.target.files[0];
+    const selectedFile = event.target.files ? event.target.files[0] : event;
     if (!selectedFile) {
       //setUploadStatus('No file selected.');
       return;
@@ -167,6 +167,40 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
     }
   };
 
+  // 处理示例菜单图片上传
+  const handleSampleImageUpload = async () => {
+    setResultScan("");
+    setUploadStatus('loading');
+    
+    try {
+      // 获取示例图片
+      const response = await fetch('/images/menu.png');
+      const blob = await response.blob();
+      // 创建一个文件对象
+      const file = new File([blob], 'menu.png', { type: 'image/png' });
+      
+      // 调用原本的上传逻辑
+      setIsModalOpen(false);
+      extractTextFromImage("", file);
+      
+      // 处理图片上传到CDN
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const uploadResponse = await fetch('https://hello-world-twilight-art-645c.eatify12.workers.dev/', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const data = await uploadResponse.json();
+      if (data.success) {
+        console.log(data.result.variants[0]);
+      }
+    } catch (error) {
+      console.error('Error uploading sample image:', error);
+    }
+  };
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -187,8 +221,7 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
 
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
 
-      <div >
-
+      <div>
         <label
           onClick={() => {
             setIsModalOpen(true);
@@ -231,12 +264,9 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
               </div>
             ))}
           </div> : null
-
         }
-
-
-
       </div>
+      
       {isModalOpen && (
         <div id="defaultModal"
           className={`${isMobile ? " w-full " : "w-[700px]"} fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50`}>
@@ -244,6 +274,7 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
             <div className="relative bg-white rounded-lg border-black shadow">
               <div className="flex items-start justify-between p-4 border-b rounded-t ">
                 <h3 className="text-xl font-semibold text-gray-900 ">
+                  Upload Menu Image
                 </h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -255,13 +286,12 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
                   <span className="sr-only">Close modal</span>
                 </button>
               </div>
-              <div className="flex items-start justify-between p-4 border-b rounded-t ">
-                <div className='flex-col'>
-
-
+              
+              <div className="p-4 space-y-4">
+                {/* 选项区域 */}
+                <div className="space-y-2">
                   {window.location.pathname === "/scan" ?
                     null : <div className="form-check">
-
                       <input
                         className='form-check-input'
                         type="checkbox"
@@ -273,9 +303,7 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
                       />
                       <label htmlFor="autoGenerateImage">Automatically generate image</label>
                     </div>
-
                   }
-
 
                   {/* Main language is non-English checkbox */}
                   <div className="form-check">
@@ -291,39 +319,50 @@ const GoogleVisionDemo = ({ reload, store, setFoods }) => {
                     <label htmlFor="nonEnglishLanguage">Menu Main language is non-English</label>
                   </div>
                 </div>
-
-
-                <label style={{ cursor: 'pointer' }}>
-                  <input
-                    type="file"
-                    onChange={handleFileChangeAndUpload}
-                    style={{ display: 'none' }} // hides the input
-                    translate="no"
-                  />
-                  <div className="btn d-inline-flex btn-sm btn-secondary mx-1">
-                    <span>
-                      Upload Now
-                    </span>
+                
+                {/* 示例图片和上传区域 */}
+                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                  <div className="text-center">
+                    <p className="font-medium text-gray-700 mb-2">Sample Menu</p>
+                    <div 
+                      onClick={handleSampleImageUpload}
+                      className="cursor-pointer transform hover:scale-105 transition-transform border-2 border-dashed border-gray-300 p-1 hover:border-orange-500"
+                    >
+                      <img 
+                        src="/images/menu.png" 
+                        alt="Sample Menu" 
+                        className="max-h-60 object-contain"
+                      />
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">Click to use this sample</p>
                   </div>
-
-                </label>
-
+                  
+                  <div className="text-center">
+                    <p className="font-medium text-gray-700 mb-2">Upload Your Menu</p>
+                    <label className="cursor-pointer flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-orange-500 transition-colors">
+                      <input
+                        type="file"
+                        onChange={handleFileChangeAndUpload}
+                        style={{ display: 'none' }}
+                        translate="no"
+                      />
+                      <svg className="w-8 h-8 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                      </svg>
+                      <p className="text-sm text-gray-500">Click to browse</p>
+                    </label>
+                  </div>
+                </div>
               </div>
-
             </div>
-
-
           </div>
         </div>
       )}
+      
       <div>
         <span style={{ color: 'red' }}>{resultScan}</span>
       </div>
-
-
-
     </div>
-
   );
 };
 

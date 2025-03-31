@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
-import { PlayIcon } from '@heroicons/react/24/outline';
 
 const Hero = () => {
   const params = new URLSearchParams(window.location.search);
@@ -88,7 +87,6 @@ const Hero = () => {
                     }}
                     className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-500 hover:bg-gray-600 transform hover:scale-105 transition-all duration-300 ease-in-out md:py-4 md:text-lg md:px-10 cursor-pointer"
                   >
-                    <PlayIcon className="h-5 w-5 mr-2" />
                     Watch Demo
                   </a>
                 </div>

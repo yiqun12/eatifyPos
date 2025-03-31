@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { onValue, ref, getDatabase } from 'firebase/database';
+import { setLogLevel } from "firebase/firestore";
 
 const useNetworkStatusWithFirebase = () => {
   const [isOnline, setIsOnline] = useState(true);
@@ -15,6 +16,7 @@ const useNetworkStatusWithFirebase = () => {
         // Firebase reports that it is disconnected
         setIsOnline(false);
       } else {
+
         // Firebase reports that it is connected or reconnects
         setIsOnline(true);
       }

@@ -292,3 +292,28 @@
 .ai-chat-window::after {
   display: none;
 }
+
+.ai-chat-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  margin-left: 16px;
+  margin-bottom: 8px;
+}
+
+.ai-action-btn {
+  background-color: #f97316;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.ai-action-btn:hover {
+  background-color: #ea580c;
+}

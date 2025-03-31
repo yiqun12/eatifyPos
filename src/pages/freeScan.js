@@ -572,230 +572,151 @@ const Food = ({ store }) => {
     };
 
     return (
-
-        <div className='pl-4 lg:ml-10 lg:mr-10' >
-            <Helmet>
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha384-xxz5vNXM/dz2Uk5KA02wmbzm9KpPL5Sgt1JwBrJZ4tUfS5B/R5F/h5A5J7J5C5P9i" crossorigin="anonymous" />
-
-            </Helmet>
-
-
-            <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-            </link>
-
-            <div
-            >
-                <h2 className="text-2xl font-bold text-orange-500 mb-2">
+        <div className="min-h-screen from-orange-50 to-white p-4 lg:p-8">
+            {/* Header Section */}
+            <div className="max-w-4xl mx-auto mb-8">
+                <h2 className="text-3xl font-bold text-orange-600 mb-4">
                     Visualize Your Menu with AI
                 </h2>
-                <p className="text-gray-700">
-                    We’ll provide recommendations and help you visualize your menu with AI. Simply snap a picture of your menu, and we’ll generate images of each dish to help you choose your order more easily.
+                <p className="text-gray-700 text-lg mb-4">
+                    We'll provide recommendations and help you visualize your menu with AI. Simply snap a picture of your menu, and we'll generate images of each dish to help you choose your order more easily.
                 </p>
-            </div>
-            <div
-                className="border border-gray-400 rounded-lg p-2 inline-block"
-            >
-                100% free and powered by 7dollar.delivery's AI
+                <div className="inline-block bg-orange-100 text-orange-700 px-4 py-2 rounded-lg text-sm font-medium">
+                    100% free and powered by 7dollar.delivery's AI
+                </div>
             </div>
 
-            <div
-            >
-                <div className="mr-1 flex-col justify-between mt-3">
-                    <div
-                        onClick={() => {
-                            localStorage.setItem(store, "[]")
-                            setFoods([])
-                            setData([])
-                        }}
-                        className="ml-1 mb-2 btn d-inline-flex btn-sm btn-danger"
-                    >
-                        <span>
-                            <i className="fa fa-refresh"></i> Clear Data
+            {/* Action Buttons */}
+            <div className="max-w-4xl mx-auto mb-8 flex flex-wrap gap-4">
+                <label
+                    onClick={() => {
+                        localStorage.setItem(store, "[]")
+                        setFoods([])
+                        setData([])
+                    }}
+                    style={{ cursor: 'pointer' }}>
+                    <div className="btn d-inline-flex btn-sm btn-danger mx-1">
+                        <span className="pe-2">
+                            <i className="fa fa-refresh"></i>
+                        </span>
+                        <span className="text-base">
+                            Clear Data
                         </span>
                     </div>
-                    <Scanner reload={reload} setFoods={setFoods} store={store} />
-
-
-
-                </div>
-
-
-
-
-
-                <div className='m-auto '>
-                    <div className='hstack gap-2  mt-2'>
-                        <form className="w-full w-lg-full">
-                            <div className='input-group input-group-sm input-group-inline shadow-none'>
-                                <span className='input-group-text pe-2 rounded-start-pill'>
-                                    <i className='bi bi-search'></i>
-                                </span>
-                                {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                                    <input
-                                        translate="no"
-                                        class="form-control text-base shadow-none rounded-end-pill" placeholder="Search for items..."
-                                        type="text"
-                                        value={selectedCHI}
-                                        onChange={handleCHIChange}
-                                        style={{ fontSize: '16px' }}
-
-                                    />
-                                    :
-                                    <input
-                                        translate="no"
-                                        class="form-control text-base shadow-none rounded-end-pill" placeholder="Search for items..."
-                                        type="text"
-                                        value={selectedName}
-                                        onChange={handleNameChange}
-                                        style={{ fontSize: '16px' }}
-
-                                    />
-                                }
-
-
-                                {/* <input  translate="no"  class="form-control text-sm shadow-none rounded-end-pill" placeholder="Search for items..." onChange={handleSearchChange}>
-              </input> */}
-                            </div>
-                        </form >
+                </label>
+                <Scanner reload={reload} setFoods={setFoods} store={store} />
+                <label
+                    onClick={() => {
+                        const dataStr = JSON.stringify(JSON.parse(localStorage.getItem(store) || "[]"), null, 2);
+                        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                        const exportFileDefaultName = 'menu.json';
+                        const linkElement = document.createElement('a');
+                        linkElement.setAttribute('href', dataUri);
+                        linkElement.setAttribute('download', exportFileDefaultName);
+                        linkElement.click();
+                    }}
+                    style={{ cursor: 'pointer' }}>
+                    <div className="btn d-inline-flex btn-sm btn-info mx-1">
+                        <span className="pe-2">
+                            <i className="fa fa-refresh"></i>
+                        </span>
+                        <span className="text-base">
+                            Download JSON
+                        </span>
                     </div>
-                    {ChangeCategoryName && (
-                        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
-                            <div className="relative w-full max-w-2xl max-h-full mt-20">
-                                <div className="relative bg-white rounded-lg border-black shadow ">
-                                    <div className="flex items-start justify-between p-4 border-b rounded-t ">
-                                        <h3 className="text-l font-semibold text-gray-900">
-                                            {t("Please choose the food category you want to rename:")}
-                                        </h3>
-                                        <button onClick={() => {
-                                            setChangeCategoryName(false)
-                                            setSelectChangeCategoryName('');
-                                            setCategoryName(''); // Initialize with an empty string
-                                        }} style={{ fontSize: '24px', lineHeight: '1', color: 'black', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', position: 'absolute', top: '15px', right: '20px' }}>
-                                            &times;
-                                        </button>
-                                    </div>
-                                    <div className='p-4 pt-3 flex flex-row flex-wrap'>
-                                        {foodTypes.map((foodType) => (
-                                            <button
-                                                onClick={() => { setSelectChangeCategoryName(foodType) }}
-                                                key={foodType}
-                                                className={`m-2 btn border-black text-black-600 rounded-xl px-2 py-2`}
-                                                style={{ display: 'inline-flex', textUnderlineOffset: '0.5em' }}
-                                            >
-                                                <div>
-                                                    {foodType && foodType.length > 1
-                                                        ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-                                                        : ''}
-                                                </div>
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <h3 className=" p-4 text-l font-semibold text-gray-900">
-                                        {t("Please provide the new name for the food category:")}
-                                    </h3>
-                                    <div>
-                                        <input
-                                            className="m-4 shadow appearance-none border rounded w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                            id="foodCategory"
-                                            type="text"
-                                            placeholder={SelectChangeCategoryName === "" ? "Enter the new category name" : SelectChangeCategoryName}
-                                            value={categoryName}
-                                            onChange={(e) => setCategoryName(e.target.value)}
-                                        />
-                                        <a
-                                            onClick={() => {
-                                                ChangeCategoryNameSubmit();
-                                                // You can pass categoryName or use it in your ChangeCategoryName function
-                                                setChangeCategoryName(false)
-                                            }}
-                                            className="btn d-inline-flex btn-sm btn-primary"
-                                        >
-                                            <span>{t("Confirm")}</span>
-                                        </a>
-                                    </div>
-                                    <br></br>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
-                        {/* Filter Type */}
-                        <div className='Type' >
-
-                            {/* end of the top */}
-                            <div ref={scrollingWrapperRef} className={`mt-2 ${isMobile ? 'scrolling-wrapper-filter' : ''} mb-0`}>
-
-                                <button onClick={() => {
-                                    setSelectedFoodType("");
-                                }}
-                                    className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === "" ? 'underline' : ''}`}
-                                    style={{ display: "inline-block", textUnderlineOffset: '0.5em' }}><div>{t("All")}</div></button>
-                                {
-                                    foodTypes.map((foodType) => (
-                                        <button
-                                            key={foodType}
-                                            onClick={() => {
-                                                setSelectedFoodType(foodType);
-                                            }}
-                                            className={`m-0 border-black-600 text-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'underline' : ''
-                                                }`}
-                                            style={{ display: 'inline-block', textUnderlineOffset: '0.5em' }}
-                                        >
-                                            <div>
-                                                {foodType && foodType.length > 1
-                                                    ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
-                                                    : ''}
-                                            </div>
-                                        </button>
-                                    ))
-                                }
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <LazyLoad height={762}>
-
-
-                        {/* diplay food */}
-                        <div style={containerStyle}>
-
-                            <React.Fragment>
-                                {foods
-                                    // Filter by selected food category
-                                    .filter(food => selectedFoodType === "" || food.category === selectedFoodType)
-                                    // Filter by name, if provided
-                                    .filter(food => selectedName === "" || food.name.toLowerCase().includes(selectedName.toLowerCase()))
-                                    // Filter by CHI, if provided
-                                    .filter(food => {
-                                        if (selectedCHI === "") {
-                                            return true;
-                                        }
-                                        const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
-                                        return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
-                                    })
-                                    .filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称"))
-                                    ?.map((item, index) => (
-
-                                        <div style={itemStyle}>
-
-
-                                            <Item selectedFoodType={selectedFoodType} key={index} translateToChinese={translateToChinese} translateToEnglish={translateToEnglish} item={item} updateItem={updateItem} deleteFood_array={deleteFood_array} id={id} saveId={saveId} foodTypes={foodTypes} />
-
-                                        </div>
-                                    ))}
-                            </React.Fragment>
-
-
-                        </div>
-                    </LazyLoad>
-                </div>
+                </label>
 
             </div>
-        </div >
-    )
-}
+
+            {/* Search Bar */}
+            <div className="max-w-4xl mx-auto mb-8">
+                <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i className="bi bi-search text-gray-400"></i>
+                    </div>
+                    {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (
+                        <input
+                            translate="no"
+                            className="w-full pl-10 pr-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base"
+                            placeholder="Search for items..."
+                            type="text"
+                            value={selectedCHI}
+                            onChange={handleCHIChange}
+                        />
+                    ) : (
+                        <input
+                            translate="no"
+                            className="w-full pl-10 pr-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-base"
+                            placeholder="Search for items..."
+                            type="text"
+                            value={selectedName}
+                            onChange={handleNameChange}
+                        />
+                    )}
+                </div>
+            </div>
+
+            {/* Category Filters */}
+            <div className="max-w-4xl mx-auto mb-8">
+                <div ref={scrollingWrapperRef} className={`flex gap-2 overflow-x-auto pb-2 ${isMobile ? 'scrolling-wrapper-filter' : ''}`}>
+                    <button
+                        onClick={() => setSelectedFoodType("")}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedFoodType === ""
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                            }`}
+                    >
+                        {t("All")}
+                    </button>
+                    {foodTypes.map((foodType) => (
+                        <button
+                            key={foodType}
+                            onClick={() => setSelectedFoodType(foodType)}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedFoodType === foodType
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-white text-gray-700 hover:bg-gray-100'
+                                }`}
+                        >
+                            {foodType && foodType.length > 1
+                                ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                                : ''}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Food Items Grid */}
+            <div className="max-w-4xl mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {foods
+                        .filter(food => selectedFoodType === "" || food.category === selectedFoodType)
+                        .filter(food => selectedName === "" || food.name.toLowerCase().includes(selectedName.toLowerCase()))
+                        .filter(food => {
+                            if (selectedCHI === "") return true;
+                            const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
+                            return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
+                        })
+                        .filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称"))
+                        ?.map((item, index) => (
+                            <div key={index} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-4">
+                                <Item
+                                    selectedFoodType={selectedFoodType}
+                                    translateToChinese={translateToChinese}
+                                    translateToEnglish={translateToEnglish}
+                                    item={item}
+                                    updateItem={updateItem}
+                                    deleteFood_array={deleteFood_array}
+                                    id={id}
+                                    saveId={saveId}
+                                    foodTypes={foodTypes}
+                                />
+                            </div>
+                        ))}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 
 

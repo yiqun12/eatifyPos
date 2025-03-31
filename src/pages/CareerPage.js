@@ -19,9 +19,9 @@ function CareerPage() {
             >
               <h1 className="text-4xl md:text-5xl font-bold mb-6">Join Our Team</h1>
               <p className="text-lg text-white/90 leading-relaxed">
-                EatifyDash stands as the quintessential platform designed solely for the restaurant industry.
-                Our goal is to enhance the dining experience for everyone involved.
-                By linking staff, processes, and patrons through a dependable and user-friendly platform.
+            EatifyDash stands as the quintessential platform designed solely for the restaurant industry.
+            Our goal is to enhance the dining experience for everyone involved.
+            By linking staff, processes, and patrons through a dependable and user-friendly platform.
               </p>
               <p className="text-lg text-white/90 leading-relaxed mt-4">
                 At EatifyDash, collaboration is key. Our success hinges on collective problem-solving and the exchange of insights. 
