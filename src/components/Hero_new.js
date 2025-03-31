@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import { PlayIcon } from '@heroicons/react/24/outline';
+import NetworkSphere from './NetworkSphere';
 
 const Hero = () => {
   const params = new URLSearchParams(window.location.search);
@@ -12,6 +13,17 @@ const Hero = () => {
     e.preventDefault();
     window.dispatchEvent(new CustomEvent('toggleAIChat'));
   };
+
+  const [hasMounted, setHasMounted] = useState(false);
+  
+  useEffect(() => {
+    // 延迟加载球体以提高页面初始加载性能
+    const timer = setTimeout(() => {
+      setHasMounted(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="relative bg-white overflow-hidden pt-16">
@@ -98,11 +110,7 @@ const Hero = () => {
         </div>
       </div>
       <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-        <img
-          className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
-          src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1050&q=80"
-          alt="Restaurant POS System"
-        />
+        {hasMounted && <NetworkSphere size={680} color="#FF9900" />}
       </div>
     </div>
   );
