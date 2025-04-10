@@ -263,13 +263,7 @@ function BusinessHoursTable() {
 
   return (
     <div className='mb-2'>
-      {/* <BusinessHoursTable></BusinessHoursTable> */}
-      {/* the modal that when the button is pressed shows */}
-      {/* {storeStatus ?     <Button variant="primary" onClick={handleShow}>
-      Open
-      </Button> :     <Button variant="primary" onClick={handleShow}>
-      Closed
-      </Button> } */}
+
 
       <div >
         <span onClick={handleShow} style={{ cursor: "pointer" }} className="underline text-xl"><i className="fas fa-store" style={{ marginRight: '8px' }}></i>Store Info:</span>

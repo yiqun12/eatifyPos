@@ -14,7 +14,7 @@ const plans = [
       '1 user account',
       'Email support',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Contact admin@eatifydash.com',
     mostPopular: false,
   },
   {
@@ -29,7 +29,7 @@ const plans = [
       'Priority email and phone support',
       'Staff management',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Contact admin@eatifydash.com',
     mostPopular: true,
   },
   {
@@ -45,7 +45,7 @@ const plans = [
       'API integration',
       'Advanced data analytics',
     ],
-    cta: 'Contact Sales',
+    cta: 'Contact admin@eatifydash.com',
     mostPopular: false,
   },
 ];
@@ -55,7 +55,7 @@ const Pricing = () => {
     <div id="pricing" className="bg-gray-50 py-16 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <motion.h2 
+          <motion.h2
             className="section-title"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -64,7 +64,7 @@ const Pricing = () => {
           >
             Simple, Transparent Pricing
           </motion.h2>
-          <motion.p 
+          <motion.p
             className="section-subtitle"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -77,8 +77,8 @@ const Pricing = () => {
 
         <div className="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:mx-0 xl:grid-cols-3">
           {plans.map((plan, index) => (
-            <motion.div 
-              key={plan.name} 
+            <motion.div
+              key={plan.name}
               className={`bg-white border border-gray-200 rounded-lg shadow-sm divide-y divide-gray-200 ${plan.mostPopular ? 'ring-2 ring-primary' : ''}`}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -93,12 +93,13 @@ const Pricing = () => {
                   <span className="text-base font-medium text-gray-500">/mo</span>
                 </p>
                 <a
-                  href="#contact"
+                  href="mailto:admin@eatifydash.com?subject=Subscription%20Inquiry:%20{plan.name}&body=Hello,%0A%0AI'd%20like%20to%20learn%20more%20about%20the%20{plan.name}%20plan.%20Please%20send%20me%20more%20details.%0A%0AThank%20you!"
                   className={`mt-8 block w-full bg-${plan.mostPopular ? 'primary' : 'white'} border border-${plan.mostPopular ? 'primary' : 'gray-300'} rounded-md py-2 text-sm font-semibold text-${plan.mostPopular ? 'white' : 'primary'} text-center hover:bg-${plan.mostPopular ? 'primary-dark' : 'gray-50'}`}
                 >
                   {plan.cta}
                 </a>
               </div>
+
               <div className="pt-6 pb-8 px-6">
                 <h3 className="text-xs font-medium text-gray-900 tracking-wide uppercase">Included features</h3>
                 <ul className="mt-6 space-y-4">

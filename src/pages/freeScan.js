@@ -43,4 +43,5 @@ const FreeScanNew = () => {
   );
 }
 
+
 export default FreeScanNew; 

@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react';
 import { collection, doc, setDoc, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
-import { onSnapshot, query } from 'firebase/firestore';
-import styled from 'styled-components';
-import firebase from 'firebase/compat/app';
+
 
 
 function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }) {

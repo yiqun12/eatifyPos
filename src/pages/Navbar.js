@@ -345,6 +345,11 @@ const Navbar = () => {
     if (!user) {
       return
     }
+    const path = window.location.pathname; // Get the current URL path
+
+    if (path.includes('/account')) {
+      return
+    }
     console.log("executing")
     const docRef = firebase.firestore()
       .collection('TitleLogoNameContent')
@@ -840,6 +845,9 @@ const Navbar = () => {
     console.log(path.includes('/store') && store && table && store.length > 0 && table.length > 0)
     if (store && table && store.length > 0 && table.length > 0) {
     } else {
+      return
+    }
+    if (path.includes('/account')) {
       return
     }
     const docRef = firebase.firestore()
@@ -1766,35 +1774,35 @@ const Navbar = () => {
 
 
                 <div
-                onClick={event => {
-                  if (isKiosk) {
-                    window.location.reload();
-
-                  } else {
-                    if (window.location.hash.slice(1).split('?')[0] === 'code') {
+                  onClick={event => {
+                    if (isKiosk) {
+                      window.location.reload();
 
                     } else {
-                      if (storeFromURL !== '' && storeFromURL !== null) {
-                        if (isKiosk) {
+                      if (window.location.hash.slice(1).split('?')[0] === 'code') {
 
-                          window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
-                        } else {
-                          window.location.href = `/store?store=${storeFromURL}`;
-                        }
-                        if (!sessionStorage.getItem("table")) {
-                          window.location.href = `/store?store=${storeFromURL}`
-                        } else {
-                          window.location.href = `/store?store=${storeFromURL}&table=${sessionStorage.getItem("table")}`
-                        }
                       } else {
-                        window.location.href = '/';
+                        if (storeFromURL !== '' && storeFromURL !== null) {
+                          if (isKiosk) {
+
+                            window.location.href = `/store?store=${storeFromURL}${kioskHash}`;
+                          } else {
+                            window.location.href = `/store?store=${storeFromURL}`;
+                          }
+                          if (!sessionStorage.getItem("table")) {
+                            window.location.href = `/store?store=${storeFromURL}`
+                          } else {
+                            window.location.href = `/store?store=${storeFromURL}&table=${sessionStorage.getItem("table")}`
+                          }
+                        } else {
+                          window.location.href = '/';
+                        }
                       }
                     }
-                  }
 
 
-                }}
-                className="flex-shrink-0 flex items-center">
+                  }}
+                  className="flex-shrink-0 flex items-center">
                   <Logo />
                 </div>
               </React.Fragment>

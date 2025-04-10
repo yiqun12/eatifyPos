@@ -10,22 +10,88 @@ import Pricing from '../components/Pricing';
 import FAQ from '../components/FAQ';
 import Footer from '../components/Footer_new';
 import AIChat from '../components/AIChat';
+import { Link } from 'react-router-dom';
 
 const Food = () => {
-
-
   return (
     <div>
       <Navbar />
       <Hero />
-      <LogoSlider />
+
+
+
+
       <Features />
       <Gallery />
       <VideoTutorials />
+      {/* Side Features Section */}
+      <section className="py-16 bg-gradient-to-b from-white to-orange-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="section-title">Tools Built for Developers</h2>
+            <p className="section-subtitle">
+              Easy-to-use APIs for integrating customized features into your systems.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Menu Scanner Tool */}
+            <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">AI Menu Scanner</h3>
+                <p className="text-gray-600 mb-4">
+                  Easily convert physical menus into structured JSON with image recognition. Perfect for developers needing quick menu digitization via API.
+                </p>
+                <Link
+                  to="/scan"
+                  className="inline-block px-4 py-2 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                >
+                  Try Scanner
+                </Link>
+              </div>
+            </div>
+
+            {/* SMS API Tool */}
+            <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">SMS Notification API</h3>
+                <p className="text-gray-600 mb-4">
+                  Integrate instant SMS updates into your app—order status, promotions, and more. Designed for fast, frictionless communication with minimal delays.
+                </p>
+                <Link
+                  to="/sendmessage"
+                  className="inline-block px-4 py-2 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                >
+                  Explore SMS API
+                </Link>
+              </div>
+            </div>
+
+            {/* Orders Management Tool */}
+            <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">On-Demand Delivery API</h3>
+                <p className="text-gray-600 mb-4">
+                  Programmatically request delivery with simple pricing—$8 base + $1 per mile, up to 15 miles. No contract or subscription required.
+                  Reach us at <a href="mailto:admin@eatifydash.com">admin@eatifydash.com</a> to get started.
+
+                </p>
+                <a
+                  href="mailto:admin@eatifydash.com?subject=Delivery%20API%20Request&body=Hello,%0A%0AI'm%20interested%20in%20your%20on-demand%20delivery%20service.%20Please%20provide%20me%20with%20more%20information.%0A%0ABusiness%20Name:%20%0ALocation:%20%0AAverage%20Delivery%20Distance:%20%0A%0AThank%20you!"
+                  className="inline-block px-4 py-2 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                >
+                  Contact Us
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       <Testimonials />
+      <LogoSlider />
       <Pricing />
       <FAQ />
-      
+
       <section className="flex-item" id="intro" style={{ "background-color": "#f2f2f2", "padding": "4rem 0" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p style={{ "fontSize": "24px", "textAlign": "center", "marginBottom": "2rem", "fontWeight": "600" }}>Meet Our Team</p>
@@ -96,7 +162,6 @@ const Food = () => {
       <Footer />
       <AIChat />
     </div>
-
   )
 }
 
