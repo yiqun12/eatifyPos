@@ -89,6 +89,7 @@
         "swiper": "^10.1.0",
         "use-local-storage-state": "^18.1.2",
         "web-vitals": "^1.1.2",
+        "three": "^0.175.0",
         "zipcode-to-timezone": "^0.0.9"
     },
     "scripts": {

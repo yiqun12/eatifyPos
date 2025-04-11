@@ -9,6 +9,7 @@ import Home2 from './pages/Home2'
 import ForgotPassword from './pages/ForgotPassword'
 import Reservation from './pages/reservation'
 import FreeScan from './pages/freeScan'
+import FreeScanArticle from './pages/freeScanArticle'
 import Resume from './pages/resume'
 
 import ErrorBoundary from './ErrorBoundary'; // Import the ErrorBoundary component
@@ -167,6 +168,17 @@ function App() {
                     </>
                   }
                 />
+
+                <Route
+                  path="scan_article"
+                  element={
+                    <>
+                      <Navbar />
+                      <FreeScanArticle store="freescan" />
+                    </>
+                  }
+                />
+
                 <Route
                   path="resume"
                   element={
