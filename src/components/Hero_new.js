@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
-import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
-import { PlayIcon } from '@heroicons/react/24/outline';
 import NetworkSphere from './NetworkSphere';
+import { ChatBubbleLeftRightIcon,RocketLaunchIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 
 
 const Hero = () => {
