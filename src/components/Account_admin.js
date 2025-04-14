@@ -2988,7 +2988,7 @@ const Account = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    zIndex: 1050, // Ensure it's above the sidebar
+                    zIndex: 2000, // Ensure it's above the sidebar
                     transition: 'left 0.3s ease', // Smooth transition
                     boxShadow: '0 0 8px rgba(0, 0, 0, 0.3)' // 添加更明显的阴影
                   }}
