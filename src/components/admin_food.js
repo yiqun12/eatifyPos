@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 //import { data } from '../data/data.js'
 import { motion, AnimatePresence } from "framer-motion"
 import { useMyHook } from '../pages/myHook';
@@ -65,12 +65,63 @@ const Food = ({ store }) => {
   const [global, setGlobal] = useState(initialGlobal);
   const [error, setError] = useState('');
 
+  // --- Add state for Shift+Drag ---
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startIndex, setStartIndex] = useState(null); // Stores the *original* index
+  const [currentHoverIndex, setCurrentHoverIndex] = useState(null); // Stores the *original* index
+  const [startValue, setStartValue] = useState(null);
+  // --- End of state for Shift+Drag ---
+
+  // --- Add Refs for Auto-Scroll ---
+  const modalScrollContainerRef = useRef(null); // Ref for the scrollable container
+  const scrollIntervalRef = useRef({ id: null, direction: 'none' }); // Ref for the scroll interval timer
+  // --- End of Refs for Auto-Scroll ---
+
+  // --- Function to stop auto-scrolling (adjusted for new ref structure) ---
+  const stopScrolling = useCallback(() => {
+    if (scrollIntervalRef.current.id) {
+      clearInterval(scrollIntervalRef.current.id);
+    }
+    scrollIntervalRef.current = { id: null, direction: 'none' }; // Reset the ref
+  }, []);
+
+  const startScrolling = useCallback((direction) => {
+    stopScrolling(); // 先确保停止任何现有滚动
+    const scrollSpeed = 18;     // 调整后的速度
+    const intervalTiming = 25;  // 调整后的间隔
+    const container = modalScrollContainerRef.current;
+    if (!container) return;
+
+    const scrollAction = () => {
+      if (!modalScrollContainerRef.current) { // 再次检查 container 是否存在
+          stopScrolling();
+          return;
+      }
+      if (direction === 'up') {
+        modalScrollContainerRef.current.scrollTop -= scrollSpeed;
+      } else if (direction === 'down') {
+        modalScrollContainerRef.current.scrollTop += scrollSpeed;
+      }
+    };
+
+    scrollIntervalRef.current = {
+      id: setInterval(scrollAction, intervalTiming),
+      direction: direction
+    };
+  }, [stopScrolling]); // 依赖 stopScrolling
 
   const handleChange = (index, field, value) => {
+    // Use the original index when changing state
+    const originalIndex = global.length - 1 - index; // Calculate original index
     const updatedGlobal = [...global];
-    updatedGlobal[index][field] = value;
-    setGlobal(updatedGlobal);
-    if (error) setError('');  // Clear error when changes are made
+    if (updatedGlobal[originalIndex]) { // Check if index is valid
+        // Ensure price is stored as a number if it's the price field
+        const newValue = field === 'price' ? (parseInt(value, 10) || 0) : value;
+        updatedGlobal[originalIndex][field] = newValue;
+        setGlobal(updatedGlobal);
+    }
+    if (error) setError('');
   };
 
   const saveGlobalChanges = async () => {
@@ -101,14 +152,21 @@ const Food = ({ store }) => {
   };
 
   const addNewItem = () => {
+    // ... existing addNewItem function ...
+    // Ensure new items are added correctly if global state is used
     const newItem = { type: "", price: 0, typeCategory: "要求添加" };
-    setGlobal([...global, newItem]);
+    // Add to the end, the reverse logic is only for display mapping
+    setGlobal(prevGlobal => [...prevGlobal, newItem]);
   };
 
   const handleDelete = (index) => {
+    // Use the original index when deleting
+    const originalIndex = global.length - 1 - index; // Calculate original index
     const updatedGlobal = [...global];
-    updatedGlobal.splice(index, 1);
-    setGlobal(updatedGlobal);
+    if (originalIndex >= 0 && originalIndex < updatedGlobal.length) { // Bounds check
+        updatedGlobal.splice(originalIndex, 1);
+        setGlobal(updatedGlobal);
+    }
   };
 
   const {
@@ -658,6 +716,116 @@ const Food = ({ store }) => {
 
   };
 
+  // --- Add useEffect for Shift+Drag event listeners ---
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Shift') {
+        setIsShiftPressed(true);
+      }
+    };
+    const handleKeyUp = (event) => {
+      if (event.key === 'Shift') {
+        setIsShiftPressed(false);
+        // If shift is released during drag, finalize the drag
+        if (isDragging) {
+          stopScrolling(); // Stop scrolling when mouse is up
+        }
+      }
+    };
+
+    // Global mouseup handler to finalize drag and stop scrolling
+    const handleMouseUpGlobal = () => {
+        stopScrolling(); // Stop scrolling when mouse is up
+        if (isDragging) {
+            setIsDragging(false);
+            // Use the stored original start/hover indexes
+            if (startIndex !== null && currentHoverIndex !== null && startValue !== null) {
+                const minIndex = Math.min(startIndex, currentHoverIndex);
+                const maxIndex = Math.max(startIndex, currentHoverIndex);
+                const priceValue = Number(startValue) || 0; // Ensure it's a number
+
+                const updatedGlobal = global.map((item, index) => {
+                    // Apply change if index is within the dragged range (using original indexes)
+                    if (index >= minIndex && index <= maxIndex) {
+                        return { ...item, price: priceValue };
+                    }
+                    return item;
+                });
+                setGlobal(updatedGlobal);
+            }
+            // Reset dragging state
+            setStartIndex(null);
+            setCurrentHoverIndex(null);
+            setStartValue(null);
+        }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('mouseup', handleMouseUpGlobal);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('mouseup', handleMouseUpGlobal);
+      stopScrolling(); // Ensure interval is cleared on unmount
+    };
+  }, [isDragging, global, startIndex, currentHoverIndex, startValue, stopScrolling, startScrolling]); // Added dependencies
+  // --- End of useEffect for Shift+Drag ---
+
+  // --- Shift+Drag handlers --- 
+  const handleMouseDown = (index, event) => { // Still triggered on input 
+      if (isShiftPressed) {
+        event.preventDefault();
+        const originalIndex = global.length - 1 - index;
+        if (global[originalIndex]) {
+            setIsDragging(true);
+            setStartIndex(originalIndex);
+            setCurrentHoverIndex(originalIndex);
+            setStartValue(global[originalIndex]?.price ?? 0);
+            // No longer starting scroll here
+        }
+      }
+  };
+
+  // handleMouseOver on input is now only for updating the hover index
+  const handleInputMouseOver = (index) => {
+      if (isDragging) {
+          const originalIndex = global.length - 1 - index;
+          setCurrentHoverIndex(originalIndex);
+      }
+  };
+
+  // NEW: Mouse move handler on the scroll container
+  const handleContainerMouseMove = (event) => {
+      if (isDragging) {
+          const container = modalScrollContainerRef.current;
+          if (!container) return;
+  
+          const rect = container.getBoundingClientRect();
+          const mouseY = event.clientY;
+          const threshold = 45; // Trigger zone threshold
+          let requiredDirection = 'none';
+  
+          if (mouseY < rect.top + threshold) {
+            requiredDirection = 'up';
+          } else if (mouseY > rect.bottom - threshold) {
+            requiredDirection = 'down';
+          }
+  
+          // Start/stop scrolling only if the required direction changes
+          if (requiredDirection !== scrollIntervalRef.current.direction) {
+            if (requiredDirection === 'none') {
+              stopScrolling();
+            } else {
+              startScrolling(requiredDirection);
+            }
+          }
+          // If direction is the same, do nothing, interval continues
+      }
+  };
+  // --- End of Shift+Drag handlers ---
+
   return (
 
     <div>
@@ -730,7 +898,8 @@ const Food = ({ store }) => {
                   &times;
                 </button>
               </div>
-              <div className="p-4">
+               {/* Assign the ref to the scrollable container and add styles */}
+              <div ref={modalScrollContainerRef} className="p-4 overflow-y-auto" style={{ maxHeight: '70vh' }} onMouseMove={handleContainerMouseMove}>
                 {error && <p className="mb-4 text-red-500">{error}</p>}
                 <button
                   onClick={addNewItem}
@@ -755,41 +924,56 @@ const Food = ({ store }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {[...global].reverse().map((item, index) => (
-                        <tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                          <td className="py-4 px-6">
-                            <input
-                              type="text"
-                              value={item.type}
-                              onChange={(e) => handleChange(global.length - 1 - index, 'type', e.target.value)}
-                              className="text-black"
-                            />
-                          </td>
-                          <td className="py-4 px-6">
-                            <input
-                              type="number"
-                              value={item.price}
-                              onChange={(e) => handleChange(global.length - 1 - index, 'price', parseInt(e.target.value, 10))}
-                              className="text-black"
-                            />
-                          </td>
-                          <td className="py-4 px-6">
-                            <input
-                              type="text"
-                              value={item.typeCategory}
-                              onChange={(e) => handleChange(global.length - 1 - index, 'typeCategory', e.target.value)}
-                              className="text-black"
-                            />
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            <button onClick={() => handleDelete(global.length - 1 - index)}>
-                              <svg className="w-6 h-6 text-red-500 hover:text-red-700" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                                <path d="M6 18L18 6M6 6l12 12"></path>
-                              </svg>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                      {/* Keep the .reverse() for display order */}
+                      {[...global].reverse().map((item, index) => {
+                         // Calculate original index for styling check & handlers
+                         const originalIndex = global.length - 1 - index;
+                         // Calculate selection state for visual feedback (using original indexes)
+                         const isSelected = isDragging && startIndex !== null && currentHoverIndex !== null &&
+                                           originalIndex >= Math.min(startIndex, currentHoverIndex) &&
+                                           originalIndex <= Math.max(startIndex, currentHoverIndex);
+                         return (
+                           <tr key={originalIndex} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"> {/* Use originalIndex for key if stable */}
+                             <td className="py-4 px-6">
+                               <input
+                                 type="text"
+                                 value={item.type} // Displaying reversed item's value
+                                 onChange={(e) => handleChange(index, 'type', e.target.value)} // Pass reversed index
+                                 className="text-black"
+                               />
+                             </td>
+                             <td className="py-4 px-6">
+                               <input
+                                 type="number"
+                                 value={item.price} // Displaying reversed item's value
+                                 onChange={(e) => handleChange(index, 'price', e.target.value)} // Pass reversed index, parse happens in handleChange
+                                 // Apply dynamic styling based on original index check
+                                 className={`text-black ${isSelected ? 'bg-blue-200' : ''}`}
+                                 // Add Shift+Drag handlers, passing reversed index and event
+                                 onMouseDown={(e) => handleMouseDown(index, e)}
+                                 onMouseOver={() => handleInputMouseOver(index)}
+                                 style={{ cursor: isShiftPressed ? 'ns-resize' : 'auto' }} // Change cursor
+                               />
+                             </td>
+                             <td className="py-4 px-6">
+                               <input
+                                 type="text"
+                                 value={item.typeCategory} // Displaying reversed item's value
+                                 onChange={(e) => handleChange(index, 'typeCategory', e.target.value)} // Pass reversed index
+                                 className="text-black"
+                               />
+                             </td>
+                             <td className="py-4 px-6 text-center">
+                               {/* Pass reversed index to handleDelete */}
+                               <button onClick={() => handleDelete(index)}>
+                                 <svg className="w-6 h-6 text-red-500 hover:text-red-700" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                                   <path d="M6 18L18 6M6 6l12 12"></path>
+                                 </svg>
+                               </button>
+                             </td>
+                           </tr>
+                         );
+                      })}
                     </tbody>
                   </table>
                 </div>
