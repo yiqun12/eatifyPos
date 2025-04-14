@@ -1374,7 +1374,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
               {/* diplay food */}
               <AnimatePresence>
-                <div className='grid grid-cols-1 gap-3 pt-3 ' style={{
+                <div className='grid grid-cols-1 gap-3 pt-3 px-2' style={{
                   gridTemplateRows: `repeat(1, 1fr)`,
                   gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
                   overflowY: 'auto',
