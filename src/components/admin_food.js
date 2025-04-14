@@ -858,8 +858,16 @@ const Food = ({ store }) => {
         </div>
       </div>
       <div className="mr-1 flex justify-between mt-1">
-        <Scanner reload={reload} setFoods={setFoods} store={store} />
-
+      <div className="hidden lg:block">
+        <Scanner
+              reload={reload}
+              setFoods={setFoods}
+              store={store}
+              t={t} // Pass translation function
+              isButton={true} // Render as a button on large screens
+            />
+      </div>
+        
         <div onClick={() => { setChangeCategoryName(true) }} className="mb-2 btn d-inline-flex btn-sm btn-info">
           <span className="pe-2">
             <i class="bi bi-bookmarks"></i>
@@ -1482,7 +1490,20 @@ const Food = ({ store }) => {
         </LazyLoad>
 
       </div>
-    </div >
+
+      {/* --- Scanner FAB (Mobile/Tablet - lg:hidden) --- */}
+      <div className="fixed bottom-6 right-6 z-40 lg:hidden">
+         <Scanner 
+            reload={reload} 
+            setFoods={setFoods} 
+            store={store} 
+            t={t} 
+            // isButton={false} // Assuming default/no prop means FAB style
+         />
+      </div>
+      {/* --- End Scanner FAB --- */}
+
+    </div> // This should be the closing tag of the outermost div in the return statement
   )
 }
 
