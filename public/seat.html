@@ -1039,7 +1039,9 @@
             }
           } else {
             // 如果不是蓝色（用餐结束），移除时间文本
+            console.log(1111111);
             if (obj.timeTextRef) {
+              console.log(2222222);
               try {
                 canvas.remove(obj.timeTextRef);
                 delete obj.timeTextRef;
@@ -1048,6 +1050,17 @@
                 console.error("移除时间文本出错:", e);
               }
             }
+            
+            // 定义fullTableKey变量
+            const storePrefix = store.slice(0, -"_restaurant_seat_arrangement".length);
+            const fullTableKey = storePrefix + "-" + tableName;
+            // 从localStorage中删除相关的开始时间键
+            const startTimeKey = `${fullTableKey}-isSent_startTime`;
+            localStorage.removeItem(startTimeKey);
+            console.log("清除开始时间:", startTimeKey);
+            
+            // 从tableDiningInfo中删除该餐桌信息
+            delete tableDiningInfo[tableName];
             
             // 如果没有任何用餐中的餐桌，清除定时器
             if (Object.keys(tableDiningInfo).length === 0 && diningTimeUpdateInterval) {
@@ -1134,7 +1147,7 @@
         console.error('计算用餐时间出错:', error);
         
         // 出错时也显示一个默认时间
-        textObject.set('text', '00:22');
+        textObject.set('text', 'error');
         textObject.set('fill', '#ffffff');
         textObject.set('fontSize', 16);
         textObject.set('fontWeight', 'bold');
