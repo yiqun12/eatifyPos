@@ -875,7 +875,7 @@ const Food = () => {
 
 
         {isModalVisible && (
-          <div className="fixed inset-0 z-50 flex justify-center bg-black bg-opacity-50 p-4 overflow-x-hidden overflow-y-auto">
+          <div className="fixed inset-0 z-[9999] flex justify-center bg-black bg-opacity-50 p-4 overflow-x-hidden overflow-y-auto">
             <div className="relative w-full max-w-2xl max-h-full">
               <div className="bg-white rounded-lg border border-gray-200 shadow-lg ">
 

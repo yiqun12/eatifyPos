@@ -54,7 +54,7 @@ const PhoneVerificationPopup = ({ isOpen, onClose, onVerificationSuccess, users,
     if (!isOpen) return null; // `isOpen` 为 false 时不渲染
 
     return (
-        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center bg-black bg-opacity-50">
+        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center items-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
                 {/* 关闭按钮 */}
                 <button

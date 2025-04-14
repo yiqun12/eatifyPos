@@ -1014,7 +1014,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
             {isModalGeneratePicOpen && (
                 <div id="defaultModal"
                     // Use consistent modal styling from ScanMenu or define locally
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50" style={{
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black bg-opacity-50" style={{
                         margin: 0
                     }}
                     onClick={handleModalGeneratePicClose} // Close on backdrop click

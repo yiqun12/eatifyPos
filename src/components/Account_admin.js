@@ -2393,7 +2393,7 @@ const Account = () => {
         `}
         </style>
         {isSplitPaymentModalOpen && (
-          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
 
             <div style={{
               position: 'fixed',
@@ -2533,7 +2533,7 @@ const Account = () => {
 
         )}
         {alertModal && (
-          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
 
             <div style={{
               position: 'fixed',

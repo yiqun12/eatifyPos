@@ -893,7 +893,7 @@ const Food = ({ store }) => {
       </div>
 
       {globalModal && (
-        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
           <div className="relative w-full max-w-2xl max-h-full mt-20">
             <div className="relative bg-white rounded-lg border-black shadow ">
               <div className="flex items-start justify-between p-4 border-b rounded-t ">
@@ -907,6 +907,10 @@ const Food = ({ store }) => {
                 </button>
               </div>
                {/* Assign the ref to the scrollable container and add styles */}
+               <div className="px-4 py-2 bg-yellow-100 text-sm text-gray-700 rounded mb-2">
+                 <i className="fas fa-info-circle mr-1"></i> Press Shift key to modify prices in bulk
+               </div>
+               
               <div ref={modalScrollContainerRef} className="p-4 overflow-y-auto" style={{ maxHeight: '70vh' }} onMouseMove={handleContainerMouseMove}>
                 {error && <p className="mb-4 text-red-500">{error}</p>}
                 <button
@@ -1027,7 +1031,7 @@ const Food = ({ store }) => {
           </form >
         </div>
         {ChangeCategoryName && (
-          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+          <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
             <div className="relative w-full max-w-2xl max-h-full mt-20">
               <div className="relative bg-white rounded-lg border-black shadow ">
                 <div className="flex items-start justify-between p-4 border-b rounded-t ">
@@ -1721,7 +1725,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
   return (
     <div>
       {isCategoryModalOpen && (
-        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+        <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
           <div className="relative w-full max-w-2xl max-h-full mt-20">
             <div className="relative bg-white rounded-lg border-black shadow">
               <div className="flex items-start justify-between p-4 border-b rounded-t">
@@ -1757,7 +1761,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
       )}
       {isModalGeneratePicOpen && (
         <div id="defaultModal"
-          className={`${isMobile ? " w-full " : "w-[700px]"} fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50`}>
+          className={`${isMobile ? " w-full " : "w-[700px]"} fixed top-0 left-0 right-0 bottom-0 z-[9999] w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50`}>
           <div className="relative w-full max-w-2xl max-h-full mt-20">
             <div className="relative bg-white rounded-lg border-black shadow">
               <div className="flex items-start justify-between p-4 border-b rounded-t ">
