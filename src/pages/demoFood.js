@@ -18,50 +18,59 @@ import pinyin from 'pinyin';
 
 const Food = () => {
   const [location, getLocation] = useGeolocation();
+  const [isCreatingStore, setIsCreatingStore] = useState(false);
   const handleFormSubmit = async (e, name, storeNameCHI, TaxRate,address, image, id, physical_address, Description, State, ZipCode, Phone) => {
     console.log(name)
     e.preventDefault();
-    const submitData = {
-      storeName: formValues.storeName !== '' ? formValues.storeName : name ? name : "",
-      storeNameCHI: formValues.storeNameCHI !== '' ? formValues.storeNameCHI : storeNameCHI,
-      TaxRate:formValues.TaxRate !== '' ? formValues.TaxRate : TaxRate,
-      Image: formValues.picture !== '' ? formValues.picture : image,
-      city: formValues.city !== '' ? formValues.city : address,
-      Phone: formValues.Phone !== '' ? formValues.Phone : Phone,
-      ZipCode: formValues.ZipCode !== '' ? formValues.ZipCode : ZipCode,
-      State: formValues.State !== '' ? formValues.State : State,
-      physical_address: formValues.physical_address !== '' ? formValues.physical_address : physical_address,
-      Description: formValues.Description !== '' ? formValues.Description : Description,
-
+    if (isCreatingStore) {
+      console.log("Already creating store, preventing duplicate submission.");
+      return;
     }
-    const storeNewId = generateIDs(submitData)
+    setIsCreatingStore(true);
+    setError('');
 
-    console.log(storeNewId)
-    const docRef = doc(db, "TitleLogoNameContent", storeNewId);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      throw new Error('Document already exists!');
-      return
-    } else {
-      setNewIds(storeNewId)
-      handleDemoStoreNameSubmit(storeNewId, submitData)
+    try {
+      const submitData = {
+        storeName: formValues.storeName !== '' ? formValues.storeName : name ? name : "",
+        storeNameCHI: formValues.storeNameCHI !== '' ? formValues.storeNameCHI : storeNameCHI,
+        TaxRate:formValues.TaxRate !== '' ? formValues.TaxRate : TaxRate,
+        Image: formValues.picture !== '' ? formValues.picture : image,
+        city: formValues.city !== '' ? formValues.city : address,
+        Phone: formValues.Phone !== '' ? formValues.Phone : Phone,
+        ZipCode: formValues.ZipCode !== '' ? formValues.ZipCode : ZipCode,
+        State: formValues.State !== '' ? formValues.State : State,
+        physical_address: formValues.physical_address !== '' ? formValues.physical_address : physical_address,
+        Description: formValues.Description !== '' ? formValues.Description : Description,
+      }
+      const storeNewId = generateIDs(submitData)
+
+      if (!storeNewId) {
+        setError("Could not generate a unique store ID. Please check inputs.");
+        throw new Error("Store ID generation failed.");
+      }
+
+      console.log(storeNewId);
+      
+      const docRefCheck = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeNewId); 
+      const docSnapCheck = await getDoc(docRefCheck);
+
+      if (docSnapCheck.exists()) {
+        setError('Store ID already exists!');
+        console.error('Store ID already exists!');
+      } else {
+        setNewIds(storeNewId);
+        await handleDemoStoreNameSubmit(storeNewId, submitData);
+      }
+    } catch (error) {
+      console.error("Error during store creation process:", error);
+      if (typeof setError === 'function' && !error) {
+        setError("An unexpected error occurred during creation.");
+      }
+      setIsCreatingStore(false);
+    } finally {
+      // 成功跳转，先不让他按
+      // setIsCreatingStore(false);
     }
-    // Update the 'key' field to the value retrieved from localStorage
-    //const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", id);
-    // await updateDoc(docRef, {
-    //   Name: formValues.storeName !== '' ? formValues.storeName : name,
-    //   storeNameCHI: formValues.storeNameCHI !== '' ? formValues.storeNameCHI : storeNameCHI,
-    //   Image: formValues.picture !== '' ? formValues.picture : image,
-    //   Address: formValues.city !== '' ? formValues.city : address,
-    //   Phone: formValues.Phone !== '' ? formValues.Phone : Phone,
-    //   ZipCode: formValues.ZipCode !== '' ? formValues.ZipCode : ZipCode,
-    //   State: formValues.State !== '' ? formValues.State : State,
-    //   physical_address: formValues.physical_address !== '' ? formValues.physical_address : physical_address,
-    //   Description: formValues.Description !== '' ? formValues.Description : Description,
-
-    // });
-    // alert("Updated Successful");
-
   };
   const [formValues, setFormValues] = useState({
     storeName: '',
@@ -203,7 +212,6 @@ const Food = () => {
       { "type": "不要芫荽", "price": 0, "typeCategory": "要求减少" },
       { "type": "不要蒜", "price": 0, "typeCategory": "要求减少" }
     ]
-    //console.log('Form submitted with name:', DemoStorename);
     const storeName = DemoStorename;
     const address = "San Francisco";
     const Open_time = "null";
@@ -262,59 +270,60 @@ const Food = () => {
     let docRef;
 
     try {
-
-      if (false) {
-        console.log("Document exists!");
-        throw new Error('Document already exists!');
-      } else {
-        docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName);
-
-        // If the document doesn't exist, add a new one
-        const newDoc = {
-          Name: submitData.storeName === "" ? DemoStorename : submitData.storeName,
-          Address: submitData.city,
-          Open_time: JSON.stringify(clock),
-          key: data,
-          Image: "https://s3-media0.fl.yelpcdn.com/bphoto/byOMYO520SGEYxKAbK_PYw/l.jpg",
-          stripe_store_acct: "",
-          storeOwnerId: user.uid,
-          restaurant_seat_arrangement: JSON.stringify(restaurant_seat_arrangement),
-          storeNameCHI: submitData.storeNameCHI,
-          TaxRate:submitData.TaxRate,
-          ZipCode: submitData.ZipCode,
-          State: submitData.State,
-          Phone: submitData.Phone,
-          physical_address: submitData.physical_address,
-          Description: 'chinese restaurant that sells food product',
-          dailyPayout: false,
-          globalModification: JSON.stringify(initialGlobal)
-        };
-        const tableData = {
-          product: "[]",
-        };
-        try {
-          await setDoc(docRef, newDoc);  // We use setDoc since we're specifying the document ID (storeName)
-          // Using the same variable without redeclaring
-          await setDoc(doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName,
-            "Table", storeName + "-A1"
-          ), tableData);  // We use setDoc since we're specifying the document ID (storeName)
-          await setDoc(doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName,
-            "Table", storeName + "-A2"
-          ), tableData);  // We use setDoc since we're specifying the document ID (storeName)
-          await setDoc(doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName,
-            "Table", storeName + "-A3"
-          ), tableData);  // We use setDoc since we're specifying the document ID (storeName)
-          window.location.hash = `${DemoStorename}`;
-          console.log("Document added successfully!");
-        } catch (error) {
-          console.error("Error adding document: ", error);
+      docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName);
+      const newDoc = {
+        Name: submitData.storeName === "" ? DemoStorename : submitData.storeName,
+        Address: submitData.city,
+        Open_time: JSON.stringify(clock),
+        key: data,
+        Image: "https://s3-media0.fl.yelpcdn.com/bphoto/byOMYO520SGEYxKAbK_PYw/l.jpg",
+        stripe_store_acct: "",
+        storeOwnerId: user.uid,
+        restaurant_seat_arrangement: JSON.stringify(restaurant_seat_arrangement),
+        storeNameCHI: submitData.storeNameCHI,
+        TaxRate:submitData.TaxRate,
+        ZipCode: submitData.ZipCode,
+        State: submitData.State,
+        Phone: submitData.Phone,
+        physical_address: submitData.physical_address,
+        Description: 'chinese restaurant that sells food product',
+        dailyPayout: false,
+        globalModification: JSON.stringify(initialGlobal)
+      };
+      const tableData = {
+        product: "[]",
+      };
+      try {
+        await setDoc(docRef, newDoc);
+        await setDoc(doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName,
+          "Table", storeName + "-A1"
+        ), tableData);
+        await setDoc(doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName,
+          "Table", storeName + "-A2"
+        ), tableData);
+        await setDoc(doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeName,
+          "Table", storeName + "-A3"
+        ), tableData);
+        window.location.hash = `${DemoStorename}`;
+        console.log("Document added successfully!");
+      } catch (error) {
+        console.error("Error adding document: ", error);
+        if (typeof setError === 'function') {
+          setError("Failed to save store details. Please try again.");
+        } else {
+          alert("Failed to save store details. Please try again.");
         }
+        throw error;
       }
     } catch (error) {
-      alert(error.message); // Displays the error message in an alert popup
+      console.error("Error within handleDemoStoreNameSubmit: ", error);
+      if (typeof setError === 'function') {
+        setError("An error occurred saving the store.");
+      } else {
+        alert("An error occurred saving the store.");
+      }
+      throw error;
     }
-
-
   };
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -406,6 +415,7 @@ const Food = () => {
               type="button" // Ensures this button doesn't submit the form
               onClick={() => checkGeolocation()}
               className="bg-gray-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              disabled={isCreatingStore}
             >
               <i className="bi bi-geo-alt-fill me-2"></i>
               Auto Fill Address
@@ -413,10 +423,23 @@ const Food = () => {
 
             <button
               type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              className={`bg-blue-500 text-white font-bold py-2 px-4 rounded flex items-center justify-center ${isCreatingStore ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+              disabled={isCreatingStore}
             >
-              <i className="bi bi-house me-2" style={{ color: "#FFFFFF" }}></i>
-              Create Store
+              {isCreatingStore ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-house me-2" style={{ color: "#FFFFFF" }}></i>
+                  Create Store
+                </>
+              )}
             </button>
           </div>
 
