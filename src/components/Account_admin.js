@@ -79,7 +79,7 @@ registerLocale('zh-CN', zhCN);
 const Account = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [timeZone, setTimeZone] = useState('America/New_York'); // Default to Eastern Time Zone
-  const [currentTimeDisplay, setCurrentTimeDisplay] = useState(''); // Add state for current time display
+
 
   const toggleModal = () => setIsOpen(!isOpen);
 
@@ -800,7 +800,6 @@ const Account = () => {
       return formatCustomDateTime(date);
     }
 
-    console.log("bbbbbbbbbbbbb")
 
     // Construct query
     const paymentsQuery = query(
@@ -2296,29 +2295,6 @@ const Account = () => {
   const [selectedTableIframe, setSelectedTableIframe] = useState("null");
   const [isModalOpenIframe, setModalOpenIframe] = useState(false);
 
-  // Add useEffect to update the time every second
-  useEffect(() => {
-    const updateClock = () => {
-      try {
-        // Use luxon with the current timeZone state
-        const now = DateTime.now().setZone(timeZone);
-        // Explicitly set locale to en-US for English format
-        setCurrentTimeDisplay(now.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS));
-      } catch (error) {
-        // Fallback if timezone is invalid
-        console.error("Invalid timezone, using local time:", error);
-        const now = DateTime.now();
-        // Also apply locale here for consistency on fallback
-        setCurrentTimeDisplay(now.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS));
-      }
-    };
-
-    updateClock(); // Initial update
-    const timerId = setInterval(updateClock, 1000); // Update every second
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(timerId);
-  }, [timeZone]); // Re-run effect if timeZone changes
 
   return (
     <div>
@@ -3023,9 +2999,7 @@ const Account = () => {
 
                         </h1>
                          {/* Added time display and added notranslate class */}
-                        <div className="text-muted small notranslate">
-                           {currentTimeDisplay}
-                        </div>
+
                       </div>
 
                       {activeTab === `#profile` || storeName_ === '' ?
@@ -3266,17 +3240,7 @@ const Account = () => {
               <div style={{
                 backgroundColor: 'white', // Set the background color to white
               }} className={`card-body tab-content pt-0 pb-0`} ref={elementRef}>
-                 {/* Add time display for PC view inside the main content area when a store is selected */}
-                 {isPC && activeTab !== '#profile' && activeTab !== '#Revenue_Chart' && storeName_ !== '' && (
-                    <div className="container-fluid pt-3 pb-0">
-                        <div className="d-flex justify-content-end align-items-baseline">
-                           {/* Added notranslate class */}
-                           <div className="text-muted small notranslate">
-                               {currentTimeDisplay}
-                           </div>
-                       </div>
-                    </div>
-                 )}
+
                 {user_loading ?
                   <div>
                     Loading...

@@ -770,7 +770,6 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                         borderBottom: '1px solid #dee2e6',
                                                                         marginBottom: '0.5rem'
                                                                     }}>
-                                                                        <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#0056b3' }}>Shopping Cart</h5>
                                                                         <InStore_shop_cart
                                                                             OpenChangeAttributeModal={OpenChangeAttributeModal}
                                                                             setOpenChangeAttributeModal={setOpenChangeAttributeModal}
@@ -789,7 +788,6 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                         backgroundColor: '#ffffff', // 白色背景
                                                                         padding: '1rem'
                                                                     }}>
-                                                                        <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#495057' }}>Menu Items</h5>
                                                                         <InStore_food
                                                                             setIsVisible={setIsVisible}
                                                                             OpenChangeAttributeModal={OpenChangeAttributeModal}
@@ -806,7 +804,6 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                     backgroundColor: '#ffffff', // 白色背景
                                                                     padding: '1rem'
                                                                 }}>
-                                                                    <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#495057' }}>Menu Items</h5>
                                                                     <InStore_food
                                                                         setIsVisible={setIsVisible}
                                                                         OpenChangeAttributeModal={OpenChangeAttributeModal}
@@ -828,7 +825,6 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                             padding: '1rem',
                                                             borderRight: '1px solid #dee2e6' // 稍明显的灰色分隔线
                                                         }}>
-                                                            <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#495057' }}>Menu Items</h5>
                                                             <InStore_food
                                                                 setIsVisible={setIsVisible}
                                                                 OpenChangeAttributeModal={OpenChangeAttributeModal}
@@ -841,7 +837,6 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                             backgroundColor: '#e9f7ff', // 购物车区域使用柔和的浅蓝色
                                                             padding: '1rem'
                                                         }}>
-                                                            <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#0056b3' }}>Shopping Cart</h5>
                                                             <InStore_shop_cart
                                                                 OpenChangeAttributeModal={OpenChangeAttributeModal}
                                                                 setOpenChangeAttributeModal={setOpenChangeAttributeModal}

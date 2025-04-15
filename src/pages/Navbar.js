@@ -21,6 +21,7 @@ import E_logo from './E_logo.png'
 import PaymentKiosk from "../pages/PaymentKiosk";
 import { faLanguage } from '@fortawesome/free-solid-svg-icons';
 import Logo from '../components/Logo';
+import { DateTime } from 'luxon';
 
 //import { flexbox } from '@mui/system';
 import "./navbar.css";
@@ -50,6 +51,7 @@ import { FaTrash } from 'react-icons/fa';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
 import { getGlobalFailedItem } from '../pages/Food';
+import { lookup } from 'zipcode-to-timezone';
 
 import useGeolocation from '../components/useGeolocation';
 // 定义一个变量来存储全局函数
@@ -62,6 +64,41 @@ let globalDirectoryType = false;
 
 const Navbar = () => {
   const failedItem = getGlobalFailedItem();
+  const [timeZone, setTimeZone] = useState(getTimeZoneByZip("11214")); // Default to Eastern Time Zone
+  const [currentTimeDisplay, setCurrentTimeDisplay] = useState(''); // Add state for current time display
+
+  function getTimeZoneByZip(zipCode) {
+    // Use the library to find the timezone ID from the ZIP code
+    const timeZoneId = lookup(zipCode);
+
+    // Check if the timezone ID is in our timeZones list
+    return timeZoneId;
+  }
+
+  // Add useEffect to update the time every second
+  useEffect(() => {
+    const updateClock = () => {
+      try {
+        // Use luxon with the current timeZone state
+        const now = DateTime.now().setZone(timeZone);
+        // Explicitly set locale to en-US for English format
+        setCurrentTimeDisplay(now.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS));
+      } catch (error) {
+        // Fallback if timezone is invalid
+        console.error("Invalid timezone, using local time:", error);
+        const now = DateTime.now();
+        // Also apply locale here for consistency on fallback
+        setCurrentTimeDisplay(now.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS));
+      }
+    };
+
+    updateClock(); // Initial update
+    const timerId = setInterval(updateClock, 1000); // Update every second
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(timerId);
+  }, [timeZone]); // Re-run effect if timeZone changes
+
 
   const { user, user_loading } = useUserContext();
   const [loadingContact, setLoadingContact] = useState(true);
@@ -333,6 +370,137 @@ const Navbar = () => {
 
   const [loadedAcct, setLoadedAcct] = useState(false);
   const [directoryType, setDirectoryType] = useState(false);
+
+  useEffect(() => {
+    let unsubscribe = () => { };
+
+    const init = async () => {
+      try {
+        const path = window.location.pathname; // Get the current URL path
+        const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
+        console.log("sssssssssss")
+        if (path.includes('/account')) {
+          handleHashChange()
+          function handleHashChange() {
+            const hashValue = window.location.hash;
+            console.log("hashvalue: ", hashValue)
+            // example URL http://localhost:3000/account#code?store=dnd21
+            // example hash value #code?store=dnd21
+
+            // Split the hash value by the "?" character
+            const parts = hashValue.split('?');
+
+            // The part before the "?" mark will be in parts[0]
+            const partBeforeQuestionMark = parts[0];
+
+            console.log("Part before '?': ", partBeforeQuestionMark);
+
+            // The part before the "?" mark will be in parts[0]
+            const partAfterQuestionMark = parts[1];
+
+            console.log("Part after '?': ", partAfterQuestionMark);
+
+            // hashRedirect(hashValue);
+            switch (partBeforeQuestionMark) {
+              case '#createStore':
+                redirectCharts(partAfterQuestionMark)
+                break;
+              case '#person':
+                redirectCharts(partAfterQuestionMark)
+                break;
+              case '#charts':
+                redirectCharts(partAfterQuestionMark)
+                break;
+              case '#book':
+                redirectCharts(partAfterQuestionMark)
+                break;
+              case '#code':
+                redirectCharts(partAfterQuestionMark)
+                break;
+              case '#cards':
+                redirectCharts(partAfterQuestionMark)
+                break;
+              case '#settings':
+                redirectCharts(partAfterQuestionMark)
+                break;
+              // Add more cases for other hash values as needed...
+
+              // this default is for the storeName cases
+              default:
+                break;
+            }
+          }
+          function fetchStorelist() {
+            return new Promise((resolve, reject) => {
+              const colRef = collection(db, 'stripe_customers', user.uid, 'TitleLogoNameContent');
+              const unsubscribe = onSnapshot(colRef,
+                (snapshot) => {
+                  const storeData = snapshot.docs.map((doc) => ({
+                    ...doc.data(),
+                    id: doc.id,
+                  }));
+                  console.log("sssssssss")
+                  console.log(storeData);
+                  resolve(storeData.reverse());  // Resolve the promise with the data
+                },
+                (error) => {
+                  reject(error);  // Reject the promise if there's an error
+                }
+              );
+
+              return () => unsubscribe();  // Return a function to unsubscribe when no longer needed
+            });
+          }
+
+          async function redirectCharts(partAfterQuestionMark) {
+            // Check if partAfterQuestionMark is like store=dnd21
+            if (partAfterQuestionMark.includes('store=')) {
+              // Split partAfterQuestionMark by '=' to get the store value
+              const parts = partAfterQuestionMark.split('=');
+
+              // The second part of the resulting array (parts[1]) will be the store value
+              const storeValue = parts[1];
+
+              console.log("Store Value:", storeValue);
+
+              try {
+                const storelist = await fetchStorelist();
+                console.log("storelist: ", storelist);
+
+                // Find the index of the object whose .Name matches storeValue
+                const index = storelist.findIndex(data => data.id === storeValue);
+
+                if (index !== -1) {
+                  // The object was found, you can access it using storelist[index]
+                  const selectedStore = storelist[index];
+
+                  // Now, you can perform actions with the selected store object
+                  console.log("Selected Store:", selectedStore);
+                  setTimeZone(getTimeZoneByZip(selectedStore.ZipCode))
+
+                } else {
+                  // The object with the specified Name was not found in the array
+                  console.log("Store not found in storelist");
+                }
+              } catch (error) {
+                console.error("Error fetching storelist:", error);
+              }
+            }
+          }
+
+        }
+      } catch (err) {
+        console.error("Error getting document:", err);
+      }
+    };
+
+    init();
+
+    return () => {
+      // 清理订阅或副作用
+      unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const table = sessionStorage.getItem('table'); // Assuming 'table' value is correctly set in sessionStorage
@@ -1905,6 +2073,12 @@ const Navbar = () => {
                     <div>Loading...</div>
                   )
                 )
+              }
+              {isMobile ? <div></div> :
+                <div className="ml-3 mt-2 text-muted small notranslate">
+                  {currentTimeDisplay}
+                </div>
+
               }
 
 
