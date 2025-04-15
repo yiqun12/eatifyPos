@@ -72,6 +72,8 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { DateTime } from 'luxon';
 import { lookup } from 'zipcode-to-timezone';
 import { lightenColor, getStoreColor } from '../utils/lightenColor';
+import VerificationModal from './VerificationModal'; // Import the modal
+import bcrypt from 'bcryptjs'; // Import bcryptjs
 
 registerLocale('zh-CN', zhCN);
 
@@ -80,6 +82,16 @@ const Account = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [timeZone, setTimeZone] = useState('America/New_York'); // Default to Eastern Time Zone
   const [currentTimeDisplay, setCurrentTimeDisplay] = useState(''); // Add state for current time display
+
+  // --- Add Password Management State --- >
+  const [newAdminPassword, setNewAdminPassword] = useState('');
+  const [confirmNewAdminPassword, setConfirmNewAdminPassword] = useState('');
+  const [newEmployeePassword, setNewEmployeePassword] = useState('');
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [isSavingPassword, setIsSavingPassword] = useState(false); // Dedicated state
+  // <--- End Password Management State ---
 
   const toggleModal = () => setIsOpen(!isOpen);
 
@@ -2320,8 +2332,111 @@ const Account = () => {
     return () => clearInterval(timerId);
   }, [timeZone]); // Re-run effect if timeZone changes
 
+  // --- Start Password Management Functions --- >
+  const saveNewPasswords = async () => {
+    setPasswordError('');
+    setPasswordSuccess('');
+    setIsSavingPassword(true); // Use dedicated state
+
+    try {
+        const saltRounds = 10;
+        // Ensure passwords are not empty before hashing
+        if (!newAdminPassword || !newEmployeePassword) {
+             setPasswordError("Both admin and employee passwords must be provided.");
+             setIsSavingPassword(false);
+             return;
+        }
+
+        const adminHash = await bcrypt.hash(newAdminPassword, saltRounds);
+        const employeeHash = await bcrypt.hash(newEmployeePassword, saltRounds);
+
+        const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID);
+        await updateDoc(docRef, {
+            adminPasswordHash: adminHash,
+            employeePasswordHash: employeeHash
+        }, { merge: true });
+
+        setPasswordSuccess("Passwords updated successfully!");
+        setNewAdminPassword('');
+        setConfirmNewAdminPassword('');
+        setNewEmployeePassword('');
+
+        // Optional: Add a delay before clearing the success message
+        setTimeout(() => setPasswordSuccess(''), 3000);
+
+    } catch (err) {
+        console.error("Error saving passwords:", err);
+        setPasswordError("Failed to save passwords. Please try again.");
+    } finally {
+        setIsSavingPassword(false); // Use dedicated state
+    }
+  };
+
+  const handleVerificationResult = (result) => {
+      setIsVerificationModalOpen(false);
+      if (result === 'admin') {
+          saveNewPasswords(); // Proceed to save if admin verification passed
+      } else if (result === 'employee') {
+          setPasswordError("Permission denied. Only admins can change passwords.");
+      } else if (result === 'invalid') {
+          setPasswordError("Verification failed. Passwords not saved.");
+      }
+      // Clear message after a delay
+      setTimeout(() => setPasswordError(''), 5000);
+  };
+
+  const handleSavePasswordSettings = async () => {
+      setPasswordError('');
+      setPasswordSuccess('');
+
+      if (newAdminPassword !== confirmNewAdminPassword) {
+          setPasswordError("New admin passwords do not match.");
+          return;
+      }
+      if (!newAdminPassword || !newEmployeePassword) {
+          setPasswordError("Both admin and employee passwords must be provided.");
+          return;
+      }
+      if (newAdminPassword.length < 6 || newEmployeePassword.length < 6) {
+          setPasswordError("Passwords must be at least 6 characters long.");
+          return;
+      }
+
+      // Check if passwords already exist (initial setup check)
+      setIsSavingPassword(true); // Use dedicated state
+      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID);
+      try {
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists() && docSnap.data().adminPasswordHash) {
+              // Passwords exist, need verification
+              setIsSavingPassword(false); // Stop loading before opening modal
+              setIsVerificationModalOpen(true);
+          } else {
+              // No existing admin password, proceed with initial setup
+              await saveNewPasswords(); // Directly save without verification modal (make it await)
+          }
+      } catch (err) {
+          console.error("Error checking for existing password:", err);
+          setPasswordError("Could not check password status. Please try again.");
+          setIsSavingPassword(false); // Use dedicated state
+      }
+      // Note: No finally block needed here as setIsSavingPassword(false) is handled within saveNewPasswords
+  };
+  // --- End Password Management Functions ---
+
   return (
     <div>
+      {/* Verification Modal */}
+      {isVerificationModalOpen && (
+        <VerificationModal
+          isOpen={isVerificationModalOpen}
+          onClose={() => setIsVerificationModalOpen(false)}
+          onVerify={handleVerificationResult}
+          storeId={storeID}
+          userId={user.uid}
+          loading={isSavingPassword} // Pass loading state
+        />
+      )}
 
       {iframeAllowed ?
         <iframe
@@ -3595,6 +3710,60 @@ const Account = () => {
 
                             }
 
+                            {/* === Password Management Settings (New Section) === */}
+                          {activeStoreTab === storeID && showSection === 'store' && (
+                            <div className="border-2 rounded-lg p-4 mt-4 bg-white shadow">
+                              <h3 className="text-lg font-semibold mb-4">Password Management</h3>
+                              {passwordError && <div className="alert alert-danger">{passwordError}</div>}
+                              {passwordSuccess && <div className="alert alert-success">{passwordSuccess}</div>}
+
+                              <div className="mb-3">
+                                <label htmlFor="newAdminPassword" className="form-label">New Admin Password (min. 6 characters)</label>
+                                <input
+                                  type="password"
+                                  className="form-control"
+                                  id="newAdminPassword"
+                                  value={newAdminPassword}
+                                  onChange={(e) => setNewAdminPassword(e.target.value)}
+                                  placeholder="Enter new admin password"
+                                  disabled={isSavingPassword}
+                                />
+                              </div>
+                              <div className="mb-3">
+                                <label htmlFor="confirmNewAdminPassword" className="form-label">Confirm New Admin Password</label>
+                                <input
+                                  type="password"
+                                  className="form-control"
+                                  id="confirmNewAdminPassword"
+                                  value={confirmNewAdminPassword}
+                                  onChange={(e) => setConfirmNewAdminPassword(e.target.value)}
+                                  placeholder="Confirm new admin password"
+                                  disabled={isSavingPassword}
+                                />
+                              </div>
+                              <div className="mb-3">
+                                <label htmlFor="newEmployeePassword" className="form-label">New Employee Password (min. 6 characters)</label>
+                                <input
+                                  type="password"
+                                  className="form-control"
+                                  id="newEmployeePassword"
+                                  value={newEmployeePassword}
+                                  onChange={(e) => setNewEmployeePassword(e.target.value)}
+                                  placeholder="Enter new employee password"
+                                  disabled={isSavingPassword}
+                                />
+                              </div>
+                              <button
+                                className="btn btn-primary"
+                                onClick={handleSavePasswordSettings}
+                                disabled={isSavingPassword}
+                              >
+                                {isSavingPassword ? 'Saving...' : 'Save Password Settings'}
+                              </button>
+                            </div>
+                          )}
+                          {/* === End Password Management Settings === */}
+
 
                             <hr />
 
@@ -4772,43 +4941,12 @@ const Account = () => {
 
 const renderLegend = (props) => {
   const { payload } = props;
-  let revenue = 0;
-  payload.forEach(entry => {
-    revenue += entry.payload.value;
-  });
-  const translations = [
-    { input: "Revenue", output: "总营收" },
 
-  ];
-  function translate(input) {
-    const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
-    return translation ? translation.output : "Translation not found";
-  }
-
-  function fanyi(input) {
-    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
-  }
   return (
     <ul>
-      {revenue !== 0 ? (
-        <div>
-          <li key="revenue" style={{ fontWeight: 'bold', fontWeight: 'bold', fontSize: '13px' }}>
-            {fanyi("Revenue")}
-            <span class='notranslate'> (${((revenue - (payload[4].payload.value * 2)).toFixed(2))})</span>
-          </li>
-          {payload.map((entry, index) => (
-            <li key={`item-${index}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }} >
-              {entry.value} <span class='notranslate'>(${entry.payload.value.toFixed(2)})</span>
-            </li>
-          ))}
-
-        </div>
-      ) : (
-        <li key="revenue">
-          No Business Data On Date Range
-        </li>
-      )}
-
+      {payload.map((entry, index) => (
+        <li key={`item-${index}`}>{entry.value}</li>
+      ))}
     </ul>
   );
 };
