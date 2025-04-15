@@ -54,6 +54,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   // State for dining duration
   const [diningDuration, setDiningDuration] = useState('');
+  // State for formatted start time
+  const [startTimeDisplay, setStartTimeDisplay] = useState('');
 
   useEffect(() => {
     function handleResize() {
@@ -162,8 +164,18 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
         const formattedDuration = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
         setDiningDuration(formattedDuration);
+
+        // Format and set start time display
+        const startDate = new Date(startTime);
+        const formattedStartTime = startDate.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        });
+        setStartTimeDisplay(formattedStartTime);
       } else {
         setDiningDuration(''); // Clear duration if no start time or no products
+        setStartTimeDisplay(''); // Clear start time display
         if (intervalId) {
           clearInterval(intervalId);
           intervalId = null;
@@ -1189,13 +1201,19 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
           </div>
           <div className='flex flex-col space-y-2' style={isMobile ? { minWidth: "120px" } : { minWidth: "150px" }}>
+            {/* Display Start Time */} 
+            {startTimeDisplay && (
+              <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                Start times: <span className="notranslate text-blue-600">{startTimeDisplay}</span>
+              </div>
+            )}
+
             {/* Display Dining Duration */}
             {diningDuration && (
                 <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
                   Meal times: <span className="notranslate text-green-600">{diningDuration}</span>
                 </div>
             )}
-
             <a
               onClick={() => { setChangeTableModal(true) }}
               className="mt-3 btn btn-sm btn-link mx-1 border-black"
