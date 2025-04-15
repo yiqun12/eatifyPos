@@ -30,7 +30,7 @@ function convertToPinyin(text) {
   }).join('');
 }
 
-const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, view }) => {
+const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, view, onAddToCart }) => {
   const initialGlobal = [
     { "type": "外卖", "price": 0, "typeCategory": "要求添加" },
     { "type": "加酱料", "price": 0, "typeCategory": "要求添加" },
@@ -431,7 +431,29 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   };
   const { user, user_loading } = useUserContext();
   const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI, item, availability, attributesArr, quant) => {
-
+    // 如果传入了onAddToCart函数，使用新的成员管理系统
+    if (onAddToCart && typeof onAddToCart === 'function') {
+      // 创建商品对象
+      const product = {
+        id: id,
+        name: name, 
+        subtotal: subtotal,
+        image: image,
+        quantity: quant ? quant : 1,
+        attributeSelected: attributeSelected || {},
+        count: count,
+        itemTotalPrice: Math.round(100 * subtotal) / 100,
+        CHI: CHI,
+        availability: availability,
+        attributesArr: attributesArr
+      };
+      
+      // 调用父组件提供的onAddToCart函数
+      onAddToCart(product);
+      return;
+    }
+    
+    // 原有的addSpecialFood逻辑（保留以兼容旧代码）
     // Check if the array exists in local storage
     if (localStorage.getItem(store + "-" + selectedTable) === null) {
       // If it doesn't exist, set the value to an empty array

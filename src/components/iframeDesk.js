@@ -1,7 +1,7 @@
 import React from 'react';
 import './style.css';
 import { useCallback, useState, useEffect } from 'react';
-import { collection, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
+import { collection, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, deleteField, getDocs, query, where } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useMyHook } from '../pages/myHook';
 import Button from '@mui/material/Button';
@@ -16,9 +16,16 @@ import InStore_food from '../pages/inStore_food'
 import InStore_shop_cart from '../pages/inStore_shop_cart'
 import { useUserContext } from "../context/userContext";
 import Dnd_Test from '../pages/dnd_test';
-import { onSnapshot, query } from 'firebase/firestore';
+import { onSnapshot } from 'firebase/firestore';
 import { forwardRef, useImperativeHandle } from 'react';
 
+// 引入一些额外的 UI 组件
+import AddIcon from '@mui/icons-material/Add';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PersonIcon from '@mui/icons-material/Person';
+import CloseIcon from '@mui/icons-material/Close';
+import { Modal, ModalHeader } from '@mui/material';
+import { toast } from 'react-hot-toast';
 
 // Create a CSS class to hide overflow
 const bodyOverflowHiddenClass = 'body-overflow-hidden';
@@ -74,6 +81,37 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
     const [title, setTitle] = useState(0);
 
     const [iframeHeight, setIframeHeight] = useState(0); // Start with a default value
+
+    // 添加成员管理所需的状态
+    const [tableOrders, setTableOrders] = useState({});
+    const [activeMemberId, setActiveMemberId] = useState("1"); // 默认激活第一个成员
+    
+    // 获取当前成员的键
+    const getCurrentMemberKey = () => {
+        return `${store}-${selectedTable}-member-${activeMemberId}`;
+    };
+    
+    // 计算当前激活成员的订单信息
+    const activeMemberOrder = tableOrders[activeMemberId] || { name: "", order: [] };
+    
+    // 初始化或加载tableOrders数据
+    useEffect(() => {
+        if (selectedTable) {
+            const membersKey = `${store}-${selectedTable}-members`;
+            const storedOrders = localStorage.getItem(membersKey);
+            
+            if (storedOrders) {
+                setTableOrders(JSON.parse(storedOrders));
+            } else {
+                // 初始化一个默认的成员订单结构
+                const initialOrders = {
+                    "1": { name: "成员1", order: [] }
+                };
+                setTableOrders(initialOrders);
+                localStorage.setItem(membersKey, JSON.stringify(initialOrders));
+            }
+        }
+    }, [store, selectedTable]);
 
     useEffect(() => {
         // Function to update height based on the viewport
@@ -573,110 +611,343 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
         }
     };
 
-    const SendToKitchen = async () => {
-        console.log(selectedTable)
-        console.log(store)
+    //send info to kitchen
+    function SendToKitchen() {
+        // 检查是否有订单需要发送
+        if (!tableOrders || Object.keys(tableOrders).length === 0) {
+            console.log("没有成员，无法发送订单");
+            toast.error("没有成员，无法发送订单！", {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+            return;
+        }
 
+        // 检查是否有任何成员有未发送的订单
+        let hasOrders = false;
+        for (const memberId in tableOrders) {
+            if (tableOrders[memberId].order && tableOrders[memberId].order.length > 0) {
+                hasOrders = true;
+                break;
+            }
+        }
+
+        if (!hasOrders) {
+            console.log("所有成员的购物车都是空的，无法发送订单");
+            toast.error("购物车是空的，无法发送订单！", {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+            return;
+        }
+
+        // 记录已发送的订单
+        const sentOrdersKey = `${store}-${selectedTable}-sentOrders`;
+        let sentOrders = {};
         try {
-            if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
-                if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
-                    console.log("//no item in the array no item isSent.")
-                    return //no item in the array no item isSent.
-                } else {//delete all items
-                }
+            const sentOrdersJson = localStorage.getItem(sentOrdersKey);
+            if (sentOrdersJson) {
+                sentOrders = JSON.parse(sentOrdersJson);
             }
-            compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
-            SetTableIsSent(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+        } catch (error) {
+            console.error("解析已发送订单时出错:", error);
+            sentOrders = {};
+        }
 
-        } catch (e) {
-            console.error("Error adding document: ", e);
+        // 合并所有成员的订单，并标记成员ID
+        const allOrders = [];
+        for (const memberId in tableOrders) {
+            const memberData = tableOrders[memberId];
+            if (memberData.order && memberData.order.length > 0) {
+                // 获取此成员之前发送的订单
+                const previousSentOrders = sentOrders[memberId] || [];
+                
+                // 标记新订单并添加到已发送订单中
+                const newOrders = memberData.order.map(item => ({
+                    ...item,
+                    memberId,
+                    memberName: memberData.name
+                }));
+                
+                // 添加到发送列表
+                allOrders.push(...newOrders);
+                
+                // 更新此成员的已发送订单
+                sentOrders[memberId] = [...previousSentOrders, ...memberData.order];
+            }
+        }
+
+        // 保存已发送的订单到localStorage
+        localStorage.setItem(sentOrdersKey, JSON.stringify(sentOrders));
+
+        // 发送所有订单到厨房
+        if (allOrders.length > 0) {
+            const orderData = {
+                orders: allOrders,
+                tableId: selectedTable,
+                timestamp: new Date().toISOString(),
+                status: 'pending'
+            };
+
+            // 保存到Firestore
+            const kitchenOrdersRef = doc(db, "kitchenOrders", `${store}-${selectedTable}`);
+            setDoc(kitchenOrdersRef, orderData, { merge: true })
+                .then(() => {
+                    console.log("订单已成功发送到厨房");
+                    toast.success("订单已成功发送到厨房！", {
+                        position: "top-right",
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                })
+                .catch((error) => {
+                    console.error("发送订单到厨房时出错:", error);
+                    toast.error("发送订单失败，请重试！", {
+                        position: "top-right",
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                });
         }
     }
-    async function compareArrays(array1, array2) {//array1 isSent array2 is full array
-        const array1ById = Object.fromEntries(array1.map(item => [item.count, item]));
-        const array2ById = Object.fromEntries(array2.map(item => [item.count, item]));
-        const add_array = []
-        const delete_array = []
-        for (const [count, item1] of Object.entries(array1ById)) {
-            const item2 = array2ById[count];
-            if (item2) {
-                // If item exists in both arrays
-                if (item1.quantity > item2.quantity) {
-                    console.log('Deleted trigger:', {
-                        ...item1,
-                        quantity: item1.quantity - item2.quantity,
-                        itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
-                    });
-                    delete_array.push({
-                        ...item1,
-                        quantity: item1.quantity - item2.quantity,
-                        itemTotalPrice: (item1.itemTotalPrice / item1.quantity) * (item1.quantity - item2.quantity)
-                    })
 
-                } else if (item1.quantity < item2.quantity) {
-                    console.log('Added trigger:', {
-                        ...item2,
-                        quantity: item2.quantity - item1.quantity,
-                        itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
-                    });
-                    add_array.push({
-                        ...item2,
-                        quantity: item2.quantity - item1.quantity,
-                        itemTotalPrice: (item2.itemTotalPrice / item2.quantity) * (item2.quantity - item1.quantity)
-                    })
+    // 切换当前激活的成员
+    const handleMemberTabClick = (memberId) => {
+        setActiveMemberId(memberId);
+    };
+
+    // 计算成员订单中的商品总数
+    const getMemberItemCount = (memberId) => {
+        if (!tableOrders[memberId] || !tableOrders[memberId].order) {
+            return 0;
+        }
+        return tableOrders[memberId].order.reduce((total, item) => total + item.quantity, 0);
+    };
+
+    // 添加新成员到桌子
+    const handleAddMember = () => {
+        // 生成新的成员ID
+        const newMemberId = (Math.max(0, ...Object.keys(tableOrders).map(id => parseInt(id))) + 1).toString();
+        
+        // 创建新成员对象
+        const newMember = {
+            name: `成员${newMemberId}`,
+            order: []
+        };
+        
+        // 更新tableOrders状态
+        const updatedOrders = {
+            ...tableOrders,
+            [newMemberId]: newMember
+        };
+        
+        // 更新状态并保存到localStorage
+        setTableOrders(updatedOrders);
+        setActiveMemberId(newMemberId); // 自动切换到新成员
+        
+        // 保存到localStorage
+        const membersKey = `${store}-${selectedTable}-members`;
+        localStorage.setItem(membersKey, JSON.stringify(updatedOrders));
+    };
+
+    // 清空当前活跃成员的购物车
+    const handleClearActiveMemberCart = () => {
+        if (!tableOrders[activeMemberId]) {
+            return;
+        }
+        
+        // 更新tableOrders，将当前成员的order设为空数组
+        const updatedOrders = {
+            ...tableOrders,
+            [activeMemberId]: {
+                ...tableOrders[activeMemberId],
+                order: []
+            }
+        };
+        
+        // 更新状态
+        setTableOrders(updatedOrders);
+        
+        // 保存到localStorage
+        const membersKey = `${store}-${selectedTable}-members`;
+        localStorage.setItem(membersKey, JSON.stringify(updatedOrders));
+    };
+
+    // 删除当前成员购物车中的商品
+    const handleDeleteCartItem = (productId) => {
+        if (!tableOrders[activeMemberId] || !tableOrders[activeMemberId].order) {
+            return;
+        }
+        
+        // 复制当前成员的订单
+        const currentOrder = [...tableOrders[activeMemberId].order];
+        
+        // 找到要删除的商品索引
+        const itemIndex = currentOrder.findIndex(item => item.id === productId);
+        
+        // 如果找到了商品，从数组中删除
+        if (itemIndex !== -1) {
+            currentOrder.splice(itemIndex, 1);
+            
+            // 更新tableOrders
+            const updatedOrders = {
+                ...tableOrders,
+                [activeMemberId]: {
+                    ...tableOrders[activeMemberId],
+                    order: currentOrder
                 }
-            } else {
-                // If item exists in array 1 but not in array 2
-                console.log('Deleted trigger:', item1);
-                delete_array.push(item1)
-            }
+            };
+            
+            // 更新状态并保存到localStorage
+            setTableOrders(updatedOrders);
+            const membersKey = `${store}-${selectedTable}-members`;
+            localStorage.setItem(membersKey, JSON.stringify(updatedOrders));
         }
+    };
 
-        for (const [count, item2] of Object.entries(array2ById)) {
-            const item1 = array1ById[count];
-            if (!item1) {
-                // If item exists in array 2 but not in array 1
-                console.log('Added trigger:', item2);
-                add_array.push(item2)
-            }
+    // 增加当前成员购物车中商品的数量
+    const handleIncrementCartItem = (productId) => {
+        if (!tableOrders[activeMemberId] || !tableOrders[activeMemberId].order) {
+            return;
         }
-        const promises = [];//make them call at the same time
+        
+        // 复制当前成员的订单
+        const currentOrder = [...tableOrders[activeMemberId].order];
+        
+        // 找到要增加数量的商品
+        const itemIndex = currentOrder.findIndex(item => item.id === productId);
+        
+        // 如果找到了商品，增加其数量
+        if (itemIndex !== -1) {
+            currentOrder[itemIndex] = {
+                ...currentOrder[itemIndex],
+                quantity: currentOrder[itemIndex].quantity + 1
+            };
+            
+            // 更新tableOrders
+            const updatedOrders = {
+                ...tableOrders,
+                [activeMemberId]: {
+                    ...tableOrders[activeMemberId],
+                    order: currentOrder
+                }
+            };
+            
+            // 更新状态并保存到localStorage
+            setTableOrders(updatedOrders);
+            const membersKey = `${store}-${selectedTable}-members`;
+            localStorage.setItem(membersKey, JSON.stringify(updatedOrders));
+        }
+    };
 
-        if (add_array.length !== 0) {
-            const dateTime = new Date().toISOString();
-            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-            const addPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
-                date: date,
-                data: add_array,
-                selectedTable: selectedTable
-            }).then(docRef => {
-                console.log("Document written with ID: ", docRef.id);
+    // 减少当前成员购物车中商品的数量
+    const handleDecrementCartItem = (productId) => {
+        if (!tableOrders[activeMemberId] || !tableOrders[activeMemberId].order) {
+            return;
+        }
+        
+        // 复制当前成员的订单
+        const currentOrder = [...tableOrders[activeMemberId].order];
+        
+        // 找到要减少数量的商品
+        const itemIndex = currentOrder.findIndex(item => item.id === productId);
+        
+        // 如果找到了商品，且数量大于1，减少其数量
+        if (itemIndex !== -1 && currentOrder[itemIndex].quantity > 1) {
+            currentOrder[itemIndex] = {
+                ...currentOrder[itemIndex],
+                quantity: currentOrder[itemIndex].quantity - 1
+            };
+            
+            // 更新tableOrders
+            const updatedOrders = {
+                ...tableOrders,
+                [activeMemberId]: {
+                    ...tableOrders[activeMemberId],
+                    order: currentOrder
+                }
+            };
+            
+            // 更新状态并保存到localStorage
+            setTableOrders(updatedOrders);
+            const membersKey = `${store}-${selectedTable}-members`;
+            localStorage.setItem(membersKey, JSON.stringify(updatedOrders));
+        } 
+        // 如果数量为1，则直接删除该商品
+        else if (itemIndex !== -1 && currentOrder[itemIndex].quantity === 1) {
+            handleDeleteCartItem(productId);
+        }
+    };
+
+    // 添加菜品到当前成员的购物车
+    const handleAddToCart = (product) => {
+        if (!tableOrders[activeMemberId]) {
+            return;
+        }
+        
+        // 复制当前成员的订单
+        const currentOrder = [...tableOrders[activeMemberId].order];
+        
+        // 检查商品是否已在购物车中
+        const existingItemIndex = currentOrder.findIndex(item => item.id === product.id);
+        
+        // 如果商品已在购物车中，增加其数量
+        if (existingItemIndex !== -1) {
+            currentOrder[existingItemIndex] = {
+                ...currentOrder[existingItemIndex],
+                quantity: currentOrder[existingItemIndex].quantity + 1
+            };
+        } 
+        // 否则添加新商品
+        else {
+            currentOrder.push({
+                ...product,
+                quantity: 1
             });
-            promises.push(addPromise);
         }
-
-        if (delete_array.length !== 0) {
-            const dateTime = new Date().toISOString();
-            const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-            const deletePromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
-                date: date,
-                data: delete_array,
-                selectedTable: selectedTable
-            }).then(docRef => {
-                console.log("DeleteSendToKitchen Document written with ID: ", docRef.id);
-            });
-            promises.push(deletePromise);
-        }
-
-        // Execute both promises in parallel
-        Promise.all(promises).then(() => {
-            console.log("All operations completed");
-        }).catch(error => {
-            console.error("Error in executing parallel operations", error);
+        
+        // 更新tableOrders
+        const updatedOrders = {
+            ...tableOrders,
+            [activeMemberId]: {
+                ...tableOrders[activeMemberId],
+                order: currentOrder
+            }
+        };
+        
+        // 更新状态并保存到localStorage
+        setTableOrders(updatedOrders);
+        const membersKey = `${store}-${selectedTable}-members`;
+        localStorage.setItem(membersKey, JSON.stringify(updatedOrders));
+        
+        // 显示添加成功提示
+        toast.success(`已添加 ${product.name} 到购物车`, {
+            position: "top-right",
+            autoClose: 1500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
         });
-    }
-
-
+    };
 
     return (
 
@@ -721,15 +992,72 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                     borderBottom: '1px solid #dee2e6',
                                                     backgroundColor: '#f8f9fa' // 标题栏使用非常浅的灰色
                                                 }}>
-                                                    <div>
+                                                            <div>
                                                         <h5 style={{ fontWeight: '600', color: '#212529', margin: 0 }}>
                                                             Dining table : {selectedTable}
                                                         </h5>
+                                                        
+                                                        {/* 成员切换 UI */}
+                                                        <div className="member-tabs mt-2" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                                            {tableOrders && Object.keys(tableOrders).map((memberId) => (
+                                                                <button
+                                                                    key={memberId}
+                                                                    onClick={() => handleMemberTabClick(memberId)}
+                                                                    className={`member-tab ${activeMemberId === memberId ? 'active' : ''}`}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        border: '1px solid #ddd',
+                                                                        borderRadius: '20px',
+                                                                        fontSize: '14px',
+                                                                        backgroundColor: activeMemberId === memberId ? '#007bff' : '#f8f9fa',
+                                                                        color: activeMemberId === memberId ? 'white' : '#333',
+                                                                        cursor: 'pointer',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                    }}
+                                                                >
+                                                                    <span>{tableOrders[memberId].name}</span>
+                                                                    {getMemberItemCount(memberId) > 0 && (
+                                                                        <span style={{ 
+                                                                            marginLeft: '5px', 
+                                                                            backgroundColor: activeMemberId === memberId ? 'white' : '#007bff',
+                                                                            color: activeMemberId === memberId ? '#007bff' : 'white',
+                                                                            borderRadius: '50%',
+                                                                            width: '20px',
+                                                                            height: '20px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'center',
+                                                                            fontSize: '12px'
+                                                                        }}>
+                                                                            {getMemberItemCount(memberId)}
+                                                                        </span>
+                                                                    )}
+                                                                </button>
+                                                            ))}
+                                                            <button
+                                                                onClick={handleAddMember}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    border: '1px solid #ddd',
+                                                                    borderRadius: '20px',
+                                                                    fontSize: '14px',
+                                                                    backgroundColor: '#eee',
+                                                                    color: '#333',
+                                                                    cursor: 'pointer',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                }}
+                                                            >
+                                                                <PersonAddIcon style={{ fontSize: '16px', marginRight: '4px' }} />
+                                                                Add Member
+                                                            </button>
+                                                    </div>
                                                     </div>
                                                     <div>
                                                         {!isPC && (
                                                             <button
-                                                                onClick={() => {
+                                                        onClick={() => {
                                                                     setView(true)
                                                                 }}
                                                                 className="btn btn-sm btn-outline-secondary mx-1 text-black border-black ">
@@ -739,13 +1067,13 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                         <button
                                                             onClick={() => {
                                                                 if (!isPC && view === true) {
-                                                                    setView(false)
-                                                                } else {
-                                                                    setModalOpen(false);
-                                                                    setIsVisible(true)
-                                                                }
-                                                                SendToKitchen();
-                                                            }}
+                                                                setView(false)
+                                                            } else {
+                                                                setModalOpen(false);
+                                                                setIsVisible(true)
+                                                            }
+                                                            SendToKitchen();
+                                                        }}
                                                             className="btn btn-sm btn-primary mx-1" style={{ backgroundColor: '#007bff', borderColor: '#007bff' }}>
                                                             {isPC || !view ? "Send To Kitchen and Back" : "Back to Menu"}
                                                         </button>
@@ -764,16 +1092,23 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                         marginBottom: '0.5rem'
                                                                     }}>
                                                                         <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#0056b3' }}>Shopping Cart</h5>
-                                                                        <InStore_shop_cart
-                                                                            OpenChangeAttributeModal={OpenChangeAttributeModal}
-                                                                            setOpenChangeAttributeModal={setOpenChangeAttributeModal}
-                                                                            store={store}
-                                                                            acct={acct}
-                                                                            selectedTable={selectedTable}
-                                                                            isAllowed={isAllowed}
-                                                                            setIsAllowed={setIsAllowed}
-                                                                            openSplitPaymentModal={openSplitPaymentModal}
-                                                                            TaxRate={TaxRate}
+                                                                    <InStore_shop_cart
+                                                                        OpenChangeAttributeModal={OpenChangeAttributeModal}
+                                                                        setOpenChangeAttributeModal={setOpenChangeAttributeModal}
+                                                                        store={store}
+                                                                        acct={acct}
+                                                                        selectedTable={selectedTable}
+                                                                        isAllowed={isAllowed}
+                                                                        setIsAllowed={setIsAllowed}
+                                                                        openSplitPaymentModal={openSplitPaymentModal}
+                                                                        TaxRate={TaxRate}
+                                                                            activeMemberId={activeMemberId}
+                                                                            getCurrentMemberKey={getCurrentMemberKey}
+                                                                            onClearCart={handleClearActiveMemberCart}
+                                                                            activeMemberOrder={activeMemberOrder}
+                                                                            onDeleteItem={handleDeleteCartItem}
+                                                                            onIncrementItem={handleIncrementCartItem}
+                                                                            onDecrementItem={handleDecrementCartItem}
                                                                         />
                                                                     </div>
                                                                     {/* 移动版菜单样式 */}
@@ -782,15 +1117,16 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                         padding: '1rem'
                                                                     }}>
                                                                         <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#495057' }}>Menu Items</h5>
-                                                                        <InStore_food
-                                                                            setIsVisible={setIsVisible}
-                                                                            OpenChangeAttributeModal={OpenChangeAttributeModal}
-                                                                            setOpenChangeAttributeModal={setOpenChangeAttributeModal}
-                                                                            isAllowed={isAllowed}
-                                                                            setIsAllowed={setIsAllowed}
-                                                                            store={store} selectedTable={selectedTable}
-                                                                            view={view}
-                                                                        />
+                                                                    <InStore_food
+                                                                        setIsVisible={setIsVisible}
+                                                                        OpenChangeAttributeModal={OpenChangeAttributeModal}
+                                                                        setOpenChangeAttributeModal={setOpenChangeAttributeModal}
+                                                                        isAllowed={isAllowed}
+                                                                        setIsAllowed={setIsAllowed}
+                                                                        store={store} selectedTable={selectedTable}
+                                                                        view={view}
+                                                                        onAddToCart={handleAddToCart}
+                                                                    />
                                                                     </div>
                                                                 </div>
                                                                 :
@@ -799,13 +1135,16 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                     padding: '1rem'
                                                                 }}>
                                                                     <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#495057' }}>Menu Items</h5>
-                                                                    <InStore_food
-                                                                        setIsVisible={setIsVisible}
-                                                                        OpenChangeAttributeModal={OpenChangeAttributeModal}
-                                                                        setOpenChangeAttributeModal={setOpenChangeAttributeModal}
-                                                                        isAllowed={isAllowed}
-                                                                        setIsAllowed={setIsAllowed}
-                                                                        store={store} selectedTable={selectedTable} />
+                                                                <InStore_food
+                                                                    setIsVisible={setIsVisible}
+                                                                    OpenChangeAttributeModal={OpenChangeAttributeModal}
+                                                                    setOpenChangeAttributeModal={setOpenChangeAttributeModal}
+                                                                    isAllowed={isAllowed}
+                                                                    setIsAllowed={setIsAllowed}
+                                                                    store={store} selectedTable={selectedTable}
+                                                                    view={view}
+                                                                    onAddToCart={handleAddToCart}
+                                                                />
                                                                 </div>
                                                             }
                                                         </div>
@@ -827,7 +1166,10 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                 setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                 isAllowed={isAllowed}
                                                                 setIsAllowed={setIsAllowed}
-                                                                store={store} selectedTable={selectedTable}></InStore_food>
+                                                                store={store} selectedTable={selectedTable}
+                                                                view={view}
+                                                                onAddToCart={handleAddToCart}
+                                                            />
                                                         </div>
                                                         <div className='w-1/2' style={{
                                                             backgroundColor: '#e9f7ff', // 购物车区域使用柔和的浅蓝色
@@ -842,7 +1184,13 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                 store={store} acct={acct} selectedTable={selectedTable}
                                                                 openSplitPaymentModal={openSplitPaymentModal}
                                                                 TaxRate={TaxRate}
-
+                                                                activeMemberId={activeMemberId}
+                                                                getCurrentMemberKey={getCurrentMemberKey}
+                                                                onClearCart={handleClearActiveMemberCart}
+                                                                activeMemberOrder={activeMemberOrder}
+                                                                onDeleteItem={handleDeleteCartItem}
+                                                                onIncrementItem={handleIncrementCartItem}
+                                                                onDecrementItem={handleDecrementCartItem}
                                                             ></InStore_shop_cart>
                                                         </div>
                                                     </div>
@@ -868,4 +1216,5 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
     );
 }
 export default App;
+
 
