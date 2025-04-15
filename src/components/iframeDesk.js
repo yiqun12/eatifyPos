@@ -732,7 +732,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                 onClick={() => {
                                                                     setView(true)
                                                                 }}
-                                                                className="btn btn-sm btn-outline-secondary mx-1 text-black border-black">
+                                                                className="btn btn-sm btn-outline-secondary mx-1 text-black border-black ">
                                                                 View Orders
                                                             </button>
                                                         )}

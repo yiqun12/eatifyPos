@@ -959,10 +959,6 @@
           if (obj._objects && obj._objects.length > 2) {
             timeText = obj._objects[2];
           }
-          console.log("当前对象:", tableName);
-          console.log("当前对象:", obj);
-          console.log("对象类型:", obj.type);
-          console.log("对象元素数量:", obj._objects ? obj._objects.length : 0);
           
           // 如果是蓝色（用餐中），添加或更新时间文本
           if (color === 'rgba(0, 0, 139, 0.7)') {
@@ -970,11 +966,8 @@
             const fullTableKey = storePrefix + "-" + tableName;
             
             const orderData = localStorage.getItem(fullTableKey);
-            console.log("订单数据:", orderData);
             
             if (orderData && orderData !== "[]") {
-              console.log("创建/更新时间文本");
-              
               // 保存开始时间到localStorage（如果还没有）
               const startTimeKey = `${fullTableKey}-isSent_startTime`;
               if (!localStorage.getItem(startTimeKey)) {
