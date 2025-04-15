@@ -28,7 +28,7 @@ import { ReactComponent as MinusSvg } from './minus.svg';
 import logo_fork from './logo_fork.png'
 import Hero from './Hero'
 import cuiyuan from './cuiyuan.png'
-import { collection, doc, setDoc, addDoc } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, getDoc } from "firebase/firestore";
 import { onSnapshot, query } from 'firebase/firestore';
 import QRCode from 'qrcode.react';
 
@@ -43,8 +43,12 @@ import Dnd_Test from '../pages/dnd_test';
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faExclamation } from '@fortawesome/free-solid-svg-icons'; // Import the exclamation mark icon
 
-const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal, TaxRate }) => {
-  const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
+const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal, TaxRate, activeMemberId, getCurrentMemberKey, onClearCart, activeMemberOrder, onDeleteItem, onIncrementItem, onDecrementItem }) => {
+  // 使用 getCurrentMemberKey 获取当前成员的存储键
+  const currentMemberKey = getCurrentMemberKey ? getCurrentMemberKey() : `${store}-${selectedTable}`;
+  
+  // 不再需要products状态和setProducts
+  const [shouldReloadCart, setShouldReloadCart] = useState(true);
   const { user, user_loading } = useUserContext();
 
   const [width_, setWidth_] = useState(window.innerWidth - 64);
@@ -65,8 +69,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
-    setProducts(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
-  }, [id]);
+    // 重置shouldReloadCart为true，允许重新加载购物车数据
+    setShouldReloadCart(true);
+  }, [activeMemberId]); // 当activeMemberId变化时执行
 
   const translations = [
     { input: "Change Desk", output: "更换餐桌" },
@@ -164,7 +169,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
     //maybe add a line here...
     const calculateTotalPrice = () => {
-      const total = (Array.isArray(products) ? products : []).reduce((acc, item) => item && parseFloat(item.itemTotalPrice) ? parseFloat(acc) + parseFloat(item.itemTotalPrice) : parseFloat(acc), 0);
+      // 使用activeMemberOrder.order而不是products
+      const orderArray = activeMemberOrder && Array.isArray(activeMemberOrder.order) ? activeMemberOrder.order : [];
+      const total = orderArray.reduce((acc, item) => item && parseFloat(item.itemTotalPrice) ? parseFloat(acc) + parseFloat(item.itemTotalPrice) : parseFloat(acc), 0);
+      
       console.log(total)
       setTotalPrice(total);
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))
@@ -179,64 +187,29 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     console.log(tableProductInfo)
     //TO DO: get a better sync. this would write in database twice and this code is not working in mobile unless you get in the shopping cart.
     //GetTableProductInfo(store + "-" + selectedTable)
-  }, [products, width, tips, discount, extra]);
+  }, [activeMemberOrder, width, tips, discount, extra]);
 
 
   const handleDeleteClick = (productId, count) => {
-    // Assuming prevProducts is available in this scope, otherwise, you need to get it from your state
-    // Optional: Logging the product to be deleted
-    const productToDelete = products.find((product) => product.id === productId && product.count === count);
-    if (productToDelete) {
-      console.log('Product before deletion:', productToDelete);
+    // 使用从props传入的删除函数
+    if (onDeleteItem) {
+      onDeleteItem(productId, count);
     }
-
-    // Filter out the product to be deleted
-    const updatedProducts = products.filter((product) => !(product.id === productId && product.count === count));
-
-    // Update the table information with the new set of products
-    SetTableInfo(store + "-" + selectedTable, JSON.stringify(updatedProducts));
   };
 
   const handlePlusClick = (productId, targetCount) => {
-    // Assuming prevProducts is available in this scope, otherwise, you need to get it from your state
-    const updatedProducts = products.map((product) => {
-      if (product.id === productId && product.count === targetCount) {
-        const newQuantity = product.quantity + 1;
-        const newTotalPrice = Math.round(100 * product.itemTotalPrice / product.quantity * newQuantity) / 100;
-
-        return {
-          ...product,
-          quantity: newQuantity,
-          itemTotalPrice: newTotalPrice,
-        };
-      }
-      return product;
-    });
-
-    // Call SetTableInfo with updated information
-    SetTableInfo(store + "-" + selectedTable, JSON.stringify(updatedProducts));
-
+    // 使用从props传入的增加数量函数
+    if (onIncrementItem) {
+      onIncrementItem(productId, targetCount);
+    }
   };
 
 
   const handleMinusClick = (productId, targetCount) => {
-    // Assuming prevProducts is available in this scope, otherwise, you need to get it from your state
-    const updatedProducts = products.map((product) => {
-      if (product.id === productId && product.count === targetCount) {
-        const newQuantity = Math.max(product.quantity - 1, 0);
-        const newTotalPrice = newQuantity > 0 ? Math.round(100 * product.itemTotalPrice / product.quantity * newQuantity) / 100 : 0;
-
-        return {
-          ...product,
-          quantity: newQuantity,
-          itemTotalPrice: newTotalPrice,
-        };
-      }
-      return product;
-    });
-
-    // Call SetTableInfo with updated information
-    SetTableInfo(store + "-" + selectedTable, JSON.stringify(updatedProducts));
+    // 使用从props传入的减少数量函数
+    if (onDecrementItem) {
+      onDecrementItem(productId, targetCount);
+    }
   };
 
 
@@ -272,7 +245,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "MerchantReceipt"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: activeMemberOrder && activeMemberOrder.order ? activeMemberOrder.order : [],
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -289,7 +262,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "CustomerReceipt"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: activeMemberOrder && activeMemberOrder.order ? activeMemberOrder.order : [],
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -307,7 +280,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "listOrder"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: activeMemberOrder && activeMemberOrder.order ? activeMemberOrder.order : [],
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -336,35 +309,50 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   const SendToKitchen = async () => {
     try {
-
-      if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
-        if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
-          console.log("//no item in the array no item isSent.")
-          return //no item in the array no item isSent.
-        } else {//delete all items
-        }
+      // 检查当前成员是否有订单
+      if (!activeMemberOrder || !activeMemberOrder.order || activeMemberOrder.order.length === 0) {
+        console.log("//当前成员没有订单");
+        return; // 没有订单，不需要发送
       }
-      compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
-      SetTableIsSent(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
-
+      
+      // 获取当前成员的isSent键
+      const isSentKey = `${store}-${selectedTable}-member-${activeMemberId}-isSent`;
+      
+      // 获取之前已发送的订单数据
+      const previouslySentOrders = localStorage.getItem(isSentKey) !== null ? 
+        JSON.parse(localStorage.getItem(isSentKey)) : [];
+      
+      // 比较新旧订单并发送差异
+      compareArrays(previouslySentOrders, activeMemberOrder.order);
+      
+      // 更新已发送数据
+      localStorage.setItem(isSentKey, JSON.stringify(activeMemberOrder.order));
+      SetTableIsSent(isSentKey, JSON.stringify(activeMemberOrder.order));
     } catch (e) {
       console.error("Error adding document: ", e);
     }
   }
 
   const SendToKitchenMarkAsUnPaid = async () => {
-
     try {
-      if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
-        if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
-          console.log("//no item in the array no item isSent.")
-          return //no item in the array no item isSent.
-        } else {//delete all items
-        }
+      // 检查当前成员是否有订单
+      if (!activeMemberOrder || !activeMemberOrder.order || activeMemberOrder.order.length === 0) {
+        console.log("//当前成员没有订单");
+        return; // 没有订单，不需要发送
       }
-      compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
-      SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]")
-
+      
+      // 获取当前成员的isSent键
+      const isSentKey = `${store}-${selectedTable}-member-${activeMemberId}-isSent`;
+      
+      // 获取之前已发送的订单数据
+      const previouslySentOrders = localStorage.getItem(isSentKey) !== null ? 
+        JSON.parse(localStorage.getItem(isSentKey)) : [];
+      
+      // 比较新旧订单并发送差异
+      compareArrays(previouslySentOrders, activeMemberOrder.order);
+      
+      // 标记为未支付后清空已发送数据
+      SetTableIsSent(isSentKey, "[]");
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -496,7 +484,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "OpenCashDraw"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: activeMemberOrder && activeMemberOrder.order ? activeMemberOrder.order : [],
         selectedTable: selectedTable
       });
       console.log("Document written with ID: ", docRef.id);
@@ -505,224 +493,29 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     }
   }
 
-  const MarkAsUnPaid = async () => {
-    let extra_tip = 0
+  const MarkAsUnPaid = () => {
+    if (onClearCart) {
+      onClearCart();
+    }
+  };
+
+  const CashCheckOut = async (tips_) => {
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
-        setProducts([]);
-        setExtra(0)
-        setInputValue("")
-        setDiscount("")
-        setTips("")
-        return
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "CashCheckOut"), {
+        date: date,
+        data: activeMemberOrder && activeMemberOrder.order ? activeMemberOrder.order : [],
+        selectedTable: selectedTable,
+        discount: discount === "" ? 0 : discount,
+        service_fee: tips === "" ? 0 : tips,
+        extra_tips: tips_ === "" ? 0 : tips_,
+        total: finalPrice,
+      });
+      console.log("Document written with ID: ", docRef.id);
+      if (onClearCart) {
+        onClearCart();
       }
-      // Wrap the addDoc call in a promise
-      const addDocPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
-        amount: Math.round(Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100 * 100),
-        amount_capturable: 0,
-        amount_details: { tip: { amount: 0 } },
-        amount_received: Math.round(Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100 * 100),
-        application: "",
-        application_fee_amount: 0,
-        automatic_payment_methods: null,
-        canceled_at: null,
-        cancellation_reason: null,
-        capture_method: "automatic",
-        client_secret: "pi_none",
-        confirmation_method: "automatic",
-        created: 0,
-        currency: "usd",
-        customer: null,
-        dateTime: date,
-        description: null,
-        id: "pi_none",
-        invoice: null,
-        last_payment_error: null,
-        latest_charge: "ch_none",
-        livemode: true,
-        metadata: {
-          discount: discount === "" ? 0 : discount,
-          isDine: true,
-          service_fee: tips === "" ? 0 : tips,
-          subtotal: Math.round(100 * totalPrice) / 100,
-          tax: Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100,
-          tips: Math.round(100 * extra_tip) / 100,
-          total: Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100,
-        }, // Assuming an empty map converts to an empty object
-        next_action: null,
-        object: "payment_intent",
-        on_behalf_of: null,
-        payment_method: "pm_none",
-        payment_method_configuration_details: null,
-        payment_method_options: {}, // Assuming an empty map converts to an empty object
-        card_present: {}, // Assuming an empty map converts to an empty object
-        request_extended_authorization: false,
-        request_incremental_authorization_support: false,
-        payment_method_types: ["Mark_as_Unpaid"],
-        powerBy: "Unpaid",
-        processing: null,
-        receiptData: localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]",
-        receipt_email: null,
-        review: null,
-        setup_future_usage: null,
-        shipping: null,
-        source: null,
-        statement_descriptor: null,
-        statement_descriptor_suffix: null,
-        status: "succeeded",
-        store: store,
-        storeOwnerId: user.uid,
-        stripe_store_acct: acct,
-        tableNum: selectedTable,
-        transfer_data: null,
-        transfer_group: null,
-        uid: user.uid,
-        user_email: user.email,
-      });
-
-      // Assuming SetTableInfo and SetTableIsSent are asynchronous and return promises
-      // If they are not asynchronous, you can wrap their calls in Promise.resolve to treat them as promises
-      const setTableInfoPromise = Promise.resolve(SetTableInfo(store + "-" + selectedTable, "[]"));
-      const setTableIsSentPromise = Promise.resolve(SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]"));
-
-      // Execute all promises in parallel
-      Promise.all([addDocPromise, setTableInfoPromise, setTableIsSentPromise]).then(() => {
-        console.log("All operations completed successfully.");
-      }).catch((error) => {
-        console.error("Error executing operations:", error);
-      });
-
-      setProducts([]);
-      setExtra(0)
-      setInputValue("")
-      setDiscount("")
-      setTips("")
-
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
-  }
-  // console.logg(tips)
-  // console.log(typeof(tips))
-  //console.logg(Math.round(extra * 100) / 100)
-  //console.log(typeof(Math.round(extra * 100) / 100))
-  function roundToTwoDecimals(n) {
-    return Math.round(n * 100) / 100;
-  }
-  const CashCheckOut = async (extra, tax, total) => {
-
-    console.log("CashCheckOut")
-    let extra_tip = 0
-    if (extra !== null) {
-      extra_tip = Math.round(extra * 100) / 100
-    }
-    console.log(extra)
-    console.log(extra_tip)
-    console.log(tips)
-    console.log(roundToTwoDecimals
-      (roundToTwoDecimals(extra_tip) + roundToTwoDecimals(tips === "" ? 0 : tips)))
-    //console.log(typeof extra_tip)//number
-    //console.log(typeof (tips === "" ? 0 : tips))//string
-    if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
-      setProducts([]);
-      setExtra(0)
-      setInputValue("")
-      setDiscount("")
-      setTips("")
-      setResult(null)
-      return
-    }
-    console.log("CashCheckOut")
-
-    try {
-      const dateTime = new Date().toISOString();
-      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      // Wrap the addDoc call in a promise
-      const addDocPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
-        amount: Math.round(total * 100),
-        amount_capturable: 0,
-        amount_details: { tip: { amount: 0 } },
-        amount_received: Math.round(total * 100),
-        application: "",
-        application_fee_amount: 0,
-        automatic_payment_methods: null,
-        canceled_at: null,
-        cancellation_reason: null,
-        capture_method: "automatic",
-        client_secret: "pi_none",
-        confirmation_method: "automatic",
-        created: 0,
-        currency: "usd",
-        customer: null,
-        dateTime: date,
-        description: null,
-        id: "pi_none",
-        invoice: null,
-        last_payment_error: null,
-        latest_charge: "ch_none",
-        livemode: true,
-        metadata: {
-          discount: discount === "" ? 0 : discount,
-          isDine: true,
-          service_fee: 0,
-          subtotal: Math.round(100 * totalPrice) / 100,
-          tax: tax,
-          tips: roundToTwoDecimals
-            (roundToTwoDecimals(extra_tip) + roundToTwoDecimals(tips === "" ? 0 : tips)),
-          total: total
-        }, // Assuming an empty map converts to an empty object
-        next_action: null,
-        object: "payment_intent",
-        on_behalf_of: null,
-        payment_method: "pm_none",
-        payment_method_configuration_details: null,
-        payment_method_options: {}, // Assuming an empty map converts to an empty object
-        card_present: {}, // Assuming an empty map converts to an empty object
-        request_extended_authorization: false,
-        request_incremental_authorization_support: false,
-        payment_method_types: ["Paid_by_Cash"],
-        powerBy: "Paid by Cash",
-        processing: null,
-        receiptData: localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]",
-        receipt_email: null,
-        review: null,
-        setup_future_usage: null,
-        shipping: null,
-        source: null,
-        statement_descriptor: null,
-        statement_descriptor_suffix: null,
-        status: "succeeded",
-        store: store,
-        storeOwnerId: user.uid,
-        stripe_store_acct: acct,
-        tableNum: selectedTable,
-        transfer_data: null,
-        transfer_group: null,
-        uid: user.uid,
-        user_email: user.email,
-      });
-
-      // Assuming SetTableInfo and SetTableIsSent are asynchronous and return promises
-      // If they are not asynchronous, you can wrap their calls in Promise.resolve to treat them as promises
-      const setTableInfoPromise = Promise.resolve(SetTableInfo(store + "-" + selectedTable, "[]"));
-      const setTableIsSentPromise = Promise.resolve(SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]"));
-
-      // Execute all promises in parallel
-      Promise.all([addDocPromise, setTableInfoPromise, setTableIsSentPromise]).then(() => {
-        console.log("All operations completed successfully.");
-      }).catch((error) => {
-        console.error("Error executing operations:", error);
-      });
-
-      setProducts([]);
-      setExtra(0)
-      setInputValue("")
-      setDiscount("")
-      setTips("")
-      setResult(null)
-
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -955,26 +748,66 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   }
 
   const mergeProduct = async (table_name) => {
-    //table_name is mergeTo
-    //selectedTable should be selectedTable
-    // console.log("saijdoaewjdioaw")
-    // console.log(JSON.stringify(groupAndSumItems(
-    //   [...JSON.parse(localStorage.getItem(`${store}-${selectedTable}`)), ...JSON.parse(localStorage.getItem(`${store}-${table_name}`))]
-    // )))
-    // console.log( )
-    // console.log(localStorage.getItem(store + "-" + selectedTable + "-isSent"))
-    // console.log(localStorage.getItem(store + "-" + table_name + "-isSent"))
-    SetTableInfo_(`${store}-${table_name}`, JSON.stringify(groupAndSumItems(
-      [...JSON.parse(localStorage.getItem(`${store}-${selectedTable}`)), ...JSON.parse(localStorage.getItem(`${store}-${table_name}`))]
-    )))
-    SetTableInfo_(`${store}-${selectedTable}`, JSON.stringify([]))
-    SetTableIsSent(`${store}-${table_name}-isSent`, JSON.stringify(groupAndSumItems(
-      [...JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), ...JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent"))])
-    ))
-    //localStorage.setItem(`${store}-${table_name}-isSent`,JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")),JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent")))))
-    SetTableIsSent(`${store}-${selectedTable}-isSent`, JSON.stringify([]))
-    //localStorage.setItem(`${store}-${selectedTable}-isSent`,JSON.stringify([]))
-
+    try {
+      // 从iframeDesk.js获取目标桌子的订单
+      const targetTableDataRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", `${store}-${table_name}`);
+      const targetTableDoc = await getDoc(targetTableDataRef);
+      
+      if (!targetTableDoc.exists()) {
+        console.error("目标桌子数据不存在");
+        return;
+      }
+      
+      // 获取目标桌子的产品数据
+      let targetTableProducts = [];
+      if (targetTableDoc.data() && targetTableDoc.data().product) {
+        try {
+          targetTableProducts = JSON.parse(targetTableDoc.data().product);
+        } catch (e) {
+          console.error("解析目标桌子数据失败", e);
+          targetTableProducts = [];
+        }
+      }
+      
+      // 合并当前活动成员的订单与目标桌子的订单
+      const mergedProducts = groupAndSumItems([
+        ...(activeMemberOrder && activeMemberOrder.order ? activeMemberOrder.order : []), 
+        ...targetTableProducts
+      ]);
+      
+      // 更新目标桌子数据
+      await SetTableInfo_(`${store}-${table_name}`, JSON.stringify(mergedProducts));
+      
+      // 获取并合并isSent数据
+      const currentIsSentKey = `${store}-${selectedTable}-member-${activeMemberId}-isSent`;
+      const targetIsSentKey = `${store}-${table_name}-isSent`;
+      
+      const currentIsSent = localStorage.getItem(currentIsSentKey) ? 
+        JSON.parse(localStorage.getItem(currentIsSentKey)) : [];
+      const targetIsSent = localStorage.getItem(targetIsSentKey) ? 
+        JSON.parse(localStorage.getItem(targetIsSentKey)) : [];
+      
+      const mergedIsSent = groupAndSumItems([...currentIsSent, ...targetIsSent]);
+      
+      // 更新目标桌子isSent数据
+      await SetTableIsSent(targetIsSentKey, JSON.stringify(mergedIsSent));
+      
+      // 清空当前桌子数据
+      await SetTableInfo_(`${store}-${selectedTable}`, JSON.stringify([]));
+      await SetTableIsSent(currentIsSentKey, JSON.stringify([]));
+      
+      // 清空当前活动成员的购物车
+      if (onClearCart) {
+        onClearCart();
+      }
+      
+      // 显示合并成功消息
+      alert(`成功将订单合并到桌子 ${table_name}`);
+      
+    } catch (error) {
+      console.error("合并桌子数据失败: ", error);
+      alert("合并桌子失败，请重试");
+    }
   };
 
   const SetTableInfo_ = async (table_name, product, id) => {
@@ -990,6 +823,29 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       console.error("Error adding document: ", error);
     }
   };
+
+  const PaymentSuccessUpdate = async (tips_, intent) => {
+    try {
+      const dateTime = new Date().toISOString();
+      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "CheckOut"), {
+        date: date,
+        data: activeMemberOrder && activeMemberOrder.order ? activeMemberOrder.order : [],
+        selectedTable: selectedTable,
+        discount: discount === "" ? 0 : discount,
+        service_fee: tips === "" ? 0 : tips,
+        extra_tips: tips_ === "" ? 0 : tips_,
+        total: finalPrice,
+        intent: intent,
+      });
+      console.log("Document written with ID: ", docRef.id);
+      if (onClearCart) {
+        onClearCart();
+      }
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
 
   // console.log("Products from instroe_shop_cart", products)
   return (
@@ -1045,8 +901,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
             </div>
             <div style={{ overflowY: 'auto', height: `calc(100vh - 325px)` }} >
-              {(Array.isArray(products) ? products : []).map((product) => (
-                // the parent div
+              {(activeMemberOrder && Array.isArray(activeMemberOrder.order) && activeMemberOrder.order.length > 0) ? activeMemberOrder.order.map((product) => (
                 // can make the parent div flexbox
                 <div>
                   <div className='flex'>
@@ -1067,7 +922,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <div className='items-center'>
                     <div>
                       <span class="notranslate">
-                        {Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}
+                        {product.attributeSelected && typeof product.attributeSelected === 'object' 
+                        ? Object.entries(product.attributeSelected).map(([key, value]) => (
+                          Array.isArray(value) ? value.join(' ') : value)).join(' ') 
+                        : ''}
                       </span>
                     </div>
 
@@ -1129,7 +987,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <hr></hr>
                 </div>
 
-              ))}
+              )) : <div>购物车为空</div>}
 
             </div>
 
@@ -1416,7 +1274,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         &times;
                       </button>
                     </div>
-                    <Dnd_Test store={store} acct={acct} selectedTable={selectedTable} key={dndTestKey} main_input={products}
+                    <Dnd_Test store={store} acct={acct} selectedTable={selectedTable} key={dndTestKey} main_input={activeMemberOrder && activeMemberOrder.order ? activeMemberOrder.order : []}
                       TaxRate={TaxRate}
                     />
                   </div>
@@ -1485,8 +1343,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   </div>
                   <div className="modal-body pt-0">
 
-                    <PaymentRegular setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store}
-                      chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} />
+                    <PaymentRegular setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} onClearCart={onClearCart} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store}
+                      chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} setShouldReloadCart={setShouldReloadCart} />
                     <span className="mb-2 notranslate">Or Customer Can Scan To Pay The Whole Table (扫码支付本桌)</span>
 
                     <div className="qrCodeItem flex flex-col items-center mt-1">

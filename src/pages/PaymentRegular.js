@@ -7,7 +7,7 @@ import myImage from '../components/check-mark.png';  // Import the image
 import { collection, doc, setDoc,query, where, onSnapshot} from "firebase/firestore";
 import { db } from '../firebase/index';
 
-const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, totalPrice }) => {
+const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, onClearCart, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, totalPrice, setShouldReloadCart }) => {
   // State to store the error message
   const [error, setError] = useState(null);
 
@@ -206,7 +206,10 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
         setDiscount("");
         setTips("");
         setExtra(0);
-        setProducts([]);
+        if (onClearCart) {
+          onClearCart();
+          if (setShouldReloadCart) setShouldReloadCart(false);
+        }
         // Resetting or setting additional state related to the table information
         SetTableInfo(`${storeID}-${selectedTable}`, "[]");
         SetTableIsSent(`${storeID}-${selectedTable}-isSent`, "[]");
