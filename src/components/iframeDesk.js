@@ -745,6 +745,13 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                     setIsVisible(true)
                                                                 }
                                                                 SendToKitchen();
+                                                                // Add logic to save start time if it doesn't exist
+                                                                const startTimeKey = `${store}-${selectedTable}-isSent_startTime`;
+                                                                const currentCart = localStorage.getItem(`${store}-${selectedTable}`);
+                                                                if (!localStorage.getItem(startTimeKey) && currentCart && currentCart !== '[]') {
+                                                                    localStorage.setItem(startTimeKey, Date.now().toString());
+                                                                    console.log(`Saved start time for ${selectedTable}: ${startTimeKey}`);
+                                                                }
                                                             }}
                                                             className="btn btn-sm btn-primary mx-1" style={{ backgroundColor: '#007bff', borderColor: '#007bff' }}>
                                                             {isPC || !view ? "Send To Kitchen and Back" : "Back to Menu"}
@@ -774,6 +781,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                             setIsAllowed={setIsAllowed}
                                                                             openSplitPaymentModal={openSplitPaymentModal}
                                                                             TaxRate={TaxRate}
+                                                                            startTime={`1744625303617`}
                                                                         />
                                                                     </div>
                                                                     {/* 移动版菜单样式 */}
@@ -815,7 +823,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                     :
                                                     <div className="modal-body flex p-0" style={{ minHeight: 'calc(100vh - 150px)' }} >
 
-                                                        <div className='w-1/2' style={{ 
+                                                        <div className='w-1/2' style={{
                                                             backgroundColor: '#ffffff', // 菜单区保持白色
                                                             padding: '1rem',
                                                             borderRight: '1px solid #dee2e6' // 稍明显的灰色分隔线
@@ -853,7 +861,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                     </div>
                                 )}
                             </div>
-                            {/* 
+                            {/*
                             <div>
                             </div> */}
                         </div>

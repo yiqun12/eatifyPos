@@ -44,10 +44,16 @@ import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faExclamation } from '@fortawesome/free-solid-svg-icons'; // Import the exclamation mark icon
 
 const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal, TaxRate }) => {
+  // Removed startTime prop as it's read from localStorage now
+  // startTime = 1744625303617 // Removed hardcoded value
+
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   const { user, user_loading } = useUserContext();
 
   const [width_, setWidth_] = useState(window.innerWidth - 64);
+
+  // State for dining duration
+  const [diningDuration, setDiningDuration] = useState('');
 
   useEffect(() => {
     function handleResize() {
@@ -137,6 +143,50 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   const [totalQuant, setTotalQuant] = useState(0);
   const [extra, setExtra] = useState(0);
+
+  // Effect to calculate and update dining duration
+  useEffect(() => {
+    let intervalId = null;
+
+    const updateDuration = () => {
+      const startTimeKey = `${store}-${selectedTable}-isSent_startTime`;
+      const startTimeValue = localStorage.getItem(startTimeKey);
+
+      if (startTimeValue && !isNaN(parseInt(startTimeValue)) && products.length > 0) {
+        const startTime = parseInt(startTimeValue);
+        const now = Date.now();
+        const durationMs = now - startTime;
+
+        const hours = Math.floor(durationMs / (1000 * 60 * 60));
+        const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+
+        const formattedDuration = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        setDiningDuration(formattedDuration);
+      } else {
+        setDiningDuration(''); // Clear duration if no start time or no products
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+      }
+    };
+
+    updateDuration(); // Initial calculation
+
+    // Set up interval only if conditions are met initially
+    const startTimeKey = `${store}-${selectedTable}-isSent_startTime`;
+    const startTimeValue = localStorage.getItem(startTimeKey);
+    if (startTimeValue && !isNaN(parseInt(startTimeValue)) && products.length > 0) {
+        intervalId = setInterval(updateDuration, 30000); // Update every 30 seconds
+    }
+
+    // Cleanup function
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [store, selectedTable, products]); // Rerun when store, table, or products change
 
   const toggleAllowance = () => {
     console.log(isAllowed)
@@ -516,6 +566,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         setInputValue("")
         setDiscount("")
         setTips("")
+        localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
         return
       }
       // Wrap the addDoc call in a promise
@@ -599,6 +650,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setInputValue("")
       setDiscount("")
       setTips("")
+      localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
 
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -632,6 +684,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setDiscount("")
       setTips("")
       setResult(null)
+      localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
       return
     }
     console.log("CashCheckOut")
@@ -722,6 +775,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setDiscount("")
       setTips("")
       setResult(null)
+      localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
 
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -1135,6 +1189,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
           </div>
           <div className='flex flex-col space-y-2' style={isMobile ? { minWidth: "120px" } : { minWidth: "150px" }}>
+            {/* Display Dining Duration */}
+            {diningDuration && (
+                <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                  Meal times: <span className="notranslate text-green-600">{diningDuration}</span>
+                </div>
+            )}
+
             <a
               onClick={() => { setChangeTableModal(true) }}
               className="mt-3 btn btn-sm btn-link mx-1 border-black"
@@ -1345,7 +1406,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                           {fanyi("Gratuity")}.
                           {/* {fanyi("Add return cash as a gratuity")} (
                           {fanyi("Total")}:
-                          
+
                           <span className='notranslate'>${Math.round((result - finalPrice + extra) * 100) / 100}</span>
                           {fanyi("and finalize")} */}
                         </button>
@@ -1532,7 +1593,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         value={customPercentage}
                         onChange={handleCustomPercentageChange}
                         className="px-4 py-2 ml-2 form-control tips-no-spinners"  // Added the 'no-spinners' class
-                        translate="no" 
+                        translate="no"
                       /> */}
                     </div>
                     <input
