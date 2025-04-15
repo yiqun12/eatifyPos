@@ -986,7 +986,7 @@ const Navbar = () => {
       )}
 
       {openModal2 && (
-        <div className="fixed inset-0 z-50 flex justify-center bg-black bg-opacity-50 p-4">
+        <div className="fixed inset-0 z-[9999] flex justify-center bg-black bg-opacity-50 p-4">
           <div className="relative w-full max-w-2xl max-h-full">
             <div className="bg-white rounded-lg border border-gray-200 shadow-lg ">
 
@@ -1026,7 +1026,7 @@ const Navbar = () => {
       )}
 
       {/* {(openModalTimer && isKiosk) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4 py-8">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 px-4 py-8">
           <div className="relative w-full max-w-2xl mx-auto bg-white rounded-lg border border-gray-200 shadow-lg p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Inactive Alert</h2>
             <p className="text-gray-700 mb-6">

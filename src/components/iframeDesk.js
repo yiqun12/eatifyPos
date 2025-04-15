@@ -717,94 +717,110 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                     }}>
                                         <div role="document" className='m-2' style={{ overflowY: 'hidden' }}>
                                             <div className="modal-content" style={{ overflowY: 'hidden', /* Add scrollbar styles inline */ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' }}>
-                                                <div className="modal-header flex p-0 pb-3 ">
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                        {!isPC ?
-                                                            <a
+                                                <div className="modal-header flex items-center justify-between p-4" style={{
+                                                    borderBottom: '1px solid #dee2e6',
+                                                    backgroundColor: '#f8f9fa' // 标题栏使用非常浅的灰色
+                                                }}>
+                                                    <div>
+                                                        <h5 style={{ fontWeight: '600', color: '#212529', margin: 0 }}>
+                                                            Dining table : {selectedTable}
+                                                        </h5>
+                                                    </div>
+                                                    <div>
+                                                        {!isPC && (
+                                                            <button
                                                                 onClick={() => {
                                                                     setView(true)
                                                                 }}
-                                                                class="btn d-inline-flex btn-sm btn-secondary mx-1">
-                                                                <span>View {selectedTable} Orders</span>
-                                                            </a>
-
-                                                            :
-                                                            <div>
-                                                                <div className='text-lg'>Dining table : {selectedTable}
-                                                                </div>
-                                                            </div>
-
-                                                        }
-
+                                                                className="btn btn-sm btn-outline-secondary mx-1 text-black border-black ">
+                                                                View Orders
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => {
+                                                                if (!isPC && view === true) {
+                                                                    setView(false)
+                                                                } else {
+                                                                    setModalOpen(false);
+                                                                    setIsVisible(true)
+                                                                }
+                                                                SendToKitchen();
+                                                            }}
+                                                            className="btn btn-sm btn-primary mx-1" style={{ backgroundColor: '#007bff', borderColor: '#007bff' }}>
+                                                            {isPC || !view ? "Send To Kitchen and Back" : "Back to Menu"}
+                                                        </button>
                                                     </div>
-                                                    {!isPC ? <a
-                                                        onClick={() => {
-                                                            if (view === true) {
-                                                                setView(false)
-                                                            } else {
-                                                                setModalOpen(false);
-                                                                setIsVisible(true)
-                                                            }
-                                                            SendToKitchen();
-                                                        }}
-                                                        class="btn d-inline-flex btn-sm btn-primary mx-1">
-                                                        <span>Send To Kitchen and Back</span>
-                                                    </a> : <a
-                                                        onClick={() => {
-                                                            setModalOpen(false);
-                                                            setIsVisible(true);
-                                                            SendToKitchen();
-                                                        }}
-                                                        class="btn d-inline-flex btn-sm btn-primary mx-1">
-                                                        <span>Send To Kitchen and Back</span>
-                                                    </a>
-
-                                                    }
-
                                                 </div>
                                                 {!isPC ?
                                                     <div key={view} className="modal-body p-0">
                                                         <div >
                                                             {view === true ?
                                                                 <div>
-                                                                    <InStore_shop_cart
-                                                                        OpenChangeAttributeModal={OpenChangeAttributeModal}
-                                                                        setOpenChangeAttributeModal={setOpenChangeAttributeModal}
-                                                                        store={store}
-                                                                        acct={acct}
-                                                                        selectedTable={selectedTable}
-                                                                        isAllowed={isAllowed}
-                                                                        setIsAllowed={setIsAllowed}
-                                                                        openSplitPaymentModal={openSplitPaymentModal}
-                                                                        TaxRate={TaxRate}
-                                                                    />
+                                                                    {/* 移动版购物车样式 */}
+                                                                    <div style={{
+                                                                        backgroundColor: '#e9f7ff', // 浅蓝色背景
+                                                                        padding: '1rem',
+                                                                        borderBottom: '1px solid #dee2e6',
+                                                                        marginBottom: '0.5rem'
+                                                                    }}>
+                                                                        <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#0056b3' }}>Shopping Cart</h5>
+                                                                        <InStore_shop_cart
+                                                                            OpenChangeAttributeModal={OpenChangeAttributeModal}
+                                                                            setOpenChangeAttributeModal={setOpenChangeAttributeModal}
+                                                                            store={store}
+                                                                            acct={acct}
+                                                                            selectedTable={selectedTable}
+                                                                            isAllowed={isAllowed}
+                                                                            setIsAllowed={setIsAllowed}
+                                                                            openSplitPaymentModal={openSplitPaymentModal}
+                                                                            TaxRate={TaxRate}
+                                                                        />
+                                                                    </div>
+                                                                    {/* 移动版菜单样式 */}
+                                                                    <div style={{
+                                                                        backgroundColor: '#ffffff', // 白色背景
+                                                                        padding: '1rem'
+                                                                    }}>
+                                                                        <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#495057' }}>Menu Items</h5>
+                                                                        <InStore_food
+                                                                            setIsVisible={setIsVisible}
+                                                                            OpenChangeAttributeModal={OpenChangeAttributeModal}
+                                                                            setOpenChangeAttributeModal={setOpenChangeAttributeModal}
+                                                                            isAllowed={isAllowed}
+                                                                            setIsAllowed={setIsAllowed}
+                                                                            store={store} selectedTable={selectedTable}
+                                                                            view={view}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                :
+                                                                <div style={{
+                                                                    backgroundColor: '#ffffff', // 白色背景
+                                                                    padding: '1rem'
+                                                                }}>
+                                                                    <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#495057' }}>Menu Items</h5>
                                                                     <InStore_food
                                                                         setIsVisible={setIsVisible}
                                                                         OpenChangeAttributeModal={OpenChangeAttributeModal}
                                                                         setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                         isAllowed={isAllowed}
                                                                         setIsAllowed={setIsAllowed}
-                                                                        store={store} selectedTable={selectedTable}
-                                                                        view={view}
-                                                                    />
+                                                                        store={store} selectedTable={selectedTable} />
                                                                 </div>
-                                                                :
-                                                                <InStore_food
-                                                                    setIsVisible={setIsVisible}
-                                                                    OpenChangeAttributeModal={OpenChangeAttributeModal}
-                                                                    setOpenChangeAttributeModal={setOpenChangeAttributeModal}
-                                                                    isAllowed={isAllowed}
-                                                                    setIsAllowed={setIsAllowed}
-                                                                    store={store} selectedTable={selectedTable} />
                                                             }
                                                         </div>
                                                     </div>
 
 
                                                     :
-                                                    <div className="modal-body flex p-0" >
+                                                    <div className="modal-body flex p-0" style={{ minHeight: 'calc(100vh - 150px)' }} >
 
-                                                        <div className='w-1/2'>
+                                                        <div className='w-1/2' style={{ 
+                                                            backgroundColor: '#ffffff', // 菜单区保持白色
+                                                            padding: '1rem',
+                                                            borderRight: '1px solid #dee2e6' // 稍明显的灰色分隔线
+                                                        }}>
+                                                            <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#495057' }}>Menu Items</h5>
                                                             <InStore_food
                                                                 setIsVisible={setIsVisible}
                                                                 OpenChangeAttributeModal={OpenChangeAttributeModal}
@@ -813,7 +829,11 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                 setIsAllowed={setIsAllowed}
                                                                 store={store} selectedTable={selectedTable}></InStore_food>
                                                         </div>
-                                                        <div className='w-1/2'>
+                                                        <div className='w-1/2' style={{
+                                                            backgroundColor: '#e9f7ff', // 购物车区域使用柔和的浅蓝色
+                                                            padding: '1rem'
+                                                        }}>
+                                                            <h5 style={{ marginBottom: '1rem', fontWeight: '600', color: '#0056b3' }}>Shopping Cart</h5>
                                                             <InStore_shop_cart
                                                                 OpenChangeAttributeModal={OpenChangeAttributeModal}
                                                                 setOpenChangeAttributeModal={setOpenChangeAttributeModal}

@@ -946,7 +946,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
         {isModalVisible && (
 
-          <div id={count} className="fixed top-0 left-0 right-0 bottom-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+          <div id={count} className="fixed top-0 left-0 right-0 bottom-0 z-[9999] w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
             <div className="relative w-full max-h-full ">
               <div className="relative bg-white rounded-lg border-black shadow">
 
@@ -1374,7 +1374,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
               {/* diplay food */}
               <AnimatePresence>
-                <div className='grid grid-cols-1 gap-3 pt-3 ' style={{
+                <div className='grid grid-cols-1 gap-3 pt-3 px-2' style={{
                   gridTemplateRows: `repeat(1, 1fr)`,
                   gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
                   overflowY: 'auto',

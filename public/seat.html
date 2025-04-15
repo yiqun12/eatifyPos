@@ -944,14 +944,241 @@
 
     // this function allows me to change the color of A2 with a button click
 
+    // 在函数定义部分添加存储餐桌用餐信息的对象
+    const tableDiningInfo = {};
+    let diningTimeUpdateInterval;
+
     function highlightTable(tableName, color) {
       canvas.forEachObject(function (obj) {
         if ((obj.type === 'rect' || obj.type === 'circle') && obj.tableName === tableName) {
           // Change the fill color of the table
           obj.item(0).set('fill', color);
+          
+          // 检查是否有餐桌时间文本，如果没有则创建
+          let timeText = null;
+          if (obj._objects && obj._objects.length > 2) {
+            timeText = obj._objects[2];
+          }
+          
+          // 如果是蓝色（用餐中），添加或更新时间文本
+          if (color === 'rgba(0, 0, 139, 0.7)') {
+            const storePrefix = store.slice(0, -"_restaurant_seat_arrangement".length);
+            const fullTableKey = storePrefix + "-" + tableName;
+            
+            const orderData = localStorage.getItem(fullTableKey);
+            
+            if (orderData && orderData !== "[]") {
+              // 保存开始时间到localStorage（如果还没有）
+              const startTimeKey = `${fullTableKey}-isSent_startTime`;
+              if (!localStorage.getItem(startTimeKey)) {
+                localStorage.setItem(startTimeKey, Date.now().toString());
+                console.log("保存开始时间:", startTimeKey, Date.now());
+              }
+              
+              // 移除现有的时间文本（如果存在）
+              if (timeText) {
+                try {
+                  obj.remove(timeText);
+                  canvas.renderAll();
+                } catch (e) {
+                  console.error("移除现有时间文本出错:", e);
+                }
+              }
+              
+              // 创建新的时间文本
+              try {
+                timeText = new fabric.Text('计算中...', {
+                  fontFamily: 'Arial',
+                  fontSize: 16,
+                  fill: '#ffffff',
+                  textAlign: 'center',
+                  originX: 'center',
+                  originY: 'center',
+                  shadow: new fabric.Shadow({
+                    color: 'rgba(0,0,0,0.7)',
+                    blur: 3
+                  }),
+                  backgroundColor: 'rgba(0,0,0,0.3)',
+                  padding: 5
+                });
+                
+                // 计算位置使文本显示在餐桌正下方中央
+                const tableObj = obj.item(0); // 获取餐桌形状对象
+                const tableBounds = obj.getBoundingRect();
+                
+                timeText.set({
+                  left: tableBounds.left + tableBounds.width/2,  // 水平居中
+                  top: tableBounds.top + tableBounds.height + 10  // 放置在餐桌下方10像素处
+                });
+                canvas.add(timeText);
+                obj.timeTextRef = timeText; // 在obj上保存引用
+                canvas.renderAll();
+                
+                console.log("时间文本创建完成:", timeText);
+                
+                // 更新时间显示
+                updateDiningTime(tableName, timeText, orderData);
+              } catch (e) {
+                console.error("创建时间文本出错:", e);
+              }
+            }
+            
+            // 确保时间更新定时器正在运行
+            if (!diningTimeUpdateInterval) {
+              diningTimeUpdateInterval = setInterval(function() {
+                console.log("定时更新触发");
+                updateAllDiningTimes();
+              }, 30000); // 每30秒更新一次
+            }
+          } else {
+            // 如果不是蓝色（用餐结束），移除时间文本
+            console.log(1111111);
+            if (obj.timeTextRef) {
+              console.log(2222222);
+              try {
+                canvas.remove(obj.timeTextRef);
+                delete obj.timeTextRef;
+                canvas.renderAll();
+              } catch (e) {
+                console.error("移除时间文本出错:", e);
+              }
+            }
+            
+            // 定义fullTableKey变量
+            const storePrefix = store.slice(0, -"_restaurant_seat_arrangement".length);
+            const fullTableKey = storePrefix + "-" + tableName;
+            // 从localStorage中删除相关的开始时间键
+            const startTimeKey = `${fullTableKey}-isSent_startTime`;
+            localStorage.removeItem(startTimeKey);
+            console.log("清除开始时间:", startTimeKey);
+            
+            // 从tableDiningInfo中删除该餐桌信息
+            delete tableDiningInfo[tableName];
+            
+            // 如果没有任何用餐中的餐桌，清除定时器
+            if (Object.keys(tableDiningInfo).length === 0 && diningTimeUpdateInterval) {
+              clearInterval(diningTimeUpdateInterval);
+              diningTimeUpdateInterval = null;
+            }
+          }
+          
           canvas.renderAll();
         }
       });
+    }
+    
+    // 解析订单数据，获取开始时间并计算用餐时长
+    function updateDiningTime(tableName, textObject, orderData) {
+      if (!textObject) {
+        console.error("没有文本对象可供更新");
+        return;
+      }
+      
+      console.log("更新用餐时间:", tableName);
+      try {
+        // 获取餐桌的storePrefix和fullTableKey
+        const storePrefix = store.slice(0, -"_restaurant_seat_arrangement".length);
+        const fullTableKey = storePrefix + "-" + tableName;
+        
+        // 尝试获取开始时间
+        const startTimeKey = `${fullTableKey}-isSent_startTime`;
+        const startTimeValue = localStorage.getItem(startTimeKey);
+        
+        console.log("开始时间键:", startTimeKey);
+        console.log("开始时间值:", startTimeValue);
+        
+        let startTime;
+        
+        if (startTimeValue && !isNaN(parseInt(startTimeValue))) {
+          // 如果找到有效的开始时间值，使用它
+          startTime = parseInt(startTimeValue);
+          console.log("使用存储的开始时间:", startTime);
+        } else {
+          // 如果找不到有效的开始时间，可能需要查找其他格式的键
+          // 遍历所有localStorage键，查找匹配的模式
+          let foundStartTime = false;
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith(`${fullTableKey}-isSent_startTime`)) {
+              const value = localStorage.getItem(key);
+              if (value && !isNaN(parseInt(value))) {
+                startTime = parseInt(value);
+                foundStartTime = true;
+                console.log("从键找到开始时间:", key, startTime);
+                break;
+              }
+            }
+          }
+        }
+        
+        // 更新餐桌用餐信息
+        tableDiningInfo[tableName] = { startTime };
+        
+        // 计算用餐时长
+        const now = Date.now();
+        const durationMs = now - startTime;
+        
+        // 计算小时和分钟
+        const hours = Math.floor(durationMs / (1000 * 60 * 60));
+        const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+        
+        // 格式化时间显示
+        const timeText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        console.log("计算出的时间:", timeText);
+        
+        // 更新文本并重新渲染
+        textObject.set('text', timeText);
+        textObject.set('fill', '#ffffff');
+        textObject.set('fontSize', 16);
+        textObject.set('fontWeight', 'bold');
+        textObject.set('backgroundColor', 'rgba(0,0,0,0.3)');
+        textObject.set('padding', 5);
+        
+        canvas.renderAll();
+        console.log("文本更新完成");
+      } catch (error) {
+        console.error('计算用餐时间出错:', error);
+        
+        // 出错时也显示一个默认时间
+        textObject.set('text', 'error');
+        textObject.set('fill', '#ffffff');
+        textObject.set('fontSize', 16);
+        textObject.set('fontWeight', 'bold');
+        textObject.set('backgroundColor', 'rgba(0,0,0,0.3)');
+        textObject.set('padding', 5);
+        
+        canvas.renderAll();
+      }
+    }
+    
+    
+    // 更新所有餐桌的用餐时间
+    function updateAllDiningTimes() {
+      console.log("更新所有餐桌时间");
+      canvas.forEachObject(function (obj) {
+        // 查找所有具有timeTextRef的对象
+        if ((obj.type === 'rect' || obj.type === 'circle') && obj.timeTextRef) {
+          const tableName = obj.tableName;
+          const timeText = obj.timeTextRef;
+          
+          // 更新文本位置，确保它始终在餐桌下方中央
+          const tableBounds = obj.getBoundingRect();
+          timeText.set({
+            left: tableBounds.left + tableBounds.width/2,  // 水平居中
+            top: tableBounds.top + tableBounds.height + 10
+          });
+          
+          const storePrefix = store.slice(0, -"_restaurant_seat_arrangement".length);
+          const fullTableKey = storePrefix + "-" + tableName;
+          const orderData = localStorage.getItem(fullTableKey);
+          
+          if (orderData && orderData !== "[]") {
+            console.log("更新餐桌:", tableName);
+            updateDiningTime(tableName, timeText, orderData);
+          }
+        }
+      });
+      canvas.renderAll();
     }
 
     // Function to check if a key starts with "demo "
