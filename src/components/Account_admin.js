@@ -87,21 +87,23 @@ const Account = () => {
 
     // --- Password Management State --- >
     const [newAdminPassword, setNewAdminPassword] = useState('');
-    const [confirmNewAdminPassword, setConfirmNewAdminPassword] = useState('');
     const [newEmployeePassword, setNewEmployeePassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState('');
+    const [showAdminPassword, setShowAdminPassword] = useState(false); // Add state for admin password visibility
+    const [showEmployeePassword, setShowEmployeePassword] = useState(false); // Add state for employee password visibility
+    const [verificationCodeInput, setVerificationCodeInput] = useState('');
+    const [isSendingCode, setIsSendingCode] = useState(false);
 
     // --- Email Verification State ---
     const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-    const [isSendingCode, setIsSendingCode] = useState(false);
     const [isVerifyingCode, setIsVerifyingCode] = useState(false);
     const [modalError, setModalError] = useState('');
     const [modalInfo, setModalInfo] = useState('');
 
     // --- Password Status Check State ---
-    const [passwordsExist, setPasswordsExist] = useState(null); // null: checking, true: exist, false: don't exist
-    const [showPasswordInputs, setShowPasswordInputs] = useState(false); // Control visibility of inputs
+    const [passwordsExist, setPasswordsExist] = useState(null); // null: unknown, true: exist, false: not set
+    const [showPasswordInputs, setShowPasswordInputs] = useState(false);
     const [isCheckingPasswordStatus, setIsCheckingPasswordStatus] = useState(false);
 
     // <--- End Password Management State ---
@@ -2329,15 +2331,11 @@ const Account = () => {
         // Don't setShowCodeInput(false); - We now use isEmailModalOpen
 
         // Basic frontend validation
-        if (newAdminPassword !== confirmNewAdminPassword) {
-            setPasswordError("New admin passwords do not match.");
-            return;
-        }
-        if (!newAdminPassword || !newEmployeePassword) {
-            setPasswordError("Both admin and employee passwords must be provided.");
-            return;
-        }
-        if (newAdminPassword.length < 6 || newEmployeePassword.length < 6) {
+        // if (!newAdminPassword || !newEmployeePassword) {
+        //     setPasswordError("Both admin and employee passwords must be provided.");
+        //     return;
+        // }
+        if ((newAdminPassword && newAdminPassword.length < 6) || (newEmployeePassword && newEmployeePassword.length < 6)) {
             setPasswordError("Passwords must be at least 6 characters long.");
             return;
         }
@@ -2388,7 +2386,6 @@ const Account = () => {
             setPasswordSuccess(result.data.message || "Passwords updated successfully!");
             // Reset fields, close modal, and reset password existence check state
             setNewAdminPassword('');
-            setConfirmNewAdminPassword('');
             setNewEmployeePassword('');
             setIsEmailModalOpen(false);
             setPasswordsExist(true); // Assume passwords now exist
@@ -3761,40 +3758,60 @@ const Account = () => {
                                                                         <>
                                                                             {/* Password Input Fields */}
                                                                             <div className="mb-3">
-                                                                                <label htmlFor="newAdminPassword" className="form-label">New Admin Password (min. 6 characters)</label>
-                                                                                <input
-                                                                                    type="password"
-                                                                                    className="form-control"
-                                                                                    id="newAdminPassword"
-                                                                                    value={newAdminPassword}
-                                                                                    onChange={(e) => setNewAdminPassword(e.target.value)}
-                                                                                    placeholder="Enter new admin password"
-                                                                                    disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
-                                                                                />
+                                                                                <label htmlFor="newAdminPassword" className="form-label">{t('New Admin Password (min. 6 characters)')}</label>
+                                                                                {/* Wrap in input-group */}
+                                                                                <div className="input-group">
+                                                                                    <input
+                                                                                        type={showAdminPassword ? "text" : "password"} // Toggle type based on state
+                                                                                        className="form-control"
+                                                                                        id="newAdminPassword"
+                                                                                        value={newAdminPassword}
+                                                                                        onChange={(e) => setNewAdminPassword(e.target.value)}
+                                                                                        placeholder={t("Enter new admin password")}
+                                                                                        disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                                        aria-label="New Admin Password"
+                                                                                    />
+                                                                                    {/* Add visibility toggle button - CORRECTED */}
+                                                                                    <button
+                                                                                        className="btn btn-link border d-flex align-items-center justify-content-center" // Use btn-link and flexbox centering
+                                                                                        type="button"
+                                                                                        onClick={() => setShowAdminPassword(!showAdminPassword)} // Toggle state on click
+                                                                                        disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                                        aria-label={showAdminPassword ? t("Hide password") : t("Show password")}
+                                                                                        style={{ width: '40px', textDecoration: 'none' }} // Keep fixed width, remove underline
+                                                                                    >
+                                                                                        {/* Corrected icon logic */}
+                                                                                        <i className={showAdminPassword ? "bi bi-eye-fill" : "bi bi-eye-slash-fill"}></i>
+                                                                                    </button>
+                                                                                </div>
                                                                             </div>
                                                                             <div className="mb-3">
-                                                                                <label htmlFor="confirmNewAdminPassword" className="form-label">Confirm New Admin Password</label>
-                                                                                <input
-                                                                                    type="password"
-                                                                                    className="form-control"
-                                                                                    id="confirmNewAdminPassword"
-                                                                                    value={confirmNewAdminPassword}
-                                                                                    onChange={(e) => setConfirmNewAdminPassword(e.target.value)}
-                                                                                    placeholder="Confirm new admin password"
-                                                                                    disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
-                                                                                />
-                                                                            </div>
-                                                                            <div className="mb-3">
-                                                                                <label htmlFor="newEmployeePassword" className="form-label">New Employee Password (min. 6 characters)</label>
-                                                                                <input
-                                                                                    type="password"
-                                                                                    className="form-control"
-                                                                                    id="newEmployeePassword"
-                                                                                    value={newEmployeePassword}
-                                                                                    onChange={(e) => setNewEmployeePassword(e.target.value)}
-                                                                                    placeholder="Enter new employee password"
-                                                                                    disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
-                                                                                />
+                                                                                <label htmlFor="newEmployeePassword" className="form-label">{t('New Employee Password (min. 6 characters)')}</label>
+                                                                                {/* Wrap in input-group */}
+                                                                                <div className="input-group">
+                                                                                    <input
+                                                                                        type={showEmployeePassword ? "text" : "password"} // Toggle type based on state
+                                                                                        className="form-control"
+                                                                                        id="newEmployeePassword"
+                                                                                        value={newEmployeePassword}
+                                                                                        onChange={(e) => setNewEmployeePassword(e.target.value)}
+                                                                                        placeholder={t("Enter new employee password")}
+                                                                                        disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                                        aria-label="New Employee Password"
+                                                                                    />
+                                                                                    {/* Add visibility toggle button - CORRECTED */}
+                                                                                    <button
+                                                                                        className="btn btn-link border d-flex align-items-center justify-content-center" // Use btn-link and flexbox centering
+                                                                                        type="button"
+                                                                                        onClick={() => setShowEmployeePassword(!showEmployeePassword)} // Toggle state on click
+                                                                                        disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                                        aria-label={showEmployeePassword ? t("Hide password") : t("Show password")}
+                                                                                        style={{ width: '40px', textDecoration: 'none' }} // Keep fixed width, remove underline
+                                                                                    >
+                                                                                        {/* Corrected icon logic */}
+                                                                                        <i className={showEmployeePassword ? "bi bi-eye-fill" : "bi bi-eye-slash-fill"}></i>
+                                                                                    </button>
+                                                                                </div>
                                                                             </div>
 
                                                                             {/* Step 1: Send Code Button */}
@@ -3805,7 +3822,10 @@ const Account = () => {
                                                                             >
                                                                                 {isSendingCode ? 'Sending Code...' : (passwordsExist ? 'Send Code to Reset' : 'Send Code to Set Passwords') }
                                                                             </button>
+
+                                                                            <hr />
                                                                         </>
+                                                                        
                                                                     )}
                                                                     {/* Inform user if status is unknown or initial check failed */}
                                                                     {passwordsExist === null && !isCheckingPasswordStatus && !passwordError && (
