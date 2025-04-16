@@ -72,14 +72,39 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { DateTime } from 'luxon';
 import { lookup } from 'zipcode-to-timezone';
 import { lightenColor, getStoreColor } from '../utils/lightenColor';
+import EmailVerificationModal from './EmailVerificationModal'; // Import the new modal
 
 registerLocale('zh-CN', zhCN);
 
+// Initialize Firebase Functions
+const sendVerificationCodeFunction = firebase.functions().httpsCallable('sendVerificationCode');
+const verifyCodeAndSavePasswordFunction = firebase.functions().httpsCallable('verifyCodeAndSavePassword');
 
 const Account = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [timeZone, setTimeZone] = useState('America/New_York'); // Default to Eastern Time Zone
+  const [currentTimeDisplay, setCurrentTimeDisplay] = useState(''); // Add state for current time display
 
+  // --- Password Management State --- >
+  const [newAdminPassword, setNewAdminPassword] = useState('');
+  const [confirmNewAdminPassword, setConfirmNewAdminPassword] = useState('');
+  const [newEmployeePassword, setNewEmployeePassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+
+  // --- Email Verification State ---
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+  const [modalError, setModalError] = useState('');
+  const [modalInfo, setModalInfo] = useState('');
+
+  // --- Password Status Check State ---
+  const [passwordsExist, setPasswordsExist] = useState(null); // null: checking, true: exist, false: don't exist
+  const [showPasswordInputs, setShowPasswordInputs] = useState(false); // Control visibility of inputs
+  const [isCheckingPasswordStatus, setIsCheckingPasswordStatus] = useState(false);
+
+  // <--- End Password Management State ---
 
   const toggleModal = () => setIsOpen(!isOpen);
 
@@ -336,7 +361,7 @@ const Account = () => {
     // clearDemoLocalStorage();
     // Listen for changes in the collection
     const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-      // 
+      //
       snapshot.docChanges().forEach((change) => {
         const doc = change.doc;
         const docId = change.doc.id; // Extract the document ID
@@ -986,7 +1011,7 @@ const Account = () => {
     }
   };
   //REVENUE CHART 31 DAYS FROM NOW
-  //const today = new Date("2023-12-19"); 
+  //const today = new Date("2023-12-19");
 
   const sortedData = revenueData.sort((a, b) => new Date(a.date) - new Date(b.date)).map(item => ({ ...item, date: (new Date(item.date).getMonth() + 1) + '/' + new Date(item.date).getDate() }));
 
@@ -2295,9 +2320,146 @@ const Account = () => {
   const [selectedTableIframe, setSelectedTableIframe] = useState("null");
   const [isModalOpenIframe, setModalOpenIframe] = useState(false);
 
+  const handleSavePasswordSettings = async () => {
+      // Step 1: Validate inputs and Trigger sending the code
+      setPasswordError('');
+      setPasswordSuccess('');
+      setModalError('');
+      setModalInfo('');
+      // Don't setShowCodeInput(false); - We now use isEmailModalOpen
+
+      // Basic frontend validation
+      if (newAdminPassword !== confirmNewAdminPassword) {
+          setPasswordError("New admin passwords do not match.");
+          return;
+      }
+      if (!newAdminPassword || !newEmployeePassword) {
+          setPasswordError("Both admin and employee passwords must be provided.");
+          return;
+      }
+      if (newAdminPassword.length < 6 || newEmployeePassword.length < 6) {
+          setPasswordError("Passwords must be at least 6 characters long.");
+          return;
+      }
+
+      console.warn("SECURITY WARNING: Attempting to trigger email sending. Ensure backend credentials are secure!");
+
+      setIsSendingCode(true);
+      setModalError('');
+      setModalInfo('');
+      setPasswordError(''); // Clear main errors before sending
+
+      try {
+          const result = await sendVerificationCodeFunction({});
+          console.log("Send code function result:", result);
+          setModalInfo(`Verification code sent to ${user.email}. Please check your inbox.`);
+          setIsEmailModalOpen(true);
+      } catch (error) {
+          console.error("Error sending verification code:", error);
+          setPasswordError(`Failed to send verification code: ${error.message || 'Unknown error'}`);
+      } finally {
+          setIsSendingCode(false);
+      }
+  };
+
+  const handleVerifyCodeAndSave = async (codeInput) => {
+      // Step 2: Verify code (passed from modal) and save
+      setModalError(''); // Clear modal error
+      setModalInfo(''); // Clear modal info
+      setPasswordSuccess(''); // Clear main success message
+
+      if (!codeInput || codeInput.length !== 6) {
+          setModalError("Please enter the 6-digit verification code.");
+          return; // Keep modal open
+      }
+
+      setIsVerifyingCode(true);
+      try {
+          const payload = {
+              storeId: storeID,
+              newAdminPassword,
+              newEmployeePassword,
+              verificationCode: codeInput, // Use code passed from modal
+          };
+          // Call the Cloud Function to verify the code and save passwords
+          const result = await verifyCodeAndSavePasswordFunction(payload);
+          console.log("Verify and save function result:", result);
+
+          setPasswordSuccess(result.data.message || "Passwords updated successfully!");
+          // Reset fields, close modal, and reset password existence check state
+          setNewAdminPassword('');
+          setConfirmNewAdminPassword('');
+          setNewEmployeePassword('');
+          setIsEmailModalOpen(false);
+          setPasswordsExist(true); // Assume passwords now exist
+          setShowPasswordInputs(false); // Hide inputs again after successful reset
+
+      } catch (error) {
+          console.error("Error verifying code or saving password:", error);
+          setModalError(`Verification or save failed: ${error.message || 'Unknown error'}`);
+      } finally {
+          setIsVerifyingCode(false);
+      }
+  };
+
+  // --- Effect to check if passwords exist when store settings are shown ---
+  useEffect(() => {
+    const checkPasswordStatus = async () => {
+      if (showSection === 'store' && storeID && user?.uid) {
+        console.log(`Checking password status for store: ${storeID}`);
+        setIsCheckingPasswordStatus(true);
+        setPasswordsExist(null); // Reset while checking
+        setShowPasswordInputs(false); // Hide inputs initially
+        setPasswordError(''); // Clear previous errors
+        setPasswordSuccess('');
+
+        const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID);
+        try {
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists() && docSnap.data().adminPasswordHash) {
+            console.log("Passwords exist for this store.");
+            setPasswordsExist(true);
+            setShowPasswordInputs(false); // Keep inputs hidden initially
+          } else {
+            console.log("Passwords do NOT exist (or document missing). Enabling setup.");
+            setPasswordsExist(false);
+            setShowPasswordInputs(true); // Show inputs for initial setup
+          }
+        } catch (error) {
+          console.error("Error checking password status:", error);
+          setPasswordError("Could not check current password status.");
+          setPasswordsExist(null); // Indicate error/unknown state
+          setShowPasswordInputs(false);
+        } finally {
+          setIsCheckingPasswordStatus(false);
+        }
+      } else {
+         // Reset when not viewing store settings or storeID/user changes
+         setPasswordsExist(null);
+         setShowPasswordInputs(false);
+         setIsCheckingPasswordStatus(false);
+      }
+    };
+
+    checkPasswordStatus();
+  }, [storeID, showSection, user?.uid]); // Rerun if store, section, or user changes
 
   return (
     <div>
+      {/* Render the Email Verification Modal */}
+      <EmailVerificationModal
+        isOpen={isEmailModalOpen}
+        onClose={() => {
+            setIsEmailModalOpen(false);
+            setModalError(''); // Clear errors when manually closing
+            setModalInfo('');
+        }}
+        email={user?.email}
+        onSubmit={handleVerifyCodeAndSave} // Pass the handler
+        isLoading={isVerifyingCode} // Pass verifying state as isLoading
+        error={modalError} // Pass modal-specific error
+        success={modalInfo} // Pass modal-specific info/success message
+      />
 
       {iframeAllowed ?
         <iframe
@@ -2623,14 +2785,14 @@ const Account = () => {
         <div className="d-flex flex-column flex-lg-row h-lg-full bg-surface-secondary">
 
           {/* Removed (isVisible || !isPC) && condition from here */}
-          <div> 
+          <div>
             {isPC ? (
               <>
                 <nav
                   className="navbar navbar-vertical navbar-expand-lg px-0 py-3 navbar-light bg-gray-100 border-end shadow-sm overflow-auto"
                   id="navbarVertical"
-                  style={{ 
-                    minWidth: isVisible ? '250px' : '60px', 
+                  style={{
+                    minWidth: isVisible ? '250px' : '60px',
                     width: isVisible ? '250px' : '60px',
                     transition: 'width 0.3s ease',
                     height: divHeight,
@@ -2638,16 +2800,16 @@ const Account = () => {
                     overflowY: 'auto'
                   }}
                 >
-                  <div className="container-fluid" style={{ 
-                    padding: "5px 10px", 
+                  <div className="container-fluid" style={{
+                    padding: "5px 10px",
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '0.5rem',
                     height: '100%',
                     justifyContent: 'flex-start'
-                  }}> 
+                  }}>
                     {/* Removed toggle button from here */}
-                    
+
                     {isOnline && (
                       <button
                         className="mt-2 btn w-100 mb-2 btn-primary text-white shadow-sm"
@@ -2676,7 +2838,7 @@ const Account = () => {
                         </div>
                       </button>
                     )}
-                    
+
                     {isOnline && (
 
 
@@ -2702,7 +2864,7 @@ const Account = () => {
                         </div>
                       </button>
                     )}
-                    
+
                     <div className={`store-selector mt-3 ${isVisible ? '' : 'd-none'}`}>
                       <h6 className='text-muted text-uppercase text-xs font-weight-bold mb-2 px-3'>
                         Select Store:
@@ -2714,10 +2876,10 @@ const Account = () => {
                         <div style={{ display: 'contents' }} key={data.id}>
                           <button
                             className={`mb-2 btn w-100 ${activeTab === `#${data.id}` ? 'shadow-sm' : ''}`}
-                            style={{ 
+                            style={{
                               background: 'white',
                               color: '#333',
-                              border: activeTab === `#${data.id}` 
+                              border: activeTab === `#${data.id}`
                                 ? `2px solid ${getStoreColor(index)}`
                                 : 'none',
                               borderLeft: activeTab === `#${data.id}` ? `4px solid ${getStoreColor(index)}` : '',
@@ -2744,15 +2906,15 @@ const Account = () => {
                               window.location.hash = `charts?store=${data.id}`;
                             }}
                           >
-                            <div style={{ 
-                              alignItems: 'center', 
+                            <div style={{
+                              alignItems: 'center',
                               justifyContent: isVisible ? 'space-between' : 'center',
                               display: 'flex',
                               flexDirection: isVisible ? 'row' : 'column',
                               width: '100%'
                             }}>
-                              <div style={{ 
-                                display: 'flex', 
+                              <div style={{
+                                display: 'flex',
                                 alignItems: 'center',
                                 flex: 1,
                                 overflow: 'hidden'
@@ -2774,7 +2936,7 @@ const Account = () => {
                                   {data.Name.charAt(0).toUpperCase()}
                                 </div>
                                 {isVisible && (
-                                  <span className="notranslate" style={{ 
+                                  <span className="notranslate" style={{
                                     fontSize: '0.9rem',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
@@ -2797,8 +2959,8 @@ const Account = () => {
 
                           {activeStoreId === data.id && isVisible && (
                             <ul className={`nav nav-tabs mt-2 mb-3 overflow-x border-0 flex flex-col`}
-                               style={{ 
-                                 paddingLeft: '15px', 
+                               style={{
+                                 paddingLeft: '15px',
                                  borderLeft: `2px solid ${getStoreColor(index)}`,
                                  marginLeft: '10px'
                                }}
@@ -2809,9 +2971,9 @@ const Account = () => {
                                     setShowSection('sales')
                                     window.location.hash = `charts?store=${data.id}`;
                                   }}>
-                                  <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `sales` ? 'active bg-light' : ''}`} 
-                                     style={{ 
-                                       marginLeft: "0", 
+                                  <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `sales` ? 'active bg-light' : ''}`}
+                                     style={{
+                                       marginLeft: "0",
                                        border: "0px",
                                        padding: '8px 12px',
                                        transition: 'all 0.2s ease'
@@ -2830,8 +2992,8 @@ const Account = () => {
                                   setShowSection('qrCode')
                                   window.location.hash = `code?store=${data.id}`
                                 }} style={{ width: "95%", margin: "auto" }}>
-                                  <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `qrCode` ? 'active bg-light' : ''}`} 
-                                     style={{ 
+                                  <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `qrCode` ? 'active bg-light' : ''}`}
+                                     style={{
                                        border: "0px",
                                        padding: '8px 12px',
                                        transition: 'all 0.2s ease'
@@ -2853,8 +3015,8 @@ const Account = () => {
                                   }}
                                   style={{ width: "95%", margin: "auto" }}
                                 >
-                                  <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `stripeCard` ? 'active bg-light' : ''}`} 
-                                     style={{ 
+                                  <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `stripeCard` ? 'active bg-light' : ''}`}
+                                     style={{
                                        border: "0px",
                                        padding: '8px 12px',
                                        transition: 'all 0.2s ease'
@@ -2887,7 +3049,7 @@ const Account = () => {
                                     </span>
                                   </a>
                                 </li>
-                                
+
                                 {!isOnline ? null :
                                   <React.Fragment>
                                     <li className={`nav-item p-1`}
@@ -2897,8 +3059,8 @@ const Account = () => {
                                       }}
                                       style={{ width: "95%", margin: "auto" }}
                                     >
-                                      <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `menu` ? 'active bg-light' : ''}`} 
-                                         style={{ 
+                                      <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `menu` ? 'active bg-light' : ''}`}
+                                         style={{
                                            border: "0px",
                                            padding: '8px 12px',
                                            transition: 'all 0.2s ease'
@@ -2912,7 +3074,7 @@ const Account = () => {
                                         <span style={{ marginLeft: "5%" }}>Menu Settings</span>
                                       </a>
                                     </li>
-                                    
+
                                     {isOnline && (
                                       <li className={`nav-item border-b-0 p-1`}
                                         onClick={() => {
@@ -2921,9 +3083,9 @@ const Account = () => {
                                         }}
                                         style={{ width: "95%", margin: "auto", border: "0px" }}
                                       >
-                                        <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `store` ? 'active bg-light' : ''}`} 
-                                           style={{ 
-                                             marginRight: "0", 
+                                        <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `store` ? 'active bg-light' : ''}`}
+                                           style={{
+                                             marginRight: "0",
                                              border: "0px",
                                              padding: '8px 12px',
                                              transition: 'all 0.2s ease'
@@ -2950,27 +3112,7 @@ const Account = () => {
                   </div>
                 </nav>
 
-                {/* 修改切换按钮样式，使其更加明显和易于点击 */} 
-                <button 
-                  onClick={toggleVisibility} 
-                  className="btn btn-primary border shadow-sm rounded-circle"
-                  style={{
-                    position: 'absolute',
-                    top: '110px',
-                    left: isVisible ? '235px' : '45px', // Position changes based on state
-                    width: '32px',  // 增加宽度
-                    height: '32px', // 增加高度
-                    padding: '0',  // Remove padding
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 2000, // Ensure it's above the sidebar
-                    transition: 'left 0.3s ease', // Smooth transition
-                    boxShadow: '0 0 8px rgba(0, 0, 0, 0.3)' // 添加更明显的阴影
-                  }}
-                >
-                  <i className={`bi bi-${isVisible ? 'chevron-left' : 'chevron-right'}`} style={{ fontSize: '1rem', color: 'white' }}></i> {/* 增大图标并改为白色 */}
-                </button>
+
               </>
             ) : ( <div></div> )}
           </div>
@@ -2982,6 +3124,29 @@ const Account = () => {
               height: divHeight, // Use the dynamically calculated height
               ...(isModalOpenIframe && isPC ? { zIndex: 1400 } : {}), // Conditionally apply zIndex
             }}>
+
+            {/* 修改切换按钮样式，使其更加明显和易于点击 */}
+            <button
+                onClick={toggleVisibility}
+                className="btn btn-primary border shadow-sm rounded-circle"
+                style={{
+                  position: 'absolute',
+                  top: '110px',
+                  left: isVisible ? '235px' : '45px', // Position changes based on state
+                  width: '32px',  // 增加宽度
+                  height: '32px', // 增加高度
+                  padding: '0',  // Remove padding
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 1000, // Ensure it's above the sidebar
+                  transition: 'left 0.3s ease', // Smooth transition
+                  boxShadow: '0 0 8px rgba(0, 0, 0, 0.3)' // 添加更明显的阴影
+                }}
+            >
+              <i className={`bi bi-${isVisible ? 'chevron-left' : 'chevron-right'}`} style={{ fontSize: '1rem', color: 'white' }}></i> {/* 增大图标并改为白色 */}
+            </button>
+
             {!isPC ?
               <header className="bg-surface-primary border-bottom pt-0">
                 <div className="container-fluid">
@@ -3562,121 +3727,207 @@ const Account = () => {
 
                             <hr />
 
-                            <div style={{ fontWeight: 'bold' }}>
-                              Edit Your Menu:
-                            </div>
+                            {/* === Password Management Settings (Complete Block) === */}
+                            {activeStoreTab === storeID && showSection === 'store' && (
+                                <div className="border-2 rounded-lg p-4 mt-4 bg-white shadow">
+                                  <h3 className="text-lg font-semibold mb-4">Password Management</h3>
 
-                            <div className="flex justify-start">
-                              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                                onClick={() => {
-                                  setShowSection('menu')
-                                  window.location.hash = `book?store=${data.id}`;
-                                }}
-                              >
-                                {/* SVG icon for editing */}
-                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L12 18H8v-4l8.768-8.768z" />
-                                </svg>
-                                Menu Settings
-                              </button>
-                            </div>
+                                  {/* Loading State */}
+                                  {isCheckingPasswordStatus && (
+                                      <div className="text-center text-gray-500">
+                                        Checking password status...
+                                      </div>
+                                  )}
+
+                                  {/* Error/Success Messages (Main ones) */}
+                                  {passwordError && !isCheckingPasswordStatus && <div className="alert alert-danger">{passwordError}</div>}
+                                  {passwordSuccess && !isCheckingPasswordStatus && <div className="alert alert-success">{passwordSuccess}</div>}
+
+                                  {/* Show Reset Button if passwords exist and inputs are hidden */}
+                                  {passwordsExist === true && !showPasswordInputs && !isCheckingPasswordStatus && (
+                                      <button
+                                          className="btn btn-warning"
+                                          onClick={() => {
+                                            setShowPasswordInputs(true);
+                                            setPasswordSuccess(''); // Clear success msg when resetting
+                                          }}
+                                      >
+                                        Reset Admin/Employee Passwords
+                                      </button>
+                                  )}
+
+                                  {/* Show Inputs & Send Code Button if allowed */}
+                                  {showPasswordInputs && !isCheckingPasswordStatus && (
+                                      <>
+                                        {/* Password Input Fields */}
+                                        <div className="mb-3">
+                                          <label htmlFor="newAdminPassword" className="form-label">New Admin Password (min. 6 characters)</label>
+                                          <input
+                                              type="password"
+                                              className="form-control"
+                                              id="newAdminPassword"
+                                              value={newAdminPassword}
+                                              onChange={(e) => setNewAdminPassword(e.target.value)}
+                                              placeholder="Enter new admin password"
+                                              disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                          />
+                                        </div>
+                                        <div className="mb-3">
+                                          <label htmlFor="confirmNewAdminPassword" className="form-label">Confirm New Admin Password</label>
+                                          <input
+                                              type="password"
+                                              className="form-control"
+                                              id="confirmNewAdminPassword"
+                                              value={confirmNewAdminPassword}
+                                              onChange={(e) => setConfirmNewAdminPassword(e.target.value)}
+                                              placeholder="Confirm new admin password"
+                                              disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                          />
+                                        </div>
+                                        <div className="mb-3">
+                                          <label htmlFor="newEmployeePassword" className="form-label">New Employee Password (min. 6 characters)</label>
+                                          <input
+                                              type="password"
+                                              className="form-control"
+                                              id="newEmployeePassword"
+                                              value={newEmployeePassword}
+                                              onChange={(e) => setNewEmployeePassword(e.target.value)}
+                                              placeholder="Enter new employee password"
+                                              disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                          />
+                                        </div>
+
+                                        {/* Step 1: Send Code Button */}
+                                        <button
+                                            className="btn btn-secondary"
+                                            onClick={handleSavePasswordSettings}
+                                            disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                        >
+                                          {isSendingCode ? 'Sending Code...' : (passwordsExist ? 'Send Code to Reset' : 'Send Code to Set Passwords') }
+                                        </button>
+                                      </>
+                                  )}
+                                  {/* Inform user if status is unknown or initial check failed */}
+                                  {passwordsExist === null && !isCheckingPasswordStatus && !passwordError && (
+                                      <div className="text-center text-gray-500 mt-3">
+                                        Could not determine password status.
+                                      </div>
+                                  )}
+                                  <div style={{ fontWeight: 'bold' }}>
+                                    Edit Your Menu:
+                                  </div>
+
+                                  <div className="flex justify-start">
+                                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
+                                            onClick={() => {
+                                              setShowSection('menu')
+                                              window.location.hash = `book?store=${data.id}`;
+                                            }}
+                                    >
+                                      {/* SVG icon for editing */}
+                                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L12 18H8v-4l8.768-8.768z" />
+                                      </svg>
+                                      Menu Settings
+                                    </button>
+                                  </div>
 
 
 
-                            <div style={{ fontWeight: 'bold' }}>
-                              QR code generator:
-                            </div>
+                                  <div style={{ fontWeight: 'bold' }}>
+                                    QR code generator:
+                                  </div>
 
-                            <div className="printContainer hidden print:block">
-                              {docIds.map((item, index) => (
-                                <div key={index} className="qrCodeItem">
-                                  <QRCode value={generateQRLink(item)} size={128} />
-                                  <div><span className='notranslate'>{item.split('-')[1]}</span></div>
-                                </div>
-                              ))}
-                              {/* {docIds.map((item, index) => (
+                                  <div className="printContainer hidden print:block">
+                                    {docIds.map((item, index) => (
+                                        <div key={index} className="qrCodeItem">
+                                          <QRCode value={generateQRLink(item)} size={128} />
+                                          <div><span className='notranslate'>{item.split('-')[1]}</span></div>
+                                        </div>
+                                    ))}
+                                    {/* {docIds.map((item, index) => (
                                 <div key={index} className="qrCodeItem">
                                   <QRCode value={generateQRLinkSelfCheckout(item)} size={128} />
                                   <div>SelfPay <span className='notranslate'>{item.split('-')[1]}</span></div>
                                 </div>
                               ))} */}
 
-                            </div>
-                            <div className="flex justify-start">
-                              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                onClick={() => handlePrint()}
-                              >
-                                <i class="bi bi-printer-fill me-2"></i>
-                                Create A4 Sized QR Code Prints</button>
-
-                            </div>
-
-                            <hr />
-
-                            <div className=' mb-6' >
-
-                              {data?.stripe_store_acct === "" ?
-                                <div>
-                                  <div className='mb-1'>Online Payment Options:</div>
-
-                                  <div>
-                                    <StripeConnectButton store={data.id} user={user.uid}></StripeConnectButton>
-
-                                  </div></div>
-
-                                :
-                                <div>
-                                  <div className='mb-1' style={{ fontWeight: 'bold' }}>Online Payment Options:</div>
-                                  <div className='mb-1' style={{ display: 'flex' }}>
-
-                                    <img className='mr-2'
-                                      src={myImage}  // Use the imported image here
-                                      alt="Description"
-                                      style={{
-                                        width: '30px',
-                                        height: '30px',
-                                      }}
-                                    />
-                                    You already connect with Stripe to receive online payment!
+                                  </div>
+                                  <div className="flex justify-start">
+                                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                            onClick={() => handlePrint()}
+                                    >
+                                      <i class="bi bi-printer-fill me-2"></i>
+                                      Create A4 Sized QR Code Prints</button>
 
                                   </div>
 
-                                  <div className="bg-white rounded-md">
-                                    <div class="mt-4">
-                                      <label class="flex items-center space-x-2 text-blue-500 font-bold">
-                                        <input
-                                          type="checkbox"
-                                          onClick={toggleAdvertisingProgram}
-                                          class="form-checkbox h-5 w-5 text-blue-500"
-                                          checked={data?.isJointAdvertised}
-                                          readOnly
-                                        />
-                                        <span>Join Our Advertising Program</span>
-                                      </label>
-                                      {showModal && (
-                                        <div class="mt-4 p-4 border border-gray-300 rounded-lg">
-                                          <h2 class="text-xl font-semibold mb-2">Enter Promotion Code</h2>
-                                          <input
-                                            type="password"
-                                            placeholder="Password"
-                                            class="border-2 border-gray-300 p-2 w-full rounded mb-4"
-                                          />
-                                          <button
-                                            onClick={() => handlePasswordSubmit(document.querySelector('input[type="password"]').value)}
-                                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                          >
-                                            Submit
-                                          </button>
-                                        </div>
-                                      )}
-                                      <p class="text-sm text-gray-600 mt-2">
-                                        We will offer premier promotional resources for up to ten products in your store, ensuring a minimum of 100 orders. Please note that we will take a 30% commission on those 10 items. To boost order volumes and enhance advertising effectiveness, we also provide shipping subsidies for participating customers. Join our advertising program and let's boost your store's foot traffic and achieve great results together!
-                                      </p>
-                                    </div>
+                                  <hr />
+
+                                  <div className=' mb-6' >
+
+                                    {data?.stripe_store_acct === "" ?
+                                        <div>
+                                          <div className='mb-1'>Online Payment Options:</div>
+
+                                          <div>
+                                            <StripeConnectButton store={data.id} user={user.uid}></StripeConnectButton>
+
+                                          </div></div>
+
+                                        :
+                                        <div>
+                                          <div className='mb-1' style={{ fontWeight: 'bold' }}>Online Payment Options:</div>
+                                          <div className='mb-1' style={{ display: 'flex' }}>
+
+                                            <img className='mr-2'
+                                                 src={myImage}  // Use the imported image here
+                                                 alt="Description"
+                                                 style={{
+                                                   width: '30px',
+                                                   height: '30px',
+                                                 }}
+                                            />
+                                            You already connect with Stripe to receive online payment!
+
+                                          </div>
+
+                                          <div className="bg-white rounded-md">
+                                            <div class="mt-4">
+                                              <label class="flex items-center space-x-2 text-blue-500 font-bold">
+                                                <input
+                                                    type="checkbox"
+                                                    onClick={toggleAdvertisingProgram}
+                                                    class="form-checkbox h-5 w-5 text-blue-500"
+                                                    checked={data?.isJointAdvertised}
+                                                    readOnly
+                                                />
+                                                <span>Join Our Advertising Program</span>
+                                              </label>
+                                              {showModal && (
+                                                  <div class="mt-4 p-4 border border-gray-300 rounded-lg">
+                                                    <h2 class="text-xl font-semibold mb-2">Enter Promotion Code</h2>
+                                                    <input
+                                                        type="password"
+                                                        placeholder="Password"
+                                                        class="border-2 border-gray-300 p-2 w-full rounded mb-4"
+                                                    />
+                                                    <button
+                                                        onClick={() => handlePasswordSubmit(document.querySelector('input[type="password"]').value)}
+                                                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                                    >
+                                                      Submit
+                                                    </button>
+                                                  </div>
+                                              )}
+                                              <p class="text-sm text-gray-600 mt-2">
+                                                We will offer premier promotional resources for up to ten products in your store, ensuring a minimum of 100 orders. Please note that we will take a 30% commission on those 10 items. To boost order volumes and enhance advertising effectiveness, we also provide shipping subsidies for participating customers. Join our advertising program and let's boost your store's foot traffic and achieve great results together!
+                                              </p>
+                                            </div>
 
 
 
-                                    {/* <label className="flex items-center space-x-2 text-blue-500 font-bold mt-2">
+                                            {/* <label className="flex items-center space-x-2 text-blue-500 font-bold mt-2">
                                       <input
                                         type="checkbox"
                                         onChange={handleCheckboxChange}
@@ -3692,132 +3943,132 @@ const Account = () => {
                                     <p className="text-gray-500 text-sm mt-2">
                                       <strong>Note:</strong> Enabling this option will incur an additional charge of 1.5% and a flat fee of $1 per payout.
                                     </p> */}
-                                    {isOpen ?
-                                      <button
-                                        className="px-4 py-2 bg-red-500 mt-2 text-white rounded-lg"
-                                        onClick={toggleModal}
-                                      >
-                                        Collapse Standard Payout Schedule
-                                      </button> :
-                                      <button
-                                        className="px-4 py-2 bg-blue-500 mt-2 text-white rounded-lg"
-                                        onClick={toggleModal}
-                                      >
-                                        View Standard Payout Schedule
-                                      </button>
-                                    }
-                                    <p className="text-gray-500 text-sm mt-2 mb-2 ">
-                                      <strong>Note:</strong> Opting for the standard payout schedule means your earnings will be deposited according to our regular payout cycle without any additional fees.
-                                    </p>
+                                            {isOpen ?
+                                                <button
+                                                    className="px-4 py-2 bg-red-500 mt-2 text-white rounded-lg"
+                                                    onClick={toggleModal}
+                                                >
+                                                  Collapse Standard Payout Schedule
+                                                </button> :
+                                                <button
+                                                    className="px-4 py-2 bg-blue-500 mt-2 text-white rounded-lg"
+                                                    onClick={toggleModal}
+                                                >
+                                                  View Standard Payout Schedule
+                                                </button>
+                                            }
+                                            <p className="text-gray-500 text-sm mt-2 mb-2 ">
+                                              <strong>Note:</strong> Opting for the standard payout schedule means your earnings will be deposited according to our regular payout cycle without any additional fees.
+                                            </p>
 
-                                    <div className="text-center">
+                                            <div className="text-center">
 
 
-                                      {/* Modal */}
-                                      {isOpen && (
-                                        <div className='' >
-                                          <table className="w-full border-collapse">
-                                            <thead>
-                                              <tr>
-                                                <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Day of Transaction</th>
-                                                <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Time Range</th>
-                                                <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Deposit Date</th>
-                                              </tr>
-                                            </thead>
-                                            <tbody>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Monday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span> </td>
-                                                <td className="p-3 border-b text-gray-800">Thursday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Monday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                <td className="p-3 border-b text-gray-800">Friday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Tuesday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span> </td>
-                                                <td className="p-3 border-b text-gray-800">Friday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Tuesday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                <td className="p-3 border-b text-gray-800">Monday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Wednesday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
-                                                <td className="p-3 border-b text-gray-800">Monday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Wednesday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                <td className="p-3 border-b text-gray-800">Tuesday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Thursday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
-                                                <td className="p-3 border-b text-gray-800">Tuesday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Thursday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Friday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
-                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Friday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Saturday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
-                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Saturday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Sunday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
-                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
-                                              </tr>
-                                              <tr className="odd:bg-white even:bg-gray-50">
-                                                <td className="p-3 border-b text-gray-800">Sunday</td>
-                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                <td className="p-3 border-b text-gray-800">Thursday Early Morning</td>
-                                              </tr>
-                                              {/* Add other rows as needed */}
-                                            </tbody>
-                                          </table>
+                                              {/* Modal */}
+                                              {isOpen && (
+                                                  <div className='' >
+                                                    <table className="w-full border-collapse">
+                                                      <thead>
+                                                      <tr>
+                                                        <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Day of Transaction</th>
+                                                        <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Time Range</th>
+                                                        <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Deposit Date</th>
+                                                      </tr>
+                                                      </thead>
+                                                      <tbody>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Monday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span> </td>
+                                                        <td className="p-3 border-b text-gray-800">Thursday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Monday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                        <td className="p-3 border-b text-gray-800">Friday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Tuesday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span> </td>
+                                                        <td className="p-3 border-b text-gray-800">Friday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Tuesday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                        <td className="p-3 border-b text-gray-800">Monday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Wednesday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                        <td className="p-3 border-b text-gray-800">Monday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Wednesday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                        <td className="p-3 border-b text-gray-800">Tuesday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Thursday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                        <td className="p-3 border-b text-gray-800">Tuesday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Thursday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                        <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Friday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                        <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Friday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                        <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Saturday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                        <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Saturday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                        <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Sunday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                        <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                                      </tr>
+                                                      <tr className="odd:bg-white even:bg-gray-50">
+                                                        <td className="p-3 border-b text-gray-800">Sunday</td>
+                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                        <td className="p-3 border-b text-gray-800">Thursday Early Morning</td>
+                                                      </tr>
+                                                      {/* Add other rows as needed */}
+                                                      </tbody>
+                                                    </table>
+                                                  </div>
+                                              )}
+                                            </div>
+                                          </div>
+
+
+                                          <TerminalRegister City={data?.Address} Address={data?.physical_address} State={data?.State} storeDisplayName={data?.Name} ZipCode={data?.ZipCode} storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
                                         </div>
-                                      )}
-                                    </div>
+
+                                    }
                                   </div>
+                                  <hr />
 
 
-                                  <TerminalRegister City={data?.Address} Address={data?.physical_address} State={data?.State} storeDisplayName={data?.Name} ZipCode={data?.ZipCode} storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
+                                  <div style={{ fontWeight: 'bold' }}>Operating Hours:</div>
+                                  <ChangeTimeForm storeID={storeID} storeOpenTime={storeOpenTime} />
+
+
                                 </div>
-
-                              }
-                            </div>
-                            <hr />
-
-
-                            <div style={{ fontWeight: 'bold' }}>Operating Hours:</div>
-                            <ChangeTimeForm storeID={storeID} storeOpenTime={storeOpenTime} />
-
-
-                          </div> : <div></div>
-                          }
+                            )}
 
 
                           {showSection === 'sales' ? <div>
@@ -4703,7 +4954,7 @@ const Account = () => {
                                 </tbody>
                               </table>
                             </LazyLoad>
-
+                          </div>:null}
                           </div>
                             : null
                           }
