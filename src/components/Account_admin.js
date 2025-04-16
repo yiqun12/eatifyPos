@@ -3125,7 +3125,7 @@ const Account = () => {
                              ...(isModalOpenIframe && isPC ? { zIndex: 1400 } : {}), // Conditionally apply zIndex
                          }}>
 
-                        {/* 修改切换按钮样式，使其更加明显和易于点击 */}
+                        { isPC &&
                         <button
                             onClick={toggleVisibility}
                             className="btn btn-primary border shadow-sm rounded-circle"
@@ -3146,7 +3146,7 @@ const Account = () => {
                         >
                             <i className={`bi bi-${isVisible ? 'chevron-left' : 'chevron-right'}`} style={{ fontSize: '1rem', color: 'white' }}></i> {/* 增大图标并改为白色 */}
                         </button>
-
+                    }
                         {!isPC ?
                             <header className="bg-surface-primary border-bottom pt-0">
                                 <div className="container-fluid">
