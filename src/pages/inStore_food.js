@@ -509,7 +509,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         if (products[productIndex].quantity <= 0) {
           console.log("delete now")
           products.splice(productIndex, 1);
-         
+
           SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
           saveId(Math.random());
           setModalVisibility(false);
@@ -521,7 +521,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         console.log(product)
         product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
         // Save the updated array in local storage
-        
+
         SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
       }
 
@@ -690,7 +690,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
   const [randomNum, setRandomNum] = useState(null);
 
-  
+
   // Function to show the modal
   const showModal = (item) => {
     setCustomVariant({ name: '改价', price: '0' })
@@ -1378,7 +1378,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                   gridTemplateRows: `repeat(1, 1fr)`,
                   gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
                   overflowY: 'auto',
-                  maxHeight: `calc(100vh - 350px)`
+                  maxHeight: `calc(100vh - 370px)`
                 }}>
                   {foods.filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称")).map((item, index) => (
                     <motion.div

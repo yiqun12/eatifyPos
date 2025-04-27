@@ -722,9 +722,10 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                     backgroundColor: '#f8f9fa' // 标题栏使用非常浅的灰色
                                                 }}>
                                                     <div>
-                                                        <h5 style={{ fontWeight: '600', color: '#212529', margin: 0 }}>
-                                                            Dining table : {selectedTable}
-                                                        </h5>
+                                                        <h3
+                                                            className="notranslate text-red-600 m-0">
+                                                            {selectedTable}
+                                                        </h3>
                                                     </div>
                                                     <div>
                                                         {!isPC && (
@@ -754,7 +755,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                 }
                                                             }}
                                                             className="btn btn-sm btn-primary mx-1" style={{ backgroundColor: '#007bff', borderColor: '#007bff' }}>
-                                                            {isPC || !view ? "Send To Kitchen and Back" : "Back to Menu"}
+                                                            Print and Back
                                                         </button>
                                                     </div>
                                                 </div>

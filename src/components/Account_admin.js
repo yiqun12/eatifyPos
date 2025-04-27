@@ -1769,7 +1769,7 @@ const Account = () => {
     useEffect(() => {
         const updateHeight = () => {
             const screenHeight = window.innerHeight;
-            const newHeight = `${screenHeight - 40}px`;
+            const newHeight = `${screenHeight - 60}px`;
             setDivHeight(newHeight);
         };
 
@@ -3032,10 +3032,10 @@ const Account = () => {
                     <div className="flex-grow-1 overflow-y-auto "
                         ref={divRef}
                         style={{
-                            backgroundColor: 'white', // Set the background color to white
-                            height: divHeight, // Use the dynamically calculated height
-                            ...(isModalOpenIframe && isPC ? { zIndex: 1400 } : {}), // Conditionally apply zIndex
-                        }}>
+                            backgroundColor: 'white',
+                            ...(isMobile ? { height: divHeight } : {}), // 只有是Mobile才加height
+                            ...(isModalOpenIframe && isPC ? { zIndex: 1400 } : {}), // 如果开了modal且是PC，才加zIndex
+                          }}>
                         {!isPC ?
                             <header className="bg-surface-primary border-bottom pt-0">
                                 <div className="container-fluid">

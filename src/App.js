@@ -4,7 +4,6 @@ import LogIn from './pages/customer_login';
 import Navbar from './pages/Navbar'
 //import Account from './components/Account';
 import Home from './pages/Home'
-import Home2 from './pages/Home2'
 
 import ForgotPassword from './pages/ForgotPassword'
 import Reservation from './pages/reservation'
