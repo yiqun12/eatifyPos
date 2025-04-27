@@ -10,7 +10,7 @@ import Checkout from "./Checkout_acc";
 import './style.css';
 import './stripeButton.css';
 import { useCallback } from 'react';
-import { collection, doc, addDoc, getDoc, updateDoc, deleteDoc, where } from "firebase/firestore";
+import { collection, doc, addDoc, getDoc, updateDoc, deleteDoc, where, setDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useRef } from "react";
 import { onSnapshot, query } from "firebase/firestore";
@@ -71,18 +71,20 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { DateTime } from 'luxon';
 import { lookup } from 'zipcode-to-timezone';
+import { lightenColor, getStoreColor } from '../utils/lightenColor';
 import EmailVerificationModal from './EmailVerificationModal'; // Import the new modal
-registerLocale('zh-CN', zhCN);
 
+registerLocale('zh-CN', zhCN);
 
 // Initialize Firebase Functions
 const sendVerificationCodeFunction = firebase.functions().httpsCallable('sendVerificationCode');
 const verifyCodeAndSavePasswordFunction = firebase.functions().httpsCallable('verifyCodeAndSavePassword');
 
-
 const Account = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [timeZone, setTimeZone] = useState('America/New_York'); // Default to Eastern Time Zone
+    const [currentTimeDisplay, setCurrentTimeDisplay] = useState(''); // Add state for current time display
+
     // --- Password Management State --- >
     const [newAdminPassword, setNewAdminPassword] = useState('');
     const [newEmployeePassword, setNewEmployeePassword] = useState('');
@@ -103,6 +105,8 @@ const Account = () => {
     const [passwordsExist, setPasswordsExist] = useState(null); // null: unknown, true: exist, false: not set
     const [showPasswordInputs, setShowPasswordInputs] = useState(false);
     const [isCheckingPasswordStatus, setIsCheckingPasswordStatus] = useState(false);
+
+    // <--- End Password Management State ---
 
     const toggleModal = () => setIsOpen(!isOpen);
 
@@ -359,7 +363,7 @@ const Account = () => {
         // clearDemoLocalStorage();
         // Listen for changes in the collection
         const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
-            // 
+            //
             snapshot.docChanges().forEach((change) => {
                 const doc = change.doc;
                 const docId = change.doc.id; // Extract the document ID
@@ -823,7 +827,6 @@ const Account = () => {
             return formatCustomDateTime(date);
         }
 
-        console.log("bbbbbbbbbbbbb")
 
         // Construct query
         const paymentsQuery = query(
@@ -1010,7 +1013,7 @@ const Account = () => {
         }
     };
     //REVENUE CHART 31 DAYS FROM NOW
-    //const today = new Date("2023-12-19"); 
+    //const today = new Date("2023-12-19");
 
     const sortedData = revenueData.sort((a, b) => new Date(a.date) - new Date(b.date)).map(item => ({ ...item, date: (new Date(item.date).getMonth() + 1) + '/' + new Date(item.date).getDate() }));
 
@@ -2319,7 +2322,6 @@ const Account = () => {
     const [selectedTableIframe, setSelectedTableIframe] = useState("null");
     const [isModalOpenIframe, setModalOpenIframe] = useState(false);
 
-
     const handleSavePasswordSettings = async () => {
         // Step 1: Validate inputs and Trigger sending the code
         setPasswordError('');
@@ -2441,6 +2443,7 @@ const Account = () => {
 
     return (
         <div>
+            {/* Render the Email Verification Modal */}
             <EmailVerificationModal
                 isOpen={isEmailModalOpen}
                 onClose={() => {
@@ -2526,6 +2529,7 @@ const Account = () => {
                 </style>
                 {isSplitPaymentModalOpen && (
                     <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+
                         <div style={{
                             position: 'fixed',
                             zIndex: 1000,
@@ -2665,6 +2669,7 @@ const Account = () => {
                 )}
                 {alertModal && (
                     <div id="defaultModal" className="fixed top-0 left-0 right-0 bottom-0 z-[9999] w-full h-full p-4 overflow-x-hidden overflow-y-auto flex justify-center bg-black bg-opacity-50">
+
                         <div style={{
                             position: 'fixed',
                             zIndex: 1000,
@@ -2739,21 +2744,21 @@ const Account = () => {
                 )}
                 {isPC ?
                     <div className="d-flex justify-acontent-between mx-3 ">
-                        <button onClick={toggleVisibility}>
-                            {!isVisible ?
-                                <div>
+                        {/* <button onClick={toggleVisibility}>
+              {!isVisible ?
+                <div>
 
-                                    <button>
-                                        <i class="bi bi-bookmarks">  </i>
-                                        Open Side Menu
-                                    </button>
+                  <button>
+                    <i class="bi bi-bookmarks">  </i>
+                    Open Side Menu
+                  </button>
 
-                                </div> :
+                </div> :
 
-                                <div>
-                                </div>
-                            }
-                        </button>
+                <div>
+                </div>
+              }
+            </button> */}
                         {/* {//
               (previousHash.includes('#charts') && storeID !== '') || (previousHash.includes('#code') && storeID !== '') ?
                 <div>
@@ -2776,258 +2781,338 @@ const Account = () => {
                 }
                 <div className="d-flex flex-column flex-lg-row h-lg-full bg-surface-secondary">
 
-                    {isVisible && (
-                        <div>
+                    {/* Removed (isVisible || !isPC) && condition from here */}
+                    <div>
+                        {isPC ? (
+                            <>
+                                <nav
+                                    className="navbar navbar-vertical navbar-expand-lg px-0 py-3 navbar-light bg-gray-100 border-end shadow-sm overflow-auto"
+                                    id="navbarVertical"
+                                    style={{
+                                        minWidth: isVisible ? '250px' : '60px',
+                                        width: isVisible ? '250px' : '60px',
+                                        transition: 'width 0.3s ease',
+                                        height: divHeight,
+                                        overflowX: 'hidden',
+                                        overflowY: 'auto'
+                                    }}
+                                >
+                                    <div className="container-fluid" style={{
+                                        padding: "5px 10px",
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '0.5rem',
+                                        height: '100%',
+                                        justifyContent: 'flex-start'
+                                    }}>
+                                        {/* Removed toggle button from here */}
 
-                            {isPC ? <nav
-                                className="navbar navbar-vertical show z-0 navbar-expand-lg px-0 py-3 navbar-light bg-gray-50 border-bottom border-bottom-lg-0 "
-                                id="navbarVertical"
-                                style={{ minWidth: '250px', height: divHeight }}
-                            >
-
-                                <div className="container-fluid" style={{ minHeight: "0px" }}>
-                                    <button onClick={toggleVisibility}>
-                                        {isVisible ?
-                                            <div>
-                                                <button>
-                                                    <i class="bi bi-backspace">  </i>
-                                                    Hide Side Menu
-                                                </button>
-
-                                            </div> :
-
-                                            <div>
-                                            </div>
-                                        }
-                                    </button>
-                                    {isOnline ? <button
-                                        className={`mt-2 btn mr-2 ml-2 ${activeTab === '#profile' ? 'border-black' : ''}`}
-                                        onClick={(e) => {
-                                            handleTabClick(e, '#profile')
-                                            setActiveStoreTab('');
-                                            setShowSection('');
-                                            setStoreName_('');
-                                            setStoreCHI_('')
-                                            setAmericanTimeZone(getTimeZoneByZip("94133"))//dont change this is for init
-                                            setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
-                                            setActiveStoreId('')
-                                            setStoreOpenTime('')
-                                            setStoreID('');
-
-                                            if (storeFromURL !== '' && storeFromURL !== null) {
-                                                // Use pushState to change the URL without reloading the page
-                                                window.history.pushState(null, '', `/account?store=${storeFromURL}`);
-                                            } else {
-                                                window.history.pushState(null, '', '/account');
-                                            }
-                                            //window.history.pushState({}, '', '/account');
-                                        }
-                                        }
-                                    >
-                                        <div style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                            <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{ fill: 'currentColor' }} class="bi bi-person" viewBox="0 0 16 16">
-                                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
-                                                </svg>
-                                            </i>
-                                            {" Account"}
-                                        </div>
-                                    </button>
-                                        : null
-                                    }
-                                    {isOnline ?
-                                        <button
-                                            className={`mt-2 btn mr-2 ml-2 ${activeTab === '#Revenue_Chart' ? 'border-black' : ''}`}
-                                            onClick={(e) => {
-                                                setActiveStoreTab('');
-                                                setShowSection('');
-                                                setStoreID('');
-                                                setStoreName_('');
-                                                setStoreCHI_('')
-                                                setAmericanTimeZone(getTimeZoneByZip("94133"))//dont change this is for init
-                                                setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
-                                                setActiveStoreId('')
-                                                setStoreOpenTime('')
-                                                setActiveTab('#profile')
-                                                window.location.hash = 'createStore'
-
-                                            }}
-                                        >
-                                            <div style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                                <i className="bi bi-pencil"></i>
-
-                                                {" Create Store"}
-                                            </div>
-                                        </button> : null
-                                    }
-                                    <ul className={`text-md bold nav nav-tabs overflow-x border-0 flex flex-col `}>
-                                        <li className='pt-0 pb-0'>
-                                            Select Store:
-                                        </li>
-
-                                    </ul>
-
-                                    {storelist?.map((data, index) => (
-                                        <div style={{ display: 'contents' }}>
-
+                                        {isOnline && (
                                             <button
-                                                className={`mt-2 btn mr-2 ml-2 ${activeTab === `#${data.id}` ? 'border-black' : ''}`}
+                                                className="mt-2 btn w-100 mb-2 btn-primary text-white shadow-sm"
                                                 onClick={(e) => {
+                                                    handleTabClick(e, '#profile')
+                                                    setActiveStoreTab('');
+                                                    setShowSection('');
+                                                    setStoreName_('');
+                                                    setStoreCHI_('')
+                                                    setAmericanTimeZone(getTimeZoneByZip("94133"))//dont change this is for init
+                                                    setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
+                                                    setActiveStoreId('')
+                                                    setStoreOpenTime('')
+                                                    setStoreID('');
 
-                                                    handleTabClick(e, `#${data.id}`);
-                                                    setActiveStoreTab(data.id);
-                                                    setShowSection('sales');
-                                                    setStoreName_(data.Name);
-                                                    setStoreCHI_(data.storeNameCHI)
-                                                    setAmericanTimeZone(getTimeZoneByZip(data.ZipCode))
-                                                    setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(data.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
-                                                    setStoreID(data.id);
-                                                    setActiveStoreId(data.id)
-                                                    setStoreOpenTime(data.Open_time)
-                                                    window.location.hash = `charts?store=${data.id}`;
+                                                    if (storeFromURL !== '' && storeFromURL !== null) {
+                                                        window.history.pushState(null, '', `/account?store=${storeFromURL}`);
+                                                    } else {
+                                                        window.history.pushState(null, '', '/account');
+                                                    }
                                                 }}
                                             >
-                                                <div style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                                    <span class="notranslate">
-                                                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                                                            data.storeNameCHI : data.Name
-                                                        }
-                                                    </span>
+                                                <div style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: isVisible ? 'row' : 'column' }}>
+                                                    <i className="bi bi-person scale-125" style={{ display: 'inline-block', verticalAlign: 'middle' }}></i>
+                                                    {isVisible && <span style={{ marginLeft: "5px" }}>Account</span>}
                                                 </div>
                                             </button>
+                                        )}
 
-                                            {activeStoreId === data.id && (
-                                                <ul className={`nav nav-tabs mt-4 overflow-x border-0 flex flex-col`}>
-                                                    <div>
-                                                        <li className={`nav-item p-0`} style={{ width: "80%", margin: "auto", borderColor: "transparent !important" }}
-                                                            onClick={() => {
-                                                                setShowSection('sales')
-                                                                window.location.hash = `charts?store=${data.id}`;
-                                                            }}>
-                                                            <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `sales` ? 'active' : ''}`} style={{ marginLeft: "0", border: "0px" }}>
-                                                                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
-                                                                        <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2zm1 12h2V2h-2v12zm-3 0V7H7v7h2zm-5 0v-3H2v3h2z" />
-                                                                    </svg>
-                                                                </i>
-                                                                <span style={{ marginLeft: "5%" }}>Daily Revenue</span>
-                                                            </a>
-                                                        </li>
+                                        {isOnline && (
 
 
-                                                        <li className={`nav-item p-0`} onClick={() => {
-                                                            setShowSection('qrCode')
-                                                            window.location.hash = `code?store=${data.id}`
-                                                            //setIsVisible(false)
-                                                        }} style={{ width: "80%", margin: "auto" }}>
-                                                            <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `qrCode` ? 'active' : ''}`} style={{ border: "0px" }}>
-                                                                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-columns-gap" viewBox="0 0 16 16">
-                                                                        <path d="M6 1v3H1V1h5zM1 0a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1H1zm14 12v3h-5v-3h5zm-5-1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5zM6 8v7H1V8h5zM1 7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H1zm14-6v7h-5V1h5zm-5-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1h-5z" />
-                                                                    </svg>
-                                                                </i>
-                                                                <span style={{ marginLeft: "5%" }}>Dine In Ordering</span>
-                                                            </a>
-                                                        </li>
+                                            <button
+                                                onClick={(e) => {
+                                                    setActiveStoreTab('');
+                                                    setShowSection('');
+                                                    setStoreID('');
+                                                    setStoreName_('');
+                                                    setStoreCHI_('')
+                                                    setAmericanTimeZone(getTimeZoneByZip("94133"))//dont change this is for init
+                                                    setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
+                                                    setActiveStoreId('')
+                                                    setStoreOpenTime('')
+                                                    setActiveTab('#profile')
+                                                    window.location.hash = 'createStore'
+                                                }}
+                                                className="btn w-100 mb-2 btn-success text-white shadow-sm hover:bg-success-dark"
+                                            >
+                                                <div style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: isVisible ? 'row' : 'column' }}>
+                                                    <i className="bi bi-plus-circle scale-125" style={{ display: 'inline-block', verticalAlign: 'middle' }}></i>
+                                                    {isVisible && <span style={{ marginLeft: "5px" }}>Create Store</span>}
+                                                </div>
+                                            </button>
+                                        )}
 
-                                                        <li className={`nav-item p-0`}
-                                                            onClick={() => {
-                                                                setShowSection('stripeCard')
-                                                                window.location.hash = `cards?store=${data.id}`;
-                                                            }}
-                                                            style={{ width: "80%", margin: "auto" }}
-                                                        >
-                                                            <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `stripeCard` ? 'active' : ''}`} style={{ border: "0px" }}>
-                                                                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-right-dots" viewBox="0 0 16 16">
-                                                                        <path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z" />
-                                                                        <path d="M5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-                                                                    </svg>
-                                                                </i>
-                                                                <span style={{ marginLeft: "5%" }}>Notification&nbsp;<span
-                                                                    style={{
-                                                                        display: 'inline-flex', // changed from 'flex' to 'inline-flex'
-                                                                        alignItems: 'center',
-                                                                        justifyContent: 'center',
-                                                                        width: '15px',
-                                                                        height: '15px',
-                                                                        backgroundColor: 'blue',
-                                                                        borderRadius: '50%',
-                                                                        color: 'white',
-                                                                        fontSize: '10px',
-                                                                        verticalAlign: 'middle' // added to vertically center the circle
-                                                                    }}
-                                                                >
-                                                                    <span className='notranslate'>
-                                                                        {numberReviewVariable}
-                                                                    </span>
-                                                                </span>
-                                                                </span>
-                                                            </a>
-
-                                                        </li>
-                                                        {!isOnline ?
-                                                            null
-                                                            :
-                                                            <React.Fragment>
-                                                                <li className={`nav-item p-0`}
-                                                                    onClick={() => {
-                                                                        setShowSection('menu')
-                                                                        window.location.hash = `book?store=${data.id}`;
-                                                                    }}
-                                                                    style={{ width: "80%", margin: "auto" }}
-                                                                >
-                                                                    <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`} style={{ border: "0px" }}>
-                                                                        <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-diagram-3" viewBox="0 0 16 16">
-                                                                                <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
-                                                                            </svg>
-                                                                        </i>
-                                                                        <span style={{ marginLeft: "5%" }}>Menu Settings</span>
-
-                                                                    </a>
-
-                                                                </li>
-                                                                {isOnline ?
-                                                                    <li className={`nav-item border-b-0 p-0`}
-                                                                        onClick={() => {
-                                                                            setShowSection('store')
-                                                                            window.location.hash = `settings?store=${data.id}`;
-                                                                        }}
-                                                                        style={{ width: "80%", margin: "auto", border: "0px" }}
-                                                                    >
-                                                                        <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `store` ? 'active' : ''}`} style={{ marginRight: "0", border: "0px" }}>
-                                                                            <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
-                                                                                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
-                                                                                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
-                                                                                </svg>
-                                                                            </i>
-
-                                                                            <span style={{ marginLeft: "5%" }}>Store Settings</span>
-
-                                                                        </a>
-
-                                                                    </li> : null}
-                                                            </React.Fragment>
-                                                        }
-
-                                                    </div>
-
-
-                                                </ul>)
-                                            }
-
-
+                                        <div className={`store-selector mt-3 ${isVisible ? '' : 'd-none'}`}>
+                                            <h6 className='text-muted text-uppercase text-xs font-weight-bold mb-2 px-3'>
+                                                Select Store:
+                                            </h6>
                                         </div>
 
+                                        <div className="store-list mt-2">
+                                            {storelist?.map((data, index) => (
+                                                <div style={{ display: 'contents' }} key={data.id}>
+                                                    <button
+                                                        className={`mb-2 btn w-100 ${activeTab === `#${data.id}` ? 'shadow-sm' : ''}`}
+                                                        style={{
+                                                            background: 'white',
+                                                            color: '#333',
+                                                            border: activeTab === `#${data.id}`
+                                                                ? `2px solid ${getStoreColor(index)}`
+                                                                : 'none',
+                                                            borderLeft: activeTab === `#${data.id}` ? `4px solid ${getStoreColor(index)}` : '',
+                                                            textAlign: 'left',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            whiteSpace: 'nowrap',
+                                                            transition: 'all 0.2s ease',
+                                                            borderRadius: '6px',
+                                                            padding: '8px 12px',
+                                                            position: 'relative'
+                                                        }}
+                                                        onClick={(e) => {
+                                                            handleTabClick(e, `#${data.id}`);
+                                                            setActiveStoreTab(data.id);
+                                                            setShowSection('sales');
+                                                            setStoreName_(data.Name);
+                                                            setStoreCHI_(data.storeNameCHI)
+                                                            setAmericanTimeZone(getTimeZoneByZip(data.ZipCode))
+                                                            setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(data.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
+                                                            setStoreID(data.id);
+                                                            setActiveStoreId(data.id)
+                                                            setStoreOpenTime(data.Open_time)
+                                                            window.location.hash = `charts?store=${data.id}`;
+                                                        }}
+                                                    >
+                                                        <div style={{
+                                                            alignItems: 'center',
+                                                            justifyContent: isVisible ? 'space-between' : 'center',
+                                                            display: 'flex',
+                                                            flexDirection: isVisible ? 'row' : 'column',
+                                                            width: '100%'
+                                                        }}>
+                                                            <div style={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                flex: 1,
+                                                                overflow: 'hidden'
+                                                            }}>
+                                                                <div style={{
+                                                                    width: '24px',
+                                                                    height: '24px',
+                                                                    borderRadius: '50%',
+                                                                    backgroundColor: getStoreColor(index),
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center',
+                                                                    color: 'white',
+                                                                    fontWeight: 'bold',
+                                                                    fontSize: '12px',
+                                                                    marginRight: isVisible ? '8px' : '0',
+                                                                    flexShrink: 0
+                                                                }}>
+                                                                    {data.Name.charAt(0).toUpperCase()}
+                                                                </div>
+                                                                {isVisible && (
+                                                                    <span className="notranslate" style={{
+                                                                        fontSize: '0.9rem',
+                                                                        overflow: 'hidden',
+                                                                        textOverflow: 'ellipsis',
+                                                                        whiteSpace: 'nowrap'
+                                                                    }}>
+                                                                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                                                                            data.storeNameCHI : data.Name
+                                                                        }
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            {isVisible && activeTab === `#${data.id}` && (
+                                                                <i className="bi bi-chevron-down ms-2" style={{ fontSize: '0.9rem', color: '#666' }}></i>
+                                                            )}
+                                                            {isVisible && activeTab !== `#${data.id}` && (
+                                                                <i className="bi bi-chevron-right ms-2" style={{ fontSize: '0.9rem', color: '#666' }}></i>
+                                                            )}
+                                                        </div>
+                                                    </button>
 
-                                    ))}
+                                                    {activeStoreId === data.id && isVisible && (
+                                                        <ul className={`nav nav-tabs mt-2 mb-3 overflow-x border-0 flex flex-col`}
+                                                            style={{
+                                                                paddingLeft: '15px',
+                                                                borderLeft: `2px solid ${getStoreColor(index)}`,
+                                                                marginLeft: '10px'
+                                                            }}
+                                                        >
+                                                            <div>
+                                                                <li className={`nav-item p-1`} style={{ width: "95%", margin: "auto", borderColor: "transparent !important" }}
+                                                                    onClick={() => {
+                                                                        setShowSection('sales')
+                                                                        window.location.hash = `charts?store=${data.id}`;
+                                                                    }}>
+                                                                    <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `sales` ? 'active bg-light' : ''}`}
+                                                                        style={{
+                                                                            marginLeft: "0",
+                                                                            border: "0px",
+                                                                            padding: '8px 12px',
+                                                                            transition: 'all 0.2s ease'
+                                                                        }}
+                                                                    >
+                                                                        <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-bar-chart-line" viewBox="0 0 16 16">
+                                                                                <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2zm1 12h2V2h-2v12zm-3 0V7H7v7h2zm-5 0v-3H2v3h2z" />
+                                                                            </svg>
+                                                                        </i>
+                                                                        <span style={{ marginLeft: "5%" }}>Daily Revenue</span>
+                                                                    </a>
+                                                                </li>
 
-                                </div>
-                            </nav> : <div></div>}
-                        </div>
-                    )}
+                                                                <li className={`nav-item p-1`} onClick={() => {
+                                                                    setShowSection('qrCode')
+                                                                    window.location.hash = `code?store=${data.id}`
+                                                                }} style={{ width: "95%", margin: "auto" }}>
+                                                                    <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `qrCode` ? 'active bg-light' : ''}`}
+                                                                        style={{
+                                                                            border: "0px",
+                                                                            padding: '8px 12px',
+                                                                            transition: 'all 0.2s ease'
+                                                                        }}
+                                                                    >
+                                                                        <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-columns-gap" viewBox="0 0 16 16">
+                                                                                <path d="M6 1v3H1V1h5zM1 0a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1H1zm14 12v3h-5v-3h5zm-5-1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5zM6 8v7H1V8h5zM1 7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H1zm14-6v7h-5V1h5zm-5-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1h-5z" />
+                                                                            </svg>
+                                                                        </i>
+                                                                        <span style={{ marginLeft: "5%" }}>Dine In Ordering</span>
+                                                                    </a>
+                                                                </li>
+
+                                                                <li className={`nav-item p-1`}
+                                                                    onClick={() => {
+                                                                        setShowSection('stripeCard')
+                                                                        window.location.hash = `cards?store=${data.id}`;
+                                                                    }}
+                                                                    style={{ width: "95%", margin: "auto" }}
+                                                                >
+                                                                    <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `stripeCard` ? 'active bg-light' : ''}`}
+                                                                        style={{
+                                                                            border: "0px",
+                                                                            padding: '8px 12px',
+                                                                            transition: 'all 0.2s ease'
+                                                                        }}
+                                                                    >
+                                                                        <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-chat-right-dots" viewBox="0 0 16 16">
+                                                                                <path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z" />
+                                                                                <path d="M5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                                                            </svg>
+                                                                        </i>
+                                                                        <span style={{ marginLeft: "5%" }}>Notification&nbsp;<span
+                                                                            style={{
+                                                                                display: 'inline-flex',
+                                                                                alignItems: 'center',
+                                                                                justifyContent: 'center',
+                                                                                width: '15px',
+                                                                                height: '15px',
+                                                                                backgroundColor: 'blue',
+                                                                                borderRadius: '50%',
+                                                                                color: 'white',
+                                                                                fontSize: '10px',
+                                                                                verticalAlign: 'middle'
+                                                                            }}
+                                                                        >
+                                                                            <span className='notranslate'>
+                                                                                {numberReviewVariable}
+                                                                            </span>
+                                                                        </span>
+                                                                        </span>
+                                                                    </a>
+                                                                </li>
+
+                                                                {!isOnline ? null :
+                                                                    <React.Fragment>
+                                                                        <li className={`nav-item p-1`}
+                                                                            onClick={() => {
+                                                                                setShowSection('menu')
+                                                                                window.location.hash = `book?store=${data.id}`;
+                                                                            }}
+                                                                            style={{ width: "95%", margin: "auto" }}
+                                                                        >
+                                                                            <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `menu` ? 'active bg-light' : ''}`}
+                                                                                style={{
+                                                                                    border: "0px",
+                                                                                    padding: '8px 12px',
+                                                                                    transition: 'all 0.2s ease'
+                                                                                }}
+                                                                            >
+                                                                                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-diagram-3" viewBox="0 0 16 16">
+                                                                                        <path fillRule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
+                                                                                    </svg>
+                                                                                </i>
+                                                                                <span style={{ marginLeft: "5%" }}>Menu Settings</span>
+                                                                            </a>
+                                                                        </li>
+
+                                                                        {isOnline && (
+                                                                            <li className={`nav-item border-b-0 p-1`}
+                                                                                onClick={() => {
+                                                                                    setShowSection('store')
+                                                                                    window.location.hash = `settings?store=${data.id}`;
+                                                                                }}
+                                                                                style={{ width: "95%", margin: "auto", border: "0px" }}
+                                                                            >
+                                                                                <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `store` ? 'active bg-light' : ''}`}
+                                                                                    style={{
+                                                                                        marginRight: "0",
+                                                                                        border: "0px",
+                                                                                        padding: '8px 12px',
+                                                                                        transition: 'all 0.2s ease'
+                                                                                    }}
+                                                                                >
+                                                                                    <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-gear" viewBox="0 0 16 16">
+                                                                                            <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
+                                                                                            <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
+                                                                                        </svg>
+                                                                                    </i>
+                                                                                    <span style={{ marginLeft: "5%" }}>Store Settings</span>
+                                                                                </a>
+                                                                            </li>
+                                                                        )}
+                                                                    </React.Fragment>
+                                                                }
+                                                            </div>
+                                                        </ul>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </nav>
+
+
+                            </>
+                        ) : (<div></div>)}
+                    </div>
 
                     <div className="flex-grow-1 overflow-y-auto "
                         ref={divRef}
@@ -3036,13 +3121,37 @@ const Account = () => {
                             height: divHeight, // Use the dynamically calculated height
                             ...(isModalOpenIframe && isPC ? { zIndex: 1400 } : {}), // Conditionally apply zIndex
                         }}>
+
+                        {isPC &&
+                            <button
+                                onClick={toggleVisibility}
+                                className="btn btn-primary border shadow-sm rounded-circle"
+                                style={{
+                                    position: 'absolute',
+                                    top: '110px',
+                                    left: isVisible ? '235px' : '45px', // Position changes based on state
+                                    width: '32px',  // 增加宽度
+                                    height: '32px', // 增加高度
+                                    padding: '0',  // Remove padding
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    zIndex: 1000, // Ensure it's above the sidebar
+                                    transition: 'left 0.3s ease', // Smooth transition
+                                    boxShadow: '0 0 8px rgba(0, 0, 0, 0.3)' // 添加更明显的阴影
+                                }}
+                            >
+                                <i className={`bi bi-${isVisible ? 'chevron-left' : 'chevron-right'}`} style={{ fontSize: '1rem', color: 'white' }}></i> {/* 增大图标并改为白色 */}
+                            </button>
+                        }
                         {!isPC ?
                             <header className="bg-surface-primary border-bottom pt-0">
                                 <div className="container-fluid">
                                     <div className="mb-npx">
                                         <div className="d-flex align-items-center justify-content-between">
-                                            <div className="mb-0 mt-2" style={{ "cursor": "pointer" }}>
-                                                <h1 className="h2 ls-tight active">
+                                            {/* Modified this div for time display */}
+                                            <div className="mb-0 mt-2 d-flex align-items-baseline" style={{ "cursor": "pointer" }}> {/* Use baseline alignment */}
+                                                <h1 className="h2 ls-tight active me-3"> {/* Add margin to the right of the title */}
                                                     {activeTab === `#profile` || storeName_ === '' ? 'Account' :
                                                         <span className='notranslate'>
                                                             {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
@@ -3051,6 +3160,8 @@ const Account = () => {
                                                         </span>}
 
                                                 </h1>
+                                                {/* Added time display and added notranslate class */}
+
                                             </div>
 
                                             {activeTab === `#profile` || storeName_ === '' ?
@@ -3291,6 +3402,7 @@ const Account = () => {
                             <div style={{
                                 backgroundColor: 'white', // Set the background color to white
                             }} className={`card-body tab-content pt-0 pb-0`} ref={elementRef}>
+
                                 {user_loading ?
                                     <div>
                                         Loading...
@@ -3609,254 +3721,233 @@ const Account = () => {
 
                                                         }
 
-                                                        <>
-                                                            <hr />
-                                                            <div style={{ fontWeight: 'bold' }}>
-                                                                Password Management:
-                                                            </div>
 
-                                                            {/* Loading State */}
-                                                            {isCheckingPasswordStatus && (
-                                                                <div className="text-center text-gray-500">
-                                                                    Checking password status...
-                                                                </div>
-                                                            )}
+                                                        <hr />
 
-                                                            {/* Error/Success Messages */}
-                                                            {passwordError && !isCheckingPasswordStatus && <div className="alert alert-danger">{passwordError}</div>}
-                                                            {passwordSuccess && !isCheckingPasswordStatus && <div className="alert alert-success">{passwordSuccess}</div>}
+                                                        {/* === Password Management Settings (Complete Block) === */}
+                                                        {activeStoreTab === storeID && showSection === 'store' && (
+                                                            <div className="border-2 rounded-lg p-4 mt-4 bg-white shadow">
+                                                                <h3 className="text-lg font-semibold mb-4">Password Management</h3>
 
-                                                            {/* Show Reset Button if passwords exist and inputs are hidden */}
-                                                            {passwordsExist === true && !showPasswordInputs && !isCheckingPasswordStatus && (
-                                                                <button
-                                                                    className="btn btn-warning"
-                                                                    onClick={() => {
-                                                                        setShowPasswordInputs(true);
-                                                                        setPasswordSuccess('');
-                                                                    }}
-                                                                >
-                                                                    Reset Admin/Employee Passwords
-                                                                </button>
-                                                            )}
-
-                                                            <hr />
-
-                                                            {/* Inform user if status is unknown or initial check failed */}
-                                                            {passwordsExist === null && !isCheckingPasswordStatus && !passwordError && (
-                                                                <div className="text-center text-gray-500 mt-3">
-                                                                    Could not determine password status.
-                                                                </div>
-                                                            )}
-
-                                                            <div style={{ fontWeight: 'bold' }}>
-                                                                Edit Your Menu:
-                                                            </div>
-
-                                                            <div className="flex justify-start">
-                                                                <button
-                                                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                                                                    onClick={() => {
-                                                                        setShowSection('menu');
-                                                                        window.location.hash = `book?store=${data.id}`;
-                                                                    }}
-                                                                >
-                                                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L12 18H8v-4l8.768-8.768z" />
-                                                                    </svg>
-                                                                    Menu Settings
-                                                                </button>
-                                                            </div>
-
-                                                            {/* Show Inputs & Send Code Button if allowed */}
-                                                            {showPasswordInputs && !isCheckingPasswordStatus && (
-                                                                <>
-                                                                    <div className="mb-3">
-                                                                        <label htmlFor="newAdminPassword" className="form-label">{t('New Admin Password (min. 6 characters)')}</label>
-                                                                        <div className="input-group">
-                                                                            <input
-                                                                                type={showAdminPassword ? "text" : "password"}
-                                                                                className="form-control"
-                                                                                id="newAdminPassword"
-                                                                                value={newAdminPassword}
-                                                                                onChange={(e) => setNewAdminPassword(e.target.value)}
-                                                                                placeholder={t("Enter new admin password")}
-                                                                                disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
-                                                                                aria-label="New Admin Password"
-                                                                            />
-                                                                            <button
-                                                                                className="btn btn-link border d-flex align-items-center justify-content-center"
-                                                                                type="button"
-                                                                                onClick={() => setShowAdminPassword(!showAdminPassword)}
-                                                                                disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
-                                                                                aria-label={showAdminPassword ? t("Hide password") : t("Show password")}
-                                                                                style={{ width: '40px', textDecoration: 'none' }}
-                                                                            >
-                                                                                <i className={showAdminPassword ? "bi bi-eye-fill" : "bi bi-eye-slash-fill"}></i>
-                                                                            </button>
-                                                                        </div>
+                                                                {/* Loading State */}
+                                                                {isCheckingPasswordStatus && (
+                                                                    <div className="text-center text-gray-500">
+                                                                        Checking password status...
                                                                     </div>
+                                                                )}
 
-                                                                    <div className="mb-3">
-                                                                        <label htmlFor="newEmployeePassword" className="form-label">{t('New Employee Password (min. 6 characters)')}</label>
-                                                                        <div className="input-group">
-                                                                            <input
-                                                                                type={showEmployeePassword ? "text" : "password"}
-                                                                                className="form-control"
-                                                                                id="newEmployeePassword"
-                                                                                value={newEmployeePassword}
-                                                                                onChange={(e) => setNewEmployeePassword(e.target.value)}
-                                                                                placeholder={t("Enter new employee password")}
-                                                                                disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
-                                                                                aria-label="New Employee Password"
-                                                                            />
-                                                                            <button
-                                                                                className="btn btn-link border d-flex align-items-center justify-content-center"
-                                                                                type="button"
-                                                                                onClick={() => setShowEmployeePassword(!showEmployeePassword)}
-                                                                                disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
-                                                                                aria-label={showEmployeePassword ? t("Hide password") : t("Show password")}
-                                                                                style={{ width: '40px', textDecoration: 'none' }}
-                                                                            >
-                                                                                <i className={showEmployeePassword ? "bi bi-eye-fill" : "bi bi-eye-slash-fill"}></i>
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
+                                                                {/* Error/Success Messages (Main ones) */}
+                                                                {passwordError && !isCheckingPasswordStatus && <div className="alert alert-danger">{passwordError}</div>}
+                                                                {passwordSuccess && !isCheckingPasswordStatus && <div className="alert alert-success">{passwordSuccess}</div>}
 
-                                                                    {/* Step 1: Send Code Button */}
+                                                                {/* Show Reset Button if passwords exist and inputs are hidden */}
+                                                                {passwordsExist === true && !showPasswordInputs && !isCheckingPasswordStatus && (
                                                                     <button
-                                                                        className="btn btn-secondary"
-                                                                        onClick={handleSavePasswordSettings}
-                                                                        disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                        className="btn btn-warning"
+                                                                        onClick={() => {
+                                                                            setShowPasswordInputs(true);
+                                                                            setPasswordSuccess(''); // Clear success msg when resetting
+                                                                        }}
                                                                     >
-                                                                        {isSendingCode ? 'Sending Code...' : (passwordsExist ? 'Send Code to Reset' : 'Send Code to Set Passwords')}
+                                                                        Reset Admin/Employee Passwords
                                                                     </button>
-                                                                </>
-                                                            )}
-                                                        </>
+                                                                )}
 
+                                                                {/* Show Inputs & Send Code Button if allowed */}
+                                                                {showPasswordInputs && !isCheckingPasswordStatus && (
+                                                                    <>
+                                                                        {/* Password Input Fields */}
+                                                                        <div className="mb-3">
+                                                                            <label htmlFor="newAdminPassword" className="form-label">{t('New Admin Password (min. 6 characters)')}</label>
+                                                                            {/* Wrap in input-group */}
+                                                                            <div className="input-group">
+                                                                                <input
+                                                                                    type={showAdminPassword ? "text" : "password"} // Toggle type based on state
+                                                                                    className="form-control"
+                                                                                    id="newAdminPassword"
+                                                                                    value={newAdminPassword}
+                                                                                    onChange={(e) => setNewAdminPassword(e.target.value)}
+                                                                                    placeholder={t("Enter new admin password")}
+                                                                                    disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                                    aria-label="New Admin Password"
+                                                                                />
+                                                                                {/* Add visibility toggle button - CORRECTED */}
+                                                                                <button
+                                                                                    className="btn btn-link border d-flex align-items-center justify-content-center" // Use btn-link and flexbox centering
+                                                                                    type="button"
+                                                                                    onClick={() => setShowAdminPassword(!showAdminPassword)} // Toggle state on click
+                                                                                    disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                                    aria-label={showAdminPassword ? t("Hide password") : t("Show password")}
+                                                                                    style={{ width: '40px', textDecoration: 'none' }} // Keep fixed width, remove underline
+                                                                                >
+                                                                                    {/* Corrected icon logic */}
+                                                                                    <i className={showAdminPassword ? "bi bi-eye-fill" : "bi bi-eye-slash-fill"}></i>
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="mb-3">
+                                                                            <label htmlFor="newEmployeePassword" className="form-label">{t('New Employee Password (min. 6 characters)')}</label>
+                                                                            {/* Wrap in input-group */}
+                                                                            <div className="input-group">
+                                                                                <input
+                                                                                    type={showEmployeePassword ? "text" : "password"} // Toggle type based on state
+                                                                                    className="form-control"
+                                                                                    id="newEmployeePassword"
+                                                                                    value={newEmployeePassword}
+                                                                                    onChange={(e) => setNewEmployeePassword(e.target.value)}
+                                                                                    placeholder={t("Enter new employee password")}
+                                                                                    disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                                    aria-label="New Employee Password"
+                                                                                />
+                                                                                {/* Add visibility toggle button - CORRECTED */}
+                                                                                <button
+                                                                                    className="btn btn-link border d-flex align-items-center justify-content-center" // Use btn-link and flexbox centering
+                                                                                    type="button"
+                                                                                    onClick={() => setShowEmployeePassword(!showEmployeePassword)} // Toggle state on click
+                                                                                    disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                                    aria-label={showEmployeePassword ? t("Hide password") : t("Show password")}
+                                                                                    style={{ width: '40px', textDecoration: 'none' }} // Keep fixed width, remove underline
+                                                                                >
+                                                                                    {/* Corrected icon logic */}
+                                                                                    <i className={showEmployeePassword ? "bi bi-eye-fill" : "bi bi-eye-slash-fill"}></i>
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
 
+                                                                        {/* Step 1: Send Code Button */}
+                                                                        <button
+                                                                            className="btn btn-secondary"
+                                                                            onClick={handleSavePasswordSettings}
+                                                                            disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                        >
+                                                                            {isSendingCode ? 'Sending Code...' : (passwordsExist ? 'Send Code to Reset' : 'Send Code to Set Passwords')}
+                                                                        </button>
 
+                                                                        <hr />
+                                                                    </>
 
-
-
-
-
-
-                                                        <div style={{ fontWeight: 'bold' }}>
-                                                            Edit Your Menu:
-                                                        </div>
-
-                                                        <div className="flex justify-start">
-                                                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                                                                onClick={() => {
-                                                                    setShowSection('menu')
-                                                                    window.location.hash = `book?store=${data.id}`;
-                                                                }}
-                                                            >
-                                                                {/* SVG icon for editing */}
-                                                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L12 18H8v-4l8.768-8.768z" />
-                                                                </svg>
-                                                                Menu Settings
-                                                            </button>
-                                                        </div>
-
-
-
-                                                        <div style={{ fontWeight: 'bold' }}>
-                                                            QR code generator:
-                                                        </div>
-
-                                                        <div className="printContainer hidden print:block">
-                                                            {docIds.map((item, index) => (
-                                                                <div key={index} className="qrCodeItem">
-                                                                    <QRCode value={generateQRLink(item)} size={128} />
-                                                                    <div><span className='notranslate'>{item.split('-')[1]}</span></div>
+                                                                )}
+                                                                {/* Inform user if status is unknown or initial check failed */}
+                                                                {passwordsExist === null && !isCheckingPasswordStatus && !passwordError && (
+                                                                    <div className="text-center text-gray-500 mt-3">
+                                                                        Could not determine password status.
+                                                                    </div>
+                                                                )}
+                                                                <div style={{ fontWeight: 'bold' }}>
+                                                                    Edit Your Menu:
                                                                 </div>
-                                                            ))}
-                                                            {/* {docIds.map((item, index) => (
+
+                                                                <div className="flex justify-start">
+                                                                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
+                                                                        onClick={() => {
+                                                                            setShowSection('menu')
+                                                                            window.location.hash = `book?store=${data.id}`;
+                                                                        }}
+                                                                    >
+                                                                        {/* SVG icon for editing */}
+                                                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L12 18H8v-4l8.768-8.768z" />
+                                                                        </svg>
+                                                                        Menu Settings
+                                                                    </button>
+                                                                </div>
+
+
+
+                                                                <div style={{ fontWeight: 'bold' }}>
+                                                                    QR code generator:
+                                                                </div>
+
+                                                                <div className="printContainer hidden print:block">
+                                                                    {docIds.map((item, index) => (
+                                                                        <div key={index} className="qrCodeItem">
+                                                                            <QRCode value={generateQRLink(item)} size={128} />
+                                                                            <div><span className='notranslate'>{item.split('-')[1]}</span></div>
+                                                                        </div>
+                                                                    ))}
+                                                                    {/* {docIds.map((item, index) => (
                                 <div key={index} className="qrCodeItem">
                                   <QRCode value={generateQRLinkSelfCheckout(item)} size={128} />
                                   <div>SelfPay <span className='notranslate'>{item.split('-')[1]}</span></div>
                                 </div>
                               ))} */}
 
-                                                        </div>
-                                                        <div className="flex justify-start">
-                                                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                                                onClick={() => handlePrint()}
-                                                            >
-                                                                <i class="bi bi-printer-fill me-2"></i>
-                                                                Create A4 Sized QR Code Prints</button>
+                                                                </div>
+                                                                <div className="flex justify-start">
+                                                                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                                                        onClick={() => handlePrint()}
+                                                                    >
+                                                                        <i class="bi bi-printer-fill me-2"></i>
+                                                                        Create A4 Sized QR Code Prints</button>
 
-                                                        </div>
+                                                                </div>
 
-                                                        <hr />
+                                                                <hr />
 
-                                                        <div className=' mb-6' >
+                                                                <div className=' mb-6' >
 
-                                                            {data?.stripe_store_acct === "" ?
-                                                                <div>
-                                                                    <div className='mb-1'>Online Payment Options:</div>
+                                                                    {data?.stripe_store_acct === "" ?
+                                                                        <div>
+                                                                            <div className='mb-1'>Online Payment Options:</div>
 
-                                                                    <div>
-                                                                        <StripeConnectButton store={data.id} user={user.uid}></StripeConnectButton>
+                                                                            <div>
+                                                                                <StripeConnectButton store={data.id} user={user.uid}></StripeConnectButton>
 
-                                                                    </div></div>
+                                                                            </div></div>
 
-                                                                :
-                                                                <div>
-                                                                    <div className='mb-1' style={{ fontWeight: 'bold' }}>Online Payment Options:</div>
-                                                                    <div className='mb-1' style={{ display: 'flex' }}>
+                                                                        :
+                                                                        <div>
+                                                                            <div className='mb-1' style={{ fontWeight: 'bold' }}>Online Payment Options:</div>
+                                                                            <div className='mb-1' style={{ display: 'flex' }}>
 
-                                                                        <img className='mr-2'
-                                                                            src={myImage}  // Use the imported image here
-                                                                            alt="Description"
-                                                                            style={{
-                                                                                width: '30px',
-                                                                                height: '30px',
-                                                                            }}
-                                                                        />
-                                                                        You already connect with Stripe to receive online payment!
-
-                                                                    </div>
-
-                                                                    <div className="bg-white rounded-md">
-                                                                        <div class="mt-4">
-                                                                            <label class="flex items-center space-x-2 text-blue-500 font-bold">
-                                                                                <input
-                                                                                    type="checkbox"
-                                                                                    onClick={toggleAdvertisingProgram}
-                                                                                    class="form-checkbox h-5 w-5 text-blue-500"
-                                                                                    checked={data?.isJointAdvertised}
-                                                                                    readOnly
+                                                                                <img className='mr-2'
+                                                                                    src={myImage}  // Use the imported image here
+                                                                                    alt="Description"
+                                                                                    style={{
+                                                                                        width: '30px',
+                                                                                        height: '30px',
+                                                                                    }}
                                                                                 />
-                                                                                <span>Join Our Advertising Program</span>
-                                                                            </label>
-                                                                            {showModal && (
-                                                                                <div class="mt-4 p-4 border border-gray-300 rounded-lg">
-                                                                                    <h2 class="text-xl font-semibold mb-2">Enter Promotion Code</h2>
-                                                                                    <input
-                                                                                        type="password"
-                                                                                        placeholder="Password"
-                                                                                        class="border-2 border-gray-300 p-2 w-full rounded mb-4"
-                                                                                    />
-                                                                                    <button
-                                                                                        onClick={() => handlePasswordSubmit(document.querySelector('input[type="password"]').value)}
-                                                                                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                                                                    >
-                                                                                        Submit
-                                                                                    </button>
+                                                                                You already connect with Stripe to receive online payment!
+
+                                                                            </div>
+
+                                                                            <div className="bg-white rounded-md">
+                                                                                <div class="mt-4">
+                                                                                    <label class="flex items-center space-x-2 text-blue-500 font-bold">
+                                                                                        <input
+                                                                                            type="checkbox"
+                                                                                            onClick={toggleAdvertisingProgram}
+                                                                                            class="form-checkbox h-5 w-5 text-blue-500"
+                                                                                            checked={data?.isJointAdvertised}
+                                                                                            readOnly
+                                                                                        />
+                                                                                        <span>Join Our Advertising Program</span>
+                                                                                    </label>
+                                                                                    {showModal && (
+                                                                                        <div class="mt-4 p-4 border border-gray-300 rounded-lg">
+                                                                                            <h2 class="text-xl font-semibold mb-2">Enter Promotion Code</h2>
+                                                                                            <input
+                                                                                                type="password"
+                                                                                                placeholder="Password"
+                                                                                                class="border-2 border-gray-300 p-2 w-full rounded mb-4"
+                                                                                            />
+                                                                                            <button
+                                                                                                onClick={() => handlePasswordSubmit(document.querySelector('input[type="password"]').value)}
+                                                                                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                                                                            >
+                                                                                                Submit
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    )}
+                                                                                    <p class="text-sm text-gray-600 mt-2">
+                                                                                        We will offer premier promotional resources for up to ten products in your store, ensuring a minimum of 100 orders. Please note that we will take a 30% commission on those 10 items. To boost order volumes and enhance advertising effectiveness, we also provide shipping subsidies for participating customers. Join our advertising program and let's boost your store's foot traffic and achieve great results together!
+                                                                                    </p>
                                                                                 </div>
-                                                                            )}
-                                                                            <p class="text-sm text-gray-600 mt-2">
-                                                                                We will offer premier promotional resources for up to ten products in your store, ensuring a minimum of 100 orders. Please note that we will take a 30% commission on those 10 items. To boost order volumes and enhance advertising effectiveness, we also provide shipping subsidies for participating customers. Join our advertising program and let’s boost your store’s foot traffic and achieve great results together!
-                                                                            </p>
-                                                                        </div>
 
 
 
-                                                                        {/* <label className="flex items-center space-x-2 text-blue-500 font-bold mt-2">
+                                                                                {/* <label className="flex items-center space-x-2 text-blue-500 font-bold mt-2">
                                       <input
                                         type="checkbox"
                                         onChange={handleCheckboxChange}
@@ -3872,133 +3963,138 @@ const Account = () => {
                                     <p className="text-gray-500 text-sm mt-2">
                                       <strong>Note:</strong> Enabling this option will incur an additional charge of 1.5% and a flat fee of $1 per payout.
                                     </p> */}
-                                                                        {isOpen ?
-                                                                            <button
-                                                                                className="px-4 py-2 bg-red-500 mt-2 text-white rounded-lg"
-                                                                                onClick={toggleModal}
-                                                                            >
-                                                                                Collapse Standard Payout Schedule
-                                                                            </button> :
-                                                                            <button
-                                                                                className="px-4 py-2 bg-blue-500 mt-2 text-white rounded-lg"
-                                                                                onClick={toggleModal}
-                                                                            >
-                                                                                View Standard Payout Schedule
-                                                                            </button>
-                                                                        }
-                                                                        <p className="text-gray-500 text-sm mt-2 mb-2 ">
-                                                                            <strong>Note:</strong> Opting for the standard payout schedule means your earnings will be deposited according to our regular payout cycle without any additional fees.
-                                                                        </p>
+                                                                                {isOpen ?
+                                                                                    <button
+                                                                                        className="px-4 py-2 bg-red-500 mt-2 text-white rounded-lg"
+                                                                                        onClick={toggleModal}
+                                                                                    >
+                                                                                        Collapse Standard Payout Schedule
+                                                                                    </button> :
+                                                                                    <button
+                                                                                        className="px-4 py-2 bg-blue-500 mt-2 text-white rounded-lg"
+                                                                                        onClick={toggleModal}
+                                                                                    >
+                                                                                        View Standard Payout Schedule
+                                                                                    </button>
+                                                                                }
+                                                                                <p className="text-gray-500 text-sm mt-2 mb-2 ">
+                                                                                    <strong>Note:</strong> Opting for the standard payout schedule means your earnings will be deposited according to our regular payout cycle without any additional fees.
+                                                                                </p>
 
-                                                                        <div className="text-center">
+                                                                                <div className="text-center">
 
 
-                                                                            {/* Modal */}
-                                                                            {isOpen && (
-                                                                                <div className='' >
-                                                                                    <table className="w-full border-collapse">
-                                                                                        <thead>
-                                                                                            <tr>
-                                                                                                <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Day of Transaction</th>
-                                                                                                <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Time Range</th>
-                                                                                                <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Deposit Date</th>
-                                                                                            </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Monday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span> </td>
-                                                                                                <td className="p-3 border-b text-gray-800">Thursday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Monday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                                                                <td className="p-3 border-b text-gray-800">Friday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Tuesday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span> </td>
-                                                                                                <td className="p-3 border-b text-gray-800">Friday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Tuesday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                                                                <td className="p-3 border-b text-gray-800">Monday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Wednesday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
-                                                                                                <td className="p-3 border-b text-gray-800">Monday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Wednesday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                                                                <td className="p-3 border-b text-gray-800">Tuesday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Thursday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
-                                                                                                <td className="p-3 border-b text-gray-800">Tuesday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Thursday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Friday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
-                                                                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Friday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Saturday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
-                                                                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Saturday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Sunday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
-                                                                                                <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
-                                                                                            </tr>
-                                                                                            <tr className="odd:bg-white even:bg-gray-50">
-                                                                                                <td className="p-3 border-b text-gray-800">Sunday</td>
-                                                                                                <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
-                                                                                                <td className="p-3 border-b text-gray-800">Thursday Early Morning</td>
-                                                                                            </tr>
-                                                                                            {/* Add other rows as needed */}
-                                                                                        </tbody>
-                                                                                    </table>
+                                                                                    {/* Modal */}
+                                                                                    {isOpen && (
+                                                                                        <div className='' >
+                                                                                            <table className="w-full border-collapse">
+                                                                                                <thead>
+                                                                                                    <tr>
+                                                                                                        <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Day of Transaction</th>
+                                                                                                        <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Time Range</th>
+                                                                                                        <th className="border-b-2 p-3 text-center text-gray-700 bg-green-500 text-white">Deposit Date</th>
+                                                                                                    </tr>
+                                                                                                </thead>
+                                                                                                <tbody>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Monday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span> </td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Thursday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Monday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Friday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Tuesday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span> </td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Friday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Tuesday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Monday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Wednesday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Monday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Wednesday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Tuesday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Thursday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Tuesday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Thursday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Friday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Friday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Saturday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Saturday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Sunday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800">12:00 AM to <span className='notranslate'>{cutoffTime}</span></td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Wednesday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    <tr className="odd:bg-white even:bg-gray-50">
+                                                                                                        <td className="p-3 border-b text-gray-800">Sunday</td>
+                                                                                                        <td className="notranslate p-3 border-b text-gray-800"><span className='notranslate'>{cutoffTime}</span> to 11:59 PM</td>
+                                                                                                        <td className="p-3 border-b text-gray-800">Thursday Early Morning</td>
+                                                                                                    </tr>
+                                                                                                    {/* Add other rows as needed */}
+                                                                                                </tbody>
+                                                                                            </table>
+                                                                                        </div>
+                                                                                    )}
                                                                                 </div>
-                                                                            )}
+                                                                            </div>
+
+
+                                                                            <TerminalRegister City={data?.Address} Address={data?.physical_address} State={data?.State} storeDisplayName={data?.Name} ZipCode={data?.ZipCode} storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
                                                                         </div>
-                                                                    </div>
 
-
-                                                                    <TerminalRegister City={data?.Address} Address={data?.physical_address} State={data?.State} storeDisplayName={data?.Name} ZipCode={data?.ZipCode} storeID={data?.id} connected_stripe_account_id={data?.stripe_store_acct} />
+                                                                    }
                                                                 </div>
-
-                                                            }
-                                                        </div>
-                                                        <hr />
+                                                                <hr />
 
 
-                                                        <div style={{ fontWeight: 'bold' }}>Operating Hours:</div>
-                                                        <ChangeTimeForm storeID={storeID} storeOpenTime={storeOpenTime} />
+                                                                <div style={{ fontWeight: 'bold' }}>Operating Hours:</div>
+                                                                <ChangeTimeForm storeID={storeID} storeOpenTime={storeOpenTime} />
 
 
-                                                    </div> : <div></div>
+                                                            </div>
+                                                        )}
+
+
+
+                                                    </div>
+                                                        : null
                                                     }
-
 
                                                     {showSection === 'sales' ? <div>
 
@@ -4883,10 +4979,7 @@ const Account = () => {
                                                                 </tbody>
                                                             </table>
                                                         </LazyLoad>
-
-                                                    </div>
-                                                        : null
-                                                    }
+                                                    </div> : null}
 
                                                 </div>
                                             ) : null
