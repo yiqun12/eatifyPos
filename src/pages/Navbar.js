@@ -2074,10 +2074,11 @@ const Navbar = () => {
                   )
                 )
               }
-              {isMobile ? <div></div> :
-                <div className="ml-3 mt-2 text-muted small notranslate">
-                  {currentTimeDisplay}
-                </div>
+              {!isMobile && window.location.pathname.includes('/account') ? 
+              <div className="ml-3 mt-1 text-lg notranslate">
+                {currentTimeDisplay}
+              </div> :
+                <div></div>
 
               }
 

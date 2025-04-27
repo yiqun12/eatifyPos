@@ -494,7 +494,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                 console.log("added")
                 const docRefTable_ = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", store + "-" + item.name)
                 // Corrected the syntax for concatenating `store` and `item.id`
-                await setDoc(docRefTable_, { product: "[]" }, { merge: true });
+                await setDoc(docRefTable_, { product: "[]" }, { merge: true });//initialize the table but no update on the main. 
                 console.log(`Added: ${item.name}`);
             } else if (item.change === 'deleted') {
                 // Corrected the syntax here as well
