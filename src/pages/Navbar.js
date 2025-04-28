@@ -1070,7 +1070,9 @@ const Navbar = () => {
     listenToTranslateWidget();
   });
 
-
+  if (location.pathname.includes('/testing_food')) {
+    return (<div></div>)
+  }
 
   function groupAndSumItems(items) {
     items.reverse();
