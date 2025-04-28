@@ -1,193 +1,239 @@
-
+import React, { useState, useEffect, useRef } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useUserContext } from "../context/userContext";
-import React, { useRef } from "react";
-import Navbar from './Navbar'
-import { useState, useEffect } from 'react';
+import { useUserContext } from '../context/userContext';
 import { useMyHook } from './myHook';
 
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#FF6B00',  // 暖橙色
+      light: '#FF8533',
+      dark: '#CC5500',
+    },
+  },
+  components: {
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          '&.Mui-selected': {
+            backgroundColor: '#FF6B00',
+            color: '#fff',
+            '&:hover': {
+              backgroundColor: '#FF8533',
+            },
+          },
+        },
+      },
+    },
+  },
+});// 静态翻译对象
 
-const theme = createTheme();
+// 静态翻译对象
+const translations = {
+  en: {
+    signUp: 'Sign Up',
+    nickName: 'Nick Name',
+    email: 'Email Address',
+    password: 'Password',
+    signUpButton: 'SIGN UP',
+    haveAccount: 'Already have an account? Sign in',
+    verifyInfo: 'We will send you a link to verify your email.',
+    verifyPrompt: 'Please verify your email.',
+    loading: 'Loading...',
+    langLabel: 'EN / 中文',
+  },
+  zh: {
+    signUp: '注册',
+    nickName: '昵称',
+    email: '电子邮件地址',
+    password: '密码',
+    signUpButton: '注册',
+    haveAccount: '已有账户？登录',
+    verifyInfo: '我们会发送验证邮件链接。',
+    verifyPrompt: '请验证您的邮箱。',
+    loading: '加载中…',
+    langLabel: 'EN / 中文',
+  },
+};
 
 export default function SignUp() {
-  /**listen to localtsorage */
+  // 翻译和语言状态
+  const [language, setLanguage] = useState('en');
+  const t = translations[language];
+  const handleLanguageChange = (e, newLang) => {
+    if (newLang) setLanguage(newLang);
+  };
+
+  // 本地存储监听示例
   const { id, saveId } = useMyHook(null);
-  useEffect(() => {
-    //console.log('Component B - ID changed:', id);
-  }, [id]);
+  useEffect(() => {}, [id]);
 
-  const { user, user_loading} = useUserContext();
-  const [errorVisibility, setErrorVisibility] = useState("none");
+  // 用户状态
+  const { user, user_loading, registerUser } = useUserContext();
+  const [errorVisible, setErrorVisible] = useState(false);
 
-  const { registerUser } = useUserContext();
+  // 注册表单提交
   const onSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     const email = data.get('email');
-    const name = data.get('NickName');
+    const name = data.get('nickName');
     const password = data.get('password');
-  //  console.log((email && password && name))
-    if (email && password && name) {
-      const response = await registerUser(email, password, name);
-      console(response)
+    if (email && name && password) {
+      const err = await registerUser(email, password, name);
+      if (err) {
+        setErrorVisible(true);
+      }
+      // 注册成功后，context 里的 user 会更新，触发下面的重定向
     }
-
   };
-  if (user) {
-    setErrorVisibility("block");
-    window.location.href = "/account";
-  }
-  const [width, setWidth] = useState(window.innerWidth);
 
+  // 注册后自动跳转
   useEffect(() => {
-    function handleResize() {
-      setWidth(window.innerWidth);
+    if (user) {
+      window.location.href = '/account';
     }
+  }, [user]);
+
+  // 响应式宽度（若有需要可用）
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-      // for translations sake
-      const trans = JSON.parse(sessionStorage.getItem("translations"))
-      const t = (text) => {
-        // const trans = sessionStorage.getItem("translations")
-     //   console.log(trans)
-      //  console.log(sessionStorage.getItem("translationsMode"))
-    
-        if (trans != null) {
-          if (sessionStorage.getItem("translationsMode") != null) {
-          // return the translated text with the right mode
-            if (trans[text] != null) {
-              if (trans[text][sessionStorage.getItem("translationsMode")] != null)
-                return trans[text][sessionStorage.getItem("translationsMode")]
-            }
-          }
-        } 
-        // base case to just return the text if no modes/translations are found
-        return text
-      }
-
   return (
-    <div
-      style={{
-
-      }}
-    >
-      {user_loading ?
-        <div>
-          {t("Loading...")}
+    <div className=" ">
+      {user_loading ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-xl text-orange-600">{t.loading}</div>
         </div>
-        :
+      ) : (
+        <Container component="main" maxWidth="sm" className="py-12">
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Box
+              sx={{
+                bgcolor: 'white',
+                borderRadius: 2,
+                boxShadow: 3,
+                p: 4,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
+              <Avatar sx={{ m: 1, bgcolor: 'primary.main', width: 56, height: 56 }}>
+                <LockOutlinedIcon sx={{ fontSize: 32 }} />
+              </Avatar>
 
-        <div>
-          <div>
-            <div className="container">
-              <div style={width > 768 ? { width: "550px", margin: "0 auto" } : {}}>
-                <div className={width > 768 ? "card2 mt-50 mb-50" : ""}>
-                  <div style={{ 'padding': '0px 12px' }} className={width > 768 ? "main" : ""}>
+              {/* 语言切换按钮 */}
+              <ToggleButtonGroup
+                value={language}
+                exclusive
+                onChange={handleLanguageChange}
+                size="small"
+                sx={{ mb: 2 }}
+                aria-label={t.langLabel}
+              >
+                <ToggleButton value="en">EN</ToggleButton>
+                <ToggleButton value="zh">中文</ToggleButton>
+              </ToggleButtonGroup>
 
-                    <ThemeProvider theme={theme}>
-                      <Container component="main" maxWidth="xs">
-                        <CssBaseline />
-                        <Box
-                          sx={{
-                            marginTop: 0,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                            <LockOutlinedIcon />
-                          </Avatar>
-                          <Typography component="h1" variant="h5">
-                            {t('Sign up')}
-                          </Typography>
-                          <div className='error message' style={{ display: errorVisibility, color: 'red' }}>{t("Please verify your email")}.</div>
+              <Typography component="h1" variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
+                {t.signUp}
+              </Typography>
 
-                          <Box component="form" noValidate onSubmit={onSubmit} sx={{ mt: 3 }}>
-                            <Grid container spacing={2}>
-                              <Grid item xs={12}>
-                                <TextField
+              {errorVisible && (
+                <Box
+                  sx={{
+                    width: '100%',
+                    mb: 2,
+                    p: 2,
+                    bgcolor: 'error.light',
+                    color: 'error.dark',
+                    borderRadius: 1,
+                    textAlign: 'center',
+                  }}
+                >
+                  {t.verifyPrompt}
+                </Box>
+              )}
 
-                                  required
-                                  fullWidth
-                                  id="NickName"
-                                  label={t("Nick name")}
-                                  name="NickName"
-                                  autoComplete="NickName"
-                                  autoFocus
-                                />
-                              </Grid>
-                              <Grid item xs={12}>
-                                <TextField
-                                  required
-                                  fullWidth
-                                  id="email"
-                                  label={t("Email Address")}
-                                  name="email"
-                                  autoComplete="email"
-                                />
-                              </Grid>
+              <Box component="form" noValidate onSubmit={onSubmit} sx={{ width: '100%' }}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      id="nickName"
+                      label={t.nickName}
+                      name="nickName"
+                      autoComplete="nickName"
+                      autoFocus
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      id="email"
+                      label={t.email}
+                      name="email"
+                      autoComplete="email"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="password"
+                      label={t.password}
+                      type="password"
+                      id="password"
+                      autoComplete="new-password"
+                    />
+                  </Grid>
+                </Grid>
 
-                              <Grid item xs={12}>
-                                <TextField
-                                  required
-                                  fullWidth
-                                  name="password"
-                                  label={t("Password")}
-                                  type="password"
-                                  id="password"
-                                  autoComplete="new-password"
-                                />
-                              </Grid>
-                              <Grid item xs={12}>
+                <Typography variant="body2" sx={{ mt: 2 }}>
+                  {t.verifyInfo}
+                </Typography>
 
-                              </Grid>
-                            </Grid>
-                            <Typography variant="body2">
-                              {t("We would send you a link to verify your email") + "."}
-                            </Typography>
-                            <Button
-                              type="submit"
-                              fullWidth
-                              variant="contained"
-                              sx={{ mt: 3, mb: 2 }}
-                            >
-                              {t("SIGN UP")}
-                            </Button>
-                            <Grid container justifyContent="flex-end">
-                              <Grid item>
-                                <Link href="/account" variant="body2">
-                                  {t("Already have an account? Sign in")}
-                                </Link>
-                              </Grid>
-                            </Grid>
-                          </Box>
-                        </Box>
-                      </Container>
-                    </ThemeProvider>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2, py: 1.5 }}
+                >
+                  {t.signUpButton}
+                </Button>
+
+                <Grid container justifyContent="flex-end">
+                  <Grid item>
+                    <Link href="/account" variant="body2">
+                      {t.haveAccount}
+                    </Link>
+                  </Grid>
+                </Grid>
+              </Box>
+            </Box>
+          </ThemeProvider>
+        </Container>
+      )}
     </div>
   );
 }

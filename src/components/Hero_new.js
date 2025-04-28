@@ -101,7 +101,7 @@ const Hero = () => {
       <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
         <img
           className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
-          src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1050&q=80"
+          src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/a6f8dc22-9a48-46ec-ef55-844d2b4c4700/public"
           alt="Restaurant POS System"
         />
       </div>

@@ -170,7 +170,7 @@ const Navbar = () => {
   useEffect(() => {
     const path = window.location.pathname; // Get the current URL path
     if (!user) {
-        return;
+      return;
     }
 
     console.log("1 widget")
@@ -2072,7 +2072,7 @@ const Navbar = () => {
                   )
                 )
               }
-              {!isMobile && window.location.pathname.includes('/account') ?
+              {!isMobile && window.location.pathname.includes('/account') && user ?
                 <div className="ml-3 mt-1 text-lg notranslate">
                   {currentTimeDisplay}
                 </div> :
