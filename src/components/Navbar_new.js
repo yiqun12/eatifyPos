@@ -86,15 +86,12 @@ const Navbar = () => {
               <a href="#testimonials" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
                 Testimonials
               </a>
-              <a href="#faq" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
-                FAQ
+              <a className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
+                <div className='mt-4' id="google_translate_element"></div>
               </a>
             </div>
           </div>
-          <div className='flex mt-3'>
 
-            <div className='' id="google_translate_element"></div>
-          </div>
           <div className="hidden md:flex items-center">
             <a
               onClick={() => {

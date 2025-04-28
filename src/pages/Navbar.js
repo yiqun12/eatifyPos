@@ -168,6 +168,10 @@ const Navbar = () => {
 
 
   useEffect(() => {
+    const path = window.location.pathname; // Get the current URL path
+    if (!user) {
+        return;
+    }
 
     console.log("1 widget")
     // Check if the script is already loaded
@@ -192,10 +196,7 @@ const Navbar = () => {
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
-  useEffect(() => {
 
-    //console.log('Component B - ID changed:', id);
-  }, [id]);
 
 
 
@@ -1070,9 +1071,6 @@ const Navbar = () => {
     listenToTranslateWidget();
   });
 
-  if (location.pathname.includes('/testing_food')) {
-    return (<div></div>)
-  }
 
   function groupAndSumItems(items) {
     items.reverse();
@@ -2074,10 +2072,10 @@ const Navbar = () => {
                   )
                 )
               }
-              {!isMobile && window.location.pathname.includes('/account') ? 
-              <div className="ml-3 mt-1 text-lg notranslate">
-                {currentTimeDisplay}
-              </div> :
+              {!isMobile && window.location.pathname.includes('/account') ?
+                <div className="ml-3 mt-1 text-lg notranslate">
+                  {currentTimeDisplay}
+                </div> :
                 <div></div>
 
               }
