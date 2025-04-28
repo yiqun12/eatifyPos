@@ -4,6 +4,8 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLanguage } from '@fortawesome/free-solid-svg-icons';
 import Logo from './Logo';
+import { HashLink as Link } from 'react-router-hash-link';
+
 import { useUserContext } from "../context/userContext";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -67,24 +69,27 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-center">
+            <a href="/home" className="flex-shrink-0 flex items-center">
               <Logo />
-            </div>
+            </a>
+
             <div className="hidden md:ml-6 md:flex md:space-x-8">
-              <a href="#features" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
-                Features
-              </a>
-              <a href="#gallery" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
-                Gallery
-              </a>
-              <a href="#tutorials" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
-                Tutorials
-              </a>
-              <a href="#pricing" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
+              <Link
+                smooth
+                to="/home#pricing"
+                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300"
+              >
                 Pricing
+              </Link>
+              <a href="/scan_article"
+                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
+                LLM Scan
               </a>
-              <a href="#testimonials" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
-                Testimonials
+              <a href="/sendmessage" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
+                SMS API
+              </a>
+              <a href="/career" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
+                Career
               </a>
               <a className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
                 <div className='mt-4' id="google_translate_element"></div>
@@ -134,24 +139,31 @@ const Navbar = () => {
         transition={{ duration: 0.3 }}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white shadow-lg">
-          <a href="#features" className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50">
-            Features
-          </a>
-          <a href="#gallery" className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50">
-            Gallery
-          </a>
-          <a href="#tutorials" className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50">
-            Tutorials
-          </a>
-          <a href="#pricing" className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50">
+
+          <Link
+            smooth
+            to="/home#pricing"
+            className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300"
+          >
             Pricing
+          </Link>
+          <a href="/scan_article"
+            className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">                LLM Scan
           </a>
-          <a href="#testimonials" className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50">
-            Testimonials
+          <a href="/sendmessage"
+            className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">                LLM Scan
+            SMS API
           </a>
-          <a href="#faq" className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50">
-            FAQ
+          <a href="/career"
+            className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">                LLM Scan
+            Career
           </a>
+          <a
+            className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">                LLM Scan
+            <div className='mt-4' id="google_translate_element"></div>
+          </a>
+
+
           <a
             onClick={() => {
               // Skip redirection if we're on the code page

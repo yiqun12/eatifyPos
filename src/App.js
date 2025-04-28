@@ -2,6 +2,7 @@ import { useUserContext } from "./context/userContext";
 import SignUp from './pages/customer_signup';
 import LogIn from './pages/customer_login';
 import Navbar from './pages/Navbar'
+import Navbar_new from './components/Navbar_new'
 //import Account from './components/Account';
 import Home from './pages/Home'
 
@@ -139,7 +140,7 @@ function App() {
                   path="/SendMessage"
                   element={
                     <>
-                      <Navbar />
+                      <Navbar_new />
                       <SendMessage />
                     </>
                   }
@@ -149,7 +150,7 @@ function App() {
 
                 {/* <Route path="orderhasreceived" element={<OrderHasReceived />} /> */}
 
-                <Route
+                {/* <Route
                   path="Reservation"
                   element={
                     <>
@@ -157,12 +158,12 @@ function App() {
                       <Reservation />
                     </>
                   }
-                />
+                /> */}
                 <Route
                   path="scan"
                   element={
                     <>
-                      <Navbar />
+                      <Navbar_new />
                       <FreeScan store="freescan" />
                     </>
                   }
@@ -172,7 +173,7 @@ function App() {
                   path="scan_article"
                   element={
                     <>
-                      <Navbar />
+                      <Navbar_new />
                       <FreeScanArticle store="freescan" />
                     </>
                   }
@@ -211,7 +212,7 @@ function App() {
                   />
                 )}
 
-                <Route
+                {/* <Route
                   path="SignUp"
                   element={
                     <>
@@ -219,7 +220,7 @@ function App() {
                       <SignUp />
                     </>
                   }
-                />
+                /> */}
 
 
                 {user ? (
@@ -269,10 +270,10 @@ function App() {
 
 
                 <Route
-                  path="/careers"
+                  path="/career"
                   element={
                     <>
-                      <Navbar />
+                      <Navbar_new />
                       <Career />
                     </>
                   }

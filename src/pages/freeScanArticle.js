@@ -2,17 +2,17 @@ import React from 'react';
 
 const FreeScanNew = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-white max-w-6xl mx-auto font-sans">
+    <div className="flex flex-col min-h-screen bg-white max-w-6xl mx-auto font-sans py-16">
       {/* Added padding, adjusted text sizes and colors */}
       <div className="p-6 md:p-8 flex-grow">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 leading-tight">7dollar POS's new AI tool makes menu management a snap for merchants</h1>
-        <p className="text-sm text-gray-500 mb-6">Chris Collard, Principal Product Manager, Business Platform
-        November 26, 2024</p>
+        <p className="text-sm text-gray-500 mb-6">Yiqun Xu, CEO, Business Platform
+          Match 26, 2023</p>
 
         {/* Added Image Here */}
-        <img 
-          src="/images/scan1.png" 
-          alt="Merchant Menu Assistant Illustration" 
+        <img
+          src="/images/scan1.png"
+          alt="Merchant Menu Assistant Illustration"
           className="block w-full  h-auto mx-auto my-8 rounded-lg shadow-md"
         />
 
@@ -20,9 +20,9 @@ const FreeScanNew = () => {
         <p className="text-base md:text-lg text-gray-800 mb-4 leading-relaxed">A recent update we rolled out for our merchant-partners on 7dollar POS Food is an AI-powered Merchant Menu Assistant. This feature helps food vendors set up their digital menu on 7dollar POS so that they can start selling.</p>
         <p className="text-base md:text-lg text-gray-800 mb-6 leading-relaxed">Merchant Menu Assistant lets them take a picture of their physical menu. It then extracts the titles, descriptions, and prices of all menu items with high accuracy, and fills them into 7dollar POS's digital catalogue template. Now, all that's left to do is review the menu items and edit details where needed, and then publish.</p>
 
-        <img 
-          src="/images/scan1.gif" 
-          alt="Merchant Menu Assistant Illustration" 
+        <img
+          src="/images/scan1.gif"
+          alt="Merchant Menu Assistant Illustration"
           className="block w-full max-w-xl h-auto mx-auto my-8 rounded-lg shadow-md"
         />
 

@@ -2319,6 +2319,7 @@ const Account = () => {
     const [selectedTableIframe, setSelectedTableIframe] = useState("null");
     const [isModalOpenIframe, setModalOpenIframe] = useState(false);
 
+    const [isPasswordOpen, setPasswordOpen] = useState(false);
 
     const handleSavePasswordSettings = async () => {
         // Step 1: Validate inputs and Trigger sending the code
@@ -3035,7 +3036,7 @@ const Account = () => {
                             backgroundColor: 'white',
                             ...(isMobile ? { height: divHeight } : {}), // 只有是Mobile才加height
                             ...(isModalOpenIframe && isPC ? { zIndex: 1400 } : {}), // 如果开了modal且是PC，才加zIndex
-                          }}>
+                        }}>
                         {!isPC ?
                             <header className="bg-surface-primary border-bottom pt-0">
                                 <div className="container-fluid">
@@ -3608,159 +3609,124 @@ const Account = () => {
                                                             </div> : <></>
 
                                                         }
-
-                                                        <>
-                                                            <hr />
-                                                            <div style={{ fontWeight: 'bold' }}>
-                                                                Password Management:
-                                                            </div>
-
-                                                            {/* Loading State */}
-                                                            {isCheckingPasswordStatus && (
-                                                                <div className="text-center text-gray-500">
-                                                                    Checking password status...
-                                                                </div>
-                                                            )}
-
-                                                            {/* Error/Success Messages */}
-                                                            {passwordError && !isCheckingPasswordStatus && <div className="alert alert-danger">{passwordError}</div>}
-                                                            {passwordSuccess && !isCheckingPasswordStatus && <div className="alert alert-success">{passwordSuccess}</div>}
-
-                                                            {/* Show Reset Button if passwords exist and inputs are hidden */}
-                                                            {passwordsExist === true && !showPasswordInputs && !isCheckingPasswordStatus && (
-                                                                <button
-                                                                    className="btn btn-warning"
-                                                                    onClick={() => {
-                                                                        setShowPasswordInputs(true);
-                                                                        setPasswordSuccess('');
-                                                                    }}
-                                                                >
-                                                                    Reset Admin/Employee Passwords
-                                                                </button>
-                                                            )}
-
-                                                            <hr />
-
-                                                            {/* Inform user if status is unknown or initial check failed */}
-                                                            {passwordsExist === null && !isCheckingPasswordStatus && !passwordError && (
-                                                                <div className="text-center text-gray-500 mt-3">
-                                                                    Could not determine password status.
-                                                                </div>
-                                                            )}
-
-                                                            <div style={{ fontWeight: 'bold' }}>
-                                                                Edit Your Menu:
-                                                            </div>
-
-                                                            <div className="flex justify-start">
-                                                                <button
-                                                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                                                                    onClick={() => {
-                                                                        setShowSection('menu');
-                                                                        window.location.hash = `book?store=${data.id}`;
-                                                                    }}
-                                                                >
-                                                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L12 18H8v-4l8.768-8.768z" />
-                                                                    </svg>
-                                                                    Menu Settings
-                                                                </button>
-                                                            </div>
-
-                                                            {/* Show Inputs & Send Code Button if allowed */}
-                                                            {showPasswordInputs && !isCheckingPasswordStatus && (
-                                                                <>
-                                                                    <div className="mb-3">
-                                                                        <label htmlFor="newAdminPassword" className="form-label">{t('New Admin Password (min. 6 characters)')}</label>
-                                                                        <div className="input-group">
-                                                                            <input
-                                                                                type={showAdminPassword ? "text" : "password"}
-                                                                                className="form-control"
-                                                                                id="newAdminPassword"
-                                                                                value={newAdminPassword}
-                                                                                onChange={(e) => setNewAdminPassword(e.target.value)}
-                                                                                placeholder={t("Enter new admin password")}
-                                                                                disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
-                                                                                aria-label="New Admin Password"
-                                                                            />
-                                                                            <button
-                                                                                className="btn btn-link border d-flex align-items-center justify-content-center"
-                                                                                type="button"
-                                                                                onClick={() => setShowAdminPassword(!showAdminPassword)}
-                                                                                disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
-                                                                                aria-label={showAdminPassword ? t("Hide password") : t("Show password")}
-                                                                                style={{ width: '40px', textDecoration: 'none' }}
-                                                                            >
-                                                                                <i className={showAdminPassword ? "bi bi-eye-fill" : "bi bi-eye-slash-fill"}></i>
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="mb-3">
-                                                                        <label htmlFor="newEmployeePassword" className="form-label">{t('New Employee Password (min. 6 characters)')}</label>
-                                                                        <div className="input-group">
-                                                                            <input
-                                                                                type={showEmployeePassword ? "text" : "password"}
-                                                                                className="form-control"
-                                                                                id="newEmployeePassword"
-                                                                                value={newEmployeePassword}
-                                                                                onChange={(e) => setNewEmployeePassword(e.target.value)}
-                                                                                placeholder={t("Enter new employee password")}
-                                                                                disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
-                                                                                aria-label="New Employee Password"
-                                                                            />
-                                                                            <button
-                                                                                className="btn btn-link border d-flex align-items-center justify-content-center"
-                                                                                type="button"
-                                                                                onClick={() => setShowEmployeePassword(!showEmployeePassword)}
-                                                                                disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
-                                                                                aria-label={showEmployeePassword ? t("Hide password") : t("Show password")}
-                                                                                style={{ width: '40px', textDecoration: 'none' }}
-                                                                            >
-                                                                                <i className={showEmployeePassword ? "bi bi-eye-fill" : "bi bi-eye-slash-fill"}></i>
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    {/* Step 1: Send Code Button */}
-                                                                    <button
-                                                                        className="btn btn-secondary"
-                                                                        onClick={handleSavePasswordSettings}
-                                                                        disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
-                                                                    >
-                                                                        {isSendingCode ? 'Sending Code...' : (passwordsExist ? 'Send Code to Reset' : 'Send Code to Set Passwords')}
-                                                                    </button>
-                                                                </>
-                                                            )}
-                                                        </>
-
-
-
-
-
-
-
-
+                                                        <hr />
 
                                                         <div style={{ fontWeight: 'bold' }}>
-                                                            Edit Your Menu:
+                                                            Password Management:
                                                         </div>
-
                                                         <div className="flex justify-start">
-                                                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
-                                                                onClick={() => {
-                                                                    setShowSection('menu')
-                                                                    window.location.hash = `book?store=${data.id}`;
-                                                                }}
+                                                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                                                onClick={() => setPasswordOpen(true)}
                                                             >
-                                                                {/* SVG icon for editing */}
-                                                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L12 18H8v-4l8.768-8.768z" />
-                                                                </svg>
-                                                                Menu Settings
-                                                            </button>
-                                                        </div>
+                                                                <i class="bi bi-printer-fill me-2"></i>
+                                                                Reset Password</button>
 
+                                                        </div>
+                                                        {isPasswordOpen && (
+                                                            <>
+
+                                                                {/* Loading State */}
+                                                                {isCheckingPasswordStatus && (
+                                                                    <div className="text-center text-gray-500">
+                                                                        Checking password status...
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Error/Success Messages */}
+                                                                {passwordError && !isCheckingPasswordStatus && <div className="alert alert-danger">{passwordError}</div>}
+                                                                {passwordSuccess && !isCheckingPasswordStatus && <div className="alert alert-success">{passwordSuccess}</div>}
+
+                                                                {/* Show Reset Button if passwords exist and inputs are hidden */}
+                                                                {passwordsExist === true && !showPasswordInputs && !isCheckingPasswordStatus && (
+                                                                    <button
+                                                                        className="btn btn-warning"
+                                                                        onClick={() => {
+                                                                            setShowPasswordInputs(true);
+                                                                            setPasswordSuccess('');
+                                                                        }}
+                                                                    >
+                                                                        Reset Admin/Employee Passwords
+                                                                    </button>
+                                                                )}
+
+                                                                <hr />
+
+                                                                {/* Inform user if status is unknown or initial check failed */}
+                                                                {passwordsExist === null && !isCheckingPasswordStatus && !passwordError && (
+                                                                    <div className="text-center text-gray-500 mt-3">
+                                                                        Could not determine password status.
+                                                                    </div>
+                                                                )}
+
+
+
+                                                                {/* Show Inputs & Send Code Button if allowed */}
+                                                                {showPasswordInputs && !isCheckingPasswordStatus && (
+                                                                    <>
+                                                                        <div className="mb-3">
+                                                                            <label htmlFor="newAdminPassword" className="form-label">{t('New Admin Password (min. 6 characters)')}</label>
+                                                                            <div className={`input-group ${isMobile ? 'w-full' : 'w-1/2'}`}>
+                                                                                <input
+                                                                                    type={showAdminPassword ? "text" : "password"}
+                                                                                    className="form-control"
+                                                                                    id="newAdminPassword"
+                                                                                    value={newAdminPassword}
+                                                                                    onChange={(e) => setNewAdminPassword(e.target.value)}
+                                                                                    placeholder={t("Enter new admin password")}
+                                                                                    disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                                    aria-label="New Admin Password"
+                                                                                />
+                                                                                <button
+                                                                                    className="btn btn-link border d-flex align-items-center justify-content-center"
+                                                                                    type="button"
+                                                                                    onClick={() => setShowAdminPassword(!showAdminPassword)}
+                                                                                    disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                                    aria-label={showAdminPassword ? t("Hide password") : t("Show password")}
+                                                                                    style={{ width: '40px', textDecoration: 'none' }}
+                                                                                >
+                                                                                    <i className={showAdminPassword ? "bi bi-eye-fill" : "bi bi-eye-slash-fill"}></i>
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="mb-3">
+                                                                            <label htmlFor="newEmployeePassword" className="form-label">{t('New Employee Password (min. 6 characters)')}</label>
+                                                                            <div className={`input-group ${isMobile ? 'w-full' : 'w-1/2'}`}>
+                                                                                <input
+                                                                                    type={showEmployeePassword ? "text" : "password"}
+                                                                                    className="form-control"
+                                                                                    id="newEmployeePassword"
+                                                                                    value={newEmployeePassword}
+                                                                                    onChange={(e) => setNewEmployeePassword(e.target.value)}
+                                                                                    placeholder={t("Enter new employee password")}
+                                                                                    disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                                    aria-label="New Employee Password"
+                                                                                />
+                                                                                <button
+                                                                                    className="btn btn-link border d-flex align-items-center justify-content-center"
+                                                                                    type="button"
+                                                                                    onClick={() => setShowEmployeePassword(!showEmployeePassword)}
+                                                                                    disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                                    aria-label={showEmployeePassword ? t("Hide password") : t("Show password")}
+                                                                                    style={{ width: '40px', textDecoration: 'none' }}
+                                                                                >
+                                                                                    <i className={showEmployeePassword ? "bi bi-eye-fill" : "bi bi-eye-slash-fill"}></i>
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Step 1: Send Code Button */}
+                                                                        <button
+                                                                            className="btn btn-secondary mb-2"
+                                                                            onClick={handleSavePasswordSettings}
+                                                                            disabled={isSendingCode || isVerifyingCode || isEmailModalOpen}
+                                                                        >
+                                                                            {isSendingCode ? 'Sending Code...' : (passwordsExist ? 'Send Code to Reset' : 'Send Code to Set Passwords')}
+                                                                        </button>
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        )}
 
 
                                                         <div style={{ fontWeight: 'bold' }}>

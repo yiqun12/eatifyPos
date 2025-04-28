@@ -169,7 +169,34 @@ const Navbar = () => {
 
   useEffect(() => {
     const path = window.location.pathname; // Get the current URL path
-    if (!user) {
+    console.log("user: ", user)
+    function removeTranslateElement() {
+      // 1. 清空容器
+      const container = document.getElementById('google_translate_element');
+      if (container) {
+        container.innerHTML = '';
+      }
+
+      // 2. 移除翻译脚本
+      const scripts = Array.from(document.getElementsByTagName('script'));
+      scripts.forEach((s) => {
+        if (s.src.includes('translate_a/element.js')) {
+          s.parentNode.removeChild(s);
+        }
+      });
+
+      // 3. 清理全局对象
+      if (window.google && window.google.translate) {
+        delete window.google.translate;
+      }
+      if (window.googleTranslateElementInit) {
+        delete window.googleTranslateElementInit;
+      }
+    }
+
+
+    if (user === null) {
+      removeTranslateElement()
       return;
     }
 
@@ -1976,8 +2003,10 @@ const Navbar = () => {
 
             <div className='flex ml-auto pr-4 '>
               <div className='flex mt-2'>
-
-                <div className='' id="google_translate_element"></div>
+                {user ?
+                  <div className='' id="google_translate_element"></div>
+                  : null
+                }
               </div>
 
               {((location.pathname.includes('/store')) || (location.pathname.includes('/Checkout'))) && (
