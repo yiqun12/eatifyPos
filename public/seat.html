@@ -839,66 +839,77 @@
         top: Math.round(target.top / (grid / 2)) * grid / 2
       })
 
-      if (target.type == 'rect') {
-        // grab the number (the number - 1 is the index in table list)
-        console.log(target)
-        let index = target.number - 1
-        board.table[index].left = target.left
-        board.table[index].top = target.top
-        board.table[index].width = target.width
-        board.table[index].height = target.height
-        board.table[index].scaleX = target.scaleX
-        board.table[index].scaleY = target.scaleY
-        board.table[index].snapAngle = target.snapAngle
-        board.table[index].angle = target.angle
-      }
-      else if (target.type == 'circle') {
-        // grab the number (the number - 1 is the index in table list)
-        let index = target.number - 1
-        board.table[index].left = target.left
-        board.table[index].top = target.top
-        board.table[index].radius = target.radius
-        board.table[index].scaleX = target.scaleX
-        board.table[index].scaleY = target.scaleY
-        board.table[index].snapAngle = target.snapAngle
-        board.table[index].angle = target.angle
+      // Use find method with object's unique ID instead of relying on 'number' property
+      if (target.type == 'rect' || target.type == 'circle') {
+        const tableObjectInBoard = board.table.find(item => item.id === target.id);
+        if (tableObjectInBoard) {
+          tableObjectInBoard.left = target.left;
+          tableObjectInBoard.top = target.top;
+          tableObjectInBoard.scaleX = target.scaleX;
+          tableObjectInBoard.scaleY = target.scaleY;
+          tableObjectInBoard.snapAngle = target.snapAngle;
+          tableObjectInBoard.angle = target.angle;
+          if (target.type === 'rect') {
+            // Note: Fabric group width/height might not directly reflect the inner rect's dimensions after scaling.
+            // Consider storing original dimensions if needed or calculate based on scale.
+            // For now, let's assume target.width/height are what we want to store.
+            tableObjectInBoard.width = target.width * target.scaleX;
+            tableObjectInBoard.height = target.height * target.scaleY;
+          } else { // circle
+             // Similar consideration for radius. Fabric group radius isn't a direct property.
+             // Store original radius or calculate based on scale.
+             // Assuming target.radius holds the value needed (might need adjustment based on Fabric structure)
+            tableObjectInBoard.radius = target.radius * Math.max(target.scaleX, target.scaleY); // Approximation
+          }
+        } else {
+          console.warn(`SnapToGrid: Could not find table with id ${target.id} in board.table`);
+        }
       }
       else if (target.type == 'chair') {
-        // grab the number (the number - 1 is the index in chair list)
-        let index = target.number - 1
-        //console.log(board.chair)
-        //console.log(board.chair)
-        board.chair[index].left = target.left
-        board.chair[index].top = target.top
-        board.chair[index].scaleX = target.scaleX
-        board.chair[index].scaleY = target.scaleY
-        board.chair[index].snapAngle = target.snapAngle
-        board.chair[index].angle = target.angle
+        const chairObjectInBoard = board.chair.find(item => item.id === target.id);
+        if (chairObjectInBoard) {
+          chairObjectInBoard.left = target.left;
+          chairObjectInBoard.top = target.top;
+          chairObjectInBoard.scaleX = target.scaleX;
+          chairObjectInBoard.scaleY = target.scaleY;
+          chairObjectInBoard.snapAngle = target.snapAngle;
+          chairObjectInBoard.angle = target.angle;
+           // Store scaled dimensions
+          chairObjectInBoard.width = target.width * target.scaleX;
+          chairObjectInBoard.height = target.height * target.scaleY;
+        } else {
+          console.warn(`SnapToGrid: Could not find chair with id ${target.id} in board.chair`);
+        }
       }
-      // else if (target.type == 'bar') {
-      //   // grab the number (the number - 1 is the index in bar list)
-      //   let index = target.number - 1
-      //   console.log(target.number)
-      //   board.bar[index].left = target.left
-      //   board.bar[index].top = target.top
-      //   board.bar[index].width = target.width
-      //   board.bar[index].height = target.height
-      //   board.bar[index].scaleX = target.scaleX
-      //   board.bar[index].scaleY = target.scaleY
-      //   board.bar[index].snapAngle = target.snapAngle
-      //   board.bar[index].angle = target.angle
+      // else if (target.type == 'bar') { // Keep commented out as it's commented elsewhere
+      //   const barObjectInBoard = board.bar.find(item => item.id === target.id);
+      //    if (barObjectInBoard) {
+      //       barObjectInBoard.left = target.left;
+      //       barObjectInBoard.top = target.top;
+      //       barObjectInBoard.width = target.width * target.scaleX;
+      //       barObjectInBoard.height = target.height * target.scaleY;
+      //       barObjectInBoard.scaleX = target.scaleX;
+      //       barObjectInBoard.scaleY = target.scaleY;
+      //       barObjectInBoard.snapAngle = target.snapAngle;
+      //       barObjectInBoard.angle = target.angle;
+      //    } else {
+      //       console.warn(`SnapToGrid: Could not find bar with id ${target.id} in board.bar`);
+      //    }
       // }
       else if (target.type == 'wall') {
-        // grab the number (the number - 1 is the index in wall list)
-        let index = target.number - 1
-        board.wall[index].left = target.left
-        board.wall[index].top = target.top
-        board.wall[index].width = target.width
-        board.wall[index].height = target.height
-        board.wall[index].scaleX = target.scaleX
-        board.wall[index].scaleY = target.scaleY
-        board.wall[index].snapAngle = target.snapAngle
-        board.wall[index].angle = target.angle
+        const wallObjectInBoard = board.wall.find(item => item.id === target.id);
+         if (wallObjectInBoard) {
+            wallObjectInBoard.left = target.left;
+            wallObjectInBoard.top = target.top;
+            wallObjectInBoard.width = target.width * target.scaleX;
+            wallObjectInBoard.height = target.height * target.scaleY;
+            wallObjectInBoard.scaleX = target.scaleX;
+            wallObjectInBoard.scaleY = target.scaleY;
+            wallObjectInBoard.snapAngle = target.snapAngle;
+            wallObjectInBoard.angle = target.angle;
+         } else {
+           console.warn(`SnapToGrid: Could not find wall with id ${target.id} in board.wall`);
+         }
       }
 
       // saving the board after moving the object
