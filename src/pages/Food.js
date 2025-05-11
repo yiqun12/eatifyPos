@@ -53,7 +53,7 @@ const customMarkerIcon = L.icon({
 });
 
 const Food = () => {
-  
+
   const directoryType = getGlobalDirectoryType();
 
   async function processPayment() {
@@ -792,7 +792,7 @@ const Food = () => {
 
     return (
 
-      <div style={{ height: 'calc(100vh - 80px)', overflow: 'hidden' }}>
+      <div className="" style={{ height: 'calc(100vh - 80px)', overflow: 'hidden' }}>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
         <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/uber-move-text"></link>

@@ -338,6 +338,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     return () => window.removeEventListener("resize", handleResize);
   }, []);
   const isMobile = width <= 768;
+  const isPC = width >= 1024;
 
 
   const scrollingWrapperRef = useRef(null);
@@ -1376,7 +1377,11 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
               <AnimatePresence>
                 <div className='grid grid-cols-1 gap-3 pt-3 px-2' style={{
                   gridTemplateRows: `repeat(1, 1fr)`,
-                  gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : 'repeat(2, 1fr)',
+                  gridTemplateColumns: isMobile
+                    ? 'repeat(1, 1fr)'
+                    : isPC
+                      ? 'repeat(3, 1fr)'
+                      : 'repeat(2, 1fr)',
                   overflowY: 'auto',
                   maxHeight: `calc(100vh - 370px)`
                 }}>

@@ -544,6 +544,7 @@ function Container(props) {
         const updatedArray = [...prev, containerId];
         if (Number(localStorage.getItem("splitSubtotalCurrentPrice")) == Number(localStorage.getItem("splitSubtotalTotalPrice"))) {
           console.log("✅ All groups are paid!");
+
           // Assuming SetTableInfo and SetTableIsSent are asynchronous and return promises
           // If they are not asynchronous, you can wrap their calls in Promise.resolve to treat them as promises
           const setTableInfoPromise = Promise.resolve(SetTableInfo(store + "-" + selectedTable, "[]"));
@@ -555,6 +556,7 @@ function Container(props) {
           }).catch((error) => {
             console.error("Error executing operations:", error);
           });
+          localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
         }
         return updatedArray;
       });
@@ -940,7 +942,9 @@ function Container(props) {
             <a
               onClick={() => {
                 openUniqueModal();
-
+                setInputValue("")
+                setResult(null);
+                setExtra(0)
               }}
               className="mt-3 btn btn-sm btn-info mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
@@ -962,6 +966,8 @@ function Container(props) {
                       <button style={uniqueModalStyles.closeBtnStyle} onClick={() => {
                         setUniqueModalOpen(false);
                         setInputValue("")
+                        setResult(null);
+                        setExtra(0)
                       }}>
                         &times;
                       </button>

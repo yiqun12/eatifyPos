@@ -66,7 +66,7 @@ import { el } from 'date-fns/locale';
 import e from 'cors';
 import { json } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHandPointer } from '@fortawesome/free-solid-svg-icons';
+import { faHandPointer, faL } from '@fortawesome/free-solid-svg-icons';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { DateTime } from 'luxon';
@@ -714,7 +714,7 @@ const Account = () => {
 
     const timeOptions = generateTimeOptions();
 
-    const [currentTime, setCurrentTime] = useState("23-30"); // Default value as 00-00
+    const [currentTime, setCurrentTime] = useState("23-59"); // Default value as 00-00
 
     // Generate an array of time strings with 30-minute intervals
     const createTimeOptions = () => {
@@ -746,6 +746,15 @@ const Account = () => {
         if (showSection !== 'sales') {
             //return
         }
+        const start_ = convertDateFormat(startDate)
+        console.log("startDate")
+        console.log(start_)
+        console.log("endDate")
+        const end_ = convertDateFormat(endDate ? addDays(endDate, 1) : addDays(startDate, 1))
+        console.log(end_)
+        console.log("2025-04-30-06-55-56-30" < end_)//true
+        console.log("2025-04-30-06-55-56-30" >= start_)//true
+
         const paymentsQueryDelete = query(
             collection(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', activeStoreTab, 'DeletedSendToKitchen'),
             where('date', '>=', convertDateFormat(startDate)),
@@ -753,7 +762,6 @@ const Account = () => {
         );
 
         onSnapshot(paymentsQueryDelete, async (snapshot) => {
-            console.log("new added");
             const newData = snapshot.docs.map((doc) => ({
                 ...doc.data(),
                 id: doc.id,
@@ -761,7 +769,6 @@ const Account = () => {
                 tableNum: doc.data().selectedTable,
                 total: Math.round(doc.data().data.reduce((acc, item) => acc + parseFloat(item.itemTotalPrice), 0) * 100) / 100
             }));
-            console.log("new added");
 
             newData.sort(
                 (a, b) =>
@@ -784,6 +791,7 @@ const Account = () => {
             //setOrders(newItems);
         });
         function addTimeToDateTime(datetimeStr, timeStr) {
+
             // Parse the datetime string
             function parseCustomDateTime(input) {
                 const parts = input.split('-');
@@ -797,13 +805,19 @@ const Account = () => {
             }
 
             // Format the Date object into the custom datetime string
-            function formatCustomDateTime(date) {
+            function formatCustomDateTime(date, timeStr) {
+                console.log("addTimeToDateTime")
+                console.log(timeStr === "23-59")
+
                 const year = date.getFullYear();
                 const month = (date.getMonth() + 1).toString().padStart(2, '0');
                 const day = date.getDate().toString().padStart(2, '0');
                 const hours = date.getHours().toString().padStart(2, '0');
                 const minutes = date.getMinutes().toString().padStart(2, '0');
                 const seconds = date.getSeconds().toString().padStart(2, '0');
+                if (timeStr === "23-59") {
+                    return `${year}-${month}-${day}-${hours}-${minutes}-59-99`;
+                }
                 return `${year}-${month}-${day}-${hours}-${minutes}-${seconds}-00`;
             }
 
@@ -820,7 +834,7 @@ const Account = () => {
             date.setMinutes(date.getMinutes() + additionalMinutes);
 
             // Return the formatted new datetime string
-            return formatCustomDateTime(date);
+            return formatCustomDateTime(date, timeStr);
         }
 
         console.log("bbbbbbbbbbbbb")
@@ -836,13 +850,14 @@ const Account = () => {
         console.log(addTimeToDateTime(convertDateFormat(endDate ? addDays(endDate, 0) : addDays(startDate, 1)), currentTime))
         console.log(addTimeToDateTime(convertDateFormat(startDate), selectedTime))
         onSnapshot(paymentsQuery, async (snapshot) => {
-            console.log("new added");
+            console.log("new adde2");
             const newData = snapshot.docs.map(doc => ({
                 ...doc.data(),
                 intent_ID: doc.data().id,
                 id: doc.id,
             }));
-
+            // console.log("new added");
+            // console.log(newData)
 
             newData.sort((a, b) => moment(b.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf() - moment(a.dateTime, "YYYY-MM-DD-HH-mm-ss-SS").valueOf());
 
@@ -926,14 +941,14 @@ const Account = () => {
             });
             setOrders(newItems);
             saveId(Math.random());
-            console.log(cancelOrder)
+            // console.log(cancelOrder)
             const dailyRevenue = {};
             newItems.forEach(receipt => {
                 const date = receipt.date.split(' ')[0];
                 const revenue = receipt.total;
-                console.log(receipt)
-                console.log(receipt.total)
-                console.log(revenue)
+                // console.log(receipt)
+                // console.log(receipt.total)
+                // console.log(revenue)
                 if (dailyRevenue[date]) {
                     dailyRevenue[date] += revenue;
                 } else {
@@ -1762,7 +1777,9 @@ const Account = () => {
     const [isVisible, setIsVisible] = useState(!isMobile);
 
     const toggleVisibility = () => {
+
         setIsVisible(!isVisible);
+
     };
     const [divHeight, setDivHeight] = useState('calc(100vh - 100px)');
 
@@ -2738,7 +2755,7 @@ const Account = () => {
 
                     </div>
                 )}
-                {isPC ?
+                {isPC && isModalOpenIframe === false ?
                     <div className="d-flex justify-acontent-between mx-3 ">
                         <button onClick={toggleVisibility}>
                             {!isVisible ?
@@ -2746,7 +2763,7 @@ const Account = () => {
 
                                     <button>
                                         <i class="bi bi-bookmarks">  </i>
-                                        Open Side Menu
+                                        Open Side Bar
                                     </button>
 
                                 </div> :
@@ -2755,22 +2772,6 @@ const Account = () => {
                                 </div>
                             }
                         </button>
-                        {/* {//
-              (previousHash.includes('#charts') && storeID !== '') || (previousHash.includes('#code') && storeID !== '') ?
-                <div>
-                  <button
-                    onClick={(e) => {
-                      OpenCashDraw()
-                    }}
-                    className="btn btn-sm btn-info mr-5">
-                    <i className="bi bi-cash-stack pe-2"></i>
-                    Open Cash Drawer
-                  </button>
-                </div>
-                :
-                null
-            } */}
-
                     </div>
                     :
                     <div></div>
@@ -2792,7 +2793,7 @@ const Account = () => {
                                             <div>
                                                 <button>
                                                     <i class="bi bi-backspace">  </i>
-                                                    Hide Side Menu
+                                                    Hide Side Bar
                                                 </button>
 
                                             </div> :

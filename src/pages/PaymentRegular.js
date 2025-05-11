@@ -210,6 +210,7 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
         // Resetting or setting additional state related to the table information
         SetTableInfo(`${storeID}-${selectedTable}`, "[]");
         SetTableIsSent(`${storeID}-${selectedTable}-isSent`, "[]");
+        localStorage.removeItem(`${storeID}-${selectedTable}-isSent_startTime`); // Clear start time
       } else {
         // Actions if no payments are found
         console.log("No successful payments found.");

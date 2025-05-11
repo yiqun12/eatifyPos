@@ -576,7 +576,13 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
     const SendToKitchen = async () => {
         console.log(selectedTable)
         console.log(store)
-
+        // Add logic to save start time if it doesn't exist
+        const startTimeKey = `${store}-${selectedTable}-isSent_startTime`;
+        const currentCart = localStorage.getItem(`${store}-${selectedTable}`);
+        if (!localStorage.getItem(startTimeKey) && currentCart && currentCart !== '[]') {
+            localStorage.setItem(startTimeKey, Date.now().toString());
+            console.log(`Saved start time for ${selectedTable}: ${startTimeKey}`);
+        }
         try {
             if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
                 if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
@@ -746,13 +752,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                     setIsVisible(true)
                                                                 }
                                                                 SendToKitchen();
-                                                                // Add logic to save start time if it doesn't exist
-                                                                const startTimeKey = `${store}-${selectedTable}-isSent_startTime`;
-                                                                const currentCart = localStorage.getItem(`${store}-${selectedTable}`);
-                                                                if (!localStorage.getItem(startTimeKey) && currentCart && currentCart !== '[]') {
-                                                                    localStorage.setItem(startTimeKey, Date.now().toString());
-                                                                    console.log(`Saved start time for ${selectedTable}: ${startTimeKey}`);
-                                                                }
+
                                                             }}
                                                             className="btn btn-sm btn-primary mx-1" style={{ backgroundColor: '#007bff', borderColor: '#007bff' }}>
                                                             Print and Back
@@ -766,7 +766,6 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                 <div>
                                                                     {/* 移动版购物车样式 */}
                                                                     <div style={{
-                                                                        backgroundColor: '#e9f7ff', // 浅蓝色背景
                                                                         padding: '1rem',
                                                                         borderBottom: '1px solid #dee2e6',
                                                                         marginBottom: '0.5rem'
@@ -782,6 +781,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                             openSplitPaymentModal={openSplitPaymentModal}
                                                                             TaxRate={TaxRate}
                                                                             startTime={`1744625303617`}
+                                                                            
                                                                         />
                                                                     </div>
                                                                     {/* 移动版菜单样式 */}
@@ -821,11 +821,12 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                     :
                                                     <div className="modal-body flex p-0" style={{ minHeight: 'calc(100vh - 150px)' }} >
 
-                                                        <div className='w-1/2' style={{
-                                                            backgroundColor: '#ffffff', // 菜单区保持白色
-                                                            padding: '1rem',
-                                                            borderRight: '1px solid #dee2e6' // 稍明显的灰色分隔线
-                                                        }}>
+                                                        <div
+                                                            className={`${isPC ? 'w-2/3' : 'w-1/2'}`} style={{
+                                                                backgroundColor: '#ffffff', // 菜单区保持白色
+                                                                padding: '1rem',
+                                                                borderRight: '1px solid #dee2e6' // 稍明显的灰色分隔线
+                                                            }}>
                                                             <InStore_food
                                                                 setIsVisible={setIsVisible}
                                                                 OpenChangeAttributeModal={OpenChangeAttributeModal}
@@ -834,10 +835,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                 setIsAllowed={setIsAllowed}
                                                                 store={store} selectedTable={selectedTable}></InStore_food>
                                                         </div>
-                                                        <div className='w-1/2' style={{
-                                                            backgroundColor: '#e9f7ff', // 购物车区域使用柔和的浅蓝色
-                                                            padding: '1rem'
-                                                        }}>
+                                                        <div className={`${isPC ? 'w-1/3' : 'w-1/2'} bg-gray-100`} >
                                                             <InStore_shop_cart
                                                                 OpenChangeAttributeModal={OpenChangeAttributeModal}
                                                                 setOpenChangeAttributeModal={setOpenChangeAttributeModal}
@@ -846,6 +844,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                 store={store} acct={acct} selectedTable={selectedTable}
                                                                 openSplitPaymentModal={openSplitPaymentModal}
                                                                 TaxRate={TaxRate}
+                                                                startTime={`1744625303617`}
 
                                                             ></InStore_shop_cart>
                                                         </div>

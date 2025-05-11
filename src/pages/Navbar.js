@@ -79,18 +79,18 @@ const Navbar = () => {
   useEffect(() => {
     const updateClock = () => {
       try {
-        // Use luxon with the current timeZone state
         const now = DateTime.now().setZone(timeZone);
-        // Explicitly set locale to en-US for English format
-        setCurrentTimeDisplay(now.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS));
+        // 用 .toFormat 自定义 token
+        const formatted = now.toFormat('M/d HH:mm:ss');
+        setCurrentTimeDisplay(formatted);
       } catch (error) {
-        // Fallback if timezone is invalid
         console.error("Invalid timezone, using local time:", error);
         const now = DateTime.now();
-        // Also apply locale here for consistency on fallback
-        setCurrentTimeDisplay(now.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS));
+        const formatted = now.toFormat('M/d HH:mm:ss');
+        setCurrentTimeDisplay(formatted);
       }
     };
+
 
     updateClock(); // Initial update
     const timerId = setInterval(updateClock, 1000); // Update every second
@@ -2002,7 +2002,7 @@ const Navbar = () => {
               : null}
 
             <div className='flex ml-auto pr-4 '>
-              <div className='flex mt-2'>
+              <div className='flex mt-1'>
                 {user ?
                   <div className='' id="google_translate_element"></div>
                   : null
@@ -2101,10 +2101,16 @@ const Navbar = () => {
                   )
                 )
               }
+
               {!isMobile && window.location.pathname.includes('/account') && user ?
-                <div className="ml-3 mt-1 text-lg notranslate">
-                  {currentTimeDisplay}
-                </div> :
+                <div className="ml-3 " style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}>
+                  <i className="bi bi-calendar3"></i>
+                  <span
+                    className="ml-1 notranslate">
+                    {currentTimeDisplay}
+                  </span>
+                </div>
+                :
                 <div></div>
 
               }

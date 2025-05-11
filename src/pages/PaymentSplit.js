@@ -200,6 +200,7 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
             SetTableInfo(storeID + "-" + selectedTable, "[]")
             SetTableIsSent(storeID + "-" + selectedTable + "-isSent", "[]")
           }
+          localStorage.removeItem(`${storeID}-${selectedTable}-isSent_startTime`); // Clear start time
           return updatedArray;
         });
 

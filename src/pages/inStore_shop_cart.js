@@ -94,6 +94,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Total", output: "总额" },
     { input: "Discount", output: "折扣" },//Disc
     { input: "Disc.", output: "折扣" },//Disc
+    { input: "Duration", output: "用餐时长" },//Disc
+    { input: "Start", output: "开始时间" },//Disc
     { input: "Service Fee", output: "服务费" },//Tips
     { input: "Tips", output: "小费" },
     { input: "Gratuity", output: "小费" },
@@ -153,16 +155,18 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     const updateDuration = () => {
       const startTimeKey = `${store}-${selectedTable}-isSent_startTime`;
       const startTimeValue = localStorage.getItem(startTimeKey);
+      if (startTimeValue && !isNaN(parseInt(startTimeValue))) {
+        console.log("updateDuration")
 
-      if (startTimeValue && !isNaN(parseInt(startTimeValue)) && products.length > 0) {
         const startTime = parseInt(startTimeValue);
         const now = Date.now();
         const durationMs = now - startTime;
 
         const hours = Math.floor(durationMs / (1000 * 60 * 60));
         const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
 
-        const formattedDuration = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        const formattedDuration = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         setDiningDuration(formattedDuration);
 
         // Format and set start time display
@@ -189,7 +193,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     const startTimeKey = `${store}-${selectedTable}-isSent_startTime`;
     const startTimeValue = localStorage.getItem(startTimeKey);
     if (startTimeValue && !isNaN(parseInt(startTimeValue)) && products.length > 0) {
-        intervalId = setInterval(updateDuration, 30000); // Update every 30 seconds
+      intervalId = setInterval(updateDuration, 1000); // Update every 30 seconds
     }
 
     // Cleanup function
@@ -198,7 +202,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         clearInterval(intervalId);
       }
     };
-  }, [store, selectedTable, products]); // Rerun when store, table, or products change
+  }, [products, id]); // Rerun when store, table, or products change
 
   const toggleAllowance = () => {
     console.log(isAllowed)
@@ -397,6 +401,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   };
 
   const SendToKitchen = async () => {
+    // Add logic to save start time if it doesn't exist
+    const startTimeKey = `${store}-${selectedTable}-isSent_startTime`;
+    const currentCart = localStorage.getItem(`${store}-${selectedTable}`);
+    if (!localStorage.getItem(startTimeKey) && currentCart && currentCart !== '[]') {
+      localStorage.setItem(startTimeKey, Date.now().toString());
+      console.log(`Saved start time for ${selectedTable}: ${startTimeKey}`);
+    }
     try {
 
       if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
@@ -414,23 +425,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     }
   }
 
-  const SendToKitchenMarkAsUnPaid = async () => {
 
-    try {
-      if (localStorage.getItem(store + "-" + selectedTable) === null || localStorage.getItem(store + "-" + selectedTable) === "[]") {
-        if (localStorage.getItem(store + "-" + selectedTable + "-isSent") === null || localStorage.getItem(store + "-" + selectedTable + "-isSent") === "[]") {
-          console.log("//no item in the array no item isSent.")
-          return //no item in the array no item isSent.
-        } else {//delete all items
-        }
-      }
-      compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
-      SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]")
-
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
-  }
   const [arrEmpty, setArrEmpty] = useState([]);
   const [arrOccupied, setArrOccupied] = useState([]);
 
@@ -568,6 +563,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   }
 
   const MarkAsUnPaid = async () => {
+
     let extra_tip = 0
     try {
       const dateTime = new Date().toISOString();
@@ -578,7 +574,6 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         setInputValue("")
         setDiscount("")
         setTips("")
-        localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
         return
       }
       // Wrap the addDoc call in a promise
@@ -660,8 +655,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setProducts([]);
       setExtra(0)
       setInputValue("")
-      setDiscount("")
       setTips("")
+      setDiscount("")
       localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
 
     } catch (e) {
@@ -1021,15 +1016,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   }
 
   const mergeProduct = async (table_name) => {
-    //table_name is mergeTo
-    //selectedTable should be selectedTable
-    // console.log("saijdoaewjdioaw")
-    // console.log(JSON.stringify(groupAndSumItems(
-    //   [...JSON.parse(localStorage.getItem(`${store}-${selectedTable}`)), ...JSON.parse(localStorage.getItem(`${store}-${table_name}`))]
-    // )))
-    // console.log( )
-    // console.log(localStorage.getItem(store + "-" + selectedTable + "-isSent"))
-    // console.log(localStorage.getItem(store + "-" + table_name + "-isSent"))
+    ///combine toble
+
+
     SetTableInfo_(`${store}-${table_name}`, JSON.stringify(groupAndSumItems(
       [...JSON.parse(localStorage.getItem(`${store}-${selectedTable}`)), ...JSON.parse(localStorage.getItem(`${store}-${table_name}`))]
     )))
@@ -1037,9 +1026,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     SetTableIsSent(`${store}-${table_name}-isSent`, JSON.stringify(groupAndSumItems(
       [...JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), ...JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent"))])
     ))
-    //localStorage.setItem(`${store}-${table_name}-isSent`,JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")),JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent")))))
     SetTableIsSent(`${store}-${selectedTable}-isSent`, JSON.stringify([]))
-    //localStorage.setItem(`${store}-${selectedTable}-isSent`,JSON.stringify([]))
 
   };
 
@@ -1056,60 +1043,89 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       console.error("Error adding document: ", error);
     }
   };
+  //   {startTimeDisplay && (
+  //     <div className={`${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+  //       Start time: <span className="notranslate text-blue-600">{startTimeDisplay}</span>
+  //     </div>
+  //   )}
 
+  //   {/* Display Dining Duration */}
+  // {diningDuration && (
+  //   <div className={`${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+  //     Elapsed time: <span className="notranslate text-green-600">{diningDuration}</span>
+  //   </div>
+  // )}
   // console.log("Products from instroe_shop_cart", products)
   return (
 
     <div>
 
       <div class=''>
-        <div className="flex w-full">
-          <div className={`flex-grow  ${!isMobile ? 'm-6' : 'm-2'}`} >
-            <div className="mb-1 bg-gray-100 p-4 rounded-lg space-y-3">
-              <div className="flex justify-between w-full">
-                <div className="text-left">
-                  {(extra !== null && extra !== 0) && (
-                    <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
-                      {fanyi("Tips")}: <span className="notranslate text-green-600">${stringTofixed(Math.round((extra) * 100) / 100)}</span>
-                    </div>
-                  )}
+        <div className="mb-1 p-2 border-b-2 bg-white space-y-3">
+          <div className="flex justify-between w-full">
+            <div className="text-left">
+              {startTimeDisplay && (
+                <div className={`${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                  {fanyi("Start")}: <span className="notranslate">{startTimeDisplay}</span>
                 </div>
-                <div className="text-left">
-                  <div className={`text-right notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
-                    {fanyi("Subtotal")}: <span className="notranslate text-blue-600">${stringTofixed(Math.round(100 * totalPrice) / 100)}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-between w-full">
-                <div className="text-left">
-                  {tips && (
-                    <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
-                      {fanyi("Tips")}: <span className="notranslate text-green-600">${stringTofixed(tips)}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="text-left">
-                  <div className={`text-right notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
-                    {fanyi("Tax")} ({Number(TaxRate)})%: <span className="notranslate text-blue-600">${stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100))}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-between w-full">
-                <div className="text-left">
-                  {discount && (
-                    <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
-                      {fanyi("Disc.")}: <span className="notranslate text-red-600">${stringTofixed(discount)}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="text-left">
-                  <div className={`text-right notranslate ${!isMobile ? 'text-lg font-bold' : 'font-semibold'}`}>
-                    {fanyi("Total")}: <span className="notranslate text-red-600">${stringTofixed(finalPrice)}</span>
-                  </div>
-                </div>
-              </div>
-
+              )}
             </div>
+            <div className="text-left">
+              {diningDuration && (
+                <div className={`${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                  {fanyi("Duration")}: <span className="notranslate">{diningDuration}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex justify-between w-full">
+            <div className="text-left">
+              {(extra !== null && extra !== 0) && (
+                <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                  {fanyi("Tips")}: <span className="notranslate text-green-600">${stringTofixed(Math.round((extra) * 100) / 100)}</span>
+                </div>
+              )}
+            </div>
+            <div className="text-left">
+              <div className={`text-right notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                {fanyi("Subtotal")}: <span className="notranslate text-blue-600">${stringTofixed(Math.round(100 * totalPrice) / 100)}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-between w-full">
+            <div className="text-left">
+              {tips && (
+                <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                  {fanyi("Service Fee")}: <span className="notranslate text-green-600">${stringTofixed(tips)}</span>
+                </div>
+              )}
+            </div>
+            <div className="text-left">
+              <div className={`text-right notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                {fanyi("Tax")}:<span className="notranslate text-blue-600">${stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100))}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-between w-full">
+            <div className="text-left">
+              {discount && (
+                <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
+                  {fanyi("Disc.")}: <span className="notranslate text-red-600">${stringTofixed(discount)}</span>
+                </div>
+              )}
+            </div>
+            <div className="text-left">
+              <div className={`text-right notranslate ${!isMobile ? 'text-lg font-bold' : 'font-semibold'}`}>
+                {fanyi("Total")}: <span className="notranslate text-red-600">${stringTofixed(finalPrice)}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div className="flex w-full">
+
+          <div className={`flex-grow  ${!isMobile ? 'm-2' : 'm-2'}`} >
+
             <div style={{ overflowY: 'auto', height: `calc(100vh - 325px)` }} >
               {(Array.isArray(products) ? products : []).map((product) => (
                 // the parent div
@@ -1201,22 +1217,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
           </div>
           <div className='flex flex-col space-y-2' style={isMobile ? { minWidth: "120px" } : { minWidth: "150px" }}>
-            {/* Display Start Time */} 
-            {startTimeDisplay && (
-              <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
-                Start times: <span className="notranslate text-blue-600">{startTimeDisplay}</span>
-              </div>
-            )}
-
-            {/* Display Dining Duration */}
-            {diningDuration && (
-                <div className={`notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
-                  Meal times: <span className="notranslate text-green-600">{diningDuration}</span>
-                </div>
-            )}
+            {/* Display Start Time */}
             <a
-              onClick={() => { setChangeTableModal(true) }}
-              className="mt-3 btn btn-sm btn-link mx-1 border-black"
+              onClick={() => { SendToKitchen(); setChangeTableModal(true); }}
+              className="mt-3 bg-white btn btn-sm btn-link mx-1 border-black"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
 
@@ -1282,8 +1286,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <span className='notranslate'>{fanyi("Split Payment")}</span>
             </a>
             <a
-              onClick={() => { SendToKitchenMarkAsUnPaid(); MarkAsUnPaid(); }}
-              className="mt-3 btn btn-sm btn-outline-danger mx-1"
+              onClick={() => { SendToKitchen(); MarkAsUnPaid(); }}
+              className="mt-3 bg-white btn btn-sm btn-outline-danger mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
 
@@ -1299,7 +1303,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
             </a>
 
             <a
-              onClick={() => { openUniqueModal(); SendToKitchen() }}
+              onClick={() => {
+                openUniqueModal(); SendToKitchen();
+                setInputValue("")
+                setResult(null);
+                setExtra(0)
+
+
+              }}
               className="mt-3 btn btn-sm btn-info mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -1332,6 +1343,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                     <button style={uniqueModalStyles.closeBtnStyle} onClick={() => {
                       setUniqueModalOpen(false);
                       setInputValue("")
+                      setResult(null);
+                      setExtra(0)
                     }}>
                       &times;
                     </button>
@@ -1523,7 +1536,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                       <button
                         type="button"
                         className="btn btn-primary mb-2 mr-2 notranslate"
-                        onClick={() => { mergeProduct(option); setChangeTableModal(false); }}
+                        onClick={() => {
+                          mergeProduct(option); setChangeTableModal(false);
+                          localStorage.setItem(`${store}-${option}-isSent_startTime`, localStorage.getItem(`${store}-${selectedTable}-isSent_startTime`)); // Clear start time
+                          localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
+                        }}
                         style={{ backgroundColor: '#966f33' }}
                       >
                         {option}
@@ -1537,7 +1554,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                       <button
                         type="button"
                         className="btn btn-primary mb-2 mr-2 notranslate"
-                        onClick={() => { mergeProduct(option); setChangeTableModal(false); }}
+                        onClick={() => {
+                          mergeProduct(option); setChangeTableModal(false);
+                          localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
+                        }}
                       >
                         {option}
                       </button>
