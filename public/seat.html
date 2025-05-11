@@ -998,7 +998,7 @@
               const tableKey = key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length)
               //highlightTable('A1', 'rgba(0, 0, 0, 0.7)')//original brown
               //alert(tableKey.slice(0, -"isSent".length - 1)==="A1")
-              highlightTable(tableKey.slice(0, -"isSent".length - 1), 'rgba(140, 40, 40, 0.7)')//original brown
+              highlightTable(tableKey.slice(0, -"isSent".length - 1), 'rgba(150, 111, 51, 0.7)')//original brown //'rgba(140, 40, 40, 0.7)'
             } else {
               //alert(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length))
               highlightTable(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(150, 111, 51, 0.7)')//original brown
@@ -1021,7 +1021,7 @@
           if (localStorage.getItem(event.key + "_startTime") !== null) {// starttime exist
             const tableKey = event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length)
 
-            highlightTable(tableKey.slice(0, -"isSent".length - 1), 'rgba(140, 40, 40, 0.7)')//original brown
+            highlightTable(tableKey.slice(0, -"isSent".length - 1), 'rgba(150, 111, 51, 0.7)')//original brown
           } else {
             //alert(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length))
             highlightTable(event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(150, 111, 51, 0.7)')//original brown

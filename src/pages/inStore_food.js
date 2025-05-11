@@ -1016,7 +1016,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                       style={{ whiteSpace: 'nowrap', "display": "inline" }}
                       onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
                     >
-                      Add <span
+                      Confirm to Add <span
                         className='notranslate'>{customVariant.name}</span>
                     </button>
                     <br>
