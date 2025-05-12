@@ -1621,9 +1621,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 setTipsModalOpen(false);
               }}
               onQuickAmountClick={(amount) => {
-                // Convert dollar amount to percentage of totalPrice
-                const calculatedTip = (amount / 100 * totalPrice).toFixed(2);
-                setTips(calculatedTip);
+                // 直接使用按钮上的金额值
+                setTips(amount.toString());
               }}
             >
               <div>
@@ -1688,9 +1687,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 setDiscountModalOpen(false);
               }}
               onQuickAmountClick={(amount) => {
-                // Convert dollar amount to percentage of totalPrice
-                const calculatedDiscount = (amount / 100 * totalPrice).toFixed(2);
-                setDiscount(calculatedDiscount);
+                // 直接使用按钮上的金额值
+                setDiscount(amount.toString());
               }}
             >
               <div>

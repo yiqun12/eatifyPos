@@ -821,8 +821,8 @@ function Container(props) {
                   setTipsModalOpen(false);
                 }}
                 onQuickAmountClick={(amount) => {
-                  const calculatedTip = (amount / 100 * subtotal).toFixed(2);
-                  setTips(calculatedTip);
+                  // 直接使用按钮上的金额值
+                  setTips(amount.toString());
                 }}
               >
                 <div>
@@ -899,9 +899,8 @@ function Container(props) {
                   setDiscountModalOpen(false);
                 }}
                 onQuickAmountClick={(amount) => {
-                  // Convert dollar amount to percentage of subtotal
-                  const calculatedDiscount = (amount / 100 * subtotal).toFixed(2);
-                  setDiscount(calculatedDiscount);
+                  // 直接使用按钮上的金额值
+                  setDiscount(amount.toString());
                 }}
               >
                 <div>
