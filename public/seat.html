@@ -1023,13 +1023,17 @@
           //alert(localStorage.getItem(event.key + "_startTime"))
         } else {
           if (localStorage.getItem(event.key + "_startTime") !== null) {// starttime exist
-            const tableKey = event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length)
-
-            highlightTable(tableKey.slice(0, -"isSent".length - 1), 'rgba(150, 111, 51, 0.7)')//original brown
-          } else {
-            //alert(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length))
-            highlightTable(event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(150, 111, 51, 0.7)')//original brown
-          }
+              const tableKey = event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length)
+              highlightTable(tableKey, 'rgba(0, 0, 0, 0.7)')//original brown
+              //alert(tableKey.slice(0, -"isSent".length - 1)==="A1")
+              // highlightTable(tableKey.slice(0, -"isSent".length - 1), 'rgba(150, 111, 51, 0.7)')//original brown //'rgba(140, 40, 40, 0.7)'
+            } else if (localStorage.getItem(event.key + "-isSent_startTime") !== null) {
+              const tableKey = event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length)
+              highlightTable(tableKey, 'rgba(0, 0, 0, 0.7)')//original brown
+            } else {
+              //alert(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length))
+              highlightTable(event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(150, 111, 51, 0.7)')//original brown
+            }
         }
       }
     });
