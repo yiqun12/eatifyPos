@@ -10,3 +10,66 @@
     -webkit-appearance: none;
     margin: 0;
 }
+
+/* Shopping cart item styles */
+.cart-item {
+    transition: all 0.2s ease-in-out;
+    border-left: 3px solid transparent;
+}
+
+.cart-item:hover {
+    border-left-color: #4299e1;
+    background-color: #f9fafb;
+}
+
+/* Product title style */
+.product-title {
+    font-weight: 500;
+    color: #1a202c;
+}
+
+/* Price Style */
+.product-price {
+    font-weight: 600;
+    color: #3182ce;
+}
+
+/* Quantity Controller Style */
+.quantity-control {
+    border-radius: 9999px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+}
+
+.quantity-control button {
+    width: 32px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f7fafc;
+    transition: background-color 0.2s;
+}
+
+.quantity-control button:hover {
+    background-color: #edf2f7;
+}
+
+.quantity-control span {
+    width: 36px;
+    text-align: center;
+    font-size: 15px;
+    background-color: white;
+}
+
+/* Delete button style */
+.delete-btn {
+    color: #a0aec0;
+    transition: color 0.2s;
+}
+
+.delete-btn:hover {
+    color: #e53e3e;
+}

@@ -1146,85 +1146,63 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               {(Array.isArray(products) ? products : []).map((product) => (
                 // the parent div
                 // can make the parent div flexbox
-                <div>
-                  <div className='flex'>
-                    <DeleteSvg className='mt-2 ml-1 mr-2'
+                <div className="cart-item bg-white rounded-lg shadow-sm p-2 mb-2">
+                  <div className='flex items-center'>
+                    <DeleteSvg className='delete-btn mt-1 ml-1 mr-3 cursor-pointer'
                       onClick={() => {
                         handleDeleteClick(product.id, product.count)
                       }}></DeleteSvg>
-                    <div className={`flex justify-between w-full mb-1 ${!isMobile ? 'text-lg' : ''} notranslate`}>
-                      <span>
+                    <div className={`flex justify-between w-full ${!isMobile ? 'text-lg' : ''} notranslate`}>
+                      <span className="product-title">
                         {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
                       </span>
-                      <span>${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}</span>
+                      <span className="product-price">${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}</span>
                     </div>
-
-
-
                   </div>
-                  <div className='items-center'>
-                    <div>
-                      <span class="notranslate">
+                  
+                  <div className='pl-8 mt-1'>
+                    <div className="mb-2">
+                      <span className="notranslate text-gray-600 text-sm">
                         {Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}
                       </span>
                     </div>
 
-                    <div className="quantity p-0"
-                      style={{ marginRight: "0px", display: "flex", justifyContent: "space-between" }}>
+                    <div className="quantity flex justify-between items-center">
                       <a
                         onClick={() => {
                           setOpenChangeAttributeModal(product)
                         }}
-                        class="btn d-inline-flex btn-sm btn-outline-dark mx-1">
+                        className="btn btn-sm btn-outline-dark mx-1 px-3 py-1 text-sm hover:bg-gray-200 transition-colors">
                         <span>Revise</span>
                       </a>
 
-                      {/* the add minus box set up */}
-                      <div style={{ display: "flex" }}>
+                      {/* 数量控制器 */}
+                      <div className="quantity-control">
+                        {/* 减少按钮 */}
+                        <button className="minus-btn" type="button" name="button"
+                          onClick={() => {
+                            if (product.quantity === 1) {
+                              handleDeleteClick(product.id, product.count);
+                            } else {
+                              handleMinusClick(product.id, product.count)
+                            }
+                          }}>
+                          <MinusSvg style={{ width: '12px', height: '12px' }} alt="" />
+                        </button>
 
-                        {/* the start of minus button set up */}
-                        <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderLeft: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "12rem 0 0 12rem", height: "30px" }}>
-                          <button className="minus-btn" type="button" name="button" style={{ margin: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                            onClick={() => {
-                              if (product.quantity === 1) {
-                                handleDeleteClick(product.id, product.count);
-                              } else {
-                                handleMinusClick(product.id, product.count)
-                              }
-                            }}>
-                            <MinusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                          </button>
-                        </div>
-                        {/* the end of minus button set up */}
+                        {/* 数量显示 */}
+                        <span className='notranslate'>{product.quantity}</span>
 
-                        { /* start of the quantity number */}
-                        <span
-                          className='notranslate'
-                          type="text"
-                          style={{ width: '30px', height: '30px', fontSize: '17px', alignItems: 'center', justifyContent: 'center', borderTop: "1px solid", borderBottom: "1px solid", display: "flex", padding: '0px' }}
-                        >{product.quantity}</span>
-                        { /* end of the quantity number */}
-
-                        { /* start of the add button */}
-                        <div className="black_hover" style={{ padding: '4px', alignItems: 'center', justifyContent: 'center', display: "flex", borderRight: "1px solid", borderTop: "1px solid", borderBottom: "1px solid", borderRadius: "0 12rem 12rem 0", height: "30px" }}>
-                          <button className="plus-btn" type="button" name="button" style={{ marginTop: '0px', width: '20px', height: '20px', alignItems: 'center', justifyContent: 'center', display: "flex" }}
-                            onClick={() => {
-                              handlePlusClick(product.id, product.count)
-                            }}>
-                            <PlusSvg style={{ margin: '0px', width: '10px', height: '10px' }} alt="" />
-                          </button>
-                        </div>
-                        { /* end of the add button */}
+                        {/* 增加按钮 */}
+                        <button className="plus-btn" type="button" name="button"
+                          onClick={() => {
+                            handlePlusClick(product.id, product.count)
+                          }}>
+                          <PlusSvg style={{ width: '12px', height: '12px' }} alt="" />
+                        </button>
                       </div>
-                      { /* end of the add minus setup*/}
                     </div>
-
-                    {/* end of quantity */}
-
-
-
                   </div>
-                  <hr></hr>
                 </div>
 
               ))}
