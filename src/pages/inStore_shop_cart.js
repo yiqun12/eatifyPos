@@ -1327,7 +1327,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
         <div className="flex flex-col flex-row">
           {isUniqueModalOpen && (
-            <div id="addTipsModal notranslate" className="modal fade show"
+            <div id="addTipsModal notranslate" className="modal fade show "
               style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
               <div className="modal-dialog">
                 <div className="modal-content">
@@ -1349,115 +1349,118 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                       &times;
                     </button>
                   </div>
-                  <div className="modal-body pt-0">
-                    <p className="mb-2">{fanyi("Enter the Cash Received")}</p>
-                    <input
-                      type="text" // 使用 text 但限制输入内容
-                      value={inputValue}
-                      onChange={handleChange}
-                      style={uniqueModalStyles.inputStyle}
-                      className="mb-4 p-2 w-full border rounded-md"
-                      translate="no"
-                    />
-                    <button
-                      onClick={calculateResult}
-                      style={uniqueModalStyles.buttonStyle}
-                      className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
-                    >
-                      {fanyi("Calculate Give Back Cash")}
-                    </button>
-                    {errorMessage && (
-                      <div className="text-red-500 font-semibold mt-2">
-                        {errorMessage}
-                      </div>
-                    )}
-                    <p className="mb-4 mt-4">{fanyi("Gratuity")}:</p>
-                    <div className="flex justify-between mb-4">
-                      <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
-                        15%
-                      </button>
-                      <button onClick={() => { calculateExtra(18); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mx-1">
-                        18%
-                      </button>
-                      <button onClick={() => { calculateExtra(20); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        20%
-                      </button>
-                      <button onClick={() => { calculateExtra(0); setCustomAmountVisible(false) }} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        0
-                      </button>
-                      <button onClick={toggleCustomAmountVisibility} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        {fanyi("Other")}
-                      </button>
-                    </div>
 
-                    {isCustomAmountVisible && (
-                      <div className='notranslate'>
-                        <p className="mb-2">{fanyi("Custom Gratuity")}:</p>
-                        <div className="flex">
-                          <input
-                            type="text"
-                            value={customAmount}
-                            onChange={handleCustomAmountChange}
-                            style={uniqueModalStyles.inputStyle}
-                            className="p-2 w-full border rounded-md mr-2"
-                          />
-                          <button
-                            onClick={() => calculateCustomAmount(customAmount)}
-                            className="bg-orange-500 text-white p-2 rounded-md w-1/3"
-                          >
-                            {fanyi("Add")}
-                          </button>
+                  <div className="flex flex-row">
+                    <div className="modal-body pt-0">
+                      <p className="mb-2">{fanyi("Enter the Cash Received")}</p>
+                      <input
+                        type="text" // 使用 text 但限制输入内容
+                        value={inputValue}
+                        onChange={handleChange}
+                        style={uniqueModalStyles.inputStyle}
+                        className="mb-4 p-2 w-full border rounded-md"
+                        translate="no"
+                      />
+                      <button
+                        onClick={calculateResult}
+                        style={uniqueModalStyles.buttonStyle}
+                        className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
+                      >
+                        {fanyi("Calculate Give Back Cash")}
+                      </button>
+                      {errorMessage && (
+                        <div className="text-red-500 font-semibold mt-2">
+                          {errorMessage}
                         </div>
+                      )}
+                      <p className="mb-4 mt-4">{fanyi("Gratuity")}:</p>
+                      <div className="flex justify-between mb-4">
+                        <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                          15%
+                        </button>
+                        <button onClick={() => { calculateExtra(18); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                          18%
+                        </button>
+                        <button onClick={() => { calculateExtra(20); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                          20%
+                        </button>
+                        <button onClick={() => { calculateExtra(0); setCustomAmountVisible(false) }} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                          0
+                        </button>
+                        <button onClick={toggleCustomAmountVisibility} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                          {fanyi("Other")}
+                        </button>
                       </div>
-                    )}
 
-                    {(extra !== null && extra !== 0) && (
-                      <p className="">{fanyi("Gratuity")}: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
-                    )}
-                    <p className="mt-1">{fanyi("Receivable Payment")}: <span className='notranslate'>${finalPrice}</span> </p>
+                      {isCustomAmountVisible && (
+                        <div className='notranslate'>
+                          <p className="mb-2">{fanyi("Custom Gratuity")}:</p>
+                          <div className="flex">
+                            <input
+                              type="text"
+                              value={customAmount}
+                              onChange={handleCustomAmountChange}
+                              style={uniqueModalStyles.inputStyle}
+                              className="p-2 w-full border rounded-md mr-2"
+                            />
+                            <button
+                              onClick={() => calculateCustomAmount(customAmount)}
+                              className="bg-orange-500 text-white p-2 rounded-md w-1/3"
+                            >
+                              {fanyi("Add")}
+                            </button>
+                          </div>
+                        </div>
+                      )}
 
-                    {result !== null && (
-                      <div>
-                        <p className="mt-1 mb-4 ">
-                          {fanyi("Give Back Cash")}: <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
-                        </p>
-                        <button
-                          onClick={() => {
-                            setCustomAmount(Math.round((result - finalPrice) * 100) / 100); calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
-                            CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
-                              inputValue);
+                      {(extra !== null && extra !== 0) && (
+                        <p className="">{fanyi("Gratuity")}: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
+                      )}
+                      <p className="mt-1">{fanyi("Receivable Payment")}: <span className='notranslate'>${finalPrice}</span> </p>
 
-                            closeUniqueModal();
-                          }}
-                          style={uniqueModalStyles.buttonStyle}
-                          className="notranslate mt-2 mb-2 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
-                        >
-                          {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
-                          {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
-                          {fanyi("Gratuity")}.
-                          {/* {fanyi("Add return cash as a gratuity")} (
+                      {result !== null && (
+                        <div>
+                          <p className="mt-1 mb-4 ">
+                            {fanyi("Give Back Cash")}: <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
+                          </p>
+                          <button
+                            onClick={() => {
+                              setCustomAmount(Math.round((result - finalPrice) * 100) / 100); calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
+                              CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
+                                inputValue);
+
+                              closeUniqueModal();
+                            }}
+                            style={uniqueModalStyles.buttonStyle}
+                            className="notranslate mt-2 mb-2 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
+                          >
+                            {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
+                            {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
+                            {fanyi("Gratuity")}.
+                            {/* {fanyi("Add return cash as a gratuity")} (
                           {fanyi("Total")}:
 
                           <span className='notranslate'>${Math.round((result - finalPrice + extra) * 100) / 100}</span>
                           {fanyi("and finalize")} */}
-                        </button>
+                          </button>
 
-                      </div>
-                    )}
-                    <button
-                      onClick={() => {
-                        CashCheckOut(extra, stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
-                          finalPrice);
-                        closeUniqueModal();
+                        </div>
+                      )}
+                      <button
+                        onClick={() => {
+                          CashCheckOut(extra, stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
+                            finalPrice);
+                          closeUniqueModal();
 
-                      }}//service_fee,finalnum,givebackcash,
-                      style={uniqueModalStyles.buttonStyle}
-                      className="notranslate mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
-                    >
-                      {fanyi("Collect")} ${stringTofixed(finalPrice)},
-                      {fanyi("including")} ${Math.round((extra) * 100) / 100}
-                      {fanyi("Gratuity")}.
-                    </button>
+                        }}//service_fee,finalnum,givebackcash,
+                        style={uniqueModalStyles.buttonStyle}
+                        className="notranslate mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+                      >
+                        {fanyi("Collect")} ${stringTofixed(finalPrice)},
+                        {fanyi("including")} ${Math.round((extra) * 100) / 100}
+                        {fanyi("Gratuity")}.
+                      </button>
+                    </div>
                   </div>
                   <div className="modal-footer">
                   </div>
