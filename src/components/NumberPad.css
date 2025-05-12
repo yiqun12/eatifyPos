@@ -1,0 +1,122 @@
+.number-pad-overlay {
+  position: fixed;
+  top: 120px;
+  right: 20px;
+  background-color: transparent; /* Remove background */
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  z-index: 2000; /* Higher z-index to ensure stays on top */
+}
+
+.number-pad-container {
+  background-color: #f0f0f0; /* Light grey background */
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  padding: 15px;
+  width: auto; /* Auto-adapt to content width */
+  max-width: 500px; /* Maximum width to prevent being too wide */
+}
+
+.number-pad-left {
+  display: flex;
+  flex-direction: column;
+  margin-right: 15px; /* Spacing between left and right sections */
+  width: 250px;
+}
+
+.number-pad-display {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  text-align: right;
+  font-size: 1.2em;
+  min-height: 40px; /* Minimum height */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.number-pad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px; /* Gap between buttons */
+  margin-bottom: 10px;
+}
+
+.number-pad-grid button,
+.number-pad-actions button,
+.number-pad-right button {
+  background-color: #fff; /* White button background */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1.2em;
+  padding: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-width: 60px; /* Minimum button width */
+  height: 50px; /* Button height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.number-pad-grid button:hover,
+.number-pad-actions button:hover,
+.number-pad-right button:hover {
+  background-color: #e0e0e0; /* Hover effect */
+}
+
+.number-pad-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns for buttons */
+  gap: 8px;
+}
+
+.number-pad-actions .clear-button {
+  background-color: #ffe0e0; /* Light red */
+}
+.number-pad-actions .clear-button:hover {
+  background-color: #ffc0c0;
+}
+
+.number-pad-actions .backspace-button {
+  background-color: #ffefcf; /* Light yellow */
+}
+.number-pad-actions .backspace-button:hover {
+  background-color: #ffe0a0;
+}
+
+.number-pad-actions .confirm-button {
+  background-color: #e0ffe0; /* Light green */
+}
+.number-pad-actions .confirm-button:hover {
+  background-color: #c0ffc0;
+}
+
+.number-pad-actions .cancel-button {
+  background-color: #f0f0f0;
+}
+.number-pad-actions .cancel-button:hover {
+  background-color: #dcdcdc;
+}
+
+.number-pad-right {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns for quick amounts */
+  grid-template-rows: repeat(5, auto); /* 5 rows */
+  gap: 8px;
+  width: 150px;
+}
+
+.number-pad-right button {
+  background-color: #e7f0ff; /* Light blue */
+}
+
+.number-pad-right button:hover {
+  background-color: #d0e0ff;
+}

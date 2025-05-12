@@ -9,16 +9,110 @@ import axios from 'axios';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/functions';
 import '../components/admin_food.css';
+import '../components/hideScrollbar.css'; // 引入隐藏滚动条的CSS
 import Scanner from '../components/ScanMenu';
 import { useUserContext } from "../context/userContext";
 import add_image from '../components/add_image.png';
 import { Helmet } from 'react-helmet';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faArrowLeft, faPlus, faSearch, faQuestionCircle, faCamera, faTrash, faDownload, faArrowsAlt, faCheckSquare, faLightbulb } from '@fortawesome/free-solid-svg-icons';
 import useDynamicAttributes from '../components/useDynamicAttributes';
 import pinyin from "pinyin";
 import LazyLoad from 'react-lazy-load';
 
+// 自定义hook useDraggableScroll - 添加在函数组件外部
+const useDraggableScroll = (ref) => {
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (e.deltaY !== 0 && ref.current) {
+        ref.current.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }
+    };
+
+    // 添加鼠标拖动功能的变量和处理函数
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    
+    const handleMouseDown = (e) => {
+      if (!ref.current) return;
+      isDown = true;
+      startX = e.pageX - ref.current.offsetLeft;
+      scrollLeft = ref.current.scrollLeft;
+    };
+    
+    const handleMouseLeave = () => {
+      isDown = false;
+    };
+    
+    const handleMouseUp = () => {
+      isDown = false;
+    };
+    
+    const handleMouseMove = (e) => {
+      if (!isDown || !ref.current) return;
+      e.preventDefault();
+      const x = e.pageX - ref.current.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      ref.current.scrollLeft = scrollLeft - walk;
+    };
+
+    // 触摸设备支持
+    const handleTouchStart = (e) => {
+      if (!ref.current) return;
+      isDown = true;
+      startX = e.touches[0].pageX - ref.current.offsetLeft;
+      scrollLeft = ref.current.scrollLeft;
+    };
+    
+    const handleTouchEnd = () => {
+      isDown = false;
+    };
+    
+    const handleTouchMove = (e) => {
+      if (!isDown || !ref.current) return;
+      const x = e.touches[0].pageX - ref.current.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      ref.current.scrollLeft = scrollLeft - walk;
+    };
+
+    const element = ref.current;
+    
+    if (element) {
+      // 添加滚轮事件监听
+      element.addEventListener('wheel', handleWheel);
+      
+      // 添加鼠标拖动事件监听
+      element.addEventListener('mousedown', handleMouseDown);
+      element.addEventListener('mouseleave', handleMouseLeave);
+      element.addEventListener('mouseup', handleMouseUp);
+      element.addEventListener('mousemove', handleMouseMove);
+      
+      // 添加触摸事件监听
+      element.addEventListener('touchstart', handleTouchStart);
+      element.addEventListener('touchend', handleTouchEnd);
+      element.addEventListener('touchmove', handleTouchMove);
+
+      // Cleanup event listener when the component unmounts
+      return () => {
+        element.removeEventListener('wheel', handleWheel);
+        
+        // 移除鼠标拖动事件监听
+        element.removeEventListener('mousedown', handleMouseDown);
+        element.removeEventListener('mouseleave', handleMouseLeave);
+        element.removeEventListener('mouseup', handleMouseUp);
+        element.removeEventListener('mousemove', handleMouseMove);
+        
+        // 移除触摸事件监听
+        element.removeEventListener('touchstart', handleTouchStart);
+        element.removeEventListener('touchend', handleTouchEnd);
+        element.removeEventListener('touchmove', handleTouchMove);
+      };
+    }
+    return () => {};
+  }, [ref]);
+};
 
 function convertToPinyin(text) {
     return pinyin(text, {
@@ -122,23 +216,12 @@ const Food = ({ store }) => {
     const { user, user_loading } = useUserContext();
 
     const scrollingWrapperRef = useRef(null);
+    const filterScrollRef = useRef(null); // 添加新的ref
 
-    useEffect(() => {
-        const handleWheel = (e) => {
-            if (e.deltaY !== 0) {
-                scrollingWrapperRef.current.scrollLeft += e.deltaY;
-                e.preventDefault();
-            }
-        };
+    // 使用自定义hook
+    useDraggableScroll(scrollingWrapperRef);
+    useDraggableScroll(filterScrollRef);
 
-        const wrapper = scrollingWrapperRef.current;
-        wrapper.addEventListener('wheel', handleWheel);
-
-        // Cleanup event listener when the component unmounts
-        return () => {
-            wrapper.removeEventListener('wheel', handleWheel);
-        };
-    }, []); // Empty dependency array means this useEffect runs once when component mounts
     // Initialize selectedOptions with an empty array
     const [selectedOptions, setSelectedOptions] = useState(['Morning', 'Afternoon', 'Evening']);
     // Define a function to toggle the selection of an option
@@ -598,306 +681,393 @@ const Food = ({ store }) => {
         }
     };
 
+    // 新增状态用于控制菜单界面
+    const [activeTab, setActiveTab] = useState('items'); // 'items' 或 'option-group'
+    const [expandedCategory, setExpandedCategory] = useState('Drinks'); // 默认展开 Drinks 分类
+    const [isAddMenuOpen, setIsAddMenuOpen] = useState(false); // 控制底部 + 按钮菜单
+
+    // 切换选项菜单
+    const toggleAddMenu = () => {
+        setIsAddMenuOpen(!isAddMenuOpen);
+    };
+
+    // 添加useEffect以控制body滚动
+    useEffect(() => {
+        if (isAddMenuOpen) {
+            // 禁止滚动
+            document.body.style.overflow = 'hidden';
+        } else {
+            // 恢复滚动
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 组件卸载时恢复滚动
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [isAddMenuOpen]);
+
     return (
-        <div className="p-4 sm:p-6 lg:p-8 relative">
-            {/* Main Content Container */}
-            <div className="max-w-7xl mx-auto">
-                {/* Header Section - Simplified */}
-                <div className={`mb-6 text-center sm:text-left ${(!foods || foods.length === 0) ? 'hidden' : ''}`}>
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
-                        Menu Editor
-                    </h2>
-                    {/* Scan Status Message Area - Placed below title */}
-                    <AnimatePresence>
-                        {scanStatusMessage && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.3 }}
-                                className="overflow-hidden"
-                            >
-                                <div className="my-2 p-2 bg-green-100 text-green-800 rounded-md text-sm text-center shadow-sm">
-                                    {scanStatusMessage}
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+        <div className="bg-white min-h-screen">
+            {/* 顶部导航栏 - 在弹窗打开时移除sticky定位 */}
+            <div className={`${isAddMenuOpen ? '' : 'sticky top-0 z-40'} bg-white border-b border-gray-200`}>
+                <div className="px-4 py-4 flex items-center">
+                    <button className="mr-2">
+                        <FontAwesomeIcon icon={faArrowLeft} className="text-gray-800" />
+                    </button>
+                    <h1 className="text-xl font-medium text-gray-800">Menu</h1>
+                    <button className="ml-auto">
+                        <FontAwesomeIcon icon={faQuestionCircle} className="text-gray-400" />
+                    </button>
                 </div>
-                {/* Action Buttons Row for Large Screens (Corrected Styles + Tooltips) */}
-                <div className="hidden lg:flex justify-end space-x-2 mb-4">
-                    {/* Scanner Button (Top Bar Style + Tooltip Wrapper) */}
-                    <div className="relative group"> {/* Added wrapper back */}
-                        <Scanner
-                            store={store}
-                            reload={reload}
-                            onScanComplete={handleScanComplete}
-                            isButton={true} // Render as top-bar button
-                            t={t}
-                        />
-                        {/* Hover Tooltip for Scanner */}
-                        <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                            {t("Scan Menu")}
-                        </span>
+                
+                {/* 标签页切换 */}
+                <div className="flex border-b border-gray-200">
+                    <button 
+                        className="flex-1 py-3 px-4 text-sm font-medium text-green-700 border-b-2 border-green-700"
+                    >
+                        Items
+                    </button>
+                    <button 
+                        className="flex-1 py-3 px-4 text-sm font-medium text-gray-500"
+                    >
+                        Option Group
+                    </button>
+                </div>
+            </div>
+            
+            {/* 保留原有内容 */}
+            <div className="p-4 sm:p-6 lg:p-8 relative">
+                {/* Main Content Container */}
+                <div className="max-w-7xl mx-auto">
+                    {/* Header Section - Simplified */}
+                    {scanStatusMessage && (
+                    <div className={`mb-6 text-center sm:text-left ${(!foods || foods.length === 0) ? 'hidden' : ''}`}>
+                        {/* Scan Status Message Area - Placed below title */}
+                        <AnimatePresence>
+                            
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="my-2 p-2 bg-green-100 text-green-800 rounded-md text-sm text-center shadow-sm">
+                                        {scanStatusMessage}
+                                    </div>
+                                </motion.div>
+                            
+                        </AnimatePresence>
                     </div>
+                    )}
+                    {/* Action Buttons Row for Large Screens (Corrected Styles + Tooltips) */}
+                    <div className="hidden lg:flex justify-end space-x-2 mb-4">
+                        {/* Scanner Button (Top Bar Style + Tooltip Wrapper) */}
+                        <div className="relative group"> {/* Added wrapper back */}
+                            <Scanner
+                                store={store}
+                                reload={reload}
+                                onScanComplete={handleScanComplete}
+                                isButton={true} // Render as top-bar button
+                                t={t}
+                            />
+                            {/* Hover Tooltip for Scanner */}
+                            <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
+                                {t("Scan Menu")}
+                            </span>
+                        </div>
 
-                    {/* Clear Button (Top Bar Style + Tooltip) */}
-                    <button
-                        title={t("Clear Data")}
-                        onClick={() => {
-                            if (window.confirm(t("Are you sure you want to clear all menu data?"))) {
-                                localStorage.setItem(store, "[]");
-                                setFoods([]);
-                                setData([]);
-                                setRecommendation([]);
-                                setScanStatusMessage(t('Menu data cleared.'));
-                                setTimeout(() => setScanStatusMessage(''), 5000);
-                            }
-                        }}
-                        className="relative group flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-150 ease-in-out"
-                    >
-                        <i className="bi bi-trash"></i>
-                        <span>{t("Clear Data")}</span>
-                        {/* Hover Tooltip */}
-                        <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                            {t("Clear Data")}
-                        </span>
-                    </button>
-
-                    {/* Download Button (Top Bar Style + Tooltip) */}
-                    <button
-                        title={t("Download JSON")}
-                        onClick={() => {
-                            const dataStr = JSON.stringify(JSON.parse(localStorage.getItem(store) || "[]"), null, 2);
-                            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-                            const exportFileDefaultName = 'menu.json';
-                            const linkElement = document.createElement('a');
-                            linkElement.setAttribute('href', dataUri);
-                            linkElement.setAttribute('download', exportFileDefaultName);
-                            linkElement.click();
-                        }}
-                        className="relative group flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out"
-                    >
-                        <i className="bi bi-download"></i>
-                        <span>{t("Download JSON")}</span>
-                        {/* Hover Tooltip */}
-                        <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                            {t("Download JSON")}
-                        </span>
-                    </button>
-
-                    {/* Recommendation Button (Top Bar Style + Tooltip) */}
-                    {recommendation && recommendation.length > 0 && (
+                        {/* Clear Button (Top Bar Style + Tooltip) */}
                         <button
-                            title={t("Show Recommendations")}
-                            onClick={() => setIsRecommendationModalOpen(true)}
-                            className="relative group flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-150 ease-in-out"
+                            title={t("Clear Data")}
+                            onClick={() => {
+                                if (window.confirm(t("Are you sure you want to clear all menu data?"))) {
+                                    localStorage.setItem(store, "[]");
+                                    setFoods([]);
+                                    setData([]);
+                                    setRecommendation([]);
+                                    setScanStatusMessage(t('Menu data cleared.'));
+                                    setTimeout(() => setScanStatusMessage(''), 5000);
+                                }
+                            }}
+                            className="relative group flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-150 ease-in-out"
                         >
-                            <i className="bi bi-lightbulb"></i>
-                            <span>{t("Recommendations")}</span>
+                            <i className="bi bi-trash"></i>
+                            <span>{t("Clear Data")}</span>
                             {/* Hover Tooltip */}
                             <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                                {t("Recommendations")}
+                                {t("Clear Data")}
                             </span>
                         </button>
-                    )}
-                </div>
-                <div className={`mb-4 flex flex-col sm:flex-row sm:items-center gap-3 ${(!foods || foods.length === 0) ? 'hidden' : ''}`}> {/* Reduced bottom margin, adjusted gap */}
-                    {/* Category Filters */}
-                    <div className="flex-grow">
-                        {/* Removed negative margin/padding, added scrollbar styling for visibility */}
-                        <div ref={scrollingWrapperRef} className={`flex space-x-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100`}>
+
+                        {/* Download Button (Top Bar Style + Tooltip) */}
+                        <button
+                            title={t("Download JSON")}
+                            onClick={() => {
+                                const dataStr = JSON.stringify(JSON.parse(localStorage.getItem(store) || "[]"), null, 2);
+                                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                                const exportFileDefaultName = 'menu.json';
+                                const linkElement = document.createElement('a');
+                                linkElement.setAttribute('href', dataUri);
+                                linkElement.setAttribute('download', exportFileDefaultName);
+                                linkElement.click();
+                            }}
+                            className="relative group flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out"
+                        >
+                            <i className="bi bi-download"></i>
+                            <span>{t("Download JSON")}</span>
+                            {/* Hover Tooltip */}
+                            <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
+                                {t("Download JSON")}
+                            </span>
+                        </button>
+
+                        {/* Recommendation Button (Top Bar Style + Tooltip) */}
+                        {recommendation && recommendation.length > 0 && (
                             <button
-                                onClick={() => setSelectedFoodType("")}
-                                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors duration-150 flex-shrink-0 ${selectedFoodType === ""
-                                    ? 'bg-gray-700 text-white' // Using darker gray for active
-                                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-300'
-                                    }`}
+                                title={t("Show Recommendations")}
+                                onClick={() => setIsRecommendationModalOpen(true)}
+                                className="relative group flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-150 ease-in-out"
                             >
-                                {t("All")}
+                                <i className="bi bi-lightbulb"></i>
+                                <span>{t("Recommendations")}</span>
+                                {/* Hover Tooltip */}
+                                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
+                                    {t("Recommendations")}
+                                </span>
                             </button>
-                            {foodTypes.map((foodType) => (
+                        )}
+                    </div>
+                    
+                    {/* 修改搜索栏样式 */}
+                    <div ref={filterScrollRef} className="px-4 py-3 flex items-center space-x-2 overflow-x-auto category-scrolling-wrapper">
+                        <div className="relative flex-shrink-0">
+                            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                                <FontAwesomeIcon icon={faSearch} className="text-gray-400 text-sm" />
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Search"
+                                className="py-2 pl-9 pr-4 w-28 bg-white border border-gray-200 rounded-full text-sm focus:outline-none"
+                                value={localStorage.getItem("Google-language")?.includes("Chinese") ? selectedCHI : selectedName}
+                                onChange={localStorage.getItem("Google-language")?.includes("Chinese") ? handleCHIChange : handleNameChange}
+                            />
+                        </div>
+                        <button className="py-2 px-4 bg-white border border-gray-200 rounded-full text-sm flex-shrink-0">
+                            Out of stock
+                        </button>
+                        <button className="py-2 px-4 bg-white border border-gray-200 rounded-full text-sm flex-shrink-0">
+                            Availability sche...
+                        </button>
+                    </div>
+                    
+                    {/* Category Filters - 保持原有功能，只修改样式 */}
+                    <div className={`mb-4 flex flex-col sm:flex-row sm:items-center gap-3 ${(!foods || foods.length === 0) ? 'hidden' : ''}`}>
+                        <div className="flex-grow mt-4">
+                            <div ref={scrollingWrapperRef} className="flex space-x-2 overflow-x-auto pb-2 category-scrolling-wrapper">
                                 <button
-                                    key={foodType}
-                                    onClick={() => setSelectedFoodType(foodType)}
-                                    className={`px-3 py-1 rounded-md text-sm font-medium transition-colors duration-150 flex-shrink-0 ${selectedFoodType === foodType
-                                        ? 'bg-gray-700 text-white'
+                                    onClick={() => setSelectedFoodType("")}
+                                    className={`px-3 py-1 rounded-md text-sm font-medium transition-colors duration-150 flex-shrink-0 ${selectedFoodType === ""
+                                        ? 'bg-gray-700 text-white' // Using darker gray for active
                                         : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-300'
                                         }`}
                                 >
-                                    {foodType && foodType.length > 1 ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1)) : ''}
+                                    {t("All")}
                                 </button>
-                            ))}
+                                {foodTypes.map((foodType) => (
+                                    <button
+                                        key={foodType}
+                                        onClick={() => setSelectedFoodType(foodType)}
+                                        className={`px-3 py-1 rounded-md text-sm font-medium transition-colors duration-150 flex-shrink-0 ${selectedFoodType === foodType
+                                            ? 'bg-gray-700 text-white'
+                                            : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-300'
+                                            }`}
+                                    >
+                                        {foodType && foodType.length > 1 ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1)) : ''}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Search Bar */}
-                    <div className="relative flex-shrink-0 w-full sm:w-56"> {/* Slightly reduced width */}
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i className="bi bi-search text-gray-400"></i>
+                    {/* 保留原有的菜单项显示 */}
+                    {/* Conditional Rendering for Grid or Intro Text */}
+                    {foods && foods.length === 0 ? (
+                        // Show Intro Text when no food items exist
+                        <div className="pt-10 pb-8 text-center">
+                            <h1 className="text-3xl sm:text-4xl font-bold text-orange-600 mb-4">
+                                Visualize Your Menu with AI
+                            </h1>
+                            <p className="text-gray-600 text-lg mb-6 max-w-3xl mx-auto">
+                                We'll provide recommendations and help you visualize your menu with AI. Simply snap a picture of your menu, and we'll generate images of each dish to help you choose your order more easily.
+                            </p>
+                            <div className="inline-block bg-orange-100 text-orange-800 px-5 py-2 rounded-full text-sm font-medium shadow-sm">
+                                100% free and powered by 7dollar.delivery's AI
+                            </div>
+                            {/* Optionally add a prominent Scan button here? */}
                         </div>
-                        <input
-                            translate="no"
-                            className="w-full pl-9 pr-4 py-1.5 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 text-sm" // Adjusted padding and rounding
-                            placeholder="Search..."
-                            type="search"
-                            value={localStorage.getItem("Google-language")?.includes("Chinese") ? selectedCHI : selectedName}
-                            onChange={localStorage.getItem("Google-language")?.includes("Chinese") ? handleCHIChange : handleNameChange}
-                        />
-                    </div>
+                    ) : (
+                        // Show Food Items Grid when food items exist
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-24">
+                            {foods
+                                .filter(food => selectedFoodType === "" || food.category === selectedFoodType)
+                                .filter(food => selectedName === "" || food.name.toLowerCase().includes(selectedName.toLowerCase()))
+                                .filter(food => {
+                                    if (selectedCHI === "") return true;
+                                    const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
+                                    return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
+                                })
+                                .filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称"))
+                                ?.map((item, index) => (
+                                    <FoodItem
+                                        key={item.id} // Use item.id for key
+                                        item={item}
+                                        updateItem={updateItem}
+                                        deleteFood_array={deleteFood_array}
+                                    />
+                                ))}
+                        </div>
+                    )}
                 </div>
 
-                {/* Conditional Rendering for Grid or Intro Text */}
-                {foods && foods.length === 0 ? (
-                    // Show Intro Text when no food items exist
-                    <div className="pt-10 pb-8 text-center">
-                        <h1 className="text-3xl sm:text-4xl font-bold text-orange-600 mb-4">
-                            Visualize Your Menu with AI
-                        </h1>
-                        <p className="text-gray-600 text-lg mb-6 max-w-3xl mx-auto">
-                            We'll provide recommendations and help you visualize your menu with AI. Simply snap a picture of your menu, and we'll generate images of each dish to help you choose your order more easily.
-                        </p>
-                        <div className="inline-block bg-orange-100 text-orange-800 px-5 py-2 rounded-full text-sm font-medium shadow-sm">
-                            100% free and powered by 7dollar.delivery's AI
-                        </div>
-                        {/* Optionally add a prominent Scan button here? */}
-                    </div>
-                ) : (
-                    // Show Food Items Grid when food items exist
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-24">
-                        {foods
-                            .filter(food => selectedFoodType === "" || food.category === selectedFoodType)
-                            .filter(food => selectedName === "" || food.name.toLowerCase().includes(selectedName.toLowerCase()))
-                            .filter(food => {
-                                if (selectedCHI === "") return true;
-                                const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
-                                return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
-                            })
-                            .filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称"))
-                            ?.map((item, index) => (
-                                // Returning the Item component directly within the grid cell
-                                <Item
-                                    key={item.id} // Use item.id for key
-                                    item={item}
-                                    updateItem={updateItem}
-                                    deleteFood_array={deleteFood_array}
-                                // Pass other necessary props if Item needs them
-                                // translateToChinese={translateToChinese}
-                                // translateToEnglish={translateToEnglish}
-                                // foodTypes={foodTypes}
-                                />
-                            ))}
-                    </div>
-                )}
+                {/* --- Floating Action Button Area (Mobile - lg:hidden) --- */}
+                <div className="fixed bottom-6 right-6 z-20 flex flex-col items-end space-y-2 lg:hidden">
 
-            </div>
-
-            {/* --- Floating Action Button Area (Mobile - lg:hidden) --- */}
-            <div className="fixed bottom-6 right-6 z-20 flex flex-col items-end space-y-2 lg:hidden">
-
-                {/* Recommendation FAB (Fixed Width, Smaller, Text) */}
-                {recommendation && recommendation.length > 0 && (
-                    <motion.button
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        title={t("Show Recommendations")}
-                        onClick={() => setIsRecommendationModalOpen(true)}
-                        // Adjusted: w-36, h-10, px-3, text-xs, space-x-1.5, icon size
-                        className="w-36 h-10 px-3 text-xs space-x-1.5 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 flex items-center justify-center"
+                    {/* 主按钮 - 根据菜单状态显示加号或关闭图标 */}
+                    <button
+                        onClick={toggleAddMenu}
+                        className="w-14 h-14 rounded-full shadow-lg flex items-center justify-center bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                     >
-                        <i className="bi bi-lightbulb w-4 h-4"></i> {/* Adjusted icon size */}
-                        <span>{t("Recommendations")}</span>
-                    </motion.button>
-                )}
+                        {isAddMenuOpen ? (
+                            <FontAwesomeIcon icon={faTimes} className="text-white text-xl" />
+                        ) : (
+                            <FontAwesomeIcon icon={faPlus} className="text-white text-xl" />
+                        )}
+                    </button>
 
-                {/* Scanner FAB (Fixed Width, Smaller, Text) */}
-                {/* Scanner component needs internal adjustment for size */}
-                <Scanner
-                    store={store}
-                    reload={reload}
-                    onScanComplete={handleScanComplete}
-                    t={t}
-                    // Apply width hint, Scanner internal style needs update
-                    className="w-36"
-                />
+                    {/* 遮罩层 */}
+                    {isAddMenuOpen && (
+                        <div 
+                            className="fixed inset-0 bg-black bg-opacity-50 z-50"
+                            onClick={toggleAddMenu}
+                        ></div>
+                    )}
 
-                {/* Clear Button FAB (Fixed Width, Smaller, Text) */}
-                <button
-                    title={t("Clear Data")}
-                    onClick={() => {
-                        if (window.confirm(t("Are you sure?"))) {
-                            localStorage.setItem(store, "[]"); setFoods([]); setData([]); setRecommendation([]);
-                            setScanStatusMessage(t('Cleared.')); setTimeout(() => setScanStatusMessage(''), 3000);
-                        }
-                    }}
-                    // Adjusted: w-36, h-10, px-3, text-xs, space-x-1.5, icon size
-                    className="w-36 h-10 px-3 text-xs space-x-1.5 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 flex items-center justify-center"
-                >
-                    <i className="bi bi-trash w-4 h-4"></i> {/* Adjusted icon size */}
-                    <span>{t("Clear Data")}</span>
-                </button>
+                    {/* 弹出菜单 */}
+                    {isAddMenuOpen && (
+                        <div className="absolute bottom-20 right-0 bg-white rounded-lg shadow-xl w-64 overflow-hidden z-[60]">
+                            <div className="divide-y divide-gray-100">
+                                {/* Recommendations 按钮 */}
+                                {recommendation && recommendation.length > 0 && (
+                                    <button
+                                        onClick={() => {
+                                            setIsRecommendationModalOpen(true);
+                                            toggleAddMenu(); // 关闭菜单
+                                        }}
+                                        className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center"
+                                    >
+                                        <FontAwesomeIcon icon={faLightbulb} className="w-4 h-4 mr-3 text-gray-400" />
+                                        <span className="text-gray-700">{t("Recommendations")}</span>
+                                    </button>
+                                )}
 
-                {/* Download/JSON Button FAB (Fixed Width, Smaller, Text) */}
-                <button
-                    title={t("Download JSON")}
-                    onClick={() => {
-                        const dataStr = JSON.stringify(JSON.parse(localStorage.getItem(store) || "[]"), null, 2);
-                        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-                        const exportFileDefaultName = 'menu.json';
-                        const linkElement = document.createElement('a');
-                        linkElement.setAttribute('href', dataUri);
-                        linkElement.setAttribute('download', exportFileDefaultName);
-                        linkElement.click();
-                    }}
-                    // Adjusted: w-36, h-10, px-3, text-xs, space-x-1.5, icon size
-                    className="w-36 h-10 px-3 text-xs space-x-1.5 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center"
-                >
-                    <i className="bi bi-download w-4 h-4"></i> {/* Adjusted icon size */}
-                    <span>{t("JSON")}</span>
-                </button>
+                                {/* Scanner功能 */}
+                                <div className="px-4 py-3 hover:bg-gray-50">
+                                    <Scanner
+                                        store={store}
+                                        reload={reload}
+                                        onScanComplete={handleScanComplete}
+                                        t={t}
+                                        isButton={true}
+                                        buttonLabel="Scan a printed menu"
+                                        icon={<FontAwesomeIcon icon={faCamera} className="w-4 h-4 mr-3 text-gray-400" />}
+                                        buttonClassName="w-full text-left flex items-center"
+                                        iconClassName="text-gray-700"
+                                    />
+                                </div>
+                                
+                                {/* Clear Data功能 */}
+                                <button 
+                                    onClick={() => {
+                                        if (window.confirm(t("Are you sure?"))) {
+                                            localStorage.setItem(store, "[]"); 
+                                            setFoods([]); 
+                                            setData([]); 
+                                            setRecommendation([]);
+                                            setScanStatusMessage(t('Cleared.')); 
+                                            setTimeout(() => setScanStatusMessage(''), 3000);
+                                            toggleAddMenu(); // 关闭菜单
+                                        }
+                                    }}
+                                    className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center"
+                                >
+                                    <FontAwesomeIcon icon={faTrash} className="w-4 h-4 mr-3 text-gray-400" />
+                                    <span className="text-gray-700">{t("Clear Data")}</span>
+                                </button>
+                                
+                                {/* JSON功能 */}
+                                <button 
+                                    onClick={() => {
+                                        const dataStr = JSON.stringify(JSON.parse(localStorage.getItem(store) || "[]"), null, 2);
+                                        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                                        const exportFileDefaultName = 'menu.json';
+                                        const linkElement = document.createElement('a');
+                                        linkElement.setAttribute('href', dataUri);
+                                        linkElement.setAttribute('download', exportFileDefaultName);
+                                        linkElement.click();
+                                        toggleAddMenu(); // 关闭菜单
+                                    }}
+                                    className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center"
+                                >
+                                    <FontAwesomeIcon icon={faDownload} className="w-4 h-4 mr-3 text-gray-400" />
+                                    <span className="text-gray-700">{t("Download JSON")}</span>
+                                </button>
+                                
+                                
+                            </div>
+                        </div>
+                    )}
+                </div>
 
-            </div>
-
-            {/* Recommendation Modal */}
-            {isRecommendationModalOpen && (
-                <div
-                    className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black bg-opacity-50" // Higher z-index than FAB
-                    onClick={() => setIsRecommendationModalOpen(false)} // Close on backdrop click
-                >
+                {/* Recommendation Modal */}
+                {isRecommendationModalOpen && (
                     <div
-                        className="relative w-full max-w-2xl bg-white rounded-lg shadow-xl max-h-[80vh] overflow-y-auto"
-                        onClick={(e) => e.stopPropagation()} // Prevent close on modal content click
+                        className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black bg-opacity-50" // Higher z-index than FAB
+                        onClick={() => setIsRecommendationModalOpen(false)} // Close on backdrop click
                     >
-                        {/* Modal Header */}
-                        <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white z-10">
-                            <h3 className="text-xl font-semibold text-gray-800">
-                                Menu Recommendations
-                            </h3>
-                            <button
-                                onClick={() => setIsRecommendationModalOpen(false)}
-                                type="button"
-                                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
-                            >
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
-                                <span className="sr-only">Close modal</span>
-                            </button>
-                        </div>
-                        {/* Modal Body - Contains the RecommendationSection */}
-                        <div className="p-6">
-                            <RecommendationSection recommendation={recommendation} />
+                        <div
+                            className="relative w-full max-w-2xl bg-white rounded-lg shadow-xl max-h-[80vh] overflow-y-auto"
+                            onClick={(e) => e.stopPropagation()} // Prevent close on modal content click
+                        >
+                            {/* Modal Header */}
+                            <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white z-10">
+                                <h3 className="text-xl font-semibold text-gray-800">
+                                    Menu Recommendations
+                                </h3>
+                                <button
+                                    onClick={() => setIsRecommendationModalOpen(false)}
+                                    type="button"
+                                    className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+                                >
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
+                                    <span className="sr-only">Close modal</span>
+                                </button>
+                            </div>
+                            {/* Modal Body - Contains the RecommendationSection */}
+                            <div className="p-6">
+                                <RecommendationSection recommendation={recommendation} />
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-
+                )}
+            </div>
         </div>
     );
 };
 
-
-
-const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id, translateToEnglish, translateToChinese, foodTypes }) => {
+// 食品项组件
+const FoodItem = ({ item, updateItem, deleteFood_array }) => {
     const [isModalGeneratePicOpen, setModalGeneratePicOpen] = useState(false);
     const [imgGallery, setImgGallery] = useState([]);
     const [previewUrl, setPreviewUrl] = useState(item.image || add_image); // Use item image or fallback
@@ -978,49 +1148,36 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
     const isMobile = width <= 768;
 
     return (
-        // Main Card container - Applying styles from reference image
-        <div className="bg-white rounded-lg border border-gray-200 p-3 flex items-center space-x-3 hover:shadow-sm transition-shadow duration-150">
-            {/* Image Section */}
+        <div className="bg-white rounded-xl border border-gray-200 p-3 flex items-center space-x-3 hover:shadow-sm transition-shadow duration-150">
             <div className="flex-shrink-0">
-                <label className='cursor-pointer block'> {/* Make label a block */}
+                <label className='cursor-pointer block'>
                     <img
-                        className="h-16 w-16 object-cover rounded-md" // Adjusted size and rounding
-                        src={previewUrl} // Use state for preview
+                        className="h-16 w-16 object-cover rounded-md"
+                        src={previewUrl}
                         loading="lazy"
                         alt={`${item.name || 'Food item'} image`}
-                        onClick={() => handleModalGeneratePicOpen(item)} // Open modal on click
+                        onClick={() => handleModalGeneratePicOpen(item)}
                     />
-                    {/* Hidden file input - consider triggering this differently if needed */}
-                    {/* <input type="file" onChange={handleFileChangeAndUpload} className="hidden" /> */}
                 </label>
             </div>
 
-            {/* Text Info Section */}
-            <div className="flex-grow min-w-0"> {/* Ensure text wraps */}
-                <div className='font-medium text-gray-900 truncate notranslate'> {/* Adjusted font, color, added truncate */}
+            <div className="flex-grow min-w-0">
+                <div className='font-medium text-gray-900 truncate notranslate'>
                     {item?.name} {item?.CHI}
                 </div>
-                <div className="text-sm text-gray-500 notranslate"> {/* Adjusted font size and color */}
+                <div className="text-sm text-gray-500 notranslate">
                     ${item.subtotal}
                 </div>
             </div>
 
-            {/* Action Buttons - Temporarily removed - will be added to FAB later */}
-            {/* Example: Edit/Delete icons could go here if not using FAB */}
-            {/* <button onClick={() => setExpandDetails(true)} className="text-gray-400 hover:text-gray-600 ml-auto">...</button> */}
-
-
-            {/* --- Modal for Image Generation --- */}
             {isModalGeneratePicOpen && (
                 <div id="defaultModal"
-                    // Use consistent modal styling from ScanMenu or define locally
-                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black bg-opacity-50" style={{
-                        margin: 0
-                    }}
-                    onClick={handleModalGeneratePicClose} // Close on backdrop click
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black bg-opacity-50"
+                    style={{ margin: 0 }}
+                    onClick={handleModalGeneratePicClose}
                 >
                     <div className="relative w-full max-w-2xl bg-white rounded-lg shadow-xl max-h-[80vh] overflow-y-auto"
-                        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-start justify-between p-4 border-b rounded-t">
                             <h3 className="text-lg font-semibold text-gray-900 notranslate">
@@ -1031,15 +1188,14 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                                 type="button"
                                 className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
                             >
-                                <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" /></svg>
+                                <FontAwesomeIcon icon={faTimes} />
                                 <span className="sr-only">{t("Close modal")}</span>
                             </button>
                         </div>
                         <div className='p-3'>
-                            {/* Loading/Gallery display */}
                             {imgGallery.length === 0 ? (
                                 <div className="flex justify-center items-center h-20">
-                                    <p className="text-gray-500">Generating images...</p> {/* Add a loading indicator */}
+                                    <p className="text-gray-500">Generating images...</p>
                                 </div>
                             ) : (
                                 <div className="flex flex-wrap gap-2">
@@ -1047,7 +1203,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                                         <div key={index} className="h-min overflow-hidden rounded-md">
                                             <img
                                                 loading="lazy"
-                                                className="h-[80px] w-[80px] hover:scale-125 transition-all cursor-pointer object-cover rounded-t-lg" // Consistent size
+                                                className="h-[80px] w-[80px] hover:scale-125 transition-all cursor-pointer object-cover rounded-md"
                                                 src={gen_img}
                                                 alt={`Generated image ${index + 1}`}
                                                 onClick={() => selectPic(gen_img, item)}
@@ -1060,30 +1216,16 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                     </div>
                 </div>
             )}
-
-
-            {/* Temporarily commented out the expansion details section */}
-            {/*
-            {expandDetails && (
-                 <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
-                    // ... rest of the hidden details/options UI ...
-                        </div>
-            )}
-            */}
         </div>
     );
 };
 
-// --- Recommendation Section Component --- (Defined outside Food)
-// Keep this component as it will be used in the modal
+// 保留原有的 RecommendationSection 组件
 const RecommendationSection = ({ recommendation }) => {
     return (
-        // Removed outer margin/border/shadow/bg - handled by accordion container now
-        // Added padding back
         <div>
-            {/* <h3 className="text-lg font-semibold text-gray-800 mb-3">Menu Recommendations</h3> // Title is now on the button */}
             <div className="space-y-4">
-                {recommendation.map((section, index) => (
+                {recommendation && recommendation.map((section, index) => (
                     <div key={index}>
                         <h4 className="font-medium text-gray-700 mb-1">{section?.title}</h4>
                         <ul className="list-disc list-inside space-y-1 pl-2">
@@ -1099,7 +1241,5 @@ const RecommendationSection = ({ recommendation }) => {
         </div>
     );
 };
-
-
 
 export default Food

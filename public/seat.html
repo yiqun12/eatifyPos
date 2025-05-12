@@ -994,11 +994,15 @@
             //console.log("true")
             highlightTable(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(0, 0, 139, 0.7)')//rich blue
           } else {
+            // 先判断是否存在_startTime
             if (localStorage.getItem(key + "_startTime") !== null) {// starttime exist
               const tableKey = key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length)
-              //highlightTable('A1', 'rgba(0, 0, 0, 0.7)')//original brown
+              highlightTable(tableKey, 'rgba(0, 0, 0, 0.7)')//original brown
               //alert(tableKey.slice(0, -"isSent".length - 1)==="A1")
-              highlightTable(tableKey.slice(0, -"isSent".length - 1), 'rgba(150, 111, 51, 0.7)')//original brown //'rgba(140, 40, 40, 0.7)'
+              // highlightTable(tableKey.slice(0, -"isSent".length - 1), 'rgba(150, 111, 51, 0.7)')//original brown //'rgba(140, 40, 40, 0.7)'
+            } else if (localStorage.getItem(key + "-isSent_startTime") !== null) {
+              const tableKey = key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length)
+              highlightTable(tableKey, 'rgba(0, 0, 0, 0.7)')//original brown
             } else {
               //alert(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length))
               highlightTable(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(150, 111, 51, 0.7)')//original brown

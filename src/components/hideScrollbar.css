@@ -1,0 +1,25 @@
+/* 隐藏滚动条但保留滚动功能 */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
+/* 为引用scrollingWrapperRef的元素添加样式 */
+.category-scrolling-wrapper {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  cursor: grab; /* 指示可拖动 */
+  user-select: none; /* 防止文本选择 */
+}
+
+.category-scrolling-wrapper:active {
+  cursor: grabbing; /* 拖动时的光标 */
+}
+
+.category-scrolling-wrapper::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+} 

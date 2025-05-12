@@ -9,7 +9,7 @@ import imageCompression from 'browser-image-compression';
 import loadingGif from './loading.gif'; // Assuming it's in the same directory
 import { useUserContext } from "../context/userContext";
 
-const GoogleVisionDemo = ({ reload, store, setFoods, onScanComplete, isButton = false, t = (text) => text, showText = false }) => {
+const GoogleVisionDemo = ({ reload, store, setFoods, onScanComplete, isButton = false, t = (text) => text, showText = false, icon, buttonLabel, buttonClassName, iconClassName }) => {
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
   const [uploadStatus, setUploadStatus] = useState('idle');  // Possible values: 'idle', 'loading', 'success'
@@ -204,7 +204,7 @@ const GoogleVisionDemo = ({ reload, store, setFoods, onScanComplete, isButton = 
         <button
             title={t("Scan Menu")}
             onClick={() => uploadStatus !== 'loading' && setIsModalOpen(true)}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition duration-150 ease-in-out ${
+            className={buttonClassName || `flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition duration-150 ease-in-out ${
                 uploadStatus === 'loading'
                     ? 'bg-gray-500 text-white cursor-not-allowed'
                     : 'bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2'
@@ -218,10 +218,12 @@ const GoogleVisionDemo = ({ reload, store, setFoods, onScanComplete, isButton = 
                  </svg>
              ) : uploadStatus === 'success' ? (
                  <i className="bi bi-check h-4 w-4 mr-1"></i>
+             ) : icon ? (
+                 icon
              ) : (
                  <i className="bi bi-camera h-4 w-4 mr-1"></i>
              )}
-            <span>{t("Scan Menu")}</span>
+            <span className={iconClassName}>{buttonLabel || t("Scan Menu")}</span>
         </button>
       ) : (
         <button
