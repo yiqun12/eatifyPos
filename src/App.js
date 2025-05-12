@@ -10,6 +10,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import Reservation from './pages/reservation'
 import FreeScan from './pages/freeScan'
 import FreeScanArticle from './pages/freeScanArticle'
+import FreeScanIfarme from './pages/freeScanIframe.js'
 import Resume from './pages/resume'
 
 import ErrorBoundary from './ErrorBoundary'; // Import the ErrorBoundary component
@@ -165,6 +166,16 @@ function App() {
                     <>
                       <Navbar_new />
                       <FreeScan store="freescan" />
+                    </>
+                  }
+                />
+
+                <Route
+                  path="scan_iframe"
+                  element={
+                    <>
+                      {/* <Navbar_new /> */}
+                      <FreeScanIfarme />
                     </>
                   }
                 />
