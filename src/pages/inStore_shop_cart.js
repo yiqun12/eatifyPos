@@ -1,9 +1,9 @@
 import React from 'react'
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.css';
 import Button from 'react-bootstrap/Button';
-import { useRef, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import "./modal.css"
 import "./shopping_cart.css"
 import item_1_pic from "./item-1.png"
@@ -16,7 +16,7 @@ import './float.css';
 import $ from 'jquery';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
-import { faCreditCard, faGift, faDollarSign, faShare, faPencilAlt, faTimes, faExchangeAlt, faArrowRight, faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard, faGift, faDollarSign, faShare, faPencilAlt, faTimes, faExchangeAlt, faArrowRight, faPrint, faBackspace } from '@fortawesome/free-solid-svg-icons';
 import logo_transparent from './logo_transparent.png'
 //import { flexbox } from '@mui/system';
 import "./navbar.css";
@@ -42,10 +42,16 @@ import Dnd_Test from '../pages/dnd_test';
 //import { isMobile } from 'react-device-detect';
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faExclamation } from '@fortawesome/free-solid-svg-icons'; // Import the exclamation mark icon
+import NumberPad from '../components/NumberPad'; // Import NumberPad component
+import KeypadModal from '../components/KeypadModal'; // Import KeypadModal component
 
 const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal, TaxRate }) => {
   // Removed startTime prop as it's read from localStorage now
   // startTime = 1744625303617 // Removed hardcoded value
+
+  const serviceFeeInputRef = useRef(null);
+  const discountInputRef = useRef(null);
+  const cashPayInputRef = useRef(null);
 
   const [products, setProducts] = useState(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : []);
   const { user, user_loading } = useUserContext();
@@ -115,6 +121,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Collect", output: "现收" },
     { input: "including", output: "其中包含" },
     { input: "Gratuity", output: "小费" },
+    { input: "Cancel", output: "返回" },
 
   ];
   function translate(input) {
@@ -790,7 +797,6 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   }
 
   // handling the add tips logic + modal
-
   // Add a new state for the modal
   const [isTipsModalOpen, setTipsModalOpen] = useState(false);
 
@@ -867,7 +873,6 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   const [received, setReceived] = useState(false)
   const [isPaymentClick, setIsPaymentClick] = useState(false)
 
-
   const [isUniqueModalOpen, setUniqueModalOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [customAmount, setCustomAmount] = useState("");
@@ -878,11 +883,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   const openUniqueModal = () => setUniqueModalOpen(true);
   const closeUniqueModal = () => setUniqueModalOpen(false);
 
-  const handleChange = (event) => {
-    let value = event.target.value.replace(/。/g, '.'); // 替换中文句号
+    // Effect for closing number pad removed - now controlled by KeypadModal
 
-    // 只允许数字、小数点、负号
-    if (/^-?\d*\.?\d*$/.test(value)) {
+  const handleChange = (event) => {
+    let value = event.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
+
+    // Only allow positive numbers and decimal point
+    if (/^\d*\.?\d*$/.test(value)) {
+      // Maintain original format even with decimal at the end
       setInputValue(value);
     }
     setErrorMessage(``)
@@ -891,10 +899,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   };
 
   const handleCustomAmountChange = (event) => {
-    let value = event.target.value.replace(/。/g, '.'); // 替换中文句号
+    let value = event.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
 
-    // 只允许数字、小数点、负号
-    if (/^-?\d*\.?\d*$/.test(value)) {
+    // Only allow positive numbers and decimal point
+    if (/^\d*\.?\d*$/.test(value)) {
       setCustomAmount(value);
     }
   };
@@ -903,11 +911,18 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   const [errorMessage, setErrorMessage] = useState("");
 
   const calculateResult = () => {
-    const x = parseFloat(inputValue);
+    // For input ending with decimal point, temporarily add 0 for calculation
+    let valueToCheck = inputValue;
+    if (inputValue.endsWith('.')) {
+      valueToCheck = inputValue + '0'; // Add 0 to make it a valid number
+    }
+
+    const x = parseFloat(valueToCheck);
     if (!isNaN(x) && x > finalPrice) {
       setResult(x);
     } else {
       setErrorMessage(`Please enter a number greater than total amount`);
+      // Keep the input value to allow user to continue editing
     }
   };
 
@@ -986,6 +1001,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   const isPC = width >= 1024;
 
+  // NumberPad state management code removed - now handled by KeypadModal
 
   // these dndTestKey allows the dnd_test to reset by switching to a different key
   const [dndTestKey, setDndTestKey] = useState(0); // initial key set to 0
@@ -1327,143 +1343,151 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
         <div className="flex flex-col flex-row">
           {isUniqueModalOpen && (
-            <div id="addTipsModal notranslate" className="modal fade show"
-              style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              <div className="modal-dialog">
-                <div className="modal-content">
-                  <div className="modal-header mb-2">
-                    <a
-                      onClick={() => { OpenCashDraw(); }}
-                      className="mt-3 btn btn-md btn-info "
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
-                    >
-
-                      <span>Open Cash Drawer</span>
-                    </a>
-                    <button style={uniqueModalStyles.closeBtnStyle} onClick={() => {
-                      setUniqueModalOpen(false);
-                      setInputValue("")
-                      setResult(null);
-                      setExtra(0)
-                    }}>
-                      &times;
-                    </button>
+            <KeypadModal
+              isOpen={isUniqueModalOpen}
+              onClose={() => {
+                setUniqueModalOpen(false);
+                setInputValue("");
+                setResult(null);
+                setExtra(0);
+              }}
+              headerContent={
+                <a
+                  onClick={() => { OpenCashDraw(); }}
+                  className="mt-3 btn btn-md btn-info"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+                >
+                  <span>Open Cash Drawer</span>
+                </a>
+              }
+              numberPadValue={inputValue}
+              onNumberPadChange={(newValue) => {
+                // Direct value setting without special processing
+                setInputValue(newValue);
+                setErrorMessage('');
+                setResult(null);
+              }}
+              onNumberPadConfirm={() => calculateResult()}
+              onQuickAmountClick={(amount) => {
+                setInputValue(amount.toString());
+                setErrorMessage('');
+                setResult(null);
+              }}
+            >
+              <div>
+                <p className="mb-2">{fanyi("Enter the Cash Received")}</p>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={inputValue}
+                  onChange={handleChange}
+                  style={uniqueModalStyles.inputStyle}
+                  className="mb-4 p-2 w-full border rounded-md"
+                  translate="no"
+                  ref={cashPayInputRef}
+                />
+                <button
+                  onClick={calculateResult}
+                  style={uniqueModalStyles.buttonStyle}
+                  className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
+                >
+                  {fanyi("Calculate Give Back Cash")}
+                </button>
+                {errorMessage && (
+                  <div className="text-red-500 font-semibold mt-2">
+                    {errorMessage}
                   </div>
-                  <div className="modal-body pt-0">
-                    <p className="mb-2">{fanyi("Enter the Cash Received")}</p>
-                    <input
-                      type="text" // 使用 text 但限制输入内容
-                      value={inputValue}
-                      onChange={handleChange}
-                      style={uniqueModalStyles.inputStyle}
-                      className="mb-4 p-2 w-full border rounded-md"
-                      translate="no"
-                    />
-                    <button
-                      onClick={calculateResult}
-                      style={uniqueModalStyles.buttonStyle}
-                      className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
-                    >
-                      {fanyi("Calculate Give Back Cash")}
-                    </button>
-                    {errorMessage && (
-                      <div className="text-red-500 font-semibold mt-2">
-                        {errorMessage}
-                      </div>
-                    )}
-                    <p className="mb-4 mt-4">{fanyi("Gratuity")}:</p>
-                    <div className="flex justify-between mb-4">
-                      <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
-                        15%
-                      </button>
-                      <button onClick={() => { calculateExtra(18); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mx-1">
-                        18%
-                      </button>
-                      <button onClick={() => { calculateExtra(20); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        20%
-                      </button>
-                      <button onClick={() => { calculateExtra(0); setCustomAmountVisible(false) }} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        0
-                      </button>
-                      <button onClick={toggleCustomAmountVisibility} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        {fanyi("Other")}
+                )}
+
+                <p className="mb-4">{fanyi("Gratuity")}:</p>
+                <div className="flex justify-between mb-4">
+                  <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                    15%
+                  </button>
+                  <button onClick={() => { calculateExtra(18); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                    18%
+                  </button>
+                  <button onClick={() => { calculateExtra(20); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    20%
+                  </button>
+                  <button onClick={() => { calculateExtra(0); setCustomAmountVisible(false) }} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    0
+                  </button>
+                  <button onClick={toggleCustomAmountVisibility} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    {fanyi("Other")}
+                  </button>
+                </div>
+
+                {isCustomAmountVisible && (
+                  <div className='notranslate'>
+                    <p className="mb-2">{fanyi("Custom Gratuity")}:</p>
+                    <div className="flex">
+                      <input
+                        type="text"
+                        value={customAmount}
+                        onChange={handleCustomAmountChange}
+                        style={uniqueModalStyles.inputStyle}
+                        className="p-2 w-full border rounded-md mr-2"
+                      />
+                      <button
+                        onClick={() => calculateCustomAmount(customAmount)}
+                        className="bg-orange-500 text-white p-2 rounded-md w-1/3"
+                      >
+                        {fanyi("Add")}
                       </button>
                     </div>
+                  </div>
+                )}
 
-                    {isCustomAmountVisible && (
-                      <div className='notranslate'>
-                        <p className="mb-2">{fanyi("Custom Gratuity")}:</p>
-                        <div className="flex">
-                          <input
-                            type="text"
-                            value={customAmount}
-                            onChange={handleCustomAmountChange}
-                            style={uniqueModalStyles.inputStyle}
-                            className="p-2 w-full border rounded-md mr-2"
-                          />
-                          <button
-                            onClick={() => calculateCustomAmount(customAmount)}
-                            className="bg-orange-500 text-white p-2 rounded-md w-1/3"
-                          >
-                            {fanyi("Add")}
-                          </button>
-                        </div>
-                      </div>
-                    )}
+                {(extra !== null && extra !== 0) && (
+                  <p className="mt-4">{fanyi("Gratuity")}: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
+                )}
+                <p className="mt-1">{fanyi("Receivable Payment")}: <span className='notranslate'>${finalPrice}</span> </p>
 
-                    {(extra !== null && extra !== 0) && (
-                      <p className="">{fanyi("Gratuity")}: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
-                    )}
-                    <p className="mt-1">{fanyi("Receivable Payment")}: <span className='notranslate'>${finalPrice}</span> </p>
-
-                    {result !== null && (
-                      <div>
-                        <p className="mt-1 mb-4 ">
-                          {fanyi("Give Back Cash")}: <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
-                        </p>
-                        <button
-                          onClick={() => {
-                            setCustomAmount(Math.round((result - finalPrice) * 100) / 100); calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
-                            CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
-                              inputValue);
-
-                            closeUniqueModal();
-                          }}
-                          style={uniqueModalStyles.buttonStyle}
-                          className="notranslate mt-2 mb-2 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
-                        >
-                          {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
-                          {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
-                          {fanyi("Gratuity")}.
-                          {/* {fanyi("Add return cash as a gratuity")} (
-                          {fanyi("Total")}:
-
-                          <span className='notranslate'>${Math.round((result - finalPrice + extra) * 100) / 100}</span>
-                          {fanyi("and finalize")} */}
-                        </button>
-
-                      </div>
-                    )}
+                {result !== null && (
+                  <div>
+                    <p className="mt-1 mb-4 ">
+                      {fanyi("Give Back Cash")}: <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
+                    </p>
                     <button
                       onClick={() => {
-                        CashCheckOut(extra, stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
-                          finalPrice);
+                        setCustomAmount(Math.round((result - finalPrice) * 100) / 100);
+                        calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
+                        CashCheckOut(
+                          Math.round((result - finalPrice + extra) * 100) / 100,
+                          stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
+                          inputValue
+                        );
                         closeUniqueModal();
-
-                      }}//service_fee,finalnum,givebackcash,
+                      }}
                       style={uniqueModalStyles.buttonStyle}
-                      className="notranslate mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+                      className="notranslate mt-2 mb-2 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
                     >
-                      {fanyi("Collect")} ${stringTofixed(finalPrice)},
-                      {fanyi("including")} ${Math.round((extra) * 100) / 100}
+                      {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
+                      {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
                       {fanyi("Gratuity")}.
                     </button>
                   </div>
-                  <div className="modal-footer">
-                  </div>
-                </div>
+                )}
+
+                <button
+                  onClick={() => {
+                    CashCheckOut(
+                      extra,
+                      stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
+                      finalPrice
+                    );
+                    closeUniqueModal();
+                  }}
+                  style={uniqueModalStyles.buttonStyle}
+                  className="notranslate mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+                >
+                  {fanyi("Collect")} ${stringTofixed(finalPrice)},
+                  {fanyi("including")} ${Math.round((extra) * 100) / 100}
+                  {fanyi("Gratuity")}.
+                </button>
               </div>
-            </div>
+            </KeypadModal>
           )}
           {isSplitPaymentModalOpen && (
             <div
@@ -1603,133 +1627,148 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
           {/* the modal for tips */}
           {isTipsModalOpen && (
-            <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              <div className="modal-dialog" role="document">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">Add Service Fee</h5>
-                  </div>
-                  <div className="modal-body">
-
-                    <div className="flex justify-between mb-4">
-                      <button onClick={() => handlePercentageTip(0.15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
-                        15%
-                      </button>
-                      <button onClick={() => handlePercentageTip(0.18)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mx-1">
-                        18%
-                      </button>
-                      <button onClick={() => handlePercentageTip(0.20)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        20%
-                      </button>
-                      <button onClick={() => handlePercentageTip(0.25)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        25%
-                      </button>
-                      {/* <input
-                        type="number"
-                        placeholder="Enter percent"
-                        min="0"  // Add this line
-                        value={customPercentage}
-                        onChange={handleCustomPercentageChange}
-                        className="px-4 py-2 ml-2 form-control tips-no-spinners"  // Added the 'no-spinners' class
-                        translate="no"
-                      /> */}
-                    </div>
-                    <input
-                      type="number"
-                      placeholder="Enter service fee by amount"
-                      value={tips}
-                      step="any"  // Allows any decimal input
-                      className="form-control tips-no-spinners"  // Presuming the 'tips-no-spinners' class hides the default spinner
-                      onChange={(e) => {
-                        let value = e.target.value;
-
-                        // Convert to float for validation but update state with original input value
-                        let parsedValue = parseFloat(value);
-
-                        // Ensure the input is non-negative and valid
-                        if (isNaN(parsedValue) || parsedValue < 0) {
-                          value = "0";  // Set to "0" if invalid or negative
-                        }
-
-                        setTips(value.toString());  // Update the state with the raw input value
-                        setSelectedTipPercentage(null);
-                      }}
-                      onFocus={() => setSelectedTipPercentage(null)}
-                      translate="no"
-                    />
-
-
-                  </div>
-                  <div className="modal-footer">
-                    <button type="button" className="btn btn-secondary" onClick={() => handleCancelTip()}>Cancel</button>
-                    <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>Add Service Fee</button>
-                  </div>
+            <KeypadModal
+              isOpen={isTipsModalOpen}
+              onClose={() => setTipsModalOpen(false)}
+              title={fanyi("Add Service Fee")}
+              numberPadValue={tips}
+              onNumberPadChange={(newValue) => {
+                // Handle decimal point input
+                setTips(newValue);
+              }}
+              onNumberPadConfirm={(confirmedValue) => {
+                // Process value when confirming
+                let valueToConfirm = confirmedValue;
+                setTips(valueToConfirm);
+                setTipsModalOpen(false);
+              }}
+              onQuickAmountClick={(amount) => {
+                // Convert dollar amount to percentage of totalPrice
+                const calculatedTip = (amount / 100 * totalPrice).toFixed(2);
+                setTips(calculatedTip);
+              }}
+            >
+              <div>
+                <div className="flex justify-between mb-4">
+                  <button onClick={() => handlePercentageTip(0.15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                    15%
+                  </button>
+                  <button onClick={() => handlePercentageTip(0.18)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                    18%
+                  </button>
+                  <button onClick={() => handlePercentageTip(0.20)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    20%
+                  </button>
+                  <button onClick={() => handlePercentageTip(0.25)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    25%
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="Enter service fee by amount"
+                  value={tips}
+                  className="form-control tips-no-spinners"
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
+                    
+                    // Only allow numbers and decimal point
+                    if (/^\d*\.?\d*$/.test(value)) {
+                      setTips(value.toString());  // Update the state with the raw input value
+                      setSelectedTipPercentage(null);
+                    }
+                  }}
+                  ref={serviceFeeInputRef}
+                  translate="no"
+                />
+                <div className="mt-4 text-right">
+                  <button type="button" className="btn btn-secondary mr-2" onClick={() => handleCancelTip()}>
+                    {fanyi("Cancel")}
+                  </button>
+                  <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>
+                    {fanyi("Add Service Fee")}
+                  </button>
                 </div>
               </div>
-            </div>
+            </KeypadModal>
           )}
 
           {isDiscountModalOpen && (
-            <div id="addDiscountModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              <div className="modal-dialog" role="document">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">Add Discount</h5>
-                  </div>
-                  <div className="modal-body">
-                    <div className="flex justify-between mb-4">
-                      <button onClick={() => handleDiscountPercentage(0.10)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mr-2">
-                        10%
-                      </button>
-                      <button onClick={() => handleDiscountPercentage(0.15)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mx-1">
-                        15%
-                      </button>
-                      <button onClick={() => handleDiscountPercentage(0.20)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        20%
-                      </button>
-                      <button onClick={() => handleDiscountPercentage(0.25)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        25%
-                      </button>
-                    </div>
+            <KeypadModal
+              isOpen={isDiscountModalOpen}
+              onClose={() => setDiscountModalOpen(false)}
+              title={fanyi("Add Discount")}
+              numberPadValue={discount}
+              onNumberPadChange={(newValue) => {
+                // Handle decimal point input
+                applyDiscount(newValue);
+              }}
+              onNumberPadConfirm={(confirmedValue) => {
+                // Process value when confirming
+                let valueToConfirm = confirmedValue;
+                applyDiscount(valueToConfirm);
+                setDiscountModalOpen(false);
+              }}
+              onQuickAmountClick={(amount) => {
+                // Convert dollar amount to percentage of totalPrice
+                const calculatedDiscount = (amount / 100 * totalPrice).toFixed(2);
+                setDiscount(calculatedDiscount);
+              }}
+            >
+              <div>
+                <div className="flex justify-between mb-4">
+                  <button onClick={() => handleDiscountPercentage(0.10)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                    10%
+                  </button>
+                  <button onClick={() => handleDiscountPercentage(0.15)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                    15%
+                  </button>
+                  <button onClick={() => handleDiscountPercentage(0.20)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    20%
+                  </button>
+                  <button onClick={() => handleDiscountPercentage(0.25)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    25%
+                  </button>
+                </div>
 
-                    <input
-                      type="number"
-                      placeholder="Enter discount by amount"
-                      value={discount}
-                      step="any"  // Allows any decimal input
-                      className="form-control tips-no-spinners"  // Presuming the 'tips-no-spinners' class hides the default spinner
-                      onChange={(e) => {
-                        let value = e.target.value;
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="Enter discount by amount"
+                  value={discount}
+                  className="form-control tips-no-spinners"
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
+                    
+                    // Only allow numbers and decimal point
+                    if (/^\d*\.?\d*$/.test(value)) {
+                      applyDiscount(value);
+                      setSelectedTipPercentage(null);
+                    }
+                  }}
+                  ref={discountInputRef}
+                  translate="no"
+                />
 
-                        // Convert to float for validation but update state with original input value
-                        let parsedValue = parseFloat(value);
-
-                        // Ensure the input is non-negative and valid
-                        if (isNaN(parsedValue) || parsedValue < 0) {
-                          value = "0";  // Set to "0" if invalid or negative
-                        }
-
-                        applyDiscount(value.toString());  // Update the state with the raw input value
-                        setSelectedTipPercentage(null);
-                      }}
-                      onFocus={() => setSelectedTipPercentage(null)}
-                      translate="no"
-                    />
-                  </div>
-                  <div className="modal-footer">
-                    <button type="button" className="btn btn-secondary" onClick={handleCancelDiscount}>Cancel</button>
-                    <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>Add Discount</button>
-                  </div>
+                <div className="mt-4 text-right">
+                  <button type="button" className="btn btn-secondary mr-2" onClick={handleCancelDiscount}>
+                    {fanyi("Cancel")}
+                  </button>
+                  <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>
+                    {fanyi("Add Discount")}
+                  </button>
                 </div>
               </div>
-            </div>
+            </KeypadModal>
           )}
         </div>
 
 
       </div>
+      {/* Standalone NumberPad component removed - now integrated in KeypadModal */}
     </div>
   )
 }
 
 export default Navbar
+

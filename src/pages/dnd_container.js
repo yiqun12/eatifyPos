@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from "react";
+import { React, useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useDroppable, DragOverlay } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -18,8 +18,10 @@ import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
 import PaymentSplit from "../pages/PaymentSplit";
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import NumberPad from '../components/NumberPad'; // Import NumberPad component
+import KeypadModal from '../components/KeypadModal'; // Import KeypadModal component
 
-// function Item({ heading, description }) 
+// function Item({ heading, description })
 
 
 function Item({ item, updateItems, whole_item_groups, numberOfGroups }) {
@@ -100,7 +102,8 @@ function SortableItem(props) {
   // console.log("sortableItem: ", whole_item_groups)
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <Item id={id} item={item} updateItems={updateItems} whole_item_groups={whole_item_groups} numberOfGroups={numberOfGroups} />
+      <Item id={id} item={item} updateItems={updateItems} whole_item_groups={whole_item_groups} numberOfGroups={numberOfGroups}
+      />
     </div>
   );
 }
@@ -137,116 +140,12 @@ function Container(props) {
   const [customAmount, setCustomAmount] = useState("");
   const [result, setResult] = useState(null);
   const [finalResult, setFinalResult] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const openUniqueModal = () => setUniqueModalOpen(true);
   const closeUniqueModal = () => setUniqueModalOpen(false);
 
-  const handleChange = (event) => {
-    let value = event.target.value.replace(/。/g, '.'); // 替换中文句号
-
-    // 只允许数字、小数点、负号
-    if (/^-?\d*\.?\d*$/.test(value)) {
-      setInputValue(value);
-    }
-    setErrorMessage(``)
-
-    setResult(null);
-  };
-
-  const handleCustomAmountChange = (event) => {
-    let value = event.target.value.replace(/。/g, '.'); // 替换中文句号
-
-    // 只允许数字、小数点、负号
-    if (/^-?\d*\.?\d*$/.test(value)) {
-      setCustomAmount(value);
-    }
-  };
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const calculateResult = () => {
-    const x = parseInt(inputValue);
-    if (!isNaN(x) && x > finalPrice) {
-      setResult(x);
-    } else {
-      setErrorMessage(`Please enter a number greater than total amount`);
-    }
-  };
-
-  const calculateExtra = (percentage) => {
-    const extraAmount = (subtotal * percentage) / 100;
-    setExtra(extraAmount);
-    setFinalResult(subtotal + extraAmount);
-  };
-
-  const calculateCustomAmount = (customAmoun_t) => {
-    let amount;
-    if (!customAmoun_t) {
-      amount = parseFloat(customAmount);
-    } else {
-      amount = customAmoun_t
-    }
-    if (!isNaN(amount)) {
-      setExtra(amount);
-      setFinalResult(subtotal + amount);
-    } else {
-      alert("Please enter a valid number");
-    }
-  };
-
-  const uniqueModalStyles = {
-    overlayStyle: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: isUniqueModalOpen ? 'flex' : 'none',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    modalStyle: {
-      backgroundColor: '#fff',
-      padding: '20px',
-      borderRadius: '8px',
-      width: '100%',
-      maxWidth: '400px',
-      position: 'relative',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    },
-    closeBtnStyle: {
-      position: 'absolute',
-      right: '30px',
-      top: '0',
-      background: 'none',
-      border: 'none',
-      fontSize: '48px',
-      cursor: 'pointer',
-    },
-    inputStyle: {
-      width: '100%',
-      padding: '12px',
-      boxSizing: 'border-box',
-      marginBottom: '10px',
-      borderRadius: '4px',
-      border: '1px solid #ccc',
-    },
-    buttonStyle: {
-      backgroundColor: '#007bff',
-      color: '#fff',
-      padding: '12px 15px',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      width: '100%',
-      marginBottom: '10px',
-    },
-  };
   const [isCustomAmountVisible, setCustomAmountVisible] = useState(false);
-
-  const toggleCustomAmountVisibility = () => {
-    setCustomAmountVisible(!isCustomAmountVisible);
-  };
 
   const [extra, setExtra] = useState(0);
 
@@ -282,15 +181,15 @@ function Container(props) {
   }
 
   const handleCustomPercentageChange = (e) => {
-    let value = e.target.value;
-    // If the value is less than 0, set it to 0 (or any other default value)
-    if (value < 0) {
-      value = 0;
+    let value = e.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
+
+    // Only allow numbers and decimal point
+    if (/^\d*\.?\d*$/.test(value)) {
+      setCustomPercentage(value);
+      const calculatedTip = subtotal * (Number(value) / 100);
+      setTips(calculatedTip.toFixed(2));
+      setSelectedTipPercentage(null);
     }
-    setCustomPercentage(value);
-    const calculatedTip = subtotal * (Number(value) / 100);
-    setTips(calculatedTip.toFixed(2));
-    setSelectedTipPercentage(null);
   }
 
   const [isDiscountModalOpen, setDiscountModalOpen] = useState(false);
@@ -324,14 +223,15 @@ function Container(props) {
   }
 
   const handleCustomDiscountPercentageChange = (e) => {
-    let value = e.target.value;
-    if (value < 0) {
-      value = 0;
+    let value = e.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
+
+    // Only allow numbers and decimal point
+    if (/^\d*\.?\d*$/.test(value)) {
+      setCustomDiscountPercentage(value);
+      const calculatedDiscount = subtotal * (Number(value) / 100);
+      setDiscount(calculatedDiscount.toFixed(2));
+      setSelectedDiscountPercentage(null);
     }
-    setCustomDiscountPercentage(value);
-    const calculatedDiscount = subtotal * (Number(value) / 100);
-    setDiscount(calculatedDiscount.toFixed(2));
-    setSelectedDiscountPercentage(null);
   }
 
   // containerId ** is the key of this specific group in the whole_item_groups
@@ -644,6 +544,143 @@ function Container(props) {
     return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
   }
 
+
+
+  // Add refs for inputs - only keeping necessary references
+  const serviceFeeTipsInputRef = useRef(null);
+  const discountInputRef = useRef(null);
+  const cashInputRef = useRef(null);
+  const customAmountInputRef = useRef(null);
+  /**check if its mobile/browser */
+  const [width, setWidth] = useState(window.innerWidth);
+
+  function handleWindowSizeChange() {
+    setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowSizeChange);
+    return () => {
+      window.removeEventListener('resize', handleWindowSizeChange);
+    }
+  }, []);
+
+  const isPC = width >= 1024;
+
+  // Effect for closing number pad removed - now controlled by KeypadModal
+
+  const handleChange = (event) => {
+    let value = event.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
+
+    // Only allow numbers, decimal point, and negative sign
+    if (/^-?\d*\.?\d*$/.test(value)) {
+      setInputValue(value);
+    }
+    setErrorMessage(``)
+
+    setResult(null);
+  };
+
+  const handleCustomAmountChange = (event) => {
+    let value = event.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
+
+    // Only allow numbers, decimal point, and negative sign
+    if (/^-?\d*\.?\d*$/.test(value)) {
+      setCustomAmount(value);
+    }
+  };
+
+  const calculateResult = () => {
+    // For input ending with decimal point, temporarily add 0 for calculation
+    let valueToCheck = inputValue;
+    if (inputValue.endsWith('.')) {
+      valueToCheck = inputValue + '0'; // Add 0 to make it a valid number
+    }
+    
+    const x = parseFloat(valueToCheck);
+    if (!isNaN(x) && x > finalPrice) {
+      setResult(x);
+    } else {
+      setErrorMessage(`Please enter a number greater than total amount`);
+    }
+  };
+
+  const calculateExtra = (percentage) => {
+    const extraAmount = (subtotal * percentage) / 100;
+    setExtra(extraAmount);
+    setFinalResult(subtotal + extraAmount);
+  };
+
+  const calculateCustomAmount = (customAmoun_t) => {
+    let amount;
+    if (!customAmoun_t) {
+      amount = parseFloat(customAmount);
+    } else {
+      amount = customAmoun_t
+    }
+    if (!isNaN(amount)) {
+      setExtra(amount);
+      setFinalResult(subtotal + amount);
+    } else {
+      alert("Please enter a valid number");
+    }
+  };
+
+  const uniqueModalStyles = {
+    overlayStyle: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: isUniqueModalOpen ? 'flex' : 'none',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalStyle: {
+      backgroundColor: '#fff',
+      padding: '20px',
+      borderRadius: '8px',
+      width: '100%',
+      maxWidth: '400px',
+      position: 'relative',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    },
+    closeBtnStyle: {
+      position: 'absolute',
+      right: '30px',
+      top: '0',
+      background: 'none',
+      border: 'none',
+      fontSize: '48px',
+      cursor: 'pointer',
+    },
+    inputStyle: {
+      width: '100%',
+      padding: '12px',
+      boxSizing: 'border-box',
+      marginBottom: '10px',
+      borderRadius: '4px',
+      border: '1px solid #ccc',
+    },
+    buttonStyle: {
+      backgroundColor: '#007bff',
+      color: '#fff',
+      padding: '12px 15px',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      width: '100%',
+      marginBottom: '10px',
+    },
+  };
+
+  const toggleCustomAmountVisibility = () => {
+    setCustomAmountVisible(!isCustomAmountVisible);
+  };
+
+  // OpenNumberPad function removed - now handled by KeypadModal
+
   return (
 
     <SortableContext
@@ -769,67 +806,76 @@ function Container(props) {
               <span>{"Add Service Fee"}</span>
             </a>
             {isTipsModalOpen && (
-              <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                <div className="modal-dialog" role="document">
-                  <div className="modal-content">
-                    <div className="modal-header">
-                      <h5 className="modal-title">Add Service Fee</h5>
-                    </div>
-                    <div className="modal-body">
+              <KeypadModal
+                isOpen={isTipsModalOpen}
+                onClose={() => setTipsModalOpen(false)}
+                title="Add Service Fee"
+                numberPadValue={tips}
+                onNumberPadChange={(newValue) => {
+                  setTips(newValue);
+                }}
+                onNumberPadConfirm={(confirmedValue) => {
+                  // Process value when confirming
+                  let valueToConfirm = confirmedValue;
+                  setTips(valueToConfirm);
+                  setTipsModalOpen(false);
+                }}
+                onQuickAmountClick={(amount) => {
+                  const calculatedTip = (amount / 100 * subtotal).toFixed(2);
+                  setTips(calculatedTip);
+                }}
+              >
+                <div>
+                  <div className="flex justify-between mb-4">
+                    <button onClick={() => handlePercentageTip(0.15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                      15%
+                    </button>
+                    <button onClick={() => handlePercentageTip(0.18)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                      18%
+                    </button>
+                    <button onClick={() => handlePercentageTip(0.20)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                      20%
+                    </button>
 
-                      <div className="flex justify-between mb-4">
-                        <button onClick={() => handlePercentageTip(0.15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
-                          15%
-                        </button>
-                        <button onClick={() => handlePercentageTip(0.18)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mx-1">
-                          18%
-                        </button>
-                        <button onClick={() => handlePercentageTip(0.20)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                          20%
-                        </button>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="Enter percent"
+                      value={customPercentage}
+                      onChange={handleCustomPercentageChange}
+                      className="px-4 py-2 ml-2 form-control tips-no-spinners"
+                      translate="no"
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="Enter service fee by amount"
+                    value={tips}
+                    className="form-control tips-no-spinners"
+                    onChange={(e) => {
+                      let value = e.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
 
-                        <input
-                          type="number"
-                          placeholder="Enter percent"
-                          min="0"  // Add this line
-                          value={customPercentage}
-                          onChange={handleCustomPercentageChange}
-                          className="px-4 py-2 ml-2 form-control tips-no-spinners"  // Added the 'no-spinners' class
-                          translate="no"
-                        />
-                      </div>
-                      <input
-                        type="number"
-                        placeholder="Enter service fee by amount"
-                        value={tips}
-                        step="any"  // Allows any decimal input
-                        className="form-control tips-no-spinners"  // Presuming the 'tips-no-spinners' class hides the default spinner
-                        onChange={(e) => {
-                          let value = e.target.value;
+                      // Only allow numbers and decimal point
+                      if (/^\d*\.?\d*$/.test(value)) {
+                        setTips(value.toString());
+                        setSelectedTipPercentage(null);
+                      }
+                    }}
+                    ref={serviceFeeTipsInputRef}
+                    translate="no"
+                  />
 
-                          // Convert to float for validation but update state with original input value
-                          let parsedValue = parseFloat(value);
-
-                          // Ensure the input is non-negative and valid
-                          if (isNaN(parsedValue) || parsedValue < 0) {
-                            value = "0";  // Set to "0" if invalid or negative
-                          }
-
-                          setTips(value.toString());  // Update the state with the raw input value
-                          setSelectedTipPercentage(null);
-                        }}
-                        onFocus={() => setSelectedTipPercentage(null)}
-                        translate="no"
-                      />
-
-                    </div>
-                    <div className="modal-footer">
-                      <button type="button" className="btn btn-secondary" onClick={() => handleCancelTip()}>Cancel</button>
-                      <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>Add Service Fee</button>
-                    </div>
+                  <div className="mt-4 text-right">
+                    <button type="button" className="btn btn-secondary mr-2" onClick={() => handleCancelTip()}>
+                      Cancel
+                    </button>
+                    <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>
+                      Add Service Fee
+                    </button>
                   </div>
                 </div>
-              </div>
+              </KeypadModal>
             )}
             <a
               onClick={handleAddDiscountClick}
@@ -840,65 +886,75 @@ function Container(props) {
             </a>
 
             {isDiscountModalOpen && (
-              <div id="addDiscountModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                <div className="modal-dialog" role="document">
-                  <div className="modal-content">
-                    <div className="modal-header">
-                      <h5 className="modal-title">Add Discount</h5>
-                    </div>
-                    <div className="modal-body">
-                      <div className="flex justify-between mb-4">
-                        <button onClick={() => handleDiscountPercentage(0.10)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mr-2">
-                          10%
-                        </button>
-                        <button onClick={() => handleDiscountPercentage(0.20)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mx-1">
-                          20%
-                        </button>
-                        <button onClick={() => handleDiscountPercentage(0.30)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                          30%
-                        </button>
-                        <input
-                          type="number"
-                          placeholder="Enter percent"
-                          min="0"
-                          value={customDiscountPercentage}
-                          onChange={handleCustomDiscountPercentageChange}
-                          className="px-4 py-2 ml-2 form-control discounts-no-spinners"
-                          translate="no"
-                        />
-                      </div>
+              <KeypadModal
+                isOpen={isDiscountModalOpen}
+                onClose={() => setDiscountModalOpen(false)}
+                title="Add Discount"
+                numberPadValue={discount}
+                onNumberPadChange={(newValue) => applyDiscount(newValue)}
+                onNumberPadConfirm={(confirmedValue) => {
+                  // Process value when confirming
+                  let valueToConfirm = confirmedValue;
+                  applyDiscount(valueToConfirm);
+                  setDiscountModalOpen(false);
+                }}
+                onQuickAmountClick={(amount) => {
+                  // Convert dollar amount to percentage of subtotal
+                  const calculatedDiscount = (amount / 100 * subtotal).toFixed(2);
+                  setDiscount(calculatedDiscount);
+                }}
+              >
+                <div>
+                  <div className="flex justify-between mb-4">
+                    <button onClick={() => handleDiscountPercentage(0.10)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                      10%
+                    </button>
+                    <button onClick={() => handleDiscountPercentage(0.20)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                      20%
+                    </button>
+                    <button onClick={() => handleDiscountPercentage(0.30)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                      30%
+                    </button>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="Enter percent"
+                      value={customDiscountPercentage}
+                      onChange={handleCustomDiscountPercentageChange}
+                      className="px-4 py-2 ml-2 form-control discounts-no-spinners"
+                      translate="no"
+                    />
+                  </div>
 
-                      <input
-                        type="number"
-                        placeholder="Enter service fee by amount"
-                        value={discount}
-                        step="any"  // Allows any decimal input
-                        className="form-control discounts-no-spinners"  // Presuming the 'tips-no-spinners' class hides the default spinner
-                        onChange={(e) => {
-                          let value = e.target.value;
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="Enter discount by amount"
+                    value={discount}
+                    className="form-control discounts-no-spinners"
+                    onChange={(e) => {
+                      let value = e.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
 
-                          // Convert to float for validation but update state with original input value
-                          let parsedValue = parseFloat(value);
+                      // Only allow numbers and decimal point
+                      if (/^\d*\.?\d*$/.test(value)) {
+                        applyDiscount(value.toString());
+                        setSelectedTipPercentage(null);
+                      }
+                    }}
+                    ref={discountInputRef}
+                    translate="no"
+                  />
 
-                          // Ensure the input is non-negative and valid
-                          if (isNaN(parsedValue) || parsedValue < 0) {
-                            value = "0";  // Set to "0" if invalid or negative
-                          }
-
-                          applyDiscount(value.toString());  // Update the state with the raw input value
-                          setSelectedTipPercentage(null);
-                        }}
-                        onFocus={() => setSelectedTipPercentage(null)}
-                        translate="no"
-                      />
-                    </div>
-                    <div className="modal-footer">
-                      <button type="button" className="btn btn-secondary" onClick={handleCancelDiscount}>Cancel</button>
-                      <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>Add Discount</button>
-                    </div>
+                  <div className="mt-4 text-right">
+                    <button type="button" className="btn btn-secondary mr-2" onClick={handleCancelDiscount}>
+                      Cancel
+                    </button>
+                    <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>
+                      Add Discount
+                    </button>
                   </div>
                 </div>
-              </div>
+              </KeypadModal>
             )}
             <a
               onClick={() => { CustomerReceipt(); MerchantReceipt(); }}
@@ -951,132 +1007,150 @@ function Container(props) {
               <span>{"Cash Pay"}</span>
             </a>
             {isUniqueModalOpen && (
-              <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                <div className="modal-dialog" role="document">
-                  <div className="modal-content">
-                    <div className="modal-header mb-2">
-                      <a
-                        onClick={() => { OpenCashDraw(); }}
-                        className="mt-3 btn btn-md btn-info "
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
-                      >
-
-                        <span>Open Cash Drawer</span>
-                      </a>
-                      <button style={uniqueModalStyles.closeBtnStyle} onClick={() => {
-                        setUniqueModalOpen(false);
-                        setInputValue("")
-                        setResult(null);
-                        setExtra(0)
-                      }}>
-                        &times;
-                      </button>
+              <KeypadModal
+                isOpen={isUniqueModalOpen}
+                onClose={() => {
+                  setUniqueModalOpen(false);
+                  setInputValue('');
+                  setResult(null);
+                  setExtra(0);
+                }}
+                headerContent={
+                  <a
+                    onClick={() => { OpenCashDraw(); }}
+                    className="mt-3 btn btn-md btn-info"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+                  >
+                    <span>Open Cash Drawer</span>
+                  </a>
+                }
+                numberPadValue={inputValue}
+                onNumberPadChange={(newValue) => {
+                  setInputValue(newValue);
+                  setErrorMessage('');
+                  setResult(null);
+                }}
+                onNumberPadConfirm={() => calculateResult()}
+                onQuickAmountClick={(amount) => {
+                  setInputValue(amount.toString());
+                  setErrorMessage('');
+                  setResult(null);
+                }}
+              >
+                <div>
+                  <p className="mb-2">Enter the Cash Received</p>
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={handleChange}
+                    style={uniqueModalStyles.inputStyle}
+                    className="mb-4 p-2 w-full border rounded-md"
+                    ref={cashInputRef}
+                    translate="no"
+                  />
+                  <button
+                    onClick={calculateResult}
+                    style={uniqueModalStyles.buttonStyle}
+                    className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
+                  >
+                    Calculate Give Back Cash
+                  </button>
+                  {errorMessage && (
+                    <div className="text-red-500 font-semibold mt-2">
+                      {errorMessage}
                     </div>
-                    <div className="modal-body p-6 py-0">
-                      <p className="mb-4 mt-4">Gratuity:</p>
-                      <div className="flex justify-between mb-4">
-                        <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
-                          15%
-                        </button>
-                        <button onClick={() => { calculateExtra(18); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mx-1">
-                          18%
-                        </button>
-                        <button onClick={() => { calculateExtra(20); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                          20%
-                        </button>
-                        <button onClick={toggleCustomAmountVisibility} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                          Other
-                        </button>
-                      </div>
+                  )}
+                  {(extra !== null && extra !== 0) && (
+                    <p className="">Gratuity: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
+                  )}
+                  <p className="mt-1">Final Payment: <span className='notranslate'>${finalPrice}</span> </p>
 
-                      {isCustomAmountVisible && (
-                        <div>
-                          <p className="mb-2">Custom Gratuity:</p>
-                          <div className="flex">
-                            <input
-                              type="text"
-                              value={customAmount}
-                              onChange={handleCustomAmountChange}
-                              style={uniqueModalStyles.inputStyle}
-                              className="p-2 w-full border rounded-md mr-2"
-                              translate="no"
-                            />
-                            <button
-                              onClick={() => calculateCustomAmount(customAmount)}
-                              className="bg-orange-500 text-white p-2 rounded-md w-1/3"
-                            >
-                              Add
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                      <p className="mb-2">Enter the Cash Received</p>
-                      <input
-                        type="text"
-                        value={inputValue}
-                        onChange={handleChange}
-                        style={uniqueModalStyles.inputStyle}
-                        className="mb-4 p-2 w-full border rounded-md"
-                        translate="no"
-                      />
-                      <button
-                        onClick={calculateResult}
-                        style={uniqueModalStyles.buttonStyle}
-                        className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
-                      >
-                        Calculate Give Back Cash
-                      </button>
-                      {errorMessage && (
-                        <div className="text-red-500 font-semibold mt-2">
-                          {errorMessage}
-                        </div>
-                      )}
-                      {(extra !== null && extra !== 0) && (
-                        <p className="">Gratuity: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
-                      )}
-                      <p className="mt-1">Final Payment: <span className='notranslate'>${finalPrice}</span> </p>
-
-                      {result !== null && (
-                        <div>
-                          <p className="mt-1 mb-4 ">
-                            Give Back Cash :
-
-                            <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
-                          </p>
-                          <button
-                            onClick={() => {
-                              setCustomAmount(Math.round((result - finalPrice) * 100) / 100); calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
-                              CashCheckOut(Math.round((result - finalPrice + extra) * 100) / 100, Math.round(subtotal * (Number(TaxRate) / 100) * 100) / 100, inputValue);
-                              closeUniqueModal();
-                            }}
-                            style={uniqueModalStyles.buttonStyle}
-                            className="mt-2 mb-2 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
-                          >
-                            {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
-                            {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
-                            {fanyi("Gratuity")}.
-                          </button>
-
-                        </div>
-                      )}
-
+                  {result !== null && (
+                    <div>
+                      <p className="mt-1 mb-4 ">
+                        Give Back Cash:
+                        <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
+                      </p>
                       <button
                         onClick={() => {
-                          CashCheckOut(extra, Math.round(subtotal * (Number(TaxRate) / 100) * 100) / 100, finalPrice); closeUniqueModal();
+                          setCustomAmount(Math.round((result - finalPrice) * 100) / 100);
+                          calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
+                          CashCheckOut(
+                            Math.round((result - finalPrice + extra) * 100) / 100,
+                            Math.round(subtotal * (Number(TaxRate) / 100) * 100) / 100,
+                            inputValue
+                          );
+                          closeUniqueModal();
                         }}
                         style={uniqueModalStyles.buttonStyle}
-                        className="mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+                        className="mt-2 mb-2 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
                       >
-                        {fanyi("Collect")} ${stringTofixed(finalPrice)},
-                        {fanyi("including")} ${Math.round((extra) * 100) / 100}
+                        {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
+                        {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
                         {fanyi("Gratuity")}.
                       </button>
                     </div>
-                    <div className="modal-footer">
+                  )}
+
+                  <button
+                    onClick={() => {
+                      CashCheckOut(
+                        extra,
+                        Math.round(subtotal * (Number(TaxRate) / 100) * 100) / 100,
+                        finalPrice
+                      );
+                      closeUniqueModal();
+                    }}
+                    style={uniqueModalStyles.buttonStyle}
+                    className="mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+                  >
+                    {fanyi("Collect")} ${stringTofixed(finalPrice)},
+                    {fanyi("including")} ${Math.round((extra) * 100) / 100}
+                    {fanyi("Gratuity")}.
+                  </button>
+
+                  <div className="mt-4">
+                    <p className="mb-4">Gratuity:</p>
+                    <div className="flex justify-between mb-4">
+                      <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                        15%
+                      </button>
+                      <button onClick={() => { calculateExtra(18); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                        18%
+                      </button>
+                      <button onClick={() => { calculateExtra(20); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                        20%
+                      </button>
+                      <button onClick={toggleCustomAmountVisibility} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                        Other
+                      </button>
                     </div>
+
+                    {isCustomAmountVisible && (
+                      <div>
+                        <p className="mb-2">Custom Gratuity:</p>
+                        <div className="flex">
+                          <input
+                            type="text"
+                            value={customAmount}
+                            onChange={handleCustomAmountChange}
+                            style={uniqueModalStyles.inputStyle}
+                            className="p-2 w-full border rounded-md mr-2"
+                            ref={customAmountInputRef}
+                            translate="no"
+                          />
+                          <button
+                            onClick={() => calculateCustomAmount(customAmount)}
+                            className="bg-orange-500 text-white p-2 rounded-md w-1/3"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
+              </KeypadModal>
             )}
             <div className={`text-right`}>Subtotal: <span className='notranslate'>${round2digtNum(subtotal).toFixed(2)}</span> </div>
             {discount && (
@@ -1094,8 +1168,6 @@ function Container(props) {
           </div>
         </div>
       </div>
-
-
 
     </SortableContext>
 
