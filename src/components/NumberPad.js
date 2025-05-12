@@ -100,7 +100,6 @@ const NumberPad = ({
     </div>
   );
 
-  // 根据是否嵌入式返回不同的渲染结果
   if (embedded) {
     return (
       <>
@@ -109,7 +108,6 @@ const NumberPad = ({
     );
   }
 
-  // 非嵌入式时，显示浮动的数字键盘
   return (
     <div className="number-pad-overlay">
       <div className="number-pad-container">

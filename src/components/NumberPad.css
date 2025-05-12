@@ -23,7 +23,7 @@
   display: flex;
   flex-direction: column;
   margin-right: 15px; /* Spacing between left and right sections */
-  width: 250px; /* 设置固定宽度，使其在嵌入式环境中保持一致 */
+  width: 250px;
 }
 
 .number-pad-display {
@@ -110,7 +110,7 @@
   grid-template-columns: repeat(2, 1fr); /* 2 columns for quick amounts */
   grid-template-rows: repeat(5, auto); /* 5 rows */
   gap: 8px;
-  width: 150px; /* 设置固定宽度，使其在嵌入式环境中保持一致 */
+  width: 150px;
 }
 
 .number-pad-right button {
@@ -119,4 +119,4 @@
 
 .number-pad-right button:hover {
   background-color: #d0e0ff;
-} 
+}
