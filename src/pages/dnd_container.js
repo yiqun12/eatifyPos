@@ -141,7 +141,7 @@ function Container(props) {
   const [result, setResult] = useState(null);
   const [finalResult, setFinalResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
-  // 添加keypadProps状态
+  // Add keypadProps state
   const [keypadProps, setKeypadProps] = useState({
     numberPadValue: "",
     onNumberPadChange: (newValue) => {
@@ -155,11 +155,11 @@ function Container(props) {
       setErrorMessage('');
       setResult(null);
     },
-    key: "main-input", // 主输入框的key
-    activeInputType: "main" // 当前活跃的输入框类型
+    key: "main-input", // Key for the main input field
+    activeInputType: "main" // Type of the active input field
   });
 
-  // 重置keypadProps到默认值（关联到主输入框）
+  // Reset keypadProps to default values (linked to the main input field)
   const resetKeypadProps = () => {
     setKeypadProps({
       numberPadValue: inputValue,
@@ -174,12 +174,12 @@ function Container(props) {
         setErrorMessage('');
         setResult(null);
       },
-      key: "main-input", // 主输入框的key
-      activeInputType: "main" // 主输入框的类型
+      key: "main-input", // Key for the main input field
+      activeInputType: "main" // Type of the main input field
     });
   };
 
-  // 更新keypadProps的numberPadValue
+  // Update numberPadValue in keypadProps
   useEffect(() => {
     if (keypadProps.numberPadValue === inputValue) {
       setKeypadProps(prev => ({
@@ -189,7 +189,7 @@ function Container(props) {
     }
   }, [inputValue]);
 
-  // 更新自定义小费数值时
+  // When custom tip amount is updated
   useEffect(() => {
     if (keypadProps.numberPadValue === customAmount) {
       setKeypadProps(prev => ({
@@ -201,7 +201,7 @@ function Container(props) {
 
   const openUniqueModal = () => {
     setUniqueModalOpen(true);
-    resetKeypadProps(); // 重置keypadProps到默认值
+    resetKeypadProps(); // Reset keypadProps to default values
   };
   const closeUniqueModal = () => setUniqueModalOpen(false);
 
@@ -741,7 +741,7 @@ function Container(props) {
 
   // OpenNumberPad function removed - now handled by KeypadModal
 
-  // 监听reset-keypad事件
+  // Listen for reset-keypad events
   useEffect(() => {
     const handleResetKeypad = () => {
       resetKeypadProps();
@@ -752,7 +752,7 @@ function Container(props) {
     return () => {
       window.removeEventListener('reset-keypad', handleResetKeypad);
     };
-  }, [inputValue]); // 依赖项需要包含inputValue，以确保resetKeypadProps使用最新的值
+  }, [inputValue]); // Dependencies include inputValue to ensure resetKeypadProps uses the latest value
 
   return (
 
@@ -1112,7 +1112,7 @@ function Container(props) {
                     className="mb-4 p-2 w-full border rounded-md"
                     ref={cashInputRef}
                     onClick={() => {
-                      // 点击主输入框时，重置keypadProps
+                      // When clicking the main input field, reset keypadProps
                       resetKeypadProps();
                     }}
                     translate="no"
@@ -1207,9 +1207,9 @@ function Container(props) {
                             className="p-2 w-full border rounded-md mr-2"
                             ref={customAmountInputRef}
                             onClick={() => {
-                              // 点击自定义小费输入框时，修改关联到自定义小费输入
+                              // When clicking the custom tip input field, modify association to custom tip input
                               setKeypadProps({
-                                // 使用当前自定义小费的值
+                                // Use the current value of custom tip
                                 numberPadValue: customAmount,
                                 onNumberPadChange: (newValue) => {
                                   setCustomAmount(newValue);
@@ -1220,8 +1220,8 @@ function Container(props) {
                                 onQuickAmountClick: (amount) => {
                                   setCustomAmount(amount.toString());
                                 },
-                                key: "custom-amount", // 自定义小费输入框的key
-                                activeInputType: "custom" // 自定义小费输入框的类型
+                                key: "custom-amount", // Key for the custom tip input field
+                                activeInputType: "custom" // Type of the custom tip input field
                               });
                             }}
                             translate="no"
