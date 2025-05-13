@@ -12,7 +12,7 @@ import { ReactComponent as PlusSvg } from './plus.svg';
 import { ReactComponent as MinusSvg } from './minus.svg';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faTimesCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
@@ -141,8 +141,68 @@ function Container(props) {
   const [result, setResult] = useState(null);
   const [finalResult, setFinalResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  // Add keypadProps state
+  const [keypadProps, setKeypadProps] = useState({
+    numberPadValue: "",
+    onNumberPadChange: (newValue) => {
+      setInputValue(newValue);
+      setErrorMessage('');
+      setResult(null);
+    },
+    onNumberPadConfirm: () => calculateResult(),
+    onQuickAmountClick: (amount) => {
+      setInputValue(amount.toString());
+      setErrorMessage('');
+      setResult(null);
+    },
+    key: "main-input", // Key for the main input field
+    activeInputType: "main" // Type of the active input field
+  });
 
-  const openUniqueModal = () => setUniqueModalOpen(true);
+  // Reset keypadProps to default values (linked to the main input field)
+  const resetKeypadProps = () => {
+    setKeypadProps({
+      numberPadValue: inputValue,
+      onNumberPadChange: (newValue) => {
+        setInputValue(newValue);
+        setErrorMessage('');
+        setResult(null);
+      },
+      onNumberPadConfirm: () => calculateResult(),
+      onQuickAmountClick: (amount) => {
+        setInputValue(amount.toString());
+        setErrorMessage('');
+        setResult(null);
+      },
+      key: "main-input", // Key for the main input field
+      activeInputType: "main" // Type of the main input field
+    });
+  };
+
+  // Update numberPadValue in keypadProps
+  useEffect(() => {
+    if (keypadProps.numberPadValue === inputValue) {
+      setKeypadProps(prev => ({
+        ...prev,
+        numberPadValue: inputValue
+      }));
+    }
+  }, [inputValue]);
+
+  // When custom tip amount is updated
+  useEffect(() => {
+    if (keypadProps.numberPadValue === customAmount) {
+      setKeypadProps(prev => ({
+        ...prev,
+        numberPadValue: customAmount
+      }));
+    }
+  }, [customAmount]);
+
+  const openUniqueModal = () => {
+    setUniqueModalOpen(true);
+    resetKeypadProps(); // Reset keypadProps to default values
+  };
   const closeUniqueModal = () => setUniqueModalOpen(false);
 
   const [isCustomAmountVisible, setCustomAmountVisible] = useState(false);
@@ -595,7 +655,7 @@ function Container(props) {
     if (inputValue.endsWith('.')) {
       valueToCheck = inputValue + '0'; // Add 0 to make it a valid number
     }
-    
+
     const x = parseFloat(valueToCheck);
     if (!isNaN(x) && x > finalPrice) {
       setResult(x);
@@ -680,6 +740,19 @@ function Container(props) {
   };
 
   // OpenNumberPad function removed - now handled by KeypadModal
+
+  // Listen for reset-keypad events
+  useEffect(() => {
+    const handleResetKeypad = () => {
+      resetKeypadProps();
+    };
+    
+    window.addEventListener('reset-keypad', handleResetKeypad);
+    
+    return () => {
+      window.removeEventListener('reset-keypad', handleResetKeypad);
+    };
+  }, [inputValue]); // Dependencies include inputValue to ensure resetKeypadProps uses the latest value
 
   return (
 
@@ -868,9 +941,9 @@ function Container(props) {
 
                   <div className="mt-4 text-right">
                     <button type="button" className="btn btn-secondary mr-2" onClick={() => handleCancelTip()}>
-                      Cancel
+                      <FontAwesomeIcon icon={faTimes} className="mr-1" /> Cancel Add
                     </button>
-                    <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>
+                    <button type="button" className="btn btn-danger" onClick={() => setTipsModalOpen(false)}>
                       Add Service Fee
                     </button>
                   </div>
@@ -899,7 +972,6 @@ function Container(props) {
                   setDiscountModalOpen(false);
                 }}
                 onQuickAmountClick={(amount) => {
-                  // 直接使用按钮上的金额值
                   setDiscount(amount.toString());
                 }}
               >
@@ -946,9 +1018,9 @@ function Container(props) {
 
                   <div className="mt-4 text-right">
                     <button type="button" className="btn btn-secondary mr-2" onClick={handleCancelDiscount}>
-                      Cancel
+                      <FontAwesomeIcon icon={faTimes} className="mr-1" /> Cancel Add
                     </button>
-                    <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>
+                    <button type="button" className="btn btn-danger" onClick={() => setDiscountModalOpen(false)}>
                       Add Discount
                     </button>
                   </div>
@@ -1023,18 +1095,12 @@ function Container(props) {
                     <span>Open Cash Drawer</span>
                   </a>
                 }
-                numberPadValue={inputValue}
-                onNumberPadChange={(newValue) => {
-                  setInputValue(newValue);
-                  setErrorMessage('');
-                  setResult(null);
-                }}
-                onNumberPadConfirm={() => calculateResult()}
-                onQuickAmountClick={(amount) => {
-                  setInputValue(amount.toString());
-                  setErrorMessage('');
-                  setResult(null);
-                }}
+                showCloseButton={true}
+                numberPadValue={keypadProps.numberPadValue}
+                onNumberPadChange={keypadProps.onNumberPadChange}
+                onNumberPadConfirm={keypadProps.onNumberPadConfirm}
+                onQuickAmountClick={keypadProps.onQuickAmountClick}
+                activeInputType={keypadProps.activeInputType}
               >
                 <div>
                   <p className="mb-2">Enter the Cash Received</p>
@@ -1045,6 +1111,10 @@ function Container(props) {
                     style={uniqueModalStyles.inputStyle}
                     className="mb-4 p-2 w-full border rounded-md"
                     ref={cashInputRef}
+                    onClick={() => {
+                      // When clicking the main input field, reset keypadProps
+                      resetKeypadProps();
+                    }}
                     translate="no"
                   />
                   <button
@@ -1136,6 +1206,24 @@ function Container(props) {
                             style={uniqueModalStyles.inputStyle}
                             className="p-2 w-full border rounded-md mr-2"
                             ref={customAmountInputRef}
+                            onClick={() => {
+                              // When clicking the custom tip input field, modify association to custom tip input
+                              setKeypadProps({
+                                // Use the current value of custom tip
+                                numberPadValue: customAmount,
+                                onNumberPadChange: (newValue) => {
+                                  setCustomAmount(newValue);
+                                },
+                                onNumberPadConfirm: () => {
+                                  calculateCustomAmount(customAmount);
+                                },
+                                onQuickAmountClick: (amount) => {
+                                  setCustomAmount(amount.toString());
+                                },
+                                key: "custom-amount", // Key for the custom tip input field
+                                activeInputType: "custom" // Type of the custom tip input field
+                              });
+                            }}
                             translate="no"
                           />
                           <button

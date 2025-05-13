@@ -26,6 +26,29 @@
   width: 250px;
 }
 
+.mt-2 .number-pad-left,
+.flex-1 .number-pad-left {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.mt-2 .number-pad-grid,
+.flex-1 .number-pad-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.mt-2 .number-pad-grid button,
+.mt-2 .number-pad-actions button,
+.flex-1 .number-pad-grid button,
+.flex-1 .number-pad-actions button {
+  padding: 8px;
+  min-width: 40px;
+  height: 40px;
+  font-size: 1em;
+}
+
 .number-pad-display {
   background-color: #fff;
   border: 1px solid #ccc;
@@ -108,13 +131,19 @@
 .number-pad-right {
   display: grid;
   grid-template-columns: repeat(2, 1fr); /* 2 columns for quick amounts */
-  grid-template-rows: repeat(5, auto); /* 5 rows */
-  gap: 8px;
-  width: 150px;
+  grid-template-rows: repeat(auto-fill, minmax(40px, 1fr)); /* Automatic rows */
+  gap: 4px;
+  width: auto;
+  min-width: 100px;
+  max-width: 140px;
 }
 
 .number-pad-right button {
   background-color: #e7f0ff; /* Light blue */
+  min-width: 40px;
+  height: 40px;
+  padding: 4px;
+  font-size: 0.9em;
 }
 
 .number-pad-right button:hover {

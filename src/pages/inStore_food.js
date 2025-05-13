@@ -23,6 +23,8 @@ import { faList } from '@fortawesome/free-solid-svg-icons';
 import { ReactComponent as DeleteSvg } from './delete-icn.svg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getDoc, updateDoc } from "firebase/firestore";
+import KeypadModal from '../components/KeypadModal'; // Import KeypadModal component
+import NumberPad from '../components/NumberPad'; // Import NumberPad component
 
 function convertToPinyin(text) {
   return pinyin(text, {
@@ -717,7 +719,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       }
     }
 
-  }, [randomNum]);  // 当 count 更新后执行
+  }, [randomNum]);  // Execute when count is updated
 
   // Function to hide the modal
   const hideModal = () => {
@@ -957,71 +959,117 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                       {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
                     </h4>
                   </div>
-                  <div className='mb-2' style={{ display: 'flex', gap: '1rem' }}>
-                    <div
-                      style={{
-                        border: '1px solid #ccc',
-                        padding: '1rem',
-                        borderRadius: '5px',
-                      }}
-                    >
-                      <label htmlFor="customVariantName" className="form-label">
-                        Ingredient Update
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="customVariantName"
-                        placeholder="Reason for price change"
-                        value={customVariant.name}
-                        onChange={(e) =>
-                          setCustomVariant({ ...customVariant, name: e.target.value })
-                        }
-                        translate="no"
-                      />
-                      <small id="customVariantNameHelp" className="form-text text-muted">
-                        Enter "0" if no change.
-                      </small>
+                  <div className='mb-2 flex flex-col md:flex-row gap-3'>
+                    <div className='flex-1'>
+                      <div
+                        style={{
+                          border: '1px solid #ccc',
+                          padding: '1rem',
+                          borderRadius: '5px',
+                        }}
+                      >
+                        <label htmlFor="customVariantName" className="form-label">
+                          Ingredient Update
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="customVariantName"
+                          placeholder="Reason for price change"
+                          value={customVariant.name}
+                          onChange={(e) =>
+                            setCustomVariant({ ...customVariant, name: e.target.value })
+                          }
+                          translate="no"
+                        />
+                        <small id="customVariantNameHelp" className="form-text text-muted">
+                          Enter "0" if no change.
+                        </small>
+                      </div>
+
+                      <div
+                        style={{
+                          border: '1px solid #ccc',
+                          padding: '1rem',
+                          borderRadius: '5px',
+                          marginTop: '1rem'
+                        }}
+                      >
+                        <label htmlFor="customVariantPrice" className="form-label">Price</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="customVariantPrice"
+                          placeholder="Enter price (can be negative)"
+                          value={customVariant.price}
+                          onChange={(e) =>
+                            setCustomVariant({ ...customVariant, price: e.target.value })
+                          }
+                          translate="no"
+                        />
+                        <small id="customVariantPriceHelp" className="form-text text-muted">
+                          Positive or negative price.
+                        </small>
+                      </div>
+
+                      <div className='flex mt-3'>
+                        <button
+                          className="btn btn-warning mb-3 mr-2"
+                          type="button"
+                          style={{ whiteSpace: 'nowrap', "display": "inline" }}
+                          onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
+                        >
+                          Confirm to Add <span
+                            className='notranslate'>{customVariant.name}</span>
+                        </button>
+                      </div>
                     </div>
 
-                    <div
-                      style={{
-                        border: '1px solid #ccc',
-                        padding: '1rem',
-                        borderRadius: '5px',
-                      }}
-                    >
-                      <label htmlFor="customVariantPrice" className="form-label">Price</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="customVariantPrice"
-                        placeholder="Enter price (can be negative)"
-                        value={customVariant.price}
-                        onChange={(e) =>
-                          setCustomVariant({ ...customVariant, price: e.target.value })
-                        }
-                        translate="no"
-                      />
-                      <small id="customVariantPriceHelp" className="form-text text-muted">
-                        Positive or negative price.
-                      </small>
-                    </div>
-                  </div>
+                    {isPC && (
+                      <div className='flex-1 flex'>
+                        {/* 数字键盘 */}
+                        <div className="w-2/3 pr-2">
+                          <NumberPad
+                            inputValue={customVariant.price}
+                            onInputChange={(value) => setCustomVariant({ ...customVariant, price: value })}
+                            onConfirm={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
+                            onCancel={() => {}}
+                            show={true}
+                            embedded={true}
+                          />
+                        </div>
 
-                  <div className='flex '>
-                    <button
-                      className="btn btn-warning mb-3 mr-2"
-                      type="button"
-                      style={{ whiteSpace: 'nowrap', "display": "inline" }}
-                      onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
-                    >
-                      Confirm to Add <span
-                        className='notranslate'>{customVariant.name}</span>
-                    </button>
-                    <br>
-                    </br>
-
+                        {/* 快捷金额按钮 */}
+                        <div className="w-1/3 flex flex-col justify-start">
+                          <div className="mb-4">
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {[5, 10, 15, 20, 25, 30, 35, 40, 45].map((amount) => (
+                                <button
+                                  key={amount}
+                                  onClick={() => setCustomVariant({ ...customVariant, price: amount.toString() })}
+                                  className="notranslate rounded-full py-1 px-2 text-sm"
+                                  style={{ backgroundColor: 'rgba(154, 230, 180, 0.5)', minWidth: '45px' }}
+                                >
+                                  ${amount}
+                                </button>
+                              ))}
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {[-5, -10, -15, -20].map((amount) => (
+                                <button
+                                  key={amount}
+                                  onClick={() => setCustomVariant({ ...customVariant, price: amount.toString() })}
+                                  className="notranslate rounded-full py-1 px-2 text-sm"
+                                  style={{ backgroundColor: 'rgba(252, 165, 165, 0.5)', minWidth: '45px' }}
+                                >
+                                  ${amount}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {Object.keys(selectedFoodItem?.attributesArr).length > 0 && (
@@ -1277,8 +1325,8 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
                         <input
                           type="search"
-                          class="form-control text-base shadow-none rounded-end-pill" placeholder="Search for items..."
-                          placeholder={t('Search Food Item')}
+                          class="form-control text-base shadow-none rounded-end-pill"
+                            placeholder={t('Search Food Item')}
                           onChange={handleInputChange}
                           translate="no"
                           style={{ fontSize: '16px' }}
