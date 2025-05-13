@@ -122,6 +122,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "including", output: "其中包含" },
     { input: "Gratuity", output: "小费" },
     { input: "Cancel", output: "返回" },
+    { input: "Cancel Add", output: "取消添加" },
 
   ];
   function translate(input) {
@@ -880,10 +881,86 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   const [finalResult, setFinalResult] = useState(null);
   const [isChangeTableModal, setChangeTableModal] = useState(false);
 
-  const openUniqueModal = () => setUniqueModalOpen(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // 添加keypadProps状态
+  const [keypadProps, setKeypadProps] = useState({
+    numberPadValue: "",
+    onNumberPadChange: (newValue) => {
+      setInputValue(newValue);
+      setErrorMessage('');
+      setResult(null);
+    },
+    onNumberPadConfirm: () => calculateResult(),
+    onQuickAmountClick: (amount) => {
+      setInputValue(amount.toString());
+      setErrorMessage('');
+      setResult(null);
+    },
+    key: "main-input", // 主输入框的key
+    activeInputType: "main" // 当前活跃的输入框类型
+  });
+
+  // 重置keypadProps到默认值（关联到主输入框）
+  const resetKeypadProps = () => {
+    setKeypadProps({
+      numberPadValue: inputValue,
+      onNumberPadChange: (newValue) => {
+        setInputValue(newValue);
+        setErrorMessage('');
+        setResult(null);
+      },
+      onNumberPadConfirm: () => calculateResult(),
+      onQuickAmountClick: (amount) => {
+        setInputValue(amount.toString());
+        setErrorMessage('');
+        setResult(null);
+      },
+      key: "main-input", // 主输入框的key
+      activeInputType: "main" // 主输入框的类型
+    });
+  };
+
+  // 更新keypadProps的numberPadValue
+  useEffect(() => {
+    if (keypadProps.numberPadValue === inputValue) {
+      setKeypadProps(prev => ({
+        ...prev,
+        numberPadValue: inputValue
+      }));
+    }
+  }, [inputValue]);
+
+  // 更新自定义小费数值时
+  useEffect(() => {
+    if (keypadProps.numberPadValue === customAmount) {
+      setKeypadProps(prev => ({
+        ...prev,
+        numberPadValue: customAmount
+      }));
+    }
+  }, [customAmount]);
+
+  // 监听reset-keypad事件
+  useEffect(() => {
+    const handleResetKeypad = () => {
+      resetKeypadProps();
+    };
+    
+    window.addEventListener('reset-keypad', handleResetKeypad);
+    
+    return () => {
+      window.removeEventListener('reset-keypad', handleResetKeypad);
+    };
+  }, [inputValue]);
+
+  const openUniqueModal = () => {
+    setUniqueModalOpen(true);
+    resetKeypadProps(); // 重置keypadProps到默认值
+  };
   const closeUniqueModal = () => setUniqueModalOpen(false);
 
-    // Effect for closing number pad removed - now controlled by KeypadModal
+  // Effect for closing number pad removed - now controlled by KeypadModal
 
   const handleChange = (event) => {
     let value = event.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
@@ -907,8 +984,6 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     }
   };
 
-
-  const [errorMessage, setErrorMessage] = useState("");
 
   const calculateResult = () => {
     // For input ending with decimal point, temporarily add 0 for calculation
@@ -1140,7 +1215,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         </div>
         <div className="flex w-full">
 
-          <div className={`flex-grow  ${!isMobile ? 'm-2' : 'm-2'}`} >
+          <div className={`flex-grow flex-shrink overflow-auto ${!isMobile ? 'm-2' : 'm-2'}`} style={{ minWidth: "150px", maxWidth: "calc(100vw - 180px)" }} >
 
             <div style={{ overflowY: 'auto', height: `calc(100vh - 325px)` }} >
               {(Array.isArray(products) ? products : []).map((product) => (
@@ -1159,7 +1234,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                       <span className="product-price">${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}</span>
                     </div>
                   </div>
-                  
+
                   <div className='pl-8 mt-1'>
                     <div className="mb-2">
                       <span className="notranslate text-gray-600 text-sm">
@@ -1210,7 +1285,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
             </div>
 
           </div>
-          <div className='flex flex-col space-y-2' style={isMobile ? { minWidth: "120px" } : { minWidth: "150px" }}>
+          <div className='flex flex-col space-y-2 flex-shrink-0' style={isMobile ? { width: "120px" } : { width: "150px" }}>
             {/* Display Start Time */}
             <a
               onClick={() => { SendToKitchen(); setChangeTableModal(true); }}
@@ -1338,19 +1413,12 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <span>Open Cash Drawer</span>
                 </a>
               }
-              numberPadValue={inputValue}
-              onNumberPadChange={(newValue) => {
-                // Direct value setting without special processing
-                setInputValue(newValue);
-                setErrorMessage('');
-                setResult(null);
-              }}
-              onNumberPadConfirm={() => calculateResult()}
-              onQuickAmountClick={(amount) => {
-                setInputValue(amount.toString());
-                setErrorMessage('');
-                setResult(null);
-              }}
+              showCloseButton={true}
+              numberPadValue={keypadProps.numberPadValue}
+              onNumberPadChange={keypadProps.onNumberPadChange}
+              onNumberPadConfirm={keypadProps.onNumberPadConfirm}
+              onQuickAmountClick={keypadProps.onQuickAmountClick}
+              activeInputType={keypadProps.activeInputType}
             >
               <div>
                 <p className="mb-2">{fanyi("Enter the Cash Received")}</p>
@@ -1363,6 +1431,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   className="mb-4 p-2 w-full border rounded-md"
                   translate="no"
                   ref={cashPayInputRef}
+                  onClick={() => {
+                    // 点击主输入框时，重置keypadProps
+                    resetKeypadProps();
+                  }}
                 />
                 <button
                   onClick={calculateResult}
@@ -1406,6 +1478,24 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         onChange={handleCustomAmountChange}
                         style={uniqueModalStyles.inputStyle}
                         className="p-2 w-full border rounded-md mr-2"
+                        onClick={() => {
+                          // 点击自定义小费输入框时，修改关联到自定义小费输入
+                          setKeypadProps({
+                            // 使用当前自定义小费的值
+                            numberPadValue: customAmount,
+                            onNumberPadChange: (newValue) => {
+                              setCustomAmount(newValue);
+                            },
+                            onNumberPadConfirm: () => {
+                              calculateCustomAmount(customAmount);
+                            },
+                            onQuickAmountClick: (amount) => {
+                              setCustomAmount(amount.toString());
+                            },
+                            key: "custom-amount", // 自定义小费输入框的key
+                            activeInputType: "custom" // 自定义小费输入框的类型
+                          });
+                        }}
                       />
                       <button
                         onClick={() => calculateCustomAmount(customAmount)}
@@ -1621,7 +1711,6 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 setTipsModalOpen(false);
               }}
               onQuickAmountClick={(amount) => {
-                // 直接使用按钮上的金额值
                 setTips(amount.toString());
               }}
             >
@@ -1648,7 +1737,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   className="form-control tips-no-spinners"
                   onChange={(e) => {
                     let value = e.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
-                    
+
                     // Only allow numbers and decimal point
                     if (/^\d*\.?\d*$/.test(value)) {
                       setTips(value.toString());  // Update the state with the raw input value
@@ -1660,9 +1749,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 />
                 <div className="mt-4 text-right">
                   <button type="button" className="btn btn-secondary mr-2" onClick={() => handleCancelTip()}>
-                    {fanyi("Cancel")}
+                    <FontAwesomeIcon icon={faTimes} className="mr-1" /> {fanyi("Cancel Add")}
                   </button>
-                  <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>
+                  <button type="button" className="btn btn-danger" onClick={() => setTipsModalOpen(false)}>
                     {fanyi("Add Service Fee")}
                   </button>
                 </div>
@@ -1715,7 +1804,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   className="form-control tips-no-spinners"
                   onChange={(e) => {
                     let value = e.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
-                    
+
                     // Only allow numbers and decimal point
                     if (/^\d*\.?\d*$/.test(value)) {
                       applyDiscount(value);
@@ -1728,9 +1817,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
                 <div className="mt-4 text-right">
                   <button type="button" className="btn btn-secondary mr-2" onClick={handleCancelDiscount}>
-                    {fanyi("Cancel")}
+                    <FontAwesomeIcon icon={faTimes} className="mr-1" /> {fanyi("Cancel Add")}
                   </button>
-                  <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>
+                  <button type="button" className="btn btn-danger" onClick={() => setDiscountModalOpen(false)}>
                     {fanyi("Add Discount")}
                   </button>
                 </div>

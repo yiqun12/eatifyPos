@@ -12,7 +12,7 @@ import { ReactComponent as PlusSvg } from './plus.svg';
 import { ReactComponent as MinusSvg } from './minus.svg';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faTimesCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
@@ -141,8 +141,68 @@ function Container(props) {
   const [result, setResult] = useState(null);
   const [finalResult, setFinalResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  // 添加keypadProps状态
+  const [keypadProps, setKeypadProps] = useState({
+    numberPadValue: "",
+    onNumberPadChange: (newValue) => {
+      setInputValue(newValue);
+      setErrorMessage('');
+      setResult(null);
+    },
+    onNumberPadConfirm: () => calculateResult(),
+    onQuickAmountClick: (amount) => {
+      setInputValue(amount.toString());
+      setErrorMessage('');
+      setResult(null);
+    },
+    key: "main-input", // 主输入框的key
+    activeInputType: "main" // 当前活跃的输入框类型
+  });
 
-  const openUniqueModal = () => setUniqueModalOpen(true);
+  // 重置keypadProps到默认值（关联到主输入框）
+  const resetKeypadProps = () => {
+    setKeypadProps({
+      numberPadValue: inputValue,
+      onNumberPadChange: (newValue) => {
+        setInputValue(newValue);
+        setErrorMessage('');
+        setResult(null);
+      },
+      onNumberPadConfirm: () => calculateResult(),
+      onQuickAmountClick: (amount) => {
+        setInputValue(amount.toString());
+        setErrorMessage('');
+        setResult(null);
+      },
+      key: "main-input", // 主输入框的key
+      activeInputType: "main" // 主输入框的类型
+    });
+  };
+
+  // 更新keypadProps的numberPadValue
+  useEffect(() => {
+    if (keypadProps.numberPadValue === inputValue) {
+      setKeypadProps(prev => ({
+        ...prev,
+        numberPadValue: inputValue
+      }));
+    }
+  }, [inputValue]);
+
+  // 更新自定义小费数值时
+  useEffect(() => {
+    if (keypadProps.numberPadValue === customAmount) {
+      setKeypadProps(prev => ({
+        ...prev,
+        numberPadValue: customAmount
+      }));
+    }
+  }, [customAmount]);
+
+  const openUniqueModal = () => {
+    setUniqueModalOpen(true);
+    resetKeypadProps(); // 重置keypadProps到默认值
+  };
   const closeUniqueModal = () => setUniqueModalOpen(false);
 
   const [isCustomAmountVisible, setCustomAmountVisible] = useState(false);
@@ -595,7 +655,7 @@ function Container(props) {
     if (inputValue.endsWith('.')) {
       valueToCheck = inputValue + '0'; // Add 0 to make it a valid number
     }
-    
+
     const x = parseFloat(valueToCheck);
     if (!isNaN(x) && x > finalPrice) {
       setResult(x);
@@ -680,6 +740,19 @@ function Container(props) {
   };
 
   // OpenNumberPad function removed - now handled by KeypadModal
+
+  // 监听reset-keypad事件
+  useEffect(() => {
+    const handleResetKeypad = () => {
+      resetKeypadProps();
+    };
+    
+    window.addEventListener('reset-keypad', handleResetKeypad);
+    
+    return () => {
+      window.removeEventListener('reset-keypad', handleResetKeypad);
+    };
+  }, [inputValue]); // 依赖项需要包含inputValue，以确保resetKeypadProps使用最新的值
 
   return (
 
@@ -868,9 +941,9 @@ function Container(props) {
 
                   <div className="mt-4 text-right">
                     <button type="button" className="btn btn-secondary mr-2" onClick={() => handleCancelTip()}>
-                      Cancel
+                      <FontAwesomeIcon icon={faTimes} className="mr-1" /> Cancel Add
                     </button>
-                    <button type="button" className="btn btn-primary" onClick={() => setTipsModalOpen(false)}>
+                    <button type="button" className="btn btn-danger" onClick={() => setTipsModalOpen(false)}>
                       Add Service Fee
                     </button>
                   </div>
@@ -899,7 +972,6 @@ function Container(props) {
                   setDiscountModalOpen(false);
                 }}
                 onQuickAmountClick={(amount) => {
-                  // 直接使用按钮上的金额值
                   setDiscount(amount.toString());
                 }}
               >
@@ -946,9 +1018,9 @@ function Container(props) {
 
                   <div className="mt-4 text-right">
                     <button type="button" className="btn btn-secondary mr-2" onClick={handleCancelDiscount}>
-                      Cancel
+                      <FontAwesomeIcon icon={faTimes} className="mr-1" /> Cancel Add
                     </button>
-                    <button type="button" className="btn btn-primary" onClick={() => setDiscountModalOpen(false)}>
+                    <button type="button" className="btn btn-danger" onClick={() => setDiscountModalOpen(false)}>
                       Add Discount
                     </button>
                   </div>
@@ -1023,18 +1095,12 @@ function Container(props) {
                     <span>Open Cash Drawer</span>
                   </a>
                 }
-                numberPadValue={inputValue}
-                onNumberPadChange={(newValue) => {
-                  setInputValue(newValue);
-                  setErrorMessage('');
-                  setResult(null);
-                }}
-                onNumberPadConfirm={() => calculateResult()}
-                onQuickAmountClick={(amount) => {
-                  setInputValue(amount.toString());
-                  setErrorMessage('');
-                  setResult(null);
-                }}
+                showCloseButton={true}
+                numberPadValue={keypadProps.numberPadValue}
+                onNumberPadChange={keypadProps.onNumberPadChange}
+                onNumberPadConfirm={keypadProps.onNumberPadConfirm}
+                onQuickAmountClick={keypadProps.onQuickAmountClick}
+                activeInputType={keypadProps.activeInputType}
               >
                 <div>
                   <p className="mb-2">Enter the Cash Received</p>
@@ -1045,6 +1111,10 @@ function Container(props) {
                     style={uniqueModalStyles.inputStyle}
                     className="mb-4 p-2 w-full border rounded-md"
                     ref={cashInputRef}
+                    onClick={() => {
+                      // 点击主输入框时，重置keypadProps
+                      resetKeypadProps();
+                    }}
                     translate="no"
                   />
                   <button
@@ -1136,6 +1206,24 @@ function Container(props) {
                             style={uniqueModalStyles.inputStyle}
                             className="p-2 w-full border rounded-md mr-2"
                             ref={customAmountInputRef}
+                            onClick={() => {
+                              // 点击自定义小费输入框时，修改关联到自定义小费输入
+                              setKeypadProps({
+                                // 使用当前自定义小费的值
+                                numberPadValue: customAmount,
+                                onNumberPadChange: (newValue) => {
+                                  setCustomAmount(newValue);
+                                },
+                                onNumberPadConfirm: () => {
+                                  calculateCustomAmount(customAmount);
+                                },
+                                onQuickAmountClick: (amount) => {
+                                  setCustomAmount(amount.toString());
+                                },
+                                key: "custom-amount", // 自定义小费输入框的key
+                                activeInputType: "custom" // 自定义小费输入框的类型
+                              });
+                            }}
                             translate="no"
                           />
                           <button
