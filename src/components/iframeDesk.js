@@ -203,6 +203,14 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
     /**listen to localtsorage */
     const { id, saveId } = useMyHook(null);
 
+    // 添加监听localStorage变化，自动刷新iframe
+    useEffect(() => {
+        if (iframeRef.current) {
+            // 当localStorage变化可能影响桌子显示时，刷新iframe
+            iframeRef.current.sendMessage();
+        }
+    }, [id]); // id来自useMyHook，会在localStorage变化时更新
+
     // for translate
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const t = (text) => {
