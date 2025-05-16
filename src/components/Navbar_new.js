@@ -143,24 +143,25 @@ const Navbar = () => {
           <Link
             smooth
             to="/home#pricing"
-            className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300"
+            className="block w-full py-2 px-3 rounded-md text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-primary transition-colors duration-300"
           >
             Pricing
           </Link>
           <a href="/scan_article"
-            className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">                LLM Scan
+            className="block w-full py-2 px-3 rounded-md text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-primary transition-colors duration-300">
+            LLM Scan
           </a>
           <a href="/sendmessage"
-            className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">                LLM Scan
+            className="block w-full py-2 px-3 rounded-md text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-primary transition-colors duration-300">
             SMS API
           </a>
           <a href="/career"
-            className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">                LLM Scan
+            className="block w-full py-2 px-3 rounded-md text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-primary transition-colors duration-300">
             Career
           </a>
           <a
-            className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">                LLM Scan
-            <div className='mt-4' id="google_translate_element"></div>
+            className="block w-full py-2 px-3 rounded-md text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-primary transition-colors duration-300">
+            <div className='mt-2' id="google_translate_element"></div>
           </a>
 
 
@@ -185,4 +186,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar; 
+export default Navbar;
