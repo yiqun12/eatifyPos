@@ -205,7 +205,7 @@ const Food = ({ store }) => {
   };
 
   /**
-   * 
+   *
   {
       "size": {
         "isSingleSelected": true,
@@ -671,7 +671,7 @@ const Food = ({ store }) => {
         params: {
           q: text,
           target: 'en',  // Translate to English.
-          key: 'AIzaSyCw8WmZfhBIuYJVw34gTE6LlEfOE0e1Dqo' // Note: It's not recommended to expose API keys in code like this. 
+          key: 'AIzaSyCw8WmZfhBIuYJVw34gTE6LlEfOE0e1Dqo' // Note: It's not recommended to expose API keys in code like this.
         }
       });
       return (response.data.data.translations[0].translatedText)
@@ -773,8 +773,8 @@ const Food = ({ store }) => {
   }, [isDragging, global, startIndex, currentHoverIndex, startValue, stopScrolling, startScrolling]); // Added dependencies
   // --- End of useEffect for Shift+Drag ---
 
-  // --- Shift+Drag handlers --- 
-  const handleMouseDown = (index, event) => { // Still triggered on input 
+  // --- Shift+Drag handlers ---
+  const handleMouseDown = (index, event) => { // Still triggered on input
       if (isShiftPressed) {
         event.preventDefault();
         const originalIndex = global.length - 1 - index;
@@ -801,18 +801,18 @@ const Food = ({ store }) => {
       if (isDragging) {
           const container = modalScrollContainerRef.current;
           if (!container) return;
-  
+
           const rect = container.getBoundingClientRect();
           const mouseY = event.clientY;
           const threshold = 45; // Trigger zone threshold
           let requiredDirection = 'none';
-  
+
           if (mouseY < rect.top + threshold) {
             requiredDirection = 'up';
           } else if (mouseY > rect.bottom - threshold) {
             requiredDirection = 'down';
           }
-  
+
           // Start/stop scrolling only if the required direction changes
           if (requiredDirection !== scrollIntervalRef.current.direction) {
             if (requiredDirection === 'none') {
@@ -858,16 +858,8 @@ const Food = ({ store }) => {
         </div>
       </div>
       <div className="mr-1 flex justify-between mt-1">
-      <div className="hidden lg:block">
-        <Scanner
-              reload={reload}
-              setFoods={setFoods}
-              store={store}
-              t={t} // Pass translation function
-              isButton={true} // Render as a button on large screens
-            />
-      </div>
-        
+
+
         <div onClick={() => { setChangeCategoryName(true) }} className="mb-2 btn d-inline-flex btn-sm btn-info">
           <span className="pe-2">
             <i class="bi bi-bookmarks"></i>
@@ -877,8 +869,18 @@ const Food = ({ store }) => {
             {"Rename Category"}
           </span>
         </div>
+
+        <div className="block">
+          <Scanner
+              reload={reload}
+              setFoods={setFoods}
+              store={store}
+              t={t} // Pass translation function
+              isButton={true} // Render as a button on large screens
+          />
+        </div>
       </div>
-      <div className="ml-1 mr-1 flex justify-between mt-1" onClick={() => {
+      <div className="mr-1 flex justify-between mt-1" onClick={() => {
         setGlobalModal(true)
 
       }}>
@@ -910,7 +912,7 @@ const Food = ({ store }) => {
                <div className="px-4 py-2 bg-yellow-100 text-sm text-gray-700 rounded mb-2">
                  <i className="fas fa-info-circle mr-1"></i> Press Shift key to modify prices in bulk
                </div>
-               
+
               <div ref={modalScrollContainerRef} className="p-4 overflow-y-auto" style={{ maxHeight: '70vh' }} onMouseMove={handleContainerMouseMove}>
                 {error && <p className="mb-4 text-red-500">{error}</p>}
                 <button
@@ -1495,18 +1497,6 @@ const Food = ({ store }) => {
 
       </div>
 
-      {/* --- Scanner FAB (Mobile/Tablet - lg:hidden) --- */}
-      <div className="fixed bottom-6 right-6 z-40 lg:hidden">
-         <Scanner 
-            reload={reload} 
-            setFoods={setFoods} 
-            store={store} 
-            t={t} 
-            // isButton={false} // Assuming default/no prop means FAB style
-         />
-      </div>
-      {/* --- End Scanner FAB --- */}
-
     </div> // This should be the closing tag of the outermost div in the return statement
   )
 }
@@ -1552,7 +1542,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
 
 
   /**
-   * 
+   *
   {
       "size": {
         "isSingleSelected": true,

@@ -200,7 +200,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     // Set up interval only if conditions are met initially
     const startTimeKey = `${store}-${selectedTable}-isSent_startTime`;
     const startTimeValue = localStorage.getItem(startTimeKey);
-    if (startTimeValue && !isNaN(parseInt(startTimeValue)) && products.length > 0) {
+    if (startTimeValue && !isNaN(parseInt(startTimeValue))) {
       intervalId = setInterval(updateDuration, 1000); // Update every 30 seconds
     }
 
