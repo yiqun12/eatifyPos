@@ -968,107 +968,76 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                           borderRadius: '5px',
                         }}
                       >
-                        <label htmlFor="customVariantName" className="form-label">
-                          Ingredient Update
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="customVariantName"
-                          placeholder="Reason for price change"
-                          value={customVariant.name}
-                          onChange={(e) =>
-                            setCustomVariant({ ...customVariant, name: e.target.value })
-                          }
-                          translate="no"
-                        />
-                        <small id="customVariantNameHelp" className="form-text text-muted">
-                          Enter "0" if no change.
-                        </small>
+                        <div className="flex flex-row gap-3 mb-2">
+                          <div className="w-1/2">
+                            <label htmlFor="customVariantName" className="form-label">
+                              Ingredient Update
+                            </label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="customVariantName"
+                              placeholder="Reason for price change"
+                              value={customVariant.name}
+                              onChange={(e) =>
+                                setCustomVariant({ ...customVariant, name: e.target.value })
+                              }
+                              translate="no"
+                            />
+                            <small id="customVariantNameHelp" className="form-text text-muted">
+                              Enter "0" if no change.
+                            </small>
+                          </div>
+                          
+                          <div className="w-1/2">
+                            <label htmlFor="customVariantPrice" className="form-label">Price</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="customVariantPrice"
+                              placeholder="Enter price (can be negative)"
+                              value={customVariant.price}
+                              onChange={(e) =>
+                                setCustomVariant({ ...customVariant, price: e.target.value })
+                              }
+                              translate="no"
+                            />
+                            <small id="customVariantPriceHelp" className="form-text text-muted">
+                              Positive or negative price.
+                            </small>
+                          </div>
+                        </div>
+                        
+                        <div className='flex justify-center mt-3'>
+                          <button
+                            className="btn btn-warning mb-3"
+                            type="button"
+                            style={{ whiteSpace: 'nowrap', "display": "inline" }}
+                            onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
+                          >
+                            Confirm to Add <span
+                              className='notranslate'>{customVariant.name}</span>
+                          </button>
+                        </div>
                       </div>
 
-                      <div
-                        style={{
-                          border: '1px solid #ccc',
-                          padding: '1rem',
-                          borderRadius: '5px',
-                          marginTop: '1rem'
-                        }}
-                      >
-                        <label htmlFor="customVariantPrice" className="form-label">Price</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="customVariantPrice"
-                          placeholder="Enter price (can be negative)"
-                          value={customVariant.price}
-                          onChange={(e) =>
-                            setCustomVariant({ ...customVariant, price: e.target.value })
-                          }
-                          translate="no"
-                        />
-                        <small id="customVariantPriceHelp" className="form-text text-muted">
-                          Positive or negative price.
-                        </small>
-                      </div>
 
-                      <div className='flex mt-3'>
-                        <button
-                          className="btn btn-warning mb-3 mr-2"
-                          type="button"
-                          style={{ whiteSpace: 'nowrap', "display": "inline" }}
-                          onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
-                        >
-                          Confirm to Add <span
-                            className='notranslate'>{customVariant.name}</span>
-                        </button>
-                      </div>
                     </div>
 
                     {isPC && (
-                      <div className='flex-1 flex'>
-                        {/* 数字键盘 */}
-                        <div className="w-2/3 pr-2">
-                          <NumberPad
-                            inputValue={customVariant.price}
-                            onInputChange={(value) => setCustomVariant({ ...customVariant, price: value })}
-                            onConfirm={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
-                            onCancel={() => {}}
-                            show={true}
-                            embedded={true}
-                          />
-                        </div>
-
-                        {/* 快捷金额按钮 */}
-                        <div className="w-1/3 flex flex-col justify-start">
-                          <div className="mb-4">
-                            <div className="flex flex-wrap gap-2 mb-2">
-                              {[5, 10, 15, 20, 25, 30, 35, 40, 45].map((amount) => (
-                                <button
-                                  key={amount}
-                                  onClick={() => setCustomVariant({ ...customVariant, price: amount.toString() })}
-                                  className="notranslate rounded-full py-1 px-2 text-sm"
-                                  style={{ backgroundColor: 'rgba(154, 230, 180, 0.5)', minWidth: '45px' }}
-                                >
-                                  ${amount}
-                                </button>
-                              ))}
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {[-5, -10, -15, -20].map((amount) => (
-                                <button
-                                  key={amount}
-                                  onClick={() => setCustomVariant({ ...customVariant, price: amount.toString() })}
-                                  className="notranslate rounded-full py-1 px-2 text-sm"
-                                  style={{ backgroundColor: 'rgba(252, 165, 165, 0.5)', minWidth: '45px' }}
-                                >
-                                  ${amount}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                     <div className='flex-1 flex'>
+                       {/* 数字键盘 */}
+                       <div className="w-2/3 pr-2">
+                         <NumberPad
+                           inputValue={customVariant.price}
+                           onInputChange={(value) => setCustomVariant({ ...customVariant, price: value })}
+                           onConfirm={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
+                           onCancel={() => {}}
+                           show={true}
+                           embedded={true}
+                         />
+                       </div>
+                     </div>
                     )}
                   </div>
 
