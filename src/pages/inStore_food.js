@@ -988,7 +988,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                               Enter "0" if no change.
                             </small>
                           </div>
-                          
+
                           <div className="w-1/2">
                             <label htmlFor="customVariantPrice" className="form-label">Price</label>
                             <input
@@ -1007,8 +1007,8 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                             </small>
                           </div>
                         </div>
-                        
-                        <div className='flex justify-center mt-3'>
+
+                        <div className='flex justify-start mt-3'>
                           <button
                             className="btn btn-warning mb-3"
                             type="button"
