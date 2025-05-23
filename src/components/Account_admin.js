@@ -1,6 +1,7 @@
 //import Navbar from './Navbar'
 import 'bootstrap/dist/css/bootstrap.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
 //import Checkout from "../components/Checkout";
 import PayFullhistory from "./PayFullhistory";
 import { Elements } from '@stripe/react-stripe-js';
@@ -12,7 +13,6 @@ import './stripeButton.css';
 import { useCallback } from 'react';
 import { collection, doc, addDoc, getDoc, updateDoc, deleteDoc, where } from "firebase/firestore";
 import { db } from '../firebase/index';
-import { useRef } from "react";
 import { onSnapshot, query } from "firebase/firestore";
 import mySound from '../pages/new_order_english.mp3'; // Replace with your sound file's path
 import mySound_CHI from '../pages/new_order_chinese.mp3'; // Replace with your sound file's path
@@ -72,6 +72,7 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { DateTime } from 'luxon';
 import { lookup } from 'zipcode-to-timezone';
 import EmailVerificationModal from './EmailVerificationModal'; // Import the new modal
+import ChartPasswordModal from './ChartPasswordModal'; // Import the chart password modal
 registerLocale('zh-CN', zhCN);
 
 
@@ -132,6 +133,9 @@ const Account = () => {
     const [isJointAdvertised, setIsJointAdvertised] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
+    // 在Account组件内部顶部的状态定义处添加以下状态
+    const [isChartPasswordModalOpen, setIsChartPasswordModalOpen] = useState(false);
+    const [isChartPasswordVerified, setIsChartPasswordVerified] = useState(false);
 
     const handlePasswordSubmit = (password) => {
         if (password === '123') {
@@ -1217,16 +1221,22 @@ const Account = () => {
             console.log(docs);
             snapshot.docChanges().forEach((change) => {
                 if (change.type === "added" || change.type === "modified") {
-                    if (change.doc.data().isConfirm === false) {
-                        if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
-                            playSound_CHI()
-                        } else {
-                            playSound()
+                    const docData = change.doc.data();
+                    if (docData && typeof docData.isConfirm === 'boolean' && docData.isConfirm === false) {
+                        // 清除之前的定时器（如果存在）
+                        if (soundTimeoutRef.current) {
+                            clearTimeout(soundTimeoutRef.current);
                         }
+                        // 设置新的定时器
+                        soundTimeoutRef.current = setTimeout(() => {
+                            if (localStorage.getItem("Google-language")?.includes("Chinese") || 
+                                localStorage.getItem("Google-language")?.includes("中")) {
+                                playSound_CHI();
+                            } else {
+                                playSound();
+                            }
+                        }, DEBOUNCE_DELAY);
                     }
-
-                } else {
-
                 }
             });
             function sortArrayByTime(arr) {
@@ -2457,6 +2467,19 @@ const Account = () => {
         checkPasswordStatus();
     }, [storeID, showSection, user?.uid]); // Rerun if store, section, or user changes
 
+    // 添加防抖相关的变量定义
+    const soundTimeoutRef = useRef(null);
+    const DEBOUNCE_DELAY = 1000; // 1秒的防抖延迟
+
+    useEffect(() => {
+        // 清理函数
+        return () => {
+            if (soundTimeoutRef.current) {
+                clearTimeout(soundTimeoutRef.current);
+            }
+        };
+    }, []); // 空依赖数组，仅在组件卸载时执行清理
+
     return (
         <div>
             <EmailVerificationModal
@@ -3234,7 +3257,7 @@ const Account = () => {
                                                         }}                      >
                                                         <a className={`pt-0 nav-link ${showSection === `stripeCard` ? 'active' : ''}`}>
                                                             <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{ fill: isPC ? 'white' : 'currentColor' }} class="bi bi-chat-right-dots" viewBox="0 0 16 16">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-right-dots" viewBox="0 0 16 16">
                                                                     <path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z" />
                                                                     <path d="M5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
                                                                 </svg>
@@ -3273,11 +3296,14 @@ const Account = () => {
                                                                     <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
                                                                 </svg>
                                                             </i>
+                                                                            <span style={{ marginLeft: "5%" }}>Store Settings</span>
+
                                                         </a>
 
                                                     </li>
 
-                                                </>}
+                                                                </>
+                                                            }
 
 
 
@@ -3817,7 +3843,7 @@ const Account = () => {
                                                                                 </div>
                                                                             )}
                                                                             <p class="text-sm text-gray-600 mt-2">
-                                                                                We will offer premier promotional resources for up to ten products in your store, ensuring a minimum of 100 orders. Please note that we will take a 30% commission on those 10 items. To boost order volumes and enhance advertising effectiveness, we also provide shipping subsidies for participating customers. Join our advertising program and let’s boost your store’s foot traffic and achieve great results together!
+                                                                                We will offer premier promotional resources for up to ten products in your store, ensuring a minimum of 100 orders. Please note that we will take a 30% commission on those 10 items. To boost order volumes and enhance advertising effectiveness, we also provide shipping subsidies for participating customers. Join our advertising program and let's boost your store's foot traffic and achieve great results together!
                                                                             </p>
                                                                         </div>
 
@@ -3964,895 +3990,6 @@ const Account = () => {
 
 
                                                     </div> : <div></div>
-                                                    }
-
-
-                                                    {showSection === 'sales' ? <div>
-
-                                                        <div className="flex mt-3">
-                                                            <div className={`w-50 ${isMobile ? 'mobile-class' : 'desktop-class'}`}>
-                                                                <div>
-                                                                    <div style={{ fontWeight: 'bold' }}>Select Date Range</div>
-                                                                    <div className={`${isMobile ? '' : 'flex'}`} >
-                                                                        <div >
-                                                                            <div>Start Date:</div>
-                                                                            <div className={!isMobile ? "flex" : ""}>
-                                                                                <button className=" btn btn-sm mt-1 mb-1 mr-2 notranslate " style={{
-                                                                                    border: '1px solid #ccc',
-                                                                                    display: 'inline-flex',
-                                                                                    alignItems: 'center',
-                                                                                    // Add other styles as needed
-                                                                                }} onClick={() => {
-                                                                                    setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)
-
-                                                                                    );
-                                                                                    if (endDate === null) {
-                                                                                        setEndDate(null);
-                                                                                    } else {
-                                                                                        setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone)
-
-                                                                                        );
-                                                                                    }
-                                                                                    setIsPickerOpenMonth(false);
-                                                                                    setIsPickerOpenEndDay(false);
-                                                                                    setIsPickerOpenStartDay(!isPickerOpenStartDay);
-
-                                                                                }}>
-                                                                                    <i class="bi-calendar-range"></i>
-                                                                                    &nbsp;
-                                                                                    {startDate ? format(startDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
-
-                                                                                </button>
-
-                                                                                <select
-                                                                                    className=" btn btn-sm mt-1 mb-1 mr-2 notranslate "
-                                                                                    style={{
-                                                                                        border: '1px solid #ccc',
-                                                                                        display: 'inline-flex',
-                                                                                        alignItems: 'center',
-                                                                                        // Add other styles as needed
-                                                                                    }}
-                                                                                    id="time-select" value={selectedTime.replace("-", ":")} onChange={handleChange}>
-
-                                                                                    {timeOptions.map((time, index) => (
-                                                                                        <option key={index} value={time}>
-                                                                                            {time}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </select>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div>
-                                                                            <div>End Date:</div>
-                                                                            {(endDate === null) ?
-                                                                                <button onClick={() => setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone
-                                                                                )
-
-                                                                                )}
-                                                                                    className="btn btn-sm btn-success mt-1 mb-1" style={{
-                                                                                        border: '1px solid #ccc',
-                                                                                        display: 'inline-flex',
-                                                                                        alignItems: 'center',
-                                                                                        // Add other styles as needed
-                                                                                    }}>
-                                                                                    <i className="bi bi-calendar-plus"></i>
-                                                                                    &nbsp;
-                                                                                    Add End Date
-                                                                                </button>
-                                                                                : <div className='flex'>
-                                                                                    <div className={`${isMobile ? '' : 'flex'}`} >
-
-                                                                                        <button className="btn btn-sm mt-1 mb-1 mr-2 notranslate" style={{
-                                                                                            border: '1px solid #ccc',
-                                                                                            display: 'inline-flex',
-                                                                                            alignItems: 'center',
-                                                                                            // Add other styles as needed
-                                                                                        }} onClick={() => {
-                                                                                            setStartDate(parseDate(format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone));
-                                                                                            if (endDate === null) {
-                                                                                                setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone));
-                                                                                            } else {
-                                                                                                setEndDate(parseDate((format12Oclock((new Date(endDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone));
-                                                                                            }
-                                                                                            setIsPickerOpenMonth(false);
-                                                                                            setIsPickerOpenStartDay(false);
-                                                                                            setIsPickerOpenEndDay(!isPickerOpenEndDay);
-
-                                                                                        }}>
-                                                                                            <i class="bi-calendar-range"></i>
-                                                                                            &nbsp;
-                                                                                            {endDate ? format(endDate, "MM/dd/yyyy") : "mm-dd-yyyy"}
-
-                                                                                        </button>
-                                                                                        <div className='flex'>
-                                                                                            <select
-                                                                                                className="btn btn-sm mt-1 mb-1 mr-2 notranslate"
-                                                                                                style={{
-                                                                                                    border: '1px solid #ccc',
-                                                                                                    display: 'inline-flex',
-                                                                                                    alignItems: 'center',
-                                                                                                    // Additional styles can be added as needed
-                                                                                                }}
-                                                                                                id="time-dropdown"
-                                                                                                value={currentTime.replace("-", ":")}
-                                                                                                onChange={handleTimeChange}
-                                                                                            >
-                                                                                                {timeIntervalOptions.map((timeOption, index) => (
-                                                                                                    <option key={index} value={timeOption}>
-                                                                                                        {timeOption}
-                                                                                                    </option>
-                                                                                                ))}
-                                                                                            </select>
-                                                                                            <button onClick={() => setEndDate(null)} className="btn btn-sm btn-danger mt-1 mb-1 notranslate" style={{
-                                                                                                border: '1px solid #ccc',
-                                                                                                display: 'inline-flex',
-                                                                                                alignItems: 'center',
-                                                                                                // Add other styles as needed
-                                                                                            }}>
-                                                                                                <i className="bi bi-trash"></i>
-                                                                                            </button>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            }
-
-                                                                        </div>
-
-                                                                    </div>
-                                                                    <div style={{ fontWeight: 'bold' }}>Select Specific Month</div>
-                                                                    <button className=" btn btn-sm mt-1 mb-1 mr-2 notranslate " style={{
-                                                                        border: '1px solid #ccc',
-                                                                        display: 'inline-flex',
-                                                                        alignItems: 'center',
-                                                                        // Add other styles as needed
-                                                                    }} onClick={() => {
-                                                                        getMonthDates(((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone })))))
-                                                                        setIsPickerOpenStartDay(false)
-                                                                        setIsPickerOpenEndDay(false)
-                                                                        setIsPickerOpenMonth(!isPickerOpenMonth);
-                                                                    }}>
-                                                                        <i class="bi-calendar3"></i>
-                                                                        &nbsp;
-                                                                        {startDate ? format(startDate, "MM/yyyy") : "Month Year"}
-
-                                                                    </button>
-
-                                                                    <div ref={wrapperRef} style={{ position: 'relative' }}>
-
-                                                                        {isPickerOpenStartDay && (
-                                                                            <div class="notranslate" style={{
-                                                                                position: 'absolute',
-                                                                                zIndex: 1000,
-                                                                                top: '100%', // Position right below the button
-                                                                                left: 0
-
-                                                                            }}>
-                                                                                {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                                                                                    <DatePicker
-                                                                                        selected={startDate}
-                                                                                        onChange={handleChangeStartDay}
-                                                                                        inline
-                                                                                        locale="zh-CN"
-                                                                                    /> :
-
-                                                                                    <DatePicker
-                                                                                        selected={startDate}
-                                                                                        onChange={handleChangeStartDay}
-                                                                                        inline
-                                                                                    />}
-
-                                                                            </div>
-                                                                        )}
-                                                                        {isPickerOpenEndDay && (
-                                                                            <div
-                                                                                class="notranslate" style={{
-                                                                                    position: 'absolute',
-                                                                                    zIndex: 1000,
-                                                                                    top: '100%', // Position right below the button
-                                                                                    left: 0
-                                                                                }}>
-                                                                                {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                                                                                    <DatePicker
-                                                                                        selected={endDate}
-                                                                                        onChange={handleChangeEndDay}
-                                                                                        inline
-                                                                                        locale="zh-CN"
-                                                                                    /> :
-
-                                                                                    <DatePicker
-                                                                                        selected={endDate}
-                                                                                        onChange={handleChangeEndDay}
-                                                                                        inline
-                                                                                    />}
-
-                                                                            </div>
-                                                                        )}
-                                                                        {isPickerOpenMonth && (
-                                                                            <div class="notranslate" style={{
-                                                                                position: 'absolute',
-                                                                                zIndex: 1000,
-                                                                                top: '100%', // Position right below the button
-                                                                                left: 0
-                                                                            }}>
-
-                                                                                {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                                                                                    <DatePicker
-                                                                                        onChange={handleMonthChange}
-                                                                                        showMonthYearPicker
-                                                                                        inline
-                                                                                        locale="zh-CN"
-                                                                                    /> :
-
-                                                                                    <DatePicker
-                                                                                        onChange={handleMonthChange}
-                                                                                        showMonthYearPicker
-                                                                                        inline
-                                                                                    />}
-
-                                                                            </div>
-                                                                        )}
-                                                                        <div>
-                                                                        </div>
-                                                                    </div>
-                                                                    {!isMobile && <button
-                                                                        onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone)) }}
-                                                                        className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
-                                                                    >
-                                                                        <i className="bi bi-calendar pe-2"></i>
-                                                                        <span>List All Orders</span>
-                                                                    </button>}
-
-
-                                                                    <button
-                                                                        onClick={() => { OpenCashDraw() }}
-                                                                        className="btn btn-sm btn-info d-flex align-items-center mx-1 mt-1 mb-2"
-                                                                    >
-                                                                        <i className="bi bi-cash-stack pe-2"></i>
-                                                                        <span>Cash Drawer</span>
-                                                                    </button>
-
-
-
-                                                                    {/* {JSON.stringify(startDate)}
-                                  {JSON.stringify(endDate)} */}
-
-                                                                    {/* <button
-                                    onClick={() => setShowChart(!showChart)}
-                                    className="btn btn-sm btn-info d-flex align-items-center mx-1 mb-2"
-                                  >
-                                    <i className={`bi ${!showChart ? 'bi-bar-chart' : 'bi-eye-slash'} pe-2`}></i>
-                                    <span>{!showChart ? 'Show Chart' : 'Hide Chart'}</span>
-                                  </button> */}
-                                                                </div>
-                                                            </div>
-
-                                                            <div style={isMobile ? { "width": "50%" } : {}}>
-                                                                {/* <div className="flex flex-col justify-center items-center h-screen space-y-4">
-                                  <select
-                                    className="p-2 border rounded w-64"
-                                    value={purpose}
-                                    onChange={(e) => setPurpose(e.target.value)}
-                                  >
-                                    <option value="login">Login</option>
-                                    <option value="reset_password">Reset Password</option>
-                                    <option value="confirm_payment">Confirm Payment</option>
-                                  </select>
-
-                                  <button
-                                    onClick={() => setIsPopupOpen(true)}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-                                  >
-                                    Open Verification
-                                  </button>
-
-                                  {isVerified && (
-                                    <p className="text-green-600 text-lg font-semibold">
-                                      ✅ Phone number verified successfully!
-                                    </p>
-                                  )}
-
-                                  <PhoneVerificationPopup
-                                    isOpen={isPopupOpen}
-                                    onClose={() => setIsPopupOpen(false)}
-                                    onVerificationSuccess={handleVerificationSuccess}
-                                    users={users}
-                                    purpose={purpose}
-                                  />
-                                </div> */}
-                                                                {(isMobile || window.location.hostname === 'localhost') && (
-                                                                    <PieChart className='notranslate' width={isMobile ? width2 / 2 : 300} height={250}>
-                                                                        <Pie
-                                                                            cx={80} // Move the pie to the left by adjusting the cx value
-                                                                            data={[
-                                                                                {
-                                                                                    name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                        (accumulator, receipt) => {
-                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            //accumulator.total += parseFloat(receipt.total);
-                                                                                            return accumulator;
-                                                                                        },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                    ).subtotal * 100) / 100
-                                                                                },
-                                                                                {
-                                                                                    name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                        (accumulator, receipt) => {
-                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            //accumulator.total += parseFloat(receipt.total);
-                                                                                            return accumulator;
-                                                                                        },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                    ).tax * 100) / 100
-                                                                                }, {
-                                                                                    name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Cash Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                        (accumulator, receipt) => {
-                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            //accumulator.total += parseFloat(receipt.total);
-                                                                                            return accumulator;
-                                                                                        },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                    ).tips * 100) / 100
-                                                                                },
-                                                                                {
-                                                                                    name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                        (accumulator, receipt) => {
-                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            //accumulator.total += parseFloat(receipt.total);
-                                                                                            return accumulator;
-                                                                                        },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                    ).service_fee * 100) / 100
-                                                                                },
-                                                                                {
-                                                                                    name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                        (accumulator, receipt) => {
-                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            //accumulator.total += parseFloat(receipt.total);
-                                                                                            return accumulator;
-                                                                                        },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                    ).discount * 100) / 100
-                                                                                },
-                                                                            ]}
-                                                                            labelLine={false}
-                                                                            label={renderCustomizedLabel}
-                                                                            outerRadius={75}
-                                                                            fill="#8884d8"
-                                                                            dataKey="value"
-                                                                        >
-                                                                            {
-                                                                                [
-                                                                                    {
-                                                                                        name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Cash Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                            (accumulator, receipt) => {
-                                                                                                accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                                accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                                accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                                //accumulator.total += parseFloat(receipt.total);
-                                                                                                return accumulator;
-                                                                                            },
-                                                                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                        ).tips * 100) / 100
-                                                                                    },
-                                                                                    {
-                                                                                        name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                            (accumulator, receipt) => {
-                                                                                                accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                                accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                                accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                                //accumulator.total += parseFloat(receipt.total);
-                                                                                                return accumulator;
-                                                                                            },
-                                                                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                        ).service_fee * 100) / 100
-                                                                                    },
-                                                                                    {
-                                                                                        name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                            (accumulator, receipt) => {
-                                                                                                accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                                accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                                accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                                //accumulator.total += parseFloat(receipt.total);
-                                                                                                return accumulator;
-                                                                                            },
-                                                                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                        ).tax * 100) / 100
-                                                                                    },
-                                                                                    {
-                                                                                        name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                            (accumulator, receipt) => {
-                                                                                                accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                                accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                                accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                                //accumulator.total += parseFloat(receipt.total);
-                                                                                                return accumulator;
-                                                                                            },
-                                                                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                        ).subtotal * 100) / 100
-                                                                                    },
-                                                                                    {
-                                                                                        name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                            (accumulator, receipt) => {
-                                                                                                accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                                accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                                accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                                //accumulator.total += parseFloat(receipt.total);
-                                                                                                return accumulator;
-                                                                                            },
-                                                                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                        ).discount * 100) / 100
-                                                                                    }
-                                                                                ].map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
-                                                                            }
-                                                                        </Pie>
-                                                                        <Tooltip />
-                                                                        {isMobile ? (
-                                                                            <Legend verticalAlign="top" content={renderLegend} />
-                                                                        ) : (
-                                                                            <Legend layout="vertical" align="right" verticalAlign="top" content={renderLegend} />
-                                                                        )}
-                                                                    </PieChart>
-
-                                                                )}
-                                                            </div>
-
-
-                                                        </div>
-                                                        <div>
-
-                                                            <select
-                                                                onChange={(e) => getSeason(format12Oclock(new Date(Date.now()).toLocaleString("en-US", { timeZone: AmericanTimeZone })), e.target.value)}
-                                                                className="btn btn-sm border-black d-flex align-items-center mx-1 mb-2"
-                                                            >
-
-                                                                <option value="Q1">Show First Quarter of This Year</option>
-                                                                <option value="Q2">Show Second Quarter of This Year</option>
-                                                                <option value="Q3">Show Third Quarter of This Year</option>
-                                                                <option value="Q4">Show Fourth Quarter of This Year</option>
-                                                                <option value="lastQ1">Show First Quarter of Last Year</option>
-                                                                <option value="lastQ2">Show Second Quarter of Last Year</option>
-                                                                <option value="lastQ3">Show Third Quarter of Last Year</option>
-                                                                <option value="lastQ4">Show Fourth Quarter of Last Year</option>
-                                                            </select>
-                                                            <div className={`${true ? 'flex' : ''}`}>
-
-                                                                <button
-                                                                    onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
-                                                                    className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
-                                                                >
-
-                                                                    <span>Today's Orders</span>
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => { setStartDate(parseDate(format12Oclock((new Date(new Date().setDate(new Date().getDate() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
-                                                                    className="btn btn-sm btn-outline-primary d-flex align-items-center mx-1 mt-1 mb-2"
-                                                                >
-                                                                    <span>Yesterday Orders</span>
-                                                                </button>
-                                                            </div>
-
-                                                            <div className={`${true ? 'flex' : ''}`}>
-                                                                <button
-                                                                    onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
-                                                                    className="btn btn-sm btn-dark d-flex align-items-center mx-1 mb-2"
-                                                                >
-                                                                    <span>
-                                                                        {
-                                                                            (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                                                                                ["一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单", "十二月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
-                                                                                ["January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders", "December Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()])
-                                                                        }
-                                                                    </span>
-                                                                </button>
-
-                                                                <button
-                                                                    onClick={() => { getMonthDates(((format12Oclock((new Date(new Date().setMonth(new Date().getMonth() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
-                                                                    className="btn btn-sm btn-outline-dark d-flex align-items-center mx-1 mb-2"
-                                                                >
-                                                                    <span>
-                                                                        {
-                                                                            (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                                                                                ["十二月订单", "一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
-                                                                                ["December Orders", "January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()])
-                                                                        }</span>
-                                                                </button>
-
-
-
-
-                                                            </div>
-
-
-                                                        </div>
-
-                                                        {showChart && isMobile ?
-                                                            <div>
-                                                                <button onClick={() => setShowChart(false)} className="btn btn-sm mt-1 mb-1 notranslate" style={{
-                                                                    float: "right",
-                                                                    border: '1px solid #ccc',
-                                                                    display: 'inline-flex',
-                                                                    alignItems: 'center',
-                                                                    // Add other styles as needed
-                                                                }}>
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path fill="currentColor" d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" /></svg>                                </button>
-                                                                <LineChart className="chart" width={width2 - 75} height={250} data={sortedData}>
-                                                                    <CartesianGrid strokeDasharray="3 3" />
-                                                                    <XAxis dataKey="date" />
-                                                                    <YAxis />
-                                                                    <Tooltip />
-                                                                    <Legend />
-                                                                    <Line type="monotone" dataKey="revenue" stroke="#8884d8" />
-                                                                </LineChart>
-
-                                                            </div> : null
-                                                        }
-
-                                                        <hr class="opacity-50 border-t-2 border-black-1000" />
-                                                        {isMobile ? <div >
-                                                            <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
-                                                                <option value="">Select Specific Dining Table Type</option>
-                                                                {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
-                                                                    <option className='notranslate' key={index} value={option}>{option}</option>
-                                                                ))}
-                                                                {/* The options will be dynamically created here */}
-                                                            </select>
-                                                            &nbsp;
-                                                            <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
-                                                                <option value="">Select Specific Payment Type</option>
-                                                                {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
-                                                                    <option class="notranslate" key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
-                                                                ))}
-                                                                {/* The options will be dynamically created here */}
-                                                            </select>
-                                                            <div><b>Hint: Click on an order to see more details.</b></div>
-
-                                                        </div> : null
-                                                        }
-
-                                                        <LazyLoad height={762}>
-
-                                                            <table
-                                                                className="shop_table my_account_orders"
-                                                                style={{
-                                                                    borderCollapse: "collapse",
-                                                                    width: "100%",
-                                                                    borderSpacing: "6px", // added CSS
-                                                                }}
-                                                            >
-
-                                                                <thead>
-
-
-                                                                    <tr>
-                                                                        {isMobile ? null : <th className="notranslate" >Number.</th>}
-                                                                        {(isLocalHost)
-                                                                            ?
-                                                                            <th className="order-number" >Order ID</th>
-                                                                            :
-                                                                            <></>
-                                                                        }
-                                                                        <th className="order-name" >
-                                                                            {!isMobile ?
-                                                                                <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
-                                                                                    <option value="">Select Specific Dining Table Type</option>
-                                                                                    {Array.from(new Set(orders?.map(order => order?.tableNum))).map((option, index) => (
-                                                                                        <option className='notranslate' key={index} value={option}>{option}</option>
-                                                                                    ))}
-                                                                                    {/* The options will be dynamically created here */}
-                                                                                </select> : "ID"
-                                                                            }
-
-                                                                        </th>
-                                                                        <th className="order-status" >
-                                                                            {!isMobile ?
-                                                                                <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
-                                                                                    <option value="">Select Specific Payment Type</option>
-                                                                                    {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
-                                                                                        <option key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
-                                                                                    ))}
-                                                                                    {/* The options will be dynamically created here */}
-                                                                                </select>
-                                                                                : "Type"
-                                                                            }
-                                                                        </th>
-                                                                        <th className="order-total" >Price</th>
-                                                                        <th className="order-date" >Date</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                {/* {!loading && (
-                                  <button className="btn btn-primary btn-block" onClick={handleLoadMore}>
-                                    Next
-                                  </button>
-                                )} */}
-
-                                                                <tbody
-                                                                >
-
-                                                                    {items?.map((order, index) => {
-                                                                        if (order.status === "Canceled") {
-                                                                        } else {
-                                                                            displayIndex++;
-
-                                                                        }
-
-                                                                        return (
-                                                                            <>
-                                                                                <div className="order" style={{ borderBottom: "1px solid #ddd" }}>
-                                                                                    {
-                                                                                        (() => {
-                                                                                            function compareDates(date1, date2) {
-                                                                                                // Check for null or invalid dates
-                                                                                                if (!date1 || !date2) return "Invalid dates to compare";
-
-                                                                                                // Parse the dates
-                                                                                                const parsedDate1 = new Date(`20${date1.split('/')[2]}`, date1.split('/')[0] - 1, date1.split('/')[1]);
-                                                                                                const parsedDate2 = new Date(`20${date2.split('/')[2]}`, date2.split('/')[0] - 1, date2.split('/')[1]);
-
-                                                                                                // Compare the dates
-                                                                                                if (parsedDate1 > parsedDate2) {
-                                                                                                    return ` 📅 ${date2}`;
-                                                                                                } else if (parsedDate1 < parsedDate2) {
-                                                                                                    return ``;
-                                                                                                } else {
-                                                                                                    return ``;
-                                                                                                }
-                                                                                            }
-
-                                                                                            // Ensure index > 0 before calling compareDates
-                                                                                            return index > 0
-                                                                                                ? compareDates(items[index - 1].date.split(' ')[0], items[index].date.split(' ')[0])
-                                                                                                : `📅 ${items[index].date.split(' ')[0]}`;
-                                                                                        })()
-                                                                                    }
-                                                                                </div>
-                                                                                < div onClick={() => {
-                                                                                    if (isMobile) {
-                                                                                        toggleExpandedOrderId(order.id)
-                                                                                    }
-                                                                                }
-                                                                                }
-
-                                                                                    style={{ display: 'contents' }}>
-                                                                                    <tr className="order" style={{ borderBottom: "1px solid #ddd" }}>
-                                                                                        {isMobile ? null :
-                                                                                            (
-                                                                                                (order.status !== "Canceled") ?
-                                                                                                    <td className='notranslate'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex}</td>
-                                                                                                    : <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
-
-                                                                                            )
-                                                                                        }
-                                                                                        {(isLocalHost)
-                                                                                            ?
-                                                                                            <td className="order-number notranslate" data-title="OrderID">
-                                                                                                <a>
-                                                                                                    {order.id.substring(0, 4)}
-                                                                                                </a>
-                                                                                            </td> :
-                                                                                            <></>
-                                                                                        }
-
-                                                                                        <td className="order-name notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>
-                                                                                            {isMobile ?
-                                                                                                (
-                                                                                                    (order.status !== "Canceled") ?
-                                                                                                        <span className='notranslate'>#{orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex} </span>
-                                                                                                        :
-                                                                                                        <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
-                                                                                                )
-                                                                                                :
-                                                                                                null
-                                                                                            }
-                                                                                            {order.tableNum === "" ? "Takeout" : order.tableNum}</td>
-                                                                                        <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
-                                                                                        <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className=" amount">
-                                                                                            <span className='notranslate'>
-                                                                                                {"$" + roundToTwoDecimalsTofix(order.total)}
-                                                                                            </span>
-
-                                                                                            <span style={{ color: 'red' }}>
-
-                                                                                                {(() => {
-                                                                                                    const subtotal = roundToTwoDecimalsTofix(order?.metadata?.subtotal);
-                                                                                                    const serviceFee = roundToTwoDecimalsTofix(order?.metadata?.service_fee);
-                                                                                                    const tips = roundToTwoDecimalsTofix(order?.metadata?.tips);
-
-                                                                                                    // 检查 subtotal 是否有效
-                                                                                                    if (isNaN(subtotal) || subtotal <= 0) {
-                                                                                                        return null; // 不显示任何内容
-                                                                                                    }
-
-                                                                                                    // 根据 serviceFee 的值计算相应的百分比
-                                                                                                    const percentage = serviceFee == 0
-                                                                                                        ? (tips / subtotal) * 100
-                                                                                                        : (serviceFee / subtotal) * 100;
-
-                                                                                                    // 如果计算结果是 NaN，则返回 null 不显示任何内容
-                                                                                                    return !isNaN(percentage)
-                                                                                                        ? ` (${percentage.toFixed(2)}${!isMobile ? "% Gratuity)" : "%)"}`
-                                                                                                        : null;
-                                                                                                })()}
-                                                                                            </span>
-
-                                                                                            {/* <i class="fa-solid fa-circle-info"></i>
-                                          {order?.transaction_json?.net !== undefined ?
-                                            roundToTwoDecimalsTofix(order?.transaction_json?.net) : 0
-                                          } */}
-                                                                                        </span></td>
-                                                                                        <td className="order-date" data-title="Date" style={{ whiteSpace: "nowrap" }}>
-                                                                                            <time dateTime={order.date} title={order.date} nowrap>
-                                                                                                <span className='notranslate'>
-
-                                                                                                    {isMobile ?
-                                                                                                        order.date.split(' ').slice(1).join(' ') :
-                                                                                                        order.date
-                                                                                                    }
-                                                                                                </span>
-                                                                                            </time>
-                                                                                        </td>
-                                                                                        {!isMobile && (
-                                                                                            (order.status !== "Canceled") && (
-                                                                                                <td className="order-details" style={{
-                                                                                                    width: "400px",
-                                                                                                    whiteSpace: "nowrap", textAlign: "right"
-                                                                                                }}
-                                                                                                    data-title="Details">
-                                                                                                    {/* <button
-                                                className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
-                                              >
-                                                Bank Receipt
-                                              </button> */}
-                                                                                                    {/* {order?.status === 'Paid by Cash' ? (
-                                                                                      <button
-                                                                                        className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                                                        onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                                                                      >
-                                                                                        Add Gratuity
-                                                                                      </button>
-                                                                                    ) :
-                                                                                      <button
-                                                                                        className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                                                        onClick={() => { bankReceipt(order?.Charge_ID, order?.id, order?.date) }}
-                                                                                      >
-                                                                                        Bank Receipt
-                                                                                      </button>} */}
-                                                                                                    <button
-                                                                                                        className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                                                                        onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                                                                                    >
-                                                                                                        {fanyi("Add Cash Tips")}
-                                                                                                    </button>
-                                                                                                    <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
-
-                                                                                                        Print Receipt
-                                                                                                    </button>
-                                                                                                    {/* <button onClick={() => deleteDocument(order.id)}>
-                                                  Delete Document
-                                                </button> */}
-                                                                                                    <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
-                                                                                                    >
-                                                                                                        {expandedOrderIds.includes(order.id) ? "Close Details" : "View Details"}
-                                                                                                    </button>
-                                                                                                </td>
-                                                                                            )
-
-                                                                                        )
-                                                                                        }
-
-                                                                                    </tr>
-
-
-                                                                                    {
-                                                                                        (expandedOrderIds.includes(order.id) || order?.status === "Canceled") && (
-                                                                                            <tr style={{ backgroundColor: '#f8f9fa' }}>
-                                                                                                <td colSpan={8} style={{ padding: "10px" }}>
-                                                                                                    <div className="receipt">
-                                                                                                        {isMobile && order.status === "canceled" ?
-                                                                                                            <div>
-                                                                                                                <button
-                                                                                                                    className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
-                                                                                                                    onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
-                                                                                                                >
-                                                                                                                    {fanyi("Add Cash Tips")}
-                                                                                                                </button>
-                                                                                                                <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
-
-                                                                                                                    Print Receipt
-                                                                                                                </button>
-                                                                                                                {/* <button onClick={() => deleteDocument(order.id)}>
-                                                                                                                                  Delete Document
-                                                                                                                                </button> */}
-                                                                                                                <button className="border-black p-2 m-2 bg-gray-500 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300" onClick={() => toggleExpandedOrderId(order.id)}
-                                                                                                                >
-                                                                                                                    {expandedOrderIds.includes(order.id) ? "Close Details" : "View Details"}
-                                                                                                                </button>
-                                                                                                            </div>
-                                                                                                            : null
-                                                                                                        }
-                                                                                                        {order.status !== "Canceled" &&
-                                                                                                            <span>
-                                                                                                                Order ID: {order.id}</span>
-                                                                                                        }
-                                                                                                        {isMobile
-                                                                                                            ? <p>Date: <span className='notranslate'>{order.date}</span></p>
-                                                                                                            : null}
-
-
-                                                                                                        <p><span className='notranslate'>{order.name}</span></p>
-                                                                                                        {/* <p>{order.email}</p> */}
-                                                                                                        {/* <p><span className='notranslate'>{order.date}</span></p> */}
-                                                                                                        {JSON.parse(order.receiptData).map((item, index) => (
-                                                                                                            <div className="receipt-item" key={item.id}>
-                                                                                                                <p className='notranslate'>
-                                                                                                                    {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
-                                                                                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
-                                                                                                                    &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
-                                                                                                                    &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.itemTotalPrice)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) :
-                                                                                                                        roundToTwoDecimalsTofix(roundToTwoDecimalsTofix(item.itemTotalPrice) / roundToTwoDecimalsTofix(Math.round(item.quantity)))}
-                                                                                                                    &nbsp;each = ${roundToTwoDecimalsTofix(item.itemTotalPrice)}</p>
-                                                                                                            </div>
-                                                                                                        ))}
-                                                                                                        {order.status !== "Canceled" && (
-                                                                                                            <>
-                                                                                                                <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.discount)}</span></p>
-                                                                                                                <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.subtotal)}</span></p>
-                                                                                                                <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.service_fee)}</span></p>
-                                                                                                                <p>Tax: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.tax)}</span></p>
-                                                                                                                <p>Gratuity: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.tips)}</span></p>
-                                                                                                                <p>Total: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.total)}</span></p>
-                                                                                                            </>
-                                                                                                        )}
-
-
-                                                                                                    </div>
-
-                                                                                                </td>
-
-                                                                                            </tr>
-                                                                                        )
-                                                                                    }
-                                                                                </div>
-                                                                            </>
-                                                                        )
-                                                                    })}
-                                                                </tbody>
-                                                            </table>
-                                                        </LazyLoad>
-
-                                                    </div>
-                                                        : null
                                                     }
 
                                                 </div>

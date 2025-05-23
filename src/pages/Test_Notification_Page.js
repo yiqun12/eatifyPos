@@ -1,11 +1,10 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { collection, doc, setDoc, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
-
-
+import firebase from 'firebase/compat/app';
 
 function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }) {
 
@@ -26,7 +25,63 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
     return (Math.round(n * 100) / 100).toFixed(2);
   }
 
+  // Add test notification function
+  const addTestNotification = async () => {
+    try {
+      // Disable all buttons during processing
+      document.querySelectorAll('button').forEach((button) => (button.disabled = true));
 
+      // Create a reference to the Cloud Function
+      const myFunction = firebase.functions().httpsCallable('PendingDineInOrder');
+
+      // Sample test data
+      const testItems = [
+        {
+          id: "test-item-1",
+          name: "Test Burger",
+          subtotal: "12.99",
+          quantity: 1,
+          attributeSelected: { size: "Medium" },
+          itemTotalPrice: 12.99,
+          CHI: "测试汉堡"
+        },
+        {
+          id: "test-item-2",
+          name: "Test Fries",
+          subtotal: "4.99",
+          quantity: 2,
+          attributeSelected: {},
+          itemTotalPrice: 9.98,
+          CHI: "测试薯条"
+        }
+      ];
+
+      // Call the function with test data
+      const data = {
+        store: storeID,
+        stripe_account_store_owner: JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).storeOwnerId,
+        items: testItems,
+        amount: "0",
+        status: "Review",
+        table: "Test Table A1",
+        username: "Test Customer",
+      };
+
+      const result = await myFunction(data);
+      console.log('Test notification created:', result.data.docId);
+
+      // Re-enable buttons
+      document.querySelectorAll('button').forEach((button) => (button.disabled = false));
+
+      alert('Test notification added successfully!');
+
+    } catch (error) {
+      // Re-enable buttons on error
+      document.querySelectorAll('button').forEach((button) => (button.disabled = false));
+      console.error('Error creating test notification:', error);
+      alert('Error creating test notification: ' + error.message);
+    }
+  };
 
   const [width, setWidth] = useState(window.innerWidth);
   const [selectedOrder, setSelectedOrder] = useState("[]");
@@ -111,11 +166,6 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
     }
   };
 
-
-
-
-
-
   return (
     // <div>Hello</div>
 
@@ -133,23 +183,33 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
 
       <div class="">
         <div class="card-header">
-          <h5 class="mb-0">Notification&nbsp;<span
-            style={{
-              display: 'inline-flex', // changed from 'flex' to 'inline-flex'
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '15px',
-              height: '15px',
-              backgroundColor: 'blue',
-              borderRadius: '50%',
-              color: 'white',
-              fontSize: '10px',
-              verticalAlign: 'middle' // added to vertically center the circle
-            }}
-          >
-            <span className='notranslate'>{reviewVar}</span>
+          <div className="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Notification&nbsp;<span
+              style={{
+                display: 'inline-flex', // changed from 'flex' to 'inline-flex'
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '15px',
+                height: '15px',
+                backgroundColor: 'blue',
+                borderRadius: '50%',
+                color: 'white',
+                fontSize: '10px',
+                verticalAlign: 'middle' // added to vertically center the circle
+              }}
+            >
+              <span className='notranslate'>{reviewVar}</span>
+            </span></h5>
 
-          </span></h5>
+            <button
+              type="button"
+              className="btn btn-sm btn-secondary"
+              onClick={addTestNotification}
+              title="Add a test notification for testing purposes"
+            >
+              Add Test Notification
+            </button>
+          </div>
         </div>
 
         <div class="table-responsive">
