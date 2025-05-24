@@ -33,7 +33,12 @@ const NumberPad = ({
   };
 
   const handleNumberClick = (num) => {
-    updateValue(internalValue + num.toString());
+    // 如果当前值仅为 "0"，并且输入的不是小数点，则替换为新的数字
+    if (internalValue === '0') {
+      updateValue(num.toString());
+    } else {
+      updateValue(internalValue + num.toString());
+    }
   };
 
   const handleDotClick = () => {

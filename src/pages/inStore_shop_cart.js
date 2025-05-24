@@ -1222,16 +1222,18 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 // the parent div
                 // can make the parent div flexbox
                 <div className="cart-item bg-white rounded-lg shadow-sm p-2 mb-2">
-                  <div className='flex items-center'>
-                    <DeleteSvg className='delete-btn mt-1 ml-1 mr-3 cursor-pointer'
+                  <div className='flex items-start'>
+                    <DeleteSvg className='delete-btn mt-1 ml-1 mr-3 cursor-pointer' style={{ width: '20px', flexShrink: 0 }}
                       onClick={() => {
                         handleDeleteClick(product.id, product.count)
                       }}></DeleteSvg>
-                    <div className={`flex justify-between w-full ${!isMobile ? 'text-lg' : ''} notranslate`}>
-                      <span className="product-title">
-                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
-                      </span>
-                      <span className="product-price">${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}</span>
+                    <div className={`flex flex-col w-full ${!isMobile ? 'text-lg' : ''} notranslate`}>
+                      <div className="flex justify-between w-full">
+                        <span className="product-title" style={{ wordBreak: 'break-word', hyphens: 'auto' }}>
+                          {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                        </span>
+                        <span className="product-price ml-2" style={{ flexShrink: 0 }}>${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
 
@@ -1415,6 +1417,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               onNumberPadConfirm={keypadProps.onNumberPadConfirm}
               onQuickAmountClick={keypadProps.onQuickAmountClick}
               activeInputType={keypadProps.activeInputType}
+              showOneHundred={true}
             >
               <div>
                     <p className="mb-2">{fanyi("Enter the Cash Received")}</p>

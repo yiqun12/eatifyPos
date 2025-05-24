@@ -746,9 +746,9 @@ function Container(props) {
     const handleResetKeypad = () => {
       resetKeypadProps();
     };
-    
+
     window.addEventListener('reset-keypad', handleResetKeypad);
-    
+
     return () => {
       window.removeEventListener('reset-keypad', handleResetKeypad);
     };
@@ -1101,6 +1101,7 @@ function Container(props) {
                 onNumberPadConfirm={keypadProps.onNumberPadConfirm}
                 onQuickAmountClick={keypadProps.onQuickAmountClick}
                 activeInputType={keypadProps.activeInputType}
+                showOneHundred={true}
               >
                 <div>
                   <p className="mb-2">Enter the Cash Received</p>

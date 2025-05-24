@@ -37,7 +37,8 @@ function KeypadModal({
   width = '70%',
   headerContent,
   showCloseButton = false,
-  activeInputType = 'main'
+  activeInputType = 'main',
+  showOneHundred = false
 }) {
   // Check if current device is PC - moved before conditional return to follow React Hooks rules
   const [isPC, setIsPC] = useState(window.innerWidth >= 1024);
@@ -55,6 +56,9 @@ function KeypadModal({
 
   // Default quick amounts to display
   const quickAmounts = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+  if (showOneHundred) {
+    quickAmounts.push(100);
+  }
 
   // Process number pad input changes
   const handleNumberPadChange = (newValue) => {
@@ -93,14 +97,14 @@ function KeypadModal({
             {title && <h5 className="modal-title">{title}</h5>}
             {headerContent}
             {showCloseButton && (
-              <button 
-                type="button" 
-                className="close" 
-                onClick={onClose} 
+              <button
+                type="button"
+                className="close"
+                onClick={onClose}
                 aria-label="Close"
-                style={{ 
+                style={{
                   marginLeft: 'auto',
-                  border: 'none', 
+                  border: 'none',
                   background: 'transparent',
                   fontSize: '1.5rem',
                   fontWeight: 'bold',
@@ -160,4 +164,3 @@ function KeypadModal({
 }
 
 export default KeypadModal;
- 
