@@ -4,14 +4,25 @@ import { useState, useEffect, useRef } from 'react';
 import { collection, doc, setDoc, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
+
 import firebase from 'firebase/compat/app';
+import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
+import { lookup } from 'zipcode-to-timezone';
+
+
 
 function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }) {
 
+  function getTimeZoneByZip(zipCode) {
+    // Use the library to find the timezone ID from the ZIP code
+    const timeZoneId = lookup(zipCode);
 
+    // Check if the timezone ID is in our timeZones list
+    return timeZoneId;
+  }
   var reviewCount = sortedData.length;
   setReviewVar(reviewCount)
-
+  
   const statusPriority = {
     "Review": 1,
     "Pending": 2,
@@ -19,53 +30,54 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
     "Paid": 4
   };
 
+  console.log(sortedData)
+
   const { user, user_loading } = useUserContext();
 
   function roundToTwoDecimalsTofix(n) {
     return (Math.round(n * 100) / 100).toFixed(2);
   }
-
-  // Add test notification function
   const addTestNotification = async () => {
-    try {
-      // Disable all buttons during processing
-      document.querySelectorAll('button').forEach((button) => (button.disabled = true));
+    const testItems = [
+      {
+        id: "test-item-1",
+        name: "Test Burger",
+        subtotal: "12.99",
+        quantity: 1,
+        attributeSelected: { size: "Medium" },
+        itemTotalPrice: 12.99,
+        CHI: "测试汉堡"
+      },
+      {
+        id: "test-item-2",
+        name: "Test Fries",
+        subtotal: "4.99",
+        quantity: 2,
+        attributeSelected: {},
+        itemTotalPrice: 9.98,
+        CHI: "测试薯条"
+      }
+    ];
+    const dateTime = new Date().toISOString();
+    const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+    addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "PendingDineInOrder"), {
+      store: storeID,
+      stripe_account_store_owner: user.uid,
+      items: testItems,
+      date: parseDateUTC(date, getTimeZoneByZip("94133")),
+      amount: 0,
+      Status: "Pending", // Assuming "NO USE" is a comment and not part of the value
+      table: "abc",
+      username: "kiosk",
+      isConfirm: false,
+    }).then(() => {
 
-      // Create a reference to the Cloud Function
-      const myFunction = firebase.functions().httpsCallable('PendingDineInOrder');
+    }).catch((error) => {
+      console.error("Error writing document: ", error);
 
-      // Sample test data
-      const testItems = [
-        {
-          id: "test-item-1",
-          name: "Test Burger",
-          subtotal: "12.99",
-          quantity: 1,
-          attributeSelected: { size: "Medium" },
-          itemTotalPrice: 12.99,
-          CHI: "测试汉堡"
-        },
-        {
-          id: "test-item-2",
-          name: "Test Fries",
-          subtotal: "4.99",
-          quantity: 2,
-          attributeSelected: {},
-          itemTotalPrice: 9.98,
-          CHI: "测试薯条"
-        }
-      ];
+    });
+  };
 
-      // Call the function with test data
-      const data = {
-        store: storeID,
-        stripe_account_store_owner: JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).storeOwnerId,
-        items: testItems,
-        amount: "0",
-        status: "Review",
-        table: "Test Table A1",
-        username: "Test Customer",
-      };
 
       const result = await myFunction(data);
       console.log('Test notification created:', result.data.docId);
@@ -201,6 +213,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
               <span className='notranslate'>{reviewVar}</span>
             </span></h5>
 
+            {/* <button
             <button
               type="button"
               className="btn btn-sm btn-secondary"
@@ -208,7 +221,9 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
               title="Add a test notification for testing purposes"
             >
               Add Test Notification
-            </button>
+
+            </button> */}
+
           </div>
         </div>
 

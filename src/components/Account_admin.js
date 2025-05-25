@@ -1212,6 +1212,7 @@ const Account = () => {
 
         // Listen for changes in the collection
         const unsubscribe = onSnapshot(query(collectionRef), (snapshot) => {
+            const isInitial = snapshot.metadata.hasPendingWrites === false && snapshot.metadata.fromCache === false;
             const docs = [];
             snapshot.forEach((doc) => {
                 docs.push({ orderId: doc.id, ...doc.data() });
@@ -1220,12 +1221,12 @@ const Account = () => {
             console.log("PendingDineInOrder");
             console.log(docs);
             snapshot.docChanges().forEach((change) => {
-                if (change.type === "added" || change.type === "modified") {
-                    const docData = change.doc.data();
-                    if (docData && typeof docData.isConfirm === 'boolean' && docData.isConfirm === false) {
-                        // 清除之前的定时器（如果存在）
-                        if (soundTimeoutRef.current) {
-                            clearTimeout(soundTimeoutRef.current);
+                if (!isInitial && (change.type === "added" || change.type === "modified")) {
+                    if (change.doc.data().isConfirm === false) {
+                        if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
+                            playSound_CHI()
+                        } else {
+                            playSound()
                         }
                         // 设置新的定时器
                         soundTimeoutRef.current = setTimeout(() => {
