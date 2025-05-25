@@ -22,7 +22,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
   }
   var reviewCount = sortedData.length;
   setReviewVar(reviewCount)
-  
+
   const statusPriority = {
     "Review": 1,
     "Pending": 2,
@@ -76,23 +76,6 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
       console.error("Error writing document: ", error);
 
     });
-  };
-
-
-      const result = await myFunction(data);
-      console.log('Test notification created:', result.data.docId);
-
-      // Re-enable buttons
-      document.querySelectorAll('button').forEach((button) => (button.disabled = false));
-
-      alert('Test notification added successfully!');
-
-    } catch (error) {
-      // Re-enable buttons on error
-      document.querySelectorAll('button').forEach((button) => (button.disabled = false));
-      console.error('Error creating test notification:', error);
-      alert('Error creating test notification: ' + error.message);
-    }
   };
 
   const [width, setWidth] = useState(window.innerWidth);
@@ -213,7 +196,6 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
               <span className='notranslate'>{reviewVar}</span>
             </span></h5>
 
-            {/* <button
             <button
               type="button"
               className="btn btn-sm btn-secondary"
@@ -222,7 +204,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
             >
               Add Test Notification
 
-            </button> */}
+            </button>
 
           </div>
         </div>
