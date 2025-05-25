@@ -73,13 +73,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   const [totalPrice, setTotalPrice] = useState(0); // State to store the total price
   const [count, setCount] = useState(0);  // Set up a state
   const [selectedFoodItem, setSelectedFoodItem] = useState('')
-  const [isTaxExempt, setIsTaxExempt] = useState(false); // 免税状态
 
-  // 统一的免税计算函数
-  const calculatePriceWithTax = (originalPrice) => {
-    if (!isTaxExempt || !TaxRate || !originalPrice) return originalPrice;
-    return originalPrice / (1 + (Number(TaxRate) / 100));
-  };
 
   const [priceError, setPriceError] = useState("");  // Set up a state
   const SetTableInfo = async (table_name, product) => {
@@ -175,7 +169,6 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       // After updating selectedAttributes, recalculate the total price
       product.attributeSelected = updatedSelectedAttributes
       product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
-      product.isTaxExempt = isTaxExempt; // 保存免税状态
       SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
     }
 
@@ -199,7 +192,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
           (variation) => variation.type === selectedVariations
         );
         if (selectedVariation) {
-          total += calculatePriceWithTax(selectedVariation.price);
+          total += selectedVariation.price;
         }
       } else {
         // For multiple selection attributes, iterate through selected variations
@@ -208,7 +201,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
             (variation) => variation.type === selectedVariation
           );
           if (variation) {
-            total += calculatePriceWithTax(variation.price);
+            total += variation.price;
           }
         });
       }
@@ -230,8 +223,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   const [foodTypes, setFoodTypes] = useState([]);
   const [foodTypesCHI, setFoodTypesCHI] = useState([]);
   const formatPriceDisplay = (price) => {
-    let displayPrice = calculatePriceWithTax(price);
-    return displayPrice > 0 ? `+$${displayPrice.toFixed(2)}` : `-$${Math.abs(displayPrice).toFixed(2)}`;
+    return price > 0 ? `+$${price.toFixed(2)}` : `-$${Math.abs(price).toFixed(2)}`;
   };
 
   const fetchPost = async (name) => {
@@ -472,23 +464,21 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       product.CHI = CHI;
       product.availability = availability
       product.attributesArr = attributesArr
-      product.isTaxExempt = isTaxExempt; // 保存免税状态
     }
     else {
       // If the product doesn't exist, add it to the array
-      products?.unshift({ 
-        attributesArr: attributesArr, 
-        availability: availability, 
-        id: id, 
-        name: name, 
-        subtotal: subtotal, 
-        image: image, 
-        quantity: quant ? quant : 1, 
-        attributeSelected: attributeSelected, 
-        count: count, 
-        itemTotalPrice: Math.round(100 * subtotal) / 100, 
+      products?.unshift({
+        attributesArr: attributesArr,
+        availability: availability,
+        id: id,
+        name: name,
+        subtotal: subtotal,
+        image: image,
+        quantity: quant ? quant : 1,
+        attributeSelected: attributeSelected,
+        count: count,
+        itemTotalPrice: Math.round(100 * subtotal) / 100,
         CHI: CHI,
-        isTaxExempt: isTaxExempt // 保存免税状态
       });
     }
     //product.itemTotalPrice= Math.round(100 *((parseFloat(totalPrice)+parseFloat(product.subtotal))*parseFloat(product.quantity))/ 100)
@@ -726,16 +716,6 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     console.log(item)
     setCount(randomNum);  // Increment the count every time the modal is opened
 
-    console.log(123123213123)
-    console.log(item?.isTaxExempt)
-    // 对于新商品，明确重置免税状态；对于编辑现有商品，恢复其免税状态
-    if (item?.isTaxExempt !== undefined) {
-      // 编辑现有商品，恢复保存的免税状态
-      setIsTaxExempt(item.isTaxExempt);
-    } else {
-      // 新商品，重置为false
-      setIsTaxExempt(false);
-    }
     setTotalPrice(0);
     const attributeSelected = item?.attributeSelected ? item.attributeSelected : {}
     setSelectedAttributes(attributeSelected)
@@ -862,7 +842,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
   const handleAddCustomVariant = (name, priceString, count, id) => {
     const price = parseFloat(priceString) || 0;  // 保存原价，不做免税计算
-    
+
     if (!name || isNaN(priceString)) {
       alert('Please enter a valid name and price');
       return;
@@ -1048,15 +1028,15 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                             Confirm to Add <span
                               className='notranslate'>{customVariant.name}</span>
                           </button>
-                          
-                          <button
+
+                          {/* <button
                             className={`btn mb-3 ${isTaxExempt ? 'btn-success' : 'btn-secondary'}`}
                             type="button"
                             style={{ whiteSpace: 'nowrap' }}
                             onClick={() => setIsTaxExempt(!isTaxExempt)}
                           >
                             {isTaxExempt ? '✓ Tax Exempt' : 'Tax Exempt'}
-                          </button>
+                          </button> */}
                         </div>
                       </div>
 
@@ -1064,19 +1044,19 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                     </div>
 
                     {isPC && (
-                     <div className='flex-1 flex'>
-                       {/* 数字键盘 */}
-                       <div className="w-2/3 pr-2">
-                         <NumberPad
-                           inputValue={customVariant.price}
-                           onInputChange={(value) => setCustomVariant({ ...customVariant, price: value })}
-                           onConfirm={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
-                           onCancel={() => {}}
-                           show={true}
-                           embedded={true}
-                         />
-                       </div>
-                     </div>
+                      <div className='flex-1 flex'>
+                        {/* 数字键盘 */}
+                        <div className="w-2/3 pr-2">
+                          <NumberPad
+                            inputValue={customVariant.price}
+                            onInputChange={(value) => setCustomVariant({ ...customVariant, price: value })}
+                            onConfirm={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
+                            onCancel={() => { }}
+                            show={true}
+                            embedded={true}
+                          />
+                        </div>
+                      </div>
                     )}
                   </div>
 
@@ -1334,7 +1314,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                         <input
                           type="search"
                           class="form-control text-base shadow-none rounded-end-pill"
-                            placeholder={t('Search Food Item')}
+                          placeholder={t('Search Food Item')}
                           onChange={handleInputChange}
                           translate="no"
                           style={{ fontSize: '16px' }}

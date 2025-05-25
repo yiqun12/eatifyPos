@@ -507,8 +507,8 @@ function Container(props) {
 
           // Assuming SetTableInfo and SetTableIsSent are asynchronous and return promises
           // If they are not asynchronous, you can wrap their calls in Promise.resolve to treat them as promises
-          const setTableInfoPromise = Promise.resolve(SetTableInfo(store + "-" + selectedTable, "[]"));
-          const setTableIsSentPromise = Promise.resolve(SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]"));
+          const setTableInfoPromise = SetTableInfo(`${store}-${selectedTable}`, "[]");
+          const setTableIsSentPromise = SetTableIsSent(`${store}-${selectedTable}-isSent`, "[]");
 
           // Execute all promises in parallel
           Promise.all([addDocPromise, setTableInfoPromise, setTableIsSentPromise]).then(() => {

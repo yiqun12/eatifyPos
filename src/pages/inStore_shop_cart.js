@@ -654,23 +654,24 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
       // Assuming SetTableInfo and SetTableIsSent are asynchronous and return promises
       // If they are not asynchronous, you can wrap their calls in Promise.resolve to treat them as promises
-      const setTableInfoPromise = Promise.resolve(SetTableInfo(store + "-" + selectedTable, "[]"));
-      const setTableIsSentPromise = Promise.resolve(SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]"));
+      const setTableInfoPromise = SetTableInfo(`${store}-${selectedTable}`, "[]");
+      const setTableIsSentPromise = SetTableIsSent(`${store}-${selectedTable}-isSent`, "[]");
 
       // Execute all promises in parallel
       Promise.all([addDocPromise, setTableInfoPromise, setTableIsSentPromise]).then(() => {
         console.log("All operations completed successfully.");
+        setProducts([]);
+        setExtra(0)
+        setInputValue("")
+        setTips("")
+        setDiscount("")
+        setIsTaxExempt(false); // 重置免税状态
+        localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
       }).catch((error) => {
         console.error("Error executing operations:", error);
       });
 
-      setProducts([]);
-      setExtra(0)
-      setInputValue("")
-      setTips("")
-      setDiscount("")
-      setIsTaxExempt(false); // 重置免税状态
-      localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
+
 
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -780,23 +781,24 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
       // Assuming SetTableInfo and SetTableIsSent are asynchronous and return promises
       // If they are not asynchronous, you can wrap their calls in Promise.resolve to treat them as promises
-      const setTableInfoPromise = Promise.resolve(SetTableInfo(store + "-" + selectedTable, "[]"));
-      const setTableIsSentPromise = Promise.resolve(SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]"));
+      const setTableInfoPromise = SetTableInfo(store + "-" + selectedTable, "[]");
+      const setTableIsSentPromise = SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]");
 
       // Execute all promises in parallel
       Promise.all([addDocPromise, setTableInfoPromise, setTableIsSentPromise]).then(() => {
+        setProducts([]);
+        setExtra(0)
+        setInputValue("")
+        setDiscount("")
+        setTips("")
+        setResult(null)
+        localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
         console.log("All operations completed successfully.");
       }).catch((error) => {
         console.error("Error executing operations:", error);
       });
 
-      setProducts([]);
-      setExtra(0)
-      setInputValue("")
-      setDiscount("")
-      setTips("")
-      setResult(null)
-      localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
+
 
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -1117,10 +1119,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     ///combine toble
 
 
-    SetTableInfo_(`${store}-${table_name}`, JSON.stringify(groupAndSumItems(
+    SetTableInfo(`${store}-${table_name}`, JSON.stringify(groupAndSumItems(
       [...JSON.parse(localStorage.getItem(`${store}-${selectedTable}`)), ...JSON.parse(localStorage.getItem(`${store}-${table_name}`))]
     )))
-    SetTableInfo_(`${store}-${selectedTable}`, JSON.stringify([]))
+    SetTableInfo(`${store}-${selectedTable}`, JSON.stringify([]))
     SetTableIsSent(`${store}-${table_name}-isSent`, JSON.stringify(groupAndSumItems(
       [...JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), ...JSON.parse(localStorage.getItem(store + "-" + table_name + "-isSent"))])
     ))
@@ -1128,19 +1130,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   };
 
-  const SetTableInfo_ = async (table_name, product, id) => {
-    try {
 
-      const dateTime = new Date().toISOString();
-      const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      const docData = { product: product, date: date };
-      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
-      await setDoc(docRef, docData);
-
-    } catch (error) {
-      console.error("Error adding document: ", error);
-    }
-  };
   //   {startTimeDisplay && (
   //     <div className={`${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
   //       Start time: <span className="notranslate text-blue-600">{startTimeDisplay}</span>
@@ -1282,27 +1272,27 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
                       <div className="quantity-control">
                         <button className="minus-btn" type="button" name="button"
-                            onClick={() => {
-                              if (product.quantity === 1) {
-                                handleDeleteClick(product.id, product.count);
-                              } else {
-                                handleMinusClick(product.id, product.count)
-                              }
-                            }}>
+                          onClick={() => {
+                            if (product.quantity === 1) {
+                              handleDeleteClick(product.id, product.count);
+                            } else {
+                              handleMinusClick(product.id, product.count)
+                            }
+                          }}>
                           <MinusSvg style={{ width: '12px', height: '12px' }} alt="" />
-                          </button>
+                        </button>
 
                         <span className='notranslate'>{product.quantity}</span>
 
                         <button className="plus-btn" type="button" name="button"
-                            onClick={() => {
-                              handlePlusClick(product.id, product.count)
-                            }}>
+                          onClick={() => {
+                            handlePlusClick(product.id, product.count)
+                          }}>
                           <PlusSvg style={{ width: '12px', height: '12px' }} alt="" />
-                          </button>
-                        </div>
+                        </button>
                       </div>
                     </div>
+                  </div>
                 </div>
 
               ))}
@@ -1430,13 +1420,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 setExtra(0);
               }}
               headerContent={
-                    <a
-                      onClick={() => { OpenCashDraw(); }}
+                <a
+                  onClick={() => { OpenCashDraw(); }}
                   className="mt-3 btn btn-md btn-info"
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
-                    >
-                      <span>Open Cash Drawer</span>
-                    </a>
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+                >
+                  <span>Open Cash Drawer</span>
+                </a>
               }
               showCloseButton={true}
               numberPadValue={keypadProps.numberPadValue}
@@ -1447,63 +1437,63 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               showOneHundred={true}
             >
               <div>
-                    <p className="mb-2">{fanyi("Enter the Cash Received")}</p>
-                    <input
+                <p className="mb-2">{fanyi("Enter the Cash Received")}</p>
+                <input
                   type="text"
                   inputMode="decimal"
-                      value={inputValue}
-                      onChange={handleChange}
-                      style={uniqueModalStyles.inputStyle}
-                      className="mb-4 p-2 w-full border rounded-md"
-                      translate="no"
+                  value={inputValue}
+                  onChange={handleChange}
+                  style={uniqueModalStyles.inputStyle}
+                  className="mb-4 p-2 w-full border rounded-md"
+                  translate="no"
                   ref={cashPayInputRef}
                   onClick={() => {
                     // When clicking the main input field, reset keypadProps
                     resetKeypadProps();
                   }}
-                    />
-                    <button
-                      onClick={calculateResult}
-                      style={uniqueModalStyles.buttonStyle}
-                      className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
-                    >
-                      {fanyi("Calculate Give Back Cash")}
-                    </button>
-                    {errorMessage && (
-                      <div className="text-red-500 font-semibold mt-2">
-                        {errorMessage}
-                      </div>
-                    )}
+                />
+                <button
+                  onClick={calculateResult}
+                  style={uniqueModalStyles.buttonStyle}
+                  className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
+                >
+                  {fanyi("Calculate Give Back Cash")}
+                </button>
+                {errorMessage && (
+                  <div className="text-red-500 font-semibold mt-2">
+                    {errorMessage}
+                  </div>
+                )}
 
                 <p className="mb-4">{fanyi("Gratuity")}:</p>
-                    <div className="flex justify-between mb-4">
-                      <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
-                        15%
-                      </button>
-                      <button onClick={() => { calculateExtra(18); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mx-1">
-                        18%
-                      </button>
-                      <button onClick={() => { calculateExtra(20); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        20%
-                      </button>
-                      <button onClick={() => { calculateExtra(0); setCustomAmountVisible(false) }} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        0
-                      </button>
-                      <button onClick={toggleCustomAmountVisibility} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        {fanyi("Other")}
-                      </button>
-                    </div>
+                <div className="flex justify-between mb-4">
+                  <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                    15%
+                  </button>
+                  <button onClick={() => { calculateExtra(18); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                    18%
+                  </button>
+                  <button onClick={() => { calculateExtra(20); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    20%
+                  </button>
+                  <button onClick={() => { calculateExtra(0); setCustomAmountVisible(false) }} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    0
+                  </button>
+                  <button onClick={toggleCustomAmountVisibility} className="bg-orange-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    {fanyi("Other")}
+                  </button>
+                </div>
 
-                    {isCustomAmountVisible && (
-                      <div className='notranslate'>
-                        <p className="mb-2">{fanyi("Custom Gratuity")}:</p>
-                        <div className="flex">
-                          <input
-                            type="text"
-                            value={customAmount}
-                            onChange={handleCustomAmountChange}
-                            style={uniqueModalStyles.inputStyle}
-                            className="p-2 w-full border rounded-md mr-2"
+                {isCustomAmountVisible && (
+                  <div className='notranslate'>
+                    <p className="mb-2">{fanyi("Custom Gratuity")}:</p>
+                    <div className="flex">
+                      <input
+                        type="text"
+                        value={customAmount}
+                        onChange={handleCustomAmountChange}
+                        style={uniqueModalStyles.inputStyle}
+                        className="p-2 w-full border rounded-md mr-2"
                         onClick={() => {
                           // When clicking the custom tip input field, modify association to custom tip input
                           setKeypadProps({
@@ -1522,29 +1512,29 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                             activeInputType: "custom" // Type of the custom tip input field
                           });
                         }}
-                          />
-                          <button
-                            onClick={() => calculateCustomAmount(customAmount)}
-                            className="bg-orange-500 text-white p-2 rounded-md w-1/3"
-                          >
-                            {fanyi("Add")}
-                          </button>
-                        </div>
-                      </div>
-                    )}
+                      />
+                      <button
+                        onClick={() => calculateCustomAmount(customAmount)}
+                        className="bg-orange-500 text-white p-2 rounded-md w-1/3"
+                      >
+                        {fanyi("Add")}
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-                    {(extra !== null && extra !== 0) && (
+                {(extra !== null && extra !== 0) && (
                   <p className="mt-4">{fanyi("Gratuity")}: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
-                    )}
-                    <p className="mt-1">{fanyi("Receivable Payment")}: <span className='notranslate'>${finalPrice}</span> </p>
+                )}
+                <p className="mt-1">{fanyi("Receivable Payment")}: <span className='notranslate'>${finalPrice}</span> </p>
 
-                    {result !== null && (
-                      <div>
-                        <p className="mt-1 mb-4 ">
-                          {fanyi("Give Back Cash")}: <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
-                        </p>
-                        <button
-                          onClick={() => {
+                {result !== null && (
+                  <div>
+                    <p className="mt-1 mb-4 ">
+                      {fanyi("Give Back Cash")}: <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
+                    </p>
+                    <button
+                      onClick={() => {
                         setCustomAmount(Math.round((result - finalPrice) * 100) / 100);
                         calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
                         CashCheckOut(
@@ -1552,35 +1542,35 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                           stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
                           inputValue
                         );
-                            closeUniqueModal();
-                          }}
-                          style={uniqueModalStyles.buttonStyle}
-                          className="notranslate mt-2 mb-2 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
-                        >
-                          {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
-                          {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
-                          {fanyi("Gratuity")}.
-                        </button>
-                      </div>
-                    )}
+                        closeUniqueModal();
+                      }}
+                      style={uniqueModalStyles.buttonStyle}
+                      className="notranslate mt-2 mb-2 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
+                    >
+                      {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
+                      {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
+                      {fanyi("Gratuity")}.
+                    </button>
+                  </div>
+                )}
 
-                    <button
-                      onClick={() => {
+                <button
+                  onClick={() => {
                     CashCheckOut(
                       extra,
                       stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
                       finalPrice
                     );
-                        closeUniqueModal();
+                    closeUniqueModal();
                   }}
-                      style={uniqueModalStyles.buttonStyle}
-                      className="notranslate mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
-                    >
-                      {fanyi("Collect")} ${stringTofixed(finalPrice)},
-                      {fanyi("including")} ${Math.round((extra) * 100) / 100}
-                      {fanyi("Gratuity")}.
-                    </button>
-                  </div>
+                  style={uniqueModalStyles.buttonStyle}
+                  className="notranslate mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+                >
+                  {fanyi("Collect")} ${stringTofixed(finalPrice)},
+                  {fanyi("including")} ${Math.round((extra) * 100) / 100}
+                  {fanyi("Gratuity")}.
+                </button>
+              </div>
             </KeypadModal>
           )}
           {isSplitPaymentModalOpen && (
@@ -1742,38 +1732,38 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               }}
             >
               <div>
-                    <div className="flex justify-between mb-4">
-                      <button onClick={() => handlePercentageTip(0.15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
-                        15%
-                      </button>
-                      <button onClick={() => handlePercentageTip(0.18)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mx-1">
-                        18%
-                      </button>
-                      <button onClick={() => handlePercentageTip(0.20)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        20%
-                      </button>
-                      <button onClick={() => handlePercentageTip(0.25)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        25%
-                      </button>
-                    </div>
-                    <input
+                <div className="flex justify-between mb-4">
+                  <button onClick={() => handlePercentageTip(0.15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                    15%
+                  </button>
+                  <button onClick={() => handlePercentageTip(0.18)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                    18%
+                  </button>
+                  <button onClick={() => handlePercentageTip(0.20)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    20%
+                  </button>
+                  <button onClick={() => handlePercentageTip(0.25)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    25%
+                  </button>
+                </div>
+                <input
                   type="text"
                   inputMode="decimal"
-                      placeholder="Enter service fee by amount"
-                      value={tips}
+                  placeholder="Enter service fee by amount"
+                  value={tips}
                   className="form-control tips-no-spinners"
-                      onChange={(e) => {
+                  onChange={(e) => {
                     let value = e.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
 
                     // Only allow numbers and decimal point
                     if (/^\d*\.?\d*$/.test(value)) {
-                        setTips(value.toString());  // Update the state with the raw input value
-                        setSelectedTipPercentage(null);
+                      setTips(value.toString());  // Update the state with the raw input value
+                      setSelectedTipPercentage(null);
                     }
-                      }}
+                  }}
                   ref={serviceFeeInputRef}
-                      translate="no"
-                    />
+                  translate="no"
+                />
                 <div className="mt-4 text-right">
                   <button type="button" className="btn btn-secondary mr-2" onClick={() => handleCancelTip()}>
                     <FontAwesomeIcon icon={faTimes} className="mr-1" /> {fanyi("Cancel Add")}
@@ -1781,8 +1771,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <button type="button" className="btn btn-danger" onClick={() => setTipsModalOpen(false)}>
                     {fanyi("Add Service Fee")}
                   </button>
-                  </div>
-                  </div>
+                </div>
+              </div>
             </KeypadModal>
           )}
 
@@ -1808,39 +1798,39 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               }}
             >
               <div>
-                    <div className="flex justify-between mb-4">
-                      <button onClick={() => handleDiscountPercentage(0.10)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mr-2">
-                        10%
-                      </button>
-                      <button onClick={() => handleDiscountPercentage(0.15)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mx-1">
-                        15%
-                      </button>
-                      <button onClick={() => handleDiscountPercentage(0.20)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        20%
-                      </button>
-                      <button onClick={() => handleDiscountPercentage(0.25)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
-                        25%
-                      </button>
-                    </div>
+                <div className="flex justify-between mb-4">
+                  <button onClick={() => handleDiscountPercentage(0.10)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mr-2">
+                    10%
+                  </button>
+                  <button onClick={() => handleDiscountPercentage(0.15)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mx-1">
+                    15%
+                  </button>
+                  <button onClick={() => handleDiscountPercentage(0.20)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    20%
+                  </button>
+                  <button onClick={() => handleDiscountPercentage(0.25)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full ml-2">
+                    25%
+                  </button>
+                </div>
 
-                    <input
+                <input
                   type="text"
                   inputMode="decimal"
-                      placeholder="Enter discount by amount"
-                      value={discount}
+                  placeholder="Enter discount by amount"
+                  value={discount}
                   className="form-control tips-no-spinners"
-                      onChange={(e) => {
+                  onChange={(e) => {
                     let value = e.target.value.replace(/。/g, '.'); // Replace Chinese period with Western period
 
                     // Only allow numbers and decimal point
                     if (/^\d*\.?\d*$/.test(value)) {
                       applyDiscount(value);
-                        setSelectedTipPercentage(null);
+                      setSelectedTipPercentage(null);
                     }
-                      }}
+                  }}
                   ref={discountInputRef}
-                      translate="no"
-                    />
+                  translate="no"
+                />
 
                 <div className="mt-4 text-right">
                   <button type="button" className="btn btn-secondary mr-2" onClick={handleCancelDiscount}>
@@ -1849,8 +1839,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <button type="button" className="btn btn-danger" onClick={() => setDiscountModalOpen(false)}>
                     {fanyi("Add Discount")}
                   </button>
-                  </div>
-                  </div>
+                </div>
+              </div>
             </KeypadModal>
           )}
         </div>
