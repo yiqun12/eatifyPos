@@ -123,6 +123,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Gratuity", output: "小费" },
     { input: "Cancel", output: "返回" },
     { input: "Cancel Add", output: "取消添加" },
+    { input: "Tax Exempt", output: "免税" },
+    { input: "✓ Tax Exempt", output: "✓ 免税" },
 
   ];
   function translate(input) {
@@ -149,6 +151,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   const [tips, setTips] = useState('');
   const [discount, setDiscount] = useState('');
+  const [isTaxExempt, setIsTaxExempt] = useState(false);
 
   const [totalPrice, setTotalPrice] = useState(0);
   const [finalPrice, setFinalPrice] = useState(0);
@@ -582,6 +585,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         setInputValue("")
         setDiscount("")
         setTips("")
+        setIsTaxExempt(false); // 重置免税状态
         return
       }
       // Wrap the addDoc call in a promise
@@ -665,6 +669,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setInputValue("")
       setTips("")
       setDiscount("")
+      setIsTaxExempt(false); // 重置免税状态
       localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
 
     } catch (e) {
@@ -698,6 +703,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setInputValue("")
       setDiscount("")
       setTips("")
+      setIsTaxExempt(false); // 重置免税状态
       setResult(null)
       localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
       return
@@ -851,6 +857,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   const handleCancelDiscount = () => {
     setDiscount('');  // reset the discount value
+    setIsTaxExempt(false); // reset
     setDiscountModalOpen(false);  // close the modal
   };
 
@@ -1192,8 +1199,28 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               )}
             </div>
             <div className="text-left">
-              <div className={`text-right notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'}`}>
-                {fanyi("Tax")}:<span className="notranslate text-blue-600">${stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100))}</span>
+              <div className={`text-right notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'} flex items-center justify-end gap-2`}>
+                <span>
+                  {fanyi("Tax")}:<span className="notranslate text-blue-600">${stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100))}</span>
+                </span>
+                <button
+                  onClick={() => {
+                    const taxAmount = Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100;
+                    if (!isTaxExempt) {
+                      // 添加免税折扣
+                      setDiscount(taxAmount.toString());
+                      setIsTaxExempt(true);
+                    } else {
+                      // 取消免税，清除折扣
+                      setDiscount('');
+                      setIsTaxExempt(false);
+                    }
+                  }}
+                  className={`btn btn-sm px-2 py-1 text-xs ${isTaxExempt ? 'btn-success' : 'btn-secondary'}`}
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  {isTaxExempt ? fanyi('✓ Tax Exempt') : fanyi('Tax Exempt')}
+                </button>
               </div>
             </div>
           </div>

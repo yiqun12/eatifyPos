@@ -805,6 +805,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                             setIsAllowed={setIsAllowed}
                                                                             store={store} selectedTable={selectedTable}
                                                                             view={view}
+                                                                            TaxRate={TaxRate}
                                                                         />
                                                                     </div>
                                                                 </div>
@@ -819,7 +820,10 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                         setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                         isAllowed={isAllowed}
                                                                         setIsAllowed={setIsAllowed}
-                                                                        store={store} selectedTable={selectedTable} />
+                                                                        store={store} selectedTable={selectedTable}
+                                                                        view={view}
+                                                                        TaxRate={TaxRate}
+                                                                    />
                                                                 </div>
                                                             }
                                                         </div>
@@ -841,7 +845,10 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                 setOpenChangeAttributeModal={setOpenChangeAttributeModal}
                                                                 isAllowed={isAllowed}
                                                                 setIsAllowed={setIsAllowed}
-                                                                store={store} selectedTable={selectedTable}></InStore_food>
+                                                                store={store} selectedTable={selectedTable}
+                                                                view={view}
+                                                                TaxRate={TaxRate}
+                                                            />
                                                         </div>
                                                         <div className={`${isPC ? 'w-1/3' : 'w-1/2'} bg-gray-100`} >
                                                             <InStore_shop_cart
