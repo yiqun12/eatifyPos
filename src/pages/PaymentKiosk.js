@@ -284,6 +284,7 @@ const PaymentComponent = ({ openCheckout, storeID, chargeAmount, connected_strip
                         Status: "Paid", // Assuming "NO USE" is a comment and not part of the value
                         table: selectedTable,
                         username: "kiosk",
+                        isConfirm: true,
                     }).then(() => {
                         sessionStorage.removeItem(storeID);
 

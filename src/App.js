@@ -118,7 +118,6 @@ function App() {
 
     sessionStorage.setItem("timezoneOffsets", JSON.stringify(timeZones[(businessHours[1])["timezone"]]))
 
-
   }, []);
 
   if (user_loading) {

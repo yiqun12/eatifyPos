@@ -1,18 +1,28 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { collection, doc, setDoc, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
+
+import firebase from 'firebase/compat/app';
+import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
+import { lookup } from 'zipcode-to-timezone';
 
 
 
 function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }) {
 
+  function getTimeZoneByZip(zipCode) {
+    // Use the library to find the timezone ID from the ZIP code
+    const timeZoneId = lookup(zipCode);
 
+    // Check if the timezone ID is in our timeZones list
+    return timeZoneId;
+  }
   var reviewCount = sortedData.length;
   setReviewVar(reviewCount)
-
+  
   const statusPriority = {
     "Review": 1,
     "Pending": 2,
@@ -20,12 +30,53 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
     "Paid": 4
   };
 
+  console.log(sortedData)
+
   const { user, user_loading } = useUserContext();
 
   function roundToTwoDecimalsTofix(n) {
     return (Math.round(n * 100) / 100).toFixed(2);
   }
+  const addTestNotification = async () => {
+    const testItems = [
+      {
+        id: "test-item-1",
+        name: "Test Burger",
+        subtotal: "12.99",
+        quantity: 1,
+        attributeSelected: { size: "Medium" },
+        itemTotalPrice: 12.99,
+        CHI: "测试汉堡"
+      },
+      {
+        id: "test-item-2",
+        name: "Test Fries",
+        subtotal: "4.99",
+        quantity: 2,
+        attributeSelected: {},
+        itemTotalPrice: 9.98,
+        CHI: "测试薯条"
+      }
+    ];
+    const dateTime = new Date().toISOString();
+    const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+    addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "PendingDineInOrder"), {
+      store: storeID,
+      stripe_account_store_owner: user.uid,
+      items: testItems,
+      date: parseDateUTC(date, getTimeZoneByZip("94133")),
+      amount: 0,
+      Status: "Pending", // Assuming "NO USE" is a comment and not part of the value
+      table: "abc",
+      username: "kiosk",
+      isConfirm: false,
+    }).then(() => {
 
+    }).catch((error) => {
+      console.error("Error writing document: ", error);
+
+    });
+  };
 
 
   const [width, setWidth] = useState(window.innerWidth);
@@ -133,23 +184,33 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
 
       <div class="">
         <div class="card-header">
-          <h5 class="mb-0">Notification&nbsp;<span
-            style={{
-              display: 'inline-flex', // changed from 'flex' to 'inline-flex'
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '15px',
-              height: '15px',
-              backgroundColor: 'blue',
-              borderRadius: '50%',
-              color: 'white',
-              fontSize: '10px',
-              verticalAlign: 'middle' // added to vertically center the circle
-            }}
-          >
-            <span className='notranslate'>{reviewVar}</span>
+          <div className="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Notification&nbsp;<span
+              style={{
+                display: 'inline-flex', // changed from 'flex' to 'inline-flex'
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '15px',
+                height: '15px',
+                backgroundColor: 'blue',
+                borderRadius: '50%',
+                color: 'white',
+                fontSize: '10px',
+                verticalAlign: 'middle' // added to vertically center the circle
+              }}
+            >
+              <span className='notranslate'>{reviewVar}</span>
+            </span></h5>
 
-          </span></h5>
+            {/* <button
+              type="button"
+              className="btn btn-sm btn-secondary"
+              onClick={addTestNotification}
+              title="Add a test notification for testing purposes"
+            >
+              Add Test Notification
+            </button> */}
+          </div>
         </div>
 
         <div class="table-responsive">
