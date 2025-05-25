@@ -1228,15 +1228,6 @@ const Account = () => {
                         } else {
                             playSound()
                         }
-                        // 设置新的定时器
-                        soundTimeoutRef.current = setTimeout(() => {
-                            if (localStorage.getItem("Google-language")?.includes("Chinese") ||
-                                localStorage.getItem("Google-language")?.includes("中")) {
-                                playSound_CHI();
-                            } else {
-                                playSound();
-                            }
-                        }, DEBOUNCE_DELAY);
                     }
                 }
             });
@@ -2468,18 +2459,6 @@ const Account = () => {
         checkPasswordStatus();
     }, [storeID, showSection, user?.uid]); // Rerun if store, section, or user changes
 
-    // 添加防抖相关的变量定义
-    const soundTimeoutRef = useRef(null);
-    const DEBOUNCE_DELAY = 1000; // 1秒的防抖延迟
-
-    useEffect(() => {
-        // 清理函数
-        return () => {
-            if (soundTimeoutRef.current) {
-                clearTimeout(soundTimeoutRef.current);
-            }
-        };
-    }, []); // 空依赖数组，仅在组件卸载时执行清理
 
     return (
         <div>
