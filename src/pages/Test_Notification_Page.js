@@ -79,6 +79,22 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
   };
 
 
+      const result = await myFunction(data);
+      console.log('Test notification created:', result.data.docId);
+
+      // Re-enable buttons
+      document.querySelectorAll('button').forEach((button) => (button.disabled = false));
+
+      alert('Test notification added successfully!');
+
+    } catch (error) {
+      // Re-enable buttons on error
+      document.querySelectorAll('button').forEach((button) => (button.disabled = false));
+      console.error('Error creating test notification:', error);
+      alert('Error creating test notification: ' + error.message);
+    }
+  };
+
   const [width, setWidth] = useState(window.innerWidth);
   const [selectedOrder, setSelectedOrder] = useState("[]");
 
@@ -162,11 +178,6 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
     }
   };
 
-
-
-
-
-
   return (
     // <div>Hello</div>
 
@@ -203,13 +214,16 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
             </span></h5>
 
             {/* <button
+            <button
               type="button"
               className="btn btn-sm btn-secondary"
               onClick={addTestNotification}
               title="Add a test notification for testing purposes"
             >
               Add Test Notification
+
             </button> */}
+
           </div>
         </div>
 
