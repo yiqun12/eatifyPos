@@ -660,18 +660,18 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       // Execute all promises in parallel
       Promise.all([addDocPromise, setTableInfoPromise, setTableIsSentPromise]).then(() => {
         console.log("All operations completed successfully.");
-        setProducts([]);
-        setExtra(0)
-        setInputValue("")
-        setTips("")
-        setDiscount("")
-        setIsTaxExempt(false); // 重置免税状态
-        localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
+
       }).catch((error) => {
         console.error("Error executing operations:", error);
       });
 
-
+      setProducts([]);
+      setExtra(0)
+      setInputValue("")
+      setTips("")
+      setDiscount("")
+      setIsTaxExempt(false); // 重置免税状态
+      localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
 
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -786,18 +786,18 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
       // Execute all promises in parallel
       Promise.all([addDocPromise, setTableInfoPromise, setTableIsSentPromise]).then(() => {
-        setProducts([]);
-        setExtra(0)
-        setInputValue("")
-        setDiscount("")
-        setTips("")
-        setResult(null)
-        localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
+
         console.log("All operations completed successfully.");
       }).catch((error) => {
         console.error("Error executing operations:", error);
       });
-
+      setProducts([]);
+      setExtra(0)
+      setInputValue("")
+      setDiscount("")
+      setTips("")
+      setResult(null)
+      localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
 
 
     } catch (e) {

@@ -1013,7 +1013,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                               type="text"
                               className="form-control"
                               id="customVariantPrice"
-                              placeholder="Enter price (can be negative)"
+                              placeholder="0"
                               value={customVariant.price}
                               onChange={(e) =>
                                 setCustomVariant({ ...customVariant, price: e.target.value })
