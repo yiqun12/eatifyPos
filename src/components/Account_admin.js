@@ -50,6 +50,7 @@ import store_icon from './store_icon.png';
 import Admin_food from '../components/admin_food'
 import IframeDesk from '../components/iframeDesk'
 import Test_Notification_Page from "../pages/Test_Notification_Page.js";
+import ItemSalesAnalytics from './ItemSalesAnalytics'; // 添加物品销量分析组件
 
 import myImage from './check-mark.png';  // Import the image
 import LazyLoad from 'react-lazy-load';
@@ -263,6 +264,7 @@ const Account = () => {
         { input: "Service Fee", output: "信用卡小费" },
         { input: "Discount", output: "折扣" },
         { input: "Canceled", output: "取消送厨" },
+        { input: "Item Sales Analytics", output: "物品销量分析" },
 
     ];
     function translate(input) {
@@ -944,6 +946,8 @@ const Account = () => {
                 }
             });
             setOrders(newItems);
+            console.log(123123123213)
+            console.log(newItems)
             saveId(Math.random());
             // console.log(cancelOrder)
             const dailyRevenue = {};
@@ -1686,7 +1690,6 @@ const Account = () => {
 
             // if there is a new store, use the default open time
             const default_Open_time = `{"0":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"1":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"2":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"3":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"4":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"5":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"6":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"},"7":{"timeRanges":[{"openTime":"0000","closeTime":"2359"}],"timezone":"ET"}}`;
-
             // checks if the store Name is already in the list of stores already created
             const foundObject = storelist.find(item => item.Name === valueWithoutHash);
 
@@ -1775,6 +1778,8 @@ const Account = () => {
     const [modalTotal, setModalTotal] = useState('');
     const [modalSubtotal, setModalSubtotal] = useState('');
 
+    // 添加物品销量分析模态框状态
+    const [isItemAnalyticsModalOpen, setItemAnalyticsModalOpen] = useState(false);
 
     const [isVisible, setIsVisible] = useState(!isMobile);
 
@@ -3014,6 +3019,26 @@ const Account = () => {
                                                                         </a>
 
                                                                     </li> : null}
+                                                                {/* 添加物品销量分析标签页 */}
+                                                                <li className={`nav-item border-b-0 p-0`}
+                                                                    onClick={() => {
+                                                                        setShowSection('itemAnalytics')
+                                                                        window.location.hash = `analytics?store=${data.id}`;
+                                                                    }}
+                                                                    style={{ width: "80%", margin: "auto", border: "0px" }}
+                                                                >
+                                                                    <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `itemAnalytics` ? 'active' : ''}`} style={{ marginRight: "0", border: "0px" }}>
+                                                                        <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-graph-up" viewBox="0 0 16 16">
+                                                                                <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"/>
+                                                                            </svg>
+                                                                        </i>
+
+                                                                        <span style={{ marginLeft: "5%" }}>{fanyi("Item Sales Analytics")}</span>
+
+                                                                    </a>
+
+                                                                </li>
                                                             </React.Fragment>
                                                         }
 
@@ -3310,7 +3335,6 @@ const Account = () => {
                                                     <div>
 
                                                         <a class="nav-link d-flex align-items-center p-0">
-
                                                             <div>
                                                                 <span class="d-block text-md font-semibold notranslate">
                                                                     <i class="bi bi-person"></i>
@@ -3971,9 +3995,7 @@ const Account = () => {
                                                     </div> : <div></div>
                                                     }
 
-
                                                     {showSection === 'sales' ? <div>
-
                                                         <div className="flex mt-3">
                                                             <div className={`w-50 ${isMobile ? 'mobile-class' : 'desktop-class'}`}>
                                                                 <div>
@@ -4446,6 +4468,46 @@ const Account = () => {
                                                                     onClose={() => setIsChartPasswordModalOpen(false)}
                                                                     onVerify={() => setIsChartPasswordVerified(true)}
                                                                 />
+
+                                                                {/* 物品销量分析按钮 */}
+                                                                <div className="flex justify-center items-center p-4">
+                                                                    <button
+                                                                        onClick={() => setItemAnalyticsModalOpen(true)}
+                                                                        className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded mr-2"
+                                                                    >
+                                                                        <i className="bi bi-graph-up mr-2"></i>
+                                                                        {fanyi("Item Sales Analytics")}
+                                                                    </button>
+                                                                </div>
+
+                                                                {/* 物品销量分析模态框 */}
+                                                                {isItemAnalyticsModalOpen && (
+                                                                    <div
+                                                                        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                                                                        onClick={() => setItemAnalyticsModalOpen(false)}
+                                                                    >
+                                                                        <div
+                                                                            className="bg-white rounded-lg max-w-6xl max-h-[90vh] overflow-auto m-4"
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                        >
+                                                                            <div className="flex justify-between items-center p-4 border-b">
+                                                                                <h2 className="text-xl font-bold">{fanyi("Item Sales Analytics")}</h2>
+                                                                                <button
+                                                                                    onClick={() => setItemAnalyticsModalOpen(false)}
+                                                                                    className="text-gray-500 hover:text-gray-700"
+                                                                                >
+                                                                                    <i className="bi bi-x-lg text-2xl"></i>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="p-4">
+                                                                                <ItemSalesAnalytics
+                                                                                    orders={orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table))}
+                                                                                    dateRange={{ startDate, endDate }}
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
                                                             </div>
 
 
@@ -4876,6 +4938,15 @@ const Account = () => {
                                                         : null
                                                     }
 
+                                                    {/* 添加物品销量分析section */}
+                                                    {showSection === 'itemAnalytics' ? <div>
+                                                        <ItemSalesAnalytics
+                                                            orders={orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table))}
+                                                            dateRange={{ startDate, endDate }}
+                                                        />
+                                                    </div> : <div></div>
+                                                    }
+
                                                 </div>
                                             ) : null
                                         ))}
@@ -4946,3 +5017,5 @@ const renderLegend = (props) => {
 };
 
 export default Account
+
+
