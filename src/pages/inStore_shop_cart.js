@@ -125,6 +125,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Cancel Add", output: "取消添加" },
     { input: "Tax Exempt", output: "免税" },
     { input: "✓ Tax Exempt", output: "✓ 免税" },
+    { input: "Original Total", output: "修改前总价" },
+    { input: "New Total", output: "修改后总价" },
 
   ];
   function translate(input) {
@@ -1732,6 +1734,30 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               }}
             >
               <div>
+                {/* 修改前总价和修改后总价显示 */}
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-600">{fanyi("Original Total")}:</span>
+                    <span className="text-lg font-semibold text-gray-800 notranslate">
+                      ${stringTofixed(totalPrice * (Number(TaxRate) / 100 + 1) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600">{fanyi("New Total")}:</span>
+                    <span className="text-lg font-semibold text-green-600 notranslate">
+                      ${stringTofixed(totalPrice * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))}
+                    </span>
+                  </div>
+                  {tips && (
+                    <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+                      <span className="text-sm font-medium text-blue-600">{fanyi("Service Fee")}:</span>
+                      <span className="text-sm font-semibold text-blue-600 notranslate">
+                        +${stringTofixed((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex justify-between mb-4">
                   <button onClick={() => handlePercentageTip(0.15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
                     15%
@@ -1798,6 +1824,30 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               }}
             >
               <div>
+                {/* 修改前总价和修改后总价显示 */}
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-600">{fanyi("Original Total")}:</span>
+                    <span className="text-lg font-semibold text-gray-800 notranslate">
+                      ${stringTofixed(totalPrice * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600">{fanyi("New Total")}:</span>
+                    <span className="text-lg font-semibold text-red-600 notranslate">
+                      ${stringTofixed(totalPrice * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))}
+                    </span>
+                  </div>
+                  {discount && (
+                    <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+                      <span className="text-sm font-medium text-red-600">{fanyi("Discount")}:</span>
+                      <span className="text-sm font-semibold text-red-600 notranslate">
+                        -${stringTofixed((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex justify-between mb-4">
                   <button onClick={() => handleDiscountPercentage(0.10)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mr-2">
                     10%
