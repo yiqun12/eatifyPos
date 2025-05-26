@@ -709,7 +709,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
   // Function to show the modal
   const showModal = (item) => {
-    setCustomVariant({ name: '改价', price: '0' })
+    setCustomVariant({ name: '改价', price: '' })
     const randomNum = uuidv4()
     setSelectedFoodItem(item);//attributeSelected
     console.log("sajows")
@@ -767,7 +767,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   }
 
 
-  const [customVariant, setCustomVariant] = useState({ name: '改价', price: '0' });
+  const [customVariant, setCustomVariant] = useState({ name: '改价', price: '' });
 
 
   const handleAddSpecialVariant = (name, priceString, count, id, category) => {
@@ -834,14 +834,25 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     //setSelectedAttributes(updatedAttributes);
 
     setTotalPrice(TotalAttributePrice(updatedAttributes, updatedFoodItem.attributesArr));
-    setCustomVariant({ name: '改价', price: 0 }); // Reset custom variant input
+    setCustomVariant({ name: '改价', price: '' }); // Reset custom variant input
 
   };
 
 
 
-  const handleAddCustomVariant = (name, priceString, count, id) => {
-    const price = parseFloat(priceString) || 0;  // 保存原价，不做免税计算
+  const handleAddCustomVariant = (name, priceString, count, id, increase) => {
+    let price = parseFloat(priceString) || 0;  // 保存原价，不做免税计算
+    if (increase) {
+    } else {
+      if (parseFloat(selectedFoodItem.itemTotalPrice) > price) {
+        price = -(parseFloat(priceString) || 0);  // 保存原价，不做免税计算
+      } else {
+
+        alert('Please enter a valid name and price');
+        return
+      }
+    }
+
 
     if (!name || isNaN(priceString)) {
       alert('Please enter a valid name and price');
@@ -903,7 +914,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     setSelectedAttributes(updatedAttributes);
 
     setTotalPrice(TotalAttributePrice(updatedAttributes, updatedFoodItem.attributesArr));
-    setCustomVariant({ name: '改价', price: 0 }); // Reset custom variant input
+    setCustomVariant({ name: '改价', price: '' }); // Reset custom variant input
 
   };
 
@@ -964,13 +975,12 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
               <div className="relative bg-white rounded-lg border-black shadow">
 
                 <div className='p-4 pt-3 pb-0'>
-                  <div className='flex justify-between'>
-                    <h4 class="notranslate">
-                      {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
-                    </h4>
-                  </div>
-                  <div className='mb-2 flex flex-col md:flex-row gap-3'>
+                  <div className='mb-1 flex flex-col md:flex-row gap-3'>
                     <div className='flex-1'>
+                      <h4>
+                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
+                      </h4>
+
                       <div
                         style={{
                           border: '1px solid #ccc',
@@ -981,7 +991,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                         <div className="flex flex-row gap-3 mb-2">
                           <div className="w-1/2">
                             <label htmlFor="customVariantName" className="form-label">
-                              Ingredient Update
+                              Update Reason (E.g. 加葱)
                             </label>
                             <input
                               type="text"
@@ -994,13 +1004,11 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                               }
                               translate="no"
                             />
-                            <small id="customVariantNameHelp" className="form-text text-muted">
-                              Enter "0" if no change.
-                            </small>
+
                           </div>
 
                           <div className="w-1/2">
-                            <label htmlFor="customVariantPrice" className="form-label">Price</label>
+                            <label htmlFor="customVariantPrice" className="form-label">Amount Update (Enter "0" if no change)</label>
                             <input
                               type="text"
                               className="form-control"
@@ -1012,23 +1020,33 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                               }
                               translate="no"
                             />
-                            <small id="customVariantPriceHelp" className="form-text text-muted">
-                              Positive or negative price.
-                            </small>
                           </div>
                         </div>
 
                         <div className='flex justify-start mt-3 gap-2'>
                           <button
-                            className="btn btn-warning mb-3"
+                            className="btn btn-warning mb-1 "
                             type="button"
                             style={{ whiteSpace: 'nowrap', "display": "inline" }}
-                            onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
+                            onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id, true)}
                           >
-                            Confirm to Add <span
-                              className='notranslate'>{customVariant.name}</span>
+                            Add <span className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
                           </button>
-
+                          <button
+                            className="btn btn-info mb-1 "
+                            type="button"
+                            style={{ whiteSpace: 'nowrap', "display": "inline" }}
+                            onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id, false)}
+                          >
+                            Subtract <span className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
+                          </button>
+                          {/* <button
+                            className="btn btn-primary mb-1"
+                            type="button"
+                            style={{ whiteSpace: 'nowrap', "display": "inline" }}
+                          >
+                            Tax Exempt
+                          </button> */}
                           {/* <button
                             className={`btn mb-3 ${isTaxExempt ? 'btn-success' : 'btn-secondary'}`}
                             type="button"
@@ -1050,7 +1068,6 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                           <NumberPad
                             inputValue={customVariant.price}
                             onInputChange={(value) => setCustomVariant({ ...customVariant, price: value })}
-                            onConfirm={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id)}
                             onCancel={() => { }}
                             show={true}
                             embedded={true}
