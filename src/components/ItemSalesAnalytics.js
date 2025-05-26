@@ -6,6 +6,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
   const [viewMode, setViewMode] = useState('table'); // 'table', 'chart', 'pie'
   const [searchTerm, setSearchTerm] = useState('');
+  const [expandedMainKeys, setExpandedMainKeys] = useState([]);
 
   // 翻译功能
   const translations = [
@@ -29,6 +30,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
     { input: "No data available", output: "暂无数据" },
     { input: "Top 10 Items by Quantity", output: "销量前10物品" },
     { input: "Top 10 Items by Revenue", output: "营收前10物品" },
+    { input: "Amount", output: "金额" },
   ];
 
   function translate(input) {
@@ -40,30 +42,21 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
     return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input;
   }
 
-  // 分析订单数据，统计每个物品的销量
+  // 分析订单数据，统计每个物品的销量（主品+变体结构）
   const itemAnalytics = useMemo(() => {
-    const itemStats = {};
+    const mainStats = {};
 
     orders.forEach(order => {
       try {
         const receiptData = JSON.parse(order.receiptData || '[]');
-        
         receiptData.forEach(item => {
           // 过滤掉包含memberId的错误数据（guest数据）
-          if (item.memberId) {
-            return; // 跳过这个项目
-          }
-          
-          // 确保这是有效的物品数据（必须有name和quantity）
-          if (!item.name || item.quantity === undefined) {
-            return; // 跳过无效数据
-          }
-          
+          if (item.memberId) return;
+          if (!item.name || item.quantity === undefined) return;
+
           // 处理物品名称，去除特殊前缀
           let itemName = item.name;
           let actualQuantity = item.quantity;
-          
-          // 处理特殊格式的物品名称 (#@%数字#@%)
           if (/^#@%\d+#@%/.test(item.name)) {
             const match = item.name.match(/#@%(\d+)#@%/);
             const divisor = match ? parseInt(match[1]) : 1;
@@ -72,23 +65,41 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
           }
 
           // 使用中文名称（如果有的话）
-          const displayName = localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") 
-            ? (item.CHI || itemName) 
+          const displayName = localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")
+            ? (item.CHI || itemName)
             : itemName;
 
-          // 创建唯一键（包含属性选择）
-          const attributes = item.attributeSelected ? 
-            Object.entries(item.attributeSelected)
-              .map(([key, value]) => Array.isArray(value) ? value.join(' ') : value)
-              .join(' ') : '';
-          
-          const uniqueKey = attributes ? `${displayName} (${attributes})` : displayName;
+          // 主品key（不拼接属性）
+          const mainKey = displayName;
 
-          if (!itemStats[uniqueKey]) {
-            itemStats[uniqueKey] = {
-              name: uniqueKey,
+          // 变体key（属性序列化）
+          const attrObj = item.attributeSelected || {};
+          const attributesKey = JSON.stringify(attrObj);
+          // 变体label友好显示（无属性用英文）
+          let attributesLabel = Object.entries(attrObj).map(([k, v]) => {
+            if (Array.isArray(v)) return v.join(' ');
+            return v;
+          }).filter(Boolean).join(', ');
+          if (!attributesLabel) attributesLabel = '(No attributes)';
+
+          // 初始化主品
+          if (!mainStats[mainKey]) {
+            mainStats[mainKey] = {
+              name: mainKey,
               baseName: displayName,
-              attributes: attributes,
+              quantity: 0,
+              revenue: 0,
+              orders: 0,
+              averagePrice: 0,
+              variants: {}
+            };
+          }
+
+          // 初始化变体
+          if (!mainStats[mainKey].variants[attributesKey]) {
+            mainStats[mainKey].variants[attributesKey] = {
+              attributesKey,
+              attributesLabel,
               quantity: 0,
               revenue: 0,
               orders: 0,
@@ -96,9 +107,15 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
             };
           }
 
-          itemStats[uniqueKey].quantity += actualQuantity;
-          itemStats[uniqueKey].revenue += parseFloat(item.itemTotalPrice || 0);
-          itemStats[uniqueKey].orders += 1;
+          // 累加主品
+          mainStats[mainKey].quantity += actualQuantity;
+          mainStats[mainKey].revenue += parseFloat(item.itemTotalPrice || 0);
+          mainStats[mainKey].orders += 1;
+
+          // 累加变体
+          mainStats[mainKey].variants[attributesKey].quantity += actualQuantity;
+          mainStats[mainKey].variants[attributesKey].revenue += parseFloat(item.itemTotalPrice || 0);
+          mainStats[mainKey].variants[attributesKey].orders += 1;
         });
       } catch (error) {
         console.error('Error parsing receipt data:', error);
@@ -106,11 +123,16 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
     });
 
     // 计算平均价格
-    Object.values(itemStats).forEach(item => {
-      item.averagePrice = item.quantity > 0 ? item.revenue / item.quantity : 0;
+    Object.values(mainStats).forEach(mainItem => {
+      mainItem.averagePrice = mainItem.quantity > 0 ? mainItem.revenue / mainItem.quantity : 0;
+      // 变体数组化并算均价
+      mainItem.variants = Object.values(mainItem.variants).map(variant => {
+        variant.averagePrice = variant.quantity > 0 ? variant.revenue / variant.quantity : 0;
+        return variant;
+      });
     });
 
-    return Object.values(itemStats);
+    return Object.values(mainStats);
   }, [orders]);
 
   // 过滤和排序数据
@@ -290,7 +312,13 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                   </div>
                   <div className="">
                     {filteredAndSortedData.map((item, index) => (
-                      <div key={index} className="p-4 border-b border-gray-100 last:border-b-0">
+                      <div
+                        key={index}
+                        className="p-4 border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-blue-50 transition-colors"
+                        onClick={() => {
+                          setExpandedMainKeys(keys => keys.includes(item.name) ? keys.filter(k => k !== item.name) : [...keys, item.name]);
+                        }}
+                      >
                         <div className="space-y-3">
                           <div className="flex justify-between items-start">
                             <h5 className="font-medium text-gray-800 flex-1 mr-3">{item.name}</h5>
@@ -306,13 +334,30 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                             <span className="text-gray-600">{fanyi("Average Price")}:</span>
                             <span className="font-semibold text-purple-600 notranslate">{formatCurrency(item.averagePrice)}</span>
                           </div>
+                          {/* 变体明细 */}
+                          {expandedMainKeys.includes(item.name) && (
+                            <div className="mt-2 border-t pt-2">
+                              <div className="flex text-xs text-gray-500 font-semibold pb-1">
+                                <div className="flex-1">Attributes</div>
+                                <div style={{width: 60}} className="text-right">{fanyi("Quantity")}</div>
+                                <div style={{width: 70}} className="text-right">{fanyi("Amount")}</div>
+                              </div>
+                              {item.variants.map((variant, vIdx) => (
+                                <div key={vIdx} className="flex text-xs text-gray-700 py-1 items-center">
+                                  <div className="flex-1" title={variant.attributesLabel}>{variant.attributesLabel}</div>
+                                  <div style={{width: 60}} className="text-right notranslate">{formatQuantity(variant.quantity)}</div>
+                                  <div style={{width: 70}} className="text-right notranslate">{formatCurrency(variant.revenue)}</div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* 桌面端表格视图 - 修复双滚动条 */}
+                {/* 桌面端表格视图 - 支持主品行展开变体明细 */}
                 <div className="hidden md:block">
                   <div className="">
                     <table className="w-full">
@@ -326,12 +371,46 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                       </thead>
                       <tbody className="divide-y divide-gray-100">
                         {filteredAndSortedData.map((item, index) => (
-                          <tr key={index} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-6 py-4 text-gray-800 font-medium">{item.name}</td>
-                            <td className="px-6 py-4 text-right font-semibold text-blue-600 notranslate text-lg">{formatQuantity(item.quantity)}</td>
-                            <td className="px-6 py-4 text-right font-semibold text-green-600 notranslate text-lg">{formatCurrency(item.revenue)}</td>
-                            <td className="px-6 py-4 text-right font-semibold text-purple-600 notranslate text-lg">{formatCurrency(item.averagePrice)}</td>
-                          </tr>
+                          <React.Fragment key={index}>
+                            <tr
+                              className={"hover:bg-blue-50 cursor-pointer transition-colors"}
+                              onClick={() => {
+                                setExpandedMainKeys(keys => keys.includes(item.name) ? keys.filter(k => k !== item.name) : [...keys, item.name]);
+                              }}
+                            >
+                              <td className="px-6 py-4 text-gray-800 font-medium">{item.name}</td>
+                              <td className="px-6 py-4 text-right font-semibold text-blue-600 notranslate text-lg">{formatQuantity(item.quantity)}</td>
+                              <td className="px-6 py-4 text-right font-semibold text-green-600 notranslate text-lg">{formatCurrency(item.revenue)}</td>
+                              <td className="px-6 py-4 text-right font-semibold text-purple-600 notranslate text-lg">{formatCurrency(item.averagePrice)}</td>
+                            </tr>
+                            {/* 变体明细行 */}
+                            {expandedMainKeys.includes(item.name) && (
+                              <tr>
+                                <td colSpan={4} className="bg-gray-50 px-8 py-2">
+                                  <table className="w-full text-xs">
+                                    <thead>
+                                      <tr>
+                                        <th className="text-left py-1">Attributes</th>
+                                        <th className="text-right py-1">Quantity</th>
+                                        <th className="text-right py-1">Revenue</th>
+                                        <th className="text-right py-1">Avg Price</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {item.variants.map((variant, vIdx) => (
+                                        <tr key={vIdx}>
+                                          <td className="py-1">{variant.attributesLabel}</td>
+                                          <td className="py-1 text-right notranslate">{formatQuantity(variant.quantity)}</td>
+                                          <td className="py-1 text-right notranslate">{formatCurrency(variant.revenue)}</td>
+                                          <td className="py-1 text-right notranslate">{formatCurrency(variant.averagePrice)}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
                         ))}
                       </tbody>
                     </table>

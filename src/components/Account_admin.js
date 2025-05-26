@@ -4221,11 +4221,11 @@ const Account = () => {
                                                                     {/* 物品销量分析按钮 */}
                                                                     <button
                                                                             onClick={() => setItemAnalyticsModalOpen(true)}
-                                                                            className="btn btn-sm bg-green-600 hover:bg-green-700 text-white mx-1 mt-1 mb-2"
+                                                                            className="btn btn-sm bg-green-600 hover:bg-green-700 text-white mx-1 mt-1 mb-2 whitespace-nowrap"
                                                                         >
                                                                             <i className="bi bi-graph-up mr-2"></i>
                                                                             {fanyi("Item Sales Analytics")}
-                                                                        </button>
+                                                                    </button>
 
                                                                 {/* 物品销量分析模态框 */}
                                                                 {isItemAnalyticsModalOpen && (
@@ -4493,7 +4493,7 @@ const Account = () => {
                                                                     onVerify={() => setIsChartPasswordVerified(true)}
                                                                 />
 
-                                                                
+
                                                             </div>
 
 
@@ -4981,7 +4981,7 @@ const renderLegend = (props) => {
         <ul>
             {revenue !== 0 ? (
                 <div>
-                    <li key="revenue" style={{ fontWeight: 'bold', fontWeight: 'bold', fontSize: '13px' }}>
+                    <li key="revenue" style={{ fontWeight: 'bold', fontSize: '13px' }}>
                         {fanyi("Revenue")}
                         <span class='notranslate'> (${((revenue - (payload[4].payload.value * 2)).toFixed(2))})</span>
                     </li>
