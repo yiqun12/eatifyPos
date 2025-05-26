@@ -977,7 +977,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                 <div className='p-4 pt-3 pb-0'>
                   <div className='mb-1 flex flex-col md:flex-row gap-3'>
                     <div className='flex-1'>
-                      <h4>
+                      <h4 className='notranslate'>
                         {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
                       </h4>
 
@@ -990,8 +990,9 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                       >
                         <div className="flex flex-row gap-3 mb-2">
                           <div className="w-1/2">
-                            <label htmlFor="customVariantName" className="form-label">
-                              Update Reason (E.g. 加葱)
+                            <label className="form-label">
+                              {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? "更改理由（比如加蒜）" : "Update Reason (E.g. add garlic)"}
+
                             </label>
                             <input
                               type="text"
@@ -1087,7 +1088,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                     <div key={attributeName}>
                       <p className="mb-1">
                         <span className='text-black' style={{ cursor: "pointer", display: "inline-block" }}>
-                          {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : "(Select All That Apply)"}
+                          {attributeName} {attributeDetails.isSingleSelected ? "(Choose 1)" : "(多选)"}
                         </span>
                       </p>
 
