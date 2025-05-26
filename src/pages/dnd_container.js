@@ -576,7 +576,11 @@ function Container(props) {
     { input: "Tax", output: "税" },
     { input: "Total", output: "总额" },
     { input: "Discount", output: "折扣" },
+    { input: "Disc.", output: "折扣" },
+    { input: "Duration", output: "用餐时长" },
+    { input: "Start", output: "开始时间" },
     { input: "Service Fee", output: "服务费" },
+    { input: "Tips", output: "小费" },
     { input: "Gratuity", output: "小费" },
     { input: "Revise", output: "修订" },
     { input: "Cash Pay", output: "现金支付" },
@@ -594,6 +598,8 @@ function Container(props) {
     { input: "Collect", output: "现收" },
     { input: "including", output: "其中包含" },
     { input: "Gratuity", output: "小费" },
+    { input: "Original Total", output: "修改前总价" },
+    { input: "New Total", output: "修改后总价" },
 
   ];
   function translate(input) {
@@ -899,6 +905,30 @@ function Container(props) {
                 }}
               >
                 <div>
+                  {/* 修改前总价和修改后总价显示 */}
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-gray-600">{fanyi("Original Total")}:</span>
+                      <span className="text-lg font-semibold text-gray-800 notranslate">
+                        ${stringTofixed(subtotal * (Number(TaxRate) / 100 + 1) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-600">{fanyi("New Total")}:</span>
+                      <span className="text-lg font-semibold text-green-600 notranslate">
+                        ${stringTofixed(subtotal * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))}
+                      </span>
+                    </div>
+                    {tips && (
+                      <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+                        <span className="text-sm font-medium text-blue-600">{fanyi("Service Fee")}:</span>
+                        <span className="text-sm font-semibold text-blue-600 notranslate">
+                          +${stringTofixed((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex justify-between mb-4">
                     <button onClick={() => handlePercentageTip(0.15)} className="bg-green-500 text-white px-4 py-2 rounded-md w-full mr-2">
                       15%
@@ -976,6 +1006,30 @@ function Container(props) {
                 }}
               >
                 <div>
+                  {/* 修改前总价和修改后总价显示 */}
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-gray-600">{fanyi("Original Total")}:</span>
+                      <span className="text-lg font-semibold text-gray-800 notranslate">
+                        ${stringTofixed(subtotal * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-600">{fanyi("New Total")}:</span>
+                      <span className="text-lg font-semibold text-red-600 notranslate">
+                        ${stringTofixed(subtotal * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))}
+                      </span>
+                    </div>
+                    {discount && (
+                      <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+                        <span className="text-sm font-medium text-red-600">{fanyi("Discount")}:</span>
+                        <span className="text-sm font-semibold text-red-600 notranslate">
+                          -${stringTofixed((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex justify-between mb-4">
                     <button onClick={() => handleDiscountPercentage(0.10)} className="bg-red-500 text-white px-4 py-2 rounded-md w-full mr-2">
                       10%
