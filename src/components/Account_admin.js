@@ -3019,26 +3019,6 @@ const Account = () => {
                                                                         </a>
 
                                                                     </li> : null}
-                                                                {/* 添加物品销量分析标签页 */}
-                                                                <li className={`nav-item border-b-0 p-0`}
-                                                                    onClick={() => {
-                                                                        setShowSection('itemAnalytics')
-                                                                        window.location.hash = `analytics?store=${data.id}`;
-                                                                    }}
-                                                                    style={{ width: "80%", margin: "auto", border: "0px" }}
-                                                                >
-                                                                    <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `itemAnalytics` ? 'active' : ''}`} style={{ marginRight: "0", border: "0px" }}>
-                                                                        <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-graph-up" viewBox="0 0 16 16">
-                                                                                <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"/>
-                                                                            </svg>
-                                                                        </i>
-
-                                                                        <span style={{ marginLeft: "5%" }}>{fanyi("Item Sales Analytics")}</span>
-
-                                                                    </a>
-
-                                                                </li>
                                                             </React.Fragment>
                                                         }
 
@@ -4238,6 +4218,50 @@ const Account = () => {
                                                                         <i className="bi bi-cash-stack pe-2"></i>
                                                                         <span>Cash Drawer</span>
                                                                     </button>
+                                                                    {/* 物品销量分析按钮 */}
+                                                                    <button
+                                                                            onClick={() => setItemAnalyticsModalOpen(true)}
+                                                                            className="btn btn-sm bg-green-600 hover:bg-green-700 text-white mx-1 mt-1 mb-2 whitespace-nowrap"
+                                                                        >
+                                                                            <i className="bi bi-graph-up mr-2"></i>
+                                                                            {fanyi("Item Sales Analytics")}
+                                                                    </button>
+
+                                                                {/* 物品销量分析模态框 */}
+                                                                {isItemAnalyticsModalOpen && (
+                                                                    <div
+                                                                        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+                                                                        onClick={() => setItemAnalyticsModalOpen(false)}
+                                                                    >
+                                                                        <div
+                                                                            className="bg-white rounded-lg w-full h-full max-w-7xl max-h-[95vh] overflow-hidden relative"
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                        >
+                                                                            {/* 悬浮右上角关闭按钮 */}
+                                                                            <button
+                                                                                onClick={() => setItemAnalyticsModalOpen(false)}
+                                                                                className="absolute top-4 right-4 z-10 text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-200 rounded-full transition-colors text-3xl font-bold"
+                                                                            >
+                                                                                ×
+                                                                            </button>
+                                                                            <div className="flex justify-between items-center p-6 border-b bg-gray-50">
+                                                                                <h2 className="text-2xl font-bold text-gray-800">{fanyi("Item Sales Analytics")}</h2>
+                                                                                <button
+                                                                                    onClick={() => setItemAnalyticsModalOpen(false)}
+                                                                                    className="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-200 rounded-full transition-colors"
+                                                                                >
+                                                                                    <i className="bi bi-x-lg text-2xl"></i>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="h-[calc(95vh-80px)] overflow-auto">
+                                                                                <ItemSalesAnalytics
+                                                                                    orders={orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table))}
+                                                                                    dateRange={{ startDate, endDate }}
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
 
 
 
@@ -4469,45 +4493,7 @@ const Account = () => {
                                                                     onVerify={() => setIsChartPasswordVerified(true)}
                                                                 />
 
-                                                                {/* 物品销量分析按钮 */}
-                                                                <div className="flex justify-center items-center p-4">
-                                                                    <button
-                                                                        onClick={() => setItemAnalyticsModalOpen(true)}
-                                                                        className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded mr-2"
-                                                                    >
-                                                                        <i className="bi bi-graph-up mr-2"></i>
-                                                                        {fanyi("Item Sales Analytics")}
-                                                                    </button>
-                                                                </div>
 
-                                                                {/* 物品销量分析模态框 */}
-                                                                {isItemAnalyticsModalOpen && (
-                                                                    <div
-                                                                        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-                                                                        onClick={() => setItemAnalyticsModalOpen(false)}
-                                                                    >
-                                                                        <div
-                                                                            className="bg-white rounded-lg max-w-6xl max-h-[90vh] overflow-auto m-4"
-                                                                            onClick={(e) => e.stopPropagation()}
-                                                                        >
-                                                                            <div className="flex justify-between items-center p-4 border-b">
-                                                                                <h2 className="text-xl font-bold">{fanyi("Item Sales Analytics")}</h2>
-                                                                                <button
-                                                                                    onClick={() => setItemAnalyticsModalOpen(false)}
-                                                                                    className="text-gray-500 hover:text-gray-700"
-                                                                                >
-                                                                                    <i className="bi bi-x-lg text-2xl"></i>
-                                                                                </button>
-                                                                            </div>
-                                                                            <div className="p-4">
-                                                                                <ItemSalesAnalytics
-                                                                                    orders={orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table))}
-                                                                                    dateRange={{ startDate, endDate }}
-                                                                                />
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                )}
                                                             </div>
 
 
@@ -4995,7 +4981,7 @@ const renderLegend = (props) => {
         <ul>
             {revenue !== 0 ? (
                 <div>
-                    <li key="revenue" style={{ fontWeight: 'bold', fontWeight: 'bold', fontSize: '13px' }}>
+                    <li key="revenue" style={{ fontWeight: 'bold', fontSize: '13px' }}>
                         {fanyi("Revenue")}
                         <span class='notranslate'> (${((revenue - (payload[4].payload.value * 2)).toFixed(2))})</span>
                     </li>
