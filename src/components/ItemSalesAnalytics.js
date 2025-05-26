@@ -181,226 +181,345 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
   };
 
   return (
-    <div className="item-sales-analytics p-4">
-      <h3 className="text-2xl font-bold mb-4">{fanyi("Item Sales Analytics")}</h3>
-      
-      {/* 统计概览 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-blue-100 p-4 rounded-lg">
-          <h4 className="font-semibold text-blue-800">{fanyi("Total Items")}</h4>
-          <p className="text-2xl font-bold text-blue-600 notranslate">{totalStats.totalItems}</p>
+    <div className="item-sales-analytics">
+      {/* 头部标题 - 优化样式 */}
+      <div className="bg-white p-6">
+        {/* 统计概览 - 使用flexbox替代grid */}
+        <div className="flex flex-wrap gap-6 lg:gap-8 mb-8">
+          <div className="flex-1 min-w-[280px] bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-blue-800 text-base">{fanyi("Total Items")}</h4>
+                <p className="text-3xl font-bold text-blue-600 notranslate mt-2">{totalStats.totalItems}</p>
+              </div>
+              <i className="bi bi-box text-blue-400 text-4xl"></i>
+            </div>
+          </div>
+          <div className="flex-1 min-w-[280px] bg-gradient-to-r from-green-50 to-green-100 p-6 rounded-xl border border-green-200 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-green-800 text-base">{fanyi("Total Quantity")}</h4>
+                <p className="text-3xl font-bold text-green-600 notranslate mt-2">{formatQuantity(totalStats.totalQuantity)}</p>
+              </div>
+              <i className="bi bi-stack text-green-400 text-4xl"></i>
+            </div>
+          </div>
+          <div className="flex-1 min-w-[280px] bg-gradient-to-r from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-purple-800 text-base">{fanyi("Total Revenue")}</h4>
+                <p className="text-3xl font-bold text-purple-600 notranslate mt-2">{formatCurrency(totalStats.totalRevenue)}</p>
+              </div>
+              <i className="bi bi-currency-dollar text-purple-400 text-4xl"></i>
+            </div>
+          </div>
         </div>
-        <div className="bg-green-100 p-4 rounded-lg">
-          <h4 className="font-semibold text-green-800">{fanyi("Total Quantity")}</h4>
-          <p className="text-2xl font-bold text-green-600 notranslate">{formatQuantity(totalStats.totalQuantity)}</p>
+
+        {/* 控制面板 - 简化版本 */}
+        <div className="bg-gray-50 rounded-lg p-4 mb-6 border">
+          <div className="flex flex-wrap gap-4">
+            {/* 搜索框 */}
+            <div className="flex-1 min-w-[200px]">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full py-3 pl-10 pr-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder={fanyi("Search Items")}
+                />
+                <i className="bi bi-search absolute left-3 top-3.5 text-gray-400"></i>
+              </div>
+            </div>
+
+            {/* 排序方式 */}
+            <div className="min-w-[150px]">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="quantity">{fanyi("Quantity")}</option>
+                <option value="revenue">{fanyi("Revenue")}</option>
+                <option value="name">{fanyi("Name")}</option>
+              </select>
+            </div>
+
+            {/* 排序顺序 */}
+            <div className="min-w-[150px]">
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="desc">High to Low</option>
+                <option value="asc">Low to High</option>
+              </select>
+            </div>
+
+            {/* 查看模式 */}
+            <div className="min-w-[150px]">
+              <select
+                value={viewMode}
+                onChange={(e) => setViewMode(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="table">{fanyi("Table")}</option>
+                <option value="chart">{fanyi("Bar Chart")}</option>
+                <option value="pie">{fanyi("Pie Chart")}</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <div className="bg-purple-100 p-4 rounded-lg">
-          <h4 className="font-semibold text-purple-800">{fanyi("Total Revenue")}</h4>
-          <p className="text-2xl font-bold text-purple-600 notranslate">{formatCurrency(totalStats.totalRevenue)}</p>
-        </div>
+
+        {/* 数据展示 - 优化滚动和移动端 */}
+        {filteredAndSortedData.length === 0 ? (
+          <div className="text-center py-16 text-gray-500 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+            <i className="bi bi-inbox text-6xl text-gray-300 mb-6 block"></i>
+            <p className="text-xl font-medium">{fanyi("No data available")}</p>
+            <p className="text-gray-400 mt-2">Try adjusting your search or date range</p>
+          </div>
+        ) : (
+          <>
+            {viewMode === 'table' && (
+              <div className="bg-white rounded-xl border shadow-lg overflow-hidden">
+                {/* 移动端卡片视图 - 优化布局 */}
+                <div className="block md:hidden">
+                  <div className="p-4 border-b bg-gray-50">
+                    <h4 className="font-semibold text-gray-800">Items ({filteredAndSortedData.length})</h4>
+                  </div>
+                  <div className="">
+                    {filteredAndSortedData.map((item, index) => (
+                      <div key={index} className="p-4 border-b border-gray-100 last:border-b-0">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-start">
+                            <h5 className="font-medium text-gray-800 flex-1 mr-3">{item.name}</h5>
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium notranslate">
+                              {formatQuantity(item.quantity)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">{fanyi("Total Revenue")}:</span>
+                            <span className="font-semibold text-green-600 notranslate">{formatCurrency(item.revenue)}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">{fanyi("Average Price")}:</span>
+                            <span className="font-semibold text-purple-600 notranslate">{formatCurrency(item.averagePrice)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 桌面端表格视图 - 修复双滚动条 */}
+                <div className="hidden md:block">
+                  <div className="">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 sticky top-0 z-10">
+                        <tr>
+                          <th className="px-6 py-4 text-left font-semibold text-gray-700 border-b text-base">{fanyi("Item Name")}</th>
+                          <th className="px-6 py-4 text-right font-semibold text-gray-700 border-b text-base">{fanyi("Quantity Sold")}</th>
+                          <th className="px-6 py-4 text-right font-semibold text-gray-700 border-b text-base">{fanyi("Total Revenue")}</th>
+                          <th className="px-6 py-4 text-right font-semibold text-gray-700 border-b text-base">{fanyi("Average Price")}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {filteredAndSortedData.map((item, index) => (
+                          <tr key={index} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4 text-gray-800 font-medium">{item.name}</td>
+                            <td className="px-6 py-4 text-right font-semibold text-blue-600 notranslate text-lg">{formatQuantity(item.quantity)}</td>
+                            <td className="px-6 py-4 text-right font-semibold text-green-600 notranslate text-lg">{formatCurrency(item.revenue)}</td>
+                            <td className="px-6 py-4 text-right font-semibold text-purple-600 notranslate text-lg">{formatCurrency(item.averagePrice)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {viewMode === 'chart' && (
+              <div className="space-y-6 md:space-y-8">
+                <div className="bg-white rounded-lg border shadow-sm p-4">
+                  <h4 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
+                    <i className="bi bi-bar-chart text-blue-600 mr-2"></i>
+                    {fanyi("Top 10 Items by Quantity")}
+                  </h4>
+                  <div className="h-64 md:h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis 
+                          dataKey="name" 
+                          angle={-45}
+                          textAnchor="end"
+                          height={80}
+                          interval={0}
+                          fontSize={12}
+                          tick={{ fill: '#666' }}
+                        />
+                        <YAxis fontSize={12} tick={{ fill: '#666' }} />
+                        <Tooltip 
+                          formatter={(value, name) => [
+                            name === 'quantity' ? formatQuantity(value) : formatCurrency(value),
+                            name === 'quantity' ? fanyi("Quantity") : fanyi("Revenue")
+                          ]}
+                          labelFormatter={(label) => {
+                            const item = chartData.find(d => d.name === label);
+                            return item ? item.fullName : label;
+                          }}
+                          contentStyle={{
+                            backgroundColor: '#fff',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                          }}
+                        />
+                        <Legend />
+                        <Bar dataKey="quantity" fill="#3b82f6" name={fanyi("Quantity")} radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg border shadow-sm p-4">
+                  <h4 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
+                    <i className="bi bi-currency-dollar text-green-600 mr-2"></i>
+                    {fanyi("Top 10 Items by Revenue")}
+                  </h4>
+                  <div className="h-64 md:h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis 
+                          dataKey="name" 
+                          angle={-45}
+                          textAnchor="end"
+                          height={80}
+                          interval={0}
+                          fontSize={12}
+                          tick={{ fill: '#666' }}
+                        />
+                        <YAxis fontSize={12} tick={{ fill: '#666' }} />
+                        <Tooltip 
+                          formatter={(value, name) => [
+                            name === 'quantity' ? formatQuantity(value) : formatCurrency(value),
+                            name === 'quantity' ? fanyi("Quantity") : fanyi("Revenue")
+                          ]}
+                          labelFormatter={(label) => {
+                            const item = chartData.find(d => d.name === label);
+                            return item ? item.fullName : label;
+                          }}
+                          contentStyle={{
+                            backgroundColor: '#fff',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                          }}
+                        />
+                        <Legend />
+                        <Bar dataKey="revenue" fill="#10b981" name={fanyi("Revenue")} radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {viewMode === 'pie' && (
+              <div className="flex flex-wrap gap-6 md:gap-8">
+                <div className="flex-1 min-w-[300px] bg-white rounded-lg border shadow-sm p-4">
+                  <h4 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
+                    <i className="bi bi-pie-chart text-blue-600 mr-2"></i>
+                    {fanyi("Top 10 Items by Quantity")}
+                  </h4>
+                  <div className="h-64 md:h-80 flex">
+                    <ResponsiveContainer width="70%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={chartData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={60}
+                          fill="#8884d8"
+                          dataKey="quantity"
+                        >
+                          {chartData.map((entry, index) => (
+                            <Cell key={`cell-q-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                          formatter={(value, name, props) => [formatQuantity(value), props.payload.fullName]}
+                          contentStyle={{
+                            backgroundColor: '#fff',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="flex-1 flex items-center justify-center">
+                      <Legend
+                        layout="vertical"
+                        align="right"
+                        verticalAlign="middle"
+                        formatter={(value, entry) => entry.payload.fullName}
+                        iconType="circle"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex-1 min-w-[300px] bg-white rounded-lg border shadow-sm p-4">
+                  <h4 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
+                    <i className="bi bi-pie-chart text-green-600 mr-2"></i>
+                    {fanyi("Top 10 Items by Revenue")}
+                  </h4>
+                  <div className="h-64 md:h-80 flex">
+                    <ResponsiveContainer width="70%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={chartData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={60}
+                          fill="#82ca9d"
+                          dataKey="revenue"
+                        >
+                          {chartData.map((entry, index) => (
+                            <Cell key={`cell-r-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                          formatter={(value, name, props) => [formatCurrency(value), props.payload.fullName]}
+                          contentStyle={{
+                            backgroundColor: '#fff',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="flex-1 flex items-center justify-center">
+                      <Legend
+                        layout="vertical"
+                        align="right"
+                        verticalAlign="middle"
+                        formatter={(value, entry) => entry.payload.fullName}
+                        iconType="circle"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
-
-      {/* 控制面板 */}
-      <div className="flex flex-wrap gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
-        {/* 搜索 */}
-        <div className="flex-1 min-w-64">
-          <label className="block text-sm font-medium mb-1">{fanyi("Search Items")}</label>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-2 border rounded-md"
-            placeholder={fanyi("Search Items")}
-          />
-        </div>
-
-        {/* 排序方式 */}
-        <div>
-          <label className="block text-sm font-medium mb-1">{fanyi("Sort by")}</label>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="p-2 border rounded-md"
-          >
-            <option value="quantity">{fanyi("Quantity")}</option>
-            <option value="revenue">{fanyi("Revenue")}</option>
-            <option value="name">{fanyi("Name")}</option>
-          </select>
-        </div>
-
-        {/* 排序顺序 */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Order</label>
-          <select
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-            className="p-2 border rounded-md"
-          >
-            <option value="desc">High to Low</option>
-            <option value="asc">Low to High</option>
-          </select>
-        </div>
-
-        {/* 查看模式 */}
-        <div>
-          <label className="block text-sm font-medium mb-1">{fanyi("View Mode")}</label>
-          <select
-            value={viewMode}
-            onChange={(e) => setViewMode(e.target.value)}
-            className="p-2 border rounded-md"
-          >
-            <option value="table">{fanyi("Table")}</option>
-            <option value="chart">{fanyi("Bar Chart")}</option>
-            <option value="pie">{fanyi("Pie Chart")}</option>
-          </select>
-        </div>
-      </div>
-
-      {/* 数据展示 */}
-      {filteredAndSortedData.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          {fanyi("No data available")}
-        </div>
-      ) : (
-        <>
-          {viewMode === 'table' && (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border border-gray-300 p-3 text-left">{fanyi("Item Name")}</th>
-                    <th className="border border-gray-300 p-3 text-right">{fanyi("Quantity Sold")}</th>
-                    <th className="border border-gray-300 p-3 text-right">{fanyi("Total Revenue")}</th>
-                    <th className="border border-gray-300 p-3 text-right">{fanyi("Average Price")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredAndSortedData.map((item, index) => (
-                    <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                      <td className="border border-gray-300 p-3">{item.name}</td>
-                      <td className="border border-gray-300 p-3 text-right notranslate">{formatQuantity(item.quantity)}</td>
-                      <td className="border border-gray-300 p-3 text-right notranslate">{formatCurrency(item.revenue)}</td>
-                      <td className="border border-gray-300 p-3 text-right notranslate">{formatCurrency(item.averagePrice)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {viewMode === 'chart' && (
-            <div className="space-y-8">
-              <div>
-                <h4 className="text-lg font-semibold mb-4">{fanyi("Top 10 Items by Quantity")}</h4>
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="name" 
-                      angle={-45}
-                      textAnchor="end"
-                      height={100}
-                      interval={0}
-                    />
-                    <YAxis />
-                    <Tooltip 
-                      formatter={(value, name) => [
-                        name === 'quantity' ? formatQuantity(value) : formatCurrency(value),
-                        name === 'quantity' ? fanyi("Quantity") : fanyi("Revenue")
-                      ]}
-                      labelFormatter={(label) => {
-                        const item = chartData.find(d => d.name === label);
-                        return item ? item.fullName : label;
-                      }}
-                    />
-                    <Legend />
-                    <Bar dataKey="quantity" fill="#8884d8" name={fanyi("Quantity")} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div>
-                <h4 className="text-lg font-semibold mb-4">{fanyi("Top 10 Items by Revenue")}</h4>
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="name" 
-                      angle={-45}
-                      textAnchor="end"
-                      height={100}
-                      interval={0}
-                    />
-                    <YAxis />
-                    <Tooltip 
-                      formatter={(value, name) => [
-                        name === 'quantity' ? formatQuantity(value) : formatCurrency(value),
-                        name === 'quantity' ? fanyi("Quantity") : fanyi("Revenue")
-                      ]}
-                      labelFormatter={(label) => {
-                        const item = chartData.find(d => d.name === label);
-                        return item ? item.fullName : label;
-                      }}
-                    />
-                    <Legend />
-                    <Bar dataKey="revenue" fill="#82ca9d" name={fanyi("Revenue")} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          )}
-
-          {viewMode === 'pie' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
-                <h4 className="text-lg font-semibold mb-4">{fanyi("Top 10 Items by Quantity")}</h4>
-                <ResponsiveContainer width="100%" height={400}>
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: ${formatQuantity(value)}`}
-                      outerRadius={120}
-                      fill="#8884d8"
-                      dataKey="quantity"
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => formatQuantity(value)} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div>
-                <h4 className="text-lg font-semibold mb-4">{fanyi("Top 10 Items by Revenue")}</h4>
-                <ResponsiveContainer width="100%" height={400}>
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: ${formatCurrency(value)}`}
-                      outerRadius={120}
-                      fill="#82ca9d"
-                      dataKey="revenue"
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => formatCurrency(value)} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          )}
-        </>
-      )}
     </div>
   );
 };
