@@ -41,6 +41,9 @@
     border: 1px solid #e2e8f0;
     display: inline-flex;
     align-items: center;
+    background-color: white;
+    min-width: fit-content;
+    flex-shrink: 0;
 }
 
 .quantity-control button {
@@ -51,10 +54,22 @@
     justify-content: center;
     background-color: #f7fafc;
     transition: background-color 0.2s;
+    border: none;
+    cursor: pointer;
 }
 
 .quantity-control button:hover {
     background-color: #edf2f7;
+}
+
+.quantity-control button:first-child {
+    border-top-left-radius: 9999px;
+    border-bottom-left-radius: 9999px;
+}
+
+.quantity-control button:last-child {
+    border-top-right-radius: 9999px;
+    border-bottom-right-radius: 9999px;
 }
 
 .quantity-control span {
@@ -62,6 +77,12 @@
     text-align: center;
     font-size: 15px;
     background-color: white;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    font-weight: 500;
 }
 
 /* Delete button style */
@@ -72,4 +93,129 @@
 
 .delete-btn:hover {
     color: #e53e3e;
+}
+
+/* 购物车特定的响应式样式 - 只影响购物车内的按钮 */
+@media (max-width: 640px) {
+  .cart-item .btn-xs {
+    font-size: 10px;
+    padding: 2px 6px;
+    line-height: 1.2;
+  }
+  
+  .cart-item .flex.gap-1 {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .cart-item .quantity-control {
+    min-width: fit-content;
+  }
+}
+
+@media (min-width: 641px) {
+  .cart-item .btn-sm {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+}
+
+/* 购物车按钮文本响应式 - 只影响购物车内的按钮 */
+@media (max-width: 640px) {
+  .cart-item .btn .hidden.sm\\:inline {
+    display: none;
+  }
+  
+  .cart-item .btn .sm\\:hidden {
+    display: inline;
+  }
+}
+
+@media (min-width: 641px) {
+  .cart-item .btn .hidden.sm\\:inline {
+    display: inline;
+  }
+  
+  .cart-item .btn .sm\\:hidden {
+    display: none;
+  }
+}
+
+/* 智能单行布局 - 空间够时同一行，不够时换行 */
+.cart-item .quantity-section {
+  width: 100%;
+}
+
+.cart-item .quantity-section > div {
+  width: 100%;
+  min-height: 32px;
+}
+
+/* 确保按钮组和数量控制能合理分配空间 */
+.cart-item .quantity-section .flex:first-child > div:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cart-item .quantity-section .quantity-control {
+  flex: 0 0 auto;
+}
+
+/* 小屏幕：强制换行，数量控制独占一行 */
+@media (max-width: 480px) {
+  .cart-item .quantity-section > div {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .cart-item .quantity-section .flex:first-child > div:first-child {
+    width: 100%;
+  }
+  
+  .cart-item .quantity-section .quantity-control {
+    align-self: flex-end;
+  }
+  
+  .quantity-control {
+    min-width: 120px;
+  }
+  
+  .quantity-control button {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .quantity-control span {
+    width: 32px;
+    height: 28px;
+    font-size: 14px;
+  }
+}
+
+/* 中等屏幕：智能换行 */
+@media (min-width: 481px) and (max-width: 768px) {
+  .cart-item .quantity-section > div {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  /* 当空间不够时，数量控制会换到下一行 */
+  .cart-item .quantity-section .quantity-control {
+    min-width: 120px;
+  }
+}
+
+/* 大屏幕：始终保持同一行 */
+@media (min-width: 769px) {
+  .cart-item .quantity-section > div {
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+}
+
+/* 确保购物车内的按钮不会被压缩得太小 */
+.cart-item .btn {
+  min-width: fit-content;
+  flex-shrink: 0;
 }

@@ -44,6 +44,7 @@ import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faExclamation } from '@fortawesome/free-solid-svg-icons'; // Import the exclamation mark icon
 import NumberPad from '../components/NumberPad'; // Import NumberPad component
 import KeypadModal from '../components/KeypadModal'; // Import KeypadModal component
+import TableTimingModal from '../components/TableTimingModal';
 
 const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal, TaxRate }) => {
   // Removed startTime prop as it's read from localStorage now
@@ -77,10 +78,76 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   const [isSplitPaymentModalOpen, setSplitPaymentModalOpen] = useState(false);
 
+  // 开台计时弹窗状态
+  const [isTableTimingModalOpen, setIsTableTimingModalOpen] = useState(false);
+  const [selectedTableItem, setSelectedTableItem] = useState(null);
+
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
     setProducts(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
   }, [id]);
+
+  // 新增：页面加载时检查和恢复所有定时器
+  useEffect(() => {
+    const checkAllTimers = () => {
+      // 遍历localStorage中所有的定时器
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.includes('-timer')) {
+          try {
+            const timerData = JSON.parse(localStorage.getItem(key));
+            if (timerData && timerData.endTime && timerData.action) {
+              const now = Date.now();
+              const { endTime, action } = timerData;
+              
+              if (now < endTime) {
+                // 定时器尚未到期，恢复定时器
+                const remainingTime = endTime - now;
+                console.log(`恢复定时器 ${key}，剩余时间: ${Math.floor(remainingTime / 1000)}秒`);
+                
+                setTimeout(() => {
+                  executeTimerAction(action, key);
+                }, remainingTime);
+              } else if (now >= endTime && action === 'Auto Checkout') {
+                // 定时器已到期且是自动结账，立即执行
+                console.log(`定时器 ${key} 已到期，执行自动结账`);
+                executeTimerAction(action, key);
+              }
+            }
+          } catch (error) {
+            console.error('恢复定时器时出错:', error);
+          }
+        }
+      }
+    };
+
+    // 执行定时器动作
+    const executeTimerAction = (action, timerKey) => {
+      if (action === 'Auto Checkout') {
+        // 解析定时器key获取桌台信息
+        const keyParts = timerKey.split('-');
+        const storeMatch = keyParts.slice(0, -2).join('-'); // 去掉最后的timer部分
+        
+        if (storeMatch === store) {
+          // 清除定时器记录
+          localStorage.removeItem(timerKey);
+          
+          // 显示提醒
+          const tableInfo = keyParts[keyParts.length - 3]; // 获取桌台信息
+          alert(`${tableInfo || selectedTable} 定时结账已执行`);
+          
+          // 这里可以添加更多自动结账逻辑
+          console.log('执行自动结账逻辑');
+        }
+      } else if (action === 'Continue Billing') {
+        // 继续计费不需要特殊处理
+        console.log('到时继续计费');
+      }
+    };
+
+    // 延迟执行，确保页面完全加载
+    setTimeout(checkAllTimers, 1000);
+  }, [store, selectedTable]);
 
   const translations = [
     { input: "Change Desk", output: "更换餐桌" },
@@ -102,6 +169,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Disc.", output: "折扣" },//Disc
     { input: "Duration", output: "用餐时长" },//Disc
     { input: "Start", output: "开始时间" },//Disc
+    { input: "Start Table", output: "开台" },
+    { input: "End Table", output: "结台" },
+    { input: "Table Timing", output: "开台计时" },
     { input: "Service Fee", output: "服务费" },//Tips
     { input: "Tips", output: "小费" },
     { input: "Gratuity", output: "小费" },
@@ -134,8 +204,44 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     return translation ? translation.output : "Translation not found";
   }
   function fanyi(input) {
-    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
+    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input;
   }
+
+  // 开台成功后的回调函数（购物车中的商品已经存在，不需要重复添加）
+  const handleTableStartFromCart = (tableItem) => {
+    // 购物车中的商品已经存在，开台成功后只需要刷新状态
+    console.log('开台成功:', tableItem.name);
+  };
+
+  // 结台成功后的回调函数
+  const handleTableEnd = (tableItem, finalPrice) => {
+    if (tableItem) {
+      // 更新购物车中对应商品的价格
+      console.log(store + "-" + selectedTable)
+      let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
+      if (products && products.length > 0) {
+        // 找到对应的开台商品 - 使用更准确的查找方式
+        const productIndex = products.findIndex(product => 
+          product.id === tableItem.id && 
+          product.isTableItem && 
+          product.attributeSelected && 
+          product.attributeSelected['开台商品'] &&
+          product.count === tableItem.count
+        );
+        
+        if (productIndex !== -1) {
+          // 更新商品价格
+          products[productIndex].subtotal = finalPrice;
+          products[productIndex].itemTotalPrice = Math.round(finalPrice * products[productIndex].quantity * 100) / 100;
+          
+          // 保存更新后的购物车
+          SetTableInfo(store + "-" + selectedTable, JSON.stringify(products));
+          // 触发重新渲染 - 使用saveId而不是刷新页面
+          saveId(Math.random());
+        }
+      }
+    }
+  };
 
   /**check if its mobile/browser */
   const [width, setWidth] = useState(window.innerWidth);
@@ -1259,39 +1365,89 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <div className='pl-8 mt-1'>
                     <div className="mb-2">
                       <span className="notranslate text-gray-600 text-sm">
-                        {Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}
+                        {Object.entries(product.attributeSelected)
+                          .map(([key, value]) => {
+                            // 如果是开台商品的特殊属性，显示友好的信息
+                            if (key === '开台商品') {
+                              if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
+                                return '开台商品';
+                              } else {
+                                return 'Table Item';
+                              }
+                            }
+                            // 其他属性正常显示
+                            return Array.isArray(value) ? value.join(' ') : value;
+                          })
+                          .join(' ')
+                        }
                       </span>
                     </div>
 
-                    <div className="quantity flex justify-between items-center">
-                      <a
-                        onClick={() => {
-                          setOpenChangeAttributeModal(product)
-                        }}
-                        className="btn btn-sm btn-outline-dark mx-1 px-3 py-1 text-sm hover:bg-gray-200 transition-colors">
-                        <span>Revise</span>
-                      </a>
+                    <div className="quantity-section">
+                      {/* 一行布局：按钮在左，数量控制在右，空间不够时自动换行 */}
+                      <div className="flex flex-wrap gap-2 justify-between items-center">
+                        {/* 左侧按钮组 */}
+                        <div className="flex flex-wrap gap-1">
+                          <a
+                            onClick={() => {
+                              setOpenChangeAttributeModal(product)
+                            }}
+                            className="btn btn-xs px-2 py-1 btn-outline-dark text-xs hover:bg-gray-200 transition-colors flex-shrink-0"
+                            style={{ whiteSpace: 'nowrap' }}>
+                            <span>Revise</span>
+                          </a>
+                          
+                          {/* 开台/结台按钮 */}
+                          {localStorage.getItem(`${store}-${product.id}-${product.count}-isSent_startTime`) && (
+                            <button
+                              onClick={() => {
+                                // 创建商品对象用于结台
+                                const tableItem = {
+                                  id: product.id,
+                                  name: product.name,
+                                  subtotal: product.subtotal || (product.itemTotalPrice / product.quantity),
+                                  image: product.image,
+                                  CHI: product.CHI,
+                                  availability: product.availability,
+                                  attributesArr: product.attributesArr || {},
+                                  attributeSelected: product.attributeSelected || {}, // 包含备注信息
+                                  tableRemarks: product.tableRemarks || '', // 包含备注
+                                  count: product.count // 添加count字段
+                                };
+                                setSelectedTableItem(tableItem);
+                                setIsTableTimingModalOpen(true);
+                              }}
+                              className="btn btn-xs px-2 py-1 btn-outline-danger notranslate text-xs flex-shrink-0"
+                              style={{ whiteSpace: 'nowrap' }}
+                            >
+                              <i className="bi bi-stop-circle me-1"></i>
+                              {fanyi("End Table")}
+                            </button>
+                          )}
+                        </div>
+                        
+                        {/* 右侧数量控制 */}
+                        <div className="quantity-control flex-shrink-0">
+                          <button className="minus-btn" type="button" name="button"
+                            onClick={() => {
+                              if (product.quantity === 1) {
+                                handleDeleteClick(product.id, product.count);
+                              } else {
+                                handleMinusClick(product.id, product.count)
+                              }
+                            }}>
+                            <MinusSvg style={{ width: '12px', height: '12px' }} alt="" />
+                          </button>
 
-                      <div className="quantity-control">
-                        <button className="minus-btn" type="button" name="button"
-                          onClick={() => {
-                            if (product.quantity === 1) {
-                              handleDeleteClick(product.id, product.count);
-                            } else {
-                              handleMinusClick(product.id, product.count)
-                            }
-                          }}>
-                          <MinusSvg style={{ width: '12px', height: '12px' }} alt="" />
-                        </button>
+                          <span className='notranslate'>{product.quantity}</span>
 
-                        <span className='notranslate'>{product.quantity}</span>
-
-                        <button className="plus-btn" type="button" name="button"
-                          onClick={() => {
-                            handlePlusClick(product.id, product.count)
-                          }}>
-                          <PlusSvg style={{ width: '12px', height: '12px' }} alt="" />
-                        </button>
+                          <button className="plus-btn" type="button" name="button"
+                            onClick={() => {
+                              handlePlusClick(product.id, product.count)
+                            }}>
+                            <PlusSvg style={{ width: '12px', height: '12px' }} alt="" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1309,7 +1465,6 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               className="mt-3 bg-white btn btn-sm btn-link mx-1 border-black"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-
               <span className='notranslate'>{fanyi("Change Desk")}</span>
             </a>
             {/* <a
@@ -1898,6 +2053,20 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
       </div>
       {/* Standalone NumberPad component removed - now integrated in KeypadModal */}
+      
+      {/* 开台计时弹窗 */}
+      <TableTimingModal
+        isOpen={isTableTimingModalOpen}
+        onClose={() => {
+          setIsTableTimingModalOpen(false);
+          setSelectedTableItem(null);
+        }}
+        selectedTable={selectedTable}
+        store={store}
+        tableItem={selectedTableItem}
+        onTableStart={handleTableStartFromCart}
+        onTableEnd={handleTableEnd}
+      />
     </div>
   )
 }

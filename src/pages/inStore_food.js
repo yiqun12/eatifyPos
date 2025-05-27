@@ -25,6 +25,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getDoc, updateDoc } from "firebase/firestore";
 import KeypadModal from '../components/KeypadModal'; // Import KeypadModal component
 import NumberPad from '../components/NumberPad'; // Import NumberPad component
+import TableTimingModal from '../components/TableTimingModal';
 
 function convertToPinyin(text) {
   return pinyin(text, {
@@ -74,6 +75,86 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   const [count, setCount] = useState(0);  // Set up a state
   const [selectedFoodItem, setSelectedFoodItem] = useState('')
 
+  // 开台计时弹窗相关状态
+  const [isTableTimingModalOpen, setIsTableTimingModalOpen] = useState(false);
+  const [selectedTableItem, setSelectedTableItem] = useState(null);
+
+  // 开台成功后的回调函数
+  // tableItemFromModal 是从 TableTimingModal 传递过来的，包含了它生成的 count
+  const handleTableStart = (tableItemFromModal) => {
+    if (tableItemFromModal && tableItemFromModal.id && tableItemFromModal.count) {
+      const receivedCount = tableItemFromModal.count; // 使用 TableTimingModal 生成的 count
+
+      // setCount(receivedCount); // 这个setCount是Food.js内部的，用于属性修改弹窗，如果不需要同步可以考虑移除或调整
+      // setSelectedAttributes({}); // 这些状态重置可能也需要根据逻辑调整
+      // setTotalPrice(0);
+
+      // 为开台商品添加特殊属性，确保'开台商品'标记和时间戳的一致性
+      // tableItemFromModal.attributeSelected 可能已经包含了备注
+      const tableSpecialAttributes = {
+        ...(tableItemFromModal.attributeSelected || {}), // 保留模态框中已有的属性（如备注）
+        '开台商品': [`开台时间-${Date.now()}`] // 添加或覆盖'开台商品'标记，确保时间戳最新
+      };
+
+      addSpecialFood(
+        tableItemFromModal.id,
+        tableItemFromModal.name,
+        tableItemFromModal.subtotal,
+        tableItemFromModal.image,
+        tableSpecialAttributes, // 使用更新后的属性
+        receivedCount, // 使用从模态框传入的 count
+        tableItemFromModal.CHI,
+        tableItemFromModal, // 可以传递原始的 tableItemFromModal 作为基础对象
+        tableItemFromModal.availability,
+        tableItemFromModal.attributesArr,
+        1, // quantity
+        true, // isTableItem - 标记为开台商品
+        tableItemFromModal.tableRemarks // 确保备注被传递
+      );
+
+      // 立即设置开台状态的 startTime，使用传入的 id 和 count
+      const startTimeKey = `${store}-${tableItemFromModal.id}-${receivedCount}-isSent_startTime`;
+      localStorage.setItem(startTimeKey, Date.now().toString());
+
+      // 注意：此函数不再需要返回商品对象，因为 TableTimingModal 已不再依赖其返回值来获取 count
+    } else {
+      console.error('handleTableStart (Food.js) 接收到的 tableItem 无效或缺少 count:', tableItemFromModal);
+    }
+  };
+
+  // 结台成功后的回调函数
+  const handleTableEnd = (tableItem, finalPrice) => {
+    if (tableItem) {
+      console.log('结台回调收到:', tableItem.id, tableItem.count, finalPrice);
+      // 更新购物车中对应商品的价格
+      let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
+      if (products && products.length > 0) {
+        // 找到对应的开台商品 - 使用更精确的匹配
+        const productIndex = products.findIndex(product =>
+          product.id === tableItem.id &&
+          product.count === tableItem.count && // 必须匹配具体的count
+          product.isTableItem &&
+          product.attributeSelected &&
+          product.attributeSelected['开台商品']
+        );
+
+        console.log('查找商品结果:', productIndex, products.length);
+        if (productIndex !== -1) {
+          console.log('找到匹配商品，更新价格:', products[productIndex].name, finalPrice);
+          // 更新商品价格
+          products[productIndex].subtotal = finalPrice;
+          products[productIndex].itemTotalPrice = Math.round(finalPrice * products[productIndex].quantity * 100) / 100;
+
+          // 保存更新后的购物车
+          SetTableInfo(store + "-" + selectedTable, JSON.stringify(products));
+          saveId(Math.random());
+        } else {
+          console.error('未找到匹配的开台商品:', tableItem.id, tableItem.count);
+          console.log('购物车中的商品:', products.map(p => ({id: p.id, count: p.count, isTableItem: p.isTableItem, name: p.name})));
+        }
+      }
+    }
+  };
 
   const [priceError, setPriceError] = useState("");  // Set up a state
   const SetTableInfo = async (table_name, product) => {
@@ -295,6 +376,68 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     //console.log("hello")
   }, []); // <-- Empty dependency array
 
+  // 新增：页面加载时检查和恢复所有定时器
+  useEffect(() => {
+    const checkAllTimers = () => {
+      // 遍历localStorage中所有的定时器
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.includes('-timer')) {
+          try {
+            const timerData = JSON.parse(localStorage.getItem(key));
+            if (timerData && timerData.endTime && timerData.action) {
+              const now = Date.now();
+              const { endTime, action } = timerData;
+
+              if (now < endTime) {
+                // 定时器尚未到期，恢复定时器
+                const remainingTime = endTime - now;
+                console.log(`恢复定时器 ${key}，剩余时间: ${Math.floor(remainingTime / 1000)}秒`);
+
+                setTimeout(() => {
+                  executeTimerAction(action, key);
+                }, remainingTime);
+              } else if (now >= endTime && action === 'Auto Checkout') {
+                // 定时器已到期且是自动结账，立即执行
+                console.log(`定时器 ${key} 已到期，执行自动结账`);
+                executeTimerAction(action, key);
+              }
+            }
+          } catch (error) {
+            console.error('恢复定时器时出错:', error);
+          }
+        }
+      }
+    };
+
+    // 执行定时器动作
+    const executeTimerAction = (action, timerKey) => {
+      if (action === 'Auto Checkout') {
+        // 解析定时器key获取桌台信息
+        const keyParts = timerKey.split('-');
+        const storeMatch = keyParts.slice(0, -2).join('-'); // 去掉最后的timer部分
+
+        if (storeMatch === store) {
+          // 清除定时器记录
+          localStorage.removeItem(timerKey);
+
+          // 显示提醒
+          const tableInfo = keyParts[keyParts.length - 3]; // 获取桌台信息
+          alert(`${tableInfo || selectedTable} 定时结账已执行`);
+
+          // 这里可以添加更多自动结账逻辑
+          console.log('执行自动结账逻辑');
+        }
+      } else if (action === 'Continue Billing') {
+        // 继续计费不需要特殊处理
+        console.log('到时继续计费');
+      }
+    };
+
+    // 延迟执行，确保页面完全加载
+    setTimeout(checkAllTimers, 1000);
+  }, [store, selectedTable]);
+
   const [animationClass, setAnimationClass] = useState('');
 
   useEffect(() => {
@@ -434,7 +577,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     color: 'black',
   };
   const { user, user_loading } = useUserContext();
-  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI, item, availability, attributesArr, quant) => {
+  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI, item, availability, attributesArr, quant, isTableItem = false, tableRemarks='') => {
 
     // Check if the array exists in local storage
     if (localStorage.getItem(store + "-" + selectedTable) === null) {
@@ -464,8 +607,9 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       product.CHI = CHI;
       product.availability = availability
       product.attributesArr = attributesArr
-    }
-    else {
+      product.isTableItem = isTableItem; // 添加开台标识
+      product.tableRemarks = tableRemarks; // Explicitly add tableRemarks
+    } else {
       // If the product doesn't exist, add it to the array
       products?.unshift({
         attributesArr: attributesArr,
@@ -479,6 +623,8 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         count: count,
         itemTotalPrice: Math.round(100 * subtotal) / 100,
         CHI: CHI,
+        isTableItem: isTableItem, // 添加开台标识
+        tableRemarks: tableRemarks, // Explicitly add tableRemarks
       });
     }
     //product.itemTotalPrice= Math.round(100 *((parseFloat(totalPrice)+parseFloat(product.subtotal))*parseFloat(product.quantity))/ 100)
@@ -553,6 +699,25 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   };
 
   const [translationsMode_, settranslationsMode_] = useState("en");
+
+  // 本地翻译数组
+  const localTranslations = [
+    { input: "Start Table", output: "开台" },
+    { input: "End Table", output: "结台" },
+    { input: "Table Timing", output: "开台计时" },
+    { input: "Search Food Item", output: "搜索食品" },
+    { input: "Start", output: "开始时间" },
+  ];
+
+  function translateLocal(input) {
+    const translation = localTranslations.find(t => t.input.toLowerCase() === input.toLowerCase());
+    return translation ? translation.output : null;
+  }
+
+  function fanyi(input) {
+    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translateLocal(input) || input : input;
+  }
+
   // for translations sake
   const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = useMemo(() => {
@@ -1028,18 +1193,20 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                           <button
                             className="btn btn-warning mb-1 "
                             type="button"
-                            style={{ whiteSpace: 'nowrap', "display": "inline" }}
+                                  style={{whiteSpace: 'nowrap', "display": "inline"}}
                             onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id, true)}
                           >
-                            Add <span className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
+                                Add <span
+                                  className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
                           </button>
                           <button
                             className="btn btn-info mb-1 "
                             type="button"
-                            style={{ whiteSpace: 'nowrap', "display": "inline" }}
+                                  style={{whiteSpace: 'nowrap', "display": "inline"}}
                             onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id, false)}
                           >
-                            Subtract <span className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
+                                Subtract <span
+                                  className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
                           </button>
                           {/* <button
                             className="btn btn-primary mb-1"
@@ -1270,16 +1437,25 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
               {/* shoppig cart */}
 
             </div>
-            <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
-              <div className={` ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`} >
+              <div style={width > 575 ? {overflowY: "auto", borderBottom: "1px solid #E1E8EE"} : {
+                overflowY: "auto",
+                borderBottom: "1px solid #E1E8EE"
+              }}>
+                <div className={` ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`}>
 
-                <div style={{ width: "-webkit-fill-available" }}>
-                  <div className="description" style={{ width: "-webkit-fill-available" }}>
+                  <div style={{width: "-webkit-fill-available"}}>
+                    <div className="description" style={{width: "-webkit-fill-available"}}>
 
-                    <div className='' style={{ width: "-webkit-fill-available" }}>
+                      <div className='' style={{width: "-webkit-fill-available"}}>
                       <div
                         className="text-black text-lg"
-                        style={{ color: "black", width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}
+                            style={{
+                              color: "black",
+                              width: "100%",
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "flex-start"
+                            }}
                       >
                         {foodTypes.slice().reverse().map((foodType) => (
                           <button
@@ -1291,7 +1467,12 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                             }}
 
                             className={`border-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}
-                            style={{ width: "100%", display: 'block', textUnderlineOffset: '0.5em', textAlign: 'left' }}
+                                  style={{
+                                    width: "100%",
+                                    display: 'block',
+                                    textUnderlineOffset: '0.5em',
+                                    textAlign: 'left'
+                                  }}
                           >
                             <div>
                               {foodType && foodType.length > 1
@@ -1314,15 +1495,15 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         </div>
         <div className='m-auto '>
 
-          <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
+            <div className='flex flex-col lg:flex-row justify-between' style={{flexDirection: "column"}}>
             {/* Filter Type */}
-            <div className='Type' >
+              <div className='Type'>
               {/* <div className='flex justify-between flex-wrap'> */}
 
               {/* web mode */}
               {!view ?
                 <div>
-                  <div className='hstack gap-2  mt-2'>
+                      <div className='hstack gap-2 mt-2'>
                     <form className="w-full w-lg-full">
                       <div className='input-group input-group-sm input-group-inline shadow-none'>
                         <span className='input-group-text pe-2 rounded-start-pill'>
@@ -1425,17 +1606,11 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
           </div>
           {!view ?
-            <LazyLoad >
+                <LazyLoad>
 
               {/* diplay food */}
               <AnimatePresence>
-                <div className='grid grid-cols-1 gap-3 pt-3 px-2' style={{
-                  gridTemplateRows: `repeat(1, 1fr)`,
-                  gridTemplateColumns: isMobile
-                    ? 'repeat(1, 1fr)'
-                    : isPC
-                      ? 'repeat(3, 1fr)'
-                      : 'repeat(2, 1fr)',
+                    <div className='flex flex-wrap gap-3 pt-3 px-2' style={{
                   overflowY: 'auto',
                   maxHeight: `calc(100vh - 370px)`
                 }}>
@@ -1455,23 +1630,34 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                         }
                       }}
                       layout
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.1 }}
+                              initial={{opacity: 0}}
+                              animate={{opacity: 1}}
+                              exit={{opacity: 0}}
+                              transition={{duration: 0.1}}
                       key={item.id}
-                      className=" border border-black rounded cursor-pointer">
+                              className="border border-black rounded cursor-pointer"
+                              style={{
+                                flex: isMobile
+                                  ? '1 1 100%'  // 移动端：每行一个，占满宽度
+                                  : '1 1 calc(33.333% - 8px)',  // 桌面端：优先一行三个，自适应宽度
+                                minWidth: isMobile ? '280px' : '320px',  // 增加最小宽度，确保按钮有空间
+                                maxWidth: isMobile ? 'none' : 'calc(50% - 6px)'  // 最大宽度，确保至少一行两个
+                              }}>
                       <div className='flex'>
-                        <div style={{ width: "100%" }}>
+                              <div style={{width: "100%"}}>
                           <div className='flex-row px-2 pb-1 w-full'>
 
                             {/* parent div of title + quantity and button parent div */}
-                            <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                                  <div className="col-span-4" style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "space-between"
+                                  }}>
                               <div className="col-span-4 ">
                                 <p class="notranslate text-md">
                                   ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}&nbsp;
                                   {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
-                                </p>                          </div>
+                                      </p></div>
 
                               {/* parent div of the quantity and buttons */}
 
@@ -1482,19 +1668,38 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                               style={{
                                 display: "flex",
                                 justifyContent: "space-between",
-                                marginBottom: "10px"
+                                        marginBottom: "10px",
+                                        flexWrap: "wrap",  // 允许按钮换行
+                                        gap: "8px"  // 按钮之间的间距
                               }}>
 
-                              <div >
+                                    <div style={{ flexShrink: 0 }}>
                                 <a
                                   onClick={(e) => {
                                     e.stopPropagation(); // This stops the click from propagating to the parent elements
                                     showModal(item)
                                   }}
-                                  class="btn d-inline-flex btn-sm btn-outline-dark mx-1">
+                                          class="btn d-inline-flex btn-sm btn-outline-dark mx-1"
+                                          style={{ whiteSpace: 'nowrap' }}>
                                   <span>Revise And Add</span>
                                 </a>
                               </div>
+
+                                    <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
+                                      {/* 开台按钮 */}
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectedTableItem(item);
+                                          setIsTableTimingModalOpen(true);
+                                        }}
+                                        className="btn btn-outline-primary btn-sm d-flex align-items-center notranslate"
+                                        style={{ whiteSpace: 'nowrap', height: '30px', fontSize: '12px', padding: '2px 8px' }}
+                                      >
+                                        <i className="bi bi-clock me-1"></i>
+                                        {fanyi("Start Table")}
+                                      </button>
+
                               <div
                                 className="black_hover"
                                 style={{
@@ -1506,7 +1711,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                                   borderRadius: "50%", // Set borderRadius to 50% for a circle
                                   width: "30px", // Make sure width and height are equal
                                   height: "30px",
-
+                                          flexShrink: 0
                                 }}
                               >
                                 <button
@@ -1532,14 +1737,13 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                                   />
                                 </button>
                               </div>
-
+                                    </div>
                             </div>
                             {/* ^ end of parent div of title + quantity and buttons */}
                           </div>
                           {/* This is Tony added code */}
                         </div>
                       </div>
-
 
 
                     </motion.div>
@@ -1551,7 +1755,22 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
 
         </div>
-      </div >
+
+          {/* 开台计时弹窗 */}
+          <TableTimingModal
+              isOpen={isTableTimingModalOpen}
+              onClose={() => {
+                setIsTableTimingModalOpen(false);
+                setSelectedTableItem(null);
+              }}
+              selectedTable={selectedTable}
+              store={store}
+              tableItem={selectedTableItem}
+              onTableStart={handleTableStart}
+              onTableEnd={handleTableEnd}
+              forceStartMode={true}
+          />
+        </div>
     )
   }
 }
