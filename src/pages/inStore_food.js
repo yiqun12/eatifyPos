@@ -79,6 +79,9 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   const [isTableTimingModalOpen, setIsTableTimingModalOpen] = useState(false);
   const [selectedTableItem, setSelectedTableItem] = useState(null);
 
+  // 将 useMyHook 的调用移到这里，确保 saveId 在 useEffect 之前初始化
+  const {id, saveId} = useMyHook(null);
+
   // 开台成功后的回调函数
   // tableItemFromModal 是从 TableTimingModal 传递过来的，包含了它生成的 count
   const handleTableStart = (tableItemFromModal) => {
@@ -123,36 +126,45 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   };
 
   // 结台成功后的回调函数
-  const handleTableEnd = (tableItem, finalPrice) => {
-    if (tableItem) {
-      console.log('结台回调收到:', tableItem.id, tableItem.count, finalPrice);
-      // 更新购物车中对应商品的价格
-      let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
-      if (products && products.length > 0) {
-        // 找到对应的开台商品 - 使用更精确的匹配
-        const productIndex = products.findIndex(product =>
-          product.id === tableItem.id &&
-          product.count === tableItem.count && // 必须匹配具体的count
-          product.isTableItem &&
-          product.attributeSelected &&
-          product.attributeSelected['开台商品']
-        );
+  const handleTableEnd = (tableItem, finalPrice, tableNameFromTimer) => {
+    const targetTable = tableNameFromTimer || selectedTable; 
+    if (!targetTable) {
+      console.error('[Food.js] handleTableEnd: targetTable is undefined or null. Props selectedTable:', selectedTable, 'tableNameFromTimer:', tableNameFromTimer);
+      return;
+    }
+    const cartKey = `${store}-${targetTable}`;
+    console.log(`[Food.js] handleTableEnd received. Target Table: ${targetTable}, Cart Key: ${cartKey}, Item ID: ${tableItem.id}, Item Count: ${tableItem.count}, Final Price: ${finalPrice}`);
 
-        console.log('查找商品结果:', productIndex, products.length);
-        if (productIndex !== -1) {
-          console.log('找到匹配商品，更新价格:', products[productIndex].name, finalPrice);
-          // 更新商品价格
-          products[productIndex].subtotal = finalPrice;
-          products[productIndex].itemTotalPrice = Math.round(finalPrice * products[productIndex].quantity * 100) / 100;
+    let products = JSON.parse(localStorage.getItem(cartKey));
+    if (products && products.length > 0) {
+      const productIndex = products.findIndex(product =>
+        product.id === tableItem.id &&
+        product.count === tableItem.count &&
+        product.isTableItem && // Check if it's currently an active table item
+        product.attributeSelected && product.attributeSelected['开台商品']
+      );
 
-          // 保存更新后的购物车
-          SetTableInfo(store + "-" + selectedTable, JSON.stringify(products));
-          saveId(Math.random());
-        } else {
-          console.error('未找到匹配的开台商品:', tableItem.id, tableItem.count);
-          console.log('购物车中的商品:', products.map(p => ({id: p.id, count: p.count, isTableItem: p.isTableItem, name: p.name})));
-        }
+      console.log(`[Food.js] handleTableEnd: Attempting to find product in cart. Resulting index: ${productIndex}. Searching for ID: ${tableItem.id}, Count: ${tableItem.count}`);
+      if (productIndex !== -1) {
+        console.log(`[Food.js] handleTableEnd: Found product '${products[productIndex].name}' at index ${productIndex}. Updating its status and price.`);
+        
+        // Update price to the final calculated fee
+        products[productIndex].subtotal = finalPrice;
+        products[productIndex].itemTotalPrice = Math.round(finalPrice * (products[productIndex].quantity || 1) * 100) / 100;
+        
+        // Mark the item as no longer an active timed item
+        // products[productIndex].isTableItem = false;
+        console.log(`[Food.js] handleTableEnd: Product '${products[productIndex].name}' status updated. isTableItem: ${products[productIndex].isTableItem}, Attributes:`, products[productIndex].attributeSelected);
+        
+        SetTableInfo(cartKey, JSON.stringify(products));
+        saveId(Math.random()); 
+        console.log(`[Food.js] handleTableEnd: Cart for table '${targetTable}' saved. UI update triggered.`);
+      } else {
+        console.error(`[Food.js] handleTableEnd: Did not find matching active product in cart for table '${targetTable}'. Item ID: ${tableItem.id}, Count: ${tableItem.count}. This might happen if item was already processed or removed.`);
+        console.log('[Food.js] handleTableEnd: Current cart items for table:', products.map(p => ({id: p.id, count: p.count, name: p.name, isTableItem: p.isTableItem, attrs: Object.keys(p.attributeSelected || {})})));
       }
+    } else {
+      console.warn(`[Food.js] handleTableEnd: Cart for table '${targetTable}' is empty or not found upon trying to finalize table item. CartKey:`, cartKey);
     }
   };
 
@@ -379,64 +391,178 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   // 新增：页面加载时检查和恢复所有定时器
   useEffect(() => {
     const checkAllTimers = () => {
-      // 遍历localStorage中所有的定时器
+      console.log(`[Food.js] checkAllTimers called at ${new Date().toLocaleTimeString()}. Store:`, store);
+      if (!store) {
+        console.warn('[Food.js] checkAllTimers: store is not yet available. Aborting timer check.');
+        return;
+      }
+      const timersToProcess = [];
+      console.log('[Food.js] Scanning localStorage. Total items:', localStorage.length);
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.includes('-timer')) {
+        if (key && key.startsWith(`activeTimer-${store}-`)) {
+          console.log('[Food.js] Found potential timer key:', key);
           try {
-            const timerData = JSON.parse(localStorage.getItem(key));
-            if (timerData && timerData.endTime && timerData.action) {
-              const now = Date.now();
-              const { endTime, action } = timerData;
-
-              if (now < endTime) {
-                // 定时器尚未到期，恢复定时器
-                const remainingTime = endTime - now;
-                console.log(`恢复定时器 ${key}，剩余时间: ${Math.floor(remainingTime / 1000)}秒`);
-
-                setTimeout(() => {
-                  executeTimerAction(action, key);
-                }, remainingTime);
-              } else if (now >= endTime && action === 'Auto Checkout') {
-                // 定时器已到期且是自动结账，立即执行
-                console.log(`定时器 ${key} 已到期，执行自动结账`);
-                executeTimerAction(action, key);
+            const timerDetailsString = localStorage.getItem(key);
+            if (timerDetailsString) {
+              const timerDetails = JSON.parse(timerDetailsString);
+              console.log('[Food.js] Parsed timerDetails for key:', key, timerDetails);
+              // CORRECTED: Validate based on itemSnapshot and its essential fields
+              if (timerDetails &&
+                  timerDetails.action &&
+                  typeof timerDetails.absoluteEndTime === 'number' &&
+                  timerDetails.originalStore === store && // Ensure it's for the current store
+                  timerDetails.itemSnapshot &&           // Ensure itemSnapshot object exists
+                  typeof timerDetails.itemSnapshot.id !== 'undefined' &&  // Ensure id exists within itemSnapshot
+                  typeof timerDetails.itemSnapshot.count !== 'undefined' // Ensure count exists within itemSnapshot
+              ) {
+                timersToProcess.push({ key, ...timerDetails });
+              } else {
+                console.warn('[Food.js] Invalid or incomplete timer data (e.g., missing itemSnapshot or essential fields like id/count within snapshot) for key:', key, 'Details:', timerDetails, 'Expected store:', store);
+                // Optionally, clean up invalid timer entries from localStorage
+                // localStorage.removeItem(key);
               }
             }
           } catch (error) {
-            console.error('恢复定时器时出错:', error);
+            console.error('[Food.js] Error parsing timer data from localStorage for key:', key, error);
           }
         }
       }
-    };
 
-    // 执行定时器动作
-    const executeTimerAction = (action, timerKey) => {
-      if (action === 'Auto Checkout') {
-        // 解析定时器key获取桌台信息
-        const keyParts = timerKey.split('-');
-        const storeMatch = keyParts.slice(0, -2).join('-'); // 去掉最后的timer部分
+      console.log(`[Food.js] Timers to process after filtering for store '${store}':`, timersToProcess.length, timersToProcess.map(t => ({key: t.key, action: t.action, table: t.originalSelectedTable }) ));
 
-        if (storeMatch === store) {
-          // 清除定时器记录
-          localStorage.removeItem(timerKey);
+      timersToProcess.forEach(timer => {
+        const now = Date.now();
+        // Destructure itemSnapshot from the timer object
+        const { key, action, absoluteEndTime, originalSelectedTable, itemSnapshot } = timer;
 
-          // 显示提醒
-          const tableInfo = keyParts[keyParts.length - 3]; // 获取桌台信息
-          alert(`${tableInfo || selectedTable} 定时结账已执行`);
-
-          // 这里可以添加更多自动结账逻辑
-          console.log('执行自动结账逻辑');
+        // Validate that itemSnapshot exists and has the necessary fields (itemId, itemCount)
+        if (!itemSnapshot || typeof itemSnapshot.id === 'undefined' || typeof itemSnapshot.count === 'undefined') {
+          console.error(`[Food.js] Invalid or missing itemSnapshot in timer ${key}. Cleaning up. Snapshot:`, itemSnapshot);
+          localStorage.removeItem(key); // Clean up problematic timer
+          return; // Skip this timer
         }
-      } else if (action === 'Continue Billing') {
-        // 继续计费不需要特殊处理
-        console.log('到时继续计费');
-      }
+        
+        // Now use itemId and itemCount from the validated itemSnapshot for logging or other non-critical paths
+        const { id: itemId, count: itemCount } = itemSnapshot; 
+
+        console.log(`[Food.js] Processing timer: ${key}, Table: ${originalSelectedTable}, Item from Snapshot: ${itemId}-${itemCount}, Action: ${action}, EndTime: ${new Date(absoluteEndTime).toLocaleTimeString()}, Now: ${new Date(now).toLocaleTimeString()}`);
+
+        if (now >= absoluteEndTime) {
+          console.log(`[Food.js] Timer ${key} for table ${originalSelectedTable} has EXPIRED. Action: ${action}. Executing now.`);
+          if (action === 'Auto Checkout') {
+            executeRestoredAutoCheckout(key, originalSelectedTable, itemSnapshot); // CORRECTED: Pass itemSnapshot object
+          } else if (action === 'Continue Billing') {
+            console.log(`[Food.js] ${originalSelectedTable} (Restored Timer) - Continue Billing. Removing timer key: ${key}`);
+            localStorage.removeItem(key);
+          } else {
+            console.warn(`[Food.js] Unknown action '${action}' for expired timer ${key}. Removing.`);
+            localStorage.removeItem(key);
+          }
+        } else {
+          const remainingTime = absoluteEndTime - now;
+          console.log(`[Food.js] Restoring timer ${key} for table ${originalSelectedTable}. Action: ${action}. Remaining: ${Math.floor(remainingTime / 1000)}s`);
+          setTimeout(() => {
+            const stillExists = localStorage.getItem(key);
+            if (stillExists) {
+              console.log(`[Food.js] setTimeout for ${key} (table ${originalSelectedTable}) fired at ${new Date().toLocaleTimeString()}. Action: ${action}.`);
+              // Re-parse in case it was updated, though unlikely for this flow
+              // const currentTimerDetails = JSON.parse(stillExists);
+              if (action === 'Auto Checkout') {
+                // itemSnapshot is captured in the closure of setTimeout
+                executeRestoredAutoCheckout(key, originalSelectedTable, itemSnapshot); // CORRECTED: Pass itemSnapshot object
+              } else if (action === 'Continue Billing') {
+                console.log(`[Food.js] ${originalSelectedTable} (Restored Timer via setTimeout) - Continue Billing. Removing timer key: ${key}`);
+                localStorage.removeItem(key);
+              } else {
+                 console.warn(`[Food.js] Unknown action '${action}' for pending timer ${key} in setTimeout. Removing.`);
+                 localStorage.removeItem(key);
+              }
+            } else {
+              console.log(`[Food.js] setTimeout for ${key} (table ${originalSelectedTable}) fired, but key no longer exists. Assuming already processed.`);
+            }
+          }, remainingTime);
+        }
+      });
     };
 
-    // 延迟执行，确保页面完全加载
-    setTimeout(checkAllTimers, 1000);
-  }, [store, selectedTable]);
+    const executeRestoredAutoCheckout = (timerKey, tableName, itemSnapshotFromStorage) => {
+      // itemSnapshotFromStorage now contains the rich item details
+      const { id: itemId, count: itemCount, subtotal: itemBasePrice, name: itemName, CHI: itemCHI, image: itemImage, availability: itemAvailability, attributesArr: itemAttributesArr, attributeSelected: itemOriginalAttributeSelected, tableRemarks: itemRemarks, quantity: itemQuantity } = itemSnapshotFromStorage;
+
+      console.log(`[Food.js] executeRestoredAutoCheckout for table: ${tableName}, itemID: ${itemId}, itemCount: ${itemCount}. TimerKey: ${timerKey}`);
+      // console.log('[Food.js] Full itemSnapshotFromStorage:', itemSnapshotFromStorage); // Can be verbose
+
+      // Key for checking if item is still in the cart (uses tableName for cart key)
+      const cartKeyForTableValidation = `${store}-${tableName}`;
+      const currentCartString = localStorage.getItem(cartKeyForTableValidation);
+      const currentCart = JSON.parse(currentCartString || "[]");
+      const itemStillInCart = currentCart.find(p => p.id === itemId && p.count === itemCount && p.isTableItem);
+
+      if (!itemStillInCart) {
+        console.warn(`[Food.js] executeRestoredAutoCheckout: Item ${itemId}-${itemCount} for table ${tableName} no longer in cart. Skipping auto-checkout and cleaning up timer.`);
+        localStorage.removeItem(timerKey); 
+        // Also clean up item-specific keys if they exist, using the CORRECTED format
+        const itemSpecificKeyPrefixForOrphaned = `${store}-${itemId}-${itemCount}`;
+        localStorage.removeItem(`${itemSpecificKeyPrefixForOrphaned}-isSent_startTime`);
+        localStorage.removeItem(`${itemSpecificKeyPrefixForOrphaned}-basePrice`);
+        console.log(`[Food.js] Cleaned orphaned item-specific keys for ${itemId}-${itemCount} due to item not in cart. Prefix: ${itemSpecificKeyPrefixForOrphaned}`);
+        return; 
+      }
+      console.log(`[Food.js] executeRestoredAutoCheckout: Item ${itemId}-${itemCount} for table ${tableName} confirmed to be in cart. Proceeding with checkout.`);
+
+      // CORRECTED KEY FORMAT: Use ${store}-${itemId}-${itemCount} for item-specific data
+      // tableName is NOT part of these item-specific keys.
+      const itemSpecificKeyPrefix = `${store}-${itemId}-${itemCount}`;
+      const itemStartTimeKey = `${itemSpecificKeyPrefix}-isSent_startTime`;
+      const itemOriginalBasePriceKey = `${itemSpecificKeyPrefix}-basePrice`;
+
+      console.log(`[Food.js] Reading item-specific data using corrected keys. StartTimeKey: ${itemStartTimeKey}, BasePriceKey: ${itemOriginalBasePriceKey}`);
+
+      const storedStartTime = localStorage.getItem(itemStartTimeKey);
+      let rawFinalPrice = 0.001; // Default minimum before rounding
+
+      if (storedStartTime && !isNaN(parseInt(storedStartTime))) {
+        const durationMinutes = Math.floor((Date.now() - parseInt(storedStartTime)) / (1000 * 60));
+        const storedOriginalBasePrice = localStorage.getItem(itemOriginalBasePriceKey);
+        // itemBasePrice from snapshot is the base price at the time timer was set.
+        let actualBasePriceToUse = parseFloat(storedOriginalBasePrice || itemBasePrice || 1.00);
+        if (actualBasePriceToUse <= 0) {
+            actualBasePriceToUse = 1.00;
+        }
+        const basePricePerMinute = actualBasePriceToUse / 60;
+        rawFinalPrice = Math.max(durationMinutes * basePricePerMinute, 0.001); // Keep 0.001 for min charge logic
+        console.log(`[Food.js] Calculated for ${tableName}: Duration ${durationMinutes}m, BasePrice ${actualBasePriceToUse}, Raw Fee ${rawFinalPrice}`);
+      } else {
+        console.warn(`[Food.js] Auto checkout for ${tableName}, item ${itemId}-${itemCount}: Start time not found at ${itemStartTimeKey}. Using minimum fee.`);
+      }
+
+      const finalPrice = rawFinalPrice;
+
+      // Directly use itemSnapshotFromStorage for itemForCheckout as it contains all necessary fields
+      const itemForCheckout = { ...itemSnapshotFromStorage }; // Use a shallow copy to be safe
+
+      console.log('[Food.js] Calling handleTableEnd with itemSnapshotFromStorage (as itemForCheckout):', itemForCheckout, `Final Price (rounded): ${finalPrice}`, tableName);
+      handleTableEnd(itemForCheckout, finalPrice, tableName);
+
+      console.log('[Food.js] Cleaning up localStorage after restored checkout (using corrected keys):');
+      console.log('  Removing itemStartTimeKey:', itemStartTimeKey);
+      localStorage.removeItem(itemStartTimeKey);
+      console.log('  Removing itemOriginalBasePriceKey:', itemOriginalBasePriceKey);
+      localStorage.removeItem(itemOriginalBasePriceKey);
+      console.log('  Removing timerKey (activeTimer-...):', timerKey); // This key (timerKey) correctly includes tableName (as originalSelectedTable)
+      localStorage.removeItem(timerKey);
+
+      alert(`${tableName} ${fanyi("(Restored Timer) Auto checkout processed.")}\n${fanyi("Final Fee")}: $${finalPrice.toFixed(2)}`);
+    };
+
+    if (store) {
+      console.log('[Food.js] Scheduling checkAllTimers in 2.5 seconds.');
+      setTimeout(checkAllTimers, 2500); // Increased delay further for safety
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store, saveId]); // Assuming saveId is a stable function or related to cart updates that might clear timers indirectly.
+                      // handleTableEnd should be stable or included if it changes.
 
   const [animationClass, setAnimationClass] = useState('');
 
@@ -455,7 +581,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   ]);
 
   /**listen to localtsorage */
-  const { id, saveId } = useMyHook(null);
+  // const {id, saveId} = useMyHook(null); // 从这里移走
   useEffect(() => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
