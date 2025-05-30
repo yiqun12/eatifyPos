@@ -4885,8 +4885,23 @@ const Account = () => {
                                                                                                         {JSON.parse(order.receiptData).map((item, index) => (
                                                                                                             <div className="receipt-item" key={item.id}>
                                                                                                                 <p className='notranslate'>
-                                                                                                                    {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
-                                                                                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
+                                                                                                                    {(/^#@%\d+#@%/.test(item?.name)) ? 
+                                                                                                                    localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")
+                                                                                                                     ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
+                                                                                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") 
+                                                                                                                        ? t(item?.CHI) : (item?.name)} 
+                                                                                                                        {Object.entries(item?.attributeSelected || {}).length > 0 ? 
+                                                                                                                        "(" + Object.entries(item?.attributeSelected).map(([key, value]) => {
+                                                                                                                            // 如果是开台商品的特殊属性，显示友好的信息
+                                                                                                                            if (key === '开台商品') {
+                                                                                                                                if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
+                                                                                                                                    return '开台商品';
+                                                                                                                                } else {
+                                                                                                                                    return 'Table Item';
+                                                                                                                                }
+                                                                                                                            }
+                                                                                                                            return Array.isArray(value) ? value.join(' ') : value
+                                                                                                                        }).join(' ') + ")" : ''}
                                                                                                                     &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
                                                                                                                     &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.itemTotalPrice)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) :
                                                                                                                         roundToTwoDecimalsTofix(roundToTwoDecimalsTofix(item.itemTotalPrice) / roundToTwoDecimalsTofix(Math.round(item.quantity)))}
