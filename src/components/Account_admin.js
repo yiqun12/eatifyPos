@@ -264,7 +264,7 @@ const Account = () => {
         { input: "Service Fee", output: "信用卡小费" },
         { input: "Discount", output: "折扣" },
         { input: "Canceled", output: "取消送厨" },
-        { input: "Item Sales Analytics", output: "物品销量分析" },
+        { input: "Sales Analytics", output: "销量分析" },
 
     ];
     function translate(input) {
@@ -3980,10 +3980,10 @@ const Account = () => {
                                                             <div className={`w-50 ${isMobile ? 'mobile-class' : 'desktop-class'}`}>
                                                                 <div>
                                                                     <div style={{ fontWeight: 'bold' }}>Select Date Range</div>
-                                                                    <div className={`${isMobile ? '' : 'flex'}`} >
-                                                                        <div >
+                                                                    <div className={`${isMobile ? '' : 'flex'} flex-wrap`} >
+                                                                        <div > {/* START DATE GROUP */}
                                                                             <div>Start Date:</div>
-                                                                            <div className={!isMobile ? "flex" : ""}>
+                                                                            <div className={!isMobile ? "flex flex-wrap" : "flex-wrap"}> {/* MODIFIED: Added flex-wrap */}
                                                                                 <button className=" btn btn-sm mt-1 mb-1 mr-2 notranslate " style={{
                                                                                     border: '1px solid #ccc',
                                                                                     display: 'inline-flex',
@@ -4033,23 +4033,23 @@ const Account = () => {
                                                                         <div>
                                                                             <div>End Date:</div>
                                                                             {(endDate === null) ?
-                                                                                <button onClick={() => setEndDate(parseDate((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone
-                                                                                )
-
-                                                                                )}
-                                                                                    className="btn btn-sm btn-success mt-1 mb-1" style={{
+                                                                                 <button className=" btn btn-sm mt-1 mb-1 mr-2 notranslate " style={{
                                                                                         border: '1px solid #ccc',
                                                                                         display: 'inline-flex',
                                                                                         alignItems: 'center',
                                                                                         // Add other styles as needed
+                                                                                 }} onClick={() => {
+                                                                                     const tomorrow = new Date(startDate);
+                                                                                     tomorrow.setDate(startDate.getDate() + 1);
+                                                                                     setEndDate(parseDate(format12Oclock(tomorrow.toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone));
+                                                                                     setIsPickerOpenEndDay(!isPickerOpenEndDay);
                                                                                     }}>
                                                                                     <i className="bi bi-calendar-plus"></i>
                                                                                     &nbsp;
                                                                                     Add End Date
                                                                                 </button>
-                                                                                : <div className='flex'>
+                                                                                : <div className={!isMobile ? "flex flex-wrap" : "flex-wrap"}> {/* MODIFIED: Added flex-wrap */}
                                                                                     <div className={`${isMobile ? '' : 'flex'}`} >
-
                                                                                         <button className="btn btn-sm mt-1 mb-1 mr-2 notranslate" style={{
                                                                                             border: '1px solid #ccc',
                                                                                             display: 'inline-flex',
@@ -4202,30 +4202,30 @@ const Account = () => {
                                                                         <div>
                                                                         </div>
                                                                     </div>
+                                                                    <div className={`mt-3 ${!isMobile ? 'flex flex-wrap items-start' : ''}`}> {/* MODIFIED: Added responsive flex layout for PC */}
                                                                     {!isMobile && <button
                                                                         onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone)) }}
-                                                                        className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mb-2"
+                                                                            className="btn btn-sm btn-secondary d-flex align-items-center mx-1 mt-1 mb-2"
                                                                     >
                                                                         <i className="bi bi-calendar pe-2"></i>
                                                                         <span>List All Orders</span>
                                                                     </button>}
-
-
-                                                                    <button
+                                                                        {!isMobile && <button
                                                                         onClick={() => { OpenCashDraw() }}
                                                                         className="btn btn-sm btn-info d-flex align-items-center mx-1 mt-1 mb-2"
                                                                     >
                                                                         <i className="bi bi-cash-stack pe-2"></i>
                                                                         <span>Cash Drawer</span>
-                                                                    </button>
+                                                                        </button>}
                                                                     {/* 物品销量分析按钮 */}
                                                                     <button
                                                                             onClick={() => setItemAnalyticsModalOpen(true)}
                                                                             className="btn btn-sm bg-green-600 hover:bg-green-700 text-white mx-1 mt-1 mb-2 whitespace-nowrap"
                                                                         >
                                                                             <i className="bi bi-graph-up mr-2"></i>
-                                                                            {fanyi("Item Sales Analytics")}
+                                                                                {fanyi("Sales Analytics")}
                                                                     </button>
+                                                                     </div> {/* END OF ADDED WRAPPER */}
 
                                                                 {/* 物品销量分析模态框 */}
                                                                 {isItemAnalyticsModalOpen && (
@@ -4245,7 +4245,7 @@ const Account = () => {
                                                                                 ×
                                                                             </button>
                                                                             <div className="flex justify-between items-center p-6 border-b bg-gray-50">
-                                                                                <h2 className="text-2xl font-bold text-gray-800">{fanyi("Item Sales Analytics")}</h2>
+                                                                                <h2 className="text-2xl font-bold text-gray-800">{fanyi("Sales Analytics")}</h2>
                                                                                 <button
                                                                                     onClick={() => setItemAnalyticsModalOpen(false)}
                                                                                     className="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-200 rounded-full transition-colors"
@@ -4514,52 +4514,51 @@ const Account = () => {
                                                                 <option value="lastQ3">Show Third Quarter of Last Year</option>
                                                                 <option value="lastQ4">Show Fourth Quarter of Last Year</option>
                                                             </select>
-                                                            <div className={`${true ? 'flex' : ''}`}>
+                                                            <div className={`${true ? 'flex flex-wrap items-start' : ''}`}>
 
-                                                                <button
-                                                                    onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
-                                                                    className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
-                                                                >
+                                                                <div className='flex'>
+                                                                    <button
+                                                                        onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
+                                                                        className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
+                                                                    >
 
-                                                                    <span>Today's Orders</span>
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => { setStartDate(parseDate(format12Oclock((new Date(new Date().setDate(new Date().getDate() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
-                                                                    className="btn btn-sm btn-outline-primary d-flex align-items-center mx-1 mt-1 mb-2"
-                                                                >
-                                                                    <span>Yesterday Orders</span>
-                                                                </button>
-                                                            </div>
+                                                                        <span>Today's Orders</span>
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => { setStartDate(parseDate(format12Oclock((new Date(new Date().setDate(new Date().getDate() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
+                                                                        className="btn btn-sm btn-outline-primary d-flex align-items-center mx-1 mt-1 mb-2"
+                                                                    >
+                                                                        <span>Yesterday Orders</span>
+                                                                    </button>
+                                                                </div>
 
-                                                            <div className={`${true ? 'flex' : ''}`}>
-                                                                <button
-                                                                    onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
-                                                                    className="btn btn-sm btn-dark d-flex align-items-center mx-1 mb-2"
-                                                                >
-                                                                    <span>
-                                                                        {
-                                                                            (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                                                                                ["一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单", "十二月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
-                                                                                ["January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders", "December Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()])
-                                                                        }
-                                                                    </span>
-                                                                </button>
+                                                                <div className='flex'>
+                                                                    <button
+                                                                        onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
+                                                                        className="btn btn-sm btn-dark d-flex align-items-center mx-1 mt-1 mb-2"
+                                                                    >
+                                                                        <span>
+                                                                            {
+                                                                                (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                                                                                    ["一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单", "十二月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
+                                                                                    ["January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders", "December Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()])
+                                                                            }
+                                                                        </span>
+                                                                    </button>
 
-                                                                <button
-                                                                    onClick={() => { getMonthDates(((format12Oclock((new Date(new Date().setMonth(new Date().getMonth() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
-                                                                    className="btn btn-sm btn-outline-dark d-flex align-items-center mx-1 mb-2"
-                                                                >
-                                                                    <span>
-                                                                        {
-                                                                            (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                                                                                ["十二月订单", "一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
-                                                                                ["December Orders", "January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()])
-                                                                        }</span>
-                                                                </button>
+                                                                    <button
+                                                                        onClick={() => { getMonthDates(((format12Oclock((new Date(new Date().setMonth(new Date().getMonth() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
+                                                                        className="btn btn-sm btn-outline-dark d-flex align-items-center mx-1 mt-1 mb-2"
+                                                                    >
+                                                                        <span>
+                                                                            {
+                                                                                (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                                                                                    ["十二月订单", "一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
+                                                                                    ["December Orders", "January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()])
+                                                                            }</span>
+                                                                    </button>
 
-
-
-
+                                                                </div>
                                                             </div>
 
 
@@ -4885,8 +4884,23 @@ const Account = () => {
                                                                                                         {JSON.parse(order.receiptData).map((item, index) => (
                                                                                                             <div className="receipt-item" key={item.id}>
                                                                                                                 <p className='notranslate'>
-                                                                                                                    {(/^#@%\d+#@%/.test(item?.name)) ? localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
-                                                                                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)} {Object.entries(item?.attributeSelected || {}).length > 0 ? "(" + Object.entries(item?.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ') + ")" : ''}
+                                                                                                                    {(/^#@%\d+#@%/.test(item?.name)) ? 
+                                                                                                                    localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")
+                                                                                                                     ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
+                                                                                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") 
+                                                                                                                        ? t(item?.CHI) : (item?.name)} 
+                                                                                                                        {Object.entries(item?.attributeSelected || {}).length > 0 ? 
+                                                                                                                        "(" + Object.entries(item?.attributeSelected).map(([key, value]) => {
+                                                                                                                            // 如果是开台商品的特殊属性，显示友好的信息
+                                                                                                                            if (key === '开台商品') {
+                                                                                                                                if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
+                                                                                                                                    return '开台商品';
+                                                                                                                                } else {
+                                                                                                                                    return 'Table Item';
+                                                                                                                                }
+                                                                                                                            }
+                                                                                                                            return Array.isArray(value) ? value.join(' ') : value
+                                                                                                                        }).join(' ') + ")" : ''}
                                                                                                                     &nbsp;x&nbsp;{(/^#@%\d+#@%/.test(item?.name)) ? round2digt(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1])) : item.quantity}
                                                                                                                     &nbsp;@&nbsp; ${(/^#@%\d+#@%/.test(item?.name)) ? ((roundToTwoDecimalsTofix(item.itemTotalPrice)) / roundToTwoDecimalsTofix(Math.round(item.quantity) / (item?.name.match(/#@%(\d+)#@%/)?.[1]))) :
                                                                                                                         roundToTwoDecimalsTofix(roundToTwoDecimalsTofix(item.itemTotalPrice) / roundToTwoDecimalsTofix(Math.round(item.quantity)))}
