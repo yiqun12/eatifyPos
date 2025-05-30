@@ -23,8 +23,10 @@
   background: white;
   border-radius: 12px;
   width: calc(100% - 20px);
-  max-width: 500px;
-  max-height: 90vh;
+  max-width: 700px;
+  min-height: 600px;
+  max-height: 95vh;
+  height: auto;
   overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
@@ -67,7 +69,7 @@
 }
 
 .table-timing-modal-body {
-  padding: 20px;
+  padding: 16px;
 }
 
 .form-group {

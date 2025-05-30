@@ -807,7 +807,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
   return (
     <div className="table-timing-modal-overlay">
-      <div className="table-timing-modal" style={{ maxWidth: '700px' }}>
+      <div className="table-timing-modal" style={{ maxWidth: '700px', minHeight: '600px' }}>
         <div className="table-timing-modal-header">
           <h2 className="text-xl font-semibold mb-4">{fanyi("开台计时")} - <span className="notranslate">{tableItem?.name}</span></h2>
         </div>
@@ -816,15 +816,15 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           {/* 基础价格 和 当前状态 - 修改为一行显示 */}
           <div className="form-row">
             <div className="form-group half">
-              <label>{fanyi("Base Price")}:</label>
-              <div className="status-display inactive notranslate">
-                ${(Math.round(parseFloat(basePrice) * 100) / 100).toFixed(2)}
-              </div>
+            <label>{fanyi("Base Price")}:</label>
+            <div className="status-display inactive notranslate">
+              ${(Math.round(parseFloat(basePrice) * 100) / 100).toFixed(2)}
             </div>
+          </div>
             <div className="form-group half">
-              <label>{fanyi("Current Status")}:</label>
-              <div className={`status-display ${currentStatus === 'In Service' ? 'active' : 'inactive'}`}>
-                {fanyi(currentStatus)}
+            <label>{fanyi("Current Status")}:</label>
+            <div className={`status-display ${currentStatus === 'In Service' ? 'active' : 'inactive'}`}>
+              {fanyi(currentStatus)}
               </div>
             </div>
           </div>
@@ -843,13 +843,17 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
             </div>
           </div>
 
-          {/* 已用时长 */}
-          <div className="form-group">
-            <label>{fanyi("Used Duration")}:</label>
-            <div className="time-display">
-              {usedDuration || '--:--:--'}
-            </div>
-          </div>
+          {(forceStartMode || currentStatus === 'Not Started') && (
+             <>
+              {/* 已用时长 */}
+              <div className="form-group">
+                <label>{fanyi("Used Duration")}:</label>
+                <div className="time-display">
+                  {usedDuration || '--:--:--'}
+                </div>
+              </div>
+            </>
+          )}
 
           {/* 开台弹窗内容 */}
           {(forceStartMode || currentStatus === 'Not Started') && (
@@ -977,7 +981,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           {/* 内容仅在结台时显示: 自定义时长, 计算台费, 最终台费, 只读备注 */}
           {!forceStartMode && currentStatus === 'In Service' && (
             <>
-              {/* 显示当前定时器信息（如果有） */} 
+              {/* 显示当前定时器信息（如果有） */}
               {currentTimerInfo && (
                 <div className="form-group">
                   <label>{fanyi("Active Timer")}:</label>
@@ -987,42 +991,50 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                 </div>
               )}
 
-              {/* 自定义时长 */}
-              <div className="form-group">
-                <label>{fanyi("Custom Duration")}:</label>
-                <div className="input-group">
-                  <input
-                    type="number"
-                    value={customDuration}
-                    onChange={(e) => setCustomDuration(e.target.value)}
-                    className={inputStyle}
-                    placeholder="30"
-                  />
-                  <span className="input-suffix">{fanyi("minutes")}</span>
+              {/* 已用时长 + 自定义时长合并为一行 */}
+              <div className="form-row">
+                <div className="form-group half">
+                  <label>{fanyi("Used Duration")}:</label>
+                  <div className="time-display">
+                    {usedDuration || '--:--:--'}
+                  </div>
+                </div>
+                <div className="form-group half">
+                  <label>{fanyi("Custom Duration")}:</label>
+                  <div className="input-group">
+                    <input
+                      type="number"
+                      value={customDuration}
+                      onChange={(e) => setCustomDuration(e.target.value)}
+                      className={inputStyle}
+                      placeholder="30"
+                    />
+                    <span className="input-suffix">{fanyi("minutes")}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* 计算台费（有颜色显示） */}
-              <div className="form-group">
-                <label>{fanyi("Calculated Fee")}:</label>
-                <div className="status-display active notranslate" style={{backgroundColor: '#e8f5e8', color: '#2d5a2d', border: '2px solid #4caf50'}}>
-                  ${(Math.round(parseFloat(calculatedFee) * 100) / 100).toFixed(2)}
+              {/* 计算台费（有颜色显示）+ 最终台费（用户可输入）合并为一行 */}
+              <div className="form-row">
+                <div className="form-group half">
+                  <label>{fanyi("Calculated Fee")}:</label>
+                  <div className="status-display active notranslate" style={{backgroundColor: '#e8f5e8', color: '#2d5a2d', border: '2px solid #4caf50'}}>
+                    ${(Math.round(parseFloat(calculatedFee) * 100) / 100).toFixed(2)}
+                  </div>
                 </div>
-              </div>
-
-              {/* 最终台费（用户可输入） */}
-              <div className="form-group">
-                <label>{fanyi("Final Fee")} ({fanyi("Leave empty to use calculated fee")}):</label>
-                <div className="input-group">
-                  <span className="input-prefix">$</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={finalFee}
-                    onChange={(e) => setFinalFee(e.target.value)}
-                    className={inputStyle}
-                    placeholder={calculatedFee}
-                  />
+                <div className="form-group half">
+                  <label>{fanyi("Final Fee")} ({fanyi("Leave empty to use calculated fee")}):</label>
+                  <div className="input-group">
+                    <span className="input-prefix">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={finalFee}
+                      onChange={(e) => setFinalFee(e.target.value)}
+                      className={inputStyle}
+                      placeholder={'$'+(Math.round(parseFloat(calculatedFee) * 100) / 100).toFixed(2)}
+                    />
+                  </div>
                 </div>
               </div>
 
