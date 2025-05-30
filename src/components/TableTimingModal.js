@@ -94,7 +94,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
   const [usedDuration, setUsedDuration] = useState(''); // 已用时长
   const [customDuration, setCustomDuration] = useState(''); // 自定义时长
   const [timerDuration, setTimerDuration] = useState('');
-  const [timerAction, setTimerAction] = useState('Auto Checkout');
+  const [timerAction, setTimerAction] = useState('No Action');
   const [remarks, setRemarks] = useState('');
   const [isTimerEnabled, setIsTimerEnabled] = useState(false);
 
@@ -344,7 +344,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCurrentTimerInfo(null);
         setIsTimerEnabled(false);
         setTimerDuration('');
-        setTimerAction('Auto Checkout');
+        setTimerAction('No Action');
         setSelectedBillingRule(BILLING_RULES.RULE_1);
         setCustomFirstBlockDuration(60);
         setCustomInitialSegmentMinutes(15);
@@ -365,7 +365,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCurrentTimerInfo(null);
         setIsTimerEnabled(false);
         setTimerDuration('');
-        setTimerAction('Auto Checkout');
+        setTimerAction('No Action');
         setSelectedBillingRule(BILLING_RULES.RULE_1);
         setCustomFirstBlockDuration(60);
         setCustomInitialSegmentMinutes(15);
@@ -380,7 +380,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCurrentTimerInfo(null);
         setIsTimerEnabled(false);
         setTimerDuration('');
-        setTimerAction('Auto Checkout');
+        setTimerAction('No Action');
         setSelectedBillingRule(BILLING_RULES.RULE_1);
         setCustomFirstBlockDuration(60);
         setCustomInitialSegmentMinutes(15);
@@ -720,7 +720,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     setRemarks('');
     setTimerDuration('');
     setIsTimerEnabled(false);
-    setTimerAction('Auto Checkout');
+    setTimerAction('No Action');
     onClose();
   };
 
