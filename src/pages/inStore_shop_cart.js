@@ -1656,14 +1656,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <span className='notranslate'>{fanyi("Add Service Fee")}</span>
             </a>
 
-            <a
+            {/* <a
               onClick={handleAddDiscountClick}
               className="mt-3 btn btn-sm btn-danger mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
 
               <span className='notranslate'>{fanyi("Add Discount")}</span>
-            </a>
+            </a> */}
 
             <a
               onClick={handleCustomPriceClick}
