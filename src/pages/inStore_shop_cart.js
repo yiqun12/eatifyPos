@@ -1137,8 +1137,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     let calculatedDiscount = 0;
 
     if (taxChoice) {
+      const tempPrice = difference > 0 ? newPriceTarget : originalSubtotal;
       // Calculate tax exemption discount based on the *original item subtotal*
-      const taxExemptionDiscountAmount = originalSubtotal * (Number(TaxRate) / 100);
+      const taxExemptionDiscountAmount = tempPrice * (Number(TaxRate) / 100);
       calculatedDiscount += taxExemptionDiscountAmount;
     }
 
