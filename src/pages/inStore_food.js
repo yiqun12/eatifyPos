@@ -25,7 +25,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getDoc, updateDoc } from "firebase/firestore";
 import KeypadModal from '../components/KeypadModal'; // Import KeypadModal component
 import NumberPad from '../components/NumberPad'; // Import NumberPad component
-import TableTimingModal from '../components/TableTimingModal';
+import TableTimingModal, { BILLING_RULES, calculatePriceForBillingRule } from '../components/TableTimingModal';
 
 function convertToPinyin(text) {
   return pinyin(text, {
@@ -494,7 +494,8 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
       // Retrieve the full timer details to get the billing rule
       const timerDetailsString = localStorage.getItem(timerKey);
-      let restoredBillingRule = 'exact_minute'; // Initialize with a default value
+      let restoredBillingRule = BILLING_RULES.RULE_5; // Initialize with a default value (exact_minute)
+      let restoredCustomConfig = null; // For custom rule parameters
 
       if (timerDetailsString) {
         try {
@@ -502,6 +503,23 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
           if (timerDetails.billingRule) {
             restoredBillingRule = timerDetails.billingRule;
             console.log(`[Food.js][executeRestoredAutoCheckout] Using billing rule from stored timer: ${restoredBillingRule}`);
+            if (restoredBillingRule === BILLING_RULES.CUSTOM_RULE) {
+              // Ensure custom parameters are present in timerDetails if it's a custom rule
+              if (timerDetails.customFirstBlockDuration !== undefined && 
+                  timerDetails.customInitialSegmentMinutes !== undefined && 
+                  timerDetails.customSubsequentSegmentMinutes !== undefined) {
+                restoredCustomConfig = {
+                  firstBlockDuration: timerDetails.customFirstBlockDuration,
+                  initialSegmentMinutes: timerDetails.customInitialSegmentMinutes,
+                  subsequentSegmentMinutes: timerDetails.customSubsequentSegmentMinutes
+                };
+                console.log("[Food.js][executeRestoredAutoCheckout] Loaded custom config for timer:", restoredCustomConfig);
+              } else {
+                console.warn(`[Food.js][executeRestoredAutoCheckout] Custom rule selected for timer ${timerKey}, but custom parameters are missing. Defaulting custom config.`);
+                // Defaulting custom config might lead to incorrect pricing. Consider how to handle.
+                // For now, it might fall back to default custom rule behavior if calculatePriceForBillingRule handles null config for custom.
+              }
+            }
           } else {
             console.warn(`[Food.js][executeRestoredAutoCheckout] Billing rule not found in timerDetails for ${timerKey}. Defaulting to ${restoredBillingRule}.`);
           }
@@ -558,47 +576,24 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         const minsElapsed = durationMinutes;
 
         if (currentHourlyRate > 0 && minsElapsed >= 0) {
-            switch (restoredBillingRule) {
-              case 'first_hour_block_then_15min':
-                if (minsElapsed <= 60) rawFinalPrice = currentHourlyRate;
-                else rawFinalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 15) * (currentHourlyRate / 4);
-                break;
-              case 'first_half_hour_block_then_15min':
-                if (minsElapsed <= 30) rawFinalPrice = currentHourlyRate / 2;
-                else if (minsElapsed <= 60) rawFinalPrice = currentHourlyRate;
-                else rawFinalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 15) * (currentHourlyRate / 4);
-                break;
-              case 'first_hour_block_then_30min':
-                if (minsElapsed <= 60) rawFinalPrice = currentHourlyRate;
-                else rawFinalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 30) * (currentHourlyRate / 2);
-                break;
-              case 'first_hour_block_then_minute':
-                if (minsElapsed <= 60) rawFinalPrice = currentHourlyRate;
-                else rawFinalPrice = currentHourlyRate + (minsElapsed - 60) * (currentHourlyRate / 60);
-                break;
-              case 'exact_minute': // BILLING_RULES.RULE_5
-                rawFinalPrice = minsElapsed * (currentHourlyRate / 60);
-                break;
-              default:
-                console.warn(`[Food.js][executeRestoredAutoCheckout] Unknown billing rule: ${restoredBillingRule}. Defaulting to exact_minute.`);
-                rawFinalPrice = minsElapsed * (currentHourlyRate / 60); // Fallback
-            }
-            rawFinalPrice = Math.max(rawFinalPrice, 0.001); // Ensure minimum price
+            // 调用导入的计费函数
+            rawFinalPrice = calculatePriceForBillingRule(minsElapsed, currentHourlyRate, restoredBillingRule, restoredCustomConfig);
         } else {
-            rawFinalPrice = 0.001; // Default minimum if rate or duration is invalid
+            rawFinalPrice = 0.00; // Default if rate or duration is invalid
         }
 
-        console.log(`[Food.js] Calculated for ${tableName}: Duration ${durationMinutes}m, BasePrice ${actualBasePriceToUse}, BillingRule: ${restoredBillingRule}, Raw Fee ${rawFinalPrice}`);
+        console.log(`[Food.js] Calculated for ${tableName}: Duration ${durationMinutes}m, BasePrice ${actualBasePriceToUse}, BillingRule: ${restoredBillingRule}, CustomConfig: ${JSON.stringify(restoredCustomConfig)}, Raw Fee ${rawFinalPrice}`);
       } else {
         console.warn(`[Food.js] Auto checkout for ${tableName}, item ${itemId}-${itemCount}: Start time not found at ${itemStartTimeKey}. Using minimum fee.`);
+        rawFinalPrice = 0.001; // Set to a minimal fee if start time missing, or handle as error
       }
 
-      const finalPrice = rawFinalPrice;
+      const finalPrice = Math.max(rawFinalPrice, 0.00); // Ensure final price isn't negative, can be 0.
 
       // Directly use itemSnapshotFromStorage for itemForCheckout as it contains all necessary fields
       const itemForCheckout = { ...itemSnapshotFromStorage }; // Use a shallow copy to be safe
 
-      console.log('[Food.js] Calling handleTableEnd with itemSnapshotFromStorage (as itemForCheckout):', itemForCheckout, `Final Price (rounded): ${finalPrice}`, tableName);
+      console.log('[Food.js] Calling handleTableEnd with itemSnapshotFromStorage (as itemForCheckout):', itemForCheckout, `Final Price (rounded): ${finalPrice.toFixed(2)}`, tableName);
       handleTableEnd(itemForCheckout, finalPrice, tableName);
 
       console.log('[Food.js] Cleaning up localStorage after restored checkout (using corrected keys):');
@@ -609,7 +604,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       console.log('  Removing timerKey (activeTimer-...):', timerKey); // This key (timerKey) correctly includes tableName (as originalSelectedTable)
       localStorage.removeItem(timerKey);
 
-      alert(`${tableName} ${fanyi("(Restored Timer) Auto checkout processed.")}\n${fanyi("Final Fee")}: $${finalPrice.toFixed(2)}`);
+      // alert(`${tableName} ${fanyi("(Restored Timer) Auto checkout processed.")}\n${fanyi("Final Fee")}: $${finalPrice.toFixed(2)}`);
     };
 
     if (store) {

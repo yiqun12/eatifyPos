@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.css';
 import Button from 'react-bootstrap/Button';
@@ -134,7 +134,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
           // 显示提醒
           const tableInfo = keyParts[keyParts.length - 3]; // 获取桌台信息
-          alert(`${tableInfo || selectedTable} 定时结账已执行`);
+          // alert(`${tableInfo || selectedTable} 定时结账已执行`);
 
           // 这里可以添加更多自动结账逻辑
           console.log('执行自动结账逻辑');
@@ -149,7 +149,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     setTimeout(checkAllTimers, 1000);
   }, [store, selectedTable]);
 
-  const translations = [
+  const translations = useMemo(() => [
+    { input: "Cart", output: "购物车" },
+    { input: "Table", output: "桌号" },
     { input: "Change Desk", output: "更换餐桌" },
     { input: "Allow Dish Revise", output: "打开菜品修改" },
     { input: "Disallow Dish Revise", output: "关闭菜品修改" },
@@ -166,14 +168,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Subtotal", output: "小计" },
     { input: "Tax", output: "税" },
     { input: "Total", output: "总额" },
-    { input: "Discount", output: "折扣" },//Disc
-    { input: "Disc.", output: "折扣" },//Disc
-    { input: "Duration", output: "用餐时长" },//Disc
-    { input: "Start", output: "开始时间" },//Disc
+    { input: "Discount", output: "折扣" },
+    { input: "Disc.", output: "折扣" },
+    { input: "Duration", output: "用餐时长" },
+    { input: "Start", output: "开始时间" },
     { input: "Start Table", output: "开台" },
     { input: "End Table", output: "结台" },
     { input: "Table Timing", output: "开台计时" },
-    { input: "Service Fee", output: "服务费" },//Tips
+    { input: "Service Fee", output: "服务费" },
     { input: "Tips", output: "小费" },
     { input: "Gratuity", output: "小费" },
     { input: "Revise", output: "修订" },
@@ -200,15 +202,46 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "New Total", output: "修改后总价" },
     { input: "Enter new total price", output: "输入新的总价" },
     { input: "Surcharge!", output: "加价！" },
+    { input: "Discount", output: "折扣" },
+    { input: "Enter new total price", output: "输入新的总价" },
+    { input: "✓ Tax Exempt", output: "✓ 免税" },
+    { input: "Tax Exempt", output: "免税" },
+    { input: "Cancel Add", output: "取消添加" },
+    { input: "5% Off", output: "95折" },
+    { input: "15% Off", output: "85折" },
+    { input: "25% Off", output: "75折" },
+    { input: "Tips", output: "小费" },
+    { input: "Service Fee", output: "服务费" },
+    { input: "Custom Amount", output: "自定金额" },
+    { input: "Enter service fee by amount", output: "输入服务费金额" },
+    { input: "No service fee", output: "无服务费" },
+    { input: "Apply", output: "应用" },
+  ], []);
 
-  ];
-  function translate(input) {
-    const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
-    return translation ? translation.output : "Translation not found";
-  }
-  function fanyi(input) {
-    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input;
-  }
+  const fanyi = useCallback((input) => {
+    const lang = localStorage.getItem("Google-language");
+    if (lang?.includes("Chinese") || lang?.includes("中")) {
+      const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
+      return translation ? translation.output : input;
+    }
+    return input;
+  }, [translations]);
+
+  const handleOpenCustomPriceModal = () => {
+    const originalTotal = calculateOriginalTotalPrice();
+    setCustomTotalPrice(originalTotal); // Initialize with the current cart total
+    setModalTaxExempt(isTaxExempt); // Sync modal's tax exempt state with global
+    setIsCustomPriceModalOpen(true);
+  };
+
+  // Function to apply percentage discount
+  const handlePercentageDiscount = (multiplier) => {
+    const originalTotal = parseFloat(calculateOriginalTotalPrice());
+    if (!isNaN(originalTotal)) {
+      const discountedTotal = originalTotal * multiplier;
+      setCustomTotalPrice(stringTofixed(discountedTotal)); // Update the state for new total
+    }
+  };
 
   // 开台成功后的回调函数（购物车中的商品已经存在，不需要重复添加）
   const handleTableStartFromCart = (tableItem) => {
@@ -288,9 +321,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   // 自定义改价功能状态
   const [isCustomPriceModalOpen, setIsCustomPriceModalOpen] = useState(false);
-  const [customTotalPrice, setCustomTotalPrice] = useState(''); // 存储用户在弹窗输入的目标小计
-  // const [isCustomPriceTaxExempt, setIsCustomPriceTaxExempt] = useState(false); // 移除弹窗专属免税状态
-  const [modalTaxExempt, setModalTaxExempt] = useState(false); // 弹窗内部免税状态，只在确认时同步到全局
+  const [customTotalPrice, setCustomTotalPrice] = useState('');
+  const [modalTaxExempt, setModalTaxExempt] = useState(isTaxExempt); // Initialize with global tax exempt state
 
   // originalSubtotal 不再是 state，由 calculateOriginalTotalPrice() 实时计算
 
@@ -1077,34 +1109,34 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     return originalSubtotal.toFixed(2);
   };
 
-  const applyCustomPrice = (newSubtotalString, isNowTaxExempt) => {
-    const newSubtotalTarget = parseFloat(newSubtotalString);
+  const applyCustomPrice = (newPriceString, taxChoice) => {
+    const newPriceTarget = parseFloat(newPriceString);
 
-    if (newSubtotalString === null || newSubtotalString === undefined || newSubtotalString.trim() === '' || isNaN(newSubtotalTarget) || newSubtotalTarget < 0) {
+    if (newPriceString === null || newPriceString === undefined || newPriceString.trim() === '' || isNaN(newPriceTarget) || newPriceTarget < 0) {
       setCustomTotalPrice(''); 
       // No localStorage interaction
       
-      setIsTaxExempt(isNowTaxExempt); 
+      setIsTaxExempt(taxChoice); 
 
       const originalSubtotalForTax = parseFloat(calculateOriginalTotalPrice());
-      const taxExemptionOnlyDiscount = isNowTaxExempt ? (originalSubtotalForTax * (Number(TaxRate) / 100)) : 0;
+      const taxExemptionOnlyDiscount = taxChoice ? (originalSubtotalForTax * (Number(TaxRate) / 100)) : 0;
       setDiscount(taxExemptionOnlyDiscount > 0 ? taxExemptionOnlyDiscount.toFixed(2) : '');
       removeSurchargeProduct();
       return;
     }
 
-    const formattedNewSubtotal = newSubtotalTarget.toFixed(2);
-    setCustomTotalPrice(formattedNewSubtotal);
-    setIsTaxExempt(isNowTaxExempt); 
+    const formattedNewPrice = newPriceTarget.toFixed(2);
+    setCustomTotalPrice(formattedNewPrice);
+    setIsTaxExempt(taxChoice); 
 
     // No localStorage interaction
 
     const originalSubtotal = parseFloat(calculateOriginalTotalPrice()); 
-    const difference = newSubtotalTarget - originalSubtotal;
+    const difference = newPriceTarget - originalSubtotal;
 
     let calculatedDiscount = 0;
 
-    if (isNowTaxExempt) {
+    if (taxChoice) {
       // Calculate tax exemption discount based on the *original item subtotal*
       const taxExemptionDiscountAmount = originalSubtotal * (Number(TaxRate) / 100);
       calculatedDiscount += taxExemptionDiscountAmount;
@@ -2309,6 +2341,30 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   )}
                 </div>
 
+                {/* Discount Percentage Buttons */}
+                <div className="mb-3 d-flex justify-content-around">
+                  <button
+                    onClick={() => handlePercentageDiscount(0.95)}
+                    className="btn btn-success btn-sm flex-grow-1 mx-1"
+                    style={{borderRadius: '0.375rem', color: 'white', backgroundColor: '#28a745', borderColor: '#28a745'}}
+                  >
+                    {fanyi("5% Off")}
+                  </button>
+                  <button
+                    onClick={() => handlePercentageDiscount(0.85)}
+                    className="btn btn-success btn-sm flex-grow-1 mx-1"
+                    style={{borderRadius: '0.375rem', color: 'white', backgroundColor: '#28a745', borderColor: '#28a745'}}
+                  >
+                    {fanyi("15% Off")}
+                  </button>
+                  <button
+                    onClick={() => handlePercentageDiscount(0.75)}
+                    className="btn btn-success btn-sm flex-grow-1 mx-1"
+                    style={{borderRadius: '0.375rem', color: 'white', backgroundColor: '#28a745', borderColor: '#28a745'}}
+                  >
+                    {fanyi("25% Off")}
+                  </button>
+                </div>
 
                 <input
                   type="text"
