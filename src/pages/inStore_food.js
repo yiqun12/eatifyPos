@@ -491,7 +491,27 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       const { id: itemId, count: itemCount, subtotal: itemBasePrice, name: itemName, CHI: itemCHI, image: itemImage, availability: itemAvailability, attributesArr: itemAttributesArr, attributeSelected: itemOriginalAttributeSelected, tableRemarks: itemRemarks, quantity: itemQuantity } = itemSnapshotFromStorage;
 
       console.log(`[Food.js] executeRestoredAutoCheckout for table: ${tableName}, itemID: ${itemId}, itemCount: ${itemCount}. TimerKey: ${timerKey}`);
-      // console.log('[Food.js] Full itemSnapshotFromStorage:', itemSnapshotFromStorage); // Can be verbose
+
+      // Retrieve the full timer details to get the billing rule
+      const timerDetailsString = localStorage.getItem(timerKey);
+      let restoredBillingRule = 'exact_minute'; // Initialize with a default value
+
+      if (timerDetailsString) {
+        try {
+          const timerDetails = JSON.parse(timerDetailsString);
+          if (timerDetails.billingRule) {
+            restoredBillingRule = timerDetails.billingRule;
+            console.log(`[Food.js][executeRestoredAutoCheckout] Using billing rule from stored timer: ${restoredBillingRule}`);
+          } else {
+            console.warn(`[Food.js][executeRestoredAutoCheckout] Billing rule not found in timerDetails for ${timerKey}. Defaulting to ${restoredBillingRule}.`);
+          }
+        } catch (e) {
+          console.error("[Food.js][executeRestoredAutoCheckout] Error parsing timer details from localStorage for key:", timerKey, e);
+          console.warn(`[Food.js][executeRestoredAutoCheckout] Defaulting to ${restoredBillingRule} due to parsing error.`);
+        }
+      } else {
+        console.warn(`[Food.js][executeRestoredAutoCheckout] Timer details not found in localStorage for key: ${timerKey}. Defaulting to ${restoredBillingRule} for billing rule.`);
+      }
 
       // Key for checking if item is still in the cart (uses tableName for cart key)
       const cartKeyForTableValidation = `${store}-${tableName}`;
@@ -530,9 +550,45 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         if (actualBasePriceToUse <= 0) {
             actualBasePriceToUse = 1.00;
         }
-        const basePricePerMinute = actualBasePriceToUse / 60;
-        rawFinalPrice = Math.max(durationMinutes * basePricePerMinute, 0.001); // Keep 0.001 for min charge logic
-        console.log(`[Food.js] Calculated for ${tableName}: Duration ${durationMinutes}m, BasePrice ${actualBasePriceToUse}, Raw Fee ${rawFinalPrice}`);
+        // const basePricePerMinute = actualBasePriceToUse / 60; // Old calculation
+        // rawFinalPrice = Math.max(durationMinutes * basePricePerMinute, 0.001); // Old calculation
+
+        // Apply the restored billing rule for price calculation
+        const currentHourlyRate = actualBasePriceToUse;
+        const minsElapsed = durationMinutes;
+
+        if (currentHourlyRate > 0 && minsElapsed >= 0) {
+            switch (restoredBillingRule) {
+              case 'first_hour_block_then_15min':
+                if (minsElapsed <= 60) rawFinalPrice = currentHourlyRate;
+                else rawFinalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 15) * (currentHourlyRate / 4);
+                break;
+              case 'first_half_hour_block_then_15min':
+                if (minsElapsed <= 30) rawFinalPrice = currentHourlyRate / 2;
+                else if (minsElapsed <= 60) rawFinalPrice = currentHourlyRate;
+                else rawFinalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 15) * (currentHourlyRate / 4);
+                break;
+              case 'first_hour_block_then_30min':
+                if (minsElapsed <= 60) rawFinalPrice = currentHourlyRate;
+                else rawFinalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 30) * (currentHourlyRate / 2);
+                break;
+              case 'first_hour_block_then_minute':
+                if (minsElapsed <= 60) rawFinalPrice = currentHourlyRate;
+                else rawFinalPrice = currentHourlyRate + (minsElapsed - 60) * (currentHourlyRate / 60);
+                break;
+              case 'exact_minute': // BILLING_RULES.RULE_5
+                rawFinalPrice = minsElapsed * (currentHourlyRate / 60);
+                break;
+              default:
+                console.warn(`[Food.js][executeRestoredAutoCheckout] Unknown billing rule: ${restoredBillingRule}. Defaulting to exact_minute.`);
+                rawFinalPrice = minsElapsed * (currentHourlyRate / 60); // Fallback
+            }
+            rawFinalPrice = Math.max(rawFinalPrice, 0.001); // Ensure minimum price
+        } else {
+            rawFinalPrice = 0.001; // Default minimum if rate or duration is invalid
+        }
+
+        console.log(`[Food.js] Calculated for ${tableName}: Duration ${durationMinutes}m, BasePrice ${actualBasePriceToUse}, BillingRule: ${restoredBillingRule}, Raw Fee ${rawFinalPrice}`);
       } else {
         console.warn(`[Food.js] Auto checkout for ${tableName}, item ${itemId}-${itemCount}: Start time not found at ${itemStartTimeKey}. Using minimum fee.`);
       }
