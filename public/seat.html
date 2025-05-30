@@ -13,6 +13,31 @@
     .col-sm-2.col-sm-offset-3.form-group {
       display: none;
     }
+    /* Styles for the legend */
+    .table-legend-container {
+      display: flex;
+      flex-direction: row; /* Horizontal layout */
+      justify-content: center; /* Center items */
+      align-items: center;
+      padding: 10px 5px;
+      gap: 15px; /* Space between legend items */
+      background-color: #f0f0f0; /* Light grey background, adjust as needed */
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 10px; /* Space below the legend */
+      flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px; /* Space between color square and text */
+      font-size: 12px; /* Adjust font size as needed */
+    }
+    .legend-color-square {
+      width: 14px;
+      height: 14px;
+      border: 1px solid #555;
+      display: inline-block;
+    }
   </style>
 </head>
 
@@ -49,6 +74,24 @@
 
   <!-- partial:index.partial.html -->
   <div class="container-fluid text-center" style="padding: 0; overflow: hidden; height: 100%;">
+
+    <!-- Table Legend Start -->
+    <div class="table-legend-container">
+      <div class="legend-item">
+        <span class="legend-color-square" style="background-color: rgba(140, 40, 40, 0.7);"></span>
+        <span>Reserved/Occupied (Empty)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color-square" style="background-color: rgba(150, 111, 51, 0.7);"></span>
+        <span>Vacant Table</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color-square" style="background-color: rgba(0, 0, 139, 0.7);"></span>
+        <span>Occupied (With Items)</span>
+      </div>
+    </div>
+    <!-- Table Legend End -->
+
     <div class="form-group admin-menu"
       style="display: none;height: 100%; overflow-y: scroll; padding-right: 17px; box-sizing: content-box;">
       <div class="row">

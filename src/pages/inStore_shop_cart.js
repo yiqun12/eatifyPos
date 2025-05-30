@@ -217,30 +217,47 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   };
 
   // 结台成功后的回调函数
-  const handleTableEnd = (tableItem, finalPrice) => {
+  const handleTableEnd = (tableItem, finalPrice, endedAtTime) => { // Added endedAtTime parameter
     if (tableItem) {
       // 更新购物车中对应商品的价格
-      console.log(store + "-" + selectedTable)
-      let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
-      if (products && products.length > 0) {
+      console.log("Table ended for:", tableItem, "Final Price:", finalPrice, "Ended At:", endedAtTime);
+      let products_ = JSON.parse(localStorage.getItem(store + "-" + selectedTable) || "[]"); // Ensure products_ is an array
+
+      if (Array.isArray(products_) && products_.length > 0) {
         // 找到对应的开台商品 - 使用更准确的查找方式
-        const productIndex = products.findIndex(product =>
+        const productIndex = products_.findIndex(product =>
           product.id === tableItem.id &&
-          product.isTableItem &&
+          // product.isTableItem && // Consider if this flag is reliably set, or rely on other attributes
           product.attributeSelected &&
-          product.attributeSelected['开台商品'] &&
-          product.count === tableItem.count
+          product.attributeSelected['开台商品'] && // This is a key identifier
+          product.count === tableItem.count // count is crucial for uniqueness
         );
 
         if (productIndex !== -1) {
-          // 更新商品价格
-          products[productIndex].subtotal = finalPrice;
-          products[productIndex].itemTotalPrice = Math.round(finalPrice * products[productIndex].quantity * 100) / 100;
+          // Create a new array for products to trigger state update correctly
+          const updatedProductsArray = [...products_];
+          
+          // 更新商品价格和相关信息
+          updatedProductsArray[productIndex] = {
+            ...updatedProductsArray[productIndex],
+            subtotal: finalPrice, // This is the total timed charge
+            itemTotalPrice: Math.round(finalPrice * updatedProductsArray[productIndex].quantity * 100) / 100,
+            // Optionally, you can store information about the timing being ended
+            // For example, by adding a property or modifying an attribute:
+            // attributeSelected: {
+            //   ...updatedProductsArray[productIndex].attributeSelected,
+            //   '已结台': true,
+            //   '结台时间': endedAtTime ? endedAtTime.toISOString() : new Date().toISOString(),
+            //   '最终费用': finalPrice
+            // }
+          };
 
           // 保存更新后的购物车
-          SetTableInfo(store + "-" + selectedTable, JSON.stringify(products));
+          SetTableInfo(store + "-" + selectedTable, JSON.stringify(updatedProductsArray));
           // 触发重新渲染 - 使用saveId而不是刷新页面
-          saveId(Math.random());
+          saveId(Math.random()); // This should trigger re-read from localStorage via useEffect
+        } else {
+          console.warn("Ended table item not found in cart for update:", tableItem, "Current cart:", products_);
         }
       }
     }
@@ -1569,19 +1586,21 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                             <button
                               onClick={() => {
                                 // 创建商品对象用于结台
-                                const tableItem = {
+                                const tableItemData = {
                                   id: product.id,
                                   name: product.name,
-                                  subtotal: product.subtotal || (product.itemTotalPrice / product.quantity),
+                                  CHI: product.CHI || product.name, // Ensure CHI name is passed
+                                  // IMPORTANT: Ensure product.subtotal here is the HOURLY RATE for the item
+                                  // If product.subtotal is modified after a previous timing, this might be wrong.
+                                  // It's safer to have a dedicated field like product.hourlyRate
+                                  subtotal: parseFloat(product.subtotal) || 0, 
                                   image: product.image,
-                                  CHI: product.CHI,
-                                  availability: product.availability,
-                                  attributesArr: product.attributesArr || {},
-                                  attributeSelected: product.attributeSelected || {}, // 包含备注信息
-                                  tableRemarks: product.tableRemarks || '', // 包含备注
-                                  count: product.count // 添加count字段
+                                  attributeSelected: product.attributeSelected || {},
+                                  count: product.count, // Essential for unique identification and timer lookup
+                                  // quantity: product.quantity, // Not directly used by modal for rate calculation if subtotal is hourly rate
+                                  // isTableItem: product.isTableItem, // Pass if used by handleTableEnd or for other logic
                                 };
-                                setSelectedTableItem(tableItem);
+                                setSelectedTableItem(tableItemData);
                                 setIsTableTimingModalOpen(true);
                               }}
                               className="btn btn-xs px-2 py-1 btn-outline-danger notranslate text-xs flex-shrink-0"
@@ -1656,14 +1675,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <span className='notranslate'>{fanyi("Add Service Fee")}</span>
             </a>
 
-            <a
+            {/* <a
               onClick={handleAddDiscountClick}
               className="mt-3 btn btn-sm btn-danger mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
 
               <span className='notranslate'>{fanyi("Add Discount")}</span>
-            </a>
+            </a> */}
 
             <a
               onClick={handleCustomPriceClick}
@@ -2358,6 +2377,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         tableItem={selectedTableItem}
         onTableStart={handleTableStartFromCart}
         onTableEnd={handleTableEnd}
+        fanyi={fanyi} // Pass the fanyi function as a prop
       />
     </div>
   )

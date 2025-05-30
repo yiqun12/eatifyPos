@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 import './TableTimingModal.css';
 import { v4 as uuidv4 } from 'uuid';
 
+// Define billing rules
+const BILLING_RULES = {
+  RULE_1: 'first_hour_block_then_15min',      // 首小时(不足按1小时), 后续15分钟计费
+  RULE_2: 'first_half_hour_block_then_15min', // 首半小时(不足按半小时), 半到1小时(按1小时), 后续15分钟计费
+  RULE_3: 'first_hour_block_then_30min',      // 首小时(不足按1小时), 后续30分钟计费
+  RULE_4: 'first_hour_block_then_minute',     // 首小时(不足按1小时), 后续分钟计费
+  RULE_5: 'exact_minute',                     // 按分钟计费
+};
+
 const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, onTableStart, onTableEnd, forceStartMode = false }) => {
   const [basePrice, setBasePrice] = useState('0.00'); // 基础价格（不可修改）
   const [calculatedFee, setCalculatedFee] = useState('0.00'); // 计算出的台费（有颜色显示）
@@ -15,6 +24,9 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
   const [timerAction, setTimerAction] = useState('No Action');
   const [remarks, setRemarks] = useState('');
   const [isTimerEnabled, setIsTimerEnabled] = useState(false);
+
+  // State for selected billing rule
+  const [selectedBillingRule, setSelectedBillingRule] = useState(BILLING_RULES.RULE_1);
 
   // 定时器信息状态
   const [currentTimerInfo, setCurrentTimerInfo] = useState(null);
@@ -56,6 +68,13 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     { input: "Timer checkout executed", output: "定时结账已执行" },
     { input: "Active Timer", output: "当前定时器" },
     { input: "Remaining time", output: "剩余时间" },
+    // New translations for billing rules
+    { input: "Billing Rule", output: "计费规则" },
+    { input: "Rule: Hour Block / 15-min", output: "规则: 首小时不足按1小时 / 后续15分钟" },
+    { input: "Rule: 30-min Block, then Hour Block / 15-min", output: "规则: 首30分钟按半小时,不足1小时按1小时 / 后续15分钟" },
+    { input: "Rule: Hour Block / 30-min", output: "规则: 首小时不足按1小时 / 后续30分钟" },
+    { input: "Rule: Hour Block / Minute", output: "规则: 首小时不足按1小时 / 后续分钟" },
+    { input: "Rule: Exact Minute", output: "规则: 按分钟" },
   ];
 
   function translate(input) {
@@ -118,10 +137,41 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           const durationMinutes = calculateDuration(parseInt(storedStartTime));
           setUsedDuration(formatDuration(durationMinutes));
 
-          // 自动计算费用
+          // 自动计算费用 - Incorporate new billing rules here
           const finalDuration = customDuration ? parseInt(customDuration) : durationMinutes;
-          const autoFee = calculateFeeByMinutes(finalDuration);
-          setCalculatedFee(autoFee.toFixed(2));
+          const hourlyRate = parseFloat(basePrice); // basePrice is the hourly rate
+          if (hourlyRate > 0 && finalDuration >= 0) {
+            let price = 0;
+            const minsElapsed = finalDuration;
+
+            switch (selectedBillingRule) {
+              case BILLING_RULES.RULE_1: // 首小时不足1小时按1小时，后续每15分钟
+                if (minsElapsed <= 60) price = hourlyRate;
+                else price = hourlyRate + Math.ceil((minsElapsed - 60) / 15) * (hourlyRate / 4);
+                break;
+              case BILLING_RULES.RULE_2: // 首半小时不足半小时按半小时，不足1小时按1小时，后续每15分钟
+                if (minsElapsed <= 30) price = hourlyRate / 2;
+                else if (minsElapsed <= 60) price = hourlyRate;
+                else price = hourlyRate + Math.ceil((minsElapsed - 60) / 15) * (hourlyRate / 4);
+                break;
+              case BILLING_RULES.RULE_3: // 首小时不足1小时按1小时，后续每30分钟
+                if (minsElapsed <= 60) price = hourlyRate;
+                else price = hourlyRate + Math.ceil((minsElapsed - 60) / 30) * (hourlyRate / 2);
+                break;
+              case BILLING_RULES.RULE_4: // 首小时不足1小时按1小时，后续每分钟
+                if (minsElapsed <= 60) price = hourlyRate;
+                else price = hourlyRate + (minsElapsed - 60) * (hourlyRate / 60);
+                break;
+              case BILLING_RULES.RULE_5: // 按实际分钟计费
+                price = minsElapsed * (hourlyRate / 60);
+                break;
+              default:
+                price = minsElapsed * (hourlyRate / 60); // Fallback to exact minute
+            }
+            setCalculatedFee(Math.max(price, 0.001).toFixed(2));
+          } else {
+            setCalculatedFee('0.00');
+          }
         }
       }
     };
@@ -130,7 +180,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     const interval = setInterval(updateCurrentTime, 1000);
 
     return () => clearInterval(interval);
-  }, [currentStatus, startTime, basePrice, customDuration]);
+  }, [currentStatus, startTime, basePrice, customDuration, selectedBillingRule, store, tableItem, selectedTable, fanyi]);
 
   // 检查是否已经开台
   useEffect(() => {
@@ -156,12 +206,14 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
       let itemSpecificStartTime = null;
       let itemSpecificBasePrice = null;
       let itemSpecificTimerInfo = null;
+      let itemSpecificBillingRule = null; // <-- Variable to hold rule from LS
 
       if (tableItem && tableItem.id && tableItem.count) { // 确保是已开台的商品，有id和count
         const itemKeyForTiming = `${store}-${tableItem.id}-${tableItem.count}`;
-        console.log(`[TableTimingModal][useEffect] Reading item details. Key prefix for startTime/basePrice: ${itemKeyForTiming}`);
+        console.log(`[TableTimingModal][useEffect] Reading item details. Key prefix for startTime/basePrice/billingRule: ${itemKeyForTiming}`);
         itemSpecificStartTime = localStorage.getItem(`${itemKeyForTiming}-isSent_startTime`);
         itemSpecificBasePrice = localStorage.getItem(`${itemKeyForTiming}-basePrice`);
+        itemSpecificBillingRule = localStorage.getItem(`${itemKeyForTiming}-billingRule`); // <-- Read billing rule
         
         // 读取持久化的定时器信息 (activeTimer-...) 以显示在弹窗中
         // persistentTimerKey 依然需要 selectedTable，因为它标识的是特定桌台上的特定商品的定时器
@@ -196,7 +248,11 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setUsedDuration('');
         setCalculatedFee('0.00');
         setRemarks('');
-        // setCurrentTimerInfo(null); // 在上面已经处理了
+        setCurrentTimerInfo(null);
+        setIsTimerEnabled(false);
+        setTimerDuration('');
+        setTimerAction('No Action');
+        setSelectedBillingRule(BILLING_RULES.RULE_1);
       } else if (itemSpecificStartTime && !isNaN(parseInt(itemSpecificStartTime))) {
         const startDate = new Date(parseInt(itemSpecificStartTime));
         setStartTime(startDate.toLocaleString('zh-CN'));
@@ -213,11 +269,27 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setUsedDuration('');
         setCalculatedFee('0.00');
         setRemarks('');
+        setCurrentTimerInfo(null);
+        setIsTimerEnabled(false);
+        setTimerDuration('');
+        setTimerAction('No Action');
+        setSelectedBillingRule(BILLING_RULES.RULE_1);
       }
 
       if (itemSpecificBasePrice) {
         const storedPrice = Math.max(parseFloat(itemSpecificBasePrice), 1.00);
         setBasePrice(storedPrice.toFixed(2));
+      }
+
+      // Set selectedBillingRule if found for the item, otherwise keep default
+      if (itemSpecificBillingRule) {
+        setSelectedBillingRule(itemSpecificBillingRule);
+        console.log(`[TableTimingModal][useEffect] Loaded billing rule for item: ${itemSpecificBillingRule}`);
+      } else {
+        // If no specific rule stored for the item, and we are not in forceStartMode,
+        // it might be an older item or rule was cleared. Keep modal's current default.
+        // For forceStartMode, it will use the default set by useState.
+        // console.log(`[TableTimingModal][useEffect] No specific billing rule found for item, using current/default: ${selectedBillingRule}`);
       }
 
       // 最终费用读取逻辑保持不变，因为它不直接与定时器显示相关
@@ -262,16 +334,64 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     let finalPrice = 0;
     let finalDuration = 0;
 
+    // Retrieve the full timer details to get the billing rule
+    const timerDetailsString = localStorage.getItem(persistentTimerKey);
+    let autoCheckoutBillingRule = BILLING_RULES.RULE_5; // Default to exact minute if not found
+
+    if (timerDetailsString) {
+      try {
+        const timerDetails = JSON.parse(timerDetailsString);
+        if (timerDetails.billingRule) {
+          autoCheckoutBillingRule = timerDetails.billingRule;
+          console.log(`[TableTimingModal][handleAutoCheckout] Using billing rule from timer: ${autoCheckoutBillingRule}`);
+        }
+      } catch (e) {
+        console.error("[TableTimingModal][handleAutoCheckout] Error parsing timer details for billing rule", e);
+      }
+    }
+
     if (storedStartTime && !isNaN(parseInt(storedStartTime))) {
       const durationMinutes = calculateDuration(parseInt(storedStartTime));
       finalDuration = durationMinutes;
 
       const storedBasePrice = localStorage.getItem(itemSpecificBasePriceKey);
-      // 使用 targetProduct 的 basePrice 或 localStorage 的 basePrice
-      const currentBasePrice = storedBasePrice ? parseFloat(storedBasePrice) : (targetProduct.subtotal / (targetProduct.quantity || 1)); // 假设subtotal是单价
+      const currentHourlyRate = storedBasePrice ? parseFloat(storedBasePrice) : (targetProduct.subtotal / (targetProduct.quantity || 1));
 
-      const basePricePerMinute = Math.max(parseFloat(currentBasePrice), 1.00) / 60;
-      finalPrice = Math.max(durationMinutes * basePricePerMinute, 0.001);
+      // Apply the stored billing rule for price calculation
+      if (currentHourlyRate > 0 && finalDuration >= 0) {
+        const minsElapsed = finalDuration;
+        switch (autoCheckoutBillingRule) {
+          case BILLING_RULES.RULE_1:
+            if (minsElapsed <= 60) finalPrice = currentHourlyRate;
+            else finalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 15) * (currentHourlyRate / 4);
+            break;
+          case BILLING_RULES.RULE_2:
+            if (minsElapsed <= 30) finalPrice = currentHourlyRate / 2;
+            else if (minsElapsed <= 60) finalPrice = currentHourlyRate;
+            else finalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 15) * (currentHourlyRate / 4);
+            break;
+          case BILLING_RULES.RULE_3:
+            if (minsElapsed <= 60) finalPrice = currentHourlyRate;
+            else finalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 30) * (currentHourlyRate / 2);
+            break;
+          case BILLING_RULES.RULE_4:
+            if (minsElapsed <= 60) finalPrice = currentHourlyRate;
+            else finalPrice = currentHourlyRate + (minsElapsed - 60) * (currentHourlyRate / 60);
+            break;
+          case BILLING_RULES.RULE_5:
+            finalPrice = minsElapsed * (currentHourlyRate / 60);
+            break;
+          default:
+            finalPrice = minsElapsed * (currentHourlyRate / 60); // Fallback
+        }
+        finalPrice = Math.max(finalPrice, 0.001); // Ensure minimum price
+      } else {
+        finalPrice = 0.00; // Or some default if rate is invalid
+      }
+    } else {
+      // Fallback if start time is missing - though this should ideally not happen for an active timer
+      finalPrice = targetProduct.subtotal; // Or some other default logic
+      console.warn(`[TableTimingModal][handleAutoCheckout] Start time not found for item ${itemForCheckout.id}-${itemForCheckout.count}. Using base subtotal as price.`);
     }
 
     let displayRemarks = '';
@@ -369,7 +489,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     const itemSpecificKeyPrefix = `${store}-${tableItem.id}-${newCount}`;
     localStorage.setItem(`${itemSpecificKeyPrefix}-isSent_startTime`, now.toString());
     localStorage.setItem(`${itemSpecificKeyPrefix}-basePrice`, currentBasePrice.toString());
-    console.log(`[TableTimingModal] Item start time and base price saved. Key prefix: ${itemSpecificKeyPrefix}`);
+    localStorage.setItem(`${itemSpecificKeyPrefix}-billingRule`, selectedBillingRule); // <-- Always store billing rule on start
+    console.log(`[TableTimingModal] Item start time, base price, and billing rule saved. Key prefix: ${itemSpecificKeyPrefix}, Rule: ${selectedBillingRule}`);
 
     const startDate = new Date(now);
     setStartTime(startDate.toLocaleString('zh-CN'));
@@ -382,19 +503,11 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
       const timerDetailsForStorage = {
         originalStore: store,
         originalSelectedTable: selectedTable,
-        // Store the comprehensive snapshot for accurate restoration
         itemSnapshot: {
-            ...tableItemSnapshot, // Contains id, name, CHI, image, subtotal (base), availability, attributesArr, original attrSelected, remarks, count, quantity
-            // CRITICAL: We need the attributeSelected that will be in the cart for matching.
-            // This includes the '开台商品' marker. Since that marker is added by addSpecialFood (called via onTableStart),
-            // we don't have it *yet* directly. 
-            // For restoration, handleTableEnd will search using id, count, isTableItem, and '开台商品' marker.
-            // So, the snapshot's `attributeSelected` needs to reflect what *will be* in the cart.
-            // Let's assume for restoration, the primary match keys are id & count, and then check for isTableItem=true and the marker.
-            // The `itemSnapshot.attributeSelected` can be the original one.
+            ...tableItemSnapshot,
         },
-        // itemId, itemCount, itemBasePrice, itemRemarks are now part of itemSnapshot
         action: timerAction,
+        billingRule: selectedBillingRule,
         timerSetAt: now,
         durationMs: durationMs,
         absoluteEndTime: absoluteEndTime,
@@ -485,6 +598,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     // 清除存储的数据（包括定时器信息）
     localStorage.removeItem(startTimeKey);
     localStorage.removeItem(basePriceKey);
+    localStorage.removeItem(`${itemSpecificKeyPrefix}-billingRule`); // <-- Clean up billing rule
     // localStorage.removeItem(finalFeeKey); // Commenting out as its key structure was different and might be unused/problematic
     // localStorage.removeItem(timerInfoKey); // Commenting out for same reason
     localStorage.removeItem(persistentTimerKey); // Clean the active timer details
@@ -542,13 +656,13 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           <div className="form-row">
             <div className="form-group half">
               <label>{fanyi("Start Time")}:</label>
-              <div className="time-display">
+              <div className="time-display notranslate">
                 {startTime || '--:--:--'}
               </div>
             </div>
             <div className="form-group half">
               <label>{fanyi("Current Time")}:</label>
-              <div className="time-display">{currentTime}</div>
+              <div className="time-display notranslate">{currentTime}</div>
             </div>
           </div>
 
@@ -621,10 +735,29 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
             </>
           )}
 
-          {/* 结台弹窗内容 */}
+          {/* Billing Rule Selection - Display if starting or in service */}
+          {(forceStartMode || currentStatus === 'Not Started' || currentStatus === 'In Service') && (
+            <div className="form-group">
+              <label htmlFor="billingRuleSelect">{fanyi("Billing Rule")}:</label>
+              <select 
+                id="billingRuleSelect" 
+                className="form-control" 
+                value={selectedBillingRule} 
+                onChange={(e) => setSelectedBillingRule(e.target.value)}
+              >
+                <option value={BILLING_RULES.RULE_1}>{fanyi("Rule: Hour Block / 15-min")}</option>
+                <option value={BILLING_RULES.RULE_2}>{fanyi("Rule: 30-min Block, then Hour Block / 15-min")}</option>
+                <option value={BILLING_RULES.RULE_3}>{fanyi("Rule: Hour Block / 30-min")}</option>
+                <option value={BILLING_RULES.RULE_4}>{fanyi("Rule: Hour Block / Minute")}</option>
+                <option value={BILLING_RULES.RULE_5}>{fanyi("Rule: Exact Minute")}</option>
+              </select>
+            </div>
+          )}
+
+          {/* 内容仅在结台时显示: 自定义时长, 计算台费, 最终台费, 只读备注 */}
           {!forceStartMode && currentStatus === 'In Service' && (
             <>
-              {/* 显示当前定时器信息（如果有） */}
+              {/* 显示当前定时器信息（如果有） */} 
               {currentTimerInfo && (
                 <div className="form-group">
                   <label>{fanyi("Active Timer")}:</label>
