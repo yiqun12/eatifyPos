@@ -44,6 +44,7 @@ import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faExclamation } from '@fortawesome/free-solid-svg-icons'; // Import the exclamation mark icon
 import NumberPad from '../components/NumberPad'; // Import NumberPad component
 import KeypadModal from '../components/KeypadModal'; // Import KeypadModal component
+import TableTimingModal from '../components/TableTimingModal';
 
 const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal, TaxRate }) => {
   // Removed startTime prop as it's read from localStorage now
@@ -77,10 +78,76 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   const [isSplitPaymentModalOpen, setSplitPaymentModalOpen] = useState(false);
 
+  // 开台计时弹窗状态
+  const [isTableTimingModalOpen, setIsTableTimingModalOpen] = useState(false);
+  const [selectedTableItem, setSelectedTableItem] = useState(null);
+
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
     setProducts(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
   }, [id]);
+
+  // 新增：页面加载时检查和恢复所有定时器
+  useEffect(() => {
+    const checkAllTimers = () => {
+      // 遍历localStorage中所有的定时器
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.includes('-timer')) {
+          try {
+            const timerData = JSON.parse(localStorage.getItem(key));
+            if (timerData && timerData.endTime && timerData.action) {
+              const now = Date.now();
+              const { endTime, action } = timerData;
+
+              if (now < endTime) {
+                // 定时器尚未到期，恢复定时器
+                const remainingTime = endTime - now;
+                console.log(`恢复定时器 ${key}，剩余时间: ${Math.floor(remainingTime / 1000)}秒`);
+
+                setTimeout(() => {
+                  executeTimerAction(action, key);
+                }, remainingTime);
+              } else if (now >= endTime && action === 'Auto Checkout') {
+                // 定时器已到期且是自动结账，立即执行
+                console.log(`定时器 ${key} 已到期，执行自动结账`);
+                executeTimerAction(action, key);
+              }
+            }
+          } catch (error) {
+            console.error('恢复定时器时出错:', error);
+          }
+        }
+      }
+    };
+
+    // 执行定时器动作
+    const executeTimerAction = (action, timerKey) => {
+      if (action === 'Auto Checkout') {
+        // 解析定时器key获取桌台信息
+        const keyParts = timerKey.split('-');
+        const storeMatch = keyParts.slice(0, -2).join('-'); // 去掉最后的timer部分
+
+        if (storeMatch === store) {
+          // 清除定时器记录
+          localStorage.removeItem(timerKey);
+
+          // 显示提醒
+          const tableInfo = keyParts[keyParts.length - 3]; // 获取桌台信息
+          alert(`${tableInfo || selectedTable} 定时结账已执行`);
+
+          // 这里可以添加更多自动结账逻辑
+          console.log('执行自动结账逻辑');
+        }
+      } else if (action === 'Continue Billing') {
+        // 继续计费不需要特殊处理
+        console.log('到时继续计费');
+      }
+    };
+
+    // 延迟执行，确保页面完全加载
+    setTimeout(checkAllTimers, 1000);
+  }, [store, selectedTable]);
 
   const translations = [
     { input: "Change Desk", output: "更换餐桌" },
@@ -88,6 +155,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Disallow Dish Revise", output: "关闭菜品修改" },
     { input: "Add Service Fee", output: "添加服务费" },
     { input: "Add Discount", output: "添加折扣" },
+    { input: "Adjust Total", output: "全桌改价" },
     { input: "Send to kitchen", output: "送到厨房" },
     { input: "Print Order", output: "打印订单" },
     { input: "Print Receipt", output: "商户收据" },
@@ -102,6 +170,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Disc.", output: "折扣" },//Disc
     { input: "Duration", output: "用餐时长" },//Disc
     { input: "Start", output: "开始时间" },//Disc
+    { input: "Start Table", output: "开台" },
+    { input: "End Table", output: "结台" },
+    { input: "Table Timing", output: "开台计时" },
     { input: "Service Fee", output: "服务费" },//Tips
     { input: "Tips", output: "小费" },
     { input: "Gratuity", output: "小费" },
@@ -127,6 +198,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "✓ Tax Exempt", output: "✓ 免税" },
     { input: "Original Total", output: "修改前总价" },
     { input: "New Total", output: "修改后总价" },
+    { input: "Enter new total price", output: "输入新的总价" },
+    { input: "Surcharge!", output: "加价！" },
 
   ];
   function translate(input) {
@@ -134,8 +207,44 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     return translation ? translation.output : "Translation not found";
   }
   function fanyi(input) {
-    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
+    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input;
   }
+
+  // 开台成功后的回调函数（购物车中的商品已经存在，不需要重复添加）
+  const handleTableStartFromCart = (tableItem) => {
+    // 购物车中的商品已经存在，开台成功后只需要刷新状态
+    console.log('开台成功:', tableItem.name);
+  };
+
+  // 结台成功后的回调函数
+  const handleTableEnd = (tableItem, finalPrice) => {
+    if (tableItem) {
+      // 更新购物车中对应商品的价格
+      console.log(store + "-" + selectedTable)
+      let products = JSON.parse(localStorage.getItem(store + "-" + selectedTable));
+      if (products && products.length > 0) {
+        // 找到对应的开台商品 - 使用更准确的查找方式
+        const productIndex = products.findIndex(product =>
+          product.id === tableItem.id &&
+          product.isTableItem &&
+          product.attributeSelected &&
+          product.attributeSelected['开台商品'] &&
+          product.count === tableItem.count
+        );
+
+        if (productIndex !== -1) {
+          // 更新商品价格
+          products[productIndex].subtotal = finalPrice;
+          products[productIndex].itemTotalPrice = Math.round(finalPrice * products[productIndex].quantity * 100) / 100;
+
+          // 保存更新后的购物车
+          SetTableInfo(store + "-" + selectedTable, JSON.stringify(products));
+          // 触发重新渲染 - 使用saveId而不是刷新页面
+          saveId(Math.random());
+        }
+      }
+    }
+  };
 
   /**check if its mobile/browser */
   const [width, setWidth] = useState(window.innerWidth);
@@ -153,7 +262,20 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   const [tips, setTips] = useState('');
   const [discount, setDiscount] = useState('');
-  const [isTaxExempt, setIsTaxExempt] = useState(false);
+  // const [isTaxExempt, setIsTaxExempt] = useState(false); // 全局免税状态，由外部传入或在这里管理
+  // 注意：isTaxExempt 的管理可能需要更集中的地方，或者确保props正确传递
+  // 为了让这里的修改能独立工作，暂时假设 isTaxExempt 和 setIsTaxExempt 是可用的。
+  // 如果它们是从 props 传下来的，那就不需要在这里 useState。
+  // 假设 isTaxExempt 是一个已存在的 state
+  const [isTaxExempt, setIsTaxExempt] = useState(false); 
+
+  // 自定义改价功能状态
+  const [isCustomPriceModalOpen, setIsCustomPriceModalOpen] = useState(false);
+  const [customTotalPrice, setCustomTotalPrice] = useState(''); // 存储用户在弹窗输入的目标小计
+  // const [isCustomPriceTaxExempt, setIsCustomPriceTaxExempt] = useState(false); // 移除弹窗专属免税状态
+  const [modalTaxExempt, setModalTaxExempt] = useState(false); // 弹窗内部免税状态，只在确认时同步到全局
+
+  // originalSubtotal 不再是 state，由 calculateOriginalTotalPrice() 实时计算
 
   const [totalPrice, setTotalPrice] = useState(0);
   const [finalPrice, setFinalPrice] = useState(0);
@@ -587,7 +709,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         setInputValue("")
         setDiscount("")
         setTips("")
-        setIsTaxExempt(false); // 重置免税状态
+        // setIsTaxExempt(false); // 重置免税状态
         return
       }
       // Wrap the addDoc call in a promise
@@ -672,7 +794,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setInputValue("")
       setTips("")
       setDiscount("")
-      setIsTaxExempt(false); // 重置免税状态
+      // setIsTaxExempt(false); // 重置免税状态
       localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
 
     } catch (e) {
@@ -706,7 +828,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setInputValue("")
       setDiscount("")
       setTips("")
-      setIsTaxExempt(false); // 重置免税状态
+      // setIsTaxExempt(false); // 重置免税状态
       setResult(null)
       localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
       return
@@ -861,7 +983,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   const handleCancelDiscount = () => {
     setDiscount('');  // reset the discount value
-    setIsTaxExempt(false); // reset
+    // setIsTaxExempt(false); // reset
     setDiscountModalOpen(false);  // close the modal
   };
 
@@ -880,6 +1002,157 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     setDiscount(calculatedDiscount.toFixed(2));
     setSelectedDiscountPercentage(percentage);
   }
+
+  // 自定义改价功能处理函数
+  const handleCustomPriceClick = () => {
+    let effectiveTargetSubtotalToShow;
+    const originalItemsSubtotal = parseFloat(calculateOriginalTotalPrice());
+
+    const surchargeItem = products.find(p => p.id === "SURCHARGE_ITEM");
+    const currentDiscountValue = parseFloat(discount || 0);
+
+    if (surchargeItem) {
+      // If there's a surcharge, the target subtotal was the original items + surcharge amount
+      effectiveTargetSubtotalToShow = originalItemsSubtotal + parseFloat(surchargeItem.itemTotalPrice);
+    } else if (currentDiscountValue > 0) {
+      // If there's a discount and no surcharge, the price was set lower.
+      // We need to find out what the subtotal was *before* this discount was applied.
+      // The discount = (originalItemsSubtotal - effectiveTargetSubtotalToShow_hypothetical) + taxPortion (if exempt)
+      // So, effectiveTargetSubtotalToShow_hypothetical = originalItemsSubtotal - (currentDiscountValue - taxPortion)
+      let priceDropPortionOfDiscount = currentDiscountValue;
+      if (isTaxExempt) {
+        const taxPortion = originalItemsSubtotal * (Number(TaxRate) / 100);
+        priceDropPortionOfDiscount -= taxPortion;
+      }
+      // If priceDropPortionOfDiscount is negative, it means discount was all (or more than) tax, so target was originalItemsSubtotal
+      if (priceDropPortionOfDiscount > 0) {
+        effectiveTargetSubtotalToShow = originalItemsSubtotal - priceDropPortionOfDiscount;
+      } else {
+        effectiveTargetSubtotalToShow = originalItemsSubtotal; // Discount was purely from tax or other reasons not a price drop
+      }
+    } else {
+      // No surcharge, no discount, so the target is just the original items subtotal
+      effectiveTargetSubtotalToShow = originalItemsSubtotal;
+    }
+
+    effectiveTargetSubtotalToShow = Math.max(0, effectiveTargetSubtotalToShow); // Ensure not negative
+
+    setCustomTotalPrice(effectiveTargetSubtotalToShow > 0 ? effectiveTargetSubtotalToShow.toFixed(2) : '');
+    setModalTaxExempt(isTaxExempt); // Initialize modal's tax exempt state with current global state
+    setIsCustomPriceModalOpen(true);
+  };
+
+  const handleCancelCustomPrice = () => {
+    setCustomTotalPrice(''); 
+    // setIsCustomPriceTaxExempt(isTaxExempt); // 移除
+    setModalTaxExempt(false); // 重置弹窗内部免税状态
+    setIsCustomPriceModalOpen(false);
+  };
+
+  // 计算真正的原始总价（排除加价商品）
+  const calculateOriginalTotalPrice = () => {
+    const originalProducts = products.filter(product =>
+      !(product.name === fanyi("Surcharge!") && product.id === "SURCHARGE_ITEM")
+    );
+    const originalSubtotal = originalProducts.reduce((acc, item) =>
+      item && parseFloat(item.itemTotalPrice) ? parseFloat(acc) + parseFloat(item.itemTotalPrice) : parseFloat(acc), 0
+    );
+    return originalSubtotal.toFixed(2);
+  };
+
+  const applyCustomPrice = (newSubtotalString, isNowTaxExempt) => {
+    const newSubtotalTarget = parseFloat(newSubtotalString);
+
+    if (newSubtotalString === null || newSubtotalString === undefined || newSubtotalString.trim() === '' || isNaN(newSubtotalTarget) || newSubtotalTarget < 0) {
+      setCustomTotalPrice(''); 
+      // No localStorage interaction
+      
+      setIsTaxExempt(isNowTaxExempt); 
+
+      const originalSubtotalForTax = parseFloat(calculateOriginalTotalPrice());
+      const taxExemptionOnlyDiscount = isNowTaxExempt ? (originalSubtotalForTax * (Number(TaxRate) / 100)) : 0;
+      setDiscount(taxExemptionOnlyDiscount > 0 ? taxExemptionOnlyDiscount.toFixed(2) : '');
+      removeSurchargeProduct();
+      return;
+    }
+
+    const formattedNewSubtotal = newSubtotalTarget.toFixed(2);
+    setCustomTotalPrice(formattedNewSubtotal);
+    setIsTaxExempt(isNowTaxExempt); 
+
+    // No localStorage interaction
+
+    const originalSubtotal = parseFloat(calculateOriginalTotalPrice()); 
+    const difference = newSubtotalTarget - originalSubtotal;
+
+    let calculatedDiscount = 0;
+
+    if (isNowTaxExempt) {
+      // Calculate tax exemption discount based on the *original item subtotal*
+      const taxExemptionDiscountAmount = originalSubtotal * (Number(TaxRate) / 100);
+      calculatedDiscount += taxExemptionDiscountAmount;
+    }
+
+    // Clear previous surcharge product before potentially adding a new one or setting a discount
+    removeSurchargeProduct();
+
+    if (difference < 0) {
+      // Custom price is lower than original, this difference is an additional discount
+      calculatedDiscount += Math.abs(difference);
+    } else if (difference > 0) {
+      // Custom price is higher, this difference is a surcharge
+      // The discount, in this case, would only be from tax exemption, if applicable.
+      addSurchargeProduct(difference);
+    }
+    // If difference is 0, 'calculatedDiscount' will correctly be just the tax exemption amount (if any)
+
+    setDiscount(calculatedDiscount > 0 ? calculatedDiscount.toFixed(2) : '');
+  };
+
+  const addSurchargeProduct = (surchargeAmount) => {
+    // 检查是否已存在加价商品
+    const existingSurchargeIndex = products.findIndex(product =>
+      product.name === fanyi("Surcharge!") && product.id === "SURCHARGE_ITEM"
+    );
+
+    let updatedProducts;
+    const surchargeProduct = {
+      id: "SURCHARGE_ITEM",
+      name: fanyi("Surcharge!"),
+      CHI: "加价！",
+      image: "",
+      subtotal: surchargeAmount,
+      itemTotalPrice: surchargeAmount,
+      quantity: 1,
+      availability: true,
+      attributesArr: {},
+      attributeSelected: {},
+      count: Date.now().toString() // 使用时间戳作为唯一标识
+    };
+
+    if (existingSurchargeIndex !== -1) {
+      // 更新现有加价商品
+      updatedProducts = products.map((product, index) =>
+        index === existingSurchargeIndex ? surchargeProduct : product
+      );
+    } else {
+      // 添加新的加价商品
+      updatedProducts = [...products, surchargeProduct];
+    }
+
+    SetTableInfo(store + "-" + selectedTable, JSON.stringify(updatedProducts));
+  };
+
+  const removeSurchargeProduct = () => {
+    const updatedProducts = products.filter(product =>
+      !(product.name === fanyi("Surcharge!") && product.id === "SURCHARGE_ITEM")
+    );
+
+    if (updatedProducts.length !== products.length) {
+      SetTableInfo(store + "-" + selectedTable, JSON.stringify(updatedProducts));
+    }
+  };
+
 
   const [isMyModalVisible, setMyModalVisible] = useState(false);
   const [received, setReceived] = useState(false)
@@ -1259,39 +1532,89 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <div className='pl-8 mt-1'>
                     <div className="mb-2">
                       <span className="notranslate text-gray-600 text-sm">
-                        {Object.entries(product.attributeSelected).map(([key, value]) => (Array.isArray(value) ? value.join(' ') : value)).join(' ')}
+                        {Object.entries(product.attributeSelected)
+                          .map(([key, value]) => {
+                            // 如果是开台商品的特殊属性，显示友好的信息
+                            if (key === '开台商品') {
+                              if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
+                                return '开台商品';
+                              } else {
+                                return 'Table Item';
+                              }
+                            }
+                            // 其他属性正常显示
+                            return Array.isArray(value) ? value.join(' ') : value;
+                          })
+                          .join(' ')
+                        }
                       </span>
                     </div>
 
-                    <div className="quantity flex justify-between items-center">
-                      <a
-                        onClick={() => {
-                          setOpenChangeAttributeModal(product)
-                        }}
-                        className="btn btn-sm btn-outline-dark mx-1 px-3 py-1 text-sm hover:bg-gray-200 transition-colors">
-                        <span>Revise</span>
-                      </a>
+                    <div className="quantity-section">
+                      {/* 一行布局：按钮在左，数量控制在右，空间不够时自动换行 */}
+                      <div className="flex flex-wrap gap-2 justify-between items-center">
+                        {/* 左侧按钮组 */}
+                        <div className="flex flex-wrap gap-1">
+                          <a
+                            onClick={() => {
+                              setOpenChangeAttributeModal(product)
+                            }}
+                            className="btn btn-xs px-2 py-1 btn-outline-dark text-xs hover:bg-gray-200 transition-colors flex-shrink-0"
+                            style={{ whiteSpace: 'nowrap' }}>
+                            <span>Revise</span>
+                          </a>
 
-                      <div className="quantity-control">
-                        <button className="minus-btn" type="button" name="button"
-                          onClick={() => {
-                            if (product.quantity === 1) {
-                              handleDeleteClick(product.id, product.count);
-                            } else {
-                              handleMinusClick(product.id, product.count)
-                            }
-                          }}>
-                          <MinusSvg style={{ width: '12px', height: '12px' }} alt="" />
-                        </button>
+                          {/* 开台/结台按钮 */}
+                          {localStorage.getItem(`${store}-${product.id}-${product.count}-isSent_startTime`) && (
+                            <button
+                              onClick={() => {
+                                // 创建商品对象用于结台
+                                const tableItem = {
+                                  id: product.id,
+                                  name: product.name,
+                                  subtotal: product.subtotal || (product.itemTotalPrice / product.quantity),
+                                  image: product.image,
+                                  CHI: product.CHI,
+                                  availability: product.availability,
+                                  attributesArr: product.attributesArr || {},
+                                  attributeSelected: product.attributeSelected || {}, // 包含备注信息
+                                  tableRemarks: product.tableRemarks || '', // 包含备注
+                                  count: product.count // 添加count字段
+                                };
+                                setSelectedTableItem(tableItem);
+                                setIsTableTimingModalOpen(true);
+                              }}
+                              className="btn btn-xs px-2 py-1 btn-outline-danger notranslate text-xs flex-shrink-0"
+                              style={{ whiteSpace: 'nowrap' }}
+                            >
+                              <i className="bi bi-stop-circle me-1"></i>
+                              {fanyi("End Table")}
+                            </button>
+                          )}
+                        </div>
 
-                        <span className='notranslate'>{product.quantity}</span>
+                        {/* 右侧数量控制 */}
+                        <div className="quantity-control flex-shrink-0">
+                          <button className="minus-btn" type="button" name="button"
+                            onClick={() => {
+                              if (product.quantity === 1) {
+                                handleDeleteClick(product.id, product.count);
+                              } else {
+                                handleMinusClick(product.id, product.count)
+                              }
+                            }}>
+                            <MinusSvg style={{ width: '12px', height: '12px' }} alt="" />
+                          </button>
 
-                        <button className="plus-btn" type="button" name="button"
-                          onClick={() => {
-                            handlePlusClick(product.id, product.count)
-                          }}>
-                          <PlusSvg style={{ width: '12px', height: '12px' }} alt="" />
-                        </button>
+                          <span className='notranslate'>{product.quantity}</span>
+
+                          <button className="plus-btn" type="button" name="button"
+                            onClick={() => {
+                              handlePlusClick(product.id, product.count)
+                            }}>
+                            <PlusSvg style={{ width: '12px', height: '12px' }} alt="" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1309,7 +1632,6 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               className="mt-3 bg-white btn btn-sm btn-link mx-1 border-black"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-
               <span className='notranslate'>{fanyi("Change Desk")}</span>
             </a>
             {/* <a
@@ -1341,6 +1663,15 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
             >
 
               <span className='notranslate'>{fanyi("Add Discount")}</span>
+            </a>
+
+            <a
+              onClick={handleCustomPriceClick}
+              className="mt-3 btn btn-sm btn-purple mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', backgroundColor: '#6f42c1', color: 'white' }}
+            >
+
+              <span className='notranslate'>{fanyi("Adjust Total")}</span>
             </a>
 
             <a
@@ -1893,11 +2224,141 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               </div>
             </KeypadModal>
           )}
+
+          {/* 自定义改价弹窗 */}
+          {isCustomPriceModalOpen && (
+            <KeypadModal
+              isOpen={isCustomPriceModalOpen}
+              onClose={handleCancelCustomPrice} // 使用 handleCancelCustomPrice 来确保状态正确重置
+              title={fanyi("Adjust Total")}
+              numberPadValue={customTotalPrice} // 这个值由弹窗打开时设置，或者用户输入时更新
+              onNumberPadChange={(newValue) => {
+                // 用户在数字键盘上输入时，只更新 customTotalPrice state
+                // applyCustomPrice 不在这里调用，只在用户确认或点击免税/百分比按钮时调用
+                setCustomTotalPrice(newValue);
+              }}
+              onNumberPadConfirm={(confirmedValue) => {
+                // 只有当用户通过数字键盘确认时，我们才用 confirmedValue
+                // 如果 confirmedValue 是空的（例如，用户直接点确认没改数字），我们用 customTotalPrice 当前的值
+                const valueToApply = confirmedValue === '' ? customTotalPrice : confirmedValue;
+                applyCustomPrice(valueToApply); // 应用价格，这个函数会处理折扣/加价
+                setIsCustomPriceModalOpen(false); // 关闭弹窗
+              }}
+              onQuickAmountClick={(amount) => {
+                setCustomTotalPrice(amount.toString());
+                applyCustomPrice(amount.toString()); // 快捷金额也立即应用
+              }}
+            >
+              <div>
+                {/* 修改前总价和修改后总价显示 */}
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-600">{fanyi("Original Total")}:</span>
+                    <span className="text-lg font-semibold text-gray-800 notranslate">
+                      ${stringTofixed(calculateOriginalTotalPrice())}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600">{fanyi("New Total")}:</span>
+                    <span className="text-lg font-semibold text-purple-600 notranslate">
+                      ${customTotalPrice ? stringTofixed(parseFloat(customTotalPrice)) : stringTofixed(calculateOriginalTotalPrice())}
+                    </span>
+                  </div>
+                  {customTotalPrice && (
+                    <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+                      {(() => {
+                        const originalDisplaySubtotal = calculateOriginalTotalPrice();
+                        const newDisplaySubtotal = parseFloat(customTotalPrice);
+                        if (isNaN(newDisplaySubtotal)) return null; // 如果输入无效，不显示差额
+                        const differenceDisplay = newDisplaySubtotal - originalDisplaySubtotal;
+                        if (Math.abs(differenceDisplay) < 0.001) return null; // 差额太小也不显示
+                        const isHigherDisplay = differenceDisplay > 0;
+                        return (
+                          <>
+                            {isHigherDisplay ? (
+                              <span className="text-sm font-medium text-green-600 notranslate">{fanyi("Surcharge!")}:</span>
+                            ) : (
+                              <span className="text-sm font-medium text-red-600 notranslate">{fanyi("Discount")}:</span>
+                            )}
+                            <span className={`text-sm font-semibold ${isHigherDisplay ? 'text-green-600' : 'text-red-600'} notranslate`}>
+                              {isHigherDisplay ? '+' : '-'}${stringTofixed(Math.abs(differenceDisplay))}
+                            </span>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+
+
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder={fanyi("Enter new total price")}
+                  value={customTotalPrice}
+                  className="form-control tips-no-spinners"
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/。/g, '.');
+                    if (/^\d*\.?\d*$/.test(value)) {
+                      setCustomTotalPrice(value);
+                      // applyCustomPrice(value); // 不在输入时实时应用，避免频繁计算
+                    }
+                  }}
+                  translate="no"
+                />
+
+                {/* 免税按钮 */}
+                <div className="mt-4 mb-4">
+                  <button
+                    onClick={() => {
+                      // 只修改弹窗内部状态，不立即应用到全局
+                      setModalTaxExempt(!modalTaxExempt);
+                    }}
+                    className={`btn btn-sm px-3 py-2 ${modalTaxExempt ? 'btn-success' : 'btn-secondary'} w-full`}
+                  >
+                    {modalTaxExempt ? fanyi('✓ Tax Exempt') : fanyi('Tax Exempt')}
+                  </button>
+                </div>
+
+                <div className="mt-4 text-right">
+                  <button type="button" className="btn btn-secondary mr-2" onClick={handleCancelCustomPrice}>
+                    <FontAwesomeIcon icon={faTimes} className="mr-1" /> {fanyi("Cancel Add")}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{backgroundColor: '#6f42c1', color: 'white'}}
+                    onClick={() => {
+                      // Pass the modal's current tax choice (modalTaxExempt) to applyCustomPrice
+                      applyCustomPrice(customTotalPrice, modalTaxExempt);
+                      setIsCustomPriceModalOpen(false); // Close the modal
+                    }}
+                  >
+                    {fanyi("Adjust Total")}
+                  </button>
+                </div>
+              </div>
+            </KeypadModal>
+          )}
         </div>
 
 
       </div>
       {/* Standalone NumberPad component removed - now integrated in KeypadModal */}
+
+      {/* 开台计时弹窗 */}
+      <TableTimingModal
+        isOpen={isTableTimingModalOpen}
+        onClose={() => {
+          setIsTableTimingModalOpen(false);
+          setSelectedTableItem(null);
+        }}
+        selectedTable={selectedTable}
+        store={store}
+        tableItem={selectedTableItem}
+        onTableStart={handleTableStartFromCart}
+        onTableEnd={handleTableEnd}
+      />
     </div>
   )
 }

@@ -25,6 +25,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getDoc, updateDoc } from "firebase/firestore";
 import KeypadModal from '../components/KeypadModal'; // Import KeypadModal component
 import NumberPad from '../components/NumberPad'; // Import NumberPad component
+import TableTimingModal from '../components/TableTimingModal';
 
 function convertToPinyin(text) {
   return pinyin(text, {
@@ -74,6 +75,98 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   const [count, setCount] = useState(0);  // Set up a state
   const [selectedFoodItem, setSelectedFoodItem] = useState('')
 
+  // 开台计时弹窗相关状态
+  const [isTableTimingModalOpen, setIsTableTimingModalOpen] = useState(false);
+  const [selectedTableItem, setSelectedTableItem] = useState(null);
+
+  // 将 useMyHook 的调用移到这里，确保 saveId 在 useEffect 之前初始化
+  const {id, saveId} = useMyHook(null);
+
+  // 开台成功后的回调函数
+  // tableItemFromModal 是从 TableTimingModal 传递过来的，包含了它生成的 count
+  const handleTableStart = (tableItemFromModal) => {
+    if (tableItemFromModal && tableItemFromModal.id && tableItemFromModal.count) {
+      const receivedCount = tableItemFromModal.count; // 使用 TableTimingModal 生成的 count
+
+      // setCount(receivedCount); // 这个setCount是Food.js内部的，用于属性修改弹窗，如果不需要同步可以考虑移除或调整
+      // setSelectedAttributes({}); // 这些状态重置可能也需要根据逻辑调整
+      // setTotalPrice(0);
+
+      // 为开台商品添加特殊属性，确保'开台商品'标记和时间戳的一致性
+      // tableItemFromModal.attributeSelected 可能已经包含了备注
+      const tableSpecialAttributes = {
+        ...(tableItemFromModal.attributeSelected || {}), // 保留模态框中已有的属性（如备注）
+        '开台商品': [`开台时间-${Date.now()}`] // 添加或覆盖'开台商品'标记，确保时间戳最新
+      };
+
+      addSpecialFood(
+        tableItemFromModal.id,
+        tableItemFromModal.name,
+        tableItemFromModal.subtotal,
+        tableItemFromModal.image,
+        tableSpecialAttributes, // 使用更新后的属性
+        receivedCount, // 使用从模态框传入的 count
+        tableItemFromModal.CHI,
+        tableItemFromModal, // 可以传递原始的 tableItemFromModal 作为基础对象
+        tableItemFromModal.availability,
+        tableItemFromModal.attributesArr,
+        1, // quantity
+        true, // isTableItem - 标记为开台商品
+        tableItemFromModal.tableRemarks // 确保备注被传递
+      );
+
+      // 立即设置开台状态的 startTime，使用传入的 id 和 count
+      const startTimeKey = `${store}-${tableItemFromModal.id}-${receivedCount}-isSent_startTime`;
+      localStorage.setItem(startTimeKey, Date.now().toString());
+
+      // 注意：此函数不再需要返回商品对象，因为 TableTimingModal 已不再依赖其返回值来获取 count
+    } else {
+      console.error('handleTableStart (Food.js) 接收到的 tableItem 无效或缺少 count:', tableItemFromModal);
+    }
+  };
+
+  // 结台成功后的回调函数
+  const handleTableEnd = (tableItem, finalPrice, tableNameFromTimer) => {
+    const targetTable = tableNameFromTimer || selectedTable; 
+    if (!targetTable) {
+      console.error('[Food.js] handleTableEnd: targetTable is undefined or null. Props selectedTable:', selectedTable, 'tableNameFromTimer:', tableNameFromTimer);
+      return;
+    }
+    const cartKey = `${store}-${targetTable}`;
+    console.log(`[Food.js] handleTableEnd received. Target Table: ${targetTable}, Cart Key: ${cartKey}, Item ID: ${tableItem.id}, Item Count: ${tableItem.count}, Final Price: ${finalPrice}`);
+
+    let products = JSON.parse(localStorage.getItem(cartKey));
+    if (products && products.length > 0) {
+      const productIndex = products.findIndex(product =>
+        product.id === tableItem.id &&
+        product.count === tableItem.count &&
+        product.isTableItem && // Check if it's currently an active table item
+        product.attributeSelected && product.attributeSelected['开台商品']
+      );
+
+      console.log(`[Food.js] handleTableEnd: Attempting to find product in cart. Resulting index: ${productIndex}. Searching for ID: ${tableItem.id}, Count: ${tableItem.count}`);
+      if (productIndex !== -1) {
+        console.log(`[Food.js] handleTableEnd: Found product '${products[productIndex].name}' at index ${productIndex}. Updating its status and price.`);
+        
+        // Update price to the final calculated fee
+        products[productIndex].subtotal = finalPrice;
+        products[productIndex].itemTotalPrice = Math.round(finalPrice * (products[productIndex].quantity || 1) * 100) / 100;
+        
+        // Mark the item as no longer an active timed item
+        // products[productIndex].isTableItem = false;
+        console.log(`[Food.js] handleTableEnd: Product '${products[productIndex].name}' status updated. isTableItem: ${products[productIndex].isTableItem}, Attributes:`, products[productIndex].attributeSelected);
+        
+        SetTableInfo(cartKey, JSON.stringify(products));
+        saveId(Math.random()); 
+        console.log(`[Food.js] handleTableEnd: Cart for table '${targetTable}' saved. UI update triggered.`);
+      } else {
+        console.error(`[Food.js] handleTableEnd: Did not find matching active product in cart for table '${targetTable}'. Item ID: ${tableItem.id}, Count: ${tableItem.count}. This might happen if item was already processed or removed.`);
+        console.log('[Food.js] handleTableEnd: Current cart items for table:', products.map(p => ({id: p.id, count: p.count, name: p.name, isTableItem: p.isTableItem, attrs: Object.keys(p.attributeSelected || {})})));
+      }
+    } else {
+      console.warn(`[Food.js] handleTableEnd: Cart for table '${targetTable}' is empty or not found upon trying to finalize table item. CartKey:`, cartKey);
+    }
+  };
 
   const [priceError, setPriceError] = useState("");  // Set up a state
   const SetTableInfo = async (table_name, product) => {
@@ -295,6 +388,182 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     //console.log("hello")
   }, []); // <-- Empty dependency array
 
+  // 新增：页面加载时检查和恢复所有定时器
+  useEffect(() => {
+    const checkAllTimers = () => {
+      console.log(`[Food.js] checkAllTimers called at ${new Date().toLocaleTimeString()}. Store:`, store);
+      if (!store) {
+        console.warn('[Food.js] checkAllTimers: store is not yet available. Aborting timer check.');
+        return;
+      }
+      const timersToProcess = [];
+      console.log('[Food.js] Scanning localStorage. Total items:', localStorage.length);
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(`activeTimer-${store}-`)) {
+          console.log('[Food.js] Found potential timer key:', key);
+          try {
+            const timerDetailsString = localStorage.getItem(key);
+            if (timerDetailsString) {
+              const timerDetails = JSON.parse(timerDetailsString);
+              console.log('[Food.js] Parsed timerDetails for key:', key, timerDetails);
+              // CORRECTED: Validate based on itemSnapshot and its essential fields
+              if (timerDetails &&
+                  timerDetails.action &&
+                  typeof timerDetails.absoluteEndTime === 'number' &&
+                  timerDetails.originalStore === store && // Ensure it's for the current store
+                  timerDetails.itemSnapshot &&           // Ensure itemSnapshot object exists
+                  typeof timerDetails.itemSnapshot.id !== 'undefined' &&  // Ensure id exists within itemSnapshot
+                  typeof timerDetails.itemSnapshot.count !== 'undefined' // Ensure count exists within itemSnapshot
+              ) {
+                timersToProcess.push({ key, ...timerDetails });
+              } else {
+                console.warn('[Food.js] Invalid or incomplete timer data (e.g., missing itemSnapshot or essential fields like id/count within snapshot) for key:', key, 'Details:', timerDetails, 'Expected store:', store);
+                // Optionally, clean up invalid timer entries from localStorage
+                // localStorage.removeItem(key);
+              }
+            }
+          } catch (error) {
+            console.error('[Food.js] Error parsing timer data from localStorage for key:', key, error);
+          }
+        }
+      }
+
+      console.log(`[Food.js] Timers to process after filtering for store '${store}':`, timersToProcess.length, timersToProcess.map(t => ({key: t.key, action: t.action, table: t.originalSelectedTable }) ));
+
+      timersToProcess.forEach(timer => {
+        const now = Date.now();
+        // Destructure itemSnapshot from the timer object
+        const { key, action, absoluteEndTime, originalSelectedTable, itemSnapshot } = timer;
+
+        // Validate that itemSnapshot exists and has the necessary fields (itemId, itemCount)
+        if (!itemSnapshot || typeof itemSnapshot.id === 'undefined' || typeof itemSnapshot.count === 'undefined') {
+          console.error(`[Food.js] Invalid or missing itemSnapshot in timer ${key}. Cleaning up. Snapshot:`, itemSnapshot);
+          localStorage.removeItem(key); // Clean up problematic timer
+          return; // Skip this timer
+        }
+        
+        // Now use itemId and itemCount from the validated itemSnapshot for logging or other non-critical paths
+        const { id: itemId, count: itemCount } = itemSnapshot; 
+
+        console.log(`[Food.js] Processing timer: ${key}, Table: ${originalSelectedTable}, Item from Snapshot: ${itemId}-${itemCount}, Action: ${action}, EndTime: ${new Date(absoluteEndTime).toLocaleTimeString()}, Now: ${new Date(now).toLocaleTimeString()}`);
+
+        if (now >= absoluteEndTime) {
+          console.log(`[Food.js] Timer ${key} for table ${originalSelectedTable} has EXPIRED. Action: ${action}. Executing now.`);
+          if (action === 'Auto Checkout') {
+            executeRestoredAutoCheckout(key, originalSelectedTable, itemSnapshot); // CORRECTED: Pass itemSnapshot object
+          } else if (action === 'Continue Billing') {
+            console.log(`[Food.js] ${originalSelectedTable} (Restored Timer) - Continue Billing. Removing timer key: ${key}`);
+            localStorage.removeItem(key);
+          } else {
+            console.warn(`[Food.js] Unknown action '${action}' for expired timer ${key}. Removing.`);
+            localStorage.removeItem(key);
+          }
+        } else {
+          const remainingTime = absoluteEndTime - now;
+          console.log(`[Food.js] Restoring timer ${key} for table ${originalSelectedTable}. Action: ${action}. Remaining: ${Math.floor(remainingTime / 1000)}s`);
+          setTimeout(() => {
+            const stillExists = localStorage.getItem(key);
+            if (stillExists) {
+              console.log(`[Food.js] setTimeout for ${key} (table ${originalSelectedTable}) fired at ${new Date().toLocaleTimeString()}. Action: ${action}.`);
+              // Re-parse in case it was updated, though unlikely for this flow
+              // const currentTimerDetails = JSON.parse(stillExists);
+              if (action === 'Auto Checkout') {
+                // itemSnapshot is captured in the closure of setTimeout
+                executeRestoredAutoCheckout(key, originalSelectedTable, itemSnapshot); // CORRECTED: Pass itemSnapshot object
+              } else if (action === 'Continue Billing') {
+                console.log(`[Food.js] ${originalSelectedTable} (Restored Timer via setTimeout) - Continue Billing. Removing timer key: ${key}`);
+                localStorage.removeItem(key);
+              } else {
+                 console.warn(`[Food.js] Unknown action '${action}' for pending timer ${key} in setTimeout. Removing.`);
+                 localStorage.removeItem(key);
+              }
+            } else {
+              console.log(`[Food.js] setTimeout for ${key} (table ${originalSelectedTable}) fired, but key no longer exists. Assuming already processed.`);
+            }
+          }, remainingTime);
+        }
+      });
+    };
+
+    const executeRestoredAutoCheckout = (timerKey, tableName, itemSnapshotFromStorage) => {
+      // itemSnapshotFromStorage now contains the rich item details
+      const { id: itemId, count: itemCount, subtotal: itemBasePrice, name: itemName, CHI: itemCHI, image: itemImage, availability: itemAvailability, attributesArr: itemAttributesArr, attributeSelected: itemOriginalAttributeSelected, tableRemarks: itemRemarks, quantity: itemQuantity } = itemSnapshotFromStorage;
+
+      console.log(`[Food.js] executeRestoredAutoCheckout for table: ${tableName}, itemID: ${itemId}, itemCount: ${itemCount}. TimerKey: ${timerKey}`);
+      // console.log('[Food.js] Full itemSnapshotFromStorage:', itemSnapshotFromStorage); // Can be verbose
+
+      // Key for checking if item is still in the cart (uses tableName for cart key)
+      const cartKeyForTableValidation = `${store}-${tableName}`;
+      const currentCartString = localStorage.getItem(cartKeyForTableValidation);
+      const currentCart = JSON.parse(currentCartString || "[]");
+      const itemStillInCart = currentCart.find(p => p.id === itemId && p.count === itemCount && p.isTableItem);
+
+      if (!itemStillInCart) {
+        console.warn(`[Food.js] executeRestoredAutoCheckout: Item ${itemId}-${itemCount} for table ${tableName} no longer in cart. Skipping auto-checkout and cleaning up timer.`);
+        localStorage.removeItem(timerKey); 
+        // Also clean up item-specific keys if they exist, using the CORRECTED format
+        const itemSpecificKeyPrefixForOrphaned = `${store}-${itemId}-${itemCount}`;
+        localStorage.removeItem(`${itemSpecificKeyPrefixForOrphaned}-isSent_startTime`);
+        localStorage.removeItem(`${itemSpecificKeyPrefixForOrphaned}-basePrice`);
+        console.log(`[Food.js] Cleaned orphaned item-specific keys for ${itemId}-${itemCount} due to item not in cart. Prefix: ${itemSpecificKeyPrefixForOrphaned}`);
+        return; 
+      }
+      console.log(`[Food.js] executeRestoredAutoCheckout: Item ${itemId}-${itemCount} for table ${tableName} confirmed to be in cart. Proceeding with checkout.`);
+
+      // CORRECTED KEY FORMAT: Use ${store}-${itemId}-${itemCount} for item-specific data
+      // tableName is NOT part of these item-specific keys.
+      const itemSpecificKeyPrefix = `${store}-${itemId}-${itemCount}`;
+      const itemStartTimeKey = `${itemSpecificKeyPrefix}-isSent_startTime`;
+      const itemOriginalBasePriceKey = `${itemSpecificKeyPrefix}-basePrice`;
+
+      console.log(`[Food.js] Reading item-specific data using corrected keys. StartTimeKey: ${itemStartTimeKey}, BasePriceKey: ${itemOriginalBasePriceKey}`);
+
+      const storedStartTime = localStorage.getItem(itemStartTimeKey);
+      let rawFinalPrice = 0.001; // Default minimum before rounding
+
+      if (storedStartTime && !isNaN(parseInt(storedStartTime))) {
+        const durationMinutes = Math.floor((Date.now() - parseInt(storedStartTime)) / (1000 * 60));
+        const storedOriginalBasePrice = localStorage.getItem(itemOriginalBasePriceKey);
+        // itemBasePrice from snapshot is the base price at the time timer was set.
+        let actualBasePriceToUse = parseFloat(storedOriginalBasePrice || itemBasePrice || 1.00);
+        if (actualBasePriceToUse <= 0) {
+            actualBasePriceToUse = 1.00;
+        }
+        const basePricePerMinute = actualBasePriceToUse / 60;
+        rawFinalPrice = Math.max(durationMinutes * basePricePerMinute, 0.001); // Keep 0.001 for min charge logic
+        console.log(`[Food.js] Calculated for ${tableName}: Duration ${durationMinutes}m, BasePrice ${actualBasePriceToUse}, Raw Fee ${rawFinalPrice}`);
+      } else {
+        console.warn(`[Food.js] Auto checkout for ${tableName}, item ${itemId}-${itemCount}: Start time not found at ${itemStartTimeKey}. Using minimum fee.`);
+      }
+
+      const finalPrice = rawFinalPrice;
+
+      // Directly use itemSnapshotFromStorage for itemForCheckout as it contains all necessary fields
+      const itemForCheckout = { ...itemSnapshotFromStorage }; // Use a shallow copy to be safe
+
+      console.log('[Food.js] Calling handleTableEnd with itemSnapshotFromStorage (as itemForCheckout):', itemForCheckout, `Final Price (rounded): ${finalPrice}`, tableName);
+      handleTableEnd(itemForCheckout, finalPrice, tableName);
+
+      console.log('[Food.js] Cleaning up localStorage after restored checkout (using corrected keys):');
+      console.log('  Removing itemStartTimeKey:', itemStartTimeKey);
+      localStorage.removeItem(itemStartTimeKey);
+      console.log('  Removing itemOriginalBasePriceKey:', itemOriginalBasePriceKey);
+      localStorage.removeItem(itemOriginalBasePriceKey);
+      console.log('  Removing timerKey (activeTimer-...):', timerKey); // This key (timerKey) correctly includes tableName (as originalSelectedTable)
+      localStorage.removeItem(timerKey);
+
+      alert(`${tableName} ${fanyi("(Restored Timer) Auto checkout processed.")}\n${fanyi("Final Fee")}: $${finalPrice.toFixed(2)}`);
+    };
+
+    if (store) {
+      console.log('[Food.js] Scheduling checkAllTimers in 2.5 seconds.');
+      setTimeout(checkAllTimers, 2500); // Increased delay further for safety
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store, saveId]); // Assuming saveId is a stable function or related to cart updates that might clear timers indirectly.
+                      // handleTableEnd should be stable or included if it changes.
+
   const [animationClass, setAnimationClass] = useState('');
 
   useEffect(() => {
@@ -312,7 +581,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   ]);
 
   /**listen to localtsorage */
-  const { id, saveId } = useMyHook(null);
+  // const {id, saveId} = useMyHook(null); // 从这里移走
   useEffect(() => {
     //console.log('Component B - ID changed:', id);
   }, [id]);
@@ -434,7 +703,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     color: 'black',
   };
   const { user, user_loading } = useUserContext();
-  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI, item, availability, attributesArr, quant) => {
+  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI, item, availability, attributesArr, quant, isTableItem = false, tableRemarks='') => {
 
     // Check if the array exists in local storage
     if (localStorage.getItem(store + "-" + selectedTable) === null) {
@@ -464,8 +733,9 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       product.CHI = CHI;
       product.availability = availability
       product.attributesArr = attributesArr
-    }
-    else {
+      product.isTableItem = isTableItem; // 添加开台标识
+      product.tableRemarks = tableRemarks; // Explicitly add tableRemarks
+    } else {
       // If the product doesn't exist, add it to the array
       products?.unshift({
         attributesArr: attributesArr,
@@ -479,6 +749,8 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         count: count,
         itemTotalPrice: Math.round(100 * subtotal) / 100,
         CHI: CHI,
+        isTableItem: isTableItem, // 添加开台标识
+        tableRemarks: tableRemarks, // Explicitly add tableRemarks
       });
     }
     //product.itemTotalPrice= Math.round(100 *((parseFloat(totalPrice)+parseFloat(product.subtotal))*parseFloat(product.quantity))/ 100)
@@ -553,6 +825,25 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   };
 
   const [translationsMode_, settranslationsMode_] = useState("en");
+
+  // 本地翻译数组
+  const localTranslations = [
+    { input: "Start Table", output: "开台" },
+    { input: "End Table", output: "结台" },
+    { input: "Table Timing", output: "开台计时" },
+    { input: "Search Food Item", output: "搜索食品" },
+    { input: "Start", output: "开始时间" },
+  ];
+
+  function translateLocal(input) {
+    const translation = localTranslations.find(t => t.input.toLowerCase() === input.toLowerCase());
+    return translation ? translation.output : null;
+  }
+
+  function fanyi(input) {
+    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translateLocal(input) || input : input;
+  }
+
   // for translations sake
   const trans = JSON.parse(sessionStorage.getItem("translations"))
   const t = useMemo(() => {
@@ -1028,18 +1319,20 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                           <button
                             className="btn btn-warning mb-1 "
                             type="button"
-                            style={{ whiteSpace: 'nowrap', "display": "inline" }}
+                                  style={{whiteSpace: 'nowrap', "display": "inline"}}
                             onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id, true)}
                           >
-                            Add <span className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
+                                Add <span
+                                  className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
                           </button>
                           <button
                             className="btn btn-info mb-1 "
                             type="button"
-                            style={{ whiteSpace: 'nowrap', "display": "inline" }}
+                                  style={{whiteSpace: 'nowrap', "display": "inline"}}
                             onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id, false)}
                           >
-                            Subtract <span className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
+                                Subtract <span
+                                  className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
                           </button>
                           {/* <button
                             className="btn btn-primary mb-1"
@@ -1270,16 +1563,25 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
               {/* shoppig cart */}
 
             </div>
-            <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : { overflowY: "auto", borderBottom: "1px solid #E1E8EE" }}>
-              <div className={` ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`} >
+              <div style={width > 575 ? {overflowY: "auto", borderBottom: "1px solid #E1E8EE"} : {
+                overflowY: "auto",
+                borderBottom: "1px solid #E1E8EE"
+              }}>
+                <div className={` ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`}>
 
-                <div style={{ width: "-webkit-fill-available" }}>
-                  <div className="description" style={{ width: "-webkit-fill-available" }}>
+                  <div style={{width: "-webkit-fill-available"}}>
+                    <div className="description" style={{width: "-webkit-fill-available"}}>
 
-                    <div className='' style={{ width: "-webkit-fill-available" }}>
+                      <div className='' style={{width: "-webkit-fill-available"}}>
                       <div
                         className="text-black text-lg"
-                        style={{ color: "black", width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}
+                            style={{
+                              color: "black",
+                              width: "100%",
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "flex-start"
+                            }}
                       >
                         {foodTypes.slice().reverse().map((foodType) => (
                           <button
@@ -1291,7 +1593,12 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                             }}
 
                             className={`border-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}
-                            style={{ width: "100%", display: 'block', textUnderlineOffset: '0.5em', textAlign: 'left' }}
+                                  style={{
+                                    width: "100%",
+                                    display: 'block',
+                                    textUnderlineOffset: '0.5em',
+                                    textAlign: 'left'
+                                  }}
                           >
                             <div>
                               {foodType && foodType.length > 1
@@ -1314,15 +1621,15 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         </div>
         <div className='m-auto '>
 
-          <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
+            <div className='flex flex-col lg:flex-row justify-between' style={{flexDirection: "column"}}>
             {/* Filter Type */}
-            <div className='Type' >
+              <div className='Type'>
               {/* <div className='flex justify-between flex-wrap'> */}
 
               {/* web mode */}
               {!view ?
                 <div>
-                  <div className='hstack gap-2  mt-2'>
+                      <div className='hstack gap-2 mt-2'>
                     <form className="w-full w-lg-full">
                       <div className='input-group input-group-sm input-group-inline shadow-none'>
                         <span className='input-group-text pe-2 rounded-start-pill'>
@@ -1425,17 +1732,11 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
           </div>
           {!view ?
-            <LazyLoad >
+                <LazyLoad>
 
               {/* diplay food */}
               <AnimatePresence>
-                <div className='grid grid-cols-1 gap-3 pt-3 px-2' style={{
-                  gridTemplateRows: `repeat(1, 1fr)`,
-                  gridTemplateColumns: isMobile
-                    ? 'repeat(1, 1fr)'
-                    : isPC
-                      ? 'repeat(3, 1fr)'
-                      : 'repeat(2, 1fr)',
+                    <div className='flex flex-wrap gap-3 pt-3 px-2' style={{
                   overflowY: 'auto',
                   maxHeight: `calc(100vh - 370px)`
                 }}>
@@ -1455,23 +1756,34 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                         }
                       }}
                       layout
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.1 }}
+                              initial={{opacity: 0}}
+                              animate={{opacity: 1}}
+                              exit={{opacity: 0}}
+                              transition={{duration: 0.1}}
                       key={item.id}
-                      className=" border border-black rounded cursor-pointer">
+                              className="border border-black rounded cursor-pointer"
+                              style={{
+                                flex: isMobile
+                                  ? '1 1 100%'  // 移动端：每行一个，占满宽度
+                                  : '1 1 calc(33.333% - 8px)',  // 桌面端：优先一行三个，自适应宽度
+                                minWidth: isMobile ? '280px' : '320px',  // 增加最小宽度，确保按钮有空间
+                                maxWidth: isMobile ? 'none' : 'calc(50% - 6px)'  // 最大宽度，确保至少一行两个
+                              }}>
                       <div className='flex'>
-                        <div style={{ width: "100%" }}>
+                              <div style={{width: "100%"}}>
                           <div className='flex-row px-2 pb-1 w-full'>
 
                             {/* parent div of title + quantity and button parent div */}
-                            <div className="col-span-4" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                                  <div className="col-span-4" style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "space-between"
+                                  }}>
                               <div className="col-span-4 ">
                                 <p class="notranslate text-md">
                                   ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}&nbsp;
                                   {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
-                                </p>                          </div>
+                                      </p></div>
 
                               {/* parent div of the quantity and buttons */}
 
@@ -1482,19 +1794,38 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                               style={{
                                 display: "flex",
                                 justifyContent: "space-between",
-                                marginBottom: "10px"
+                                        marginBottom: "10px",
+                                        flexWrap: "wrap",  // 允许按钮换行
+                                        gap: "8px"  // 按钮之间的间距
                               }}>
 
-                              <div >
+                                    <div style={{ flexShrink: 0 }}>
                                 <a
                                   onClick={(e) => {
                                     e.stopPropagation(); // This stops the click from propagating to the parent elements
                                     showModal(item)
                                   }}
-                                  class="btn d-inline-flex btn-sm btn-outline-dark mx-1">
+                                          class="btn d-inline-flex btn-sm btn-outline-dark mx-1"
+                                          style={{ whiteSpace: 'nowrap' }}>
                                   <span>Revise And Add</span>
                                 </a>
                               </div>
+
+                                    <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
+                                      {/* 开台按钮 */}
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectedTableItem(item);
+                                          setIsTableTimingModalOpen(true);
+                                        }}
+                                        className="btn btn-outline-primary btn-sm d-flex align-items-center notranslate"
+                                        style={{ whiteSpace: 'nowrap', height: '30px', fontSize: '12px', padding: '2px 8px' }}
+                                      >
+                                        <i className="bi bi-clock me-1"></i>
+                                        {fanyi("Start Table")}
+                                      </button>
+
                               <div
                                 className="black_hover"
                                 style={{
@@ -1506,7 +1837,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                                   borderRadius: "50%", // Set borderRadius to 50% for a circle
                                   width: "30px", // Make sure width and height are equal
                                   height: "30px",
-
+                                          flexShrink: 0
                                 }}
                               >
                                 <button
@@ -1532,14 +1863,13 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                                   />
                                 </button>
                               </div>
-
+                                    </div>
                             </div>
                             {/* ^ end of parent div of title + quantity and buttons */}
                           </div>
                           {/* This is Tony added code */}
                         </div>
                       </div>
-
 
 
                     </motion.div>
@@ -1551,7 +1881,22 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
 
         </div>
-      </div >
+
+          {/* 开台计时弹窗 */}
+          <TableTimingModal
+              isOpen={isTableTimingModalOpen}
+              onClose={() => {
+                setIsTableTimingModalOpen(false);
+                setSelectedTableItem(null);
+              }}
+              selectedTable={selectedTable}
+              store={store}
+              tableItem={selectedTableItem}
+              onTableStart={handleTableStart}
+              onTableEnd={handleTableEnd}
+              forceStartMode={true}
+          />
+        </div>
     )
   }
 }

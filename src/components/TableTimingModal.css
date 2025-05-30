@@ -1,0 +1,256 @@
+.table-timing-modal *,
+.table-timing-modal *::before,
+.table-timing-modal *::after {
+  box-sizing: border-box;
+}
+
+.table-timing-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 0;
+  margin: 0;
+}
+
+.table-timing-modal {
+  background: white;
+  border-radius: 12px;
+  width: calc(100% - 20px);
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+}
+
+.table-timing-modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-timing-modal-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.table-timing-modal-body {
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.form-group label input[type="checkbox"] {
+  margin-right: 8px;
+  vertical-align: middle;
+  width: auto !important;
+  display: inline-block !important;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-prefix {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-weight: 500;
+  z-index: 1;
+}
+
+.input-group input {
+  padding-left: 30px;
+}
+
+.input-suffix {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 12px;
+}
+
+.input-group input[type="number"] {
+  padding-right: 50px;
+}
+
+.status-display {
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.status-display.active {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-display.inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.time-display {
+  padding: 10px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 14px;
+  color: #333;
+}
+
+.timer-settings {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-group.half {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.table-timing-modal-footer {
+  padding: 20px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.table-timing-modal .btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.table-timing-modal .btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.table-timing-modal .btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.table-timing-modal .btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.table-timing-modal .btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.table-timing-modal .btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.table-timing-modal .btn-danger:hover {
+  background-color: #c82333;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .table-timing-modal {
+    width: 95%;
+    margin: 10px;
+  }
+
+  .table-timing-modal-header,
+  .table-timing-modal-body,
+  .table-timing-modal-footer {
+    padding: 15px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .table-timing-modal-footer {
+    flex-direction: column;
+  }
+
+  .table-timing-modal .btn {
+    width: 100%;
+  }
+} 
