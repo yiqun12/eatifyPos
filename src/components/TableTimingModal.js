@@ -1,14 +1,87 @@
 import React, { useState, useEffect } from 'react';
 import './TableTimingModal.css';
 import { v4 as uuidv4 } from 'uuid';
+import Modal from 'react-modal';
 
-// Define billing rules
-const BILLING_RULES = {
+// Define and Export billing rules
+export const BILLING_RULES = {
   RULE_1: 'first_hour_block_then_15min',      // 首小时(不足按1小时), 后续15分钟计费
   RULE_2: 'first_half_hour_block_then_15min', // 首半小时(不足按半小时), 半到1小时(按1小时), 后续15分钟计费
   RULE_3: 'first_hour_block_then_30min',      // 首小时(不足按1小时), 后续30分钟计费
   RULE_4: 'first_hour_block_then_minute',     // 首小时(不足按1小时), 后续分钟计费
   RULE_5: 'exact_minute',                     // 按分钟计费
+  CUSTOM_RULE: 'custom_rule',                 // 新增自定义规则
+};
+
+// Exportable utility function for price calculation
+export const calculatePriceForBillingRule = (totalMinutes, hourlyRate, ruleId, customRuleConfig) => {
+    let price = 0;
+    const minsElapsed = Math.max(0, totalMinutes); // Ensure minutes are not negative
+    const rate = Math.max(0, hourlyRate); // Ensure rate is not negative
+
+    if (rate === 0) return 0.00; // No charge if rate is zero
+
+    switch (ruleId) {
+        case BILLING_RULES.RULE_1:
+            if (minsElapsed <= 60) price = rate;
+            else price = rate + Math.ceil((minsElapsed - 60) / 15) * (rate / 4);
+            break;
+        case BILLING_RULES.RULE_2:
+            if (minsElapsed <= 30) price = rate / 2;
+            else if (minsElapsed <= 60) price = rate;
+            else price = rate + Math.ceil((minsElapsed - 60) / 15) * (rate / 4);
+            break;
+        case BILLING_RULES.RULE_3:
+            if (minsElapsed <= 60) price = rate;
+            else price = rate + Math.ceil((minsElapsed - 60) / 30) * (rate / 2);
+            break;
+        case BILLING_RULES.RULE_4:
+            if (minsElapsed <= 60) price = rate;
+            else price = rate + (minsElapsed - 60) * (rate / 60);
+            break;
+        case BILLING_RULES.RULE_5:
+            price = minsElapsed * (rate / 60);
+            break;
+        case BILLING_RULES.CUSTOM_RULE:
+            if (!customRuleConfig) {
+                console.error("[calculatePriceForBillingRule] Custom rule selected but no config provided.");
+                return 0.00; // Or handle error appropriately, returning 0 for safety
+            }
+            const firstBlock = parseInt(customRuleConfig.firstBlockDuration);
+            const initialSegment = parseInt(customRuleConfig.initialSegmentMinutes);
+            const subsequentSegment = parseInt(customRuleConfig.subsequentSegmentMinutes);
+
+            if (isNaN(firstBlock) || !(firstBlock === 30 || firstBlock === 60) ||
+                isNaN(initialSegment) || initialSegment <= 0 ||
+                isNaN(subsequentSegment) || subsequentSegment <= 0) {
+              console.error("[calculatePriceForBillingRule] Invalid custom rule parameters:", customRuleConfig);
+              return 0.00; // Return 0 if params are invalid
+            }
+
+            const priceForFirstBlock = (firstBlock / 60) * rate;
+
+            if (minsElapsed <= 0) {
+              price = 0;
+            } else if (minsElapsed <= firstBlock) {
+              const billedUnitsInFirst = Math.ceil(minsElapsed / initialSegment);
+              let billedMinutesForPrice = billedUnitsInFirst * initialSegment;
+              if (billedMinutesForPrice >= firstBlock) {
+                  price = priceForFirstBlock;
+              } else {
+                  price = (billedMinutesForPrice / 60) * rate;
+              }
+            } else { // minsElapsed > firstBlock
+              price = priceForFirstBlock;
+              const remainingMinutes = minsElapsed - firstBlock;
+              const additionalUnits = Math.ceil(remainingMinutes / subsequentSegment);
+              price += additionalUnits * (subsequentSegment / 60) * rate;
+            }
+            break;
+        default:
+            console.warn(`[calculatePriceForBillingRule] Unknown billing rule ID: ${ruleId}. Defaulting to exact minute calculation.`);
+            price = minsElapsed * (rate / 60); // Fallback to exact minute for unknown rules
+    }
+    return Math.max(price, 0.00); // Ensure price is not negative, can be 0 if duration is 0
 };
 
 const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, onTableStart, onTableEnd, forceStartMode = false }) => {
@@ -21,12 +94,18 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
   const [usedDuration, setUsedDuration] = useState(''); // 已用时长
   const [customDuration, setCustomDuration] = useState(''); // 自定义时长
   const [timerDuration, setTimerDuration] = useState('');
-  const [timerAction, setTimerAction] = useState('No Action');
+  const [timerAction, setTimerAction] = useState('Auto Checkout');
   const [remarks, setRemarks] = useState('');
   const [isTimerEnabled, setIsTimerEnabled] = useState(false);
 
   // State for selected billing rule
   const [selectedBillingRule, setSelectedBillingRule] = useState(BILLING_RULES.RULE_1);
+
+  // 新增: 自定义计费规则参数的状态
+  const [customFirstBlockDuration, setCustomFirstBlockDuration] = useState(60); // 默认60分钟
+  const [customInitialSegmentMinutes, setCustomInitialSegmentMinutes] = useState(15); // 默认15分钟
+  const [customSubsequentSegmentMinutes, setCustomSubsequentSegmentMinutes] = useState(15); // 默认15分钟
+  const [customRuleError, setCustomRuleError] = useState('');
 
   // 定时器信息状态
   const [currentTimerInfo, setCurrentTimerInfo] = useState(null);
@@ -75,6 +154,15 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     { input: "Rule: Hour Block / 30-min", output: "规则: 首小时不足按1小时 / 后续30分钟" },
     { input: "Rule: Hour Block / Minute", output: "规则: 首小时不足按1小时 / 后续分钟" },
     { input: "Rule: Exact Minute", output: "规则: 按分钟" },
+    // 新增自定义规则相关的翻译 (英文优先)
+    { input: "Custom Rule", output: "自定义规则" },
+    { input: "Configure Custom Rule", output: "配置自定义规则" },
+    { input: "First Block (30/60 min)", output: "首个固定时段 (30/60 分钟)" },
+    { input: "30 minutes", output: "30分钟" },
+    { input: "1 hour", output: "1小时" },
+    { input: "Initial Segment (min, round up)", output: "首时段计费单位 (分钟, 向上取整)" },
+    { input: "Subsequent Segment (min)", output: "后续计费单位 (分钟)" },
+    { input: "Invalid custom rule parameters. Please check inputs.", output: "自定义规则参数无效，请检查输入。" },
   ];
 
   function translate(input) {
@@ -141,34 +229,31 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           const finalDuration = customDuration ? parseInt(customDuration) : durationMinutes;
           const hourlyRate = parseFloat(basePrice); // basePrice is the hourly rate
           if (hourlyRate > 0 && finalDuration >= 0) {
-            let price = 0;
-            const minsElapsed = finalDuration;
-
-            switch (selectedBillingRule) {
-              case BILLING_RULES.RULE_1: // 首小时不足1小时按1小时，后续每15分钟
-                if (minsElapsed <= 60) price = hourlyRate;
-                else price = hourlyRate + Math.ceil((minsElapsed - 60) / 15) * (hourlyRate / 4);
-                break;
-              case BILLING_RULES.RULE_2: // 首半小时不足半小时按半小时，不足1小时按1小时，后续每15分钟
-                if (minsElapsed <= 30) price = hourlyRate / 2;
-                else if (minsElapsed <= 60) price = hourlyRate;
-                else price = hourlyRate + Math.ceil((minsElapsed - 60) / 15) * (hourlyRate / 4);
-                break;
-              case BILLING_RULES.RULE_3: // 首小时不足1小时按1小时，后续每30分钟
-                if (minsElapsed <= 60) price = hourlyRate;
-                else price = hourlyRate + Math.ceil((minsElapsed - 60) / 30) * (hourlyRate / 2);
-                break;
-              case BILLING_RULES.RULE_4: // 首小时不足1小时按1小时，后续每分钟
-                if (minsElapsed <= 60) price = hourlyRate;
-                else price = hourlyRate + (minsElapsed - 60) * (hourlyRate / 60);
-                break;
-              case BILLING_RULES.RULE_5: // 按实际分钟计费
-                price = minsElapsed * (hourlyRate / 60);
-                break;
-              default:
-                price = minsElapsed * (hourlyRate / 60); // Fallback to exact minute
+            // 使用新的统一计费函数
+            let customConfig = null;
+            if (selectedBillingRule === BILLING_RULES.CUSTOM_RULE) {
+                // Validate current custom state before passing to calculation
+                const firstBlock = parseInt(customFirstBlockDuration);
+                const initialSegment = parseInt(customInitialSegmentMinutes);
+                const subsequentSegment = parseInt(customSubsequentSegmentMinutes);
+                if (isNaN(firstBlock) || !(firstBlock === 30 || firstBlock === 60) ||
+                    isNaN(initialSegment) || initialSegment <= 0 ||
+                    isNaN(subsequentSegment) || subsequentSegment <= 0) {
+                  setCustomRuleError(fanyi("Invalid custom rule parameters. Please check inputs."));
+                  setCalculatedFee('0.00'); // Set to 0 or an error state if params invalid during UI update
+                  // Skip price calculation if params are bad for the UI display part
+                  return; 
+                } else {
+                  setCustomRuleError(''); // Clear error if params are now valid
+                }
+                customConfig = {
+                    firstBlockDuration: customFirstBlockDuration,
+                    initialSegmentMinutes: customInitialSegmentMinutes,
+                    subsequentSegmentMinutes: customSubsequentSegmentMinutes
+                };
             }
-            setCalculatedFee(Math.max(price, 0.001).toFixed(2));
+            const price = calculatePriceForBillingRule(finalDuration, hourlyRate, selectedBillingRule, customConfig);
+            setCalculatedFee(price.toFixed(2));
           } else {
             setCalculatedFee('0.00');
           }
@@ -207,6 +292,9 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
       let itemSpecificBasePrice = null;
       let itemSpecificTimerInfo = null;
       let itemSpecificBillingRule = null; // <-- Variable to hold rule from LS
+      let itemCustomFirstBlock = null;
+      let itemCustomInitialSegment = null;
+      let itemCustomSubsequentSegment = null;
 
       if (tableItem && tableItem.id && tableItem.count) { // 确保是已开台的商品，有id和count
         const itemKeyForTiming = `${store}-${tableItem.id}-${tableItem.count}`;
@@ -214,6 +302,11 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         itemSpecificStartTime = localStorage.getItem(`${itemKeyForTiming}-isSent_startTime`);
         itemSpecificBasePrice = localStorage.getItem(`${itemKeyForTiming}-basePrice`);
         itemSpecificBillingRule = localStorage.getItem(`${itemKeyForTiming}-billingRule`); // <-- Read billing rule
+        if (itemSpecificBillingRule === BILLING_RULES.CUSTOM_RULE) {
+          itemCustomFirstBlock = localStorage.getItem(`${itemKeyForTiming}-customFirstBlock`);
+          itemCustomInitialSegment = localStorage.getItem(`${itemKeyForTiming}-customInitialSegment`);
+          itemCustomSubsequentSegment = localStorage.getItem(`${itemKeyForTiming}-customSubsequentSegment`);
+        }
         
         // 读取持久化的定时器信息 (activeTimer-...) 以显示在弹窗中
         // persistentTimerKey 依然需要 selectedTable，因为它标识的是特定桌台上的特定商品的定时器
@@ -251,8 +344,12 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCurrentTimerInfo(null);
         setIsTimerEnabled(false);
         setTimerDuration('');
-        setTimerAction('No Action');
+        setTimerAction('Auto Checkout');
         setSelectedBillingRule(BILLING_RULES.RULE_1);
+        setCustomFirstBlockDuration(60);
+        setCustomInitialSegmentMinutes(15);
+        setCustomSubsequentSegmentMinutes(15);
+        setCustomRuleError('');
       } else if (itemSpecificStartTime && !isNaN(parseInt(itemSpecificStartTime))) {
         const startDate = new Date(parseInt(itemSpecificStartTime));
         setStartTime(startDate.toLocaleString('zh-CN'));
@@ -263,6 +360,17 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           let savedRemarks = tableItem.tableRemarks || '';
           setRemarks(savedRemarks);
         }
+        setCalculatedFee('0.00');
+        setRemarks('');
+        setCurrentTimerInfo(null);
+        setIsTimerEnabled(false);
+        setTimerDuration('');
+        setTimerAction('Auto Checkout');
+        setSelectedBillingRule(BILLING_RULES.RULE_1);
+        setCustomFirstBlockDuration(60);
+        setCustomInitialSegmentMinutes(15);
+        setCustomSubsequentSegmentMinutes(15);
+        setCustomRuleError('');
       } else {
         setCurrentStatus('Not Started');
         setStartTime('');
@@ -272,8 +380,12 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCurrentTimerInfo(null);
         setIsTimerEnabled(false);
         setTimerDuration('');
-        setTimerAction('No Action');
+        setTimerAction('Auto Checkout');
         setSelectedBillingRule(BILLING_RULES.RULE_1);
+        setCustomFirstBlockDuration(60);
+        setCustomInitialSegmentMinutes(15);
+        setCustomSubsequentSegmentMinutes(15);
+        setCustomRuleError('');
       }
 
       if (itemSpecificBasePrice) {
@@ -285,6 +397,12 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
       if (itemSpecificBillingRule) {
         setSelectedBillingRule(itemSpecificBillingRule);
         console.log(`[TableTimingModal][useEffect] Loaded billing rule for item: ${itemSpecificBillingRule}`);
+        if (itemSpecificBillingRule === BILLING_RULES.CUSTOM_RULE) {
+          setCustomFirstBlockDuration(itemCustomFirstBlock ? parseInt(itemCustomFirstBlock) : 60);
+          setCustomInitialSegmentMinutes(itemCustomInitialSegment ? parseInt(itemCustomInitialSegment) : 15);
+          setCustomSubsequentSegmentMinutes(itemCustomSubsequentSegment ? parseInt(itemCustomSubsequentSegment) : 15);
+          console.log(`[TableTimingModal][useEffect] Loaded custom params: ${itemCustomFirstBlock}, ${itemCustomInitialSegment}, ${itemCustomSubsequentSegment}`);
+        }
       } else {
         // If no specific rule stored for the item, and we are not in forceStartMode,
         // it might be an older item or rule was cleared. Keep modal's current default.
@@ -337,6 +455,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     // Retrieve the full timer details to get the billing rule
     const timerDetailsString = localStorage.getItem(persistentTimerKey);
     let autoCheckoutBillingRule = BILLING_RULES.RULE_5; // Default to exact minute if not found
+    let autoCustomParams = { firstBlock: 60, initialSegment: 15, subsequentSegment: 15 }; // Defaults for custom
 
     if (timerDetailsString) {
       try {
@@ -344,6 +463,12 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         if (timerDetails.billingRule) {
           autoCheckoutBillingRule = timerDetails.billingRule;
           console.log(`[TableTimingModal][handleAutoCheckout] Using billing rule from timer: ${autoCheckoutBillingRule}`);
+          if (autoCheckoutBillingRule === BILLING_RULES.CUSTOM_RULE) {
+            autoCustomParams.firstBlock = timerDetails.customFirstBlockDuration || 60;
+            autoCustomParams.initialSegment = timerDetails.customInitialSegmentMinutes || 15;
+            autoCustomParams.subsequentSegment = timerDetails.customSubsequentSegmentMinutes || 15;
+            console.log(`[TableTimingModal][handleAutoCheckout] Using custom params from timer:`, autoCustomParams);
+          }
         }
       } catch (e) {
         console.error("[TableTimingModal][handleAutoCheckout] Error parsing timer details for billing rule", e);
@@ -381,6 +506,26 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           case BILLING_RULES.RULE_5:
             finalPrice = minsElapsed * (currentHourlyRate / 60);
             break;
+          case BILLING_RULES.CUSTOM_RULE:
+            const { firstBlock, initialSegment, subsequentSegment } = autoCustomParams;
+            const priceForFirstBlockAuto = (firstBlock / 60) * currentHourlyRate;
+            if (minsElapsed <= 0) {
+              finalPrice = 0;
+            } else if (minsElapsed <= firstBlock) {
+              const billedUnitsInFirst = Math.ceil(minsElapsed / initialSegment);
+              let billedMinutesForPrice = billedUnitsInFirst * initialSegment;
+              if (billedMinutesForPrice >= firstBlock) {
+                finalPrice = priceForFirstBlockAuto;
+              } else {
+                finalPrice = (billedMinutesForPrice / 60) * currentHourlyRate;
+              }
+            } else { // minsElapsed > firstBlock
+              finalPrice = priceForFirstBlockAuto;
+              const remainingMinutes = minsElapsed - firstBlock;
+              const additionalUnits = Math.ceil(remainingMinutes / subsequentSegment);
+              finalPrice += additionalUnits * (subsequentSegment / 60) * currentHourlyRate;
+            }
+            break;
           default:
             finalPrice = minsElapsed * (currentHourlyRate / 60); // Fallback
         }
@@ -401,7 +546,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
     localStorage.removeItem(itemSpecificStartTimeKey);
     localStorage.removeItem(itemSpecificBasePriceKey);
-    localStorage.removeItem(persistentTimerKey); // 清理定时器信息
+    localStorage.removeItem(`${itemSpecificKeyPrefix}-billingRule`); // <-- Clean up billing rule
+    localStorage.removeItem(persistentTimerKey); // Clean the active timer details
 
     alert(`${currentSelectedTableName} ${fanyi("Timer checkout executed")}\n${fanyi("Total used time")}: ${formatDuration(finalDuration)}\n${fanyi("Final Fee")}: $${finalPrice.toFixed(2)}${displayRemarks}`);
 
@@ -490,6 +636,30 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     localStorage.setItem(`${itemSpecificKeyPrefix}-isSent_startTime`, now.toString());
     localStorage.setItem(`${itemSpecificKeyPrefix}-basePrice`, currentBasePrice.toString());
     localStorage.setItem(`${itemSpecificKeyPrefix}-billingRule`, selectedBillingRule); // <-- Always store billing rule on start
+    if (selectedBillingRule === BILLING_RULES.CUSTOM_RULE) {
+      const firstBlock = parseInt(customFirstBlockDuration);
+      const initialSegment = parseInt(customInitialSegmentMinutes);
+      const subsequentSegment = parseInt(customSubsequentSegmentMinutes);
+       if (isNaN(firstBlock) || !(firstBlock === 30 || firstBlock === 60) ||
+           isNaN(initialSegment) || initialSegment <= 0 ||
+           isNaN(subsequentSegment) || subsequentSegment <= 0) {
+        alert(fanyi("Invalid custom rule parameters. Please check inputs.") + ` Cannot start table.`);
+        // Do not proceed with starting the table if custom params are bad
+        localStorage.removeItem(`${itemSpecificKeyPrefix}-isSent_startTime`);
+        localStorage.removeItem(`${itemSpecificKeyPrefix}-basePrice`);
+        localStorage.removeItem(`${itemSpecificKeyPrefix}-billingRule`);
+        return; 
+      }
+      localStorage.setItem(`${itemSpecificKeyPrefix}-customFirstBlock`, customFirstBlockDuration.toString());
+      localStorage.setItem(`${itemSpecificKeyPrefix}-customInitialSegment`, customInitialSegmentMinutes.toString());
+      localStorage.setItem(`${itemSpecificKeyPrefix}-customSubsequentSegment`, customSubsequentSegmentMinutes.toString());
+      console.log(`[TableTimingModal] Custom rule params saved. Prefix: ${itemSpecificKeyPrefix}, Params: ${customFirstBlockDuration}, ${customInitialSegmentMinutes}, ${customSubsequentSegmentMinutes}`);
+    } else {
+      // Clean up any old custom params if switching away from custom to another rule
+      localStorage.removeItem(`${itemSpecificKeyPrefix}-customFirstBlock`);
+      localStorage.removeItem(`${itemSpecificKeyPrefix}-customInitialSegment`);
+      localStorage.removeItem(`${itemSpecificKeyPrefix}-customSubsequentSegment`);
+    }
     console.log(`[TableTimingModal] Item start time, base price, and billing rule saved. Key prefix: ${itemSpecificKeyPrefix}, Rule: ${selectedBillingRule}`);
 
     const startDate = new Date(now);
@@ -508,6 +678,12 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         },
         action: timerAction,
         billingRule: selectedBillingRule,
+        // Store custom parameters if custom rule is selected for the timer
+        ...(selectedBillingRule === BILLING_RULES.CUSTOM_RULE && {
+          customFirstBlockDuration: customFirstBlockDuration,
+          customInitialSegmentMinutes: customInitialSegmentMinutes,
+          customSubsequentSegmentMinutes: customSubsequentSegmentMinutes,
+        }),
         timerSetAt: now,
         durationMs: durationMs,
         absoluteEndTime: absoluteEndTime,
@@ -540,11 +716,11 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
       }, durationMs);
     }
 
-    alert(`${selectedTable} ${fanyi("Start table successful!")}`);
+    // alert(`${selectedTable} ${fanyi("Start table successful!")}`);
     setRemarks('');
     setTimerDuration('');
     setIsTimerEnabled(false);
-    setTimerAction('No Action');
+    setTimerAction('Auto Checkout');
     onClose();
   };
 
@@ -552,7 +728,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     // Ensure tableItem and its count are available for correct key generation
     if (!tableItem || !tableItem.id || !tableItem.count) {
       console.error("[TableTimingModal][handleEndTable] Cannot proceed: tableItem, tableItem.id, or tableItem.count is missing.", tableItem);
-      alert("Error: Critical item information is missing for ending table. Please try again or contact support.");
+      // alert("Error: Critical item information is missing for ending table. Please try again or contact support.");
       onClose(); // Close modal to prevent further issues
       return;
     }
@@ -604,7 +780,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     localStorage.removeItem(persistentTimerKey); // Clean the active timer details
 
     // 显示结台信息（包含备注）
-    alert(`${selectedTable} ${fanyi("End table successful!")}\n${fanyi("Total used time")}: ${formatDuration(finalDuration)}\n${fanyi("Final Fee")}: $${finalPrice.toFixed(2)}${displayRemarks}`);
+    // alert(`${selectedTable} ${fanyi("End table successful!")}\n${fanyi("Total used time")}: ${formatDuration(finalDuration)}\n${fanyi("Final Fee")}: $${finalPrice.toFixed(2)}${displayRemarks}`);
 
     // 重置状态
     setStartTime('');
@@ -627,28 +803,29 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
   if (!isOpen) return null;
 
+  const inputStyle = "notranslate mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm";
+
   return (
     <div className="table-timing-modal-overlay">
-      <div className="table-timing-modal">
+      <div className="table-timing-modal" style={{ maxWidth: '700px' }}>
         <div className="table-timing-modal-header">
-          <h3>{fanyi("Table Timing")} - {fanyi("Table")} {selectedTable}</h3>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <h2 className="text-xl font-semibold mb-4">{fanyi("开台计时")} - <span className="notranslate">{tableItem?.name}</span></h2>
         </div>
 
         <div className="table-timing-modal-body">
-          {/* 基础价格（只读显示） */}
-          <div className="form-group">
-            <label>{fanyi("Base Price")}:</label>
-            <div className="status-display inactive notranslate">
-              ${(Math.round(parseFloat(basePrice) * 100) / 100).toFixed(2)}
+          {/* 基础价格 和 当前状态 - 修改为一行显示 */}
+          <div className="form-row">
+            <div className="form-group half">
+              <label>{fanyi("Base Price")}:</label>
+              <div className="status-display inactive notranslate">
+                ${(Math.round(parseFloat(basePrice) * 100) / 100).toFixed(2)}
+              </div>
             </div>
-          </div>
-
-          {/* 当前状态 */}
-          <div className="form-group">
-            <label>{fanyi("Current Status")}:</label>
-            <div className={`status-display ${currentStatus === 'In Service' ? 'active' : 'inactive'}`}>
-              {fanyi(currentStatus)}
+            <div className="form-group half">
+              <label>{fanyi("Current Status")}:</label>
+              <div className={`status-display ${currentStatus === 'In Service' ? 'active' : 'inactive'}`}>
+                {fanyi(currentStatus)}
+              </div>
             </div>
           </div>
 
@@ -699,7 +876,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                           type="number"
                           value={timerDuration}
                           onChange={(e) => setTimerDuration(e.target.value)}
-                          className="form-control notranslate"
+                          className={inputStyle}
                           placeholder="30"
                         />
                         <span className="input-suffix">{fanyi("minutes")}</span>
@@ -710,7 +887,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                       <select
                         value={timerAction}
                         onChange={(e) => setTimerAction(e.target.value)}
-                        className="form-control"
+                        className={inputStyle}
                       >
                         <option value="No Action">{fanyi("No Action")}</option>
                         <option value="Auto Checkout">{fanyi("Auto Checkout")}</option>
@@ -727,7 +904,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                 <textarea
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
-                  className="form-control"
+                  className={inputStyle}
                   rows="3"
                   placeholder={fanyi("Enter remarks here...")}
                 />
@@ -741,7 +918,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
               <label htmlFor="billingRuleSelect">{fanyi("Billing Rule")}:</label>
               <select 
                 id="billingRuleSelect" 
-                className="form-control" 
+                className={inputStyle} 
                 value={selectedBillingRule} 
                 onChange={(e) => setSelectedBillingRule(e.target.value)}
               >
@@ -750,7 +927,50 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                 <option value={BILLING_RULES.RULE_3}>{fanyi("Rule: Hour Block / 30-min")}</option>
                 <option value={BILLING_RULES.RULE_4}>{fanyi("Rule: Hour Block / Minute")}</option>
                 <option value={BILLING_RULES.RULE_5}>{fanyi("Rule: Exact Minute")}</option>
+                <option value={BILLING_RULES.CUSTOM_RULE}>{fanyi("Custom Rule")}</option>
               </select>
+            </div>
+          )}
+
+          {/* 自定义规则配置区域 */}
+          {selectedBillingRule === BILLING_RULES.CUSTOM_RULE && (forceStartMode || currentStatus === 'Not Started' || currentStatus === 'In Service') && (
+            <div className="custom-billing-config form-group">
+              <h4>{fanyi("Configure Custom Rule")}</h4>
+              {customRuleError && <p className="error-message" style={{color: 'red'}}>{customRuleError}</p>}
+              <div className="form-group">
+                <label htmlFor="customFirstBlockDuration">{fanyi("First Block (30/60 min)")}:</label>
+                <select
+                  id="customFirstBlockDuration"
+                  className={inputStyle}
+                  value={customFirstBlockDuration}
+                  onChange={(e) => setCustomFirstBlockDuration(parseInt(e.target.value))}
+                >
+                  <option value={30}>{fanyi("30 minutes")}</option>
+                  <option value={60}>{fanyi("1 hour")}</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="customInitialSegmentMinutes">{fanyi("Initial Segment (min, round up)")}:</label>
+                <input
+                  type="number"
+                  id="customInitialSegmentMinutes"
+                  className={inputStyle}
+                  value={customInitialSegmentMinutes}
+                  onChange={(e) => setCustomInitialSegmentMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                  min="1"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="customSubsequentSegmentMinutes">{fanyi("Subsequent Segment (min)")}:</label>
+                <input
+                  type="number"
+                  id="customSubsequentSegmentMinutes"
+                  className={inputStyle}
+                  value={customSubsequentSegmentMinutes}
+                  onChange={(e) => setCustomSubsequentSegmentMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                  min="1"
+                />
+              </div>
             </div>
           )}
 
@@ -775,7 +995,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                     type="number"
                     value={customDuration}
                     onChange={(e) => setCustomDuration(e.target.value)}
-                    className="form-control notranslate"
+                    className={inputStyle}
                     placeholder="30"
                   />
                   <span className="input-suffix">{fanyi("minutes")}</span>
@@ -800,7 +1020,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                     step="0.01"
                     value={finalFee}
                     onChange={(e) => setFinalFee(e.target.value)}
-                    className="form-control notranslate"
+                    className={inputStyle}
                     placeholder={calculatedFee}
                   />
                 </div>
