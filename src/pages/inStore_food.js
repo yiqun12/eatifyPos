@@ -1041,21 +1041,14 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                           >
                             Subtract <span className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
                           </button>
-                          {/* <button
+                          <button
                             className="btn btn-primary mb-1"
                             type="button"
                             style={{ whiteSpace: 'nowrap', "display": "inline" }}
                           >
                             Tax Exempt
-                          </button> */}
-                          {/* <button
-                            className={`btn mb-3 ${isTaxExempt ? 'btn-success' : 'btn-secondary'}`}
-                            type="button"
-                            style={{ whiteSpace: 'nowrap' }}
-                            onClick={() => setIsTaxExempt(!isTaxExempt)}
-                          >
-                            {isTaxExempt ? '✓ Tax Exempt' : 'Tax Exempt'}
-                          </button> */}
+                          </button>
+
                         </div>
                       </div>
 
