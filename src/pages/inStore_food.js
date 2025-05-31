@@ -80,7 +80,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   const [selectedTableItem, setSelectedTableItem] = useState(null);
 
   // 将 useMyHook 的调用移到这里，确保 saveId 在 useEffect 之前初始化
-  const {id, saveId} = useMyHook(null);
+  const { id, saveId } = useMyHook(null);
 
   // 开台成功后的回调函数
   // tableItemFromModal 是从 TableTimingModal 传递过来的，包含了它生成的 count
@@ -127,7 +127,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
   // 结台成功后的回调函数
   const handleTableEnd = (tableItem, finalPrice, tableNameFromTimer) => {
-    const targetTable = tableNameFromTimer || selectedTable; 
+    const targetTable = tableNameFromTimer || selectedTable;
     if (!targetTable) {
       console.error('[Food.js] handleTableEnd: targetTable is undefined or null. Props selectedTable:', selectedTable, 'tableNameFromTimer:', tableNameFromTimer);
       return;
@@ -147,21 +147,21 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       console.log(`[Food.js] handleTableEnd: Attempting to find product in cart. Resulting index: ${productIndex}. Searching for ID: ${tableItem.id}, Count: ${tableItem.count}`);
       if (productIndex !== -1) {
         console.log(`[Food.js] handleTableEnd: Found product '${products[productIndex].name}' at index ${productIndex}. Updating its status and price.`);
-        
+
         // Update price to the final calculated fee
         products[productIndex].subtotal = finalPrice;
         products[productIndex].itemTotalPrice = Math.round(finalPrice * (products[productIndex].quantity || 1) * 100) / 100;
-        
+
         // Mark the item as no longer an active timed item
         // products[productIndex].isTableItem = false;
         console.log(`[Food.js] handleTableEnd: Product '${products[productIndex].name}' status updated. isTableItem: ${products[productIndex].isTableItem}, Attributes:`, products[productIndex].attributeSelected);
-        
+
         SetTableInfo(cartKey, JSON.stringify(products));
-        saveId(Math.random()); 
+        saveId(Math.random());
         console.log(`[Food.js] handleTableEnd: Cart for table '${targetTable}' saved. UI update triggered.`);
       } else {
         console.error(`[Food.js] handleTableEnd: Did not find matching active product in cart for table '${targetTable}'. Item ID: ${tableItem.id}, Count: ${tableItem.count}. This might happen if item was already processed or removed.`);
-        console.log('[Food.js] handleTableEnd: Current cart items for table:', products.map(p => ({id: p.id, count: p.count, name: p.name, isTableItem: p.isTableItem, attrs: Object.keys(p.attributeSelected || {})})));
+        console.log('[Food.js] handleTableEnd: Current cart items for table:', products.map(p => ({ id: p.id, count: p.count, name: p.name, isTableItem: p.isTableItem, attrs: Object.keys(p.attributeSelected || {}) })));
       }
     } else {
       console.warn(`[Food.js] handleTableEnd: Cart for table '${targetTable}' is empty or not found upon trying to finalize table item. CartKey:`, cartKey);
@@ -409,12 +409,12 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
               console.log('[Food.js] Parsed timerDetails for key:', key, timerDetails);
               // CORRECTED: Validate based on itemSnapshot and its essential fields
               if (timerDetails &&
-                  timerDetails.action &&
-                  typeof timerDetails.absoluteEndTime === 'number' &&
-                  timerDetails.originalStore === store && // Ensure it's for the current store
-                  timerDetails.itemSnapshot &&           // Ensure itemSnapshot object exists
-                  typeof timerDetails.itemSnapshot.id !== 'undefined' &&  // Ensure id exists within itemSnapshot
-                  typeof timerDetails.itemSnapshot.count !== 'undefined' // Ensure count exists within itemSnapshot
+                timerDetails.action &&
+                typeof timerDetails.absoluteEndTime === 'number' &&
+                timerDetails.originalStore === store && // Ensure it's for the current store
+                timerDetails.itemSnapshot &&           // Ensure itemSnapshot object exists
+                typeof timerDetails.itemSnapshot.id !== 'undefined' &&  // Ensure id exists within itemSnapshot
+                typeof timerDetails.itemSnapshot.count !== 'undefined' // Ensure count exists within itemSnapshot
               ) {
                 timersToProcess.push({ key, ...timerDetails });
               } else {
@@ -429,7 +429,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         }
       }
 
-      console.log(`[Food.js] Timers to process after filtering for store '${store}':`, timersToProcess.length, timersToProcess.map(t => ({key: t.key, action: t.action, table: t.originalSelectedTable }) ));
+      console.log(`[Food.js] Timers to process after filtering for store '${store}':`, timersToProcess.length, timersToProcess.map(t => ({ key: t.key, action: t.action, table: t.originalSelectedTable })));
 
       timersToProcess.forEach(timer => {
         const now = Date.now();
@@ -442,9 +442,9 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
           localStorage.removeItem(key); // Clean up problematic timer
           return; // Skip this timer
         }
-        
+
         // Now use itemId and itemCount from the validated itemSnapshot for logging or other non-critical paths
-        const { id: itemId, count: itemCount } = itemSnapshot; 
+        const { id: itemId, count: itemCount } = itemSnapshot;
 
         console.log(`[Food.js] Processing timer: ${key}, Table: ${originalSelectedTable}, Item from Snapshot: ${itemId}-${itemCount}, Action: ${action}, EndTime: ${new Date(absoluteEndTime).toLocaleTimeString()}, Now: ${new Date(now).toLocaleTimeString()}`);
 
@@ -475,8 +475,8 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                 console.log(`[Food.js] ${originalSelectedTable} (Restored Timer via setTimeout) - Continue Billing. Removing timer key: ${key}`);
                 localStorage.removeItem(key);
               } else {
-                 console.warn(`[Food.js] Unknown action '${action}' for pending timer ${key} in setTimeout. Removing.`);
-                 localStorage.removeItem(key);
+                console.warn(`[Food.js] Unknown action '${action}' for pending timer ${key} in setTimeout. Removing.`);
+                localStorage.removeItem(key);
               }
             } else {
               console.log(`[Food.js] setTimeout for ${key} (table ${originalSelectedTable}) fired, but key no longer exists. Assuming already processed.`);
@@ -505,9 +505,9 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
             console.log(`[Food.js][executeRestoredAutoCheckout] Using billing rule from stored timer: ${restoredBillingRule}`);
             if (restoredBillingRule === BILLING_RULES.CUSTOM_RULE) {
               // Ensure custom parameters are present in timerDetails if it's a custom rule
-              if (timerDetails.customFirstBlockDuration !== undefined && 
-                  timerDetails.customInitialSegmentMinutes !== undefined && 
-                  timerDetails.customSubsequentSegmentMinutes !== undefined) {
+              if (timerDetails.customFirstBlockDuration !== undefined &&
+                timerDetails.customInitialSegmentMinutes !== undefined &&
+                timerDetails.customSubsequentSegmentMinutes !== undefined) {
                 restoredCustomConfig = {
                   firstBlockDuration: timerDetails.customFirstBlockDuration,
                   initialSegmentMinutes: timerDetails.customInitialSegmentMinutes,
@@ -539,13 +539,13 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
       if (!itemStillInCart) {
         console.warn(`[Food.js] executeRestoredAutoCheckout: Item ${itemId}-${itemCount} for table ${tableName} no longer in cart. Skipping auto-checkout and cleaning up timer.`);
-        localStorage.removeItem(timerKey); 
+        localStorage.removeItem(timerKey);
         // Also clean up item-specific keys if they exist, using the CORRECTED format
         const itemSpecificKeyPrefixForOrphaned = `${store}-${itemId}-${itemCount}`;
         localStorage.removeItem(`${itemSpecificKeyPrefixForOrphaned}-isSent_startTime`);
         localStorage.removeItem(`${itemSpecificKeyPrefixForOrphaned}-basePrice`);
         console.log(`[Food.js] Cleaned orphaned item-specific keys for ${itemId}-${itemCount} due to item not in cart. Prefix: ${itemSpecificKeyPrefixForOrphaned}`);
-        return; 
+        return;
       }
       console.log(`[Food.js] executeRestoredAutoCheckout: Item ${itemId}-${itemCount} for table ${tableName} confirmed to be in cart. Proceeding with checkout.`);
 
@@ -566,7 +566,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         // itemBasePrice from snapshot is the base price at the time timer was set.
         let actualBasePriceToUse = parseFloat(storedOriginalBasePrice || itemBasePrice || 1.00);
         if (actualBasePriceToUse <= 0) {
-            actualBasePriceToUse = 1.00;
+          actualBasePriceToUse = 1.00;
         }
         // const basePricePerMinute = actualBasePriceToUse / 60; // Old calculation
         // rawFinalPrice = Math.max(durationMinutes * basePricePerMinute, 0.001); // Old calculation
@@ -576,10 +576,10 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         const minsElapsed = durationMinutes;
 
         if (currentHourlyRate > 0 && minsElapsed >= 0) {
-            // 调用导入的计费函数
-            rawFinalPrice = calculatePriceForBillingRule(minsElapsed, currentHourlyRate, restoredBillingRule, restoredCustomConfig);
+          // 调用导入的计费函数
+          rawFinalPrice = calculatePriceForBillingRule(minsElapsed, currentHourlyRate, restoredBillingRule, restoredCustomConfig);
         } else {
-            rawFinalPrice = 0.00; // Default if rate or duration is invalid
+          rawFinalPrice = 0.00; // Default if rate or duration is invalid
         }
 
         console.log(`[Food.js] Calculated for ${tableName}: Duration ${durationMinutes}m, BasePrice ${actualBasePriceToUse}, BillingRule: ${restoredBillingRule}, CustomConfig: ${JSON.stringify(restoredCustomConfig)}, Raw Fee ${rawFinalPrice}`);
@@ -611,9 +611,9 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       console.log('[Food.js] Scheduling checkAllTimers in 2.5 seconds.');
       setTimeout(checkAllTimers, 2500); // Increased delay further for safety
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store, saveId]); // Assuming saveId is a stable function or related to cart updates that might clear timers indirectly.
-                      // handleTableEnd should be stable or included if it changes.
+  // handleTableEnd should be stable or included if it changes.
 
   const [animationClass, setAnimationClass] = useState('');
 
@@ -754,7 +754,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     color: 'black',
   };
   const { user, user_loading } = useUserContext();
-  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI, item, availability, attributesArr, quant, isTableItem = false, tableRemarks='') => {
+  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI, item, availability, attributesArr, quant, isTableItem = false, tableRemarks = '') => {
 
     // Check if the array exists in local storage
     if (localStorage.getItem(store + "-" + selectedTable) === null) {
@@ -1370,20 +1370,20 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                           <button
                             className="btn btn-warning mb-1 "
                             type="button"
-                                  style={{whiteSpace: 'nowrap', "display": "inline"}}
+                            style={{ whiteSpace: 'nowrap', "display": "inline" }}
                             onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id, true)}
                           >
-                                Add <span
-                                  className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
+                            Add <span
+                              className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
                           </button>
                           <button
                             className="btn btn-info mb-1 "
                             type="button"
-                                  style={{whiteSpace: 'nowrap', "display": "inline"}}
+                            style={{ whiteSpace: 'nowrap', "display": "inline" }}
                             onClick={() => handleAddCustomVariant(customVariant.name, customVariant.price, count, selectedFoodItem?.id, false)}
                           >
-                                Subtract <span
-                                  className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
+                            Subtract <span
+                              className='notranslate'>${customVariant.price === '' ? 0 : customVariant.price}</span>
                           </button>
                           <button
                             className="btn btn-primary mb-1"
@@ -1607,25 +1607,25 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
               {/* shoppig cart */}
 
             </div>
-              <div style={width > 575 ? {overflowY: "auto", borderBottom: "1px solid #E1E8EE"} : {
-                overflowY: "auto",
-                borderBottom: "1px solid #E1E8EE"
-              }}>
-                <div className={` ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`}>
+            <div style={width > 575 ? { overflowY: "auto", borderBottom: "1px solid #E1E8EE" } : {
+              overflowY: "auto",
+              borderBottom: "1px solid #E1E8EE"
+            }}>
+              <div className={` ${!isMobile ? "mx-4 my-2" : "mx-4 my-2"}`}>
 
-                  <div style={{width: "-webkit-fill-available"}}>
-                    <div className="description" style={{width: "-webkit-fill-available"}}>
+                <div style={{ width: "-webkit-fill-available" }}>
+                  <div className="description" style={{ width: "-webkit-fill-available" }}>
 
-                      <div className='' style={{width: "-webkit-fill-available"}}>
+                    <div className='' style={{ width: "-webkit-fill-available" }}>
                       <div
                         className="text-black text-lg"
-                            style={{
-                              color: "black",
-                              width: "100%",
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "flex-start"
-                            }}
+                        style={{
+                          color: "black",
+                          width: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-start"
+                        }}
                       >
                         {foodTypes.slice().reverse().map((foodType) => (
                           <button
@@ -1637,12 +1637,12 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                             }}
 
                             className={`border-black-600 rounded-xl px-2 py-2 ${selectedFoodType === foodType ? 'bg-gray-200 text-black-600' : 'text-gray-600'}`}
-                                  style={{
-                                    width: "100%",
-                                    display: 'block',
-                                    textUnderlineOffset: '0.5em',
-                                    textAlign: 'left'
-                                  }}
+                            style={{
+                              width: "100%",
+                              display: 'block',
+                              textUnderlineOffset: '0.5em',
+                              textAlign: 'left'
+                            }}
                           >
                             <div>
                               {foodType && foodType.length > 1
@@ -1665,15 +1665,15 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         </div>
         <div className='m-auto '>
 
-            <div className='flex flex-col lg:flex-row justify-between' style={{flexDirection: "column"}}>
+          <div className='flex flex-col lg:flex-row justify-between' style={{ flexDirection: "column" }}>
             {/* Filter Type */}
-              <div className='Type'>
+            <div className='Type'>
               {/* <div className='flex justify-between flex-wrap'> */}
 
               {/* web mode */}
               {!view ?
                 <div>
-                      <div className='hstack gap-2 mt-2'>
+                  <div className='hstack gap-2 mt-2'>
                     <form className="w-full w-lg-full">
                       <div className='input-group input-group-sm input-group-inline shadow-none'>
                         <span className='input-group-text pe-2 rounded-start-pill'>
@@ -1776,11 +1776,11 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
           </div>
           {!view ?
-                <LazyLoad>
+            <LazyLoad>
 
               {/* diplay food */}
               <AnimatePresence>
-                    <div className='flex flex-wrap gap-3 pt-3 px-2' style={{
+                <div className='flex flex-wrap gap-3 pt-3 px-2' style={{
                   overflowY: 'auto',
                   maxHeight: `calc(100vh - 370px)`
                 }}>
@@ -1800,34 +1800,34 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                         }
                       }}
                       layout
-                              initial={{opacity: 0}}
-                              animate={{opacity: 1}}
-                              exit={{opacity: 0}}
-                              transition={{duration: 0.1}}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.1 }}
                       key={item.id}
-                              className="border border-black rounded cursor-pointer"
-                              style={{
-                                flex: isMobile
-                                  ? '1 1 100%'  // 移动端：每行一个，占满宽度
-                                  : '1 1 calc(33.333% - 8px)',  // 桌面端：优先一行三个，自适应宽度
-                                minWidth: isMobile ? '280px' : '320px',  // 增加最小宽度，确保按钮有空间
-                                maxWidth: isMobile ? 'none' : 'calc(50% - 6px)'  // 最大宽度，确保至少一行两个
-                              }}>
+                      className="border border-black rounded cursor-pointer"
+                      style={{
+                        flex: isMobile
+                          ? '1 1 100%'  // 移动端：每行一个，占满宽度
+                          : '1 1 calc(33.333% - 8px)',  // 桌面端：优先一行三个，自适应宽度
+                        minWidth: isMobile ? '280px' : '320px',  // 增加最小宽度，确保按钮有空间
+                        maxWidth: isMobile ? 'none' : 'calc(50% - 6px)'  // 最大宽度，确保至少一行两个
+                      }}>
                       <div className='flex'>
-                              <div style={{width: "100%"}}>
+                        <div style={{ width: "100%" }}>
                           <div className='flex-row px-2 pb-1 w-full'>
 
                             {/* parent div of title + quantity and button parent div */}
-                                  <div className="col-span-4" style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    justifyContent: "space-between"
-                                  }}>
+                            <div className="col-span-4" style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "space-between"
+                            }}>
                               <div className="col-span-4 ">
                                 <p class="notranslate text-md">
                                   ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}&nbsp;
                                   {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
-                                      </p></div>
+                                </p></div>
 
                               {/* parent div of the quantity and buttons */}
 
@@ -1838,76 +1838,80 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                               style={{
                                 display: "flex",
                                 justifyContent: "space-between",
-                                        marginBottom: "10px",
-                                        flexWrap: "wrap",  // 允许按钮换行
-                                        gap: "8px"  // 按钮之间的间距
+                                marginBottom: "10px",
+                                flexWrap: "wrap",  // 允许按钮换行
+                                gap: "8px"  // 按钮之间的间距
                               }}>
 
-                                    <div style={{ flexShrink: 0 }}>
+                              <div style={{ flexShrink: 0 }}>
                                 <a
                                   onClick={(e) => {
                                     e.stopPropagation(); // This stops the click from propagating to the parent elements
                                     showModal(item)
                                   }}
-                                          class="btn d-inline-flex btn-sm btn-outline-dark mx-1"
-                                          style={{ whiteSpace: 'nowrap' }}>
+                                  class="btn d-inline-flex btn-sm btn-outline-dark mx-1"
+                                  style={{ whiteSpace: 'nowrap' }}>
                                   <span>Revise And Add</span>
                                 </a>
                               </div>
 
-                                    <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
-                                      {/* 开台按钮 */}
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setSelectedTableItem(item);
-                                          setIsTableTimingModalOpen(true);
-                                        }}
-                                        className="btn btn-outline-primary btn-sm d-flex align-items-center notranslate"
-                                        style={{ whiteSpace: 'nowrap', height: '30px', fontSize: '12px', padding: '2px 8px' }}
-                                      >
-                                        <i className="bi bi-clock me-1"></i>
-                                        {fanyi("Start Table")}
-                                      </button>
+                              <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
+                                {item.CHI.includes("开台") ?
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedTableItem(item);
+                                      setIsTableTimingModalOpen(true);
+                                    }}
+                                    className="btn btn-outline-primary btn-sm d-flex align-items-center notranslate"
+                                    style={{ whiteSpace: 'nowrap', height: '30px', fontSize: '12px', padding: '2px 8px' }}
+                                  >
+                                    <i className="bi bi-clock me-1"></i>
+                                    {fanyi("Start Table")}
+                                  </button> : <></>
 
-                              <div
-                                className="black_hover"
-                                style={{
-                                  padding: '4px',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  display: "flex",
-                                  border: "1px solid", // Adjust the border
-                                  borderRadius: "50%", // Set borderRadius to 50% for a circle
-                                  width: "30px", // Make sure width and height are equal
-                                  height: "30px",
-                                          flexShrink: 0
-                                }}
-                              >
-                                <button
-                                  className="minus-btn"
-                                  type="button"
-                                  name="button"
+                                }
+                                {/* 开台按钮 */}
+
+
+                                <div
+                                  className="black_hover"
                                   style={{
-                                    marginTop: '0px',
-                                    width: '20px',
-                                    height: '20px',
+                                    padding: '4px',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     display: "flex",
+                                    border: "1px solid", // Adjust the border
+                                    borderRadius: "50%", // Set borderRadius to 50% for a circle
+                                    width: "30px", // Make sure width and height are equal
+                                    height: "30px",
+                                    flexShrink: 0
                                   }}
                                 >
-                                  <PlusSvg
+                                  <button
+                                    className="minus-btn"
+                                    type="button"
+                                    name="button"
                                     style={{
-                                      margin: '0px',
-                                      width: '10px',
-                                      height: '10px',
+                                      marginTop: '0px',
+                                      width: '20px',
+                                      height: '20px',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      display: "flex",
                                     }}
-                                    alt=""
-                                  />
-                                </button>
+                                  >
+                                    <PlusSvg
+                                      style={{
+                                        margin: '0px',
+                                        width: '10px',
+                                        height: '10px',
+                                      }}
+                                      alt=""
+                                    />
+                                  </button>
+                                </div>
                               </div>
-                                    </div>
                             </div>
                             {/* ^ end of parent div of title + quantity and buttons */}
                           </div>
@@ -1926,21 +1930,21 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
         </div>
 
-          {/* 开台计时弹窗 */}
-          <TableTimingModal
-              isOpen={isTableTimingModalOpen}
-              onClose={() => {
-                setIsTableTimingModalOpen(false);
-                setSelectedTableItem(null);
-              }}
-              selectedTable={selectedTable}
-              store={store}
-              tableItem={selectedTableItem}
-              onTableStart={handleTableStart}
-              onTableEnd={handleTableEnd}
-              forceStartMode={true}
-          />
-        </div>
+        {/* 开台计时弹窗 */}
+        <TableTimingModal
+          isOpen={isTableTimingModalOpen}
+          onClose={() => {
+            setIsTableTimingModalOpen(false);
+            setSelectedTableItem(null);
+          }}
+          selectedTable={selectedTable}
+          store={store}
+          tableItem={selectedTableItem}
+          onTableStart={handleTableStart}
+          onTableEnd={handleTableEnd}
+          forceStartMode={true}
+        />
+      </div>
     )
   }
 }
