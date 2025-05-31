@@ -1788,16 +1788,22 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                     <motion.div
                       onClick={(e) => {
                         e.stopPropagation(); // This stops the click from propagating to the parent elements
-
-                        if (Object.keys(item.attributesArr).length > 0) {
-                          showModal(item);
+                        if (item.CHI.includes("开台")) {
+                          setSelectedTableItem(item);
+                          setIsTableTimingModalOpen(true);
                         } else {
-                          const randomNum = uuidv4()
-                          setCount(randomNum);  // Increment the count every time the modal is opened
-                          setSelectedAttributes({})
-                          setTotalPrice(0);
-                          addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item, item.availability, item.attributesArr)
+                          if (Object.keys(item.attributesArr).length > 0) {
+                            showModal(item);
+                          } else {
+                            const randomNum = uuidv4()
+                            setCount(randomNum);  // Increment the count every time the modal is opened
+                            setSelectedAttributes({})
+                            setTotalPrice(0);
+                            addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item, item.availability, item.attributesArr)
+                          }
                         }
+
+
                       }}
                       layout
                       initial={{ opacity: 0 }}
@@ -1842,38 +1848,38 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                                 flexWrap: "wrap",  // 允许按钮换行
                                 gap: "8px"  // 按钮之间的间距
                               }}>
+                              {!item.CHI.includes("开台") ?
 
-                              <div style={{ flexShrink: 0 }}>
-                                <a
+                                <button
                                   onClick={(e) => {
                                     e.stopPropagation(); // This stops the click from propagating to the parent elements
                                     showModal(item)
                                   }}
-                                  class="btn d-inline-flex btn-sm btn-outline-dark mx-1"
-                                  style={{ whiteSpace: 'nowrap' }}>
-                                  <span>Revise And Add</span>
-                                </a>
-                              </div>
+                                  className="btn btn-outline-dark btn-sm d-flex align-items-center"
+                                  style={{ whiteSpace: 'nowrap', height: '30px', fontSize: '15px', padding: '2px 8px' }}
+                                >
+                                  <i className="bi bi-pencil-square me-1"></i>
+                                  Edit
+                                </button>
+
+                                :
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedTableItem(item);
+                                    setIsTableTimingModalOpen(true);
+                                  }}
+                                  className="btn btn-outline-primary btn-sm d-flex align-items-center notranslate"
+                                  style={{ whiteSpace: 'nowrap', height: '30px', fontSize: '15px', padding: '2px 8px' }}
+                                >
+                                  <i className="bi bi-clock me-1"></i>
+                                  {fanyi("Start Table")}
+                                </button>
+
+                              }
+
 
                               <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
-                                {item.CHI.includes("开台") ?
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedTableItem(item);
-                                      setIsTableTimingModalOpen(true);
-                                    }}
-                                    className="btn btn-outline-primary btn-sm d-flex align-items-center notranslate"
-                                    style={{ whiteSpace: 'nowrap', height: '30px', fontSize: '12px', padding: '2px 8px' }}
-                                  >
-                                    <i className="bi bi-clock me-1"></i>
-                                    {fanyi("Start Table")}
-                                  </button> : <></>
-
-                                }
-                                {/* 开台按钮 */}
-
-
                                 <div
                                   className="black_hover"
                                   style={{

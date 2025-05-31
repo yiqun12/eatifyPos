@@ -269,7 +269,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         if (productIndex !== -1) {
           // Create a new array for products to trigger state update correctly
           const updatedProductsArray = [...products_];
-          
+
           // 更新商品价格和相关信息
           updatedProductsArray[productIndex] = {
             ...updatedProductsArray[productIndex],
@@ -317,7 +317,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   // 为了让这里的修改能独立工作，暂时假设 isTaxExempt 和 setIsTaxExempt 是可用的。
   // 如果它们是从 props 传下来的，那就不需要在这里 useState。
   // 假设 isTaxExempt 是一个已存在的 state
-  const [isTaxExempt, setIsTaxExempt] = useState(false); 
+  const [isTaxExempt, setIsTaxExempt] = useState(false);
 
   // 自定义改价功能状态
   const [isCustomPriceModalOpen, setIsCustomPriceModalOpen] = useState(false);
@@ -1092,7 +1092,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   };
 
   const handleCancelCustomPrice = () => {
-    setCustomTotalPrice(''); 
+    setCustomTotalPrice('');
     // setIsCustomPriceTaxExempt(isTaxExempt); // 移除
     setModalTaxExempt(false); // 重置弹窗内部免税状态
     setIsCustomPriceModalOpen(false);
@@ -1113,10 +1113,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     const newPriceTarget = parseFloat(newPriceString);
 
     if (newPriceString === null || newPriceString === undefined || newPriceString.trim() === '' || isNaN(newPriceTarget) || newPriceTarget < 0) {
-      setCustomTotalPrice(''); 
+      setCustomTotalPrice('');
       // No localStorage interaction
-      
-      setIsTaxExempt(taxChoice); 
+
+      setIsTaxExempt(taxChoice);
 
       const originalSubtotalForTax = parseFloat(calculateOriginalTotalPrice());
       const taxExemptionOnlyDiscount = taxChoice ? (originalSubtotalForTax * (Number(TaxRate) / 100)) : 0;
@@ -1127,11 +1127,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
     const formattedNewPrice = newPriceTarget.toFixed(2);
     setCustomTotalPrice(formattedNewPrice);
-    setIsTaxExempt(taxChoice); 
+    setIsTaxExempt(taxChoice);
 
     // No localStorage interaction
 
-    const originalSubtotal = parseFloat(calculateOriginalTotalPrice()); 
+    const originalSubtotal = parseFloat(calculateOriginalTotalPrice());
     const difference = newPriceTarget - originalSubtotal;
 
     let calculatedDiscount = 0;
@@ -1605,15 +1605,18 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                       <div className="flex flex-wrap gap-2 justify-between items-center">
                         {/* 左侧按钮组 */}
                         <div className="flex flex-wrap gap-1">
-                          <a
-                            onClick={() => {
-                              setOpenChangeAttributeModal(product)
-                            }}
-                            className="btn btn-xs px-2 py-1 btn-outline-dark text-xs hover:bg-gray-200 transition-colors flex-shrink-0"
-                            style={{ whiteSpace: 'nowrap' }}>
-                            <span>Revise</span>
-                          </a>
+                          {!product.CHI.includes("开台") ?
 
+                            <button
+                              onClick={() => {
+                                setOpenChangeAttributeModal(product)
+                              }}
+                              className="btn btn-outline-dark btn-sm d-flex align-items-center"
+                              style={{ whiteSpace: 'nowrap', height: '30px', fontSize: '15px', padding: '2px 8px' }}
+                            >
+                              <i className="bi bi-pencil-square me-1"></i>
+                              Edit
+                            </button> : <></>}
                           {/* 开台/结台按钮 */}
                           {localStorage.getItem(`${store}-${product.id}-${product.count}-isSent_startTime`) && (
                             <button
@@ -1626,7 +1629,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                                   // IMPORTANT: Ensure product.subtotal here is the HOURLY RATE for the item
                                   // If product.subtotal is modified after a previous timing, this might be wrong.
                                   // It's safer to have a dedicated field like product.hourlyRate
-                                  subtotal: parseFloat(product.subtotal) || 0, 
+                                  subtotal: parseFloat(product.subtotal) || 0,
                                   image: product.image,
                                   attributeSelected: product.attributeSelected || {},
                                   count: product.count, // Essential for unique identification and timer lookup
@@ -1636,8 +1639,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                                 setSelectedTableItem(tableItemData);
                                 setIsTableTimingModalOpen(true);
                               }}
-                              className="btn btn-xs px-2 py-1 btn-outline-danger notranslate text-xs flex-shrink-0"
-                              style={{ whiteSpace: 'nowrap' }}
+                              className="btn btn-outline-danger btn-sm d-flex align-items-center"
+                              style={{ whiteSpace: 'nowrap', height: '30px', fontSize: '15px', padding: '2px 8px' }}
                             >
                               <i className="bi bi-stop-circle me-1"></i>
                               {fanyi("End Table")}
@@ -2299,21 +2302,21 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <button
                     onClick={() => handlePercentageDiscount(0.95)}
                     className="btn btn-success btn-sm flex-grow-1 mx-1"
-                    style={{borderRadius: '0.375rem', color: 'white', backgroundColor: '#28a745', borderColor: '#28a745'}}
+                    style={{ borderRadius: '0.375rem', color: 'white', backgroundColor: '#28a745', borderColor: '#28a745' }}
                   >
                     {fanyi("5% Off")}
                   </button>
                   <button
                     onClick={() => handlePercentageDiscount(0.85)}
                     className="btn btn-success btn-sm flex-grow-1 mx-1"
-                    style={{borderRadius: '0.375rem', color: 'white', backgroundColor: '#28a745', borderColor: '#28a745'}}
+                    style={{ borderRadius: '0.375rem', color: 'white', backgroundColor: '#28a745', borderColor: '#28a745' }}
                   >
                     {fanyi("15% Off")}
                   </button>
                   <button
                     onClick={() => handlePercentageDiscount(0.75)}
                     className="btn btn-success btn-sm flex-grow-1 mx-1"
-                    style={{borderRadius: '0.375rem', color: 'white', backgroundColor: '#28a745', borderColor: '#28a745'}}
+                    style={{ borderRadius: '0.375rem', color: 'white', backgroundColor: '#28a745', borderColor: '#28a745' }}
                   >
                     {fanyi("25% Off")}
                   </button>
@@ -2355,7 +2358,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <button
                     type="button"
                     className="btn"
-                    style={{backgroundColor: '#6f42c1', color: 'white'}}
+                    style={{ backgroundColor: '#6f42c1', color: 'white' }}
                     onClick={() => {
                       // Pass the modal's current tax choice (modalTaxExempt) to applyCustomPrice
                       applyCustomPrice(customTotalPrice, modalTaxExempt);

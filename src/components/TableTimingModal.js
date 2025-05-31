@@ -99,7 +99,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
   const [isTimerEnabled, setIsTimerEnabled] = useState(false);
 
   // State for selected billing rule
-  const [selectedBillingRule, setSelectedBillingRule] = useState(BILLING_RULES.RULE_1);
+  const [selectedBillingRule, setSelectedBillingRule] = useState(BILLING_RULES.RULE_2);
 
   // 新增: 自定义计费规则参数的状态
   const [customFirstBlockDuration, setCustomFirstBlockDuration] = useState(60); // 默认60分钟
@@ -345,7 +345,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setIsTimerEnabled(false);
         setTimerDuration('');
         setTimerAction('No Action');
-        setSelectedBillingRule(BILLING_RULES.RULE_1);
+        setSelectedBillingRule(BILLING_RULES.RULE_2);
         setCustomFirstBlockDuration(60);
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
@@ -366,7 +366,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setIsTimerEnabled(false);
         setTimerDuration('');
         setTimerAction('No Action');
-        setSelectedBillingRule(BILLING_RULES.RULE_1);
+        setSelectedBillingRule(BILLING_RULES.RULE_2);
         setCustomFirstBlockDuration(60);
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
@@ -381,7 +381,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setIsTimerEnabled(false);
         setTimerDuration('');
         setTimerAction('No Action');
-        setSelectedBillingRule(BILLING_RULES.RULE_1);
+        setSelectedBillingRule(BILLING_RULES.RULE_2);
         setCustomFirstBlockDuration(60);
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
