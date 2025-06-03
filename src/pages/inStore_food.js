@@ -1842,29 +1842,30 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
                               {/* ^ end of parent div of quantity and button */}
                             </div>
-                            <div
+                                                        <div
                               className='mt-2'
                               style={{
                                 display: "flex",
                                 justifyContent: "space-between",
-                                        marginBottom: "10px",
-                                        flexWrap: "wrap",  // 允许按钮换行
-                                        gap: "8px"  // 按钮之间的间距
+                                marginBottom: "10px",
+                                flexWrap: "nowrap",  // 防止按钮换行
+                                gap: "4px",  // 减少按钮之间的间距
+                                alignItems: "center"  // 垂直居中对齐
                               }}>
 
-                                    <div style={{ flexShrink: 0 }}>
+                                    <div style={{ flexShrink: 1, minWidth: 0 }}>
                                 <a
                                   onClick={(e) => {
                                     e.stopPropagation(); // This stops the click from propagating to the parent elements
                                     showModal(item)
                                   }}
-                                          class="btn d-inline-flex btn-sm btn-outline-dark mx-1"
-                                          style={{ whiteSpace: 'nowrap' }}>
+                                          class="btn d-inline-flex btn-sm btn-outline-dark"
+                                          style={{ whiteSpace: 'nowrap', fontSize: '11px', padding: '4px 8px' }}>
                                   <span>Revise And Add</span>
                                 </a>
                               </div>
 
-                                    <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
+                                    <div className="flex items-center gap-1" style={{ flexShrink: 1, minWidth: 0 }}>
                                       {/* 开台按钮 */}
                                       <button
                                         onClick={(e) => {
@@ -1873,7 +1874,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                                           setIsTableTimingModalOpen(true);
                                         }}
                                         className="btn btn-outline-primary btn-sm d-flex align-items-center notranslate"
-                                        style={{ whiteSpace: 'nowrap', height: '30px', fontSize: '12px', padding: '2px 8px' }}
+                                        style={{ whiteSpace: 'nowrap', height: '28px', fontSize: '11px', padding: '2px 6px' }}
                                       >
                                         <i className="bi bi-clock me-1"></i>
                                         {fanyi("Start Table")}
@@ -1888,8 +1889,8 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                                   display: "flex",
                                   border: "1px solid", // Adjust the border
                                   borderRadius: "50%", // Set borderRadius to 50% for a circle
-                                  width: "30px", // Make sure width and height are equal
-                                  height: "30px",
+                                  width: "28px", // Make sure width and height are equal
+                                  height: "28px",
                                           flexShrink: 0
                                 }}
                               >

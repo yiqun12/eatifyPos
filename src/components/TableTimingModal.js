@@ -484,52 +484,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
       // Apply the stored billing rule for price calculation
       if (currentHourlyRate > 0 && finalDuration >= 0) {
-        const minsElapsed = finalDuration;
-        switch (autoCheckoutBillingRule) {
-          case BILLING_RULES.RULE_1:
-            if (minsElapsed <= 60) finalPrice = currentHourlyRate;
-            else finalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 15) * (currentHourlyRate / 4);
-            break;
-          case BILLING_RULES.RULE_2:
-            if (minsElapsed <= 30) finalPrice = currentHourlyRate / 2;
-            else if (minsElapsed <= 60) finalPrice = currentHourlyRate;
-            else finalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 15) * (currentHourlyRate / 4);
-            break;
-          case BILLING_RULES.RULE_3:
-            if (minsElapsed <= 60) finalPrice = currentHourlyRate;
-            else finalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 30) * (currentHourlyRate / 2);
-            break;
-          case BILLING_RULES.RULE_4:
-            if (minsElapsed <= 60) finalPrice = currentHourlyRate;
-            else finalPrice = currentHourlyRate + (minsElapsed - 60) * (currentHourlyRate / 60);
-            break;
-          case BILLING_RULES.RULE_5:
-            finalPrice = minsElapsed * (currentHourlyRate / 60);
-            break;
-          case BILLING_RULES.CUSTOM_RULE:
-            const { firstBlock, initialSegment, subsequentSegment } = autoCustomParams;
-            const priceForFirstBlockAuto = (firstBlock / 60) * currentHourlyRate;
-            if (minsElapsed <= 0) {
-              finalPrice = 0;
-            } else if (minsElapsed <= firstBlock) {
-              const billedUnitsInFirst = Math.ceil(minsElapsed / initialSegment);
-              let billedMinutesForPrice = billedUnitsInFirst * initialSegment;
-              if (billedMinutesForPrice >= firstBlock) {
-                finalPrice = priceForFirstBlockAuto;
-              } else {
-                finalPrice = (billedMinutesForPrice / 60) * currentHourlyRate;
-              }
-            } else { // minsElapsed > firstBlock
-              finalPrice = priceForFirstBlockAuto;
-              const remainingMinutes = minsElapsed - firstBlock;
-              const additionalUnits = Math.ceil(remainingMinutes / subsequentSegment);
-              finalPrice += additionalUnits * (subsequentSegment / 60) * currentHourlyRate;
-            }
-            break;
-          default:
-            finalPrice = minsElapsed * (currentHourlyRate / 60); // Fallback
-        }
-        finalPrice = Math.max(finalPrice, 0.001); // Ensure minimum price
+        // 使用导出的计费计算函数，避免重复代码
+        finalPrice = calculatePriceForBillingRule(finalDuration, currentHourlyRate, autoCheckoutBillingRule, autoCustomParams);
       } else {
         finalPrice = 0.00; // Or some default if rate is invalid
       }
@@ -941,39 +897,41 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
             <div className="custom-billing-config form-group">
               <h4>{fanyi("Configure Custom Rule")}</h4>
               {customRuleError && <p className="error-message" style={{color: 'red'}}>{customRuleError}</p>}
-              <div className="form-group">
-                <label htmlFor="customFirstBlockDuration">{fanyi("First Block (30/60 min)")}:</label>
-                <select
-                  id="customFirstBlockDuration"
-                  className={inputStyle}
-                  value={customFirstBlockDuration}
-                  onChange={(e) => setCustomFirstBlockDuration(parseInt(e.target.value))}
-                >
-                  <option value={30}>{fanyi("30 minutes")}</option>
-                  <option value={60}>{fanyi("1 hour")}</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label htmlFor="customInitialSegmentMinutes">{fanyi("Initial Segment (min, round up)")}:</label>
-                <input
-                  type="number"
-                  id="customInitialSegmentMinutes"
-                  className={inputStyle}
-                  value={customInitialSegmentMinutes}
-                  onChange={(e) => setCustomInitialSegmentMinutes(Math.max(1, parseInt(e.target.value) || 1))}
-                  min="1"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="customSubsequentSegmentMinutes">{fanyi("Subsequent Segment (min)")}:</label>
-                <input
-                  type="number"
-                  id="customSubsequentSegmentMinutes"
-                  className={inputStyle}
-                  value={customSubsequentSegmentMinutes}
-                  onChange={(e) => setCustomSubsequentSegmentMinutes(Math.max(1, parseInt(e.target.value) || 1))}
-                  min="1"
-                />
+              <div className="form-row" style={{display: 'flex', gap: '10px'}}>
+                <div className="form-group" style={{flex: '1'}}>
+                  <label htmlFor="customFirstBlockDuration">{fanyi("First Block (30/60 min)")}:</label>
+                  <select
+                    id="customFirstBlockDuration"
+                    className={inputStyle}
+                    value={customFirstBlockDuration}
+                    onChange={(e) => setCustomFirstBlockDuration(parseInt(e.target.value))}
+                  >
+                    <option value={30}>{fanyi("30 minutes")}</option>
+                    <option value={60}>{fanyi("1 hour")}</option>
+                  </select>
+                </div>
+                <div className="form-group" style={{flex: '1'}}>
+                  <label htmlFor="customInitialSegmentMinutes">{fanyi("Initial Segment (min, round up)")}:</label>
+                  <input
+                    type="number"
+                    id="customInitialSegmentMinutes"
+                    className={inputStyle}
+                    value={customInitialSegmentMinutes}
+                    onChange={(e) => setCustomInitialSegmentMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                    min="1"
+                  />
+                </div>
+                <div className="form-group" style={{flex: '1'}}>
+                  <label htmlFor="customSubsequentSegmentMinutes">{fanyi("Subsequent Segment (min)")}:</label>
+                  <input
+                    type="number"
+                    id="customSubsequentSegmentMinutes"
+                    className={inputStyle}
+                    value={customSubsequentSegmentMinutes}
+                    onChange={(e) => setCustomSubsequentSegmentMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                    min="1"
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -1025,7 +983,6 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                 <div className="form-group half">
                   <label>{fanyi("Final Fee")} ({fanyi("Leave empty to use calculated fee")}):</label>
                   <div className="input-group">
-                    <span className="input-prefix">$</span>
                     <input
                       type="number"
                       step="0.01"
