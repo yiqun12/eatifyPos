@@ -87,6 +87,22 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     setProducts(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
   }, [id]);
 
+  // 监听来自TableTimingModal的更新事件
+  useEffect(() => {
+    const handleCartUpdate = (event) => {
+      const { store: eventStore, selectedTable: eventTable } = event.detail;
+      // 只有当事件是针对当前购物车时才更新
+      if (eventStore === store && eventTable === selectedTable) {
+        saveId(Math.random()); // 触发重新渲染
+      }
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, [store, selectedTable, saveId]);
+
   // 新增：页面加载时检查和恢复所有定时器
   useEffect(() => {
     const checkAllTimers = () => {
@@ -2434,6 +2450,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         tableItem={selectedTableItem}
         onTableStart={handleTableStartFromCart}
         onTableEnd={handleTableEnd}
+        onRemarksUpdate={SetTableInfo} // 传递SetTableInfo函数用于保存备注到数据库
         fanyi={fanyi} // Pass the fanyi function as a prop
       />
     </div>

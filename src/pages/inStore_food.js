@@ -1948,6 +1948,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
               tableItem={selectedTableItem}
               onTableStart={handleTableStart}
               onTableEnd={handleTableEnd}
+              onRemarksUpdate={SetTableInfo} // 传递SetTableInfo函数用于保存备注到数据库
               forceStartMode={true}
           />
         </div>

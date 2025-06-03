@@ -85,7 +85,7 @@ export const calculatePriceForBillingRule = (totalMinutes, hourlyRate, ruleId, c
     return Math.max(price, 0.00); // Ensure price is not negative, can be 0 if duration is 0
 };
 
-const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, onTableStart, onTableEnd, forceStartMode = false }) => {
+const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, onTableStart, onTableEnd, onRemarksUpdate, forceStartMode = false }) => {
   const [basePrice, setBasePrice] = useState('0.00'); // 基础价格（不可修改）
   const [calculatedFee, setCalculatedFee] = useState('0.00'); // 计算出的台费（有颜色显示）
   const [finalFee, setFinalFee] = useState(''); // 最终台费（用户可输入，空则用计算的）
@@ -115,6 +115,12 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
   const [activeInputField, setActiveInputField] = useState('timerDuration'); // 默认激活定时时长
   const [keypadValue, setKeypadValue] = useState('');
   const [isPC, setIsPC] = useState(window.innerWidth >= 1024);
+
+  // 备注编辑状态
+  const [isEditingRemarks, setIsEditingRemarks] = useState(false);
+
+  // 计费规则编辑状态
+  const [isEditingBillingRule, setIsEditingBillingRule] = useState(false);
 
   // 翻译功能
   const translations = [
@@ -175,6 +181,12 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     { input: "No input fields available for keypad", output: "暂无可用的输入字段" },
     { input: "First Block Billing Unit", output: "首时段计费单位" },
     { input: "Subsequent Billing Unit", output: "后续计费单位" },
+    { input: "Update Settings", output: "更新设置" },
+    { input: "Settings updated successfully", output: "设置更新成功" },
+    { input: "Edit", output: "编辑" },
+    { input: "Save", output: "保存" },
+    { input: "Edit Rule", output: "编辑规则" },
+    { input: "Current Rule", output: "当前规则" },
   ];
 
   function translate(input) {
@@ -287,6 +299,131 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
   const handleKeypadCancel = () => {
     setKeypadValue('');
+  };
+
+  // 备注编辑相关函数
+  const handleEditRemarks = () => {
+    setIsEditingRemarks(true);
+  };
+
+  const handleSaveRemarks = () => {
+    setIsEditingRemarks(false);
+    // 自动更新到购物车
+    if (tableItem && tableItem.id && tableItem.count && currentStatus === 'In Service') {
+      const cartStorageKey = `${store}-${selectedTable}`;
+      let products = JSON.parse(localStorage.getItem(cartStorageKey)) || [];
+      const targetProductIndex = products.findIndex(product =>
+        product.id === tableItem.id &&
+        product.count === tableItem.count &&
+        product.isTableItem
+      );
+
+      if (targetProductIndex !== -1) {
+        // 更新备注
+        products[targetProductIndex].tableRemarks = remarks;
+        products[targetProductIndex].attributeSelected = {
+          ...(products[targetProductIndex].attributeSelected || {}),
+          '备注': remarks ? [remarks] : []
+        };
+        
+        // 立即更新localStorage
+        localStorage.setItem(cartStorageKey, JSON.stringify(products));
+        console.log('[TableTimingModal] 备注已保存到本地存储:', remarks);
+        
+        // 调用外部的回调函数来保存到数据库
+        if (onRemarksUpdate) {
+          onRemarksUpdate(cartStorageKey, JSON.stringify(products));
+        }
+        
+        // 通过window事件通知购物车更新
+        window.dispatchEvent(new CustomEvent('cartUpdated', {
+          detail: { store, selectedTable, tableItem, remarks }
+        }));
+      }
+    }
+  };
+
+  const handleCancelEditRemarks = () => {
+    setIsEditingRemarks(false);
+    // 恢复到之前的备注
+    if (tableItem) {
+      let savedRemarks = tableItem.tableRemarks || '';
+      if (!savedRemarks && tableItem.attributeSelected && tableItem.attributeSelected['备注'] && tableItem.attributeSelected['备注'][0]) {
+        savedRemarks = tableItem.attributeSelected['备注'][0];
+      }
+      setRemarks(savedRemarks);
+    }
+  };
+
+  // 计费规则编辑相关函数
+  const handleEditBillingRule = () => {
+    setIsEditingBillingRule(true);
+  };
+
+  const handleSaveBillingRule = () => {
+    if (!tableItem || !tableItem.id || !tableItem.count) {
+      console.error("[TableTimingModal][handleSaveBillingRule] Cannot proceed: tableItem information missing.");
+      return;
+    }
+
+    const itemSpecificKeyPrefix = `${store}-${tableItem.id}-${tableItem.count}`;
+    
+    // 更新计费规则
+    localStorage.setItem(`${itemSpecificKeyPrefix}-billingRule`, selectedBillingRule);
+    
+    // 更新自定义规则参数
+    if (selectedBillingRule === BILLING_RULES.CUSTOM_RULE) {
+      const firstBlock = parseInt(customFirstBlockDuration);
+      const initialSegment = parseInt(customInitialSegmentMinutes);
+      const subsequentSegment = parseInt(customSubsequentSegmentMinutes);
+      
+      if (isNaN(firstBlock) || !(firstBlock === 30 || firstBlock === 60) ||
+          isNaN(initialSegment) || initialSegment <= 0 ||
+          isNaN(subsequentSegment) || subsequentSegment <= 0) {
+        alert(fanyi("Invalid custom rule parameters. Please check inputs."));
+        return;
+      }
+      
+      localStorage.setItem(`${itemSpecificKeyPrefix}-customFirstBlock`, customFirstBlockDuration.toString());
+      localStorage.setItem(`${itemSpecificKeyPrefix}-customInitialSegment`, customInitialSegmentMinutes.toString());
+      localStorage.setItem(`${itemSpecificKeyPrefix}-customSubsequentSegment`, customSubsequentSegmentMinutes.toString());
+    } else {
+      // 清理旧的自定义规则参数
+      localStorage.removeItem(`${itemSpecificKeyPrefix}-customFirstBlock`);
+      localStorage.removeItem(`${itemSpecificKeyPrefix}-customInitialSegment`);
+      localStorage.removeItem(`${itemSpecificKeyPrefix}-customSubsequentSegment`);
+    }
+
+    setIsEditingBillingRule(false);
+    console.log('[TableTimingModal] 计费规则已更新:', selectedBillingRule);
+  };
+
+  const handleCancelEditBillingRule = () => {
+    setIsEditingBillingRule(false);
+    // 恢复到之前保存的规则设置
+    if (tableItem && tableItem.id && tableItem.count) {
+      const itemSpecificKeyPrefix = `${store}-${tableItem.id}-${tableItem.count}`;
+      const savedBillingRule = localStorage.getItem(`${itemSpecificKeyPrefix}-billingRule`);
+      
+      if (savedBillingRule) {
+        setSelectedBillingRule(savedBillingRule);
+        if (savedBillingRule === BILLING_RULES.CUSTOM_RULE) {
+          const savedFirstBlock = localStorage.getItem(`${itemSpecificKeyPrefix}-customFirstBlock`);
+          const savedInitialSegment = localStorage.getItem(`${itemSpecificKeyPrefix}-customInitialSegment`);
+          const savedSubsequentSegment = localStorage.getItem(`${itemSpecificKeyPrefix}-customSubsequentSegment`);
+          
+          setCustomFirstBlockDuration(savedFirstBlock ? parseInt(savedFirstBlock) : 60);
+          setCustomInitialSegmentMinutes(savedInitialSegment ? parseInt(savedInitialSegment) : 15);
+          setCustomSubsequentSegmentMinutes(savedSubsequentSegment ? parseInt(savedSubsequentSegment) : 15);
+        }
+      } else {
+        // 如果没有保存的规则，恢复默认值
+        setSelectedBillingRule(BILLING_RULES.RULE_1);
+        setCustomFirstBlockDuration(60);
+        setCustomInitialSegmentMinutes(15);
+        setCustomSubsequentSegmentMinutes(15);
+      }
+    }
   };
 
   // 计算时长（分钟）
@@ -490,6 +627,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
         setCustomRuleError('');
+        setIsEditingRemarks(false);
+        setIsEditingBillingRule(false);
         // 开台模式智能选择默认激活字段
         const availableFields = getAvailableInputFields();
         if (availableFields.length > 0) {
@@ -505,12 +644,18 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         const durationMinutes = calculateDuration(parseInt(itemSpecificStartTime));
         setUsedDuration(formatDuration(durationMinutes));
         if (tableItem) {
+          // 尝试从多个来源读取备注
           let savedRemarks = tableItem.tableRemarks || '';
+          if (!savedRemarks && tableItem.attributeSelected && tableItem.attributeSelected['备注'] && tableItem.attributeSelected['备注'][0]) {
+            savedRemarks = tableItem.attributeSelected['备注'][0];
+          }
           setRemarks(savedRemarks);
         }
         setCalculatedFee('0.00');
-        setRemarks('');
-        setCurrentTimerInfo(null);
+        // 不要重置备注，保持从tableItem读取的值
+        // setRemarks('');
+        // 保持定时器信息，不要重置
+        // setCurrentTimerInfo(null);
         setIsTimerEnabled(false);
         setTimerDuration('');
         setTimerAction('No Action');
@@ -519,6 +664,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
         setCustomRuleError('');
+        setIsEditingRemarks(false);
+        setIsEditingBillingRule(false);
         // 结台模式默认激活自定义时长
         setActiveInputField('customDuration');
         setKeypadValue('');
@@ -537,6 +684,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
         setCustomRuleError('');
+        setIsEditingRemarks(false);
+        setIsEditingBillingRule(false);
         // 默认状态智能选择激活字段
         const availableFields = getAvailableInputFields();
         if (availableFields.length > 0) {
@@ -839,6 +988,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     onClose();
   };
 
+
+
   const handleEndTable = () => {
     // Ensure tableItem and its count are available for correct key generation
     if (!tableItem || !tableItem.id || !tableItem.count) {
@@ -1036,25 +1187,106 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           {/* Billing Rule Selection - Display if starting or in service */}
           {(forceStartMode || currentStatus === 'Not Started' || currentStatus === 'In Service') && (
             <div className="form-group">
-              <label htmlFor="billingRuleSelect">{fanyi("Billing Rule")}:</label>
-              <select 
-                id="billingRuleSelect" 
-                className={inputStyle} 
-                value={selectedBillingRule} 
-                onChange={(e) => setSelectedBillingRule(e.target.value)}
-              >
-                <option value={BILLING_RULES.RULE_1}>{fanyi("Rule: Hour Block / 15-min")}</option>
-                <option value={BILLING_RULES.RULE_2}>{fanyi("Rule: 30-min Block, then Hour Block / 15-min")}</option>
-                <option value={BILLING_RULES.RULE_3}>{fanyi("Rule: Hour Block / 30-min")}</option>
-                <option value={BILLING_RULES.RULE_4}>{fanyi("Rule: Hour Block / Minute")}</option>
-                <option value={BILLING_RULES.RULE_5}>{fanyi("Rule: Exact Minute")}</option>
-                <option value={BILLING_RULES.CUSTOM_RULE}>{fanyi("Custom Rule")}</option>
-              </select>
+              {/* 开台模式：直接显示选择框 */}
+              {(forceStartMode || currentStatus === 'Not Started') && (
+                <>
+                  <label htmlFor="billingRuleSelect">{fanyi("Billing Rule")}:</label>
+                  <select 
+                    id="billingRuleSelect" 
+                    className={inputStyle} 
+                    value={selectedBillingRule} 
+                    onChange={(e) => setSelectedBillingRule(e.target.value)}
+                  >
+                    <option value={BILLING_RULES.RULE_1}>{fanyi("Rule: Hour Block / 15-min")}</option>
+                    <option value={BILLING_RULES.RULE_2}>{fanyi("Rule: 30-min Block, then Hour Block / 15-min")}</option>
+                    <option value={BILLING_RULES.RULE_3}>{fanyi("Rule: Hour Block / 30-min")}</option>
+                    <option value={BILLING_RULES.RULE_4}>{fanyi("Rule: Hour Block / Minute")}</option>
+                    <option value={BILLING_RULES.RULE_5}>{fanyi("Rule: Exact Minute")}</option>
+                    <option value={BILLING_RULES.CUSTOM_RULE}>{fanyi("Custom Rule")}</option>
+                  </select>
+                </>
+              )}
+              
+              {/* 结台模式：编辑模式 */}
+              {currentStatus === 'In Service' && (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label>{fanyi("Billing Rule")}:</label>
+                    <div>
+                      {!isEditingBillingRule ? (
+                        <button 
+                          type="button"
+                          onClick={handleEditBillingRule}
+                          className="btn btn-sm btn-outline-primary notranslate"
+                          style={{ padding: '4px 8px', fontSize: '12px' }}
+                        >
+                          {fanyi("Edit Rule")}
+                        </button>
+                      ) : (
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <button 
+                            type="button"
+                            onClick={handleSaveBillingRule}
+                            className="btn btn-sm btn-success notranslate"
+                            style={{ padding: '4px 8px', fontSize: '12px' }}
+                          >
+                            {fanyi("Save")}
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={handleCancelEditBillingRule}
+                            className="btn btn-sm btn-secondary notranslate"
+                            style={{ padding: '4px 8px', fontSize: '12px' }}
+                          >
+                            {fanyi("Cancel")}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {!isEditingBillingRule ? (
+                    <div className="status-display inactive notranslate" style={{textAlign: 'left', minHeight: '40px', padding: '8px'}}>
+                      {(() => {
+                        switch (selectedBillingRule) {
+                          case BILLING_RULES.RULE_1:
+                            return fanyi("Rule: Hour Block / 15-min");
+                          case BILLING_RULES.RULE_2:
+                            return fanyi("Rule: 30-min Block, then Hour Block / 15-min");
+                          case BILLING_RULES.RULE_3:
+                            return fanyi("Rule: Hour Block / 30-min");
+                          case BILLING_RULES.RULE_4:
+                            return fanyi("Rule: Hour Block / Minute");
+                          case BILLING_RULES.RULE_5:
+                            return fanyi("Rule: Exact Minute");
+                          case BILLING_RULES.CUSTOM_RULE:
+                            return `${fanyi("Custom Rule")} (${customFirstBlockDuration === 30 ? fanyi("30 minutes") : fanyi("1 hour")} / ${customInitialSegmentMinutes}min → ${customSubsequentSegmentMinutes}min)`;
+                          default:
+                            return fanyi("Rule: Hour Block / 15-min");
+                        }
+                      })()}
+                    </div>
+                  ) : (
+                    <select 
+                      id="billingRuleSelect" 
+                      className={inputStyle} 
+                      value={selectedBillingRule} 
+                      onChange={(e) => setSelectedBillingRule(e.target.value)}
+                    >
+                      <option value={BILLING_RULES.RULE_1}>{fanyi("Rule: Hour Block / 15-min")}</option>
+                      <option value={BILLING_RULES.RULE_2}>{fanyi("Rule: 30-min Block, then Hour Block / 15-min")}</option>
+                      <option value={BILLING_RULES.RULE_3}>{fanyi("Rule: Hour Block / 30-min")}</option>
+                      <option value={BILLING_RULES.RULE_4}>{fanyi("Rule: Hour Block / Minute")}</option>
+                      <option value={BILLING_RULES.RULE_5}>{fanyi("Rule: Exact Minute")}</option>
+                      <option value={BILLING_RULES.CUSTOM_RULE}>{fanyi("Custom Rule")}</option>
+                    </select>
+                  )}
+                </>
+              )}
             </div>
           )}
 
           {/* 自定义规则配置区域 */}
-          {selectedBillingRule === BILLING_RULES.CUSTOM_RULE && (forceStartMode || currentStatus === 'Not Started' || currentStatus === 'In Service') && (
+          {selectedBillingRule === BILLING_RULES.CUSTOM_RULE && (forceStartMode || currentStatus === 'Not Started' || (currentStatus === 'In Service' && isEditingBillingRule)) && (
             <div className="custom-billing-config form-group">
               <h4>{fanyi("Configure Custom Rule")}</h4>
               {customRuleError && <p className="error-message" style={{color: 'red'}}>{customRuleError}</p>}
@@ -1160,12 +1392,56 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                 </div>
               </div>
 
-              {/* 结台时显示备注内容（只读） */}
+              {/* 结台时显示备注内容（可编辑） */}
               <div className="form-group">
-                <label>{fanyi("Remarks")}:</label>
-                <div className="status-display inactive notranslate" style={{whiteSpace: 'pre-wrap', textAlign: 'left', minHeight: '40px', padding: '8px'}}>
-                  {remarks || fanyi("No remarks")}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label>{fanyi("Remarks")}:</label>
+                  <div>
+                    {!isEditingRemarks ? (
+                      <button 
+                        type="button"
+                        onClick={handleEditRemarks}
+                        className="btn btn-sm btn-outline-primary notranslate"
+                        style={{ padding: '4px 8px', fontSize: '12px' }}
+                      >
+                        {fanyi("Edit")}
+                      </button>
+                    ) : (
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        <button 
+                          type="button"
+                          onClick={handleSaveRemarks}
+                          className="btn btn-sm btn-success notranslate"
+                          style={{ padding: '4px 8px', fontSize: '12px' }}
+                        >
+                          {fanyi("Save")}
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={handleCancelEditRemarks}
+                          className="btn btn-sm btn-secondary notranslate"
+                          style={{ padding: '4px 8px', fontSize: '12px' }}
+                        >
+                          {fanyi("Cancel")}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
+                {!isEditingRemarks ? (
+                  <div className="status-display inactive notranslate" style={{whiteSpace: 'pre-wrap', textAlign: 'left', minHeight: '40px', padding: '8px'}}>
+                    {remarks || fanyi("No remarks")}
+                  </div>
+                ) : (
+                  <textarea
+                    value={remarks}
+                    onChange={(e) => setRemarks(e.target.value)}
+                    className={inputStyle}
+                    rows="3"
+                    placeholder={fanyi("Enter remarks here...")}
+                    style={{ minHeight: '60px' }}
+                  />
+                )}
               </div>
             </>
           )}
