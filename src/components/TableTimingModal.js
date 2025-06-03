@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './TableTimingModal.css';
 import { v4 as uuidv4 } from 'uuid';
 import Modal from 'react-modal';
+import NumberPad from './NumberPad';
 
 // Define and Export billing rules
 export const BILLING_RULES = {
@@ -110,6 +111,11 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
   // 定时器信息状态
   const [currentTimerInfo, setCurrentTimerInfo] = useState(null);
 
+  // 数字键盘相关状态
+  const [activeInputField, setActiveInputField] = useState('timerDuration'); // 默认激活定时时长
+  const [keypadValue, setKeypadValue] = useState('');
+  const [isPC, setIsPC] = useState(window.innerWidth >= 1024);
+
   // 翻译功能
   const translations = [
     { input: "Table Timing", output: "开台计时" },
@@ -163,6 +169,12 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     { input: "Initial Segment (min, round up)", output: "首时段计费单位 (分钟, 向上取整)" },
     { input: "Subsequent Segment (min)", output: "后续计费单位 (分钟)" },
     { input: "Invalid custom rule parameters. Please check inputs.", output: "自定义规则参数无效，请检查输入。" },
+    // 数字键盘相关翻译
+    { input: "Number Pad", output: "数字键盘" },
+    { input: "Click input field to activate keypad", output: "点击输入框激活键盘" },
+    { input: "No input fields available for keypad", output: "暂无可用的输入字段" },
+    { input: "First Block Billing Unit", output: "首时段计费单位" },
+    { input: "Subsequent Billing Unit", output: "后续计费单位" },
   ];
 
   function translate(input) {
@@ -173,6 +185,109 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
   function fanyi(input) {
     return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input;
   }
+
+  // 数字键盘相关函数  
+  const getAvailableInputFields = () => {
+    const fields = [];
+    
+    // 定时器字段（只有启用时才可用）
+    if (isTimerEnabled) {
+      fields.push('timerDuration');
+    }
+    
+    // 自定义规则字段（只有选择自定义规则时才可用）
+    if (selectedBillingRule === BILLING_RULES.CUSTOM_RULE) {
+      fields.push('customInitialSegment', 'customSubsequentSegment');
+    }
+    
+    // 结台模式的字段
+    if (!forceStartMode && currentStatus === 'In Service') {
+      fields.push('customDuration', 'finalFee');
+    }
+    
+    return fields;
+  };
+
+  const activateInputField = (fieldName, currentValue = '') => {
+    const availableFields = getAvailableInputFields();
+    
+    // 如果尝试激活的字段不可用，切换到第一个可用字段
+    if (!availableFields.includes(fieldName)) {
+      if (availableFields.length === 0) {
+        // 没有可用字段，设置为空状态
+        setActiveInputField('none');
+        setKeypadValue('');
+        return;
+      }
+      
+      // 切换到第一个可用字段
+      fieldName = availableFields[0];
+      switch (fieldName) {
+        case 'timerDuration':
+          currentValue = timerDuration;
+          break;
+        case 'customInitialSegment':
+          currentValue = customInitialSegmentMinutes.toString();
+          break;
+        case 'customSubsequentSegment':
+          currentValue = customSubsequentSegmentMinutes.toString();
+          break;
+        case 'customDuration':
+          currentValue = customDuration;
+          break;
+        case 'finalFee':
+          currentValue = finalFee;
+          break;
+        default:
+          currentValue = '';
+      }
+    }
+    
+    setActiveInputField(fieldName);
+    setKeypadValue(currentValue);
+  };
+
+  const handleKeypadChange = (newValue) => {
+    setKeypadValue(newValue);
+    
+    // 实时更新对应的输入框
+    switch (activeInputField) {
+      case 'timerDuration':
+        // 只有定时器启用时才允许修改
+        if (isTimerEnabled) {
+          setTimerDuration(newValue);
+        }
+        break;
+      case 'customInitialSegment':
+        // 对于整数字段，只有当输入完整时才更新，避免输入过程中的干扰
+        if (newValue === '' || !isNaN(parseInt(newValue))) {
+          setCustomInitialSegmentMinutes(newValue === '' ? 1 : Math.max(1, parseInt(newValue)));
+        }
+        break;
+      case 'customSubsequentSegment':
+        if (newValue === '' || !isNaN(parseInt(newValue))) {
+          setCustomSubsequentSegmentMinutes(newValue === '' ? 1 : Math.max(1, parseInt(newValue)));
+        }
+        break;
+      case 'customDuration':
+        setCustomDuration(newValue);
+        break;
+      case 'finalFee':
+        setFinalFee(newValue);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleKeypadConfirm = () => {
+    // 确认时只清空键盘值，因为实时更新已经在 handleKeypadChange 中处理了
+    setKeypadValue('');
+  };
+
+  const handleKeypadCancel = () => {
+    setKeypadValue('');
+  };
 
   // 计算时长（分钟）
   const calculateDuration = (startTimeMs) => {
@@ -199,6 +314,31 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     // 删除最低0.01的限制，让真实计算结果显示
     return Math.max(fee, 0.001); // 最低0.1分
   };
+
+  // 检测屏幕尺寸
+  useEffect(() => {
+    const handleResize = () => {
+      setIsPC(window.innerWidth >= 1024);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // 监听字段可用性变化，自动调整数字键盘激活字段
+  useEffect(() => {
+    const availableFields = getAvailableInputFields();
+    
+    // 如果当前激活的字段不可用，切换到可用字段
+    if (!availableFields.includes(activeInputField)) {
+      if (availableFields.length > 0) {
+        activateInputField(availableFields[0]);
+      } else {
+        setActiveInputField('none');
+        setKeypadValue('');
+      }
+    }
+  }, [isTimerEnabled, selectedBillingRule, forceStartMode, currentStatus]);
 
   // 更新当前时间和已用时长
   useEffect(() => {
@@ -350,6 +490,14 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
         setCustomRuleError('');
+        // 开台模式智能选择默认激活字段
+        const availableFields = getAvailableInputFields();
+        if (availableFields.length > 0) {
+          activateInputField(availableFields[0]);
+        } else {
+          setActiveInputField('none');
+          setKeypadValue('');
+        }
       } else if (itemSpecificStartTime && !isNaN(parseInt(itemSpecificStartTime))) {
         const startDate = new Date(parseInt(itemSpecificStartTime));
         setStartTime(startDate.toLocaleString('zh-CN'));
@@ -371,6 +519,9 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
         setCustomRuleError('');
+        // 结台模式默认激活自定义时长
+        setActiveInputField('customDuration');
+        setKeypadValue('');
       } else {
         setCurrentStatus('Not Started');
         setStartTime('');
@@ -386,6 +537,14 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
         setCustomRuleError('');
+        // 默认状态智能选择激活字段
+        const availableFields = getAvailableInputFields();
+        if (availableFields.length > 0) {
+          activateInputField(availableFields[0]);
+        } else {
+          setActiveInputField('none');
+          setKeypadValue('');
+        }
       }
 
       if (itemSpecificBasePrice) {
@@ -763,12 +922,13 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
   return (
     <div className="table-timing-modal-overlay">
-      <div className="table-timing-modal" style={{ maxWidth: '700px', minHeight: '600px' }}>
+              <div className="table-timing-modal" style={{ maxWidth: isPC ? '1100px' : '700px', minHeight: '600px' }}>
         <div className="table-timing-modal-header">
           <h2 className="text-xl font-semibold mb-4">{fanyi("开台计时")} - <span className="notranslate">{tableItem?.name}</span></h2>
         </div>
 
-        <div className="table-timing-modal-body">
+        <div style={{ display: 'flex', flexDirection: 'row', gap: isPC ? '20px' : '0' }}>
+          <div className="table-timing-modal-body" style={{ flex: isPC ? '1' : 'none', width: isPC ? 'auto' : '100%' }}>
           {/* 基础价格 和 当前状态 - 修改为一行显示 */}
           <div className="form-row">
             <div className="form-group half">
@@ -836,7 +996,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                           type="number"
                           value={timerDuration}
                           onChange={(e) => setTimerDuration(e.target.value)}
-                          className={inputStyle}
+                          onClick={() => activateInputField('timerDuration', timerDuration)}
+                          className={`${inputStyle} ${activeInputField === 'timerDuration' ? 'ring-2 ring-blue-500' : ''}`}
                           placeholder="30"
                         />
                         <span className="input-suffix">{fanyi("minutes")}</span>
@@ -915,9 +1076,10 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                   <input
                     type="number"
                     id="customInitialSegmentMinutes"
-                    className={inputStyle}
+                    className={`${inputStyle} ${activeInputField === 'customInitialSegment' ? 'ring-2 ring-blue-500' : ''}`}
                     value={customInitialSegmentMinutes}
                     onChange={(e) => setCustomInitialSegmentMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                    onClick={() => activateInputField('customInitialSegment', customInitialSegmentMinutes.toString())}
                     min="1"
                   />
                 </div>
@@ -926,9 +1088,10 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                   <input
                     type="number"
                     id="customSubsequentSegmentMinutes"
-                    className={inputStyle}
+                    className={`${inputStyle} ${activeInputField === 'customSubsequentSegment' ? 'ring-2 ring-blue-500' : ''}`}
                     value={customSubsequentSegmentMinutes}
                     onChange={(e) => setCustomSubsequentSegmentMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                    onClick={() => activateInputField('customSubsequentSegment', customSubsequentSegmentMinutes.toString())}
                     min="1"
                   />
                 </div>
@@ -964,7 +1127,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                       type="number"
                       value={customDuration}
                       onChange={(e) => setCustomDuration(e.target.value)}
-                      className={inputStyle}
+                      onClick={() => activateInputField('customDuration', customDuration)}
+                      className={`${inputStyle} ${activeInputField === 'customDuration' ? 'ring-2 ring-blue-500' : ''}`}
                       placeholder="30"
                     />
                     <span className="input-suffix">{fanyi("minutes")}</span>
@@ -988,7 +1152,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                       step="0.01"
                       value={finalFee}
                       onChange={(e) => setFinalFee(e.target.value)}
-                      className={inputStyle}
+                      onClick={() => activateInputField('finalFee', finalFee)}
+                      className={`${inputStyle} ${activeInputField === 'finalFee' ? 'ring-2 ring-blue-500' : ''}`}
                       placeholder={'$'+(Math.round(parseFloat(calculatedFee) * 100) / 100).toFixed(2)}
                     />
                   </div>
@@ -1003,6 +1168,51 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                 </div>
               </div>
             </>
+          )}
+          </div>
+
+          {/* 右侧数字键盘区域 */}
+          {isPC && (
+            <div style={{ width: '300px', flexShrink: 0, borderLeft: '1px solid #e0e0e0', paddingLeft: '20px' }}>
+              <div className="mb-4">
+                <h4 className="text-lg font-semibold mb-2">{fanyi("Number Pad")}</h4>
+                <div className="text-sm text-gray-600 mb-3">
+                  {(() => {
+                    const availableFields = getAvailableInputFields();
+                    
+                    if (availableFields.length === 0) {
+                      return fanyi("No input fields available for keypad");
+                    }
+                    
+                    switch (activeInputField) {
+                      case 'timerDuration':
+                        return `${fanyi("Timer Duration")}: ${timerDuration || '--'} ${fanyi("minutes")}`;
+                      case 'customInitialSegment':
+                        return `${fanyi("First Block Billing Unit")}: ${customInitialSegmentMinutes} ${fanyi("minutes")}`;
+                      case 'customSubsequentSegment':
+                        return `${fanyi("Subsequent Billing Unit")}: ${customSubsequentSegmentMinutes} ${fanyi("minutes")}`;
+                      case 'customDuration':
+                        return `${fanyi("Custom Duration")}: ${customDuration || '--'} ${fanyi("minutes")}`;
+                      case 'finalFee':
+                        return `${fanyi("Final Fee")}: $${finalFee || (Math.round(parseFloat(calculatedFee) * 100) / 100).toFixed(2)}`;
+                      case 'none':
+                        return fanyi("No input fields available for keypad");
+                      default:
+                        return fanyi("Click input field to activate keypad");
+                    }
+                  })()}
+                </div>
+              </div>
+
+              <NumberPad
+                inputValue={keypadValue}
+                onInputChange={handleKeypadChange}
+                onConfirm={handleKeypadConfirm}
+                onCancel={handleKeypadCancel}
+                show={true}
+                embedded={true}
+              />
+            </div>
           )}
         </div>
 
