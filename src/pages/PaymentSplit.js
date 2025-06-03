@@ -200,7 +200,23 @@ const PaymentComponent = ({ subtotal, setDiscount, setTips, setExtra, setInputVa
             SetTableInfo(storeID + "-" + selectedTable, "[]")
             SetTableIsSent(storeID + "-" + selectedTable + "-isSent", "[]")
           }
-          localStorage.removeItem(`${storeID}-${selectedTable}-isSent_startTime`); // Clear start time
+          // 清理所有开台商品的计时信息
+          const currentProducts = JSON.parse(localStorage.getItem(`${storeID}-${selectedTable}`) || "[]");
+          currentProducts.forEach(product => {
+            if (product.isTableItem && product.id && product.count) {
+              const itemSpecificKeyPrefix = `${storeID}-${product.id}-${product.count}`;
+              localStorage.removeItem(`${itemSpecificKeyPrefix}-isSent_startTime`);
+              localStorage.removeItem(`${itemSpecificKeyPrefix}-basePrice`);
+              localStorage.removeItem(`${itemSpecificKeyPrefix}-billingRule`);
+              localStorage.removeItem(`${itemSpecificKeyPrefix}-customFirstBlock`);
+              localStorage.removeItem(`${itemSpecificKeyPrefix}-customInitialSegment`);
+              localStorage.removeItem(`${itemSpecificKeyPrefix}-customSubsequentSegment`);
+              // 清理活跃的定时器
+              const persistentTimerKey = `activeTimer-${storeID}-${selectedTable}-${product.id}-${product.count}`;
+              localStorage.removeItem(persistentTimerKey);
+            }
+          });
+          localStorage.removeItem(`${storeID}-${selectedTable}-isSent_startTime`); // Clear old table-level start time
           return updatedArray;
         });
 

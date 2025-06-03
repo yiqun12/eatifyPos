@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './TableTimingModal.css';
 import { v4 as uuidv4 } from 'uuid';
 import Modal from 'react-modal';
+import NumberPad from './NumberPad';
 
 // Define and Export billing rules
 export const BILLING_RULES = {
@@ -84,7 +85,7 @@ export const calculatePriceForBillingRule = (totalMinutes, hourlyRate, ruleId, c
     return Math.max(price, 0.00); // Ensure price is not negative, can be 0 if duration is 0
 };
 
-const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, onTableStart, onTableEnd, forceStartMode = false }) => {
+const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, onTableStart, onTableEnd, onRemarksUpdate, forceStartMode = false }) => {
   const [basePrice, setBasePrice] = useState('0.00'); // 基础价格（不可修改）
   const [calculatedFee, setCalculatedFee] = useState('0.00'); // 计算出的台费（有颜色显示）
   const [finalFee, setFinalFee] = useState(''); // 最终台费（用户可输入，空则用计算的）
@@ -109,6 +110,20 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
   // 定时器信息状态
   const [currentTimerInfo, setCurrentTimerInfo] = useState(null);
+
+  // 数字键盘相关状态
+  const [activeInputField, setActiveInputField] = useState('timerDuration'); // 默认激活定时时长
+  const [keypadValue, setKeypadValue] = useState('');
+  const [isPC, setIsPC] = useState(window.innerWidth >= 1024);
+
+  // 备注编辑状态
+  const [isEditingRemarks, setIsEditingRemarks] = useState(false);
+
+  // 计费规则编辑状态
+  const [isEditingBillingRule, setIsEditingBillingRule] = useState(false);
+
+  // 确认结台弹窗状态
+  const [showEndTableConfirm, setShowEndTableConfirm] = useState(false);
 
   // 翻译功能
   const translations = [
@@ -163,6 +178,22 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     { input: "Initial Segment (min, round up)", output: "首时段计费单位 (分钟, 向上取整)" },
     { input: "Subsequent Segment (min)", output: "后续计费单位 (分钟)" },
     { input: "Invalid custom rule parameters. Please check inputs.", output: "自定义规则参数无效，请检查输入。" },
+    // 数字键盘相关翻译
+    { input: "Number Pad", output: "数字键盘" },
+    { input: "Click input field to activate keypad", output: "点击输入框激活键盘" },
+    { input: "No input fields available for keypad", output: "暂无可用的输入字段" },
+    { input: "First Block Billing Unit", output: "首时段计费单位" },
+    { input: "Subsequent Billing Unit", output: "后续计费单位" },
+    { input: "Update Settings", output: "更新设置" },
+    { input: "Settings updated successfully", output: "设置更新成功" },
+    { input: "Edit", output: "编辑" },
+    { input: "Save", output: "保存" },
+    { input: "Edit Rule", output: "编辑规则" },
+    { input: "Current Rule", output: "当前规则" },
+    { input: "Confirm End Table", output: "确认结台" },
+    { input: "Are you sure you want to end this table?", output: "确定要结台吗？" },
+    { input: "This action cannot be undone.", output: "此操作无法撤销。" },
+    { input: "Yes, End Table", output: "确认结台" },
   ];
 
   function translate(input) {
@@ -173,6 +204,234 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
   function fanyi(input) {
     return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input;
   }
+
+  // 数字键盘相关函数  
+  const getAvailableInputFields = () => {
+    const fields = [];
+    
+    // 定时器字段（只有启用时才可用）
+    if (isTimerEnabled) {
+      fields.push('timerDuration');
+    }
+    
+    // 自定义规则字段（只有选择自定义规则时才可用）
+    if (selectedBillingRule === BILLING_RULES.CUSTOM_RULE) {
+      fields.push('customInitialSegment', 'customSubsequentSegment');
+    }
+    
+    // 结台模式的字段
+    if (!forceStartMode && currentStatus === 'In Service') {
+      fields.push('customDuration', 'finalFee');
+    }
+    
+    return fields;
+  };
+
+  const activateInputField = (fieldName, currentValue = '') => {
+    const availableFields = getAvailableInputFields();
+    
+    // 如果尝试激活的字段不可用，切换到第一个可用字段
+    if (!availableFields.includes(fieldName)) {
+      if (availableFields.length === 0) {
+        // 没有可用字段，设置为空状态
+        setActiveInputField('none');
+        setKeypadValue('');
+        return;
+      }
+      
+      // 切换到第一个可用字段
+      fieldName = availableFields[0];
+      switch (fieldName) {
+        case 'timerDuration':
+          currentValue = timerDuration;
+          break;
+        case 'customInitialSegment':
+          currentValue = customInitialSegmentMinutes.toString();
+          break;
+        case 'customSubsequentSegment':
+          currentValue = customSubsequentSegmentMinutes.toString();
+          break;
+        case 'customDuration':
+          currentValue = customDuration;
+          break;
+        case 'finalFee':
+          currentValue = finalFee;
+          break;
+        default:
+          currentValue = '';
+      }
+    }
+    
+    setActiveInputField(fieldName);
+    setKeypadValue(currentValue);
+  };
+
+  const handleKeypadChange = (newValue) => {
+    setKeypadValue(newValue);
+    
+    // 实时更新对应的输入框
+    switch (activeInputField) {
+      case 'timerDuration':
+        // 只有定时器启用时才允许修改
+        if (isTimerEnabled) {
+          setTimerDuration(newValue);
+        }
+        break;
+      case 'customInitialSegment':
+        // 对于整数字段，只有当输入完整时才更新，避免输入过程中的干扰
+        if (newValue === '' || !isNaN(parseInt(newValue))) {
+          setCustomInitialSegmentMinutes(newValue === '' ? 1 : Math.max(1, parseInt(newValue)));
+        }
+        break;
+      case 'customSubsequentSegment':
+        if (newValue === '' || !isNaN(parseInt(newValue))) {
+          setCustomSubsequentSegmentMinutes(newValue === '' ? 1 : Math.max(1, parseInt(newValue)));
+        }
+        break;
+      case 'customDuration':
+        setCustomDuration(newValue);
+        break;
+      case 'finalFee':
+        setFinalFee(newValue);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleKeypadConfirm = () => {
+    // 确认时只清空键盘值，因为实时更新已经在 handleKeypadChange 中处理了
+    setKeypadValue('');
+  };
+
+  const handleKeypadCancel = () => {
+    setKeypadValue('');
+  };
+
+  // 备注编辑相关函数
+  const handleEditRemarks = () => {
+    setIsEditingRemarks(true);
+  };
+
+  const handleSaveRemarks = () => {
+    setIsEditingRemarks(false);
+    // 自动更新到购物车
+    if (tableItem && tableItem.id && tableItem.count && currentStatus === 'In Service') {
+      const cartStorageKey = `${store}-${selectedTable}`;
+      let products = JSON.parse(localStorage.getItem(cartStorageKey)) || [];
+      const targetProductIndex = products.findIndex(product =>
+        product.id === tableItem.id &&
+        product.count === tableItem.count &&
+        product.isTableItem
+      );
+
+      if (targetProductIndex !== -1) {
+        // 更新备注
+        products[targetProductIndex].tableRemarks = remarks;
+        products[targetProductIndex].attributeSelected = {
+          ...(products[targetProductIndex].attributeSelected || {}),
+          '备注': remarks ? [remarks] : []
+        };
+        
+        // 立即更新localStorage
+        localStorage.setItem(cartStorageKey, JSON.stringify(products));
+        console.log('[TableTimingModal] 备注已保存到本地存储:', remarks);
+        
+        // 调用外部的回调函数来保存到数据库
+        if (onRemarksUpdate) {
+          onRemarksUpdate(cartStorageKey, JSON.stringify(products));
+        }
+        
+        // 通过window事件通知购物车更新
+        window.dispatchEvent(new CustomEvent('cartUpdated', {
+          detail: { store, selectedTable, tableItem, remarks }
+        }));
+      }
+    }
+  };
+
+  const handleCancelEditRemarks = () => {
+    setIsEditingRemarks(false);
+    // 恢复到之前的备注
+    if (tableItem) {
+      let savedRemarks = tableItem.tableRemarks || '';
+      if (!savedRemarks && tableItem.attributeSelected && tableItem.attributeSelected['备注'] && tableItem.attributeSelected['备注'][0]) {
+        savedRemarks = tableItem.attributeSelected['备注'][0];
+      }
+      setRemarks(savedRemarks);
+    }
+  };
+
+  // 计费规则编辑相关函数
+  const handleEditBillingRule = () => {
+    setIsEditingBillingRule(true);
+  };
+
+  const handleSaveBillingRule = () => {
+    if (!tableItem || !tableItem.id || !tableItem.count) {
+      console.error("[TableTimingModal][handleSaveBillingRule] Cannot proceed: tableItem information missing.");
+      return;
+    }
+
+    const itemSpecificKeyPrefix = `${store}-${tableItem.id}-${tableItem.count}`;
+    
+    // 更新计费规则
+    localStorage.setItem(`${itemSpecificKeyPrefix}-billingRule`, selectedBillingRule);
+    
+    // 更新自定义规则参数
+    if (selectedBillingRule === BILLING_RULES.CUSTOM_RULE) {
+      const firstBlock = parseInt(customFirstBlockDuration);
+      const initialSegment = parseInt(customInitialSegmentMinutes);
+      const subsequentSegment = parseInt(customSubsequentSegmentMinutes);
+      
+      if (isNaN(firstBlock) || !(firstBlock === 30 || firstBlock === 60) ||
+          isNaN(initialSegment) || initialSegment <= 0 ||
+          isNaN(subsequentSegment) || subsequentSegment <= 0) {
+        alert(fanyi("Invalid custom rule parameters. Please check inputs."));
+        return;
+      }
+      
+      localStorage.setItem(`${itemSpecificKeyPrefix}-customFirstBlock`, customFirstBlockDuration.toString());
+      localStorage.setItem(`${itemSpecificKeyPrefix}-customInitialSegment`, customInitialSegmentMinutes.toString());
+      localStorage.setItem(`${itemSpecificKeyPrefix}-customSubsequentSegment`, customSubsequentSegmentMinutes.toString());
+    } else {
+      // 清理旧的自定义规则参数
+      localStorage.removeItem(`${itemSpecificKeyPrefix}-customFirstBlock`);
+      localStorage.removeItem(`${itemSpecificKeyPrefix}-customInitialSegment`);
+      localStorage.removeItem(`${itemSpecificKeyPrefix}-customSubsequentSegment`);
+    }
+
+    setIsEditingBillingRule(false);
+    console.log('[TableTimingModal] 计费规则已更新:', selectedBillingRule);
+  };
+
+  const handleCancelEditBillingRule = () => {
+    setIsEditingBillingRule(false);
+    // 恢复到之前保存的规则设置
+    if (tableItem && tableItem.id && tableItem.count) {
+      const itemSpecificKeyPrefix = `${store}-${tableItem.id}-${tableItem.count}`;
+      const savedBillingRule = localStorage.getItem(`${itemSpecificKeyPrefix}-billingRule`);
+      
+      if (savedBillingRule) {
+        setSelectedBillingRule(savedBillingRule);
+        if (savedBillingRule === BILLING_RULES.CUSTOM_RULE) {
+          const savedFirstBlock = localStorage.getItem(`${itemSpecificKeyPrefix}-customFirstBlock`);
+          const savedInitialSegment = localStorage.getItem(`${itemSpecificKeyPrefix}-customInitialSegment`);
+          const savedSubsequentSegment = localStorage.getItem(`${itemSpecificKeyPrefix}-customSubsequentSegment`);
+          
+          setCustomFirstBlockDuration(savedFirstBlock ? parseInt(savedFirstBlock) : 60);
+          setCustomInitialSegmentMinutes(savedInitialSegment ? parseInt(savedInitialSegment) : 15);
+          setCustomSubsequentSegmentMinutes(savedSubsequentSegment ? parseInt(savedSubsequentSegment) : 15);
+        }
+      } else {
+        // 如果没有保存的规则，恢复默认值
+        setSelectedBillingRule(BILLING_RULES.RULE_1);
+        setCustomFirstBlockDuration(60);
+        setCustomInitialSegmentMinutes(15);
+        setCustomSubsequentSegmentMinutes(15);
+      }
+    }
+  };
 
   // 计算时长（分钟）
   const calculateDuration = (startTimeMs) => {
@@ -199,6 +458,31 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     // 删除最低0.01的限制，让真实计算结果显示
     return Math.max(fee, 0.001); // 最低0.1分
   };
+
+  // 检测屏幕尺寸
+  useEffect(() => {
+    const handleResize = () => {
+      setIsPC(window.innerWidth >= 1024);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // 监听字段可用性变化，自动调整数字键盘激活字段
+  useEffect(() => {
+    const availableFields = getAvailableInputFields();
+    
+    // 如果当前激活的字段不可用，切换到可用字段
+    if (!availableFields.includes(activeInputField)) {
+      if (availableFields.length > 0) {
+        activateInputField(availableFields[0]);
+      } else {
+        setActiveInputField('none');
+        setKeypadValue('');
+      }
+    }
+  }, [isTimerEnabled, selectedBillingRule, forceStartMode, currentStatus]);
 
   // 更新当前时间和已用时长
   useEffect(() => {
@@ -350,6 +634,17 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
         setCustomRuleError('');
+        setIsEditingRemarks(false);
+        setIsEditingBillingRule(false);
+        setShowEndTableConfirm(false);
+        // 开台模式智能选择默认激活字段
+        const availableFields = getAvailableInputFields();
+        if (availableFields.length > 0) {
+          activateInputField(availableFields[0]);
+        } else {
+          setActiveInputField('none');
+          setKeypadValue('');
+        }
       } else if (itemSpecificStartTime && !isNaN(parseInt(itemSpecificStartTime))) {
         const startDate = new Date(parseInt(itemSpecificStartTime));
         setStartTime(startDate.toLocaleString('zh-CN'));
@@ -357,12 +652,18 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         const durationMinutes = calculateDuration(parseInt(itemSpecificStartTime));
         setUsedDuration(formatDuration(durationMinutes));
         if (tableItem) {
+          // 尝试从多个来源读取备注
           let savedRemarks = tableItem.tableRemarks || '';
+          if (!savedRemarks && tableItem.attributeSelected && tableItem.attributeSelected['备注'] && tableItem.attributeSelected['备注'][0]) {
+            savedRemarks = tableItem.attributeSelected['备注'][0];
+          }
           setRemarks(savedRemarks);
         }
         setCalculatedFee('0.00');
-        setRemarks('');
-        setCurrentTimerInfo(null);
+        // 不要重置备注，保持从tableItem读取的值
+        // setRemarks('');
+        // 保持定时器信息，不要重置
+        // setCurrentTimerInfo(null);
         setIsTimerEnabled(false);
         setTimerDuration('');
         setTimerAction('No Action');
@@ -371,6 +672,12 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
         setCustomRuleError('');
+        setIsEditingRemarks(false);
+        setIsEditingBillingRule(false);
+        setShowEndTableConfirm(false);
+        // 结台模式默认激活自定义时长
+        setActiveInputField('customDuration');
+        setKeypadValue('');
       } else {
         setCurrentStatus('Not Started');
         setStartTime('');
@@ -386,6 +693,17 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
         setCustomRuleError('');
+        setIsEditingRemarks(false);
+        setIsEditingBillingRule(false);
+        setShowEndTableConfirm(false);
+        // 默认状态智能选择激活字段
+        const availableFields = getAvailableInputFields();
+        if (availableFields.length > 0) {
+          activateInputField(availableFields[0]);
+        } else {
+          setActiveInputField('none');
+          setKeypadValue('');
+        }
       }
 
       if (itemSpecificBasePrice) {
@@ -484,52 +802,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
       // Apply the stored billing rule for price calculation
       if (currentHourlyRate > 0 && finalDuration >= 0) {
-        const minsElapsed = finalDuration;
-        switch (autoCheckoutBillingRule) {
-          case BILLING_RULES.RULE_1:
-            if (minsElapsed <= 60) finalPrice = currentHourlyRate;
-            else finalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 15) * (currentHourlyRate / 4);
-            break;
-          case BILLING_RULES.RULE_2:
-            if (minsElapsed <= 30) finalPrice = currentHourlyRate / 2;
-            else if (minsElapsed <= 60) finalPrice = currentHourlyRate;
-            else finalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 15) * (currentHourlyRate / 4);
-            break;
-          case BILLING_RULES.RULE_3:
-            if (minsElapsed <= 60) finalPrice = currentHourlyRate;
-            else finalPrice = currentHourlyRate + Math.ceil((minsElapsed - 60) / 30) * (currentHourlyRate / 2);
-            break;
-          case BILLING_RULES.RULE_4:
-            if (minsElapsed <= 60) finalPrice = currentHourlyRate;
-            else finalPrice = currentHourlyRate + (minsElapsed - 60) * (currentHourlyRate / 60);
-            break;
-          case BILLING_RULES.RULE_5:
-            finalPrice = minsElapsed * (currentHourlyRate / 60);
-            break;
-          case BILLING_RULES.CUSTOM_RULE:
-            const { firstBlock, initialSegment, subsequentSegment } = autoCustomParams;
-            const priceForFirstBlockAuto = (firstBlock / 60) * currentHourlyRate;
-            if (minsElapsed <= 0) {
-              finalPrice = 0;
-            } else if (minsElapsed <= firstBlock) {
-              const billedUnitsInFirst = Math.ceil(minsElapsed / initialSegment);
-              let billedMinutesForPrice = billedUnitsInFirst * initialSegment;
-              if (billedMinutesForPrice >= firstBlock) {
-                finalPrice = priceForFirstBlockAuto;
-              } else {
-                finalPrice = (billedMinutesForPrice / 60) * currentHourlyRate;
-              }
-            } else { // minsElapsed > firstBlock
-              finalPrice = priceForFirstBlockAuto;
-              const remainingMinutes = minsElapsed - firstBlock;
-              const additionalUnits = Math.ceil(remainingMinutes / subsequentSegment);
-              finalPrice += additionalUnits * (subsequentSegment / 60) * currentHourlyRate;
-            }
-            break;
-          default:
-            finalPrice = minsElapsed * (currentHourlyRate / 60); // Fallback
-        }
-        finalPrice = Math.max(finalPrice, 0.001); // Ensure minimum price
+        // 使用导出的计费计算函数，避免重复代码
+        finalPrice = calculatePriceForBillingRule(finalDuration, currentHourlyRate, autoCheckoutBillingRule, autoCustomParams);
       } else {
         finalPrice = 0.00; // Or some default if rate is invalid
       }
@@ -724,7 +998,26 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     onClose();
   };
 
+
+
+  // 显示结台确认弹窗
   const handleEndTable = () => {
+    setShowEndTableConfirm(true);
+  };
+
+  // 确认结台
+  const confirmEndTable = () => {
+    setShowEndTableConfirm(false);
+    performEndTable();
+  };
+
+  // 取消结台
+  const cancelEndTable = () => {
+    setShowEndTableConfirm(false);
+  };
+
+  // 实际执行结台操作
+  const performEndTable = () => {
     // Ensure tableItem and its count are available for correct key generation
     if (!tableItem || !tableItem.id || !tableItem.count) {
       console.error("[TableTimingModal][handleEndTable] Cannot proceed: tableItem, tableItem.id, or tableItem.count is missing.", tableItem);
@@ -791,6 +1084,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     setFinalFee('');
     setRemarks('');
     setCurrentTimerInfo(null);
+    setShowEndTableConfirm(false);
 
     onClose();
 
@@ -807,12 +1101,13 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
   return (
     <div className="table-timing-modal-overlay">
-      <div className="table-timing-modal" style={{ maxWidth: '700px', minHeight: '600px' }}>
+              <div className="table-timing-modal" style={{ maxWidth: isPC ? '1100px' : '700px', minHeight: '600px' }}>
         <div className="table-timing-modal-header">
           <h2 className="text-xl font-semibold mb-4">{fanyi("开台计时")} - <span className="notranslate">{tableItem?.name}</span></h2>
         </div>
 
-        <div className="table-timing-modal-body">
+        <div style={{ display: 'flex', flexDirection: 'row', gap: isPC ? '20px' : '0' }}>
+          <div className="table-timing-modal-body" style={{ flex: isPC ? '1' : 'none', width: isPC ? 'auto' : '100%' }}>
           {/* 基础价格 和 当前状态 - 修改为一行显示 */}
           <div className="form-row">
             <div className="form-group half">
@@ -880,7 +1175,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                           type="number"
                           value={timerDuration}
                           onChange={(e) => setTimerDuration(e.target.value)}
-                          className={inputStyle}
+                          onClick={() => activateInputField('timerDuration', timerDuration)}
+                          className={`${inputStyle} ${activeInputField === 'timerDuration' ? 'ring-2 ring-blue-500' : ''}`}
                           placeholder="30"
                         />
                         <span className="input-suffix">{fanyi("minutes")}</span>
@@ -919,61 +1215,146 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           {/* Billing Rule Selection - Display if starting or in service */}
           {(forceStartMode || currentStatus === 'Not Started' || currentStatus === 'In Service') && (
             <div className="form-group">
-              <label htmlFor="billingRuleSelect">{fanyi("Billing Rule")}:</label>
-              <select 
-                id="billingRuleSelect" 
-                className={inputStyle} 
-                value={selectedBillingRule} 
-                onChange={(e) => setSelectedBillingRule(e.target.value)}
-              >
-                <option value={BILLING_RULES.RULE_1}>{fanyi("Rule: Hour Block / 15-min")}</option>
-                <option value={BILLING_RULES.RULE_2}>{fanyi("Rule: 30-min Block, then Hour Block / 15-min")}</option>
-                <option value={BILLING_RULES.RULE_3}>{fanyi("Rule: Hour Block / 30-min")}</option>
-                <option value={BILLING_RULES.RULE_4}>{fanyi("Rule: Hour Block / Minute")}</option>
-                <option value={BILLING_RULES.RULE_5}>{fanyi("Rule: Exact Minute")}</option>
-                <option value={BILLING_RULES.CUSTOM_RULE}>{fanyi("Custom Rule")}</option>
-              </select>
+              {/* 开台模式：直接显示选择框 */}
+              {(forceStartMode || currentStatus === 'Not Started') && (
+                <>
+                  <label htmlFor="billingRuleSelect">{fanyi("Billing Rule")}:</label>
+                  <select 
+                    id="billingRuleSelect" 
+                    className={inputStyle} 
+                    value={selectedBillingRule} 
+                    onChange={(e) => setSelectedBillingRule(e.target.value)}
+                  >
+                    <option value={BILLING_RULES.RULE_1}>{fanyi("Rule: Hour Block / 15-min")}</option>
+                    <option value={BILLING_RULES.RULE_2}>{fanyi("Rule: 30-min Block, then Hour Block / 15-min")}</option>
+                    <option value={BILLING_RULES.RULE_3}>{fanyi("Rule: Hour Block / 30-min")}</option>
+                    <option value={BILLING_RULES.RULE_4}>{fanyi("Rule: Hour Block / Minute")}</option>
+                    <option value={BILLING_RULES.RULE_5}>{fanyi("Rule: Exact Minute")}</option>
+                    <option value={BILLING_RULES.CUSTOM_RULE}>{fanyi("Custom Rule")}</option>
+                  </select>
+                </>
+              )}
+              
+              {/* 结台模式：编辑模式 */}
+              {currentStatus === 'In Service' && (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label>{fanyi("Billing Rule")}:</label>
+                    <div>
+                      {!isEditingBillingRule ? (
+                        <button 
+                          type="button"
+                          onClick={handleEditBillingRule}
+                          className="btn btn-sm btn-outline-primary notranslate"
+                          style={{ padding: '4px 8px', fontSize: '12px' }}
+                        >
+                          {fanyi("Edit Rule")}
+                        </button>
+                      ) : (
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <button 
+                            type="button"
+                            onClick={handleSaveBillingRule}
+                            className="btn btn-sm btn-success notranslate"
+                            style={{ padding: '4px 8px', fontSize: '12px' }}
+                          >
+                            {fanyi("Save")}
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={handleCancelEditBillingRule}
+                            className="btn btn-sm btn-secondary notranslate"
+                            style={{ padding: '4px 8px', fontSize: '12px' }}
+                          >
+                            {fanyi("Cancel")}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {!isEditingBillingRule ? (
+                    <div className="status-display inactive notranslate" style={{textAlign: 'left', minHeight: '40px', padding: '8px'}}>
+                      {(() => {
+                        switch (selectedBillingRule) {
+                          case BILLING_RULES.RULE_1:
+                            return fanyi("Rule: Hour Block / 15-min");
+                          case BILLING_RULES.RULE_2:
+                            return fanyi("Rule: 30-min Block, then Hour Block / 15-min");
+                          case BILLING_RULES.RULE_3:
+                            return fanyi("Rule: Hour Block / 30-min");
+                          case BILLING_RULES.RULE_4:
+                            return fanyi("Rule: Hour Block / Minute");
+                          case BILLING_RULES.RULE_5:
+                            return fanyi("Rule: Exact Minute");
+                          case BILLING_RULES.CUSTOM_RULE:
+                            return `${fanyi("Custom Rule")} (${customFirstBlockDuration === 30 ? fanyi("30 minutes") : fanyi("1 hour")} / ${customInitialSegmentMinutes}min → ${customSubsequentSegmentMinutes}min)`;
+                          default:
+                            return fanyi("Rule: Hour Block / 15-min");
+                        }
+                      })()}
+                    </div>
+                  ) : (
+                    <select 
+                      id="billingRuleSelect" 
+                      className={inputStyle} 
+                      value={selectedBillingRule} 
+                      onChange={(e) => setSelectedBillingRule(e.target.value)}
+                    >
+                      <option value={BILLING_RULES.RULE_1}>{fanyi("Rule: Hour Block / 15-min")}</option>
+                      <option value={BILLING_RULES.RULE_2}>{fanyi("Rule: 30-min Block, then Hour Block / 15-min")}</option>
+                      <option value={BILLING_RULES.RULE_3}>{fanyi("Rule: Hour Block / 30-min")}</option>
+                      <option value={BILLING_RULES.RULE_4}>{fanyi("Rule: Hour Block / Minute")}</option>
+                      <option value={BILLING_RULES.RULE_5}>{fanyi("Rule: Exact Minute")}</option>
+                      <option value={BILLING_RULES.CUSTOM_RULE}>{fanyi("Custom Rule")}</option>
+                    </select>
+                  )}
+                </>
+              )}
             </div>
           )}
 
           {/* 自定义规则配置区域 */}
-          {selectedBillingRule === BILLING_RULES.CUSTOM_RULE && (forceStartMode || currentStatus === 'Not Started' || currentStatus === 'In Service') && (
+          {selectedBillingRule === BILLING_RULES.CUSTOM_RULE && (forceStartMode || currentStatus === 'Not Started' || (currentStatus === 'In Service' && isEditingBillingRule)) && (
             <div className="custom-billing-config form-group">
               <h4>{fanyi("Configure Custom Rule")}</h4>
               {customRuleError && <p className="error-message" style={{color: 'red'}}>{customRuleError}</p>}
-              <div className="form-group">
-                <label htmlFor="customFirstBlockDuration">{fanyi("First Block (30/60 min)")}:</label>
-                <select
-                  id="customFirstBlockDuration"
-                  className={inputStyle}
-                  value={customFirstBlockDuration}
-                  onChange={(e) => setCustomFirstBlockDuration(parseInt(e.target.value))}
-                >
-                  <option value={30}>{fanyi("30 minutes")}</option>
-                  <option value={60}>{fanyi("1 hour")}</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label htmlFor="customInitialSegmentMinutes">{fanyi("Initial Segment (min, round up)")}:</label>
-                <input
-                  type="number"
-                  id="customInitialSegmentMinutes"
-                  className={inputStyle}
-                  value={customInitialSegmentMinutes}
-                  onChange={(e) => setCustomInitialSegmentMinutes(Math.max(1, parseInt(e.target.value) || 1))}
-                  min="1"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="customSubsequentSegmentMinutes">{fanyi("Subsequent Segment (min)")}:</label>
-                <input
-                  type="number"
-                  id="customSubsequentSegmentMinutes"
-                  className={inputStyle}
-                  value={customSubsequentSegmentMinutes}
-                  onChange={(e) => setCustomSubsequentSegmentMinutes(Math.max(1, parseInt(e.target.value) || 1))}
-                  min="1"
-                />
+              <div className="form-row" style={{display: 'flex', gap: '10px'}}>
+                <div className="form-group" style={{flex: '1'}}>
+                  <label htmlFor="customFirstBlockDuration">{fanyi("First Block (30/60 min)")}:</label>
+                  <select
+                    id="customFirstBlockDuration"
+                    className={inputStyle}
+                    value={customFirstBlockDuration}
+                    onChange={(e) => setCustomFirstBlockDuration(parseInt(e.target.value))}
+                  >
+                    <option value={30}>{fanyi("30 minutes")}</option>
+                    <option value={60}>{fanyi("1 hour")}</option>
+                  </select>
+                </div>
+                <div className="form-group" style={{flex: '1'}}>
+                  <label htmlFor="customInitialSegmentMinutes">{fanyi("Initial Segment (min, round up)")}:</label>
+                  <input
+                    type="number"
+                    id="customInitialSegmentMinutes"
+                    className={`${inputStyle} ${activeInputField === 'customInitialSegment' ? 'ring-2 ring-blue-500' : ''}`}
+                    value={customInitialSegmentMinutes}
+                    onChange={(e) => setCustomInitialSegmentMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                    onClick={() => activateInputField('customInitialSegment', customInitialSegmentMinutes.toString())}
+                    min="1"
+                  />
+                </div>
+                <div className="form-group" style={{flex: '1'}}>
+                  <label htmlFor="customSubsequentSegmentMinutes">{fanyi("Subsequent Segment (min)")}:</label>
+                  <input
+                    type="number"
+                    id="customSubsequentSegmentMinutes"
+                    className={`${inputStyle} ${activeInputField === 'customSubsequentSegment' ? 'ring-2 ring-blue-500' : ''}`}
+                    value={customSubsequentSegmentMinutes}
+                    onChange={(e) => setCustomSubsequentSegmentMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                    onClick={() => activateInputField('customSubsequentSegment', customSubsequentSegmentMinutes.toString())}
+                    min="1"
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -1006,7 +1387,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                       type="number"
                       value={customDuration}
                       onChange={(e) => setCustomDuration(e.target.value)}
-                      className={inputStyle}
+                      onClick={() => activateInputField('customDuration', customDuration)}
+                      className={`${inputStyle} ${activeInputField === 'customDuration' ? 'ring-2 ring-blue-500' : ''}`}
                       placeholder="30"
                     />
                     <span className="input-suffix">{fanyi("minutes")}</span>
@@ -1025,27 +1407,116 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                 <div className="form-group half">
                   <label>{fanyi("Final Fee")} ({fanyi("Leave empty to use calculated fee")}):</label>
                   <div className="input-group">
-                    <span className="input-prefix">$</span>
                     <input
                       type="number"
                       step="0.01"
                       value={finalFee}
                       onChange={(e) => setFinalFee(e.target.value)}
-                      className={inputStyle}
+                      onClick={() => activateInputField('finalFee', finalFee)}
+                      className={`${inputStyle} ${activeInputField === 'finalFee' ? 'ring-2 ring-blue-500' : ''}`}
                       placeholder={'$'+(Math.round(parseFloat(calculatedFee) * 100) / 100).toFixed(2)}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* 结台时显示备注内容（只读） */}
+              {/* 结台时显示备注内容（可编辑） */}
               <div className="form-group">
-                <label>{fanyi("Remarks")}:</label>
-                <div className="status-display inactive notranslate" style={{whiteSpace: 'pre-wrap', textAlign: 'left', minHeight: '40px', padding: '8px'}}>
-                  {remarks || fanyi("No remarks")}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label>{fanyi("Remarks")}:</label>
+                  <div>
+                    {!isEditingRemarks ? (
+                      <button 
+                        type="button"
+                        onClick={handleEditRemarks}
+                        className="btn btn-sm btn-outline-primary notranslate"
+                        style={{ padding: '4px 8px', fontSize: '12px' }}
+                      >
+                        {fanyi("Edit")}
+                      </button>
+                    ) : (
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        <button 
+                          type="button"
+                          onClick={handleSaveRemarks}
+                          className="btn btn-sm btn-success notranslate"
+                          style={{ padding: '4px 8px', fontSize: '12px' }}
+                        >
+                          {fanyi("Save")}
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={handleCancelEditRemarks}
+                          className="btn btn-sm btn-secondary notranslate"
+                          style={{ padding: '4px 8px', fontSize: '12px' }}
+                        >
+                          {fanyi("Cancel")}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
+                {!isEditingRemarks ? (
+                  <div className="status-display inactive notranslate" style={{whiteSpace: 'pre-wrap', textAlign: 'left', minHeight: '40px', padding: '8px'}}>
+                    {remarks || fanyi("No remarks")}
+                  </div>
+                ) : (
+                  <textarea
+                    value={remarks}
+                    onChange={(e) => setRemarks(e.target.value)}
+                    className={inputStyle}
+                    rows="3"
+                    placeholder={fanyi("Enter remarks here...")}
+                    style={{ minHeight: '60px' }}
+                  />
+                )}
               </div>
             </>
+          )}
+          </div>
+
+          {/* 右侧数字键盘区域 */}
+          {isPC && (
+            <div style={{ width: '300px', flexShrink: 0, borderLeft: '1px solid #e0e0e0', paddingLeft: '20px' }}>
+              <div className="mb-4">
+                <h4 className="text-lg font-semibold mb-2">{fanyi("Number Pad")}</h4>
+                <div className="text-sm text-gray-600 mb-3">
+                  {(() => {
+                    const availableFields = getAvailableInputFields();
+                    
+                    if (availableFields.length === 0) {
+                      return fanyi("No input fields available for keypad");
+                    }
+                    
+                    switch (activeInputField) {
+                      case 'timerDuration':
+                        return `${fanyi("Timer Duration")}: ${timerDuration || '--'} ${fanyi("minutes")}`;
+                      case 'customInitialSegment':
+                        return `${fanyi("First Block Billing Unit")}: ${customInitialSegmentMinutes} ${fanyi("minutes")}`;
+                      case 'customSubsequentSegment':
+                        return `${fanyi("Subsequent Billing Unit")}: ${customSubsequentSegmentMinutes} ${fanyi("minutes")}`;
+                      case 'customDuration':
+                        return `${fanyi("Custom Duration")}: ${customDuration || '--'} ${fanyi("minutes")}`;
+                      case 'finalFee':
+                        return `${fanyi("Final Fee")}: $${finalFee || (Math.round(parseFloat(calculatedFee) * 100) / 100).toFixed(2)}`;
+                      case 'none':
+                        return fanyi("No input fields available for keypad");
+                      default:
+                        return fanyi("Click input field to activate keypad");
+                    }
+                  })()}
+                </div>
+              </div>
+
+              <NumberPad
+                inputValue={keypadValue}
+                onInputChange={handleKeypadChange}
+                onConfirm={handleKeypadConfirm}
+                onCancel={handleKeypadCancel}
+                show={true}
+                embedded={true}
+              />
+            </div>
           )}
         </div>
 
@@ -1063,6 +1534,94 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
             </button>
           )}
         </div>
+
+        {/* 确认结台弹窗 */}
+        {showEndTableConfirm && (
+          <div className="confirmation-overlay" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999
+          }}>
+            <div className="confirmation-dialog" style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '24px',
+              minWidth: '300px',
+              maxWidth: '400px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+              border: '1px solid #ddd'
+            }}>
+              <h3 style={{
+                margin: '0 0 16px 0',
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#dc3545'
+              }}>
+                {fanyi("Confirm End Table")}
+              </h3>
+              <p style={{
+                margin: '0 0 8px 0',
+                fontSize: '14px',
+                color: '#666'
+              }}>
+                {fanyi("Are you sure you want to end this table?")}
+              </p>
+              <p style={{
+                margin: '0 0 20px 0',
+                fontSize: '12px',
+                color: '#999'
+              }}>
+                {fanyi("This action cannot be undone.")}
+              </p>
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'flex-end'
+              }}>
+                <button 
+                  onClick={cancelEndTable}
+                  style={{
+                    padding: '8px 16px',
+                    border: '1px solid #ddd',
+                    backgroundColor: 'white',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    color: '#666'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
+                >
+                  {fanyi("Cancel")}
+                </button>
+                <button 
+                  onClick={confirmEndTable}
+                  style={{
+                    padding: '8px 16px',
+                    border: 'none',
+                    backgroundColor: '#dc3545',
+                    color: 'white',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#c82333'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = '#dc3545'}
+                >
+                  {fanyi("Yes, End Table")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

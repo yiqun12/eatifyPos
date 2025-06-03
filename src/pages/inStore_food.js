@@ -1811,14 +1811,16 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.1 }}
                       key={item.id}
-                      className="border border-black rounded cursor-pointer"
-                      style={{
-                        flex: isMobile
-                          ? '1 1 100%'  // 移动端：每行一个，占满宽度
-                          : '1 1 calc(33.333% - 8px)',  // 桌面端：优先一行三个，自适应宽度
-                        minWidth: isMobile ? '280px' : '320px',  // 增加最小宽度，确保按钮有空间
-                        maxWidth: isMobile ? 'none' : 'calc(50% - 6px)'  // 最大宽度，确保至少一行两个
-                      }}>
+                              className="border border-black rounded cursor-pointer"
+                              style={{
+                                width: isMobile
+                                  ? 'calc(100% - 12px)'  // 移动端：每行一个，减去gap间距
+                                  : 'calc(33.333% - 8px)',  // 桌面端：固定三列宽度
+                                minWidth: isMobile ? '280px' : '300px',  // 最小宽度
+                                maxWidth: isMobile ? 'none' : 'calc(33.333% - 8px)',  // 最大宽度也固定
+                                flexShrink: 0,  // 防止收缩
+                                flexGrow: 0     // 防止增长
+                              }}>
                       <div className='flex'>
                         <div style={{ width: "100%" }}>
                           <div className='flex-row px-2 pb-1 w-full'>
@@ -1839,14 +1841,15 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
                               {/* ^ end of parent div of quantity and button */}
                             </div>
-                            <div
+                                                        <div
                               className='mt-2'
                               style={{
                                 display: "flex",
                                 justifyContent: "space-between",
                                 marginBottom: "10px",
-                                flexWrap: "wrap",  // 允许按钮换行
-                                gap: "8px"  // 按钮之间的间距
+                                flexWrap: "nowrap",  // 防止按钮换行
+                                gap: "4px",  // 减少按钮之间的间距
+                                alignItems: "center"  // 垂直居中对齐
                               }}>
                               {!item.CHI.includes("开台") ?
 
@@ -1936,20 +1939,21 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
         </div>
 
-        {/* 开台计时弹窗 */}
-        <TableTimingModal
-          isOpen={isTableTimingModalOpen}
-          onClose={() => {
-            setIsTableTimingModalOpen(false);
-            setSelectedTableItem(null);
-          }}
-          selectedTable={selectedTable}
-          store={store}
-          tableItem={selectedTableItem}
-          onTableStart={handleTableStart}
-          onTableEnd={handleTableEnd}
-          forceStartMode={true}
-        />
+          {/* 开台计时弹窗 */}
+          <TableTimingModal
+              isOpen={isTableTimingModalOpen}
+              onClose={() => {
+                  setIsTableTimingModalOpen(false);
+                  setSelectedTableItem(null);
+              }}
+              selectedTable={selectedTable}
+              store={store}
+              tableItem={selectedTableItem}
+              onTableStart={handleTableStart}
+              onTableEnd={handleTableEnd}
+              onRemarksUpdate={SetTableInfo} // 传递SetTableInfo函数用于保存备注到数据库
+              forceStartMode={true}
+          />
       </div>
     )
   }

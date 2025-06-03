@@ -1,4 +1,4 @@
-import { React, useState, useEffect, useLayoutEffect, useRef } from "react";
+import { React, useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
 import { useDroppable, DragOverlay } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -25,6 +25,33 @@ import KeypadModal from '../components/KeypadModal'; // Import KeypadModal compo
 
 
 function Item({ item, updateItems, whole_item_groups, numberOfGroups }) {
+
+  // 清理商品数据中的开台时间信息用于显示
+  const cleanItemForDisplay = (item) => {
+    const cleanedItem = { ...item };
+    
+    if (cleanedItem.attributeSelected && cleanedItem.attributeSelected['开台商品']) {
+      const tableItems = cleanedItem.attributeSelected['开台商品'];
+      
+      const cleanedTableItems = tableItems.map(attr => {
+        if (typeof attr === 'string' && attr.startsWith('开台时间-')) {
+          if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
+            return '开台商品';
+          } else {
+            return 'Table Item';
+          }
+        }
+        return attr;
+      }).filter((attr, index, arr) => arr.indexOf(attr) === index); // 去重
+      
+      cleanedItem.attributeSelected = {
+        ...cleanedItem.attributeSelected,
+        '开台商品': cleanedTableItems
+      };
+    }
+    
+    return cleanedItem;
+  };
 
   function flattenAttributes(attributes) {
     function flattenObject(obj, prefix = "") {
@@ -60,6 +87,9 @@ function Item({ item, updateItems, whole_item_groups, numberOfGroups }) {
     }
   }
 
+  // 使用清理后的商品数据进行显示
+  const displayItem = cleanItemForDisplay(item);
+
   return (
     <div className="w-full flex flex-col gap-2 rounded-md bg-white p-4 border-1 border-gray-800">
       {/* <p className="font-bold text-2xl">{heading}</p>
@@ -67,12 +97,12 @@ function Item({ item, updateItems, whole_item_groups, numberOfGroups }) {
       {/* <p className="font-bold text-2xl">{item.name}</p> */}
       <span className="notranslate">
 
-        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (item?.CHI) : (item?.name)}&nbsp;x&nbsp;
+        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? (displayItem?.CHI) : (displayItem?.name)}&nbsp;x&nbsp;
         <b>{
-          Math.round((Math.round(item.quantity) / Math.round(numberOfGroups)) * 100) / 100
+          Math.round((Math.round(displayItem.quantity) / Math.round(numberOfGroups)) * 100) / 100
         }</b>
 
-        {generateAttributes(item.attributeSelected)}
+        {generateAttributes(displayItem.attributeSelected)}
       </span>
       {/* <p className="font-bold text-2xl">{item.quantity}</p> */}
     </div>
@@ -118,6 +148,37 @@ function ConfirmationPopup({ onConfirm, onCancel }) {
     </div>
   );
 }
+
+// 添加cleanProductData函数
+const cleanProductData = (products) => {
+  return products.map(product => {
+    const cleanedProduct = { ...product };
+    
+    // 如果商品有attributeSelected且包含开台商品属性
+    if (cleanedProduct.attributeSelected && cleanedProduct.attributeSelected['开台商品']) {
+      const tableItems = cleanedProduct.attributeSelected['开台商品'];
+      
+      // 清理包含时间戳的开台标记，转换为简单标记
+      const cleanedTableItems = tableItems.map(item => {
+        if (typeof item === 'string' && item.startsWith('开台时间-')) {
+          if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
+            return '开台商品';
+          } else {
+            return 'Table Item';
+          }
+        }
+        return item;
+      }).filter((item, index, arr) => arr.indexOf(item) === index); // 去重
+      
+      cleanedProduct.attributeSelected = {
+        ...cleanedProduct.attributeSelected,
+        '开台商品': cleanedTableItems
+      };
+    }
+    
+    return cleanedProduct;
+  });
+};
 
 function Container(props) {
   const [products, setProducts] = useState([]);
@@ -380,7 +441,7 @@ function Container(props) {
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "CustomerReceipt"), {
         date: date,
-        data: checkout(containerId),
+        data: cleanProductData(checkout(containerId)),
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -398,7 +459,7 @@ function Container(props) {
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "MerchantReceipt"), {
         date: date,
-        data: checkout(containerId),
+        data: cleanProductData(checkout(containerId)),
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -414,9 +475,10 @@ function Container(props) {
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "OpenCashDraw"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: cleanProductData(rawData),
         selectedTable: selectedTable
       });
       console.log("Document written with ID: ", docRef.id);
@@ -480,7 +542,7 @@ function Container(props) {
         payment_method_types: ["Paid_by_Cash"],
         powerBy: "Paid by Cash",
         processing: null,
-        receiptData: JSON.stringify(checkout(containerId)),
+        receiptData: JSON.stringify(cleanProductData(checkout(containerId))),
         receipt_email: null,
         review: null,
         setup_future_usage: null,
@@ -1109,7 +1171,7 @@ function Container(props) {
                     </div>
                     <div className="modal-body pt-0">
                       <PaymentSplit
-                        subtotal={subtotal} setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} checkout_JSON={checkout(containerId)} totalPrice={Math.round(subtotal * 100)}
+                        subtotal={subtotal} setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store} chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} checkout_JSON={cleanProductData(checkout(containerId))} totalPrice={Math.round(subtotal * 100)}
                         isPaidArray={isPaidArray}
                         setIsPaidArray={setIsPaidArray}
                         containerId={containerId}

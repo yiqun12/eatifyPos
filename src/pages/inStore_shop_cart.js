@@ -82,10 +82,30 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   const [isTableTimingModalOpen, setIsTableTimingModalOpen] = useState(false);
   const [selectedTableItem, setSelectedTableItem] = useState(null);
 
+  // 未结台提示弹窗状态
+  const [showUnfinishedTableWarning, setShowUnfinishedTableWarning] = useState(false);
+  const [pendingPaymentAction, setPendingPaymentAction] = useState(null);
+
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
     setProducts(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
   }, [id]);
+
+  // 监听来自TableTimingModal的更新事件
+  useEffect(() => {
+    const handleCartUpdate = (event) => {
+      const { store: eventStore, selectedTable: eventTable } = event.detail;
+      // 只有当事件是针对当前购物车时才更新
+      if (eventStore === store && eventTable === selectedTable) {
+        saveId(Math.random()); // 触发重新渲染
+      }
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, [store, selectedTable, saveId]);
 
   // 新增：页面加载时检查和恢复所有定时器
   useEffect(() => {
@@ -216,6 +236,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Enter service fee by amount", output: "输入服务费金额" },
     { input: "No service fee", output: "无服务费" },
     { input: "Apply", output: "应用" },
+    { input: "Unfinished Tables Warning", output: "未结台提醒" },
+    { input: "There are unfinished tables that need to be ended before payment.", output: "有未结台的桌子需要先结台才能支付。" },
+    { input: "Please end all tables first, then proceed with payment.", output: "请先结台所有桌子，再进行支付。" },
+    { input: "Go to End Tables", output: "去结台" },
+    { input: "OK", output: "确定" },
   ], []);
 
   const fanyi = useCallback((input) => {
@@ -516,13 +541,49 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")])
 
 
+  // 清理商品数据中的开台时间戳信息
+  const cleanProductData = (products) => {
+    return products.map(product => {
+      const cleanedProduct = { ...product };
+      
+      // 如果商品有attributeSelected且包含开台商品属性
+      if (cleanedProduct.attributeSelected && cleanedProduct.attributeSelected['开台商品']) {
+        const tableItems = cleanedProduct.attributeSelected['开台商品'];
+        
+        // 清理包含时间戳的开台标记，转换为简单标记
+        const cleanedTableItems = tableItems.map(item => {
+          if (typeof item === 'string' && item.startsWith('开台时间-')) {
+            if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
+              return '开台商品';
+            } else {
+              return 'Table Item';
+            }
+          }
+          return item;
+        }).filter((item, index, arr) => arr.indexOf(item) === index); // 去重
+        
+        cleanedProduct.attributeSelected = {
+          ...cleanedProduct.attributeSelected,
+          '开台商品': cleanedTableItems
+        };
+      }
+      
+      return cleanedProduct;
+    });
+  };
+
   const MerchantReceipt = async () => {
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      
+      // 清理商品数据
+      const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
+      const cleanedData = cleanProductData(rawData);
+      
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "MerchantReceipt"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: cleanedData, // 使用清理后的数据
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -537,9 +598,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      
+      // 清理商品数据
+      const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
+      const cleanedData = cleanProductData(rawData);
+      
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "CustomerReceipt"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: cleanedData, // 使用清理后的数据
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -555,9 +621,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      
+      // 清理商品数据
+      const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
+      const cleanedData = cleanProductData(rawData);
+      
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "listOrder"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: cleanedData, // 使用清理后的数据
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -700,9 +771,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     if (add_array.length !== 0) {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      
+      // 清理商品数据
+      const cleanedAddArray = cleanProductData(add_array);
+      
       const addPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
         date: date,
-        data: add_array,
+        data: cleanedAddArray, // 使用清理后的数据
         selectedTable: selectedTable
       }).then(docRef => {
         console.log("Document written with ID: ", docRef.id);
@@ -713,9 +788,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     if (delete_array.length !== 0) {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      
+      // 清理商品数据
+      const cleanedDeleteArray = cleanProductData(delete_array);
+      
       const deletePromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
         date: date,
-        data: delete_array,
+        data: cleanedDeleteArray, // 使用清理后的数据
         selectedTable: selectedTable
       }).then(docRef => {
         console.log("DeleteSendToKitchen Document written with ID: ", docRef.id);
@@ -735,9 +814,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      
+      // 清理商品数据
+      const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
+      const cleanedData = cleanProductData(rawData);
+      
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "OpenCashDraw"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: cleanedData, // 使用清理后的数据
         selectedTable: selectedTable
       });
       console.log("Document written with ID: ", docRef.id);
@@ -806,7 +890,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         payment_method_types: ["Mark_as_Unpaid"],
         powerBy: "Unpaid",
         processing: null,
-        receiptData: localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]",
+        receiptData: JSON.stringify(cleanProductData(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])),
         receipt_email: null,
         review: null,
         setup_future_usage: null,
@@ -933,7 +1017,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         payment_method_types: ["Paid_by_Cash"],
         powerBy: "Paid by Cash",
         processing: null,
-        receiptData: localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]",
+        receiptData: JSON.stringify(cleanProductData(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])),
         receipt_email: null,
         review: null,
         setup_future_usage: null,
@@ -1293,6 +1377,52 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     resetKeypadProps(); // Reset keypadProps to default values
   };
   const closeUniqueModal = () => setUniqueModalOpen(false);
+
+  // 检查是否有未结台的桌子
+  const checkUnfinishedTables = () => {
+    const currentProducts = products || [];
+    const unfinishedTables = currentProducts.filter(product => 
+      product.isTableItem && 
+      product.attributeSelected && 
+      product.attributeSelected['开台商品'] &&
+      localStorage.getItem(`${store}-${product.id}-${product.count}-isSent_startTime`)
+    );
+    
+    return unfinishedTables.length > 0;
+  };
+
+  // 处理支付前的检查
+  const handlePaymentClick = (paymentAction) => {
+    if (checkUnfinishedTables()) {
+      setPendingPaymentAction(paymentAction);
+      setShowUnfinishedTableWarning(true);
+    } else {
+      // 直接执行支付
+      executePayment(paymentAction);
+    }
+  };
+
+  // 执行支付操作
+  const executePayment = (paymentAction) => {
+    if (paymentAction === 'card') {
+      setMyModalVisible(true);
+      SendToKitchen();
+    } else if (paymentAction === 'cash') {
+      openUniqueModal();
+      SendToKitchen();
+      setInputValue("");
+      setResult(null);
+      setExtra(0);
+    }
+  };
+
+  // 关闭警告弹窗，用户需要先去结台
+  const closeWarningAndEndTables = () => {
+    setShowUnfinishedTableWarning(false);
+    setPendingPaymentAction(null);
+    // 这里可以添加跳转到结台页面的逻辑
+    // 或者显示未结台商品的列表
+  };
 
   // Effect for closing number pad removed - now controlled by KeypadModal
 
@@ -1766,7 +1896,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <span className='notranslate'>{fanyi("Mark as Unpaid")}</span>
             </a>
             <a
-              onClick={() => { setMyModalVisible(true); SendToKitchen() }}
+              onClick={() => handlePaymentClick('card')}
               className="mt-3 btn btn-sm btn-primary mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -1775,14 +1905,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
             </a>
 
             <a
-              onClick={() => {
-                openUniqueModal(); SendToKitchen();
-                setInputValue("")
-                setResult(null);
-                setExtra(0)
-
-
-              }}
+              onClick={() => handlePaymentClick('cash')}
               className="mt-3 btn btn-sm btn-info mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -2389,8 +2512,81 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         tableItem={selectedTableItem}
         onTableStart={handleTableStartFromCart}
         onTableEnd={handleTableEnd}
+        onRemarksUpdate={SetTableInfo} // 传递SetTableInfo函数用于保存备注到数据库
         fanyi={fanyi} // Pass the fanyi function as a prop
       />
+
+      {/* 未结台警告弹窗 */}
+      {showUnfinishedTableWarning && (
+        <div className="confirmation-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div className="confirmation-dialog" style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '24px',
+            minWidth: '350px',
+            maxWidth: '500px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            border: '1px solid #ddd'
+          }}>
+            <h3 style={{
+              margin: '0 0 16px 0',
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#dc3545'
+            }}>
+              {fanyi("Unfinished Tables Warning")}
+            </h3>
+            <p style={{
+              margin: '0 0 8px 0',
+              fontSize: '14px',
+              color: '#666'
+            }}>
+              {fanyi("There are unfinished tables that need to be ended before payment.")}
+            </p>
+            <p style={{
+              margin: '0 0 20px 0',
+              fontSize: '12px',
+              color: '#999'
+            }}>
+              {fanyi("Please end all tables first, then proceed with payment.")}
+            </p>
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'center'
+            }}>
+              <button 
+                onClick={closeWarningAndEndTables}
+                style={{
+                  padding: '10px 24px',
+                  border: 'none',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#0056b3'}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#007bff'}
+              >
+                {fanyi("OK")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
