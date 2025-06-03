@@ -122,6 +122,9 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
   // 计费规则编辑状态
   const [isEditingBillingRule, setIsEditingBillingRule] = useState(false);
 
+  // 确认结台弹窗状态
+  const [showEndTableConfirm, setShowEndTableConfirm] = useState(false);
+
   // 翻译功能
   const translations = [
     { input: "Table Timing", output: "开台计时" },
@@ -187,6 +190,10 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     { input: "Save", output: "保存" },
     { input: "Edit Rule", output: "编辑规则" },
     { input: "Current Rule", output: "当前规则" },
+    { input: "Confirm End Table", output: "确认结台" },
+    { input: "Are you sure you want to end this table?", output: "确定要结台吗？" },
+    { input: "This action cannot be undone.", output: "此操作无法撤销。" },
+    { input: "Yes, End Table", output: "确认结台" },
   ];
 
   function translate(input) {
@@ -629,6 +636,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCustomRuleError('');
         setIsEditingRemarks(false);
         setIsEditingBillingRule(false);
+        setShowEndTableConfirm(false);
         // 开台模式智能选择默认激活字段
         const availableFields = getAvailableInputFields();
         if (availableFields.length > 0) {
@@ -666,6 +674,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCustomRuleError('');
         setIsEditingRemarks(false);
         setIsEditingBillingRule(false);
+        setShowEndTableConfirm(false);
         // 结台模式默认激活自定义时长
         setActiveInputField('customDuration');
         setKeypadValue('');
@@ -686,6 +695,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setCustomRuleError('');
         setIsEditingRemarks(false);
         setIsEditingBillingRule(false);
+        setShowEndTableConfirm(false);
         // 默认状态智能选择激活字段
         const availableFields = getAvailableInputFields();
         if (availableFields.length > 0) {
@@ -990,7 +1000,24 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
 
 
+  // 显示结台确认弹窗
   const handleEndTable = () => {
+    setShowEndTableConfirm(true);
+  };
+
+  // 确认结台
+  const confirmEndTable = () => {
+    setShowEndTableConfirm(false);
+    performEndTable();
+  };
+
+  // 取消结台
+  const cancelEndTable = () => {
+    setShowEndTableConfirm(false);
+  };
+
+  // 实际执行结台操作
+  const performEndTable = () => {
     // Ensure tableItem and its count are available for correct key generation
     if (!tableItem || !tableItem.id || !tableItem.count) {
       console.error("[TableTimingModal][handleEndTable] Cannot proceed: tableItem, tableItem.id, or tableItem.count is missing.", tableItem);
@@ -1057,6 +1084,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     setFinalFee('');
     setRemarks('');
     setCurrentTimerInfo(null);
+    setShowEndTableConfirm(false);
 
     onClose();
 
@@ -1506,6 +1534,94 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
             </button>
           )}
         </div>
+
+        {/* 确认结台弹窗 */}
+        {showEndTableConfirm && (
+          <div className="confirmation-overlay" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999
+          }}>
+            <div className="confirmation-dialog" style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '24px',
+              minWidth: '300px',
+              maxWidth: '400px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+              border: '1px solid #ddd'
+            }}>
+              <h3 style={{
+                margin: '0 0 16px 0',
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#dc3545'
+              }}>
+                {fanyi("Confirm End Table")}
+              </h3>
+              <p style={{
+                margin: '0 0 8px 0',
+                fontSize: '14px',
+                color: '#666'
+              }}>
+                {fanyi("Are you sure you want to end this table?")}
+              </p>
+              <p style={{
+                margin: '0 0 20px 0',
+                fontSize: '12px',
+                color: '#999'
+              }}>
+                {fanyi("This action cannot be undone.")}
+              </p>
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'flex-end'
+              }}>
+                <button 
+                  onClick={cancelEndTable}
+                  style={{
+                    padding: '8px 16px',
+                    border: '1px solid #ddd',
+                    backgroundColor: 'white',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    color: '#666'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
+                >
+                  {fanyi("Cancel")}
+                </button>
+                <button 
+                  onClick={confirmEndTable}
+                  style={{
+                    padding: '8px 16px',
+                    border: 'none',
+                    backgroundColor: '#dc3545',
+                    color: 'white',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#c82333'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = '#dc3545'}
+                >
+                  {fanyi("Yes, End Table")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

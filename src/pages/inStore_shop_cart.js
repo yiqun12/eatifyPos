@@ -82,6 +82,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   const [isTableTimingModalOpen, setIsTableTimingModalOpen] = useState(false);
   const [selectedTableItem, setSelectedTableItem] = useState(null);
 
+  // 未结台提示弹窗状态
+  const [showUnfinishedTableWarning, setShowUnfinishedTableWarning] = useState(false);
+  const [pendingPaymentAction, setPendingPaymentAction] = useState(null);
+
   const { id, saveId } = useMyHook(null);
   useEffect(() => {
     setProducts(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])
@@ -232,6 +236,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     { input: "Enter service fee by amount", output: "输入服务费金额" },
     { input: "No service fee", output: "无服务费" },
     { input: "Apply", output: "应用" },
+    { input: "Unfinished Tables Warning", output: "未结台提醒" },
+    { input: "There are unfinished tables that need to be ended before payment.", output: "有未结台的桌子需要先结台才能支付。" },
+    { input: "Please end all tables first, then proceed with payment.", output: "请先结台所有桌子，再进行支付。" },
+    { input: "Go to End Tables", output: "去结台" },
+    { input: "OK", output: "确定" },
   ], []);
 
   const fanyi = useCallback((input) => {
@@ -1310,6 +1319,51 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   };
   const closeUniqueModal = () => setUniqueModalOpen(false);
 
+  // 检查是否有未结台的桌子
+  const checkUnfinishedTables = () => {
+    const currentProducts = products || [];
+    const unfinishedTables = currentProducts.filter(product => 
+      product.isTableItem && 
+      product.attributeSelected && 
+      product.attributeSelected['开台商品']
+    );
+    
+    return unfinishedTables.length > 0;
+  };
+
+  // 处理支付前的检查
+  const handlePaymentClick = (paymentAction) => {
+    if (checkUnfinishedTables()) {
+      setPendingPaymentAction(paymentAction);
+      setShowUnfinishedTableWarning(true);
+    } else {
+      // 直接执行支付
+      executePayment(paymentAction);
+    }
+  };
+
+  // 执行支付操作
+  const executePayment = (paymentAction) => {
+    if (paymentAction === 'card') {
+      setMyModalVisible(true);
+      SendToKitchen();
+    } else if (paymentAction === 'cash') {
+      openUniqueModal();
+      SendToKitchen();
+      setInputValue("");
+      setResult(null);
+      setExtra(0);
+    }
+  };
+
+  // 关闭警告弹窗，用户需要先去结台
+  const closeWarningAndEndTables = () => {
+    setShowUnfinishedTableWarning(false);
+    setPendingPaymentAction(null);
+    // 这里可以添加跳转到结台页面的逻辑
+    // 或者显示未结台商品的列表
+  };
+
   // Effect for closing number pad removed - now controlled by KeypadModal
 
   const handleChange = (event) => {
@@ -1779,7 +1833,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <span className='notranslate'>{fanyi("Mark as Unpaid")}</span>
             </a>
             <a
-              onClick={() => { setMyModalVisible(true); SendToKitchen() }}
+              onClick={() => handlePaymentClick('card')}
               className="mt-3 btn btn-sm btn-primary mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -1788,14 +1842,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
             </a>
 
             <a
-              onClick={() => {
-                openUniqueModal(); SendToKitchen();
-                setInputValue("")
-                setResult(null);
-                setExtra(0)
-
-
-              }}
+              onClick={() => handlePaymentClick('cash')}
               className="mt-3 btn btn-sm btn-info mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
@@ -2453,6 +2500,78 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         onRemarksUpdate={SetTableInfo} // 传递SetTableInfo函数用于保存备注到数据库
         fanyi={fanyi} // Pass the fanyi function as a prop
       />
+
+      {/* 未结台警告弹窗 */}
+      {showUnfinishedTableWarning && (
+        <div className="confirmation-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div className="confirmation-dialog" style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '24px',
+            minWidth: '350px',
+            maxWidth: '500px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            border: '1px solid #ddd'
+          }}>
+            <h3 style={{
+              margin: '0 0 16px 0',
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#dc3545'
+            }}>
+              {fanyi("Unfinished Tables Warning")}
+            </h3>
+            <p style={{
+              margin: '0 0 8px 0',
+              fontSize: '14px',
+              color: '#666'
+            }}>
+              {fanyi("There are unfinished tables that need to be ended before payment.")}
+            </p>
+            <p style={{
+              margin: '0 0 20px 0',
+              fontSize: '12px',
+              color: '#999'
+            }}>
+              {fanyi("Please end all tables first, then proceed with payment.")}
+            </p>
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'center'
+            }}>
+              <button 
+                onClick={closeWarningAndEndTables}
+                style={{
+                  padding: '10px 24px',
+                  border: 'none',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#0056b3'}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#007bff'}
+              >
+                {fanyi("OK")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
