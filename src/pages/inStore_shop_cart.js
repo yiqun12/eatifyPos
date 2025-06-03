@@ -541,13 +541,49 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")])
 
 
+  // 清理商品数据中的开台时间戳信息
+  const cleanProductData = (products) => {
+    return products.map(product => {
+      const cleanedProduct = { ...product };
+      
+      // 如果商品有attributeSelected且包含开台商品属性
+      if (cleanedProduct.attributeSelected && cleanedProduct.attributeSelected['开台商品']) {
+        const tableItems = cleanedProduct.attributeSelected['开台商品'];
+        
+        // 清理包含时间戳的开台标记，转换为简单标记
+        const cleanedTableItems = tableItems.map(item => {
+          if (typeof item === 'string' && item.startsWith('开台时间-')) {
+            if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
+              return '开台商品';
+            } else {
+              return 'Table Item';
+            }
+          }
+          return item;
+        }).filter((item, index, arr) => arr.indexOf(item) === index); // 去重
+        
+        cleanedProduct.attributeSelected = {
+          ...cleanedProduct.attributeSelected,
+          '开台商品': cleanedTableItems
+        };
+      }
+      
+      return cleanedProduct;
+    });
+  };
+
   const MerchantReceipt = async () => {
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      
+      // 清理商品数据
+      const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
+      const cleanedData = cleanProductData(rawData);
+      
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "MerchantReceipt"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: cleanedData, // 使用清理后的数据
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -562,9 +598,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      
+      // 清理商品数据
+      const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
+      const cleanedData = cleanProductData(rawData);
+      
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "CustomerReceipt"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: cleanedData, // 使用清理后的数据
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -580,9 +621,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      
+      // 清理商品数据
+      const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
+      const cleanedData = cleanProductData(rawData);
+      
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "listOrder"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: cleanedData, // 使用清理后的数据
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
@@ -725,9 +771,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     if (add_array.length !== 0) {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      
+      // 清理商品数据
+      const cleanedAddArray = cleanProductData(add_array);
+      
       const addPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
         date: date,
-        data: add_array,
+        data: cleanedAddArray, // 使用清理后的数据
         selectedTable: selectedTable
       }).then(docRef => {
         console.log("Document written with ID: ", docRef.id);
@@ -738,9 +788,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     if (delete_array.length !== 0) {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      
+      // 清理商品数据
+      const cleanedDeleteArray = cleanProductData(delete_array);
+      
       const deletePromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
         date: date,
-        data: delete_array,
+        data: cleanedDeleteArray, // 使用清理后的数据
         selectedTable: selectedTable
       }).then(docRef => {
         console.log("DeleteSendToKitchen Document written with ID: ", docRef.id);
@@ -760,9 +814,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+      
+      // 清理商品数据
+      const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
+      const cleanedData = cleanProductData(rawData);
+      
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "OpenCashDraw"), {
         date: date,
-        data: localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [],
+        data: cleanedData, // 使用清理后的数据
         selectedTable: selectedTable
       });
       console.log("Document written with ID: ", docRef.id);
@@ -831,7 +890,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         payment_method_types: ["Mark_as_Unpaid"],
         powerBy: "Unpaid",
         processing: null,
-        receiptData: localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]",
+        receiptData: JSON.stringify(cleanProductData(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])),
         receipt_email: null,
         review: null,
         setup_future_usage: null,
@@ -958,7 +1017,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         payment_method_types: ["Paid_by_Cash"],
         powerBy: "Paid by Cash",
         processing: null,
-        receiptData: localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]",
+        receiptData: JSON.stringify(cleanProductData(localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [])),
         receipt_email: null,
         review: null,
         setup_future_usage: null,
@@ -1325,7 +1384,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     const unfinishedTables = currentProducts.filter(product => 
       product.isTableItem && 
       product.attributeSelected && 
-      product.attributeSelected['开台商品']
+      product.attributeSelected['开台商品'] &&
+      localStorage.getItem(`${store}-${product.id}-${product.count}-isSent_startTime`)
     );
     
     return unfinishedTables.length > 0;
