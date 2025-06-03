@@ -1814,11 +1814,13 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                       key={item.id}
                               className="border border-black rounded cursor-pointer"
                               style={{
-                                flex: isMobile
-                                  ? '1 1 100%'  // 移动端：每行一个，占满宽度
-                                  : '1 1 calc(33.333% - 8px)',  // 桌面端：优先一行三个，自适应宽度
-                                minWidth: isMobile ? '280px' : '320px',  // 增加最小宽度，确保按钮有空间
-                                maxWidth: isMobile ? 'none' : 'calc(50% - 6px)'  // 最大宽度，确保至少一行两个
+                                width: isMobile 
+                                  ? 'calc(100% - 12px)'  // 移动端：每行一个，减去gap间距
+                                  : 'calc(33.333% - 8px)',  // 桌面端：固定三列宽度
+                                minWidth: isMobile ? '280px' : '300px',  // 最小宽度
+                                maxWidth: isMobile ? 'none' : 'calc(33.333% - 8px)',  // 最大宽度也固定
+                                flexShrink: 0,  // 防止收缩
+                                flexGrow: 0     // 防止增长
                               }}>
                       <div className='flex'>
                               <div style={{width: "100%"}}>
