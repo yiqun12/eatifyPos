@@ -255,6 +255,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     const product = products.find((product) => product.id === id && product.count === count);
 
     if (Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100 >= 0) {
+      console.log('click ok')
       setTotalPrice(newTotalPrice);
       // Update the state with the new selected attributes
       setSelectedAttributes(updatedSelectedAttributes);
@@ -265,6 +266,8 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       // SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
       // 编辑过程中只更新localStorage，不调用SetTableInfo避免频繁数据库操作
       localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products))
+    } else {
+      console.error('select error: price error')
     }
 
 
