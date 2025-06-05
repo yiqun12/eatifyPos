@@ -262,7 +262,9 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       // After updating selectedAttributes, recalculate the total price
       product.attributeSelected = updatedSelectedAttributes
       product.itemTotalPrice = Math.round(100 * ((parseFloat(newTotalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
-      SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
+      // SetTableInfo(store + "-" + selectedTable, JSON.stringify(products))
+      // 编辑过程中只更新localStorage，不调用SetTableInfo避免频繁数据库操作
+      localStorage.setItem(store + "-" + selectedTable, JSON.stringify(products))
     }
 
 
@@ -1566,20 +1568,25 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                         } else {
                           deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 0);//delete new one
 
-                          console.log("cancel the change")
-                          setOpenChangeAttributeTrigger(false);
+                            console.log("cancel the change")
+                            setOpenChangeAttributeTrigger(false);
+                            setOpenChangeAttributeModal(false)
+
+                          }
+
+                        } else {
+                          deleteSpecialFood(selectedFoodItem.id, selectedFoodItem.count, selectedAttributes, 0);//delete old one
+
+                          console.log("confirm the change")
+                          setOpenChangeAttributeTrigger(false);//confirm the change
                           setOpenChangeAttributeModal(false)
 
                         }
 
-                      } else {
-                        deleteSpecialFood(selectedFoodItem.id, selectedFoodItem.count, selectedAttributes, 0);//delete old one
-
-                        console.log("confirm the change")
-                        setOpenChangeAttributeTrigger(false);//confirm the change
-                        setOpenChangeAttributeModal(false)
-
-                      }
+                        // 确认后统一调用SetTableInfo保存最终状态到数据库
+                        setTimeout(() => {
+                          SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+                        }, 100);
 
 
                     }
