@@ -1084,8 +1084,8 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   const hideModal = () => {
     setModalVisibility(false);
     handleRemoveAllCustomVariants();
-    SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
-    saveId(Math.random)
+    // SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+    // saveId(Math.random)
     setRandomNum(null)
   }
 
