@@ -181,6 +181,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       //localStorage.setItem(table_name, product)
 
     } catch (error) {
+      alert('Error adding document')
       console.error("Error adding document: ", error);
     }
   };
