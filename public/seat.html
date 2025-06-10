@@ -38,10 +38,48 @@
       border: 1px solid #555;
       display: inline-block;
     }
+    .canvas-controls {
+      position: fixed; /* Use fixed to position relative to the viewport */
+      bottom: 20px;
+      right: 20px;
+      z-index: 10;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+    }
+    .canvas-controls button {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background-color: transparent;
+      cursor: pointer;
+      font-size: 16px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .canvas-controls button:hover {
+      background-color: #f0f0f0;
+    }
+    .canvas-controls button:not(:last-child) {
+      border-bottom: 1px solid #e0e0e0;
+    }
   </style>
 </head>
 
 <body onload="loadingFunction(); ">
+
+  <div class="canvas-controls" style="display: none;">
+    <button id="zoom-in" title="Zoom In"><i class="bi bi-plus-lg"></i></button>
+    <button id="zoom-out" title="Zoom Out"><i class="bi bi-dash-lg"></i></button>
+    <button id="reset-zoom" title="Reset View"><i class="bi bi-fullscreen"></i></button>
+    <button id="toggle-mode" title="Toggle Mode (Select/Pan)">
+        <i id="mode-icon" class="bi bi-cursor"></i>
+    </button>
+  </div>
 
   <!-- Table Modal -->
   <div id="addTableModal" class="modal fade" tabindex="-1" role="dialog">
@@ -219,12 +257,11 @@
       'wall': [],
     }
 
+    let current_mode = "customer";
+    let panMode = false;      // Pan mode state
+    let isSpacePressed = false; // Space key state
+
     // let external_board = {
-    //   'table': [],
-    //   'chair': [],
-    //   'bar': [],
-    //   'wall': [],
-    // }
     window.addEventListener('message', function (event) {
       if (event.data.includes("_restaurant_seat_arrangement")) {
         store = event.data
@@ -268,6 +305,32 @@
       window.localStorage.setItem(store, JSON.stringify(board));
       // external_board = board
     }
+    
+    // New function to save viewport state separately
+    function saveViewportState() {
+      const viewportState = {
+        viewportTransform: canvas ? canvas.viewportTransform.slice() : null,
+        zoom: canvas ? canvas.getZoom() : 1
+      };
+      
+      console.log("💾 Saving viewport state:", viewportState);
+      window.localStorage.setItem(store + "_viewport_state", JSON.stringify(viewportState));
+    }
+    
+    // New function to load viewport state separately  
+    function loadViewportState() {
+      const savedState = window.localStorage.getItem(store + "_viewport_state");
+      if (savedState) {
+        try {
+          const viewportState = JSON.parse(savedState);
+          console.log("🔄 Loading viewport state:", viewportState);
+          return viewportState;
+        } catch (e) {
+          console.error("Error parsing viewport state:", e);
+        }
+      }
+      return null;
+    }
 
     function loadBoard() {
       console.log("load board")
@@ -295,22 +358,100 @@
       //saveBoard()
     }
 
-    // document.addEventListener("DOMContentLoaded", function () {
-    //   console.log("hello");
+    // Unified DOM content loaded event listener
+    document.addEventListener("DOMContentLoaded", function () {
+      console.log("DOM Content Loaded - Starting to bind event listeners");
+      
+      // Only bind button event listeners, don't reinitialize canvas
+      // Wait for canvas initialization before binding events
+      const waitForCanvas = () => {
+        if (typeof canvas !== 'undefined' && canvas) {
+          console.log("Canvas initialized, starting to bind button events");
+          
+          // Zoom and pan functionality
+          document.getElementById('zoom-in').addEventListener('click', () => {
+            console.log('Zoom in clicked');
+            zoomCanvas(1.2);
+          });
+          
+          document.getElementById('zoom-out').addEventListener('click', () => {
+            console.log('Zoom out clicked');
+            zoomCanvas(0.8);
+          });
+          
+          document.getElementById('reset-zoom').addEventListener('click', () => {
+            console.log('Reset view (Zoom to Fit) clicked');
+            zoomToFit();
+          });
 
-    //   setTimeout(function () {
-    //     var loadButton = document.querySelector('.btn-primary[onclick="loadBoard()"]');
+          // Mode toggle button
+          document.getElementById('toggle-mode').addEventListener('click', () => {
+            if (current_mode === 'admin') {
+              panMode = !panMode;
+              updateModeDisplay();
+            }
+          });
+          
+          // Space key temporary pan
+          document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && current_mode === 'admin' && !panMode) {
+              e.preventDefault();
+              isSpacePressed = true;
+              // Temporarily enable pan mode
+              canvas.selection = false;
+              canvas.defaultCursor = 'grab';
+              console.log('Space pressed - temp pan mode');
+            }
+          });
+          
+          document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space' && current_mode === 'admin') {
+              e.preventDefault();
+              isSpacePressed = false;
+              if (!panMode) {
+                // Restore select mode
+                canvas.selection = true;
+                canvas.defaultCursor = 'default';
+                // Recalculate coordinates when exiting temp pan mode
+                canvas.forEachObject(obj => obj.setCoords());
+                canvas.requestRenderAll();
+                console.log('Space released - back to select mode, coordinates updated');
+              }
+            }
+          });
+          
+          console.log("All zoom and pan events bound");
+        } else {
+          // If canvas not initialized yet, try again in 100ms
+          setTimeout(waitForCanvas, 100);
+        }
+      };
+      
+      // Start waiting for canvas initialization
+      waitForCanvas();
+    });
 
-    //     // Simulate a click on the button
-    //     loadButton.click();
+    // Keep original DOMContentLoaded event (for other functionality)
+    document.addEventListener("DOMContentLoaded", function () {
+      console.log("hello");
 
-    //          var adminModeButton = document.querySelector('.customer-mode');
+      setTimeout(function () {
+        var loadButton = document.querySelector('.btn-primary[onclick="loadBoard()"]');
 
-    //         // Simulate a click on the button
-    //         adminModeButton.click();
-    //   }, 1); // 0.5 second delay
-    // });
+        // Simulate a click on the button
+        if (loadButton) {
+          // loadButton.click();
+        }
 
+        var adminModeButton = document.querySelector('.customer-mode');
+
+        // Simulate a click on the button
+        if (adminModeButton) {
+          // adminModeButton.click();
+        }
+
+      }, 1); // 0.5 second delay
+    });
 
     function loadingFunction() {
       resizeCanvas()
@@ -326,27 +467,29 @@
       }
 
       canvas = new fabric.Canvas('canvas')
+      canvas.backgroundColor = backgroundColor
+      canvas.renderAll()
+
+      for (let i = 0; i < (widthEl.value / grid); i++) {
+        canvas.add(new fabric.Line([i * grid, 0, i * grid, heightEl.value], {
+          stroke: lineStroke,
+          selectable: false
+        }))
+      }
+      for (let i = 0; i < (heightEl.value / grid); i++) {
+        canvas.add(new fabric.Line([0, i * grid, widthEl.value, i * grid], {
+          stroke: lineStroke,
+          selectable: false
+        }))
+      }
+
+      // Use unified zoom and pan functionality
+      enableZoomPan();
+
       tableNumber = 1
       chairNumber = 1
       // barNumber = 1
       wallNumber = 1
-      canvas.backgroundColor = backgroundColor
-
-      for (let i = 0; i < (canvas.width / grid); i++) {
-        const lineX = new fabric.Line([0, i * grid, canvas.width, i * grid], {
-          stroke: lineStroke,
-          selectable: false,
-          type: 'line'
-        })
-        const lineY = new fabric.Line([i * grid, 0, i * grid, canvas.width], {
-          stroke: lineStroke,
-          selectable: false,
-          type: 'line'
-        })
-        sendLinesToBack()
-        canvas.add(lineX)
-        canvas.add(lineY)
-      }
 
       // ********* //
       // this has to be inside initCanvas() so that every Newly created canvas has this functionality
@@ -998,7 +1141,7 @@
 
     // this function allows me to change the color of A2 with a button click
 
-    // 在函数定义部分添加存储餐桌用餐信息的对象
+    // Add object to store table dining information at function definition section
     // const tableDiningInfo = {}; // Removed
     // let diningTimeUpdateInterval; // Removed
 
@@ -1013,10 +1156,10 @@
       });
     }
 
-    // 解析订单数据，获取开始时间并计算用餐时长
+    // Parse order data, get start time and calculate dining duration
     // function updateDiningTime(tableName, textObject, orderData) { ... } // Removed
 
-    // 更新所有餐桌的用餐时间
+    // Update dining time for all tables
     // function updateAllDiningTimes() { ... } // Removed
 
     // Function to check if a key starts with "demo "
@@ -1038,7 +1181,7 @@
             //console.log("true")
             highlightTable(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(0, 0, 139, 0.7)')//rich blue
           } else {
-            // 先判断是否存在_startTime
+            // First check if _startTime exists
             if (localStorage.getItem(key + "_startTime") !== null) {// starttime exist
               const tableKey = key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length)
               highlightTable(tableKey, 'rgba(140, 40, 40, 0.7)')//rich red
@@ -1168,11 +1311,7 @@
       }
     })
 
-    let current_mode = "customer";
-
     document.querySelectorAll('.customer-mode')[0].addEventListener('click', function () {
-      //loadBoard()
-
       canvas.getObjects().map(o => {
         o.hasControls = false
         o.lockMovementX = true
@@ -1196,11 +1335,18 @@
       console.log(`customer mode active`, "*")
       window.parent.postMessage(`customer mode active`, "*");
       window.parent.postMessage(`reload`, "*");
+      
+      // Hide control buttons
+      document.querySelector('.canvas-controls').style.display = 'none';
 
       //location.reload()
     })
     document.querySelectorAll('.save-mode')[0].addEventListener('click', function () {
-      //loadBoard()
+      // Save board data first (original logic)
+      saveBoard();
+      
+      // Then save viewport state separately
+      saveViewportState();
 
       canvas.getObjects().map(o => {
         o.hasControls = false
@@ -1224,6 +1370,9 @@
       current_mode = "customer"
       console.log(`save mode active`, "*")
       window.parent.postMessage(`save mode active`, "*");
+      
+      // Hide control buttons
+      document.querySelector('.canvas-controls').style.display = 'none';
     })
     document.querySelectorAll('.admin-mode')[0].addEventListener('click', function () {
       canvas.getObjects().map(o => {
@@ -1249,6 +1398,12 @@
 
       current_mode = "admin"
       window.parent.postMessage(`admin mode active`, "*");
+      
+      // Show control buttons
+      document.querySelector('.canvas-controls').style.display = 'flex';
+      
+      // Initialize mode display
+      updateModeDisplay();
     })
 
 
@@ -1298,8 +1453,10 @@
     // }
     // //
     function addDefaultObjects(board) {
+      const boardData = board || window.board;
 
-      tables = board.table
+      if (boardData && boardData.table) {
+        const tables = boardData.table
       // console.log(tables)
 
       tables.forEach(element => {
@@ -1381,7 +1538,226 @@
 
       // addWall(120, 510, 60, 60)
     }
-    addDefaultObjects()
+    // addDefaultObjects()
+      
+            
+
+
+    const viewportState = loadViewportState();
+    if (viewportState && viewportState.viewportTransform && canvas) {
+      console.log("🔄 Restoring viewport state:", viewportState);
+      
+      // Restore viewport transform (pan position)
+      canvas.setViewportTransform(viewportState.viewportTransform);
+      
+      // Restore zoom level
+      if (viewportState.zoom) {
+        canvas.setZoom(viewportState.zoom);
+      }
+      
+      // CRITICAL: Recalculate coordinates after viewport restoration
+      canvas.forEachObject(obj => obj.setCoords());
+      
+      console.log("✅ Viewport state restored successfully");
+    } else {
+      console.log("ℹ️ No viewport state to restore");
+    }
+  }
+    // Initialize zoom and pan functionality first
+    enableZoomPan();
+
+    function zoomCanvas(factor) {
+      if (!canvas) return;
+      
+      const zoom = canvas.getZoom();
+      const newZoom = zoom * factor;
+      
+      if (newZoom >= 0.1 && newZoom <= 5) {
+        // Zoom to center and update coordinates
+        canvas.zoomToPoint(new fabric.Point(canvas.width / 2, canvas.height / 2), newZoom);
+        canvas.forEachObject(obj => obj.setCoords());
+        canvas.requestRenderAll();
+        console.log('Zoom applied:', newZoom);
+      }
+    }
+
+    // Initialize zoom and pan functionality
+    function enableZoomPan() {
+      if (!canvas) return;
+      
+      // Mouse wheel zoom (admin mode only)
+      canvas.on('mouse:wheel', function(opt) {
+        if (current_mode !== 'admin') {
+          return; // Disable zoom in non-admin mode
+        }
+        
+        const delta = opt.e.deltaY;
+        let zoom = canvas.getZoom();
+        zoom *= 0.999 ** delta;
+        if (zoom > 5) zoom = 5;
+        if (zoom < 0.1) zoom = 0.1;
+        
+        // Use zoomToPoint for better user experience
+        canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
+        
+        // Recalculate coordinates after zooming
+        canvas.forEachObject(obj => obj.setCoords());
+        canvas.requestRenderAll();
+        
+        opt.e.preventDefault();
+        opt.e.stopPropagation();
+      });
+      
+      // Pan functionality (Alt + drag for desktop, touch for mobile)
+      let isDragging = false;
+      let lastPosX, lastPosY;
+      
+      canvas.on('mouse:down', function(opt) {
+        const evt = opt.e;
+        // Only allow pan operations in admin mode
+        if (current_mode !== 'admin') {
+          return; // Disable pan in non-admin mode
+        }
+        
+        // Check if pan should be enabled: Alt key, touch events, pan mode, or space key pressed
+        const shouldPan = evt.altKey || ('touches' in evt) || 
+                         (current_mode === 'admin' && panMode) ||
+                         (current_mode === 'admin' && isSpacePressed);
+        
+        if (shouldPan) {
+          isDragging = true;
+          canvas.selection = false;
+          lastPosX = evt.clientX || evt.touches[0].clientX;
+          lastPosY = evt.clientY || evt.touches[0].clientY;
+        }
+      });
+      
+      canvas.on('mouse:move', function(opt) {
+        if (isDragging) {
+          const evt = opt.e;
+          const vpt = canvas.viewportTransform;
+          const currentX = evt.clientX || evt.touches[0].clientX;
+          const currentY = evt.clientY || evt.touches[0].clientY;
+          vpt[4] += currentX - lastPosX;
+          vpt[5] += currentY - lastPosY;
+          canvas.requestRenderAll();
+          lastPosX = currentX;
+          lastPosY = currentY;
+        }
+      });
+      
+      canvas.on('mouse:up', function() {
+        if (isDragging) {
+          isDragging = false;
+          // Restore selection based on current mode
+          if (current_mode === 'admin' && !panMode) {
+            canvas.selection = true;
+          }
+          // CRITICAL FIX: Recalculate object coordinates after panning
+          canvas.forEachObject(obj => obj.setCoords());
+          canvas.requestRenderAll();
+          console.log('All object coordinates recalculated after pan');
+        }
+      });
+      
+      // Touch events for mobile (admin mode only)
+      canvas.on('touch:gesture', function(opt) {
+        if (current_mode !== 'admin') {
+          return; // Disable touch zoom in non-admin mode
+        }
+        
+        if (opt.e.touches && opt.e.touches.length === 2) {
+          // Handle pinch zoom
+          const touch1 = opt.e.touches[0];
+          const touch2 = opt.e.touches[1];
+          const distance = Math.sqrt(
+            Math.pow(touch2.clientX - touch1.clientX, 2) +
+            Math.pow(touch2.clientY - touch1.clientY, 2)
+          );
+          
+          if (this.lastDistance) {
+            const delta = distance - this.lastDistance;
+            let zoom = canvas.getZoom();
+            zoom *= 1 + (delta * 0.001);
+            if (zoom > 5) zoom = 5;
+            if (zoom < 0.1) zoom = 0.1;
+            canvas.setZoom(zoom);
+          }
+          this.lastDistance = distance;
+          opt.e.preventDefault();
+        }
+      });
+      
+      console.log('Zoom and pan enabled');
+    }
+
+    // Update mode display
+    function updateModeDisplay() {
+      const modeIcon = document.getElementById('mode-icon');
+      const toggleButton = document.getElementById('toggle-mode');
+      
+      if (current_mode === 'admin') {
+        if (panMode) {
+          // Pan mode
+          modeIcon.className = 'bi bi-arrows-move';
+          toggleButton.title = 'Switch to Select Mode';
+          canvas.selection = false;
+          canvas.defaultCursor = 'grab';
+          canvas.hoverCursor = 'grab';
+        } else {
+          // Select mode
+          modeIcon.className = 'bi bi-cursor';
+          toggleButton.title = 'Switch to Pan Mode';
+          canvas.selection = true;
+          canvas.defaultCursor = 'default';
+          canvas.hoverCursor = 'move';
+          // Recalculate coordinates when switching to select mode
+          canvas.forEachObject(obj => obj.setCoords());
+        }
+        canvas.requestRenderAll();
+      }
+    }
+
+    // New function to intelligently zoom and pan to fit all objects
+    function zoomToFit() {
+      if (!canvas) return;
+
+      const objects = canvas.getObjects().filter(obj => obj.type !== 'line'); // Exclude grid lines
+      // if (objects.length === 0) {
+        // If no objects, just reset to default
+        canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+        canvas.setZoom(1);
+        canvas.requestRenderAll();
+        return;
+      // }
+
+      // // Create a temporary group to get the bounding box of all objects
+      // const group = new fabric.Group(objects, { canvas: canvas });
+
+      // // Calculate the zoom level to fit the group in the canvas with padding
+      // const padding = 50; // 50px padding
+      // const zoomX = (canvas.width - padding * 2) / group.width;
+      // const zoomY = (canvas.height - padding * 2) / group.height;
+      // const zoom = Math.min(zoomX, zoomY);
+
+      // // Center the view on the group
+      // const groupCenter = group.getCenterPoint();
+      // const vpt = canvas.viewportTransform;
+      // vpt[4] = (canvas.width / 2) - (groupCenter.x * zoom);
+      // vpt[5] = (canvas.height / 2) - (groupCenter.y * zoom);
+      
+      // canvas.setZoom(zoom);
+      // canvas.setViewportTransform(vpt);
+
+      // // Recalculate coordinates and render
+      // canvas.forEachObject(obj => obj.setCoords());
+      // canvas.requestRenderAll();
+      
+      // // Clean up the temporary group (no longer needed)
+      // group.destroy();
+
+      // console.log('Zoomed to fit all objects');
+    }
 
   </script>
 
