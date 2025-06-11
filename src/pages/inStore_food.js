@@ -181,6 +181,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       //localStorage.setItem(table_name, product)
 
     } catch (error) {
+      alert('Error adding document')
       console.error("Error adding document: ", error);
     }
   };
@@ -1564,7 +1565,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                       if (compareObjects(selectedFoodItem.attributeSelected, selectedAttributes)) {//no attr changes
                         if (totalPrice != selectedFoodItem.totalPrice) {
                           deleteSpecialFood(selectedFoodItem.id, selectedFoodItem.count, selectedAttributes, 0);//delete old one
-                          //SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+                          SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
                           console.log("confirm the change")
                           setOpenChangeAttributeTrigger(false);//confirm the change
                           setOpenChangeAttributeModal(false)
@@ -1585,12 +1586,6 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                           setOpenChangeAttributeModal(false)
 
                         }
-
-                        // 确认后统一调用SetTableInfo保存最终状态到数据库
-                        setTimeout(() => {
-                          SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
-                        }, 100);
-
 
                     }
 
