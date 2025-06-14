@@ -30,24 +30,34 @@ function Item({ item, updateItems, whole_item_groups, numberOfGroups }) {
   const cleanItemForDisplay = (item) => {
     const cleanedItem = { ...item };
     
+    // 如果商品有attributeSelected且包含开台商品属性
     if (cleanedItem.attributeSelected && cleanedItem.attributeSelected['开台商品']) {
-      const tableItems = cleanedItem.attributeSelected['开台商品'];
+        const tableItems = cleanedItem.attributeSelected['开台商品'];
+
+        const cleanedTableItems = tableItems.map(attr => {
+            if (typeof attr === 'string' && attr.startsWith('开台时间-')) {
+                const parts = attr.split('-');
+                const timestamp = parseInt(parts[parts.length - 1], 10);
+                if (!isNaN(timestamp)) {
+                    const date = new Date(timestamp);
+                    const hours = date.getHours().toString().padStart(2, '0');
+                    const minutes = date.getMinutes().toString().padStart(2, '0');
+                    const formattedTime = `${hours}:${minutes}`;
+                    const lang = localStorage.getItem("Google-language");
+                    if (lang?.includes("Chinese") || lang?.includes("中")) {
+                        return `开台时间: ${formattedTime}`;
+                    } else {
+                        return `Start Time: ${formattedTime}`;
+                    }
+                }
+            }
+            return attr;
+        }).filter((attr, index, arr) => arr.indexOf(attr) === index); // 去重
       
-      const cleanedTableItems = tableItems.map(attr => {
-        if (typeof attr === 'string' && attr.startsWith('开台时间-')) {
-          if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
-            return '开台商品';
-          } else {
-            return 'Table Item';
-          }
-        }
-        return attr;
-      }).filter((attr, index, arr) => arr.indexOf(attr) === index); // 去重
-      
-      cleanedItem.attributeSelected = {
-        ...cleanedItem.attributeSelected,
-        '开台商品': cleanedTableItems
-      };
+        cleanedItem.attributeSelected = {
+            ...cleanedItem.attributeSelected,
+            '开台商品': cleanedTableItems
+        };
     }
     
     return cleanedItem;
@@ -156,24 +166,32 @@ const cleanProductData = (products) => {
     
     // 如果商品有attributeSelected且包含开台商品属性
     if (cleanedProduct.attributeSelected && cleanedProduct.attributeSelected['开台商品']) {
-      const tableItems = cleanedProduct.attributeSelected['开台商品'];
+        const tableItems = cleanedProduct.attributeSelected['开台商品'];
+
+        const cleanedTableItems = tableItems.map(item => {
+            if (typeof item === 'string' && item.startsWith('开台时间-')) {
+                const parts = item.split('-');
+                const timestamp = parseInt(parts[parts.length - 1], 10);
+                if (!isNaN(timestamp)) {
+                    const date = new Date(timestamp);
+                    const hours = date.getHours().toString().padStart(2, '0');
+                    const minutes = date.getMinutes().toString().padStart(2, '0');
+                    const formattedTime = `${hours}:${minutes}`;
+                    const lang = localStorage.getItem("Google-language");
+                    if (lang?.includes("Chinese") || lang?.includes("中")) {
+                        return `开台时间: ${formattedTime}`;
+                    } else {
+                        return `Start Time: ${formattedTime}`;
+                    }
+                }
+            }
+            return item;
+        }).filter((item, index, arr) => arr.indexOf(item) === index); // 去重
       
-      // 清理包含时间戳的开台标记，转换为简单标记
-      const cleanedTableItems = tableItems.map(item => {
-        if (typeof item === 'string' && item.startsWith('开台时间-')) {
-          if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
-            return '开台商品';
-          } else {
-            return 'Table Item';
-          }
-        }
-        return item;
-      }).filter((item, index, arr) => arr.indexOf(item) === index); // 去重
-      
-      cleanedProduct.attributeSelected = {
-        ...cleanedProduct.attributeSelected,
-        '开台商品': cleanedTableItems
-      };
+        cleanedProduct.attributeSelected = {
+            ...cleanedProduct.attributeSelected,
+            '开台商品': cleanedTableItems
+        };
     }
     
     return cleanedProduct;
