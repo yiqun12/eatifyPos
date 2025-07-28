@@ -16,6 +16,7 @@
         "@headlessui/react": "^1.7.17",
         "@heroicons/react": "^2.1.5",
         "@mui/icons-material": "^5.15.10",
+        "@react-google-maps/api": "^2.20.7",
         "@react-icons/all-files": "^4.1.0",
         "@stripe/react-stripe-js": "^1.16.1",
         "@stripe/stripe-js": "^1.46.0",
@@ -40,6 +41,7 @@
         "font-awesome": "^4.7.0",
         "framer-motion": "^7.6.15",
         "fs": "^0.0.1-security",
+        "gsap": "^3.13.0",
         "i": "^0.3.7",
         "i18next": "^23.16.0",
         "leaflet": "^1.9.4",
@@ -119,6 +121,7 @@
         ]
     },
     "devDependencies": {
+        "@playwright/test": "^1.52.0",
         "env-cmd": "^10.1.0",
         "webpack-cli": "^5.1.4"
     }

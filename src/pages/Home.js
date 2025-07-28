@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar_new';
 import Hero from '../components/Hero_new';
 import Features from '../components/Features';
@@ -11,21 +11,60 @@ import FAQ from '../components/FAQ';
 import Footer from '../components/Footer_new';
 import AIChat from '../components/AIChat';
 import { Link } from 'react-router-dom';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import RoadTimeline from '../components/RoadTimeline.tsx';
+import Map from '../components/Map.js';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Food = () => {
+  const sectionsRef = useRef([]);
+
+  useEffect(() => {
+    // Animate sections on scroll
+    sectionsRef.current.forEach((section) => {
+      gsap.fromTo(
+        section,
+        { autoAlpha: 0, y: 50 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top bottom-=100',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      );
+    });
+  }, []);
+
+  const addToRefs = (el) => {
+    if (el && !sectionsRef.current.includes(el)) {
+      sectionsRef.current.push(el);
+    }
+  };
+
   return (
     <div>
       <Navbar />
       <Hero />
 
+      <div ref={addToRefs}>
+        <Features />
+      </div>
+      <div ref={addToRefs}>
+        <Gallery />
+      </div>
+      <div ref={addToRefs}>
+        <VideoTutorials />
+      </div>
 
-
-
-      <Features />
-      <Gallery />
-      <VideoTutorials />
       {/* Side Features Section */}
-      <section className="py-16 bg-gradient-to-b from-white to-orange-50">
+      <section ref={addToRefs} className="py-16 bg-gradient-to-b from-white to-orange-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="section-title">Tools Built for Developers</h2>
@@ -87,12 +126,27 @@ const Food = () => {
           </div>
         </div>
       </section>
-      <Testimonials />
-      <LogoSlider />
-      <Pricing />
-      <FAQ />
+      
+      <div ref={addToRefs}>
+        <Testimonials />
+      </div>
+      <div ref={addToRefs}>
+        <LogoSlider />
+      </div>
+      <div ref={addToRefs}>
+        <Pricing />
+      </div>
+      <div ref={addToRefs}>
+        <FAQ />
+      </div>
+      
+      <RoadTimeline />
+      
+      <div ref={addToRefs}>
+        <Map />
+      </div>
 
-      <section className="flex-item" id="intro" style={{ "background-color": "#f2f2f2", "padding": "4rem 0" }}>
+      <section ref={addToRefs} className="flex-item" id="intro" style={{ "backgroundColor": "#f2f2f2", "padding": "4rem 0" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p style={{ "fontSize": "24px", "textAlign": "center", "marginBottom": "2rem", "fontWeight": "600" }}>Meet Our Team</p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

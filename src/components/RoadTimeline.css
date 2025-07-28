@@ -1,0 +1,81 @@
+/* RoadTimeline.css */
+
+/* Default state: show default line, hide active line */
+.milestone-marker .pillar-line .default-line {
+  opacity: 1;
+  transition: opacity 0.6s ease;
+}
+.milestone-marker .pillar-line .active-line {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+/* Active state: hide default line, show active line */
+.milestone-marker.is-active .pillar-line .default-line {
+  opacity: 0;
+}
+.milestone-marker.is-active .pillar-line .active-line {
+  opacity: 1;
+}
+
+/* Pillar animation - default state shows only top part */
+.milestone-marker .pillar-line {
+  transform: translateY(100px);
+  transition: transform 0.6s ease-out;
+}
+.milestone-marker.is-active .pillar-line {
+  transform: translateY(0);
+}
+
+/* Year text animation - default state shows only bottom part */
+.milestone-marker .year-text {
+  transform: translateY(100px);
+  transition: transform 0.6s ease-out;
+}
+.milestone-marker.is-active .year-text {
+  color: #FFA500;
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Description text animations */
+.milestone-marker .description-text {
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.6s ease-out;
+}
+
+.milestone-marker .text-content {
+  transform: translateX(-20px);
+  opacity: 0;
+  transition: all 0.8s ease-out;
+  transition-delay: 0.2s;
+}
+
+.milestone-marker .location-icon {
+  transform: scale(0) rotate(-180deg);
+  opacity: 0;
+  transition: all 0.7s ease-out;
+  transition-delay: 0.1s;
+}
+
+.milestone-marker.is-active .description-text {
+  opacity: 1;
+  color: #FFA500;
+  transform: scale(1);
+}
+
+.milestone-marker.is-active .text-content {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.milestone-marker.is-active .location-icon {
+  color: #FFA500;
+  transform: scale(1) rotate(0deg);
+  opacity: 1;
+}
+
+/* Special animation for right-aligned text */
+.milestone-marker .text-container:has(.text-right) .text-content {
+  transform: translateX(20px);
+} 
