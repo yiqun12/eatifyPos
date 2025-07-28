@@ -543,33 +543,54 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   // 清理商品数据中的开台时间戳信息
   const cleanProductData = (products) => {
-    return products.map(product => {
+    if (!products) {
+      return [];
+    }
+
+    const cleanedProducts = products.map(product => {
       const cleanedProduct = { ...product };
-      
+      if (cleanedProduct.attributeSelected) {
+        cleanedProduct.attributeSelected = { ...cleanedProduct.attributeSelected };
+      }
+
       // 如果商品有attributeSelected且包含开台商品属性
       if (cleanedProduct.attributeSelected && cleanedProduct.attributeSelected['开台商品']) {
         const tableItems = cleanedProduct.attributeSelected['开台商品'];
-        
-        // 清理包含时间戳的开台标记，转换为简单标记
+
         const cleanedTableItems = tableItems.map(item => {
           if (typeof item === 'string' && item.startsWith('开台时间-')) {
-            if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
-              return '开台商品';
-            } else {
-              return 'Table Item';
+            const parts = item.split('-');
+            const timestamp = parseInt(parts[parts.length - 1], 10);
+            if (!isNaN(timestamp)) {
+              const date = new Date(timestamp);
+              const hours = date.getHours().toString().padStart(2, '0');
+              const minutes = date.getMinutes().toString().padStart(2, '0');
+              const formattedTime = `${hours}:${minutes}`;
+              const lang = localStorage.getItem("Google-language");
+              if (lang?.includes("Chinese") || lang?.includes("中")) {
+                return `开台时间: ${formattedTime}`;
+              } else {
+                return `Start Time: ${formattedTime}`;
+              }
             }
           }
-          return item;
+          return item; // Fallback to original item if format is unexpected
         }).filter((item, index, arr) => arr.indexOf(item) === index); // 去重
-        
+
         cleanedProduct.attributeSelected = {
           ...cleanedProduct.attributeSelected,
           '开台商品': cleanedTableItems
         };
       }
-      
+
+      if (product.isNew) {
+        return { ...cleanedProduct, isNew: false };
+      }
+
       return cleanedProduct;
     });
+
+    return cleanedProducts;
   };
 
   const MerchantReceipt = async () => {
@@ -1716,10 +1737,26 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                           .map(([key, value]) => {
                             // 如果是开台商品的特殊属性，显示友好的信息
                             if (key === '开台商品') {
-                              if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
-                                return '开台商品';
-                              } else {
-                                return 'Table Item';
+                              const tableItems = value;
+                              if (Array.isArray(tableItems) && tableItems.length > 0) {
+                                const itemValue = tableItems[0];
+                                if (typeof itemValue === 'string' && itemValue.startsWith('开台时间-')) {
+                                  const parts = itemValue.split('-');
+                                  const timestamp = parseInt(parts[parts.length - 1], 10);
+                                  if (!isNaN(timestamp)) {
+                                    const date = new Date(timestamp);
+                                    const hours = date.getHours().toString().padStart(2, '0');
+                                    const minutes = date.getMinutes().toString().padStart(2, '0');
+                                    const formattedTime = `${hours}:${minutes}`;
+                                    const lang = localStorage.getItem("Google-language");
+                                    if (lang?.includes("Chinese") || lang?.includes("中")) {
+                                      return `开台时间: ${formattedTime}`;
+                                    } else {
+                                      return `Start Time: ${formattedTime}`;
+                                    }
+                                  }
+                                }
+                                return itemValue; // Fallback
                               }
                             }
                             // 其他属性正常显示

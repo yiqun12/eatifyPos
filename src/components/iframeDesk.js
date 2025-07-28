@@ -565,6 +565,50 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
 
     const [OpenChangeAttributeModal, setOpenChangeAttributeModal] = useState(false);
 
+    const cleanProductData = (products) => {
+        if (!products) {
+            return [];
+        }
+
+        return products.map(product => {
+            const cleanedProduct = { ...product };
+            if (cleanedProduct.attributeSelected) {
+                cleanedProduct.attributeSelected = { ...cleanedProduct.attributeSelected };
+            }
+
+            if (cleanedProduct.attributeSelected && cleanedProduct.attributeSelected['开台商品']) {
+                const tableItems = cleanedProduct.attributeSelected['开台商品'];
+
+                const cleanedTableItems = tableItems.map(item => {
+                    if (typeof item === 'string' && item.startsWith('开台时间-')) {
+                        const parts = item.split('-');
+                        const timestamp = parseInt(parts[parts.length - 1], 10);
+                        if (!isNaN(timestamp)) {
+                            const date = new Date(timestamp);
+                            const hours = date.getHours().toString().padStart(2, '0');
+                            const minutes = date.getMinutes().toString().padStart(2, '0');
+                            const formattedTime = `${hours}:${minutes}`;
+                            const lang = localStorage.getItem("Google-language");
+                            if (lang?.includes("Chinese") || lang?.includes("中")) {
+                                return `开台时间: ${formattedTime}`;
+                            } else {
+                                return `Start Time: ${formattedTime}`;
+                            }
+                        }
+                    }
+                    return item;
+                }).filter((item, index, arr) => arr.indexOf(item) === index);
+
+                cleanedProduct.attributeSelected = {
+                    ...cleanedProduct.attributeSelected,
+                    '开台商品': cleanedTableItems
+                };
+            }
+
+            return cleanedProduct;
+        });
+    };
+
     const SetTableIsSent = async (table_name, product) => {
         try {
             if (localStorage.getItem(table_name) === product) {
@@ -599,8 +643,12 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                 } else {//delete all items
                 }
             }
-            compareArrays(JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent")), JSON.parse(localStorage.getItem(store + "-" + selectedTable)))
-            SetTableIsSent(store + "-" + selectedTable + "-isSent", localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]")
+            const isSentData = JSON.parse(localStorage.getItem(store + "-" + selectedTable + "-isSent") || '[]');
+            const currentData = JSON.parse(localStorage.getItem(store + "-" + selectedTable) || '[]');
+            compareArrays(cleanProductData(isSentData), cleanProductData(currentData))
+
+            const cartForSetTable = localStorage.getItem(store + "-" + selectedTable) !== null ? localStorage.getItem(store + "-" + selectedTable) : "[]";
+            SetTableIsSent(store + "-" + selectedTable + "-isSent", JSON.stringify(cleanProductData(JSON.parse(cartForSetTable))))
 
         } catch (e) {
             console.error("Error adding document: ", e);

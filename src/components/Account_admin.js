@@ -4893,10 +4893,28 @@ const Account = () => {
                                                                                                                         "(" + Object.entries(item?.attributeSelected).map(([key, value]) => {
                                                                                                                             // 如果是开台商品的特殊属性，显示友好的信息
                                                                                                                             if (key === '开台商品') {
-                                                                                                                                if (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")) {
-                                                                                                                                    return '开台商品';
-                                                                                                                                } else {
-                                                                                                                                    return 'Table Item';
+                                                                                                                                const tableItems = value;
+                                                                                                                                if (Array.isArray(tableItems) && tableItems.length > 0) {
+                                                                                                                                    const itemValue = tableItems[0];
+                                                                                                                                    // 检查值是否为包含时间戳的字符串
+                                                                                                                                    if (typeof itemValue === 'string' && itemValue.startsWith('开台时间-')) {
+                                                                                                                                        const parts = itemValue.split('-');
+                                                                                                                                        const timestamp = parseInt(parts[parts.length - 1], 10);
+                                                                                                                                        if (!isNaN(timestamp)) {
+                                                                                                                                            const date = new Date(timestamp);
+                                                                                                                                            const hours = date.getHours().toString().padStart(2, '0');
+                                                                                                                                            const minutes = date.getMinutes().toString().padStart(2, '0');
+                                                                                                                                            const formattedTime = `${hours}:${minutes}`;
+                                                                                                                                            const lang = localStorage.getItem("Google-language");
+                                                                                                                                            if (lang?.includes("Chinese") || lang?.includes("中")) {
+                                                                                                                                                return `开台时间: ${formattedTime}`;
+                                                                                                                                            } else {
+                                                                                                                                                return `Start Time: ${formattedTime}`;
+                                                                                                                                            }
+                                                                                                                                        }
+                                                                                                                                    }
+                                                                                                                                    // 如果格式不符或已经是格式化后的，直接返回值
+                                                                                                                                    return itemValue; 
                                                                                                                                 }
                                                                                                                             }
                                                                                                                             return Array.isArray(value) ? value.join(' ') : value
