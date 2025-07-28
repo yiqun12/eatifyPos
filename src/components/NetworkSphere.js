@@ -1,127 +1,101 @@
-import React, { useRef, useEffect } from 'react';
-import * as THREE from 'three';
+import React, { useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Sphere, MeshDistortMaterial } from '@react-three/drei';
 
-const NetworkSphere = ({ size = 500, color = '#FF9900' }) => {
-  const containerRef = useRef(null);
-  const sphereRef = useRef(null);
-  
-  useEffect(() => {
-    if (!containerRef.current) return;
+const AnimatedSphere = () => {
+  const sphereRef = useRef();
+  const wireframeRef = useRef();
+
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
     
-    const scene = new THREE.Scene();
-    
-    const camera = new THREE.PerspectiveCamera(
-      45, 
-      containerRef.current.clientWidth / containerRef.current.clientHeight, 
-      0.1, 
-      1000
-    );
-    camera.position.z = 5;
-    
-    const renderer = new THREE.WebGLRenderer({ 
-      antialias: true,
-      alpha: true
-    });
-    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-    renderer.setClearColor(0x000000, 0);
-    
-    containerRef.current.appendChild(renderer.domElement);
-    
-    const geometry = new THREE.IcosahedronGeometry(1, 4);
-    
-    const material = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(color),
-      wireframe: true,
-      transparent: true,
-      opacity: 0.7
-    });
-    
-    const sphere = new THREE.Mesh(geometry, material);
-    scene.add(sphere);
-    sphereRef.current = sphere;
-    
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: new THREE.Color('#FFFFFF'),
-      transparent: true,
-      opacity: 0.5
-    });
-    
-    const positions = geometry.attributes.position;
-    const pointsArray = [];
-    
-    for (let i = 0; i < positions.count; i++) {
-      pointsArray.push(new THREE.Vector3(
-        positions.getX(i),
-        positions.getY(i),
-        positions.getZ(i)
-      ));
+    if (sphereRef.current) {
+      // More interesting rotation animation
+      sphereRef.current.rotation.y = time * 0.5;
+      sphereRef.current.rotation.x = Math.sin(time * 0.3) * 0.1;
     }
     
-    const connectionsCount = Math.floor(pointsArray.length * 0.1);
-    for (let i = 0; i < connectionsCount; i++) {
-      const p1 = Math.floor(Math.random() * pointsArray.length);
-      const p2 = Math.floor(Math.random() * pointsArray.length);
-      
-      if (p1 !== p2) {
-        const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-          pointsArray[p1],
-          pointsArray[p2]
-        ]);
-        
-        const line = new THREE.Line(lineGeometry, lineMaterial);
-        scene.add(line);
-      }
+    if (wireframeRef.current) {
+      wireframeRef.current.rotation.y = time * -0.3;
+      wireframeRef.current.rotation.x = Math.cos(time * 0.2) * 0.1;
     }
-    
-    const handleResize = () => {
-      if (!containerRef.current) return;
-      
-      camera.aspect = containerRef.current.clientWidth / containerRef.current.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
-    const animate = () => {
-      requestAnimationFrame(animate);
-      
-      if (sphereRef.current) {
-        sphereRef.current.rotation.x += 0.002;
-        sphereRef.current.rotation.y += 0.003;
-      }
-      
-      renderer.render(scene, camera);
-    };
-    
-    animate();
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      
-      if (containerRef.current) {
-        containerRef.current.removeChild(renderer.domElement);
-      }
-      
-      geometry.dispose();
-      material.dispose();
-      renderer.dispose();
-    };
-  }, [color]);
-  
+  });
+
   return (
-    <div 
-      ref={containerRef} 
-      style={{ 
-        width: `${size}px`, 
-        height: `${size}px`,
-        position: 'absolute',
-        top: '50%',
-        right: 0,
-        transform: 'translateY(-50%)'
-      }}
-    />
+    <group>
+      {/* Glowing core sphere */}
+      <Sphere ref={sphereRef} args={[1.8, 64, 64]}>
+        <MeshDistortMaterial
+          color="#ff6b35"
+          attach="material"
+          distort={0.3}
+          speed={2}
+          roughness={0.1}
+          metalness={0.8}
+          emissive="#ff4500"
+          emissiveIntensity={0.3}
+        />
+      </Sphere>
+      
+      {/* Outer wireframe sphere */}
+      <Sphere ref={wireframeRef} args={[2.3, 32, 32]}>
+        <meshBasicMaterial
+          color="#ffffff"
+          wireframe={true}
+          transparent={true}
+          opacity={0.3}
+        />
+      </Sphere>
+      
+      {/* Larger outer wireframe */}
+      <Sphere args={[2.8, 16, 16]}>
+        <meshBasicMaterial
+          color="#ffaa00"
+          wireframe={true}
+          transparent={true}
+          opacity={0.1}
+        />
+      </Sphere>
+    </group>
   );
 };
 
-export default NetworkSphere; 
+const NetworkSphere = () => {
+  return (
+    <div className="w-full h-full min-h-[400px]">
+      <Canvas
+        camera={{ position: [0, 0, 8], fov: 55 }}
+        style={{ background: 'transparent', pointerEvents: 'none' }}
+        dpr={[1, 2]}
+      >
+        {/* Ambient lighting */}
+        <ambientLight intensity={0.3} />
+        
+        {/* Main light source - from top right */}
+        <directionalLight 
+          position={[10, 10, 5]} 
+          intensity={2} 
+          color="#ffffff"
+        />
+        
+        {/* Fill light - orange tone */}
+        <pointLight 
+          position={[-5, -5, 5]} 
+          intensity={1} 
+          color="#ff8800"
+        />
+        
+        {/* Background light */}
+        <pointLight 
+          position={[0, 0, -10]} 
+          intensity={0.5} 
+          color="#4444ff"
+        />
+        
+        <AnimatedSphere />
+      </Canvas>
+    </div>
+  );
+};
+
+export default NetworkSphere;
