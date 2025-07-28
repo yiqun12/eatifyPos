@@ -1,99 +1,205 @@
-import React, { useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Sphere, MeshDistortMaterial } from '@react-three/drei';
+import React, { useRef, useEffect } from 'react';
 
-const AnimatedSphere = () => {
-  const sphereRef = useRef();
-  const wireframeRef = useRef();
+let earthFlyLine = null;
+let worldGeoJson = null;
 
-  useFrame((state) => {
-    const time = state.clock.getElapsedTime();
-    
-    if (sphereRef.current) {
-      // More interesting rotation animation
-      sphereRef.current.rotation.y = time * 0.5;
-      sphereRef.current.rotation.x = Math.sin(time * 0.3) * 0.1;
-    }
-    
-    if (wireframeRef.current) {
-      wireframeRef.current.rotation.y = time * -0.3;
-      wireframeRef.current.rotation.x = Math.cos(time * 0.2) * 0.1;
-    }
-  });
-
-  return (
-    <group>
-      {/* Glowing core sphere */}
-      <Sphere ref={sphereRef} args={[1.8, 64, 64]}>
-        <MeshDistortMaterial
-          color="#ff6b35"
-          attach="material"
-          distort={0.3}
-          speed={2}
-          roughness={0.1}
-          metalness={0.8}
-          emissive="#ff4500"
-          emissiveIntensity={0.3}
-        />
-      </Sphere>
-      
-      {/* Outer wireframe sphere */}
-      <Sphere ref={wireframeRef} args={[2.3, 32, 32]}>
-        <meshBasicMaterial
-          color="#ffffff"
-          wireframe={true}
-          transparent={true}
-          opacity={0.3}
-        />
-      </Sphere>
-      
-      {/* Larger outer wireframe */}
-      <Sphere args={[2.8, 16, 16]}>
-        <meshBasicMaterial
-          color="#ffaa00"
-          wireframe={true}
-          transparent={true}
-          opacity={0.1}
-        />
-      </Sphere>
-    </group>
-  );
-};
+try {
+  earthFlyLine = require('earth-flyline').default;
+  worldGeoJson = require('../data/world.json');
+} catch (error) {
+  console.log('earth-flyline or world.json not found:', error);
+}
 
 const NetworkSphere = () => {
+  const containerRef = useRef();
+  const chartRef = useRef();
+
+  useEffect(() => {
+    const initEarthFlyline = () => {
+      if (!earthFlyLine) {
+        console.log('earth-flyline not loaded, using fallback');
+        showFallbackEarth();
+        return;
+      }
+
+      if (containerRef.current && !chartRef.current) {
+        try {
+          if (worldGeoJson) {
+            earthFlyLine.registerMap("world", worldGeoJson);
+          }
+
+          chartRef.current = earthFlyLine.init({
+            dom: containerRef.current,
+            map: worldGeoJson ? "world" : undefined,
+            autoRotate: true,
+            rotateSpeed: 0.01,
+            mode: "3d",
+            limitFps: false,
+            config: {
+              R: 120,
+              stopRotateByHover: false,
+              
+              bgStyle: {
+                color: "#000000",
+                opacity: 0
+              },
+              
+              earth: {
+                color: "#0F172A",
+                material: "MeshPhongMaterial",
+                dragConfig: {
+                  rotationSpeed: 0,
+                  inertiaFactor: 0,
+                  disableX: true,
+                  disableY: true,
+                }
+              },
+              
+              mapStyle: {
+                areaColor: "#F97316",
+                lineColor: "#EA580C"
+              },
+              
+              spriteStyle: {
+                color: "#FFA726",
+                show: true,
+                size: 1.5
+              },
+              
+              enableZoom: false,
+              
+              pathStyle: {
+                color: "#FFA726"
+              },
+              
+              flyLineStyle: {
+                color: "#FFA726"
+              },
+              
+              scatterStyle: {
+                color: "#FFFFFF",
+                size: 40,
+                opacity: 1.0,
+                show: true,
+                animate: true,
+                duration: 1500
+              },
+            }
+          });
+
+          // Add city markers with red colors
+          setTimeout(() => {
+            if (chartRef.current) {
+              console.log('Adding city markers...');
+              
+              try {
+                const pointData = [
+                  {
+                    id: 1,
+                    lon: -74.0060, // New York
+                    lat: 40.7128,
+                    style: {
+                      color: "#00FF00",
+                      size: 10,
+                      opacity: 1.0
+                    },
+                    name: "New York",
+                    population: "8.4M"
+                  },
+                  {
+                    id: 2,
+                    lon: -71.0589, // Boston
+                    lat: 42.3601,
+                    style: {
+                      color: "#00FF00",
+                      size: 10,
+                      opacity: 1.0
+                    },
+                    name: "Boston",
+                    population: "685K"
+                  },
+                  {
+                    id: 3,
+                    lon: -122.4194, // San Francisco
+                    lat: 37.7749,
+                    style: {
+                      color: "#00FF00",
+                      size: 10,
+                      opacity: 1.0
+                    },
+                    name: "San Francisco",
+                    population: "874K"
+                  }
+                ];
+
+                chartRef.current.addData('point', pointData);
+                console.log('City markers added successfully!');
+              } catch (error) {
+                console.error('Error adding city markers:', error);
+              }
+            }
+          }, 1000);
+
+          console.log('🌍 3D Earth initialized successfully!');
+        } catch (error) {
+          console.log('earth-flyline initialization failed:', error);
+          showFallbackEarth();
+        }
+      }
+    };
+
+    initEarthFlyline();
+
+    return () => {
+      if (chartRef.current && chartRef.current.destory) {
+        chartRef.current.destory();
+      }
+    };
+  }, []);
+
+  const showFallbackEarth = () => {
+    if (containerRef.current) {
+      containerRef.current.innerHTML = `
+        <div style="
+          width: 300px;
+          height: 300px;
+          border-radius: 50%;
+          background: linear-gradient(45deg, #E3F2FD, #BBDEFB);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #424242;
+          font-size: 14px;
+          text-align: center;
+          margin: 0 auto;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+          animation: rotate 20s linear infinite;
+        ">
+          <div>
+            <div style="font-size: 24px; margin-bottom: 10px;">🌍</div>
+            <div>3D Globe</div>
+            <div style="font-size: 12px; margin-top: 5px; opacity: 0.7;">
+              Loading earth-flyline...
+            </div>
+          </div>
+        </div>
+        <style>
+          @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        </style>
+      `;
+    }
+  };
+
   return (
-    <div className="w-full h-full min-h-[400px]">
-      <Canvas
-        camera={{ position: [0, 0, 8], fov: 55 }}
-        style={{ background: 'transparent', pointerEvents: 'none' }}
-        dpr={[1, 2]}
-      >
-        {/* Ambient lighting */}
-        <ambientLight intensity={0.3} />
-        
-        {/* Main light source - from top right */}
-        <directionalLight 
-          position={[10, 10, 5]} 
-          intensity={2} 
-          color="#ffffff"
-        />
-        
-        {/* Fill light - orange tone */}
-        <pointLight 
-          position={[-5, -5, 5]} 
-          intensity={1} 
-          color="#ff8800"
-        />
-        
-        {/* Background light */}
-        <pointLight 
-          position={[0, 0, -10]} 
-          intensity={0.5} 
-          color="#4444ff"
-        />
-        
-        <AnimatedSphere />
-      </Canvas>
+    <div className="w-full h-full min-h-[400px] flex items-center justify-center">
+      <div 
+        ref={containerRef}
+        className="w-full h-full"
+        style={{ minHeight: '300px', minWidth: '300px' }}
+      />
     </div>
   );
 };
