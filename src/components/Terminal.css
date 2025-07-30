@@ -1,4 +1,4 @@
-/* Terminal切换按钮 - 与页面风格一致 */
+/* Terminal button */
 .terminal-toggle-btn {
     position: relative;
     background: transparent;
@@ -21,7 +21,7 @@
     color: #000;
 }
 
-/* 连接状态指示器 - 简洁风格 */
+/* status style */
 .connection-indicator {
     width: 6px;
     height: 6px;
