@@ -1,40 +1,97 @@
-/* Terminal button */
+/* Printer terminal button - color based on connection status */
 .terminal-toggle-btn {
-    position: relative;
+    position: relative; /* Required for absolute positioning of status bubble */
     background: transparent;
     border: none;
     border-radius: 4px;
     padding: 8px 12px;
     margin-left: 12px;
     cursor: pointer;
-    color: #333;
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
     gap: 6px;
     font-size: 20px;
     text-decoration: none;
+    overflow: visible; /* Ensure bubble is not clipped */
+}
+
+/* Connection status colors */
+.terminal-toggle-btn.connected {
+    color: #28a745; /* Green - connected */
+}
+
+.terminal-toggle-btn.disconnected {
+    color: #dc3545; /* Red - disconnected */
 }
 
 .terminal-toggle-btn:hover {
     background: rgba(0, 0, 0, 0.1);
-    color: #000;
 }
 
-/* status style */
-.connection-indicator {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
+.terminal-toggle-btn.connected:hover {
+    background: rgba(40, 167, 69, 0.1); /* Light green background */
+}
+
+.terminal-toggle-btn.disconnected:hover {
+    background: rgba(220, 53, 69, 0.1); /* Light red background */
+}
+
+/* Note: Connection status is now indicated by the printer icon color, no separate indicator needed */
+
+/* Floating status bubble - always visible when disconnected */
+.printer-status-bubble {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
     background: #dc3545;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    z-index: 1000;
+    margin-top: 8px;
+    font-weight: 500;
+    animation: bubbleAppear 0.3s ease-out;
 }
 
-.connection-indicator.connected {
-    background: #28a745;
+/* Arrow pointing to the button */
+.printer-status-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-bottom-color: #dc3545;
 }
 
-.connection-indicator.disconnected {
-    background: #dc3545;
+/* Fade in animation */
+@keyframes bubbleAppear {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Mobile responsive adjustments for status bubble */
+@media (max-width: 768px) {
+    .printer-status-bubble {
+        font-size: 11px;
+        padding: 4px 8px;
+        margin-top: 6px;
+    }
+    
+    .printer-status-bubble::before {
+        border-width: 4px;
+    }
 }
 
 

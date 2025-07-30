@@ -103,10 +103,34 @@ const Terminal = ({ timeZone = "America/New_York" }) => {
 
     return (
         <>
-            {/* Terminal toggle button */}
-            <div className="terminal-toggle-btn" onClick={toggleTerminal}>
-                <i className="bi bi-terminal"></i>
-                <span className={`connection-indicator ${isConnected ? 'connected' : 'disconnected'}`}></span>
+            {/* Printer terminal toggle button */}
+            <div 
+                className={`terminal-toggle-btn ${isConnected ? 'connected' : 'disconnected'}`} 
+                onClick={toggleTerminal}
+                title={isConnected ? "Print Service Connected" : "Printer not connected"}
+            >
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <path
+                        d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    />
+                    <circle cx="17" cy="11" r="1" fill="currentColor"/>
+                </svg>
+                {/* Floating notification bubble - always visible when disconnected */}
+                {!isConnected && (
+                    <div className="printer-status-bubble">
+                        Printer not connected
+                    </div>
+                )}
             </div>
 
             {/* Terminal panel */}
