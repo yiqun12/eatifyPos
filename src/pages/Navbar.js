@@ -2069,7 +2069,7 @@ const Navbar = () => {
 
               )} */}
 
-<Terminal />
+<Terminal timeZone={timeZone} />
 
               {
                 !isKiosk && (
@@ -2105,7 +2105,7 @@ const Navbar = () => {
               }
 
               {!isMobile && window.location.pathname.includes('/account') && user ?
-                <div className="ml-3 " style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}>
+                <div className="ml-3 mt-2" style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}>
                   <i className="bi bi-calendar3"></i>
                   <span
                     className="ml-1 notranslate">

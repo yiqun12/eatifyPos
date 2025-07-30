@@ -1,63 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './Terminal.css';
 import { io } from 'socket.io-client';
-
-const Terminal = () => {
+import { DateTime } from 'luxon';
+const Terminal = ({ timeZone = "America/New_York" }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [logs, setLogs] = useState([]);
     const [socket, setSocket] = useState(null);
     const terminalRef = useRef(null);
-
-    useEffect(() => {
-        // Initialize Socket.IO connection to specified server
-        const newSocket = io('http://localhost:3001');
-        setSocket(newSocket);
-
-        // Connection status management
-        newSocket.on('connect', () => {
-            setIsConnected(true);
-            appendLog('system', 'Connected to server', new Date().toLocaleString());
-        });
-
-        newSocket.on('disconnect', () => {
-            setIsConnected(false);
-            appendLog('system', 'Disconnected from server', new Date().toLocaleString());
-        });
-
-        // Connection error handling
-        newSocket.on('connect_error', (error) => {
-            setIsConnected(false);
-            appendLog('error', `Connection error: ${error.message}`, new Date().toLocaleString());
-            console.error('Socket.IO connection error:', error);
-        });
-
-        // Reconnect attempts
-        newSocket.on('reconnect_attempt', (attemptNumber) => {
-            appendLog('warning', `Reconnecting... (attempt ${attemptNumber})`, new Date().toLocaleString());
-        });
-
-        // Reconnect success
-        newSocket.on('reconnect', (attemptNumber) => {
-            setIsConnected(true);
-            appendLog('success', `Reconnected successfully! (${attemptNumber} attempts)`, new Date().toLocaleString());
-        });
-
-        // Receive command output
-        newSocket.on('cmd-output', (data) => {
-            appendLog(data.type, data.message, data.timestamp);
-        });
-
-        // Receive log clear signal
-        newSocket.on('logs-cleared', () => {
-            setLogs([]);
-            appendLog('system', 'Logs cleared', new Date().toLocaleString());
-        });
-
-        return () => {
-            newSocket.close();
-        };
-    }, []);
 
     // Add log entry
     const appendLog = (type, message, timestamp) => {
@@ -69,6 +19,69 @@ const Terminal = () => {
         };
         setLogs(prevLogs => [...prevLogs, logEntry]);
     };
+    
+    const getFormattedTime = useCallback(() => {
+        try {
+            const now = DateTime.now().setZone(timeZone);
+            return now.toFormat('yyyy-M-d HH:mm:ss');
+        } catch (error) {
+            console.error("Invalid timezone, using local time:", error);
+            const now = DateTime.now();
+            return now.toFormat('yyyy-M-d HH:mm:ss');
+        }
+    }, [timeZone]);
+
+    useEffect(() => {
+        // Delay initialization to ensure everything is ready
+        const timer = setTimeout(() => {
+            // Initialize Socket.IO connection to specified server
+            const newSocket = io('http://localhost:3001');
+            setSocket(newSocket);
+
+            // Connection status management
+            newSocket.on('connect', () => {
+                setIsConnected(true);
+                appendLog('system', 'Connected to server', getFormattedTime());
+            });
+
+            newSocket.on('disconnect', () => {
+                setIsConnected(false);
+                appendLog('system', 'Disconnected from server', getFormattedTime());
+            });
+
+            // Connection error handling
+            newSocket.on('connect_error', (error) => {
+                setIsConnected(false);
+                appendLog('error', `Connection error: ${error.message}`, getFormattedTime());
+                console.error('Socket.IO connection error:', error);
+            });
+
+            // Reconnect attempts
+            newSocket.on('reconnect_attempt', (attemptNumber) => {
+                appendLog('warning', `Reconnecting... (attempt ${attemptNumber})`, getFormattedTime());
+            });
+
+            // Reconnect success
+            newSocket.on('reconnect', (attemptNumber) => {
+                setIsConnected(true);
+                appendLog('success', `Reconnected successfully! (${attemptNumber} attempts)`, getFormattedTime());
+            });
+
+            // Receive command output
+            newSocket.on('cmd-output', (data) => {
+                appendLog(data.type, data.message, data.timestamp);
+            });
+
+            // Note: log clearing is now handled locally, no server communication needed
+        }, 1000); // Wait 1 second for timeZone to be properly set
+
+        return () => {
+            clearTimeout(timer);
+            if (socket) {
+                socket.close();
+            }
+        };
+    }, [getFormattedTime]);
 
     // Auto scroll to bottom
     useEffect(() => {
@@ -77,11 +90,10 @@ const Terminal = () => {
         }
     }, [logs]);
 
-    // Clear logs
+    // Clear logs - pure frontend operation
     const clearLogs = () => {
-        if (socket) {
-            socket.emit('clear-logs');
-        }
+        setLogs([]);
+        appendLog('system', 'Logs cleared', getFormattedTime());
     };
 
     // Toggle terminal display
