@@ -1,13 +1,30 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import './Terminal.css';
 import { io } from 'socket.io-client';
 import { DateTime } from 'luxon';
+
 const Terminal = ({ timeZone = "America/New_York" }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [logs, setLogs] = useState([]);
     const [socket, setSocket] = useState(null);
     const terminalRef = useRef(null);
+
+    // Translation array like inStore_shop_cart.js
+    const translations = useMemo(() => [
+        { input: "Printer", output: "打印机驱动" },
+        { input: "Printer not connected", output: "打印机驱动未连接" },
+    ], []);
+
+    // Translation function like inStore_shop_cart.js
+    const fanyi = useCallback((input) => {
+        const lang = localStorage.getItem("Google-language");
+        if (lang?.includes("Chinese") || lang?.includes("中")) {
+            const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
+            return translation ? translation.output : input;
+        }
+        return input;
+    }, [translations]);
 
     // Add log entry
     const appendLog = (type, message, timestamp) => {
@@ -110,8 +127,8 @@ const Terminal = ({ timeZone = "America/New_York" }) => {
                 title={isConnected ? "Print Service Connected" : "Printer not connected"}
             >
                 <svg
-                    width="18"
-                    height="18"
+                    width="20"
+                    height="20"
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -125,10 +142,11 @@ const Terminal = ({ timeZone = "America/New_York" }) => {
                     />
                     <circle cx="17" cy="11" r="1" fill="currentColor"/>
                 </svg>
+                <span className="printer-label">{fanyi("Printer")}</span>
                 {/* Floating notification bubble - always visible when disconnected */}
                 {!isConnected && (
                     <div className="printer-status-bubble">
-                        Printer not connected
+                        {fanyi("Printer not connected")}
                     </div>
                 )}
             </div>
