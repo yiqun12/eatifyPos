@@ -14,6 +14,7 @@ const Terminal = ({ timeZone = "America/New_York" }) => {
     const translations = useMemo(() => [
         { input: "Printer", output: "打印机驱动" },
         { input: "Printer not connected", output: "打印机驱动未连接" },
+        { input: "Print Service Connected", output: "打印服务已连接" },
     ], []);
 
     // Translation function like inStore_shop_cart.js
@@ -124,7 +125,7 @@ const Terminal = ({ timeZone = "America/New_York" }) => {
             <div 
                 className={`terminal-toggle-btn ${isConnected ? 'connected' : 'disconnected'}`} 
                 onClick={toggleTerminal}
-                title={isConnected ? "Print Service Connected" : "Printer not connected"}
+                title={isConnected ? fanyi("Print Service Connected") : fanyi("Printer not connected")}
             >
                 <svg
                     width="20"
