@@ -54,6 +54,7 @@ import { getGlobalFailedItem } from '../pages/Food';
 import { lookup } from 'zipcode-to-timezone';
 
 import useGeolocation from '../components/useGeolocation';
+import Terminal from '../components/Terminal';
 // 定义一个变量来存储全局函数
 let handleOpenModalGlobal = () => {
   console.error("handleOpenModal has not been initialized.");
@@ -2068,6 +2069,7 @@ const Navbar = () => {
 
               )} */}
 
+<Terminal />
 
               {
                 !isKiosk && (

@@ -86,6 +86,7 @@
         "segmentit": "^2.0.3",
         "semantic-ui-react": "^2.1.4",
         "sitemap": "^7.1.1",
+        "socket.io-client": "^4.8.1",
         "stripe": "^11.5.0",
         "styled-components": "^6.1.11",
         "swiper": "^10.1.0",
