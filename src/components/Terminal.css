@@ -1,0 +1,365 @@
+/* Printer terminal button - consistent with navbar buttons */
+.terminal-toggle-btn {
+    position: relative; /* Required for absolute positioning of status bubble */
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    padding: 0 10px;
+    margin-left: 12px;
+    margin-top: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 20px;
+    text-decoration: none;
+    overflow: visible; /* Ensure bubble is not clipped */
+    height: 32px; /* Fixed height for alignment */
+}
+
+/* Connection status colors */
+.terminal-toggle-btn.connected {
+    color: #28a745; /* Green - connected */
+}
+
+.terminal-toggle-btn.disconnected {
+    color: #dc3545; /* Red - disconnected */
+}
+
+.terminal-toggle-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.terminal-toggle-btn.connected:hover {
+    background: rgba(40, 167, 69, 0.1); /* Light green background */
+}
+
+.terminal-toggle-btn.disconnected:hover {
+    background: rgba(220, 53, 69, 0.1); /* Light red background */
+}
+
+/* Printer label styling - consistent with navbar text */
+.printer-label {
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1;
+    user-select: none;
+}
+
+/* Note: Connection status is now indicated by the printer icon color, no separate indicator needed */
+
+/* Floating status bubble - always visible when disconnected */
+.printer-status-bubble {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    z-index: 1000;
+    margin-top: 10px;
+    font-weight: 500;
+    animation: bubbleAppear 0.3s ease-out;
+}
+
+/* Arrow pointing to the button */
+.printer-status-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-bottom-color: #dc3545;
+}
+
+/* Fade in animation */
+@keyframes bubbleAppear {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Mobile responsive adjustments for status bubble */
+@media (max-width: 768px) {
+    .printer-status-bubble {
+        font-size: 11px;
+        padding: 4px 8px;
+        margin-top: 6px;
+    }
+    
+    .printer-status-bubble::before {
+        border-width: 4px;
+    }
+}
+
+
+
+/* planel */
+.terminal-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 400px;
+    background: #1a1a1a;
+    border-top: 2px solid #333;
+    z-index: 999;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.terminal-panel.open {
+    transform: translateY(0);
+}
+
+/* header */
+.terminal-header {
+    background: #2a2a2a;
+    padding: 12px 16px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+}
+
+.terminal-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: bold;
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-badge.connected {
+    background: #00ff0020;
+    color: #00ff00;
+    border: 1px solid #00ff00;
+}
+
+.status-badge.disconnected {
+    background: #ff444420;
+    color: #ff4444;
+    border: 1px solid #ff4444;
+}
+
+/* terminal button */
+.terminal-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-clear,
+.terminal-btn-close {
+    background: transparent;
+    border: 1px solid #666;
+    color: #fff;
+    padding: 9px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-clear:hover {
+    background: #ff444420;
+    border-color: #ff4444;
+    color: #ff4444;
+}
+
+.terminal-btn-close:hover {
+    background: #ff444420;
+    border-color: #ff4444;
+    color: #ff4444;
+}
+
+/* body */
+.terminal-body {
+    flex: 1;
+    padding: 18px;
+    background: #0a0a0a;
+    color: #00ff00;
+    font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
+    font-size: 15px;
+    line-height: 1.5;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* scrollbar */
+.terminal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.terminal-body::-webkit-scrollbar-track {
+    background: #111;
+}
+
+.terminal-body::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+.terminal-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* log */
+.log-entry {
+    display: flex;
+    margin-bottom: 6px;
+    animation: fadeIn 0.3s ease;
+}
+
+.log-entry .timestamp {
+    color: #eee;
+    margin-right: 8px;
+    flex-shrink: 0;
+    min-width: 140px;
+    font-weight: 500;
+}
+
+.log-entry .message {
+    color: #00ff00;
+    word-break: break-word;
+}
+
+/* log */
+.log-entry.error .message {
+    color: #ff6666;
+}
+
+.log-entry.warning .message {
+    color: #ffcc00;
+}
+
+.log-entry.info .message {
+    color: #00ccff;
+}
+
+.log-entry.success .message {
+    color: #00ff88;
+}
+
+.log-entry.system .message {
+    color: #fff;
+    font-style: italic;
+}
+
+.log-entry.stderr .message {
+    color: #ff9966;
+    font-weight: 500;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.terminal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 998;
+    animation: fadeInOverlay 0.3s ease;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .terminal-toggle-btn {
+        top: 15px;
+        right: 15px;
+        padding: 10px;
+    }
+    
+    .terminal-panel {
+        height: 50vh;
+        max-height: 300px;
+    }
+    
+    .terminal-header {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+    
+    .terminal-body {
+        padding: 14px;
+        font-size: 14px;
+    }
+    
+    .log-entry .timestamp {
+        min-width: 120px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .terminal-toggle-btn {
+        padding: 6px 8px;
+        margin-left: 8px;
+        font-size: 18px;
+        gap: 4px;
+    }
+    
+    .terminal-panel {
+        height: 60vh;
+        max-height: 250px;
+    }
+    
+    .terminal-title span {
+        font-size: 12px;
+    }
+    
+    .terminal-controls {
+        gap: 4px;
+    }
+    
+    .btn-clear,
+    .terminal-btn-close {
+        padding: 6px;
+    }
+}

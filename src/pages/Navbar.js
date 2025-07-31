@@ -54,6 +54,7 @@ import { getGlobalFailedItem } from '../pages/Food';
 import { lookup } from 'zipcode-to-timezone';
 
 import useGeolocation from '../components/useGeolocation';
+import Terminal from '../components/Terminal';
 // 定义一个变量来存储全局函数
 let handleOpenModalGlobal = () => {
   console.error("handleOpenModal has not been initialized.");
@@ -2068,13 +2069,16 @@ const Navbar = () => {
 
               )} */}
 
+              {!isMobile &&
+                <Terminal timeZone={timeZone} />
+              }
 
               {
                 !isKiosk && (
                   !user_loading ? (
                     isOnline ? (
                       <button
-                        className="ml-3"
+                        className="ml-3 mt-1"
                         onClick={(event) => {
                           if (window.location.hash.slice(1).split('?')[0] === 'code') {
                           } else {
@@ -2084,7 +2088,7 @@ const Navbar = () => {
                           }
 
                         }}
-                        style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}
+                        style={{ cursor: "pointer", fontSize: "20px", display: "flex", alignItems: "center", gap: "6px", background: "transparent", border: "none", height: "32px" }}
                       >
                         <i className="bi bi-person"></i>
                         <span>
@@ -2103,7 +2107,7 @@ const Navbar = () => {
               }
 
               {!isMobile && window.location.pathname.includes('/account') && user ?
-                <div className="ml-3 " style={{ cursor: "pointer", top: '-10px', fontSize: "20px" }}>
+                <div className="ml-3 mt-1" style={{ cursor: "pointer", fontSize: "20px", display: "flex", alignItems: "center", gap: "6px", height: "32px" }}>
                   <i className="bi bi-calendar3"></i>
                   <span
                     className="ml-1 notranslate">
