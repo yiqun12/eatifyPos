@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ChatBubbleLeftRightIcon,RocketLaunchIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
+import NetworkSphere from './NetworkSphere';
 
 const Hero = () => {
   const params = new URLSearchParams(window.location.search);
@@ -15,19 +16,10 @@ const Hero = () => {
   return (
     <div className="relative bg-white overflow-hidden pt-16">
       <div className="max-w-7xl mx-auto">
-        <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-          <svg
-            className="hidden lg:block absolute right-0 inset-y-0 h-full w-48 text-white transform translate-x-1/2"
-            fill="currentColor"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <polygon points="50,0 100,0 50,100 0,100" />
-          </svg>
-
-          <div className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-            <div className="sm:text-center lg:text-left">
+        <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 xl:max-w-2xl xl:w-full xl:pb-28 2xl:pb-32 pt-10 sm:pt-12 md:pt-16 xl:pt-20 2xl:pt-28">
+          
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="sm:text-center xl:text-left">
               <motion.h1
                 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl"
                 initial={{ opacity: 0, y: 20 }}
@@ -38,7 +30,7 @@ const Hero = () => {
                 <span className="block text-orange-500 xl:inline">POS System</span>
               </motion.h1>
               <motion.p
-                className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0"
+                className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl xl:mx-0"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
@@ -46,7 +38,7 @@ const Hero = () => {
                 Streamline your restaurant operations, increase efficiency, and boost revenue. Our POS system provides a comprehensive solution from order taking to inventory management.
               </motion.p>
               <motion.div
-                className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start"
+                className="mt-5 sm:mt-8 sm:flex sm:justify-center xl:justify-start"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
@@ -94,16 +86,28 @@ const Hero = () => {
                   </a>
                 </div>
               </motion.div>
+              
+              {/* Sphere displays below buttons on small/medium screens */}
+              <motion.div
+                className="mt-8 flex justify-center xl:hidden"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+              >
+                <div className="h-80 w-80 flex items-center justify-center">
+                  <NetworkSphere />
+                </div>
+              </motion.div>
             </div>
           </div>
         </div>
       </div>
-      <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-        <img
-          className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
-          src="https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/a6f8dc22-9a48-46ec-ef55-844d2b4c4700/public"
-          alt="Restaurant POS System"
-        />
+      
+      {/* Sphere displays on right side for large screens */}
+      <div className="hidden xl:block xl:absolute xl:inset-y-0 xl:right-0 xl:w-1/2">
+        <div className="xl:w-full xl:h-full flex items-center justify-center relative overflow-hidden">
+          <NetworkSphere />
+        </div>
       </div>
     </div>
   );

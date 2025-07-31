@@ -1,127 +1,207 @@
 import React, { useRef, useEffect } from 'react';
-import * as THREE from 'three';
 
-const NetworkSphere = ({ size = 500, color = '#FF9900' }) => {
-  const containerRef = useRef(null);
-  const sphereRef = useRef(null);
-  
+let earthFlyLine = null;
+let worldGeoJson = null;
+
+try {
+  earthFlyLine = require('earth-flyline').default;
+  worldGeoJson = require('../data/world.json');
+} catch (error) {
+  console.log('earth-flyline or world.json not found:', error);
+}
+
+const NetworkSphere = () => {
+  const containerRef = useRef();
+  const chartRef = useRef();
+
   useEffect(() => {
-    if (!containerRef.current) return;
-    
-    const scene = new THREE.Scene();
-    
-    const camera = new THREE.PerspectiveCamera(
-      45, 
-      containerRef.current.clientWidth / containerRef.current.clientHeight, 
-      0.1, 
-      1000
-    );
-    camera.position.z = 5;
-    
-    const renderer = new THREE.WebGLRenderer({ 
-      antialias: true,
-      alpha: true
-    });
-    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-    renderer.setClearColor(0x000000, 0);
-    
-    containerRef.current.appendChild(renderer.domElement);
-    
-    const geometry = new THREE.IcosahedronGeometry(1, 4);
-    
-    const material = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(color),
-      wireframe: true,
-      transparent: true,
-      opacity: 0.7
-    });
-    
-    const sphere = new THREE.Mesh(geometry, material);
-    scene.add(sphere);
-    sphereRef.current = sphere;
-    
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: new THREE.Color('#FFFFFF'),
-      transparent: true,
-      opacity: 0.5
-    });
-    
-    const positions = geometry.attributes.position;
-    const pointsArray = [];
-    
-    for (let i = 0; i < positions.count; i++) {
-      pointsArray.push(new THREE.Vector3(
-        positions.getX(i),
-        positions.getY(i),
-        positions.getZ(i)
-      ));
-    }
-    
-    const connectionsCount = Math.floor(pointsArray.length * 0.1);
-    for (let i = 0; i < connectionsCount; i++) {
-      const p1 = Math.floor(Math.random() * pointsArray.length);
-      const p2 = Math.floor(Math.random() * pointsArray.length);
-      
-      if (p1 !== p2) {
-        const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-          pointsArray[p1],
-          pointsArray[p2]
-        ]);
-        
-        const line = new THREE.Line(lineGeometry, lineMaterial);
-        scene.add(line);
+    const initEarthFlyline = () => {
+      if (!earthFlyLine) {
+        console.log('earth-flyline not loaded, using fallback');
+        showFallbackEarth();
+        return;
       }
-    }
-    
-    const handleResize = () => {
-      if (!containerRef.current) return;
-      
-      camera.aspect = containerRef.current.clientWidth / containerRef.current.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
-    const animate = () => {
-      requestAnimationFrame(animate);
-      
-      if (sphereRef.current) {
-        sphereRef.current.rotation.x += 0.002;
-        sphereRef.current.rotation.y += 0.003;
+
+      if (containerRef.current && !chartRef.current) {
+        try {
+          if (worldGeoJson) {
+            earthFlyLine.registerMap("world", worldGeoJson);
+          }
+
+          chartRef.current = earthFlyLine.init({
+            dom: containerRef.current,
+            map: worldGeoJson ? "world" : undefined,
+            autoRotate: true,
+            rotateSpeed: 0.01,
+            mode: "3d",
+            limitFps: false,
+            config: {
+              R: 120,
+              stopRotateByHover: false,
+              
+              bgStyle: {
+                color: "#000000",
+                opacity: 0
+              },
+              
+              earth: {
+                color: "#0F172A",
+                material: "MeshPhongMaterial",
+                dragConfig: {
+                  rotationSpeed: 0,
+                  inertiaFactor: 0,
+                  disableX: true,
+                  disableY: true,
+                }
+              },
+              
+              mapStyle: {
+                areaColor: "#F97316",
+                lineColor: "#EA580C"
+              },
+              
+              spriteStyle: {
+                color: "#FFA726",
+                show: true,
+                size: 1.5
+              },
+              
+              enableZoom: false,
+              
+              pathStyle: {
+                color: "#FFA726"
+              },
+              
+              flyLineStyle: {
+                color: "#FFA726"
+              },
+              
+              scatterStyle: {
+                color: "#FFFFFF",
+                size: 40,
+                opacity: 1.0,
+                show: true,
+                animate: true,
+                duration: 1500
+              },
+            }
+          });
+
+          // Add city markers with red colors
+          setTimeout(() => {
+            if (chartRef.current) {
+              console.log('Adding city markers...');
+              
+              try {
+                const pointData = [
+                  {
+                    id: 1,
+                    lon: -74.0060, // New York
+                    lat: 40.7128,
+                    style: {
+                      color: "#00FF00",
+                      size: 10,
+                      opacity: 1.0
+                    },
+                    name: "New York",
+                    population: "8.4M"
+                  },
+                  {
+                    id: 2,
+                    lon: -71.0589, // Boston
+                    lat: 42.3601,
+                    style: {
+                      color: "#00FF00",
+                      size: 10,
+                      opacity: 1.0
+                    },
+                    name: "Boston",
+                    population: "685K"
+                  },
+                  {
+                    id: 3,
+                    lon: -122.4194, // San Francisco
+                    lat: 37.7749,
+                    style: {
+                      color: "#00FF00",
+                      size: 10,
+                      opacity: 1.0
+                    },
+                    name: "San Francisco",
+                    population: "874K"
+                  }
+                ];
+
+                chartRef.current.addData('point', pointData);
+                console.log('City markers added successfully!');
+              } catch (error) {
+                console.error('Error adding city markers:', error);
+              }
+            }
+          }, 1000);
+
+          console.log('🌍 3D Earth initialized successfully!');
+        } catch (error) {
+          console.log('earth-flyline initialization failed:', error);
+          showFallbackEarth();
+        }
       }
-      
-      renderer.render(scene, camera);
     };
-    
-    animate();
-    
+
+    initEarthFlyline();
+
     return () => {
-      window.removeEventListener('resize', handleResize);
-      
-      if (containerRef.current) {
-        containerRef.current.removeChild(renderer.domElement);
+      if (chartRef.current && chartRef.current.destory) {
+        chartRef.current.destory();
       }
-      
-      geometry.dispose();
-      material.dispose();
-      renderer.dispose();
     };
-  }, [color]);
-  
+  }, []);
+
+  const showFallbackEarth = () => {
+    if (containerRef.current) {
+      containerRef.current.innerHTML = `
+        <div style="
+          width: 300px;
+          height: 300px;
+          border-radius: 50%;
+          background: linear-gradient(45deg, #E3F2FD, #BBDEFB);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #424242;
+          font-size: 14px;
+          text-align: center;
+          margin: 0 auto;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+          animation: rotate 20s linear infinite;
+        ">
+          <div>
+            <div style="font-size: 24px; margin-bottom: 10px;">🌍</div>
+            <div>3D Globe</div>
+            <div style="font-size: 12px; margin-top: 5px; opacity: 0.7;">
+              Loading earth-flyline...
+            </div>
+          </div>
+        </div>
+        <style>
+          @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        </style>
+      `;
+    }
+  };
+
   return (
-    <div 
-      ref={containerRef} 
-      style={{ 
-        width: `${size}px`, 
-        height: `${size}px`,
-        position: 'absolute',
-        top: '50%',
-        right: 0,
-        transform: 'translateY(-50%)'
-      }}
-    />
+    <div className="w-full h-full min-h-[400px] flex items-center justify-center">
+      <div 
+        ref={containerRef}
+        className="w-full h-full"
+        style={{ minHeight: '300px', minWidth: '300px' }}
+      />
+    </div>
   );
 };
 
-export default NetworkSphere; 
+export default NetworkSphere;
