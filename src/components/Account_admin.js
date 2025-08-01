@@ -74,8 +74,18 @@ import { DateTime } from 'luxon';
 import { lookup } from 'zipcode-to-timezone';
 import EmailVerificationModal from './EmailVerificationModal'; // Import the new modal
 import ChartPasswordModal from './ChartPasswordModal'; // Import the chart password modal
+import MemberDashboard from './Member/MemberDashboard'; // Import Member Dashboard
+import MemberErrorBoundary from './Member/ErrorBoundary'; // Import Error Boundary
 registerLocale('zh-CN', zhCN);
 
+// Direct Member Management Component with Error Boundary
+const MemberManagementWrapper = ({ storeId }) => {
+    return (
+        <MemberErrorBoundary>
+            <MemberDashboard key={storeId} storeId={storeId} />
+        </MemberErrorBoundary>
+    );
+};
 
 // Initialize Firebase Functions
 const sendVerificationCodeFunction = firebase.functions().httpsCallable('sendVerificationCode');
@@ -1383,6 +1393,9 @@ const Account = () => {
                 case '#settings':
                     redirectSettings(partAfterQuestionMark);
                     break;
+                case '#member':
+                    redirectMember(partAfterQuestionMark);
+                    break;
                 // Add more cases for other hash values as needed...
 
                 // this default is for the storeName cases
@@ -1654,6 +1667,55 @@ const Account = () => {
                 }
             }
             setShowSection('store')
+        }
+
+        // Redirect to member management page
+        async function redirectMember(partAfterQuestionMark) {
+            console.log("Checking password status for store: ", partAfterQuestionMark);
+            // Check if partAfterQuestionMark is like store=dnd21
+            if (partAfterQuestionMark && partAfterQuestionMark.includes('store=')) {
+                // Split partAfterQuestionMark by '=' to get the store value
+                const parts = partAfterQuestionMark.split('=');
+
+                // The second part of the resulting array (parts[1]) will be the store value
+                const storeValue = parts[1];
+
+                console.log("Member Management Store Value:", storeValue);
+
+                try {
+                    const storelist = await fetchStorelist();
+                    console.log("storelist: ", storelist);
+
+                    // Find the index of the object whose .Name matches storeValue
+                    const index = storelist.findIndex(data => data.id === storeValue);
+
+                    if (index !== -1) {
+                        // The object was found, you can access it using storelist[index]
+                        const selectedStore = storelist[index];
+
+                        // Now, you can perform actions with the selected store object
+                        console.log("Selected Store for Member Management:", selectedStore);
+
+                        // Set store context
+                        setActiveTab(`#${selectedStore.id}`);
+                        setActiveStoreTab(selectedStore.id);
+                        setStoreName_(selectedStore.Name);
+                        setStoreCHI_(selectedStore.storeNameCHI)
+                        setAmericanTimeZone(getTimeZoneByZip(selectedStore.ZipCode))
+                        setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(selectedStore.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
+                        setStoreID(selectedStore.id);
+                        setActiveStoreId(selectedStore.id)
+                        setStoreOpenTime(selectedStore.Open_time)
+                    } else {
+                        // The object with the specified Name was not found in the array
+                        console.log("Store not found in storelist for member management");
+                    }
+                } catch (error) {
+                    console.error("Error fetching storelist for member management:", error);
+                }
+            }
+            // Set section to member management instead of store
+            setShowSection('member')
         }
 
         // this redirect takes you to the store creation settings/page
@@ -3019,6 +3081,33 @@ const Account = () => {
                                                                         </a>
 
                                                                     </li> : null}
+
+                                                                {/* Member Management */}
+                                                                <li className={`nav-item border-b-0 p-0`}
+                                                                    onClick={() => {
+                                                                        setShowSection('member')
+                                                                        window.location.hash = `member?store=${data.id}`;
+                                                                        // Close sidebar on mobile after navigation
+                                                                        if (isMobile) {
+                                                                            setIsVisible(false);
+                                                                        }
+                                                                    }}
+                                                                    style={{ width: "80%", margin: "auto", border: "0px" }}
+                                                                >
+                                                                    <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `member` ? 'active' : ''}`} style={{ marginRight: "0", border: "0px" }}>
+                                                                        <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-badge" viewBox="0 0 16 16">
+                                                                                <path d="M6.5 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                                                                <path d="M4.5 0A2.5 2.5 0 0 0 2 2.5V14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2.5A2.5 2.5 0 0 0 11.5 0h-7zM3 2.5A1.5 1.5 0 0 1 4.5 1h7A1.5 1.5 0 0 1 13 2.5v10.795a4.2 4.2 0 0 0-.776-.492C11.392 12.387 10.063 12 8 12s-3.392.387-4.224.803a4.2 4.2 0 0 0-.776.492V2.5z"/>
+                                                                            </svg>
+                                                                        </i>
+                                                                        <span style={{ marginLeft: "5%" }}>
+                                                                            {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                                                                                "会员管理" : "Member Management"
+                                                                            }
+                                                                        </span>
+                                                                    </a>
+                                                                </li>
                                                             </React.Fragment>
                                                         }
 
@@ -3399,6 +3488,11 @@ const Account = () => {
                                                             sortedData={notificationData}
                                                             setSortedData={setNotificationData} />
                                                     </div> : <div></div>
+                                                    }
+
+                                                    {showSection === 'member' ? 
+                                                        <MemberManagementWrapper storeId={data.id} key={data.id} />
+                                                    : <div></div>
                                                     }
 
                                                     {showSection === 'store' ? <div>
