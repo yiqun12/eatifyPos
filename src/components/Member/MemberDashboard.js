@@ -143,7 +143,7 @@ const MemberDashboard = ({ storeId }) => {
     <div className="min-h-screen bg-gray-50">
       {/* Dashboard Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold text-gray-900">{t('Member Management')}</h1>
             <button 
@@ -158,7 +158,7 @@ const MemberDashboard = ({ storeId }) => {
 
       {/* Tab Navigation */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <nav className="flex space-x-8">
             <button 
               className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
@@ -189,7 +189,7 @@ const MemberDashboard = ({ storeId }) => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         {currentTab === 'members' ? (
           <div className="space-y-6">
             <div className="flex justify-end">

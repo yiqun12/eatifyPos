@@ -133,6 +133,11 @@ export const memberTranslations = [
     // Error messages
     { input: "Network Error", output: "网络错误" },
     { input: "Database Error", output: "数据库错误" },
+    { input: "Real-time update error", output: "实时更新错误" },
+    { input: "Statistics Display Mode", output: "数据统计显示模式" },
+    { input: "Current Store Only", output: "仅本店铺" },
+    { input: "Shared Stores", output: "共享店铺" },
+    { input: "Auto", output: "自动" },
     { input: "Permission Denied", output: "权限不足" },
     { input: "Invalid Input", output: "输入无效" },
     { input: "Required Field", output: "必填字段" },
@@ -171,6 +176,26 @@ export const memberTranslations = [
     { input: "Independent Stores", output: "独立门店" },
     { input: "These stores have separate member systems", output: "这些门店拥有独立的会员系统" },
     { input: "Add store to group", output: "添加门店到群组" },
+    { input: "Total Spent", output: "已使用金额" },
+    { input: "Records", output: "记录" },
+    { input: "View Records", output: "查看记录" },
+    { input: "Member Records", output: "会员记录" },
+    { input: "Recharge Records", output: "充值记录" },
+    { input: "Consumption Records", output: "消费记录" },
+    { input: "No recharge records found", output: "没有找到充值记录" },
+    { input: "No consumption records found", output: "没有找到消费记录" },
+    { input: "Bonus", output: "赠送" },
+    { input: "Edit", output: "编辑" },
+    { input: "Date & Time", output: "日期时间" },
+    { input: "Payment Amount", output: "支付金额" },
+    { input: "Bonus Amount", output: "赠送金额" },
+    { input: "Total Amount", output: "总金额" },
+    { input: "Before Balance", output: "充值前余额" },
+    { input: "After Balance", output: "充值后余额" },
+    { input: "Amount", output: "金额" },
+    { input: "Description", output: "描述" },
+    { input: "Purchase", output: "购买" },
+    { input: "Store", output: "店铺" },
     { input: "Member account created successfully", output: "会员卡办理成功" },
     { input: "Member created successfully", output: "会员创建成功" },
     { input: "Optional", output: "可选" },
@@ -323,7 +348,7 @@ export const translateObject = (obj) => {
 export const formatCurrency = (amount) => {
     const lang = localStorage.getItem("Google-language");
     if (lang?.includes("Chinese") || lang?.includes("中")) {
-        return `¥${amount.toFixed(2)}`;
+        return `$${amount.toFixed(2)}`;
     }
     return `$${amount.toFixed(2)}`;
 };

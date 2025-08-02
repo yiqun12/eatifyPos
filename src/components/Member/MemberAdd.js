@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import firebase from 'firebase/compat/app';
 import { t, formatCurrency } from './translations';
+import { getStoreGroup, generateFirebaseTimestamp } from './memberUtils';
 
 
 /**
@@ -44,26 +45,64 @@ const MemberAdd = ({ editingMember = null, onSuccess, onCancel, storeId }) => {
         throw new Error('User not authenticated');
       }
 
-      // storeId is now passed as prop
+      // Use the member's original store for editing, or current storeId for new members
+      const targetStoreId = editingMember?.sourceStore || storeId;
       const memberRef = firebase.firestore()
         .collection('stripe_customers')
         .doc(currentUserId)
         .collection('TitleLogoNameContent')
-        .doc(storeId)
+        .doc(targetStoreId)
         .collection('members')
         .doc(formData.phone);
 
       if (editingMember) {
-        // Update existing member
-        await memberRef.update({
-  
+        // Update existing member in ALL stores where they exist (for group sharing)
+        const updateData = {
           memberLevel: formData.memberLevel,
           isActive: formData.isActive,
           notes: formData.notes,
-          lastUsed: firebase.firestore.FieldValue.serverTimestamp(),
+          lastUsed: generateFirebaseTimestamp(storeId),
           updatedBy: 'admin',
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+          updatedAt: generateFirebaseTimestamp(storeId)
+        };
+
+        // For old members without createdAt, add it during update
+        if (!editingMember.createdAt) {
+          updateData.createdAt = generateFirebaseTimestamp(storeId);
+          console.log(`Adding createdAt field to existing member: ${formData.phone}`);
+        }
+
+        // Get all stores that need to be updated
+        let storesToUpdate = [targetStoreId]; // Always include the primary store
+        
+        // If member has sourceStores (from group sharing), update all of them
+        if (editingMember.sourceStores && editingMember.sourceStores.length > 1) {
+          storesToUpdate = editingMember.sourceStores;
+        } else {
+          // Check if current store belongs to a group, update all stores in the group
+          const storeGroupInfo = await getStoreGroup(targetStoreId);
+          if (storeGroupInfo && storeGroupInfo.stores.length > 1) {
+            storesToUpdate = storeGroupInfo.stores;
+          }
+        }
+
+        console.log(`Updating member ${formData.phone} in stores:`, storesToUpdate);
+
+        // Update member data in all relevant stores
+        const batch = firebase.firestore().batch();
+        for (const updateStoreId of storesToUpdate) {
+          const updateMemberRef = firebase.firestore()
+            .collection('stripe_customers')
+            .doc(currentUserId)
+            .collection('TitleLogoNameContent')
+            .doc(updateStoreId)
+            .collection('members')
+            .doc(formData.phone);
+          
+          batch.update(updateMemberRef, updateData);
+        }
+        
+        await batch.commit();
         
         // Call success callback
         onSuccess && onSuccess({
@@ -94,8 +133,8 @@ const MemberAdd = ({ editingMember = null, onSuccess, onCancel, storeId }) => {
           totalBonus: 0,
           memberLevel: formData.memberLevel,
           notes: formData.notes,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          lastUsed: firebase.firestore.FieldValue.serverTimestamp(),
+          createdAt: generateFirebaseTimestamp(storeId),
+          lastUsed: generateFirebaseTimestamp(storeId),
           createdBy: 'admin',
           createdSource: 'admin_panel'
         };

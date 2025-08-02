@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import firebase from 'firebase/compat/app';
 import { t } from './translations';
-import { clearStoreGroupsCache, loadStoreNames, getStoreNameSync } from './memberUtils';
+import { initializeStoreNames, getStoreNameSync, generateFirebaseTimestamp } from './memberUtils';
 import './StoreGroupConfig.css';
 
 /**
@@ -16,39 +16,48 @@ const StoreGroupConfig = ({ showToast }) => {
   const [newGroupName, setNewGroupName] = useState('');
   const [showAddGroup, setShowAddGroup] = useState(false);
   const [storeNames, setStoreNames] = useState(new Map());
+  
+  // Use ref to avoid recreating callbacks when showToast changes
+  const showToastRef = useRef(showToast);
+  showToastRef.current = showToast;
 
-  // Load existing configuration from Firebase
-  const loadConfiguration = useCallback(async () => {
-    setLoading(true);
+  // Set up real-time listeners for configuration
+  const setupConfigurationListener = useCallback(async () => {
     try {
-      // Load store groups configuration with correct permissions path
       const currentUserId = firebase.auth().currentUser?.uid;
-      const configDoc = await firebase
+      if (!currentUserId) {
+        throw new Error('User not authenticated');
+      }
+
+      // Set up real-time listener for store groups configuration
+      const unsubscribe = firebase
         .firestore()
         .collection('stripe_customers')
         .doc(currentUserId)
         .collection('system_config')
         .doc('store_groups')
-        .get();
+        .onSnapshot(
+          (configDoc) => {
+            console.log('Real-time store group configuration update');
+            if (configDoc.exists) {
+              setGroups(configDoc.data().groups || {});
+            } else {
+              setGroups({});
+            }
+          },
+          (error) => {
+            console.error('Error in store group configuration listener:', error);
+            setLoading(false);
+          }
+        );
 
-      if (configDoc.exists) {
-        setGroups(configDoc.data().groups || {});
-      }
-
-      // Load store names and IDs
-      const storeNamesMap = await loadStoreNames();
-      setStoreNames(storeNamesMap);
-
-      // Get all store IDs from the loaded store names
-      const storeIds = Array.from(storeNamesMap.keys()).sort();
-      setStores(storeIds);
+      return unsubscribe;
     } catch (error) {
-      console.error('Error loading configuration:', error);
-      showToast && showToast(t('Database Error') + ': ' + error.message, 'error');
-    } finally {
+      console.error('Error setting up configuration listener:', error);
       setLoading(false);
+      return null;
     }
-  }, []);
+  }, []); // Remove showToast dependency to avoid recreating listener
 
   // Save configuration to Firebase
   const saveConfiguration = useCallback(async () => {
@@ -63,17 +72,15 @@ const StoreGroupConfig = ({ showToast }) => {
         .doc('store_groups')
         .set({
           groups: groups,
-          lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+          lastUpdated: generateFirebaseTimestamp(),
           updatedBy: firebase.auth().currentUser?.uid || 'anonymous'
         });
 
-      // Clear cache to ensure new configuration is loaded
-      clearStoreGroupsCache();
       
-      showToast && showToast(t('Configuration saved successfully'), 'success');
+      showToastRef.current && showToastRef.current(t('Configuration saved successfully'), 'success');
     } catch (error) {
       console.error('Error saving configuration:', error);
-      showToast && showToast(t('Operation failed') + ': ' + error.message, 'error');
+      showToastRef.current && showToastRef.current(t('Operation failed') + ': ' + error.message, 'error');
     } finally {
       setSaving(false);
     }
@@ -82,13 +89,13 @@ const StoreGroupConfig = ({ showToast }) => {
   // Add new group
   const addGroup = () => {
     if (!newGroupName.trim()) {
-      showToast && showToast(t('Please enter group name'), 'error');
+      showToastRef.current && showToastRef.current(t('Please enter group name'), 'error');
       return;
     }
 
     const groupId = `group_${newGroupName.toLowerCase().replace(/\s+/g, '_')}`;
     if (groups[groupId]) {
-      showToast && showToast(t('Group already exists'), 'error');
+      showToastRef.current && showToastRef.current(t('Group already exists'), 'error');
       return;
     }
 
@@ -146,9 +153,49 @@ const StoreGroupConfig = ({ showToast }) => {
     return stores.filter(store => !assignedStores.has(store));
   };
 
+  // Load initial data once
   useEffect(() => {
-    loadConfiguration();
-  }, [loadConfiguration]);
+    const initData = async () => {
+      setLoading(true);
+      try {
+        // Load store names and IDs
+        const storeNamesMap = await initializeStoreNames();
+        setStoreNames(storeNamesMap);
+
+        // Get all store IDs from the loaded store names
+        const storeIds = Array.from(storeNamesMap.keys()).sort();
+        setStores(storeIds);
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+        showToastRef.current && showToastRef.current(t('Database Error') + ': ' + error.message, 'error');
+        setLoading(false);
+      }
+    };
+    
+    initData();
+  }, []); // Only run once on mount
+
+  // Set up listener once
+  useEffect(() => {
+    console.log('Setting up store group configuration listener...');
+    let unsubscribe = null;
+    
+    const initializeListener = async () => {
+      unsubscribe = await setupConfigurationListener();
+    };
+    
+    initializeListener();
+    
+    // Cleanup function to unsubscribe from the listener
+    return () => {
+      if (unsubscribe && typeof unsubscribe === 'function') {
+        console.log('Cleaning up store group configuration listener...');
+        unsubscribe();
+      }
+    };
+  }, []); // Empty dependency array - only run once on mount
 
   if (loading) {
     return (
@@ -212,7 +259,7 @@ const StoreGroupConfig = ({ showToast }) => {
         ) : (
           Object.entries(groups).map(([groupId, storeList]) => (
             <div key={groupId} className="group-card">
-              <div className="group-header">
+              <div className="group-header notranslate">
                 <h3>{groupId.replace('group_', '').replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase())}</h3>
                 <button 
                   onClick={() => deleteGroup(groupId)}
@@ -231,7 +278,7 @@ const StoreGroupConfig = ({ showToast }) => {
                 ) : (
                   storeList.map(storeId => (
                     <div key={storeId} className="store-tag">
-                      <span>{getStoreNameSync(storeId)}</span>
+                      <span className="notranslate">{getStoreNameSync(storeId)}</span>
                       <button
                         onClick={() => removeStoreFromGroup(groupId, storeId)}
                         className="remove-store-btn"
@@ -256,7 +303,7 @@ const StoreGroupConfig = ({ showToast }) => {
                 >
                   <option value="">{t('Add store to group')}</option>
                   {getUnassignedStores().map(storeId => (
-                    <option key={storeId} value={storeId}>{getStoreNameSync(storeId)}</option>
+                                          <option key={storeId} value={storeId} className="notranslate">{getStoreNameSync(storeId)}</option>
                   ))}
                 </select>
               </div>
@@ -268,12 +315,12 @@ const StoreGroupConfig = ({ showToast }) => {
       {/* Unassigned Stores */}
       {getUnassignedStores().length > 0 && (
         <div className="unassigned-stores">
-          <h3>{t('Independent Stores')} ({getUnassignedStores().length})</h3>
+                      <h3>{t('Independent Stores')} (<span className="notranslate">{getUnassignedStores().length}</span>)</h3>
           <p>{t('These stores have separate member systems')}</p>
           <div className="store-list">
             {getUnassignedStores().map(storeId => (
               <div key={storeId} className="independent-store">
-                <span>{getStoreNameSync(storeId)}</span>
+                                        <span className="notranslate">{getStoreNameSync(storeId)}</span>
                 <span className="independent-badge">{t('Independent')}</span>
               </div>
             ))}

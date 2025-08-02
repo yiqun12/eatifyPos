@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import { t, formatCurrency } from './translations';
+import { getStoreGroup, generateFirebaseTimestamp } from './memberUtils';
 
 
 /**
@@ -145,66 +146,98 @@ const MemberRecharge = ({ member, onSuccess, onCancel, storeId, showToast }) => 
         throw new Error('User not authenticated');
       }
 
+      // Use the member's original store or passed storeId as fallback
+      const targetStoreId = member.sourceStore || storeId;
       const memberRef = firebase.firestore()
         .collection('stripe_customers')
         .doc(currentUserId)
         .collection('TitleLogoNameContent')
-        .doc(member.storeId)
+        .doc(targetStoreId)
         .collection('members')
         .doc(member.phone);
 
-      await firebase.firestore().runTransaction(async (transaction) => {
-        const memberDoc = await transaction.get(memberRef);
-        const currentData = memberDoc.data();
-
-        if (!currentData) {
-          throw new Error(t('Member not found'));
+      // For group sharing, we need to update balance in ALL stores where member exists
+      // but also ensure we're not double-charging
+      
+      // Get all stores that need to be updated
+      let storesToUpdate = [targetStoreId]; // Always include the primary store
+      
+      // If member has sourceStores (from group sharing), update all of them
+      if (member.sourceStores && member.sourceStores.length > 1) {
+        storesToUpdate = member.sourceStores;
+      } else {
+        // Check if current store belongs to a group, update all stores in the group
+        const storeGroupInfo = await getStoreGroup(targetStoreId);
+        if (storeGroupInfo && storeGroupInfo.stores.length > 1) {
+          storesToUpdate = storeGroupInfo.stores;
         }
+      }
 
-        // Update member data
-        transaction.update(memberRef, {
-          balance: currentData.balance + totalReceived,
-          totalRecharge: currentData.totalRecharge + finalPayAmount,
-          totalBonus: (currentData.totalBonus || 0) + finalBonusAmount,
-          lastUsed: firebase.firestore.FieldValue.serverTimestamp()
-        });
+      console.log(`Processing recharge for member ${member.phone} in stores:`, storesToUpdate);
 
-        // Record transaction
-        const receiptData = {
-          name: selectedPackage ? selectedPackage.name : t('Custom Recharge'),
-          pay: finalPayAmount,
-          bonus: finalBonusAmount,
-          total: totalReceived,
-          note: note,
-          packageId: selectedPackage ? selectedPackage.id : 'custom'
-        };
+      // For each store where the member exists, update their data
+      const batch = firebase.firestore().batch();
+      
+      for (const updateStoreId of storesToUpdate) {
+        const updateMemberRef = firebase.firestore()
+          .collection('stripe_customers')
+          .doc(currentUserId)
+          .collection('TitleLogoNameContent')
+          .doc(updateStoreId)
+          .collection('members')
+          .doc(member.phone);
 
-        transaction.set(memberRef.collection('payments').doc(), {
-          store: storeId,
-          payment_method: 'admin_recharge',
-          currency: 'usd',
-          amount: totalReceived, // Total amount added to balance
-          payAmount: finalPayAmount, // Amount customer paid
-          bonusAmount: finalBonusAmount, // Bonus given
-          status: 'succeeded',
-          receipt: JSON.stringify([receiptData]),
-          dateTime: new Date().toISOString().slice(0, 10) + '-' + new Date().toISOString().slice(11, 13) + '-' + new Date().toISOString().slice(14, 16) + '-' + new Date().toISOString().slice(17, 19) + '-' + new Date().toISOString().slice(20, 22),
-          user_email: 'admin@system.com', // Placeholder for admin user
-          uid: member.id, // Member's document ID
-          isDinein: t("Recharge"),
-          tableNum: t("Admin Panel"),
-          memberPhone: member.phone,
-          note: note,
-          beforeBalance: currentData.balance,
-          afterBalance: currentData.balance + totalReceived,
-          rechargeType: selectedPackage ? 'package' : 'custom',
-          packageInfo: selectedPackage ? {
-            id: selectedPackage.id,
-            name: selectedPackage.name,
-            description: selectedPackage.description
-          } : null
-        });
-      });
+        // Check if member exists in this store
+        const memberDoc = await updateMemberRef.get();
+        if (memberDoc.exists) {
+          const currentData = memberDoc.data();
+          
+          // Update member balance and recharge total
+          batch.update(updateMemberRef, {
+            balance: currentData.balance + totalReceived,
+            totalRecharge: currentData.totalRecharge + finalPayAmount,
+            totalBonus: (currentData.totalBonus || 0) + finalBonusAmount,
+            lastUsed: generateFirebaseTimestamp(storeId)
+          });
+
+          // Record transaction in this store
+          const receiptData = {
+            name: selectedPackage ? selectedPackage.name : t('Custom Recharge'),
+            pay: finalPayAmount,
+            bonus: finalBonusAmount,
+            total: totalReceived,
+            note: note,
+            packageId: selectedPackage ? selectedPackage.id : 'custom'
+          };
+
+          batch.set(updateMemberRef.collection('payments').doc(), {
+            store: updateStoreId,
+            payment_method: 'admin_recharge',
+            currency: 'usd',
+            amount: totalReceived,
+            payAmount: finalPayAmount,
+            bonusAmount: finalBonusAmount,
+            beforeBalance: currentData.balance,
+            afterBalance: currentData.balance + totalReceived,
+            status: 'succeeded',
+            receipt: JSON.stringify([receiptData]),
+            timestamp: generateFirebaseTimestamp(storeId),
+            dateTime: new Date().toISOString().slice(0, 10) + '-' + new Date().toISOString().slice(11, 13) + '-' + new Date().toISOString().slice(14, 16) + '-' + new Date().toISOString().slice(17, 19) + '-' + new Date().toISOString().slice(20, 22),
+            user_email: 'admin@system.com',
+            uid: member.id,
+            isDinein: t("Recharge"),
+            tableNum: t("Admin Panel"),
+            memberPhone: member.phone,
+            note: note,
+            sourceStore: updateStoreId
+          });
+        }
+      }
+
+      await batch.commit();
+
+      // Calculate new balance for display
+      const newBalance = member.balance + totalReceived;
 
       showToast && showToast(
         t('Recharge successful') + `!\n${t('Payment Amount')}: ${formatCurrency(finalPayAmount)}\n${t('Bonus Amount')}: ${formatCurrency(finalBonusAmount)}\n${t('Total Received')}: ${formatCurrency(totalReceived)}\n${t('New Balance')}: ${formatCurrency(newBalance)}`,
@@ -370,7 +403,7 @@ const MemberRecharge = ({ member, onSuccess, onCancel, storeId, showToast }) => 
             )}
 
             {/* Note Section */}
-            <div className="mb-8">
+            {/* <div className="mb-8">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 {t('Note')} <span className="text-gray-500">({t('Optional')})</span>
               </label>
@@ -388,7 +421,7 @@ const MemberRecharge = ({ member, onSuccess, onCancel, storeId, showToast }) => 
                 }}
                 rows="3"
               />
-            </div>
+            </div> */}
 
             {/* Error Message */}
             {error && (
@@ -428,7 +461,7 @@ const MemberRecharge = ({ member, onSuccess, onCancel, storeId, showToast }) => 
           {/* Right Side - Preview */}
           <div className="w-96 p-6 bg-gray-50 overflow-y-auto">
             {/* Member Info */}
-            <div className="mb-6">
+            <div className="mb-6 notranslate">
               <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('Member Info')}</h4>
               <div className="bg-white rounded-lg p-4 border border-gray-200">
                 <div className="space-y-3">
@@ -450,7 +483,7 @@ const MemberRecharge = ({ member, onSuccess, onCancel, storeId, showToast }) => 
 
             {/* Recharge Summary */}
             {(selectedPackage || customMode) && (
-              <div className="mb-6">
+              <div className="mb-6 notranslate">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('Recharge Summary')}</h4>
                 <div className="bg-white rounded-lg p-4 border border-gray-200">
                   <div className="space-y-3">
