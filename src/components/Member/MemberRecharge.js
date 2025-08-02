@@ -262,6 +262,17 @@ const MemberRecharge = ({ member, onSuccess, onCancel, storeId, showToast }) => 
     }
   };
 
+    // Get level badge info for preview
+    const getMemberLevelBadge = (level) => {
+      const levels = {
+        normal: { name: t('Normal Member'), color: '#6c757d' },
+        vip: { name: t('VIP Member'), color: '#ffc107' }
+      };
+      return levels[level] || levels.normal;
+    };
+  
+    const levelInfo = getMemberLevelBadge(member.memberLevel);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
@@ -475,7 +486,12 @@ const MemberRecharge = ({ member, onSuccess, onCancel, storeId, showToast }) => 
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">{t('Member Level')}:</span>
-                    <span className="text-gray-900 font-medium">{member.memberLevel === 'vip' ? 'VIP会员' : '普通会员'}</span>
+                    <span 
+                      className="text-gray-900 font-medium"
+                      style={{ color: levelInfo.color }}
+                    >
+                      {levelInfo.name}
+                    </span>
                   </div>
                 </div>
               </div>
