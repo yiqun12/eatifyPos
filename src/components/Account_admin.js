@@ -3496,7 +3496,7 @@ const Account = () => {
                                                     </div> : <div></div>
                                                     }
 
-                                                    {showSection === 'member' ? 
+                                                    {showSection === 'member' ?
                                                         <MemberManagementWrapper storeId={data.id} key={data.id} />
                                                     : <div></div>
                                                     }
@@ -4867,7 +4867,9 @@ const Account = () => {
                                                                                         <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
                                                                                         <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className=" amount">
                                                                                             <span className='notranslate'>
-                                                                                                {"$" + roundToTwoDecimalsTofix(order.total)}
+                                                                                                {"$" + roundToTwoDecimalsTofix(
+                                                                                                    order.total + (parseFloat(order?.metadata?.memberBalanceUsed || 0))
+                                                                                                )}
                                                                                             </span>
 
                                                                                             <span style={{ color: 'red' }}>
@@ -5005,12 +5007,12 @@ const Account = () => {
                                                                                                         {JSON.parse(order.receiptData).map((item, index) => (
                                                                                                             <div className="receipt-item" key={item.id}>
                                                                                                                 <p className='notranslate'>
-                                                                                                                    {(/^#@%\d+#@%/.test(item?.name)) ? 
+                                                                                                                    {(/^#@%\d+#@%/.test(item?.name)) ?
                                                                                                                     localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")
                                                                                                                      ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
-                                                                                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") 
-                                                                                                                        ? t(item?.CHI) : (item?.name)} 
-                                                                                                                        {Object.entries(item?.attributeSelected || {}).length > 0 ? 
+                                                                                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")
+                                                                                                                        ? t(item?.CHI) : (item?.name)}
+                                                                                                                        {Object.entries(item?.attributeSelected || {}).length > 0 ?
                                                                                                                         "(" + Object.entries(item?.attributeSelected).map(([key, value]) => {
                                                                                                                             // 如果是开台商品的特殊属性，显示友好的信息
                                                                                                                             if (key === '开台商品') {
@@ -5035,7 +5037,7 @@ const Account = () => {
                                                                                                                                         }
                                                                                                                                     }
                                                                                                                                     // 如果格式不符或已经是格式化后的，直接返回值
-                                                                                                                                    return itemValue; 
+                                                                                                                                    return itemValue;
                                                                                                                                 }
                                                                                                                             }
                                                                                                                             return Array.isArray(value) ? value.join(' ') : value
