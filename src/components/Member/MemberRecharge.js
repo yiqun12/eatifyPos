@@ -195,7 +195,7 @@ const MemberRecharge = ({ member, onSuccess, onCancel, storeId, showToast }) => 
           // Update member balance and recharge total
           batch.update(updateMemberRef, {
             balance: currentData.balance + totalReceived,
-            totalRecharge: currentData.totalRecharge + finalPayAmount,
+            totalRecharge: (currentData.totalRecharge || 0) + finalPayAmount,
             totalBonus: (currentData.totalBonus || 0) + finalBonusAmount,
             lastUsed: generateFirebaseTimestamp(storeId)
           });

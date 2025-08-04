@@ -443,3 +443,361 @@ export const memberConfig = {
   maxRechargeAmount: 5000, // Maximum recharge amount
   sessionTimeout: 30 * 60 * 1000, // 30 minutes session timeout
 };
+
+/**
+ * Member Payment API - Core payment functions for member balance usage
+ * Provides public interfaces for member balance payment functionality
+ */
+export const MemberPaymentAPI = {
+  /**
+   * Search member information across store groups
+   * @param {string} phone - Member phone number
+   * @param {string} storeId - Current store ID
+   * @returns {Promise<Object|null>} Member data or null if not found
+   */
+  searchMember: async (phone, storeId) => {
+    try {
+      const currentUserId = firebase.auth().currentUser?.uid;
+      if (!currentUserId) {
+        throw new Error('User not authenticated');
+      }
+
+      // Support store group search - check all stores in the group
+      const storeGroup = await getStoreGroup(storeId);
+      let memberFound = null;
+
+      for (const searchStoreId of storeGroup.stores) {
+        const memberRef = firebase.firestore()
+          .collection('stripe_customers')
+          .doc(currentUserId)
+          .collection('TitleLogoNameContent')
+          .doc(searchStoreId)
+          .collection('members')
+          .doc(phone);
+        
+        const doc = await memberRef.get();
+        if (doc.exists) {
+          memberFound = { 
+            id: doc.id, 
+            ...doc.data(), 
+            sourceStore: searchStoreId,
+            sourceStores: storeGroup.stores 
+          };
+          break;
+        }
+      }
+
+      return memberFound;
+    } catch (error) {
+      console.error('Error searching member:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Validate balance usage before payment (pre-check without actual deduction)
+   * @param {string} memberPhone - Member phone number
+   * @param {number} amount - Amount to use
+   * @param {string} storeId - Store ID
+   * @returns {Promise<Object>} Validation result
+   */
+  validateBalanceUsage: async (memberPhone, amount, storeId) => {
+    const member = await MemberPaymentAPI.searchMember(memberPhone, storeId);
+    if (!member) {
+      throw new Error('Member not found');
+    }
+    if (member.balance < amount) {
+      throw new Error(`Insufficient balance. Available: $${member.balance}, Requested: $${amount}`);
+    }
+    
+    return {
+      success: true,
+      availableBalance: member.balance,
+      requestedAmount: amount,
+      remainingBalance: member.balance - amount,
+      memberData: member
+    };
+  },
+
+  /**
+   * Execute member payment (write order record + deduct balance)
+   * This is the core function that handles the complete payment process
+   * @param {Object} paymentData - Complete payment information
+   * @returns {Promise<Object>} Payment result
+   */
+  executeMemberPayment: async (paymentData) => {
+    const { 
+      memberPhone, 
+      balanceUsed, 
+      remainingAmount, 
+      totalAmount,
+      orderItems, 
+      storeId, 
+      tableNum, 
+      isDineIn,
+      tips = 0,
+      discount = 0,
+      taxRate = 0
+    } = paymentData;
+
+    try {
+      // Validate required parameters
+      if (!memberPhone) {
+        throw new Error('Member phone number is required');
+      }
+      if (!storeId) {
+        throw new Error('Store ID is required');
+      }
+      if (!tableNum) {
+        throw new Error('Table number is required');
+      }
+      if (balanceUsed === undefined || balanceUsed === null || isNaN(parseFloat(balanceUsed))) {
+        throw new Error('Valid balance amount is required');
+      }
+      if (totalAmount === undefined || totalAmount === null || isNaN(parseFloat(totalAmount))) {
+        throw new Error('Valid total amount is required');
+      }
+
+      const currentUserId = firebase.auth().currentUser?.uid;
+      if (!currentUserId) {
+        throw new Error('User not authenticated');
+      }
+
+      console.log('🔍 Searching member:', memberPhone, 'in store:', storeId);
+      const member = await MemberPaymentAPI.searchMember(memberPhone, storeId);
+      if (!member) {
+        throw new Error('Member not found');
+      }
+      console.log('👤 Found member:', member.name, 'balance:', member.balance, 'sourceStores:', member.sourceStores);
+
+      const batch = firebase.firestore().batch();
+      
+      // Generate order record with same structure as existing payments
+      // This ensures compatibility with chart statistics
+      const orderRecord = {
+        // Basic payment information (mimicking cash payment structure)
+        amount: Math.round(totalAmount * 100), // Total amount in cents
+        amount_capturable: 0,
+        amount_details: { tip: { amount: Math.round(tips * 100) } },
+        amount_received: Math.round(totalAmount * 100),
+        application: "",
+        application_fee_amount: 0,
+        automatic_payment_methods: null,
+        canceled_at: null,
+        cancellation_reason: null,
+        capture_method: "automatic",
+        client_secret: "pi_member_payment",
+        confirmation_method: "automatic",
+        created: Math.floor(Date.now() / 1000),
+        currency: "usd",
+        customer: null,
+        dateTime: generateTimeStamp(), // Use existing time format
+        description: `Member Balance Payment - ${memberPhone}`,
+        id: `pi_member_${Date.now()}`,
+        invoice: null,
+        last_payment_error: null,
+        latest_charge: "ch_member_balance",
+        livemode: true,
+        
+        // Key field: payment type identifier for chart statistics
+        powerBy: remainingAmount > 0 ? "Mixed Payment" : "Member Balance",
+        payment_method: `member_${memberPhone}`,
+        payment_method_types: remainingAmount > 0 ? ["member_balance", "pending_card"] : ["member_balance"],
+        
+        // Order metadata for statistics calculations
+        metadata: {
+          discount: parseFloat(discount) || 0,
+          isDine: Boolean(isDineIn),
+          service_fee: parseFloat(tips) || 0,
+          subtotal: parseFloat(totalAmount) - parseFloat(tips || 0) - (parseFloat(totalAmount) * parseFloat(taxRate || 0) / 100) + parseFloat(discount || 0),
+          tax: parseFloat(totalAmount) * parseFloat(taxRate || 0) / 100,
+          tips: parseFloat(tips) || 0,
+          total: parseFloat(totalAmount) || 0,
+          // Member payment specific fields
+          memberPhone: memberPhone || '',
+          memberBalanceUsed: parseFloat(balanceUsed) || 0,
+          memberRemainingAmount: parseFloat(remainingAmount) || 0,
+          memberPaymentType: parseFloat(remainingAmount || 0) > 0 ? 'partial' : 'full'
+        },
+        
+        // Other required fields matching existing structure
+        next_action: null,
+        object: "payment_intent",
+        on_behalf_of: null,
+        payment_method_configuration_details: null,
+        payment_method_options: {},
+        card_present: {},
+        request_extended_authorization: false,
+        request_incremental_authorization_support: false,
+        processing: null,
+        receiptData: JSON.stringify(orderItems),
+        receipt_email: null,
+        review: null,
+        setup_future_usage: null,
+        shipping: null,
+        source: null,
+        statement_descriptor: null,
+        statement_descriptor_suffix: null,
+        status: remainingAmount > 0 ? "requires_action" : "succeeded", // Mixed payment needs additional card payment
+        store: storeId,
+        storeOwnerId: currentUserId,
+        stripe_store_acct: "member_payment",
+        tableNum: tableNum,
+        transfer_data: null,
+        transfer_group: null,
+        uid: currentUserId,
+        user_email: firebase.auth().currentUser?.email || 'member@payment.com'
+      };
+
+      // Add order record to success_payment collection
+      const orderRef = firebase.firestore()
+        .collection('stripe_customers')
+        .doc(currentUserId)
+        .collection('TitleLogoNameContent')
+        .doc(storeId)
+        .collection('success_payment')
+        .doc();
+      
+      batch.set(orderRef, orderRecord);
+
+      // Deduct member balance across all relevant stores
+      const storesToUpdate = member.sourceStores || [storeId];
+      console.log('🏪 Stores to update:', storesToUpdate);
+      
+      for (const updateStoreId of storesToUpdate) {
+        console.log('📝 Processing store:', updateStoreId);
+        const memberRef = firebase.firestore()
+          .collection('stripe_customers')
+          .doc(currentUserId)
+          .collection('TitleLogoNameContent')
+          .doc(updateStoreId)
+          .collection('members')
+          .doc(memberPhone);
+
+        const memberDoc = await memberRef.get();
+        console.log('📄 Member doc exists in store', updateStoreId, ':', memberDoc.exists);
+        
+        if (memberDoc.exists) {
+          const currentData = memberDoc.data();
+          console.log('💰 Current balance in store', updateStoreId, ':', currentData.balance);
+          
+          // Update member balance
+          const safeBalanceUsed = parseFloat(balanceUsed) || 0;
+          const newBalance = Math.max(0, (parseFloat(currentData.balance) || 0) - safeBalanceUsed);
+          console.log('💸 Deducting', safeBalanceUsed, 'from', currentData.balance, 'new balance:', newBalance);
+          
+          // Update member balance and totalSpent
+          const currentTotalSpent = parseFloat(currentData.totalSpent) || 0;
+          const newTotalSpent = currentTotalSpent + safeBalanceUsed;
+          
+          batch.update(memberRef, {
+            balance: newBalance,
+            totalSpent: newTotalSpent,
+            lastUsed: generateFirebaseTimestamp(storeId)
+          });
+
+          // Record consumption log
+          const consumptionRef = memberRef.collection('payments').doc();
+          const beforeBalance = parseFloat(currentData.balance) || 0;
+          const afterBalance = Math.max(0, beforeBalance - safeBalanceUsed);
+          
+          batch.set(consumptionRef, {
+            store: updateStoreId || '',
+            payment_method: 'balance_consumption',
+            currency: 'usd',
+            amount: -safeBalanceUsed, // Negative amount indicates consumption
+            beforeBalance: beforeBalance,
+            afterBalance: afterBalance,
+            status: 'succeeded',
+            receipt: JSON.stringify(orderItems || []),
+            timestamp: generateFirebaseTimestamp(storeId),
+            dateTime: generateTimeStamp(),
+            user_email: firebase.auth().currentUser?.email || 'member@payment.com',
+            uid: currentUserId || '',
+            isDinein: isDineIn ? "DineIn" : "TakeOut",
+            tableNum: tableNum || '',
+            memberPhone: memberPhone || '',
+            orderReference: orderRef.id,
+            sourceStore: updateStoreId || '',
+            paymentType: parseFloat(remainingAmount || 0) > 0 ? 'partial_payment' : 'full_payment'
+          });
+        }
+      }
+
+      console.log('🔄 Committing member payment batch operation...');
+      await batch.commit();
+      console.log('✅ Member payment batch committed successfully');
+
+      const safeBalanceUsed = parseFloat(balanceUsed) || 0;
+      const safeRemainingAmount = parseFloat(remainingAmount) || 0;
+      const memberBalance = parseFloat(member.balance) || 0;
+      
+      return {
+        success: true,
+        orderId: orderRef.id,
+        memberBalanceUsed: safeBalanceUsed,
+        remainingAmount: safeRemainingAmount,
+        paymentType: safeRemainingAmount > 0 ? 'partial' : 'full',
+        newMemberBalance: Math.max(0, memberBalance - safeBalanceUsed),
+        memberData: {
+          phone: memberPhone || '',
+          name: member.name || 'Member'
+        },
+        type: safeRemainingAmount > 0 ? 'partial' : 'full'
+      };
+
+    } catch (error) {
+      console.error('Error executing member payment:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Complete mixed payment after card payment is successful
+   * @param {string} orderId - Order ID from member payment
+   * @param {Object} cardPaymentData - Card payment information
+   * @param {string} storeId - Store ID
+   * @returns {Promise<Object>} Completion result
+   */
+  completeMixedPayment: async (orderId, cardPaymentData, storeId) => {
+    try {
+      const currentUserId = firebase.auth().currentUser?.uid;
+      
+      // Update order status to completed
+      const orderRef = firebase.firestore()
+        .collection('stripe_customers')
+        .doc(currentUserId)
+        .collection('TitleLogoNameContent')
+        .doc(storeId)
+        .collection('success_payment')
+        .doc(orderId);
+
+      await orderRef.update({
+        status: 'succeeded',
+        powerBy: 'Mixed Payment',
+        latest_charge: cardPaymentData.chargeId || 'ch_mixed_payment',
+        // Add card payment information
+        cardPaymentInfo: {
+          amount: cardPaymentData.amount,
+          paymentMethod: cardPaymentData.paymentMethod,
+          completedAt: generateTimeStamp()
+        }
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error completing mixed payment:', error);
+      throw error;
+    }
+  }
+};
+
+/**
+ * Generate timestamp string consistent with existing format
+ * @returns {string} Formatted timestamp string
+ */
+function generateTimeStamp() {
+  const now = new Date();
+  const date = now.toISOString();
+  return date.slice(0, 10) + '-' + date.slice(11, 13) + '-' + date.slice(14, 16) + '-' + date.slice(17, 19) + '-' + date.slice(20, 22);
+}

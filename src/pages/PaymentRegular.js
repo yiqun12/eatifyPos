@@ -6,8 +6,9 @@ import firebase from 'firebase/compat/app';
 import myImage from '../components/check-mark.png';  // Import the image
 import { collection, doc, setDoc,query, where, onSnapshot} from "firebase/firestore";
 import { db } from '../firebase/index';
+import { MemberPaymentAPI } from '../components/Member/memberUtils';
 
-const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, totalPrice }) => {
+const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, totalPrice, memberBalanceUsage, setMemberBalanceUsage }) => {
   // State to store the error message
   const [error, setError] = useState(null);
 
@@ -96,6 +97,24 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
   async function makePayment() {
     const createPaymentButton = document.getElementById("create-payment-button");
     const originalButtonText = createPaymentButton.textContent || createPaymentButton.innerText; // Store the original button text
+    
+    // Validate member balance before card payment if balance is being used
+    if (memberBalanceUsage) {
+      console.log('🔍 Validating member balance before card payment...');
+      try {
+        const validationResult = await MemberPaymentAPI.validateBalanceUsage(
+          memberBalanceUsage.memberPhone,
+          parseFloat(memberBalanceUsage.balanceToUse),
+          storeID
+        );
+        console.log('✅ Balance validation successful before card payment:', validationResult);
+      } catch (validationError) {
+        console.error('❌ Balance validation failed before card payment:', validationError);
+        alert('Balance validation failed: ' + validationError.message);
+        return; // Stop payment if validation fails
+      }
+    }
+    
     createPaymentButton.textContent = "Awaiting for Process. Do not close window."; // Change button text
     createPaymentButton.className = "loading";
     createPaymentButton.disabled = true;

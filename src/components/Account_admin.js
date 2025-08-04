@@ -268,6 +268,12 @@ const Account = () => {
         { input: "Online App", output: "在线应用程序" },
         { input: "Cash Gratuity", output: "现金小费" },
         { input: "Gratuity", output: "小费" },
+        { input: "Payment Methods", output: "支付方式" },
+        { input: "Cash Payment", output: "现金支付" },
+        { input: "Mixed Payment", output: "混合支付" },
+        { input: "Member Balance", output: "会员余额" },
+        { input: "Member Balance Used", output: "会员余额使用" },
+        { input: "Card Payment", output: "信用卡支付" },
         { input: "Revenue", output: "收入" },
         { input: "Subtotal", output: "小计" },
         { input: "Tax", output: "税" },
@@ -1081,7 +1087,7 @@ const Account = () => {
 
 
 
-    const COLORS = ['#0088FE', '#00C49F', '#FF8042', '#9e2820', '#000000'];
+    const COLORS = ['#0088FE', '#00C49F', '#FF8042', '#9e2820', '#000000', '#8B5CF6'];
 
     const RADIAN = Math.PI / 180;
 
@@ -4418,10 +4424,11 @@ const Account = () => {
                                                                                             accumulator.discount += parseFloat(receipt.metadata.discount);
                                                                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                                                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
                                                                                             //accumulator.total += parseFloat(receipt.total);
                                                                                             return accumulator;
                                                                                         },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
                                                                                     ).subtotal * 100) / 100
                                                                                 },
                                                                                 {
@@ -4432,10 +4439,11 @@ const Account = () => {
                                                                                             accumulator.discount += parseFloat(receipt.metadata.discount);
                                                                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                                                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
                                                                                             //accumulator.total += parseFloat(receipt.total);
                                                                                             return accumulator;
                                                                                         },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
                                                                                     ).tax * 100) / 100
                                                                                 }, {
                                                                                     name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Cash Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
@@ -4445,10 +4453,11 @@ const Account = () => {
                                                                                             accumulator.discount += parseFloat(receipt.metadata.discount);
                                                                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                                                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
                                                                                             //accumulator.total += parseFloat(receipt.total);
                                                                                             return accumulator;
                                                                                         },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
                                                                                     ).tips * 100) / 100
                                                                                 },
                                                                                 {
@@ -4459,10 +4468,11 @@ const Account = () => {
                                                                                             accumulator.discount += parseFloat(receipt.metadata.discount);
                                                                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                                                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            //accumulator.total += parseFloat(receipt.total);
+                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
+                                                                                            //accumulator.total += parseFloat(receipt.metadata.subtotal);
                                                                                             return accumulator;
                                                                                         },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
                                                                                     ).service_fee * 100) / 100
                                                                                 },
                                                                                 {
@@ -4473,11 +4483,27 @@ const Account = () => {
                                                                                             accumulator.discount += parseFloat(receipt.metadata.discount);
                                                                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                                                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
                                                                                             //accumulator.total += parseFloat(receipt.total);
                                                                                             return accumulator;
                                                                                         },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
                                                                                     ).discount * 100) / 100
+                                                                                },
+                                                                                {
+                                                                                    name: fanyi('Member Balance Used'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                                                                        (accumulator, receipt) => {
+                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
+                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
+                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
+                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
+                                                                                            //accumulator.total += parseFloat(receipt.total);
+                                                                                            return accumulator;
+                                                                                        },
+                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
+                                                                                    ).memberBalanceUsed * 100) / 100
                                                                                 },
                                                                             ]}
                                                                             labelLine={false}
@@ -4565,10 +4591,11 @@ const Account = () => {
                                                                         {isMobile ? (
                                                                             <Legend verticalAlign="top" content={renderLegend} />
                                                                         ) : (
-                                                                            <Legend layout="vertical" align="right" verticalAlign="top" content={renderLegend} />
+                                                                            <Legend layout="vertical" align="right" verticalAlign="top" content={renderLegend} wrapperStyle={{ paddingLeft: '30px' }} />
                                                                         )}
                                                                     </PieChart>
                                                                 )}
+
 
                                                                 {!isMobile && !isChartPasswordVerified && (
                                                                     <div className="flex justify-center items-center p-4">
@@ -5022,6 +5049,9 @@ const Account = () => {
                                                                                                         {order.status !== "Canceled" && (
                                                                                                             <>
                                                                                                                 <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.discount)}</span></p>
+                                                                                                                {order?.metadata?.memberBalanceUsed && (
+                                                                                                                    <p style={{color: '#059669'}}>Member Balance Used: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.memberBalanceUsed)}</span></p>
+                                                                                                                )}
                                                                                                                 <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.subtotal)}</span></p>
                                                                                                                 <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.service_fee)}</span></p>
                                                                                                                 <p>Tax: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.tax)}</span></p>
@@ -5104,7 +5134,7 @@ const renderLegend = (props) => {
         return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
     }
     return (
-        <ul>
+        <ul style={{ marginLeft: '120px', paddingLeft: '10px' }}>
             {revenue !== 0 ? (
                 <div>
                     <li key="revenue" style={{ fontWeight: 'bold', fontSize: '13px' }}>

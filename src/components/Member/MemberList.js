@@ -32,6 +32,55 @@ const MemberList = ({ onSelectMember, onEditMember, onRechargeMember, refreshTri
   // Control whether to show current store only or shared stores data
   const [showStoreMode, setShowStoreMode] = useState('auto'); // 'current' | 'shared' | 'auto'
 
+  // Calculate totalSpent for members from their consumption records
+  const calculateMembersTotalSpent = async (members, storesToQuery, currentUserId) => {
+    try {
+      const membersToUpdate = members.filter(member => !member.totalSpent || member.totalSpent === 0);
+      
+      if (membersToUpdate.length === 0) {
+        console.log('All members already have totalSpent calculated');
+        return;
+      }
+
+      console.log(`Calculating totalSpent for ${membersToUpdate.length} members`);
+
+      for (const member of membersToUpdate) {
+        let totalSpent = 0;
+        
+        // Check consumption records across all stores where this member exists
+        const memberStores = member.sourceStores || storesToQuery;
+        for (const storeId of memberStores) {
+          try {
+            const paymentsSnapshot = await firebase.firestore()
+              .collection('stripe_customers')
+              .doc(currentUserId)
+              .collection('TitleLogoNameContent')
+              .doc(storeId)
+              .collection('members')
+              .doc(member.phone)
+              .collection('payments')
+              .where('payment_method', '==', 'balance_consumption')
+              .get();
+
+            paymentsSnapshot.forEach(doc => {
+              const data = doc.data();
+              const amount = Math.abs(parseFloat(data.amount) || 0);
+              totalSpent += amount;
+            });
+          } catch (error) {
+            console.warn(`Failed to fetch consumption records for member ${member.phone} in store ${storeId}:`, error);
+          }
+        }
+
+        // Update the member's totalSpent
+        member.totalSpent = totalSpent;
+        console.log(`Member ${member.phone}: calculated totalSpent = ${totalSpent}`);
+      }
+    } catch (error) {
+      console.error('Error calculating members totalSpent:', error);
+    }
+  };
+
   // Set up real-time listeners for member records (recharge and consumption)
   const viewMemberRecords = async (member) => {
     try {
@@ -70,7 +119,9 @@ const MemberList = ({ onSelectMember, onEditMember, onRechargeMember, refreshTri
 
         console.log('Updating records data:', {
           rechargeCount: rechargeRecords.length,
-          consumptionCount: consumptionRecords.length
+          consumptionCount: consumptionRecords.length,
+          rechargeData: rechargeRecords.slice(0, 2).map(r => ({ amount: r.amount, payment_method: r.payment_method })),
+          consumptionData: consumptionRecords.slice(0, 2).map(r => ({ amount: r.amount, payment_method: r.payment_method }))
         });
 
         setMemberRecords({
@@ -96,25 +147,44 @@ const MemberList = ({ onSelectMember, onEditMember, onRechargeMember, refreshTri
             .orderBy('timestamp', 'desc')
             .onSnapshot(
               (snapshot) => {
-                console.log(`Real-time recharge records update from store ${sourceStoreId}: ${snapshot.size} records`);
+                console.log(`Real-time payment records update from store ${sourceStoreId}: ${snapshot.size} records`);
                 
-                // Update recharge records for this store
+                // Separate recharge and consumption records based on payment_method and amount
                 snapshot.forEach(doc => {
+                  const data = doc.data();
                   const record = { 
                     id: `${sourceStoreId}_${doc.id}`, // Unique ID across stores
                     docId: doc.id,
-                    ...doc.data(), 
-                    sourceStore: sourceStoreId,
-                    type: 'recharge'
+                    ...data, 
+                    sourceStore: sourceStoreId
                   };
-                  allRechargeRecordsMap.set(record.id, record);
+                  
+                  // Distinguish between recharge and consumption records
+                  // Consumption: payment_method is 'balance_consumption' or amount is negative
+                  // Recharge: all other cases with positive amounts (typically 'stripe' payments)
+                  const isConsumption = data.payment_method === 'balance_consumption' || (data.amount && parseFloat(data.amount) < 0);
+                  
+                  console.log(`Processing record ${doc.id}: payment_method=${data.payment_method}, amount=${data.amount}, isConsumption=${isConsumption}`);
+                  
+                  if (isConsumption) {
+                    record.type = 'consumption';
+                    allConsumptionRecordsMap.set(record.id, record);
+                  } else {
+                    record.type = 'recharge';
+                    allRechargeRecordsMap.set(record.id, record);
+                  }
                 });
 
-                // Remove deleted records for this store
+                // Remove deleted records for this store from both maps
                 const currentStoreRecordIds = new Set(snapshot.docs.map(doc => `${sourceStoreId}_${doc.id}`));
                 for (const [recordId] of allRechargeRecordsMap.entries()) {
                   if (recordId.startsWith(`${sourceStoreId}_`) && !currentStoreRecordIds.has(recordId)) {
                     allRechargeRecordsMap.delete(recordId);
+                  }
+                }
+                for (const [recordId] of allConsumptionRecordsMap.entries()) {
+                  if (recordId.startsWith(`${sourceStoreId}_`) && !currentStoreRecordIds.has(recordId)) {
+                    allConsumptionRecordsMap.delete(recordId);
                   }
                 }
 
@@ -131,9 +201,8 @@ const MemberList = ({ onSelectMember, onEditMember, onRechargeMember, refreshTri
 
           newUnsubscribers.push(rechargeUnsubscribe);
 
-          // TODO: Add consumption records listener here when ready
-          // const consumptionUnsubscribe = firebase.firestore()...onSnapshot(...)
-          // newUnsubscribers.push(consumptionUnsubscribe);
+          // Note: Consumption records are now handled in the same listener above
+          // by distinguishing records based on payment_method and amount values
 
         } catch (error) {
           console.warn(`Failed to set up records listener for store ${sourceStoreId}:`, error);
@@ -292,6 +361,26 @@ const MemberList = ({ onSelectMember, onEditMember, onRechargeMember, refreshTri
         });
 
         setLoading(false); // Only set loading false after first data load
+
+        // Asynchronously calculate totalSpent for members who don't have it
+        // This doesn't block UI updates
+        calculateMembersTotalSpent(membersList, storesToQuery, currentUserId).then(() => {
+          // Recalculate stats after totalSpent is updated
+          let updatedTotalSpent = 0;
+          membersList.forEach((member) => {
+            updatedTotalSpent += (member.totalSpent || 0);
+          });
+          
+          setStats(prevStats => ({
+            ...prevStats,
+            totalSpent: updatedTotalSpent
+          }));
+          
+          // Re-trigger members state update to reflect new totalSpent values
+          setMembers([...membersList]);
+        }).catch(error => {
+          console.error('Failed to calculate totalSpent:', error);
+        });
       };
 
       // Set up real-time listeners for each store
@@ -773,7 +862,7 @@ const MemberList = ({ onSelectMember, onEditMember, onRechargeMember, refreshTri
                               {formatRecordTimestamp(record.timestamp, record.sourceStore || record.store || storeId)}
                             </div>
                             <div className="text-sm font-medium text-red-600 text-right">
-                              <span className="notranslate">-{formatCurrency(record.amount)}</span>
+                              <span className="notranslate">-{formatCurrency(Math.abs(record.amount || 0))}</span>
                             </div>
                             <div className="text-sm text-gray-700 truncate" title={record.description || t('Purchase')}>
                               {record.description || t('Purchase')}
