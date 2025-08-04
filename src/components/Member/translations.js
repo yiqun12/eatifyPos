@@ -412,6 +412,7 @@ export const memberTranslations = [
     { input: "Payment completed", output: "支付完成" },
     
     // Modern SMS Verification
+    { input: "Verification Code", output: "验证码" },
     { input: "Send verification code", output: "发送验证码" },
     { input: "Enter verification code", output: "输入验证码" },
     { input: "Verification complete", output: "验证完成" },

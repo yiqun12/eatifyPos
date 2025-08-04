@@ -99,6 +99,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     return localStorage.getItem(`verifiedMemberPhone-${store}-${selectedTable}`) || null;
   }); // Verified member phone number
   const [showToast, setShowToast] = useState(false);
+  const [errorToast, setErrorToast] = useState({ show: false, message: '' });
   const [toastMessage, setToastMessage] = useState('');
 
   const { id, saveId } = useMyHook(null);
@@ -1552,7 +1553,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         console.log('✅ Balance validation successful before payment:', validationResult);
       } catch (validationError) {
         console.error('❌ Balance validation failed before payment:', validationError);
-        alert('Balance validation failed: ' + validationError.message);
+        setErrorToast({ 
+          show: true, 
+          message: validationError.message || 'Balance validation failed'
+        });
+        setTimeout(() => setErrorToast({ show: false, message: '' }), 4000);
         return; // Stop payment if validation fails
       }
     }
@@ -2494,7 +2499,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
                     <PaymentRegular setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store}
                       chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} 
-                      memberBalanceUsage={memberBalanceUsage} setMemberBalanceUsage={setMemberBalanceUsage} />
+                      memberBalanceUsage={memberBalanceUsage} setMemberBalanceUsage={setMemberBalanceUsage} 
+                      onError={(message) => {
+                        setErrorToast({ show: true, message });
+                        setTimeout(() => setErrorToast({ show: false, message: '' }), 4000);
+                      }} />
                     <span className="mb-2 notranslate">Or Customer Can Scan To Pay The Whole Table (扫码支付本桌)</span>
 
                     <div className="qrCodeItem flex flex-col items-center mt-1">
@@ -2888,7 +2897,45 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         onClose={handleMemberPaymentCancel}
         verifiedMemberPhone={verifiedMemberPhone}
         onVerifiedPhoneChange={setVerifiedMemberPhone}
+        currentBalanceUsage={memberBalanceUsage} // Current balance usage state
       />
+
+      {/* Error Toast Notification */}
+      {errorToast.show && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            backgroundColor: '#dc3545',
+            color: 'white',
+            padding: '15px 20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            zIndex: 9999,
+            maxWidth: '400px',
+            wordWrap: 'break-word'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '14px', lineHeight: '1.4' }}>{errorToast.message}</span>
+            <button 
+              style={{
+                marginLeft: '15px',
+                background: 'transparent',
+                border: 'none',
+                color: 'white',
+                fontSize: '18px',
+                cursor: 'pointer',
+                padding: '0'
+              }}
+              onClick={() => setErrorToast({ show: false, message: '' })}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Toast Notification for Member Payment */}
       {showToast && (

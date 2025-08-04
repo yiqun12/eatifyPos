@@ -16,9 +16,15 @@ const SimpleMemberPayment = ({
     tableNum,
     onPaymentComplete,
     verifiedMemberPhone,
-    onVerifiedPhoneChange 
+    onVerifiedPhoneChange,
+    currentBalanceUsage // Current balance usage state
 }) => {
     const [step, setStep] = useState('search'); // search, member_info, verify, amount
+    
+    // Debug: Track step changes
+    useEffect(() => {
+        console.log('📍 Step changed to:', step);
+    }, [step]);
     const [phone, setPhone] = useState('');
     const [verifyCode, setVerifyCode] = useState('');
     const [memberData, setMemberData] = useState(null);
@@ -26,16 +32,20 @@ const SimpleMemberPayment = ({
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Check if there's a verified phone number, if so jump directly to amount setting
+    // Only skip verification if current balance usage > 0
     useEffect(() => {
-        if (isOpen && verifiedMemberPhone) {
-            // If there's a verified phone number, search member info again and jump to amount setting
+        if (!isOpen) return; // Don't do anything if modal is closed
+        
+        if (verifiedMemberPhone && currentBalanceUsage && parseFloat(currentBalanceUsage.balanceToUse) > 0) {
+            // Only skip verification if current balance usage > 0
+            console.log('🔄 Skipping verification - current balance usage:', parseFloat(currentBalanceUsage.balanceToUse));
             const loadVerifiedMember = async () => {
                 try {
                     setIsLoading(true);
                     const member = await MemberPaymentAPI.searchMember(verifiedMemberPhone, storeId);
                     setMemberData(member);
                     setPhone(verifiedMemberPhone);
+                    setBalanceToUse(currentBalanceUsage.balanceToUse); // Pre-fill current amount
                     setStep('amount'); // Jump directly to amount setting
                 } catch (error) {
                     // If search fails, member info may have changed, clear verification state
@@ -48,10 +58,17 @@ const SimpleMemberPayment = ({
                 }
             };
             loadVerifiedMember();
-        } else if (isOpen) {
-            setStep('search');
+        } else {
+            // Only reset to search step when modal first opens
+            // Don't reset during verification process or after successful verification
+            if (step !== 'verify' && step !== 'amount') {
+                console.log('🔍 Starting from search - no current balance usage or usage is 0');
+                setStep('search');
+            } else {
+                console.log('🔒 Preserving current step:', step, '- not resetting');
+            }
         }
-    }, [isOpen, verifiedMemberPhone, storeId]);
+    }, [isOpen, currentBalanceUsage, storeId]); // Removed verifiedMemberPhone from dependencies
 
     // Reset state
     const resetState = () => {
@@ -120,6 +137,7 @@ const SimpleMemberPayment = ({
 
         // Test code 1111 passes directly
         if (verifyCode.trim() === '1111') {
+            console.log('✅ Test code 1111 verified, moving to amount step');
             // Save verification state
             onVerifiedPhoneChange(memberData.phone);
             setStep('amount');
@@ -136,6 +154,7 @@ const SimpleMemberPayment = ({
                 purpose: 'confirm_payment' 
             });
 
+            console.log('✅ SMS verification successful, moving to amount step');
             // Save verification state
             onVerifiedPhoneChange(memberData.phone);
             setStep('amount');

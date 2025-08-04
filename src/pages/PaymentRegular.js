@@ -8,7 +8,7 @@ import { collection, doc, setDoc,query, where, onSnapshot} from "firebase/firest
 import { db } from '../firebase/index';
 import { MemberPaymentAPI } from '../components/Member/memberUtils';
 
-const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, totalPrice, memberBalanceUsage, setMemberBalanceUsage }) => {
+const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setProducts, setIsPaymentClick, isPaymentClick, received, setReceived, selectedTable, storeID, chargeAmount, connected_stripe_account_id, discount, service_fee, totalPrice, memberBalanceUsage, setMemberBalanceUsage, onError }) => {
   // State to store the error message
   const [error, setError] = useState(null);
 
@@ -110,7 +110,9 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
         console.log('✅ Balance validation successful before card payment:', validationResult);
       } catch (validationError) {
         console.error('❌ Balance validation failed before card payment:', validationError);
-        alert('Balance validation failed: ' + validationError.message);
+        if (onError) {
+          onError(validationError.message || 'Balance validation failed');
+        }
         return; // Stop payment if validation fails
       }
     }

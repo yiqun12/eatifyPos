@@ -152,12 +152,15 @@ export const getStoreNameSync = (storeId) => {
   
   if (storeInfo) {
     // Check language preference for Chinese/English name
-    const isChineseLanguage = localStorage.getItem("Google-language")?.includes("Chinese") || 
-                             localStorage.getItem("Google-language")?.includes("中") ||
-                             navigator.language?.includes('zh') || 
-                             navigator.language?.includes('Chinese');
+    const isChineseLanguage = localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中");
     
-    return isChineseLanguage ? (storeInfo.storeNameCHI || storeInfo.name) : storeInfo.name;
+    // If Chinese language and second language name exists, use it
+    // Otherwise use the main display name
+    if (isChineseLanguage && storeInfo.storeNameCHI && storeInfo.storeNameCHI !== storeInfo.name) {
+      return storeInfo.storeNameCHI;
+    }
+    
+    return storeInfo.name; // Default to main display name
   }
   
   return storeId; // Fallback to ID if name not found
@@ -507,7 +510,7 @@ export const MemberPaymentAPI = {
       throw new Error('Member not found');
     }
     if (member.balance < amount) {
-      throw new Error(`Insufficient balance. Available: $${member.balance}, Requested: $${amount}`);
+      throw new Error(`Insufficient balance. Available: $${parseFloat(member.balance).toFixed(2)}, Requested: $${parseFloat(amount).toFixed(2)}`);
     }
     
     return {
