@@ -477,12 +477,12 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       console.log((Math.round(100 * (total * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
       // Calculate member balance deduction
       const memberBalanceDeduction = memberBalanceUsage ? parseFloat(memberBalanceUsage.balanceToUse) || 0 : 0;
-      
+
       // Calculate price after discount but before member balance (for member payment modal)
       const calculatedPriceAfterDiscount = Math.round(100 * (total * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100;
-      
+
       setPriceAfterDiscount(calculatedPriceAfterDiscount);
-      
+
       setFinalPrice(
         Math.max(0, calculatedPriceAfterDiscount - memberBalanceDeduction))
     }
@@ -498,13 +498,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     if (memberBalanceUsage && priceAfterDiscount > 0) {
       const currentBalanceUsage = parseFloat(memberBalanceUsage.balanceToUse) || 0;
       const maxAllowedBalance = priceAfterDiscount;
-      
+
       console.log('💰 Balance adjustment check:', {
         currentBalanceUsage: currentBalanceUsage.toFixed(2),
         maxAllowedBalance: maxAllowedBalance.toFixed(2),
         needsAdjustment: currentBalanceUsage > maxAllowedBalance
       });
-      
+
       // Only adjust if current usage exceeds what's allowed AND the values are actually different
       if (currentBalanceUsage > maxAllowedBalance && Math.abs(currentBalanceUsage - maxAllowedBalance) > 0.01) {
         console.log('🔄 Auto-adjusting member balance from', currentBalanceUsage.toFixed(2), 'to', maxAllowedBalance.toFixed(2));
@@ -656,18 +656,18 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      
+
       // 清理商品数据
       const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
       const cleanedData = cleanProductData(rawData);
-      
+
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "MerchantReceipt"), {
         date: date,
         data: cleanedData, // 使用清理后的数据
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
-        total: finalPrice,
+        total: Math.round(100 * (finalPrice + (memberBalanceUsage?.balanceToUse ? (Math.round(100 * memberBalanceUsage.balanceToUse) / 100) : 0))) / 100,
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
@@ -678,18 +678,18 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      
+
       // 清理商品数据
       const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
       const cleanedData = cleanProductData(rawData);
-      
+
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "CustomerReceipt"), {
         date: date,
         data: cleanedData, // 使用清理后的数据
         selectedTable: selectedTable,
         discount: discount === "" ? 0 : discount,
         service_fee: tips === "" ? 0 : tips,
-        total: finalPrice,
+        total: Math.round(100 * (finalPrice + (memberBalanceUsage?.balanceToUse ? (Math.round(100 * memberBalanceUsage.balanceToUse) / 100) : 0))) / 100,
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
@@ -701,11 +701,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      
+
       // 清理商品数据
       const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
       const cleanedData = cleanProductData(rawData);
-      
+
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "listOrder"), {
         date: date,
         data: cleanedData, // 使用清理后的数据
@@ -851,10 +851,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     if (add_array.length !== 0) {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      
+
       // 清理商品数据
       const cleanedAddArray = cleanProductData(add_array);
-      
+
       const addPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "SendToKitchen"), {
         date: date,
         data: cleanedAddArray, // 使用清理后的数据
@@ -868,10 +868,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     if (delete_array.length !== 0) {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      
+
       // 清理商品数据
       const cleanedDeleteArray = cleanProductData(delete_array);
-      
+
       const deletePromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "DeletedSendToKitchen"), {
         date: date,
         data: cleanedDeleteArray, // 使用清理后的数据
@@ -894,11 +894,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     try {
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      
+
       // 清理商品数据
       const rawData = localStorage.getItem(store + "-" + selectedTable) !== null ? JSON.parse(localStorage.getItem(store + "-" + selectedTable)) : [];
       const cleanedData = cleanProductData(rawData);
-      
+
       const docRef = await addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "OpenCashDraw"), {
         date: date,
         data: cleanedData, // 使用清理后的数据
@@ -1053,7 +1053,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       // If member balance is used, validate balance first then execute deduction
       if (memberBalanceUsage) {
         console.log('🔄 Processing member balance deduction...', memberBalanceUsage);
-        
+
         // Validate balance before deduction
         console.log('🔍 Validating member balance before deduction...');
         try {
@@ -1067,7 +1067,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
           console.error('❌ Balance validation failed:', validationError);
           throw new Error('Balance validation failed: ' + validationError.message);
         }
-        
+
         try {
           const paymentData = {
             memberPhone: memberBalanceUsage.memberPhone,
@@ -1095,11 +1095,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
-      
+
       // Determine payment method identifier
       const paymentMethod = memberBalanceUsage ? "Mixed Payment (Cash + Member Balance)" : "Paid by Cash";
       const powerBy = memberBalanceUsage ? "Mixed Payment" : "Paid by Cash";
-      
+
       // Wrap the addDoc call in a promise
       const addDocPromise = addDoc(collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "success_payment"), {
         amount: Math.round(total * 100),
@@ -1518,13 +1518,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   // 检查是否有未结台的桌子
   const checkUnfinishedTables = () => {
     const currentProducts = products || [];
-    const unfinishedTables = currentProducts.filter(product => 
-      product.isTableItem && 
-      product.attributeSelected && 
+    const unfinishedTables = currentProducts.filter(product =>
+      product.isTableItem &&
+      product.attributeSelected &&
       product.attributeSelected['开台商品'] &&
       localStorage.getItem(`${store}-${product.id}-${product.count}-isSent_startTime`)
     );
-    
+
     return unfinishedTables.length > 0;
   };
 
@@ -1553,8 +1553,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         console.log('✅ Balance validation successful before payment:', validationResult);
       } catch (validationError) {
         console.error('❌ Balance validation failed before payment:', validationError);
-        setErrorToast({ 
-          show: true, 
+        setErrorToast({
+          show: true,
           message: validationError.message || 'Balance validation failed'
         });
         setTimeout(() => setErrorToast({ show: false, message: '' }), 4000);
@@ -1585,17 +1585,17 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     if (result.type === 'balance_usage') {
       // Record member balance usage information (similar to discount)
       setMemberBalanceUsage(result);
-      
+
       // Save verification state for direct use when modifying amount next time
       if (result.memberPhone) {
         setVerifiedMemberPhone(result.memberPhone);
       }
-      
+
       // Show confirmation message
       const message = `${memberT('Balance Discount')}: $${result.balanceToUse.toFixed(2)}`;
       setToastMessage(message);
       setShowToast(true);
-      
+
       // Auto-hide toast after 3 seconds
       setTimeout(() => {
         setShowToast(false);
@@ -1613,10 +1613,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     // Clear cart data
     localStorage.removeItem(store + "-" + selectedTable);
     setProducts([]);
-    
+
     // Reset member balance usage state
     setMemberBalanceUsage(null);
-    
+
     // You can add redirect logic here if needed
     // window.location.href = '/success';
   };
@@ -1886,7 +1886,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               </div>
             </div>
           )}
-          
+
           {/* Member Balance Section */}
           {memberBalanceUsage && (
             <div className="flex w-full">
@@ -2058,14 +2058,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
           </div>
           <div className='flex flex-col space-y-2 flex-shrink-0' style={
-            isMobile ? { 
-              width: "120px", 
-              maxHeight: isViewOrdersMode ? "calc(100vh - 180px)" : "calc(100vh - 280px)", 
-              overflowY: "auto" 
-            } : { 
-              width: "150px", 
-              maxHeight: "calc(100vh - 150px)", 
-              overflowY: "auto" 
+            isMobile ? {
+              width: "120px",
+              maxHeight: isViewOrdersMode ? "calc(100vh - 180px)" : "calc(100vh - 280px)",
+              overflowY: "auto"
+            } : {
+              width: "150px",
+              maxHeight: "calc(100vh - 150px)",
+              overflowY: "auto"
             }
           }>
             {/* Display Start Time */}
@@ -2178,9 +2178,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   setVerifiedMemberPhone(null); // Clear verification state, can restart next time
                 }}
                 className="mt-3 btn btn-sm mx-1"
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'flex-start',
                   backgroundColor: '#6b7280', // Gray color for cancel
                   color: 'white',
@@ -2193,9 +2193,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <a
                 onClick={() => handlePaymentClick('member_balance')}
                 className="mt-3 btn btn-sm mx-1"
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'flex-start',
                   backgroundColor: '#9e2820', // Deep red color for member balance
                   color: 'white',
@@ -2498,8 +2498,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   <div className="modal-body pt-0">
 
                     <PaymentRegular setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store}
-                      chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} 
-                      memberBalanceUsage={memberBalanceUsage} setMemberBalanceUsage={setMemberBalanceUsage} 
+                      chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)}
+                      memberBalanceUsage={memberBalanceUsage} setMemberBalanceUsage={setMemberBalanceUsage}
                       onError={(message) => {
                         setErrorToast({ show: true, message });
                         setTimeout(() => setErrorToast({ show: false, message: '' }), 4000);
@@ -2864,7 +2864,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               gap: '12px',
               justifyContent: 'center'
             }}>
-              <button 
+              <button
                 onClick={closeWarningAndEndTables}
                 style={{
                   padding: '10px 24px',
@@ -2902,7 +2902,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
       {/* Error Toast Notification */}
       {errorToast.show && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: '20px',
@@ -2919,7 +2919,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '14px', lineHeight: '1.4' }}>{errorToast.message}</span>
-            <button 
+            <button
               style={{
                 marginLeft: '15px',
                 background: 'transparent',
@@ -2939,7 +2939,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
       {/* Toast Notification for Member Payment */}
       {showToast && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: '20px',

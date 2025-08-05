@@ -4945,7 +4945,7 @@ const Account = () => {
                                                                                                     >
                                                                                                         {fanyi("Add Cash Tips")}
                                                                                                     </button>
-                                                                                                    <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
+                                                                                                    <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, (order.total + (parseFloat(order?.metadata?.memberBalanceUsed || 0))), order.metadata.tips)}>
 
                                                                                                         Print Receipt
                                                                                                     </button>
@@ -4978,7 +4978,7 @@ const Account = () => {
                                                                                                                 >
                                                                                                                     {fanyi("Add Cash Tips")}
                                                                                                                 </button>
-                                                                                                                <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
+                                                                                                                <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, (order.total + (parseFloat(order?.metadata?.memberBalanceUsed || 0))), order.metadata.tips)}>
 
                                                                                                                     Print Receipt
                                                                                                                 </button>
