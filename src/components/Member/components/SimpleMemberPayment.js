@@ -204,16 +204,16 @@ const SimpleMemberPayment = ({
         <div className="fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
                 {/* Header */}
-                <div className="bg-red-800 text-white px-6 py-4 rounded-t-lg relative">
+                <div className="bg-white text-black px-6 py-4 rounded-t-lg relative border-b">
                     <button
                         onClick={handleClose}
-                        className="absolute top-4 right-4 text-white hover:text-gray-200"
+                        className="absolute top-4 right-4 text-black hover:text-gray-600"
                         disabled={isLoading}
                     >
                         ✕
                     </button>
-                    <h2 className="text-lg font-semibold text-white">{t('Member Balance Payment')}</h2>
-                    <p className="text-red-100 text-sm">
+                    <h2 className="text-lg font-semibold text-black">{t('Member Balance Payment')}</h2>
+                    <p className="text-gray-600 text-sm">
                         {step === 'search' ? t('Enter phone number') : 
                          step === 'member_info' ? t('Member Information') : 
                          step === 'verify' ? t('Enter verification code') : 
@@ -225,7 +225,7 @@ const SimpleMemberPayment = ({
                 <div className="p-6">
                     {/* Error Message */}
                     {error && (
-                        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm text-center">
+                        <div className="mb-4 p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded text-sm text-center">
                             ❌ {error}
                         </div>
                     )}
@@ -242,7 +242,7 @@ const SimpleMemberPayment = ({
                                     placeholder={t('Enter phone number')}
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     disabled={isLoading}
                                 />
                             </div>
@@ -252,7 +252,7 @@ const SimpleMemberPayment = ({
                                 className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
                                     isLoading || !phone.trim()
                                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                        : 'bg-red-800 text-white hover:bg-red-900'
+                                        : 'bg-blue-600 text-white hover:bg-blue-700'
                                 }`}
                             >
                                 {isLoading ? t('Searching') + '...' : t('Search Member')}
@@ -348,14 +348,14 @@ const SimpleMemberPayment = ({
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    {t('Verification Code')} <span className="text-xs text-gray-500">({t('Test code')}: 1111)</span>
+                                    {t('Verification Code')}
                                 </label>
                                 <input
                                     type="text"
                                     placeholder={t('Enter verification code')}
                                     value={verifyCode}
                                     onChange={(e) => setVerifyCode(e.target.value)}
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     disabled={isLoading}
                                 />
                             </div>
@@ -373,7 +373,7 @@ const SimpleMemberPayment = ({
                                     className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
                                         isLoading || !verifyCode.trim()
                                             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                            : 'bg-green-600 text-white hover:bg-green-700'
+                                            : 'bg-blue-600 text-white hover:bg-blue-700'
                                     }`}
                                 >
                                     {isLoading ? t('Verifying') + '...' : t('Verify')}
@@ -400,7 +400,7 @@ const SimpleMemberPayment = ({
                                         placeholder="0.00"
                                         value={balanceToUse}
                                         onChange={(e) => setBalanceToUse(e.target.value)}
-                                        className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 notranslate"
+                                        className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 notranslate"
                                         disabled={isLoading}
                                         step="0.01"
                                         min="0"
@@ -441,7 +441,7 @@ const SimpleMemberPayment = ({
                                         className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
                                             isLoading || !balanceToUse || parseFloat(balanceToUse) <= 0
                                                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                : 'bg-red-800 text-white hover:bg-red-900'
+                                                : 'bg-blue-600 text-white hover:bg-blue-700'
                                         }`}
                                     >
                                         {isLoading ? t('Processing') + '...' : t('Confirm Use Balance')}
