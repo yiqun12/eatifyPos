@@ -5136,27 +5136,27 @@ const renderLegend = (props) => {
         return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
     }
     return (
-        <ul style={{ marginLeft: '120px', paddingLeft: '10px' }}>
+        <div style={{ transform: 'translateX(140px)', display: 'flex', justifyContent: 'flex-start', gap: '0' }}>
             {revenue !== 0 ? (
-                <div>
-                    <li key="revenue" style={{ fontWeight: 'bold', fontSize: '13px' }}>
-                        {fanyi("Revenue")}
-                        <span class='notranslate'> (${((revenue - (payload[4].payload.value * 2)).toFixed(2))})</span>
-                    </li>
-                    {payload.map((entry, index) => (
-                        <li key={`item-${index}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }} >
-                            {entry.value} <span class='notranslate'>(${entry.payload.value.toFixed(2)})</span>
-                        </li>
-                    ))}
-
-                </div>
+                <>
+                    {/* Left column - Revenue and first items except last 2 */}
+                    <div style={{ listStyle: 'none', flex: '1' }}>
+                        <li key="revenue" style={{ fontWeight: 'bold', fontSize: '13px' }}>{fanyi("Revenue")} <span class='notranslate'>(${((revenue - (payload[4].payload.value * 2)).toFixed(2))})</span></li>
+                        {payload.slice(0, -2).map((entry, index) => (
+                            <li key={`item-${index}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }}>{entry.value} <span class='notranslate'>(${entry.payload.value.toFixed(2)})</span></li>
+                        ))}
+                    </div>
+                    {/* Right column - Only Discount and Member Balance Used */}
+                    <div style={{ listStyle: 'none', flex: '1' }}>
+                        {payload.slice(-2).map((entry, index) => (
+                            <li key={`item-${index + payload.length - 2}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }}>{entry.value} <span class='notranslate'>(${entry.payload.value.toFixed(2)})</span></li>
+                        ))}
+                    </div>
+                </>
             ) : (
-                <li key="revenue">
-                    No Business Data On Date Range
-                </li>
+                <li key="revenue">No Business Data On Date Range</li>
             )}
-
-        </ul>
+        </div>
     );
 };
 

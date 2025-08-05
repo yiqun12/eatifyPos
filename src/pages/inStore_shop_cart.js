@@ -953,10 +953,15 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
           discount: discount === "" ? 0 : discount,
           isDine: true,
           service_fee: tips === "" ? 0 : tips,
-          subtotal: Math.round(100 * totalPrice) / 100,
+          subtotal: Math.round(100 * totalPrice) / 100, // Original item subtotal (before member balance)
           tax: Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100,
           tips: Math.round(100 * extra_tip) / 100,
           total: Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100,
+          // Add member balance information if used
+          ...(memberBalanceUsage && {
+            memberBalanceUsed: parseFloat(memberBalanceUsage.balanceToUse) || 0,
+            originalTotal: Math.round(100 * (totalPrice * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100
+          })
         }, // Assuming an empty map converts to an empty object
         next_action: null,
         object: "payment_intent",
@@ -1022,7 +1027,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     return Math.round(n * 100) / 100;
   }
   const CashCheckOut = async (extra, tax, total) => {
-
+    // Prevent duplicate submissions
+    if (isCashProcessing) {
+      console.log("🚫 CashCheckOut already processing, skipping duplicate call");
+      return;
+    }
+    
+    setIsCashProcessing(true);
     console.log("🏧 CashCheckOut called with:", { extra, tax, total });
     console.log("💰 Current memberBalanceUsage:", memberBalanceUsage);
     let extra_tip = 0
@@ -1044,6 +1055,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setTips("")
       // setIsTaxExempt(false); // 重置免税状态
       setResult(null)
+      setIsCashProcessing(false);
       localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
       return
     }
@@ -1081,7 +1093,10 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
             isDineIn: true,
             tips: parseFloat(tips) || 0,
             discount: parseFloat(discount) || 0,
-            taxRate: parseFloat(TaxRate) || 0
+            taxRate: parseFloat(TaxRate) || 0,
+            // Pass calculated values directly instead of recalculating
+            subtotal: Math.round(100 * totalPrice) / 100, // Original item subtotal
+            tax: parseFloat(tax) || 0 // Calculated tax value passed from CashCheckOut
           };
 
           console.log('💳 Member payment data:', paymentData);
@@ -1091,6 +1106,28 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
           console.error('Failed to deduct member balance:', memberPaymentError);
           throw new Error('Member balance deduction failed: ' + memberPaymentError.message);
         }
+      }
+
+      // If payment is fully covered by member balance (total = 0), skip creating cash payment record
+      const isFullyPaidWithBalance = memberBalanceUsage && total <= 0;
+      
+      if (isFullyPaidWithBalance) {
+        console.log('💰 Payment fully covered by member balance, skipping cash payment record');
+        // Clear cart and reset states
+        setProducts([]);
+        setExtra(0)
+        setInputValue("")
+        setDiscount("")
+        setTips("")
+        setResult(null)
+        setMemberBalanceUsage(null);
+        setIsCashProcessing(false);
+        localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`);
+        
+        // Clear table data
+        SetTableInfo(store + "-" + selectedTable, "[]");
+        SetTableIsSent(store + "-" + selectedTable + "-isSent", "[]");
+        return;
       }
 
       const dateTime = new Date().toISOString();
@@ -1128,7 +1165,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
           discount: discount === "" ? 0 : discount,
           isDine: true,
           service_fee: 0,
-          subtotal: Math.round(100 * totalPrice) / 100,
+          subtotal: Math.round(100 * totalPrice) / 100, // Original item subtotal (before member balance)
           tax: tax,
           tips: roundToTwoDecimals
             (roundToTwoDecimals(extra_tip) + roundToTwoDecimals(tips === "" ? 0 : tips)),
@@ -1137,7 +1174,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
           ...(memberBalanceUsage && {
             memberPhone: memberBalanceUsage.memberPhone,
             memberBalanceUsed: parseFloat(memberBalanceUsage.balanceToUse),
-            memberPaymentType: parseFloat(memberBalanceUsage.balanceToUse) >= total ? 'full' : 'partial'
+            memberPaymentType: parseFloat(memberBalanceUsage.balanceToUse) >= total ? 'full' : 'partial',
+            originalTotal: Math.round(100 * (totalPrice * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100
           })
         }, // Assuming an empty map converts to an empty object
         next_action: null,
@@ -1191,11 +1229,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setResult(null)
       // Clear member balance usage state
       setMemberBalanceUsage(null);
+      setIsCashProcessing(false);
       localStorage.removeItem(`${store}-${selectedTable}-isSent_startTime`); // Clear start time
 
 
     } catch (e) {
       console.error("Error adding document: ", e);
+      setIsCashProcessing(false);
     }
   }
 
@@ -1437,6 +1477,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   const [isChangeTableModal, setChangeTableModal] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
+  const [isCashProcessing, setIsCashProcessing] = useState(false);
 
   // Add keypadProps state
   const [keypadProps, setKeypadProps] = useState({
@@ -2348,8 +2389,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         );
                         closeUniqueModal();
                       }}
+                      disabled={isCashProcessing}
                       style={uniqueModalStyles.buttonStyle}
-                      className="notranslate mt-2 mb-2 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
+                      className={`notranslate mt-2 mb-2 text-white px-4 py-2 rounded-md w-full ${isCashProcessing ? 'bg-gray-300 cursor-not-allowed' : 'bg-gray-500'}`}
                     >
                       {fanyi("Collect")} ${stringTofixed(Math.round(inputValue * 100) / 100)},
                       {fanyi("including")} ${Math.round((result - finalPrice + extra) * 100) / 100}
@@ -2367,8 +2409,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                     );
                     closeUniqueModal();
                   }}
+                  disabled={isCashProcessing}
                   style={uniqueModalStyles.buttonStyle}
-                  className="notranslate mt-2 mb-2 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
+                  className={`notranslate mt-2 mb-2 text-white px-4 py-2 rounded-md w-full ${isCashProcessing ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500'}`}
                 >
                   {fanyi("Collect")} ${stringTofixed(finalPrice)},
                   {fanyi("including")} ${Math.round((extra) * 100) / 100}

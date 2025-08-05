@@ -540,7 +540,9 @@ export const MemberPaymentAPI = {
       isDineIn,
       tips = 0,
       discount = 0,
-      taxRate = 0
+      taxRate = 0,
+      subtotal = 0,
+      tax = 0
     } = paymentData;
 
     try {
@@ -611,9 +613,11 @@ export const MemberPaymentAPI = {
         metadata: {
           discount: parseFloat(discount) || 0,
           isDine: Boolean(isDineIn),
-          service_fee: parseFloat(tips) || 0,
-          subtotal: parseFloat(totalAmount) - parseFloat(tips || 0) - (parseFloat(totalAmount) * parseFloat(taxRate || 0) / 100) + parseFloat(discount || 0),
-          tax: parseFloat(totalAmount) * parseFloat(taxRate || 0) / 100,
+          // service_fee: parseFloat(tips) || 0,
+          service_fee: 0,
+          // Use directly passed values instead of recalculating
+          subtotal: parseFloat(subtotal) || 0,
+          tax: parseFloat(tax) || 0,
           tips: parseFloat(tips) || 0,
           total: parseFloat(totalAmount) || 0,
           // Member payment specific fields
@@ -661,7 +665,10 @@ export const MemberPaymentAPI = {
         .collection('success_payment')
         .doc();
       
-      batch.set(orderRef, orderRecord);
+      
+      if (orderRecord.total == 0) {
+        batch.set(orderRef, orderRecord);
+      }
 
       // Deduct member balance across all relevant stores
       const storesToUpdate = member.sourceStores || [storeId];
