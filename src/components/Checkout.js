@@ -1382,7 +1382,7 @@ function PayHistory(props) {
 
   return (
     <div>
-      {true ?
+      {/* {true ?
         <button
           class="text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
           style={{ borderRadius: "0.2rem", width: "100%", position: "relative", whiteSpace: "nowrap" }}
@@ -1410,7 +1410,7 @@ function PayHistory(props) {
         </button>
 
         : <div>
-        </div>}
+        </div>} */}
       {/* {
         !isKiosk ? <form id="payment-form" onSubmit={handleAli}>
           <button
@@ -1476,7 +1476,7 @@ function PayHistory(props) {
             }
           }}>
 
-          {t("Place Order, Pay At Front Desk1")}
+          {t("Place Order, Pay At Front Desk")}
           {isSubmittingOrder ? (
             <svg style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)' }} width="16" height="16" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-label="loading">
               <circle cx="25" cy="25" r="20" fill="none" strokeWidth="5" stroke="#ffffff" strokeOpacity="0.3" />
@@ -1489,7 +1489,7 @@ function PayHistory(props) {
 
         : <div>
         </div>}
-      {location ? (
+      {checkgeolocation() || location ? (
         distanceStatus === 'near' ? (
           <div>
 
@@ -1505,14 +1505,13 @@ function PayHistory(props) {
                   if (isSubmittingOrder) return;
                   setIsSubmittingOrder(true);
                   try {
-                    checkgeolocation();
                     await PendingDineInOrder(sessionStorage.getItem('table'), user.displayName);
                   } catch (e) {
                     setIsSubmittingOrder(false);
                   }
                 }}>
 
-                {t("Place Order, Pay At Front Desk2")}
+                {t("Place Order, Pay At Front Desk")}
                 {isSubmittingOrder ? (
                   <svg style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)' }} width="16" height="16" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-label="loading">
                     <circle cx="25" cy="25" r="20" fill="none" strokeWidth="5" stroke="#ffffff" strokeOpacity="0.3" />
