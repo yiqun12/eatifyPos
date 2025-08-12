@@ -271,6 +271,7 @@ const Navbar = () => {
   };
 
   const [totalPrice, setTotalPrice] = useState(0);
+  const [hasBackendOrder, setHasBackendOrder] = useState(false);
 
   //console.log(user)
   ///shopping cart products
@@ -283,7 +284,7 @@ const Navbar = () => {
   
   const isCustomerScanOrder = store && tableValue && 
     store.trim() !== '' && tableValue.trim() !== '' && 
-    !hasExistingLocalData; // Only use shared cart if no existing backend order
+    hasBackendOrder === false; // Only use shared cart if NO backend order
   
   // Use shared cart for customer scan-to-order, fallback to original localStorage for admin scenarios
   const sharedCart = useSharedCart(isCustomerScanOrder ? store : null, isCustomerScanOrder ? tableValue : null);
@@ -306,10 +307,10 @@ const Navbar = () => {
   
   // Sync shared cart products to local state (only for customer scan orders)
   useEffect(() => {
-    if (isCustomerScanOrder && sharedCart.isSharedCart && !sharedCart.loading && !hasExistingLocalData) {
+    if (isCustomerScanOrder && sharedCart.isSharedCart && !sharedCart.loading && hasBackendOrder === false) {
       setProducts(sharedCart.products);
     }
-  }, [sharedCart.products, sharedCart.loading, sharedCart.isSharedCart, isCustomerScanOrder, hasExistingLocalData]);
+  }, [sharedCart.products, sharedCart.loading, sharedCart.isSharedCart, isCustomerScanOrder, hasBackendOrder]);
   
 
   useEffect(() => {
@@ -337,7 +338,7 @@ const Navbar = () => {
 
   const handleDeleteClick = (productId, count) => {
     // Use shared cart function only for customer scan orders without existing data
-    if (isCustomerScanOrder && sharedCart.isSharedCart && !hasExistingLocalData) {
+    if (isCustomerScanOrder && sharedCart.isSharedCart && hasBackendOrder === false) {
       sharedCart.handleDeleteClick(productId, count);
     } else {
       setProducts((prevProducts) => {
@@ -349,7 +350,7 @@ const Navbar = () => {
 
   const handlePlusClick = (productId, targetCount) => {
     // Use shared cart function only for customer scan orders without existing data
-    if (isCustomerScanOrder && sharedCart.isSharedCart && !hasExistingLocalData) {
+    if (isCustomerScanOrder && sharedCart.isSharedCart && hasBackendOrder === false) {
       sharedCart.handlePlusClick(productId, targetCount);
     } else {
       setProducts((prevProducts) => {
@@ -369,7 +370,7 @@ const Navbar = () => {
 
   const handleMinusClick = (productId, targetCount) => {
     // Use shared cart function only for customer scan orders without existing data
-    if (isCustomerScanOrder && sharedCart.isSharedCart && !hasExistingLocalData) {
+    if (isCustomerScanOrder && sharedCart.isSharedCart && hasBackendOrder === false) {
       sharedCart.handleMinusClick(productId, targetCount);
     } else {
       setProducts((prevProducts) => {
@@ -396,13 +397,15 @@ const Navbar = () => {
 
   // Real-time sync when shopping cart modal is open
   useEffect(() => {
-    if (shoppingCartOpen && isCustomerScanOrder && sharedCart.isSharedCart && !hasExistingLocalData) {
+    console.log('meiguolao')
+    console.log(hasExistingLocalData)
+    if (shoppingCartOpen && isCustomerScanOrder && sharedCart.isSharedCart && hasBackendOrder === false) {
       // Force update products when cart is open and shared cart changes
       // Use groupAndSumItems to properly merge duplicate items
       setProducts(groupAndSumItems(sharedCart.products));
       console.log("Shopping cart modal updated with shared cart changes");
     }
-  }, [sharedCart.products, shoppingCartOpen, isCustomerScanOrder, sharedCart.isSharedCart, hasExistingLocalData]);
+  }, [sharedCart.products, shoppingCartOpen, isCustomerScanOrder, sharedCart.isSharedCart, hasBackendOrder]);
 
   const openModal = () => {
     if (user) {
@@ -413,9 +416,9 @@ const Navbar = () => {
     }
     
     // Load products from appropriate source
-    if (hasExistingLocalData) {
+    if (hasBackendOrder === true) {
       // Admin placed order - use localStorage
-      setProducts(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + tableValue))));
+      // Prefer products already set by backend listener; keep as is
     } else if (isCustomerScanOrder && sharedCart.isSharedCart) {
       // Customer scan order - use shared cart
       setProducts(groupAndSumItems(sharedCart.products));
@@ -446,9 +449,9 @@ const Navbar = () => {
       setShoppingCartOpen(false)
 
       // Load products from appropriate source when closing modal
-      if (hasExistingLocalData) {
+      if (hasBackendOrder === true) {
         // Admin placed order - use localStorage
-        setProducts(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + tableValue))));
+        // Keep products as set by backend listener
       } else if (isCustomerScanOrder && sharedCart.isSharedCart) {
         // Customer scan order - use shared cart
         setProducts(groupAndSumItems(sharedCart.products));
@@ -644,17 +647,21 @@ const Navbar = () => {
     const unsubscribe = docRef.onSnapshot((snapshot) => {
       if (snapshot.exists) {
         const data = snapshot.data();
-        console.log(data.product)
+        const arr = (() => { try { return JSON.parse(data?.product || '[]'); } catch { return []; } })();
 
-        //sessionStorage.setItem("ReceiptDataDineIn", data.product)
-        if (JSON.parse(data.product).length > 0) {
-          setDirectoryType(true)
-          openModal()
-
-          setProducts(directoryType ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
+        if (Array.isArray(arr) && arr.length > 0) {
+          setHasBackendOrder(true);
+          setDirectoryType(true);
+          openModal();
+          setProducts(arr); // render backend order directly
+        } else {
+          setHasBackendOrder(false);
+          setDirectoryType(false);
         }
       } else {
         console.log("No such document!");
+        setHasBackendOrder(false);
+        setDirectoryType(false);
       }
     }, err => {
       console.error("Error getting document:", err);
