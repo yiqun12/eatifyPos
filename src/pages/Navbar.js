@@ -650,6 +650,11 @@ const Navbar = () => {
         const arr = (() => { try { return JSON.parse(data?.product || '[]'); } catch { return []; } })();
 
         if (Array.isArray(arr) && arr.length > 0) {
+          // Clear shared cart via hook when backend order exists
+          if (sharedCart && sharedCart.isSharedCart && typeof sharedCart.clearCart === 'function') {
+            try { sharedCart.clearCart().catch(() => {}); } catch (e) { /* noop */ }
+            setProducts([]);
+          }
           setHasBackendOrder(true);
           setDirectoryType(true);
           openModal();
