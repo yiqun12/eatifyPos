@@ -311,6 +311,7 @@ const Navbar = () => {
     }
   }, [sharedCart.products, sharedCart.loading, sharedCart.isSharedCart, isCustomerScanOrder, hasExistingLocalData]);
   
+
   useEffect(() => {
 
     //maybe add a line here...
@@ -392,6 +393,16 @@ const Navbar = () => {
   const btnRef = useRef(null);
   const spanRef = useRef(null);
   const [shoppingCartOpen, setShoppingCartOpen] = useState(false);
+
+  // Real-time sync when shopping cart modal is open
+  useEffect(() => {
+    if (shoppingCartOpen && isCustomerScanOrder && sharedCart.isSharedCart && !hasExistingLocalData) {
+      // Force update products when cart is open and shared cart changes
+      // Use groupAndSumItems to properly merge duplicate items
+      setProducts(groupAndSumItems(sharedCart.products));
+      console.log("Shopping cart modal updated with shared cart changes");
+    }
+  }, [sharedCart.products, shoppingCartOpen, isCustomerScanOrder, sharedCart.isSharedCart, hasExistingLocalData]);
 
   const openModal = () => {
     if (user) {

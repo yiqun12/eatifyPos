@@ -219,10 +219,15 @@ function useSharedCart(store, table) {
   const handleMinusClick = useCallback((productId, targetCount) => {
     const item = products.find(p => p.id === productId && p.count === targetCount);
     if (item && item.instanceId) {
-      const newQuantity = Math.max(item.quantity - 1, 1);
-      updateQuantity(item.instanceId, newQuantity);
+      const nextQuantity = (item.quantity || 1) - 1;
+      if (nextQuantity >= 1) {
+        updateQuantity(item.instanceId, nextQuantity);
+      } else {
+        // If quantity would go below 1, remove this instance instead
+        removeItem(item.instanceId);
+      }
     }
-  }, [products, updateQuantity]);
+  }, [products, updateQuantity, removeItem]);
 
   // Calculate total price
   const totalPrice = products.reduce((acc, item) => {
