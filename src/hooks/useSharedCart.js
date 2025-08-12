@@ -14,6 +14,15 @@ function useSharedCart(store, table) {
   
   const cartManagerRef = useRef(null);
   const unsubscribeRef = useRef(null);
+  // Debounce timers per item instance for coalescing rapid clicks
+  const pendingTimersRef = useRef({}); // legacy debounce timers per instance (unused after throttle)
+  const throttleTimersRef = useRef({}); // { [instanceId]: number }
+  const lastDesiredQtyRef = useRef({}); // { [instanceId]: number }
+  // Track desired local quantities to avoid snapshot overriding immediate UI
+  const pendingDesiredRef = useRef({}); // { [instanceId]: { qty:number, ts:number } }
+  // Track items pending local deletion to suppress snapshot resurrection
+  const pendingDeleteRef = useRef({}); // { [instanceId]: number }
+  const RECONCILE_GRACE_MS = 1000; // during this window prefer local desired
 
   // Check if valid store and table parameters exist
   const isValidParams = store && table && store.trim() !== '' && table.trim() !== '';
@@ -43,8 +52,38 @@ function useSharedCart(store, table) {
         // Start listening to cart changes
         const unsubscribe = cartManager.listenToCart((cartItems) => {
           console.log('Cart items updated:', cartItems.length);
-          setProducts(cartItems);
-          setLoading(false);
+          // Reconcile snapshot with recent local desires to avoid "被覆盖" 的观感
+          setProducts(() => {
+            const merged = cartItems
+              // Suppress items that we just deleted locally within grace window
+              .filter((snapItem) => {
+                const delTs = pendingDeleteRef.current[snapItem.instanceId];
+                if (delTs && (Date.now() - delTs) < RECONCILE_GRACE_MS) {
+                  return false; // keep hidden
+                }
+                // If server still has it after grace, clear flag
+                if (delTs && (Date.now() - delTs) >= RECONCILE_GRACE_MS) {
+                  delete pendingDeleteRef.current[snapItem.instanceId];
+                }
+                return true;
+              })
+              .map((snapItem) => {
+              const pending = pendingDesiredRef.current[snapItem.instanceId];
+              if (pending && (Date.now() - pending.ts) < RECONCILE_GRACE_MS) {
+                const unit = (Number(snapItem.itemTotalPrice || 0) / Math.max(1, Number(snapItem.quantity) || 1)) || 0;
+                const qty = Math.max(1, Math.min(99, Number(pending.qty) || 1));
+                const total = Math.round(unit * qty * 100) / 100;
+                return { ...snapItem, quantity: qty, itemTotalPrice: total };
+              }
+              // 清理已达成的一致
+              if (pending && Number(pending.qty) === Number(snapItem.quantity)) {
+                delete pendingDesiredRef.current[snapItem.instanceId];
+              }
+              return snapItem;
+            });
+            setLoading(false);
+            return merged;
+          });
         });
         
         unsubscribeRef.current = unsubscribe;
@@ -121,7 +160,6 @@ function useSharedCart(store, table) {
   const addItem = useCallback(async (item) => {
     if (!cartManagerRef.current) {
       console.warn('Cart manager not initialized, falling back to sessionStorage');
-      // Fallback to sessionStorage
       const currentItems = JSON.parse(sessionStorage.getItem(store) || '[]');
       const newItems = [item, ...currentItems];
       sessionStorage.setItem(store, JSON.stringify(newItems));
@@ -129,36 +167,74 @@ function useSharedCart(store, table) {
       return;
     }
 
+    // Optimistic add: create a provisional instanceId to merge with snapshot
+    const provisionalId = `prov_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const optimisticItem = { ...item, instanceId: provisionalId };
+    pendingDesiredRef.current[provisionalId] = { qty: item.quantity || 1, ts: Date.now() };
+    setProducts(prev => [optimisticItem, ...prev]);
+
     try {
-      await cartManagerRef.current.addItem(item);
+      const realInstanceId = await cartManagerRef.current.addItem(item);
+      // Replace provisional itemId with real instanceId
+      setProducts(prev => prev.map(p => p.instanceId === provisionalId ? { ...p, instanceId: realInstanceId } : p));
+      // Bridge desired for the new real id for a short window to avoid flicker
+      pendingDesiredRef.current[realInstanceId] = { qty: item.quantity || 1, ts: Date.now() };
+      delete pendingDesiredRef.current[provisionalId];
     } catch (err) {
       console.error('Failed to add item:', err);
-      // Fallback to local update
-      setProducts(prev => [item, ...prev]);
+      // Revert optimistic add on failure
+      setProducts(prev => prev.filter(p => p.instanceId !== provisionalId));
       throw err;
     }
   }, [store]);
 
-  // Update item quantity
+  // Helper: optimistic local update (proportional total price)
+  const optimisticLocalUpdate = useCallback((instanceId, newQuantity) => {
+    const clamped = Math.max(1, Math.min(99, Number(newQuantity) || 1));
+    const now = Date.now();
+    pendingDesiredRef.current[instanceId] = { qty: clamped, ts: now };
+    setProducts(prev => prev.map(item => {
+      if (item.instanceId !== instanceId) return item;
+      const baseQty = Math.max(1, Number(item.quantity) || 1);
+      const unit = Number(item.itemTotalPrice || 0) / baseQty;
+      const total = Math.round(unit * clamped * 100) / 100;
+      return { ...item, quantity: clamped, itemTotalPrice: total };
+    }));
+  }, []);
+
+  // Helper: schedule throttled remote write (send latest at most every 120ms)
+  const scheduleRemotePersist = useCallback((instanceId, qty) => {
+    lastDesiredQtyRef.current[instanceId] = qty;
+    if (throttleTimersRef.current[instanceId]) {
+      // already scheduled; just update desired qty
+      return;
+    }
+    throttleTimersRef.current[instanceId] = setTimeout(async () => {
+      const targetQty = lastDesiredQtyRef.current[instanceId];
+      delete throttleTimersRef.current[instanceId];
+      if (!cartManagerRef.current) return;
+      try {
+        if (cartManagerRef.current.updateItemQuantityFast) {
+          await cartManagerRef.current.updateItemQuantityFast(instanceId, targetQty, Date.now());
+        } else {
+          await cartManagerRef.current.updateItemQuantity(instanceId, targetQty, Date.now());
+        }
+      } catch (err) {
+        console.error('Failed to persist quantity:', err);
+      }
+    }, 120);
+  }, []);
+
+  // Update item quantity (optimistic + debounced persist)
   const updateQuantity = useCallback(async (instanceId, newQuantity) => {
     if (!cartManagerRef.current) {
       console.warn('Cart manager not initialized');
       return;
     }
-
-    try {
-      await cartManagerRef.current.updateItemQuantity(instanceId, newQuantity);
-    } catch (err) {
-      console.error('Failed to update quantity:', err);
-      // Local update as fallback
-      setProducts(prev => prev.map(item => 
-        item.instanceId === instanceId 
-          ? { ...item, quantity: newQuantity }
-          : item
-      ));
-      throw err;
-    }
-  }, []);
+    const clamped = Math.max(1, Math.min(99, Number(newQuantity) || 1));
+    optimisticLocalUpdate(instanceId, clamped);
+    scheduleRemotePersist(instanceId, clamped);
+  }, [optimisticLocalUpdate, scheduleRemotePersist]);
 
   // Remove item
   const removeItem = useCallback(async (instanceId) => {
@@ -167,13 +243,23 @@ function useSharedCart(store, table) {
       return;
     }
 
+    // Optimistic local delete: update UI immediately
+    if (pendingTimersRef.current[instanceId]) {
+      clearTimeout(pendingTimersRef.current[instanceId]);
+      delete pendingTimersRef.current[instanceId];
+    }
+    delete pendingDesiredRef.current[instanceId];
+    setProducts(prev => prev.filter(item => item.instanceId !== instanceId));
+
     try {
-      await cartManagerRef.current.removeItem(instanceId);
+      if (cartManagerRef.current.removeItemFast) {
+        await cartManagerRef.current.removeItemFast(instanceId);
+      } else {
+        await cartManagerRef.current.removeItem(instanceId);
+      }
     } catch (err) {
       console.error('Failed to remove item:', err);
-      // Local deletion as fallback
-      setProducts(prev => prev.filter(item => item.instanceId !== instanceId));
-      throw err;
+      // 失败由后续 snapshot 校正；这里不阻塞 UI
     }
   }, []);
 
@@ -224,6 +310,13 @@ function useSharedCart(store, table) {
         updateQuantity(item.instanceId, nextQuantity);
       } else {
         // If quantity would go below 1, remove this instance instead
+        if (pendingTimersRef.current[item.instanceId]) {
+          clearTimeout(pendingTimersRef.current[item.instanceId]);
+          delete pendingTimersRef.current[item.instanceId];
+        }
+        delete pendingDesiredRef.current[item.instanceId];
+        // mark local delete to suppress snapshot resurrection for a short window
+        pendingDeleteRef.current[item.instanceId] = Date.now();
         removeItem(item.instanceId);
       }
     }

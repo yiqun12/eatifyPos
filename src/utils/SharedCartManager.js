@@ -20,6 +20,8 @@ class SharedCartManager {
     this.store = store;
     this.table = table;
     this.cartId = `${store}-${table}`;
+    // Local client sequence for ordering our own operations
+    this.clientSeq = 1;
     this.cartRef = doc(db, 'SharedCarts', this.cartId);
     this.userId = this.generateOrGetUserId();
     this.isInitialized = false;
@@ -161,7 +163,7 @@ class SharedCartManager {
     await this.ensureInitialized();
     
     try {
-      await runTransaction(db, async (transaction) => {
+      const result = await runTransaction(db, async (transaction) => {
         const cartDoc = await transaction.get(this.cartRef);
         
         if (!cartDoc.exists()) {
@@ -197,7 +199,9 @@ class SharedCartManager {
           instanceId: itemWithMeta.instanceId,
           userId: this.userId
         });
+        return itemWithMeta.instanceId;
       });
+      return result;
     } catch (error) {
       console.error('Error adding item to shared cart:', error);
       // Add to local backup as fallback
@@ -211,7 +215,7 @@ class SharedCartManager {
    * @param {string} instanceId - Item instance ID  
    * @param {number} newQuantity - New quantity
    */
-  async updateItemQuantity(instanceId, newQuantity) {
+  async updateItemQuantity(instanceId, newQuantity, clientSeq) {
     await this.ensureInitialized();
     
     try {
@@ -232,7 +236,8 @@ class SharedCartManager {
               ...item,
               quantity: Math.max(newQuantity, 1), // Minimum quantity is 1
               lastModifiedBy: this.userId,
-              lastModifiedAt: Date.now()
+              lastModifiedAt: Date.now(),
+              lastClientSeq: typeof clientSeq === 'number' ? clientSeq : (this.clientSeq++),
             };
             
             // Recalculate total price
@@ -253,12 +258,51 @@ class SharedCartManager {
           [`users.${this.userId}.lastActive`]: serverTimestamp()
         });
         
-        console.log('Item quantity updated:', { instanceId, newQuantity, userId: this.userId });
+        console.log('Item quantity updated:', { instanceId, newQuantity, userId: this.userId, clientSeq });
       });
     } catch (error) {
       console.error('Error updating item quantity:', error);
       throw error;
     }
+  }
+
+  /**
+   * Fast path: non-transactional quantity update (single read + write)
+   * Lower latency vs transaction; acceptable with client-side debounce
+   */
+  async updateItemQuantityFast(instanceId, newQuantity, clientSeq) {
+    await this.ensureInitialized();
+    const cartDoc = await getDoc(this.cartRef);
+    if (!cartDoc.exists()) throw new Error('Cart does not exist');
+    const cartData = cartDoc.data();
+    const cartItems = cartData.cartItems || [];
+
+    const updatedCartItems = cartItems.map(item => {
+      if (item.instanceId === instanceId) {
+        const updatedItem = {
+          ...item,
+          quantity: Math.max(newQuantity, 1),
+          lastModifiedBy: this.userId,
+          lastModifiedAt: Date.now(),
+          lastClientSeq: typeof clientSeq === 'number' ? clientSeq : (this.clientSeq++),
+        };
+        if (item.subtotal && item.quantity > 0) {
+          const unitPrice = parseFloat(item.subtotal);
+          updatedItem.itemTotalPrice = Math.round(unitPrice * updatedItem.quantity * 100) / 100;
+        }
+        return updatedItem;
+      }
+      return item;
+    });
+
+    await updateDoc(this.cartRef, {
+      cartItems: updatedCartItems,
+      lastUpdated: serverTimestamp(),
+      version: (cartData.version || 0) + 1,
+      [`users.${this.userId}.lastActive`]: serverTimestamp()
+    });
+
+    console.log('Fast quantity updated:', { instanceId, newQuantity, userId: this.userId, clientSeq });
   }
 
   /**
@@ -295,6 +339,27 @@ class SharedCartManager {
       console.error('Error removing item from shared cart:', error);
       throw error;
     }
+  }
+
+  /**
+   * Fast path: non-transactional remove (single read + write)
+   */
+  async removeItemFast(instanceId) {
+    await this.ensureInitialized();
+    const cartDoc = await getDoc(this.cartRef);
+    if (!cartDoc.exists()) throw new Error('Cart does not exist');
+    const cartData = cartDoc.data();
+    const cartItems = cartData.cartItems || [];
+    const updatedCartItems = cartItems.filter(item => item.instanceId !== instanceId);
+
+    await updateDoc(this.cartRef, {
+      cartItems: updatedCartItems,
+      lastUpdated: serverTimestamp(),
+      version: (cartData.version || 0) + 1,
+      [`users.${this.userId}.lastActive`]: serverTimestamp()
+    });
+
+    console.log('Fast item removed:', { instanceId, userId: this.userId });
   }
 
   /**

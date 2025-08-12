@@ -1188,26 +1188,31 @@ const Navbar = () => {
 
 
   function groupAndSumItems(items) {
-    items.reverse();
-    const groupedItems = {};
-
-    items.forEach(item => {
-      // Create a unique key based on id and JSON stringified attributes
-      const key = `${item.id}-${JSON.stringify(item.attributeSelected)}`;
-
-      if (!groupedItems[key]) {
-        // If this is the first item of its kind, clone it (to avoid modifying the original item)
-        groupedItems[key] = { ...item };
+    const list = Array.isArray(items) ? items.slice() : [];
+    // Pure, stable aggregation without mutating input and with deterministic ordering
+    const groupedMap = new Map();
+    for (const item of list) {
+      const key = `${item.id}-${JSON.stringify(item.attributeSelected || {})}`;
+      if (!groupedMap.has(key)) {
+        groupedMap.set(key, { ...item });
       } else {
-        // If this item already exists, sum up the quantity and itemTotalPrice
-        groupedItems[key].quantity += item.quantity;
-        groupedItems[key].itemTotalPrice += item.itemTotalPrice;
-        // The count remains from the first item
+        const agg = groupedMap.get(key);
+        agg.quantity = (agg.quantity || 0) + (item.quantity || 0);
+        agg.itemTotalPrice = (parseFloat(agg.itemTotalPrice) || 0) + (parseFloat(item.itemTotalPrice) || 0);
       }
+    }
+    const result = Array.from(groupedMap.values());
+    // Deterministic sort to avoid flicker when snapshots arrive in different orders
+    result.sort((a, b) => {
+      const nameCmp = String(a.name || '').localeCompare(String(b.name || ''));
+      if (nameCmp !== 0) return nameCmp;
+      const idCmp = String(a.id).localeCompare(String(b.id));
+      if (idCmp !== 0) return idCmp;
+      const attrA = JSON.stringify(a.attributeSelected || {});
+      const attrB = JSON.stringify(b.attributeSelected || {});
+      return attrA.localeCompare(attrB);
     });
-
-    // Convert the grouped items object back to an array
-    return Object.values(groupedItems).reverse();
+    return result;
   }
 
 

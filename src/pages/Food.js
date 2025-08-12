@@ -731,8 +731,10 @@ const Food = () => {
   };
   const [isModalVisible, setModalVisibility] = useState(false);
 
-  // Function to show the modal
+  // Function to show the modal (prevent repeated clicks while any popup is visible)
   const showModal = (item) => {
+    // If either the attribute modal or the quick "Added" toast is visible, ignore clicks
+    if (isModalVisible || isOpen) return;
     const randomNum = uuidv4()
     setCount(randomNum);  // Increment the count every time the modal is opened
     if (Object.keys(item.attributesArr).length > 0) {
