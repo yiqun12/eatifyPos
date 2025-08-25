@@ -2806,27 +2806,27 @@ const Account = () => {
         <div className="d-flex flex-column flex-lg-row h-lg-full bg-surface-secondary">
 
           {/* Removed (isVisible || !isPC) && condition from here */}
-          <div>
+          <div style={{ position: 'relative', height: divHeight }}>
             {isPC ? (
               <>
                 <nav
                   className="navbar navbar-vertical navbar-expand-lg px-0 py-3 navbar-light bg-gray-100 border-end shadow-sm overflow-auto"
                   id="navbarVertical"
                   style={{
-                    minWidth: isVisible ? '250px' : '60px',
-                    width: isVisible ? '250px' : '60px',
+                    minWidth: isVisible ? '250px' : '70px',
+                    width: isVisible ? '250px' : '70px',
                     transition: 'width 0.3s ease',
-                    height: divHeight,
+                    height: `calc(${divHeight} - 50px)`, // Subtract the height of the bottom button
                     overflowX: 'hidden',
-                    overflowY: 'auto'
+                    overflowY: 'auto',
+                    position: 'relative'
                   }}
                 >
                   <div className="container-fluid" style={{
-                    padding: "5px 10px",
+                    padding: "5px 10px 10px 10px", // Adjust bottom padding
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '0.5rem',
-                    height: '100%',
                     justifyContent: 'flex-start'
                   }}>
                     {/* Removed toggle button from here */}
@@ -3131,28 +3131,41 @@ const Account = () => {
                       ))}
                     </div>
                   </div>
+                  
+                  {/* 底部收缩按钮 - 真正固定在底部，不跟滚动 */}
+                  <button
+                    onClick={toggleVisibility}
+                    style={{
+                      position: 'fixed',
+                      bottom: '0',
+                      left: '0',
+                      width: isVisible ? '250px' : '70px',
+                      height: '50px',
+                      padding: '0',
+                      border: 'none',
+                      borderTop: '1px solid #dee2e6',
+                      backgroundColor: '#f8f9fa',
+                      color: '#6c757d',
+                      fontSize: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '0',
+                      transition: 'all 0.3s ease',
+                      zIndex: 1000,
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = '#e9ecef';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = '#f8f9fa';
+                    }}
+                  >
+                    <i className={`bi bi-chevron-${isVisible ? 'left' : 'right'}`} 
+                       style={{ fontSize: '16px' }}></i>
+                  </button>
                 </nav>
-
-                <button
-                  onClick={toggleVisibility}
-                  className="btn btn-primary border shadow-sm rounded-circle"
-                  style={{
-                    position: 'absolute',
-                    top: '110px',
-                    left: isVisible ? '235px' : '45px', // Position changes based on state
-                    width: '32px',  //
-                    height: '32px', //
-                    padding: '0',  // Remove padding
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 2000, // Ensure it's above the sidebar
-                    transition: 'left 0.3s ease', // Smooth transition
-                    boxShadow: '0 0 8px rgba(0, 0, 0, 0.3)' //
-                  }}
-                >
-                  <i className={`bi bi-${isVisible ? 'chevron-left' : 'chevron-right'}`} style={{ fontSize: '1rem', color: 'white' }}></i>
-                </button>
               </>
             ) : ( <div></div> )}
           </div>
