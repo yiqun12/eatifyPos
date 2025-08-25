@@ -2806,7 +2806,7 @@ const Account = () => {
         <div className="d-flex flex-column flex-lg-row h-lg-full bg-surface-secondary">
 
           {/* Removed (isVisible || !isPC) && condition from here */}
-          <div style={{ position: 'relative', height: divHeight }}>
+          <div style={{ position: 'relative', height: isPC ? divHeight : 'unset' }}>
             {isPC ? (
               <>
                 <nav
@@ -3532,7 +3532,9 @@ const Account = () => {
                                                     </div> : <div></div>
                                                     }
 
-                                                    {showSection === 'store' ? <div>
+                                                    {showSection === 'store' ? <div className="p-4">
+                                                        {/* Store Information Card */}
+                                                        <div className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200">
                                                         {/* <div className=''>
                               <div className='mx-auto '>
                                 <div className='mt-3 rounded-lg w-full  max-h-[200px] relative'>
@@ -3569,6 +3571,7 @@ const Account = () => {
                                                                 Edit Store Info
                                                             </button>
                                                         )}
+                                                        </div>
 
 
 
@@ -3750,8 +3753,12 @@ const Account = () => {
                                                             </div> : <></>
 
                                                         }
-                                                        <hr />
 
+                                                        {/* Three Cards Responsive Flex Container (no grid) */}
+                                                        <div className="flex flex-wrap -mx-2 mb-6">
+                                                            {/* Password Management Card */}
+                                                            <div className="px-2 mb-4 flex-1 min-w-[320px]">
+                                                        <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 h-full">
                                                         <div style={{ fontWeight: 'bold' }}>
                                                             Password Management:
                                                         </div>
@@ -3806,7 +3813,7 @@ const Account = () => {
                                                                     <>
                                                                         <div className="mb-3">
                                                                             <label htmlFor="newAdminPassword" className="form-label">{t('New Admin Password (min. 6 characters)')}</label>
-                                                                            <div className={`input-group ${isMobile ? 'w-full' : 'w-1/2'}`}>
+                                                                            <div className={`input-group w-full`}>
                                                                                 <input
                                                                                     type={showAdminPassword ? "text" : "password"}
                                                                                     className="form-control"
@@ -3832,7 +3839,7 @@ const Account = () => {
 
                                                                         <div className="mb-3">
                                                                             <label htmlFor="newEmployeePassword" className="form-label">{t('New Employee Password (min. 6 characters)')}</label>
-                                                                            <div className={`input-group ${isMobile ? 'w-full' : 'w-1/2'}`}>
+                                                                            <div className={`input-group w-full`}>
                                                                                 <input
                                                                                     type={showEmployeePassword ? "text" : "password"}
                                                                                     className="form-control"
@@ -3868,9 +3875,13 @@ const Account = () => {
                                                                 )}
                                                             </>
                                                         )}
+                                                        </div>
+                                                            </div>
 
-
-                                                        <div style={{ fontWeight: 'bold' }}>
+                                                            {/* QR Code Generator & Online Payment Options Combined Card */}
+                                                            <div className="px-2 mb-4 flex-1 min-w-[320px]">
+                                                        <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 h-full">
+                                                        <div style={{ fontWeight: 'bold' }} className="mb-4">
                                                             QR code generator:
                                                         </div>
 
@@ -3889,7 +3900,7 @@ const Account = () => {
                               ))} */}
 
                                                         </div>
-                                                        <div className="flex justify-start">
+                                                        <div className="flex justify-start mb-6">
                                                             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                                                 onClick={() => handlePrint()}
                                                             >
@@ -3897,9 +3908,8 @@ const Account = () => {
                                                                 Create A4 Sized QR Code Prints</button>
 
                                                         </div>
-
-                                                        <hr />
-
+                                                        
+                                                        {/* Online Payment Options Section */}
                                                         <div className=' mb-6' >
 
                                                             {data?.stripe_store_acct === "" ?
@@ -4096,12 +4106,15 @@ const Account = () => {
 
                                                             }
                                                         </div>
-                                                        <hr />
+                                                        </div>
+                                                            </div>
+                                                        </div>
 
-
+                                                        {/* Operating Hours Card */}
+                                                        <div className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200">
                                                         <div style={{ fontWeight: 'bold' }}>Operating Hours:</div>
                                                         <ChangeTimeForm storeID={storeID} storeOpenTime={storeOpenTime} />
-
+                                                        </div>
 
                                                     </div> : <div></div>
                                                     }
