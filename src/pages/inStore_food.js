@@ -1737,7 +1737,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                                 setSelectedFoodType(foodType);
                                 setInput("");
                               }}
-                              className={`rounded-xl px-2 py-2 text-black m-2 ${selectedFoodType === foodType ? "bg-gray-400" : "bg-gray-200"
+                              className={`rounded-xl px-3 py-3 m-2 shadow-md border border-gray-100 hover:shadow-lg transition-all duration-200 cursor-pointer ${selectedFoodType === foodType ? "bg-blue-500 text-white shadow-lg" : "bg-white text-black hover:bg-gray-50"
                                 }`}
                             >
                               {foodType && foodType.length > 1
@@ -1751,7 +1751,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                                   setSelectedFoodType(nextFoodType);
                                   setInput("");
                                 }}
-                                className={`rounded-xl px-2 py-2 text-black m-2 ${selectedFoodType === nextFoodType ? "bg-gray-400" : "bg-gray-200"
+                                className={`rounded-xl px-3 py-3 m-2 shadow-md border border-gray-100 hover:shadow-lg transition-all duration-200 cursor-pointer ${selectedFoodType === nextFoodType ? "bg-blue-500 text-white shadow-lg" : "bg-white text-black hover:bg-gray-50"
                                   }`}
                               >
                                 {nextFoodType.length > 1

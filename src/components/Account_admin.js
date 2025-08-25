@@ -2807,7 +2807,7 @@ const Account = () => {
 
           {/* Removed (isVisible || !isPC) && condition from here */}
           <div style={{ position: 'relative', height: isPC ? divHeight : 'unset' }}>
-            {isPC ? (
+            {isPC && isModalOpenIframe === false ? (
               <>
                 <nav
                   className="navbar navbar-vertical navbar-expand-lg px-0 py-3 navbar-light bg-gray-100 border-end shadow-sm overflow-auto"
