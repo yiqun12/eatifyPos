@@ -4879,8 +4879,8 @@ const Account = () => {
                                                                     {/* Separator */}
                                                                     <div className="w-px h-6 bg-gray-300 mx-2"></div>
 
-                                                                    {/* Test Data Group */}
-                                                                    <div className="flex items-center gap-3 flex-shrink-0">
+                                                                    {/* Test Data Group - Commented out for production */}
+                                                                    {/* <div className="flex items-center gap-3 flex-shrink-0">
                                                                         <span className="text-sm font-medium text-gray-700 whitespace-nowrap">测试数据:</span>
                                                                         <button
                                                                             onClick={addTestData}
@@ -4903,7 +4903,7 @@ const Account = () => {
                                                                         >
                                                                             清除测试数据
                                                                         </button>
-                                                                    </div>
+                                                                    </div> */}
                                                                 </div>
                                                             </div>
 
