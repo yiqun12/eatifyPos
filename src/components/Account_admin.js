@@ -1,6 +1,6 @@
 //import Navbar from './Navbar'
 import 'bootstrap/dist/css/bootstrap.css';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useDeferredValue, startTransition } from 'react';
 
 //import Checkout from "../components/Checkout";
 import PayFullhistory from "./PayFullhistory";
@@ -11,7 +11,7 @@ import Checkout from "./Checkout_acc";
 import './style.css';
 import './stripeButton.css';
 import { useCallback } from 'react';
-import { collection, doc, addDoc, getDoc, updateDoc, deleteDoc, where } from "firebase/firestore";
+import { collection, doc, addDoc, getDoc, updateDoc, deleteDoc, setDoc, writeBatch, where } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { onSnapshot, query } from "firebase/firestore";
 import mySound from '../pages/new_order_english.mp3'; // Replace with your sound file's path
@@ -948,7 +948,10 @@ const Account = () => {
                     newItems.push(newItem);
                 }
             });
-            setOrders(newItems);
+            // Avoid blocking UI: defer massive state updates
+            startTransition(() => {
+                setOrders(newItems);
+            });
             console.log(123123123213)
             console.log(newItems)
             saveId(Math.random());
@@ -965,7 +968,7 @@ const Account = () => {
                 } else {
                     dailyRevenue[date] = revenue;
                 }
-                console.log(dailyRevenue[date])
+                // console.log(dailyRevenue[date])
             });
 
             const dailyRevenueArray = Object.keys(dailyRevenue).map(date => ({
@@ -2194,10 +2197,171 @@ const Account = () => {
         }
     }
 
+    // Function to generate test data
+    const generateTestData = (count = 10000) => {
+        const statuses = ['Paid by Cash', 'Paid', 'Processing', 'Stripe', 'POS Machine'];
+        const tableNums = ['Table 1', 'Table 2', 'Table 3', 'Table 4', 'Table 5', 'Table 6', 'Takeout', ''];
+        const stores = ['测试餐厅A', '测试餐厅B', '测试餐厅C'];
+        
+        const testData = [];
+        
+        for (let i = 0; i < count; i++) {
+            const randomDate = new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000);
+            const formattedDate = randomDate.toLocaleString();
+            const subtotal = parseFloat((Math.random() * 180 + 10).toFixed(2));
+            const serviceFee = parseFloat((Math.random() * 20).toFixed(2));
+            const tips = parseFloat((Math.random() * 30).toFixed(2));
+            const total = parseFloat((subtotal + serviceFee + tips).toFixed(2));
+            
+            // Generate receipt data as JSON string (like real data)
+            const receiptItems = [];
+            const numItems = Math.floor(Math.random() * 5) + 1;
+            for (let j = 0; j < numItems; j++) {
+                receiptItems.push({
+                    name: `测试商品${(i * numItems + j) % 20 + 1}`,
+                    quantity: Math.floor(Math.random() * 3) + 1,
+                    price: parseFloat((Math.random() * 30 + 5).toFixed(2)),
+                    category: '测试分类'
+                });
+            }
+            
+            testData.push({
+                id: `test_${i}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                receiptData: JSON.stringify(receiptItems), // Convert to JSON string like real data
+                date: formattedDate,
+                email: `test${i}@example.com`,
+                dineMode: Math.random() > 0.5 ? 'Dine In' : 'Takeout',
+                status: statuses[Math.floor(Math.random() * statuses.length)],
+                total: total,
+                tableNum: tableNums[Math.floor(Math.random() * tableNums.length)],
+                store: stores[Math.floor(Math.random() * stores.length)],
+                intent_ID: `pi_test_${i}_${Math.random().toString(36).substr(2, 9)}`,
+                Charge_ID: `ch_test_${i}_${Math.random().toString(36).substr(2, 9)}`,
+                metadata: {
+                    subtotal: subtotal,
+                    service_fee: serviceFee,
+                    tips: tips,
+                    total: total,
+                    discount: 0,
+                    isDine: Math.random() > 0.5 ? 'Dine In' : 'Takeout'
+                },
+                transaction_json: {
+                    amount: Math.floor(total * 100), // Stripe amounts are in cents
+                    currency: 'usd',
+                    status: 'succeeded'
+                }
+            });
+        }
+        
+        return testData;
+    };
+
+    // Function to add test data to orders
+    const addTestData = () => {
+        try {
+            console.log('开始生成测试数据...');
+            const testData = generateTestData(10000);
+            console.log('测试数据生成完成，数量:', testData.length);
+            console.log('示例数据:', testData[0]);
+            
+            startTransition(() => {
+                setOrders(prevOrders => {
+                    const mergedData = [...testData, ...prevOrders];
+                    return mergedData;
+                });
+            });
+            alert('✅ 已成功添加10000条测试数据！\n数据已添加到本地状态，可以测试分块加载性能。');
+        } catch (error) {
+            console.error('生成测试数据时出错:', error);
+            alert('❌ 生成测试数据失败: ' + error.message);
+        }
+    };
+
+    // Function to add test data to Firebase (批量写入)
+    const addTestDataToFirebase = async () => {
+        if (!user || !user.uid || !activeStoreTab) {
+            alert('❌ 请先选择店铺！');
+            return;
+        }
+        
+        try {
+            const confirmed = window.confirm('⚠️ 确定要将测试数据写入Firebase数据库吗？\n这将创建真实的数据库记录。\n\n⚡ 使用批量写入，速度更快！');
+            if (!confirmed) return;
+
+            console.log('开始生成和批量写入Firebase...');
+            const testData = generateTestData(10000);
+            
+            // Firebase批量写入限制：每批最多500条
+            const batchSize = 500;
+            const totalBatches = Math.ceil(testData.length / batchSize);
+            let completedBatches = 0;
+            
+            // 显示进度
+            const progressAlert = (current, total) => {
+                const percent = Math.round((current / total) * 100);
+                console.log(`批量写入进度: ${current}/${total} (${percent}%)`);
+            };
+
+            for (let i = 0; i < testData.length; i += batchSize) {
+                const batch = writeBatch(db);
+                const batchData = testData.slice(i, i + batchSize);
+                
+                console.log(`准备第 ${completedBatches + 1}/${totalBatches} 批，包含 ${batchData.length} 条记录`);
+                
+                batchData.forEach(item => {
+                    const docRef = doc(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', activeStoreTab, 'success_payment', item.id);
+                    batch.set(docRef, {
+                        ...item,
+                        powerBy: item.status,
+                        user_email: item.email,
+                        dateTime: new Date().toISOString()
+                    });
+                });
+                
+                // 提交当前批次
+                await batch.commit();
+                completedBatches++;
+                progressAlert(completedBatches, totalBatches);
+                
+                // 小延迟避免过载Firebase
+                if (completedBatches < totalBatches) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+            
+            alert(`✅ 批量写入完成！\n\n📊 统计信息：\n• 总记录数：${testData.length} 条\n• 批次数量：${totalBatches} 批\n• 每批大小：${batchSize} 条\n• 写入速度：大约 ${Math.round(testData.length / (totalBatches * 0.1))} 条/秒`);
+        } catch (error) {
+            console.error('批量写入Firebase时出错:', error);
+            alert('❌ 批量写入失败: ' + error.message);
+        }
+    };
+
     // State to manage the displayed orders based on filters
     const [displayedOrders, setDisplayedOrders] = useState([]);
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true); // Assume initially that there might be no data
+
+    // Performance: memoized filtered orders (used widely in render)
+    const filteredOrders = useMemo(() => {
+        const status = order_status || '';
+        const table = order_table || '';
+        return (orders || [])
+            .filter(o => (o?.status || '').includes(status))
+            .filter(o => (o?.tableNum || '').includes(table));
+    }, [orders, order_status, order_table]);
+
+    const filteredCount = useMemo(() => filteredOrders.length, [filteredOrders]);
+
+    // Defer heavy list to keep UI responsive during filtering
+    const deferredFiltered = useDeferredValue(filteredOrders);
+
+    // Memo parse of receiptData for items list rendering
+    const itemsWithParsed = useMemo(() => {
+        return (items || []).map(o => ({
+            ...o,
+            receiptItems: typeof o?.receiptData === 'string' ? (JSON.parse(o.receiptData || '[]') || []) : (o.receiptData || [])
+        }));
+    }, [items]);
 
     // useRef to persist the chunk generator
     const chunkGeneratorRef = useRef(null);
@@ -4400,7 +4564,7 @@ const Account = () => {
                                                                             </div>
                                                                             <div className="h-[calc(95vh-80px)] overflow-auto">
                                                                                 <ItemSalesAnalytics
-                                                                                    orders={orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table))}
+                                                                                    orders={deferredFiltered}
                                                                                     dateRange={{ startDate, endDate }}
                                                                                 />
                                                                             </div>
@@ -4711,6 +4875,35 @@ const Account = () => {
                                                                             }
                                                                         </button>
                                                                     </div>
+
+                                                                    {/* Separator */}
+                                                                    <div className="w-px h-6 bg-gray-300 mx-2"></div>
+
+                                                                    {/* Test Data Group */}
+                                                                    <div className="flex items-center gap-3 flex-shrink-0">
+                                                                        <span className="text-sm font-medium text-gray-700 whitespace-nowrap">测试数据:</span>
+                                                                        <button
+                                                                            onClick={addTestData}
+                                                                            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                                                                            title="添加本地测试数据，不写入数据库"
+                                                                        >
+                                                                            本地1万条数据
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={addTestDataToFirebase}
+                                                                            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                                                                            title="批量写入Firebase数据库（每批500条，共20批）"
+                                                                        >
+                                                                            ⚡批量DB写入1万条
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => setOrders(orders.filter(order => !order.id.startsWith('test_')))}
+                                                                            className="border border-red-500 text-red-500 hover:bg-red-50 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                                                                            title="清除本地测试数据"
+                                                                        >
+                                                                            清除测试数据
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
@@ -4820,7 +5013,7 @@ const Account = () => {
                                                                 <tbody
                                                                 >
 
-                                                                    {items?.map((order, index) => {
+                                                                    {itemsWithParsed?.map((order, index) => {
                                                                         if (order.status === "Canceled") {
                                                                         } else {
                                                                             displayIndex++;
@@ -4852,8 +5045,8 @@ const Account = () => {
 
                                                                                             // Ensure index > 0 before calling compareDates
                                                                                             return index > 0
-                                                                                                ? compareDates(items[index - 1].date.split(' ')[0], items[index].date.split(' ')[0])
-                                                                                                : `📅 ${items[index].date.split(' ')[0]}`;
+                                                                                                ? compareDates(itemsWithParsed[index - 1].date.split(' ')[0], itemsWithParsed[index].date.split(' ')[0])
+                                                                                                : `📅 ${itemsWithParsed[index].date.split(' ')[0]}`;
                                                                                         })()
                                                                                     }
                                                                                 </div>
@@ -4869,7 +5062,7 @@ const Account = () => {
                                                                                         {isMobile ? null :
                                                                                             (
                                                                                                 (order.status !== "Canceled") ?
-                                                                                                    <td className='notranslate px-3 py-2'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex}</td>
+                                                                                                    <td className='notranslate px-3 py-2'># {filteredCount - displayIndex}</td>
                                                                                                     : <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
 
                                                                                             )
@@ -4888,7 +5081,7 @@ const Account = () => {
                                                                                             {isMobile ?
                                                                                                 (
                                                                                                     (order.status !== "Canceled") ?
-                                                                                                        <span className='notranslate'>#{orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex} </span>
+                                                                                                        <span className='notranslate'>#{filteredCount - displayIndex} </span>
                                                                                                         :
                                                                                                         <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
                                                                                                 )
@@ -5034,7 +5227,7 @@ const Account = () => {
                                                                                                         <p><span className='notranslate'>{order.name}</span></p>
                                                                                                         {/* <p>{order.email}</p> */}
                                                                                                         {/* <p><span className='notranslate'>{order.date}</span></p> */}
-                                                                                                        {JSON.parse(order.receiptData).map((item, index) => (
+                                                                                                        {order.receiptItems?.map((item, index) => (
                                                                                                             <div className="receipt-item" key={item.id}>
                                                                                                                 <p className='notranslate'>
                                                                                                                     {(/^#@%\d+#@%/.test(item?.name)) ?
@@ -5113,7 +5306,7 @@ const Account = () => {
                                                     {/* 添加物品销量分析section */}
                                                     {showSection === 'itemAnalytics' ? <div>
                                                         <ItemSalesAnalytics
-                                                            orders={orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table))}
+                                                            orders={deferredFiltered}
                                                             dateRange={{ startDate, endDate }}
                                                         />
                                                     </div> : <div></div>
