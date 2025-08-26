@@ -4120,8 +4120,9 @@ const Account = () => {
                                                     }
 
                                                     {showSection === 'sales' ? <div>
-                                                        <div className="flex mt-3">
-                                                            <div className={`w-50 ${isMobile ? 'mobile-class' : 'desktop-class'}`}>
+                                                        <div className="flex mt-3 gap-4">
+                                                            {/* Control Panel Card Container */}
+                                                            <div className={`${isMobile ? 'w-full' : 'w-1/2'} bg-white rounded-lg shadow-lg border border-gray-200 p-6`}>
                                                                 <div>
                                                                     <div style={{ fontWeight: 'bold' }}>Select Date Range</div>
                                                                     <div className={`${isMobile ? '' : 'flex'} flex-wrap`} >
@@ -4422,7 +4423,8 @@ const Account = () => {
                                                                 </div>
                                                             </div>
 
-                                                            <div style={isMobile ? { "width": "50%" } : {}}>
+                                                            {/* Data Chart Card Container */}
+                                                            <div className={`${isMobile ? 'w-full mt-4' : 'w-1/2'} bg-white rounded-lg shadow-lg border border-gray-200 p-6`}>
                                                                 {/* <div className="flex flex-col justify-center items-center h-screen space-y-4">
                                   <select
                                     className="p-2 border rounded w-64"
@@ -4455,6 +4457,9 @@ const Account = () => {
                                     purpose={purpose}
                                   />
                                 </div> */}
+                                                                <div className="mb-4">
+                                                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Revenue Analytics</h3>
+                                                                </div>
                                                                 {(isMobile || isChartPasswordVerified) && (
                                                                     <PieChart className='notranslate' width={isMobile ? width2 / 2 : 300} height={250}>
                                                                         <Pie
@@ -4643,65 +4648,69 @@ const Account = () => {
 
                                                         </div>
                                                         <div>
-
-                                                            <select
-                                                                onChange={(e) => getSeason(format12Oclock(new Date(Date.now()).toLocaleString("en-US", { timeZone: AmericanTimeZone })), e.target.value)}
-                                                                className="btn btn-sm border-black d-flex align-items-center mx-1 mb-2"
-                                                            >
-
-                                                                <option value="Q1">Show First Quarter of This Year</option>
-                                                                <option value="Q2">Show Second Quarter of This Year</option>
-                                                                <option value="Q3">Show Third Quarter of This Year</option>
-                                                                <option value="Q4">Show Fourth Quarter of This Year</option>
-                                                                <option value="lastQ1">Show First Quarter of Last Year</option>
-                                                                <option value="lastQ2">Show Second Quarter of Last Year</option>
-                                                                <option value="lastQ3">Show Third Quarter of Last Year</option>
-                                                                <option value="lastQ4">Show Fourth Quarter of Last Year</option>
-                                                            </select>
-                                                            <div className={`${true ? 'flex flex-wrap items-start' : ''}`}>
-
-                                                                <div className='flex'>
-                                                                    <button
-                                                                        onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
-                                                                        className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
+                                                            {/* Control Panel - Separated Layout */}
+                                                            <div className="bg-gray-50 p-3 rounded-lg my-3 space-y-4">
+                                                                {/* Quarterly Selection - Separate Row */}
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className="text-sm font-medium text-gray-700 whitespace-nowrap">季度选择:</span>
+                                                                    <select
+                                                                        onChange={(e) => getSeason(format12Oclock(new Date(Date.now()).toLocaleString("en-US", { timeZone: AmericanTimeZone })), e.target.value)}
+                                                                        className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                                                     >
-
-                                                                        <span>Today's Orders</span>
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => { setStartDate(parseDate(format12Oclock((new Date(new Date().setDate(new Date().getDate() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
-                                                                        className="btn btn-sm btn-outline-primary d-flex align-items-center mx-1 mt-1 mb-2"
-                                                                    >
-                                                                        <span>Yesterday Orders</span>
-                                                                    </button>
+                                                                        <option value="Q1">第一季度 (本年)</option>
+                                                                        <option value="Q2">第二季度 (本年)</option>
+                                                                        <option value="Q3">第三季度 (本年)</option>
+                                                                        <option value="Q4">第四季度 (本年)</option>
+                                                                        <option value="lastQ1">第一季度 (去年)</option>
+                                                                        <option value="lastQ2">第二季度 (去年)</option>
+                                                                        <option value="lastQ3">第三季度 (去年)</option>
+                                                                        <option value="lastQ4">第四季度 (去年)</option>
+                                                                    </select>
                                                                 </div>
-
-                                                                <div className='flex'>
-                                                                    <button
-                                                                        onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
-                                                                        className="btn btn-sm btn-dark d-flex align-items-center mx-1 mt-1 mb-2"
-                                                                    >
-                                                                        <span>
+                                                                
+                                                                {/* Quick Selection and Monthly Statistics - Same Row */}
+                                                                <div className="flex flex-wrap items-center gap-6">
+                                                                    {/* Quick Selection Group */}
+                                                                    <div className="flex items-center gap-3 flex-shrink-0">
+                                                                        <span className="text-sm font-medium text-gray-700 whitespace-nowrap">快速选择:</span>
+                                                                        <button
+                                                                            onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
+                                                                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                                                                        >
+                                                                            今日订单
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => { setStartDate(parseDate(format12Oclock((new Date(new Date().setDate(new Date().getDate() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
+                                                                            className="border border-blue-500 text-blue-500 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                                                                        >
+                                                                            昨日订单
+                                                                        </button>
+                                                                    </div>
+                                                                    
+                                                                    {/* Monthly Statistics Group */}
+                                                                    <div className="flex items-center gap-3 flex-shrink-0">
+                                                                        <span className="text-sm font-medium text-gray-700 whitespace-nowrap">月度统计:</span>
+                                                                        <button
+                                                                            onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
+                                                                            className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                                                                        >
                                                                             {
                                                                                 (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                                                                                     ["一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单", "十二月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
                                                                                     ["January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders", "December Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()])
                                                                             }
-                                                                        </span>
-                                                                    </button>
-
-                                                                    <button
-                                                                        onClick={() => { getMonthDates(((format12Oclock((new Date(new Date().setMonth(new Date().getMonth() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
-                                                                        className="btn btn-sm btn-outline-dark d-flex align-items-center mx-1 mt-1 mb-2"
-                                                                    >
-                                                                        <span>
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => { getMonthDates(((format12Oclock((new Date(new Date().setMonth(new Date().getMonth() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
+                                                                            className="border border-gray-800 text-gray-800 hover:bg-gray-50 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                                                                        >
                                                                             {
                                                                                 (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                                                                                     ["十二月订单", "一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
                                                                                     ["December Orders", "January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()])
-                                                                            }</span>
-                                                                    </button>
-
+                                                                            }
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
@@ -4754,27 +4763,27 @@ const Account = () => {
 
                                                         <LazyLoad height={762}>
 
-                                                            <table
-                                                                className="shop_table my_account_orders"
-                                                                style={{
-                                                                    borderCollapse: "collapse",
-                                                                    width: "100%",
-                                                                    borderSpacing: "6px", // added CSS
-                                                                }}
-                                                            >
+                                                            <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-x-auto overflow-y-hidden mt-4">
+                                                                <table
+                                                                    className="shop_table my_account_orders w-full min-w-max"
+                                                                    style={{
+                                                                        borderCollapse: "collapse",
+                                                                        width: "100%",
+                                                                        minWidth: "800px", // 确保表格有最小宽度
+                                                                        borderSpacing: "0",
+                                                                    }}
+                                                                >
 
-                                                                <thead>
-
-
+                                                                <thead className="bg-gray-50">
                                                                     <tr>
-                                                                        {isMobile ? null : <th className="notranslate" >Number.</th>}
+                                                                        {isMobile ? null : <th className="notranslate px-3 py-2" >Number.</th>}
                                                                         {(isLocalHost)
                                                                             ?
-                                                                            <th className="order-number" >Order ID</th>
+                                                                            <th className="order-number px-3 py-2" >Order ID</th>
                                                                             :
                                                                             <></>
                                                                         }
-                                                                        <th className="order-name" >
+                                                                        <th className="order-name px-3 py-2" >
                                                                             {!isMobile ?
                                                                                 <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
                                                                                     <option value="">Select Specific Dining Table Type</option>
@@ -4786,7 +4795,7 @@ const Account = () => {
                                                                             }
 
                                                                         </th>
-                                                                        <th className="order-status" >
+                                                                        <th className="order-status px-3 py-2" >
                                                                             {!isMobile ?
                                                                                 <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
                                                                                     <option value="">Select Specific Payment Type</option>
@@ -4798,8 +4807,8 @@ const Account = () => {
                                                                                 : "Type"
                                                                             }
                                                                         </th>
-                                                                        <th className="order-total" >Price</th>
-                                                                        <th className="order-date" >Date</th>
+                                                                        <th className="order-total px-3 py-2" >Price</th>
+                                                                        <th className="order-date px-3 py-2" >Date</th>
                                                                     </tr>
                                                                 </thead>
                                                                 {/* {!loading && (
@@ -4820,7 +4829,7 @@ const Account = () => {
 
                                                                         return (
                                                                             <>
-                                                                                <div className="order" style={{ borderBottom: "1px solid #ddd" }}>
+                                                                                <div className="order px-3 py-2" style={{ borderBottom: "1px solid #ddd" }}>
                                                                                     {
                                                                                         (() => {
                                                                                             function compareDates(date1, date2) {
@@ -4860,14 +4869,14 @@ const Account = () => {
                                                                                         {isMobile ? null :
                                                                                             (
                                                                                                 (order.status !== "Canceled") ?
-                                                                                                    <td className='notranslate'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex}</td>
+                                                                                                    <td className='notranslate px-3 py-2'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex}</td>
                                                                                                     : <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
 
                                                                                             )
                                                                                         }
                                                                                         {(isLocalHost)
                                                                                             ?
-                                                                                            <td className="order-number notranslate" data-title="OrderID">
+                                                                                            <td className="order-number notranslate px-3 py-2" data-title="OrderID">
                                                                                                 <a>
                                                                                                     {order.id.substring(0, 4)}
                                                                                                 </a>
@@ -4875,7 +4884,7 @@ const Account = () => {
                                                                                             <></>
                                                                                         }
 
-                                                                                        <td className="order-name notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>
+                                                                                        <td className="order-name notranslate px-3 py-2" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>
                                                                                             {isMobile ?
                                                                                                 (
                                                                                                     (order.status !== "Canceled") ?
@@ -4887,8 +4896,8 @@ const Account = () => {
                                                                                                 null
                                                                                             }
                                                                                             {order.tableNum === "" ? "Takeout" : order.tableNum}</td>
-                                                                                        <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
-                                                                                        <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className=" amount">
+                                                                                        <td className="order-status notranslate px-3 py-2" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
+                                                                                        <td className="order-total px-3 py-2" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className=" amount">
                                                                                             <span className='notranslate'>
                                                                                                 {"$" + roundToTwoDecimalsTofix(order.total)}
                                                                                             </span>
@@ -4922,7 +4931,7 @@ const Account = () => {
                                             roundToTwoDecimalsTofix(order?.transaction_json?.net) : 0
                                           } */}
                                                                                         </span></td>
-                                                                                        <td className="order-date" data-title="Date" style={{ whiteSpace: "nowrap" }}>
+                                                                                        <td className="order-date px-3 py-2" data-title="Date" style={{ whiteSpace: "nowrap" }}>
                                                                                             <time dateTime={order.date} title={order.date} nowrap>
                                                                                                 <span className='notranslate'>
 
@@ -4935,7 +4944,7 @@ const Account = () => {
                                                                                         </td>
                                                                                         {!isMobile && (
                                                                                             (order.status !== "Canceled") && (
-                                                                                                <td className="order-details" style={{
+                                                                                                <td className="order-details px-3 py-2" style={{
                                                                                                     width: "400px",
                                                                                                     whiteSpace: "nowrap", textAlign: "right"
                                                                                                 }}
@@ -5094,6 +5103,7 @@ const Account = () => {
                                                                     })}
                                                                 </tbody>
                                                             </table>
+                                                            </div>
                                                         </LazyLoad>
 
                                                     </div>
