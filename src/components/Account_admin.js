@@ -4877,7 +4877,7 @@ const Account = () => {
                                                                     </div>
 
                                                                     {/* Separator */}
-                                                                    <div className="w-px h-6 bg-gray-300 mx-2"></div>
+                                                                    {/* <div className="w-px h-6 bg-gray-300 mx-2"></div> */}
 
                                                                     {/* Test Data Group - Commented out for production */}
                                                                     {/* <div className="flex items-center gap-3 flex-shrink-0">
