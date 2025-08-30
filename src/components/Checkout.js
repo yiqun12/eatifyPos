@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom';
 import firebase from 'firebase/compat/app';
 import { loadStripe } from '@stripe/stripe-js';
 import useGeolocation from './useGeolocation';
+import useSharedCart from '../hooks/useSharedCart';
 
 import { useUserContext } from "../context/userContext";
 import { useEffect } from 'react';
@@ -915,6 +916,32 @@ function PayHistory(props) {
 
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
 
+  const tableValue = params.get('table')?.trim(); // Get table parameter
+  
+  // Check if this is a customer scan-to-order scenario (has both store and table params)
+  const isCustomerScanOrder = store && tableValue && store.trim() !== '' && tableValue.trim() !== '';
+  
+  // Initialize shared cart for customer scan orders
+  const sharedCart = useSharedCart(isCustomerScanOrder ? store : null, isCustomerScanOrder ? tableValue : null);
+
+  // Function to clear cart after successful payment
+  const clearCartAfterPayment = async () => {
+    // Clear sessionStorage
+    sessionStorage.removeItem(store);
+    
+    // Clear shared cart if it's a customer scan order
+    if (isCustomerScanOrder && sharedCart.isSharedCart) {
+      try {
+        await sharedCart.clearCart();
+        console.log("Shared cart cleared after successful payment");
+        // Wait a moment to ensure other clients receive the update
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.error("Error clearing shared cart:", error);
+      }
+    }
+  };
+
 
   const { user, user_loading } = useUserContext();
   const { totalPrice, tips, isDineIn, deliveryFee, products } = props;
@@ -1071,7 +1098,7 @@ function PayHistory(props) {
         .doc(user.uid)
         .collection('payments')
         .doc(props.receiptToken) // Referencing the specific document by its ID
-        .onSnapshot((doc) => {
+        .onSnapshot(async (doc) => {
 
 
           const payment = doc.data();
@@ -1093,7 +1120,7 @@ function PayHistory(props) {
             content = `🚨 ` + t("Creating Payment");
 
           } else if (payment.status === 'succeeded') {
-            sessionStorage.removeItem(store);
+            await clearCartAfterPayment();
             window.location.href = '/store?store=' + store + '&order=' + doc.id + '&modal=true'
             //+ "&table=" + sessionStorage.getItem("table");
           } else if (payment.status === 'requires_action') {
@@ -1199,11 +1226,11 @@ function PayHistory(props) {
       await paymentRef.set(payment, { merge: true });
 
       // Listen to updates
-      paymentRef.onSnapshot((docSnapshot) => {
+      paymentRef.onSnapshot(async (docSnapshot) => {
         const payment = docSnapshot.data();
         //const card = payment.charges.data[0].payment_method_details.card;
         if (payment.status === "succeeded") {
-          sessionStorage.removeItem(store);
+          await clearCartAfterPayment();
           window.location.href = '/store?store=' + store + '&order=' + docId + '&modal=true' + kioskHash;
 
         }
@@ -1243,6 +1270,7 @@ function PayHistory(props) {
     return Value * Math.PI / 180;
   }
   const [distanceStatus, setDistanceStatus] = useState("far"); // 'near' or 'far'
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false); // prevent duplicate submissions
 
   function checkgeolocation() {
 
@@ -1265,6 +1293,7 @@ function PayHistory(props) {
   }
 
   const PendingDineInOrder = async (table, name) => {
+    if (isSubmittingOrder) return; // guard
     document
       .querySelectorAll('button')
       .forEach((button) => (button.disabled = true));
@@ -1290,7 +1319,7 @@ function PayHistory(props) {
       document
         .querySelectorAll('button')
         .forEach((button) => (button.disabled = false));
-      sessionStorage.removeItem(store)
+      await clearCartAfterPayment();
       window.location.href = '/store?' + 'docId=' + result.data.docId + '&store=' + store + '&modal=true' + kioskHash;
 
       return result;
@@ -1356,13 +1385,28 @@ function PayHistory(props) {
       {/* {true ?
         <button
           class="text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
-          style={{ "borderRadius": "0.2rem", width: "100%" }}
-          onClick={() => {
-            checkgeolocation();
-            PendingDineInOrder(sessionStorage.getItem('table'), user.displayName)
+          style={{ borderRadius: "0.2rem", width: "100%", position: "relative", whiteSpace: "nowrap" }}
+          disabled={isSubmittingOrder}
+          onClick={async () => {
+            if (isSubmittingOrder) return;
+            setIsSubmittingOrder(true);
+            try {
+              checkgeolocation();
+              await PendingDineInOrder(sessionStorage.getItem('table'), user.displayName);
+            } catch (e) {
+              setIsSubmittingOrder(false);
+            }
           }}>
 
-          {t("Place Order, Pay At Front Desk")}
+          {t("Place Order, Pay At Front Desk0")}
+          {isSubmittingOrder ? (
+            <svg style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)' }} width="16" height="16" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-label="loading">
+              <circle cx="25" cy="25" r="20" fill="none" strokeWidth="5" stroke="#ffffff" strokeOpacity="0.3" />
+              <circle cx="25" cy="25" r="20" fill="none" strokeWidth="5" stroke="#ffffff">
+                <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.8s" repeatCount="indefinite" />
+              </circle>
+            </svg>
+          ) : null}
         </button>
 
         : <div>
@@ -1417,21 +1461,35 @@ function PayHistory(props) {
             storeID={store} chargeAmount={parseFloat(totalPrice)} connected_stripe_account_id={JSON.parse(sessionStorage.getItem("TitleLogoNameContent")).stripe_store_acct}
             service_fee={0} selectedTable={'点餐机kiosk'} /> : null
       } */}
-      {/* {isKiosk ?
+      {isKiosk ?
         <button
           class="text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2"
-          style={{ "borderRadius": "0.2rem", width: "100%" }}
-          onClick={() => {
-            PendingDineInOrder(sessionStorage.getItem('table'), user.displayName)
+          style={{ borderRadius: "0.2rem", width: "100%", position: "relative", whiteSpace: "nowrap" }}
+          disabled={isSubmittingOrder}
+          onClick={async () => {
+            if (isSubmittingOrder) return;
+            setIsSubmittingOrder(true);
+            try {
+              await PendingDineInOrder(sessionStorage.getItem('table'), user.displayName);
+            } catch (e) {
+              setIsSubmittingOrder(false);
+            }
           }}>
 
           {t("Place Order, Pay At Front Desk")}
+          {isSubmittingOrder ? (
+            <svg style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)' }} width="16" height="16" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-label="loading">
+              <circle cx="25" cy="25" r="20" fill="none" strokeWidth="5" stroke="#ffffff" strokeOpacity="0.3" />
+              <circle cx="25" cy="25" r="20" fill="none" strokeWidth="5" stroke="#ffffff">
+                <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.8s" repeatCount="indefinite" />
+              </circle>
+            </svg>
+          ) : null}
         </button>
 
         : <div>
-        </div>} */}
-      {/* 
-      {location ? (
+        </div>}
+      {checkgeolocation() || location ? (
         distanceStatus === 'near' ? (
           <div>
 
@@ -1441,13 +1499,28 @@ function PayHistory(props) {
             ) ?
               <button
                 class="text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2"
-                style={{ "borderRadius": "0.2rem", width: "100%" }}
-                onClick={() => {
-                  PendingDineInOrder(sessionStorage.getItem('table'), user.displayName)
+                style={{ borderRadius: "0.2rem", width: "100%", position: "relative", whiteSpace: "nowrap" }}
+                disabled={isSubmittingOrder}
+                onClick={async () => {
+                  if (isSubmittingOrder) return;
+                  setIsSubmittingOrder(true);
+                  try {
+                    await PendingDineInOrder(sessionStorage.getItem('table'), user.displayName);
+                  } catch (e) {
+                    setIsSubmittingOrder(false);
+                  }
                 }}>
 
                 {t("Place Order, Pay At Front Desk")}
-              </button>
+                {isSubmittingOrder ? (
+                  <svg style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)' }} width="16" height="16" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-label="loading">
+                    <circle cx="25" cy="25" r="20" fill="none" strokeWidth="5" stroke="#ffffff" strokeOpacity="0.3" />
+                    <circle cx="25" cy="25" r="20" fill="none" strokeWidth="5" stroke="#ffffff">
+                      <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.8s" repeatCount="indefinite" />
+                    </circle>
+                  </svg>
+                ) : null}
+                </button>
 
               : <div>
               </div>
@@ -1463,7 +1536,7 @@ function PayHistory(props) {
         <div>
           Loading...
         </div>
-      )} */}
+      )}
 
       <div style={{ display: 'flex', marginTop: "10px" }}>
         <img style={{ height: '35px', width: 'auto' }} src={discover} alt="Discover" />
