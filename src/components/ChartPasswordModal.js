@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 export const ChartPasswordModal = ({ isOpen, onClose, onVerify }) => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (password === '1234') {
@@ -15,11 +15,11 @@ export const ChartPasswordModal = ({ isOpen, onClose, onVerify }) => {
             setError('Incorrect password, please try again');
         }
     };
-    
+
     if (!isOpen) return null;
-    
+
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
             <div className="bg-white p-6 rounded-lg w-80">
                 <h3 className="text-xl font-bold mb-4">Enter Password to View Chart</h3>
                 <form onSubmit={handleSubmit}>
@@ -54,4 +54,4 @@ export const ChartPasswordModal = ({ isOpen, onClose, onVerify }) => {
     );
 };
 
-export default ChartPasswordModal; 
+export default ChartPasswordModal;

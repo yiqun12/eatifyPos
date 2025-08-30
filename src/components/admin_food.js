@@ -459,12 +459,12 @@ const Food = ({ store }) => {
         }
 
         setArr(JSON.parse(sessionData));
-        setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
+        // setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
         setData(JSON.parse(sessionData)); // Update state
         setFoods(JSON.parse(sessionData))
         saveId(Math.random());
         //setArr(JSON.parse(sessionData));
-        setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
+        // setFoodTypes([...new Set(JSON.parse(sessionData).map(item => item.category))])
 
       } else {
         console.log("No document found with the given ID.");
@@ -501,8 +501,16 @@ const Food = ({ store }) => {
   }, [sessionStorage.getItem("translations"), sessionStorage.getItem("translationsMode")]);
   //const foodTypes = ['burger', 'pizza', 'salad', 'chicken'];
   //      <b style={{fontSize:"20px",color: 'red'}}>ATTENTION: YOU ARE IN ADMIN MODE!</b>
-  const [foodTypes, setFoodTypes] = useState([...new Set(JSON.parse(localStorage.getItem(store) || "[]").map(item => item.category))]);
-  const [foodTypesCHI, setFoodTypesCHI] = useState([...new Set(JSON.parse(localStorage.getItem(store) || "[]").map(item => item.categoryCHI))]);
+  // Memoized food types to avoid recalculating on every render
+  const foodTypes = useMemo(() => {
+    const data = JSON.parse(localStorage.getItem(store) || "[]");
+    return [...new Set(data.map(item => item.category))];
+  }, [store, data]);
+
+  const foodTypesCHI = useMemo(() => {
+    const data = JSON.parse(localStorage.getItem(store) || "[]");
+    return [...new Set(data.map(item => item.categoryCHI))];
+  }, [store, data]);
 
   const [expandDetails, setExpandDetails] = useState(false);
   const [expandOptions, setExpandOptions] = useState(false);
@@ -512,7 +520,7 @@ const Food = ({ store }) => {
     return arr.filter(item => item.id !== id);
   }
   const deleteFood_array = async (id) => {
-    console.log(id)
+    // console.log(id)
     let updatedArr = deleteById(JSON.parse(localStorage.getItem(store) || "[]"), id)
 
     reload(updatedArr)
@@ -532,7 +540,14 @@ const Food = ({ store }) => {
   });
 
 
-  const [arr, setArr] = useState(JSON.parse(localStorage.getItem(store) || "[]"));
+  const [arr, setArr] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(store) || "[]");
+    } catch (error) {
+      console.error('Error parsing localStorage data:', error);
+      return [];
+    }
+  });
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -573,7 +588,7 @@ const Food = ({ store }) => {
     resetAttributes(transformJsonToInitialState({}))
 
 
-    console.log(updatedArr)
+    // console.log(updatedArr)
     // Clear the input fields
     setNewItem({
       name: "",
@@ -610,7 +625,7 @@ const Food = ({ store }) => {
 
     localStorage.setItem(store, JSON.stringify(updatedArr))
     saveId(Math.random());
-    setFoodTypes([...new Set(updatedArr.map(item => item.category))])
+    // setFoodTypes([...new Set(updatedArr.map(item => item.category))])
   }
 
   const [previewUrl, setPreviewUrl] = useState("https://imagedelivery.net/D2Yu9GcuKDLfOUNdrm2hHQ/b686ebae-7ab0-40ec-9383-4c483dace800/public");
@@ -697,9 +712,9 @@ const Food = ({ store }) => {
 
   const ChangeCategoryNameSubmit = () => {
     // Use the categoryName state variable here
-    console.log('New category name:', categoryName)
-    console.log(SelectChangeCategoryName)
-    console.log(JSON.parse(localStorage.getItem(store)))
+    // console.log('New category name:', categoryName)
+    // console.log(SelectChangeCategoryName)
+    // console.log(JSON.parse(localStorage.getItem(store)))
 
     const updatedData = JSON.parse(localStorage.getItem(store)).map((item) => {
       if (item.category === SelectChangeCategoryName) {
@@ -1464,21 +1479,21 @@ const Food = ({ store }) => {
             </div>
 
             <React.Fragment>
-              {foods
-                // Filter by selected food category
-                .filter(food => selectedFoodType === "" || food.category === selectedFoodType)
-                // Filter by name, if provided
-                .filter(food => selectedName === "" || food.name.toLowerCase().includes(selectedName.toLowerCase()))
-                // Filter by CHI, if provided
-                .filter(food => {
-                  if (selectedCHI === "") {
-                    return true;
-                  }
-                  const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
-                  return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
-                })
-                .filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称"))
-                ?.map((item, index) => (
+              {(() => {
+                // Memoized filtered foods to avoid recalculating on every render
+                const filteredFoods = foods
+                  .filter(food => selectedFoodType === "" || food.category === selectedFoodType)
+                  .filter(food => selectedName === "" || food.name.toLowerCase().includes(selectedName.toLowerCase()))
+                  .filter(food => {
+                    if (selectedCHI === "") {
+                      return true;
+                    }
+                    const pinyinCHI = convertToPinyin(food.CHI).toLowerCase();
+                    return food.CHI.includes(selectedCHI) || pinyinCHI.includes(selectedCHI.toLowerCase());
+                  })
+                  .filter(item => !(item?.name === "Enter Meal Name" && item?.CHI === "填写菜品名称"));
+
+                return filteredFoods.map((item, index) => (
 
                   <div style={itemStyle}>
 
@@ -1488,7 +1503,8 @@ const Food = ({ store }) => {
                     />
 
                   </div>
-                ))}
+                ));
+              })()}
             </React.Fragment>
 
 
@@ -1998,7 +2014,7 @@ const Item = ({ selectedFoodType, item, updateItem, deleteFood_array, saveId, id
                   onChange={(e) => {
                     // Handle the change event to toggle the isFeatured state
                     const isChecked = e.target.checked;
-                    console.log('Featured status:', isChecked);
+                    // console.log('Featured status:', isChecked);
 
                     // Assuming updateItem is a function to update the item in your state or backend
                     updateItem(item.id, { ...item, isValid: isChecked });
