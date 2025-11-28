@@ -260,6 +260,18 @@ function PayFullhistory() {
                                   </div>
                                 </div>
                               ))}
+                              {order.metadata.discount && parseFloat(order.metadata.discount) > 0 && (
+                                <div className=" flex justify-between">
+                                  <p className="mb-1 text-orange-700 d-block text-base font-semibold">{t("Discount")}</p>
+                                  <p className="mb-1 text-orange-700 d-block text-base font-semibold notranslate">${(Math.round(order.metadata.discount * 100) / 100).toFixed(2)}</p>
+                                </div>
+                              )}
+                              {order.metadata.memberBalanceUsed && parseFloat(order.metadata.memberBalanceUsed) > 0 && (
+                                <div className=" flex justify-between">
+                                  <p className="mb-1 text-green-600 d-block text-base font-semibold">💳 {t("Member Balance Used")}</p>
+                                  <p className="mb-1 text-green-600 d-block text-base font-semibold notranslate">-${(Math.round(order.metadata.memberBalanceUsed * 100) / 100).toFixed(2)}</p>
+                                </div>
+                              )}
                               <div className=" flex justify-between">
                                 <p className="mb-1 text-orange-700 d-block text-base font-semibold">{t("Subtotal")}</p>
                                 <p className="mb-1 text-orange-700 d-block text-base font-semibold notranslate">${(Math.round(order.metadata.subtotal * 100) / 100).toFixed(2)}</p>
