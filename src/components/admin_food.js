@@ -1128,6 +1128,29 @@ const Food = ({ store }) => {
           </div>
 
         </div>
+
+        {/* Table Start Item Hint */}
+        <div className='mt-3 mb-3 p-3' style={{ 
+          backgroundColor: '#e7f3ff', 
+          borderLeft: '4px solid #2196F3',
+          borderRadius: '4px',
+          fontSize: '0.9rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <i className="bi bi-info-circle-fill text-blue-600" style={{ fontSize: '1.2rem', flexShrink: 0 }}></i>
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+              <strong style={{ marginRight: '6px' }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? 
+                "开台功能提示：" : 
+                "Table Start Feature:"
+              }</strong>
+              <span>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? 
+                "请确保创建一个中文名称包含\"开台\"的商品（例如：\"开台xx\"、\"xx开台\" 等），价格设为 0。该商品将用于开台计时功能。" : 
+                "Please ensure you create an item with Chinese name (CHI field) containing '开台' (e.g., '开台xx', 'xx开台'), set price to 0. This item is required for the table timing feature."
+              }</span>
+            </div>
+          </div>
+        </div>
+
         <LazyLoad height={762}>
 
 
