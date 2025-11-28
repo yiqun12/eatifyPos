@@ -699,7 +699,7 @@ const Account = () => {
     }
 
 
-    const [selectedTime, setSelectedTime] = useState("00-00"); // Default value as 00-00
+    const [selectedTime, setSelectedTime] = useState("05-00"); // Default value as 05-00
 
     // Generate time options with a 30-minute interval
     const generateTimeOptions = () => {
@@ -720,7 +720,7 @@ const Account = () => {
 
     const timeOptions = generateTimeOptions();
 
-    const [currentTime, setCurrentTime] = useState("23-59"); // Default value as 00-00
+    const [currentTime, setCurrentTime] = useState("05-00"); // Default value as 05-00
 
     // Generate an array of time strings with 30-minute intervals
     const createTimeOptions = () => {
