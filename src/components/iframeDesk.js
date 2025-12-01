@@ -79,7 +79,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
         // Function to update height based on the viewport
         const updateHeight = () => {
             const vhInPx = window.innerHeight; // 100vh equivalent in pixels
-            setIframeHeight(vhInPx - 100); // Set the state to this value
+            setIframeHeight(vhInPx - 50); // Set the state to this value (reduced from 100px to 50px)
         };
 
         // Calculate height on mount
@@ -816,33 +816,33 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                     </div>
                                                 </div>
                                                 {!isPC ?
-                                                    <div key={view} className="modal-body p-0">
+                                                    <div key={view} className="modal-body p-0" style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
                                                         <div >
                                                             {view === true ?
                                                                 <div>
-                                                                    {/* 移动版购物车样式 */}
+                                                                    {/* Mobile shopping cart layout */}
                                                                     <div style={{
                                                                         padding: '1rem',
                                                                         borderBottom: '1px solid #dee2e6',
                                                                         marginBottom: '0.5rem'
                                                                     }}>
-                                                                        <InStore_shop_cart
-                                                                            OpenChangeAttributeModal={OpenChangeAttributeModal}
-                                                                            setOpenChangeAttributeModal={setOpenChangeAttributeModal}
-                                                                            store={store}
-                                                                            acct={acct}
-                                                                            selectedTable={selectedTable}
-                                                                            isAllowed={isAllowed}
-                                                                            setIsAllowed={setIsAllowed}
-                                                                            openSplitPaymentModal={openSplitPaymentModal}
-                                                                            TaxRate={TaxRate}
-                                                                            startTime={`1744625303617`}
-                                                                            
-                                                                        />
+                                                                                                                                <InStore_shop_cart
+                                                            OpenChangeAttributeModal={OpenChangeAttributeModal}
+                                                            setOpenChangeAttributeModal={setOpenChangeAttributeModal}
+                                                            store={store}
+                                                            acct={acct}
+                                                            selectedTable={selectedTable}
+                                                            isAllowed={isAllowed}
+                                                            setIsAllowed={setIsAllowed}
+                                                            openSplitPaymentModal={openSplitPaymentModal}
+                                                            TaxRate={TaxRate}
+                                                            startTime={`1744625303617`}
+                                                            isViewOrdersMode={true}
+                                                        />
                                                                     </div>
-                                                                    {/* 移动版菜单样式 */}
+                                                                    {/* Mobile menu layout */}
                                                                     <div style={{
-                                                                        backgroundColor: '#ffffff', // 白色背景
+                                                                        backgroundColor: '#ffffff', // White background
                                                                         padding: '1rem'
                                                                     }}>
                                                                         <InStore_food
@@ -859,7 +859,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                                 </div>
                                                                 :
                                                                 <div style={{
-                                                                    backgroundColor: '#ffffff', // 白色背景
+                                                                    backgroundColor: '#ffffff', // White background
                                                                     padding: '1rem'
                                                                 }}>
                                                                     <InStore_food
@@ -879,7 +879,7 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
 
 
                                                     :
-                                                    <div className="modal-body flex p-0" style={{ minHeight: 'calc(100vh - 150px)' }} >
+                                                    <div className="modal-body flex p-0" style={{ minHeight: 'calc(100vh - 120px)' }} >
 
                                                         <div
                                                             className={`${isPC ? 'w-2/3' : 'w-1/2'}`} style={{

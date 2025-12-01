@@ -74,8 +74,18 @@ import { DateTime } from 'luxon';
 import { lookup } from 'zipcode-to-timezone';
 import EmailVerificationModal from './EmailVerificationModal'; // Import the new modal
 import ChartPasswordModal from './ChartPasswordModal'; // Import the chart password modal
+import MemberDashboard from './Member/MemberDashboard'; // Import Member Dashboard
+import MemberErrorBoundary from './Member/ErrorBoundary'; // Import Error Boundary
 registerLocale('zh-CN', zhCN);
 
+// Direct Member Management Component with Error Boundary
+const MemberManagementWrapper = ({ storeId }) => {
+    return (
+        <MemberErrorBoundary>
+            <MemberDashboard key={storeId} storeId={storeId} />
+        </MemberErrorBoundary>
+    );
+};
 
 // Initialize Firebase Functions
 const sendVerificationCodeFunction = firebase.functions().httpsCallable('sendVerificationCode');
@@ -258,6 +268,12 @@ const Account = () => {
         { input: "Online App", output: "在线应用程序" },
         { input: "Cash Gratuity", output: "现金小费" },
         { input: "Gratuity", output: "小费" },
+        { input: "Payment Methods", output: "支付方式" },
+        { input: "Cash Payment", output: "现金支付" },
+        { input: "Mixed Payment", output: "混合支付" },
+        { input: "Member Balance", output: "会员余额" },
+        { input: "Member Balance Used", output: "会员余额使用" },
+        { input: "Card Payment", output: "信用卡支付" },
         { input: "Revenue", output: "收入" },
         { input: "Subtotal", output: "小计" },
         { input: "Tax", output: "税" },
@@ -1156,7 +1172,7 @@ const Account = () => {
 
 
 
-    const COLORS = ['#0088FE', '#00C49F', '#FF8042', '#9e2820', '#000000'];
+    const COLORS = ['#0088FE', '#00C49F', '#FF8042', '#9e2820', '#000000', '#8B5CF6'];
 
     const RADIAN = Math.PI / 180;
 
@@ -1468,6 +1484,9 @@ const Account = () => {
                 case '#settings':
                     redirectSettings(partAfterQuestionMark);
                     break;
+                case '#member':
+                    redirectMember(partAfterQuestionMark);
+                    break;
                 // Add more cases for other hash values as needed...
 
                 // this default is for the storeName cases
@@ -1739,6 +1758,55 @@ const Account = () => {
                 }
             }
             setShowSection('store')
+        }
+
+        // Redirect to member management page
+        async function redirectMember(partAfterQuestionMark) {
+            console.log("Checking password status for store: ", partAfterQuestionMark);
+            // Check if partAfterQuestionMark is like store=dnd21
+            if (partAfterQuestionMark && partAfterQuestionMark.includes('store=')) {
+                // Split partAfterQuestionMark by '=' to get the store value
+                const parts = partAfterQuestionMark.split('=');
+
+                // The second part of the resulting array (parts[1]) will be the store value
+                const storeValue = parts[1];
+
+                console.log("Member Management Store Value:", storeValue);
+
+                try {
+                    const storelist = await fetchStorelist();
+                    console.log("storelist: ", storelist);
+
+                    // Find the index of the object whose .Name matches storeValue
+                    const index = storelist.findIndex(data => data.id === storeValue);
+
+                    if (index !== -1) {
+                        // The object was found, you can access it using storelist[index]
+                        const selectedStore = storelist[index];
+
+                        // Now, you can perform actions with the selected store object
+                        console.log("Selected Store for Member Management:", selectedStore);
+
+                        // Set store context
+                        setActiveTab(`#${selectedStore.id}`);
+                        setActiveStoreTab(selectedStore.id);
+                        setStoreName_(selectedStore.Name);
+                        setStoreCHI_(selectedStore.storeNameCHI)
+                        setAmericanTimeZone(getTimeZoneByZip(selectedStore.ZipCode))
+                        setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(selectedStore.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
+                        setStoreID(selectedStore.id);
+                        setActiveStoreId(selectedStore.id)
+                        setStoreOpenTime(selectedStore.Open_time)
+                    } else {
+                        // The object with the specified Name was not found in the array
+                        console.log("Store not found in storelist for member management");
+                    }
+                } catch (error) {
+                    console.error("Error fetching storelist for member management:", error);
+                }
+            }
+            // Set section to member management instead of store
+            setShowSection('member')
         }
 
         // this redirect takes you to the store creation settings/page
@@ -3104,6 +3172,33 @@ const Account = () => {
                                                                         </a>
 
                                                                     </li> : null}
+
+                                                                {/* Member Management */}
+                                                                <li className={`nav-item border-b-0 p-0`}
+                                                                    onClick={() => {
+                                                                        setShowSection('member')
+                                                                        window.location.hash = `member?store=${data.id}`;
+                                                                        // Close sidebar on mobile after navigation
+                                                                        if (isMobile) {
+                                                                            setIsVisible(false);
+                                                                        }
+                                                                    }}
+                                                                    style={{ width: "80%", margin: "auto", border: "0px" }}
+                                                                >
+                                                                    <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `member` ? 'active' : ''}`} style={{ marginRight: "0", border: "0px" }}>
+                                                                        <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-badge" viewBox="0 0 16 16">
+                                                                                <path d="M6.5 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                                                                <path d="M4.5 0A2.5 2.5 0 0 0 2 2.5V14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2.5A2.5 2.5 0 0 0 11.5 0h-7zM3 2.5A1.5 1.5 0 0 1 4.5 1h7A1.5 1.5 0 0 1 13 2.5v10.795a4.2 4.2 0 0 0-.776-.492C11.392 12.387 10.063 12 8 12s-3.392.387-4.224.803a4.2 4.2 0 0 0-.776.492V2.5z"/>
+                                                                            </svg>
+                                                                        </i>
+                                                                        <span style={{ marginLeft: "5%" }}>
+                                                                            {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                                                                                "会员管理" : "Member Management"
+                                                                            }
+                                                                        </span>
+                                                                    </a>
+                                                                </li>
                                                             </React.Fragment>
                                                         }
 
@@ -3484,6 +3579,11 @@ const Account = () => {
                                                             sortedData={notificationData}
                                                             setSortedData={setNotificationData} />
                                                     </div> : <div></div>
+                                                    }
+
+                                                    {showSection === 'member' ?
+                                                        <MemberManagementWrapper storeId={data.id} key={data.id} />
+                                                    : <div></div>
                                                     }
 
                                                     {showSection === 'store' ? <div>
@@ -4420,10 +4520,11 @@ const Account = () => {
                                                                                             accumulator.discount += parseFloat(receipt.metadata.discount);
                                                                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                                                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
                                                                                             //accumulator.total += parseFloat(receipt.total);
                                                                                             return accumulator;
                                                                                         },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
                                                                                     ).subtotal * 100) / 100
                                                                                 },
                                                                                 {
@@ -4434,10 +4535,11 @@ const Account = () => {
                                                                                             accumulator.discount += parseFloat(receipt.metadata.discount);
                                                                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                                                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
                                                                                             //accumulator.total += parseFloat(receipt.total);
                                                                                             return accumulator;
                                                                                         },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
                                                                                     ).tax * 100) / 100
                                                                                 }, {
                                                                                     name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Cash Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
@@ -4447,10 +4549,11 @@ const Account = () => {
                                                                                             accumulator.discount += parseFloat(receipt.metadata.discount);
                                                                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                                                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
                                                                                             //accumulator.total += parseFloat(receipt.total);
                                                                                             return accumulator;
                                                                                         },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
                                                                                     ).tips * 100) / 100
                                                                                 },
                                                                                 {
@@ -4461,10 +4564,11 @@ const Account = () => {
                                                                                             accumulator.discount += parseFloat(receipt.metadata.discount);
                                                                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                                                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            //accumulator.total += parseFloat(receipt.total);
+                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
+                                                                                            //accumulator.total += parseFloat(receipt.metadata.subtotal);
                                                                                             return accumulator;
                                                                                         },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
                                                                                     ).service_fee * 100) / 100
                                                                                 },
                                                                                 {
@@ -4475,11 +4579,27 @@ const Account = () => {
                                                                                             accumulator.discount += parseFloat(receipt.metadata.discount);
                                                                                             accumulator.tax += parseFloat(receipt.metadata.tax);
                                                                                             accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
                                                                                             //accumulator.total += parseFloat(receipt.total);
                                                                                             return accumulator;
                                                                                         },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
+                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
                                                                                     ).discount * 100) / 100
+                                                                                },
+                                                                                {
+                                                                                    name: fanyi('Member Balance Used'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                                                                        (accumulator, receipt) => {
+                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
+                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
+                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
+                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
+                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
+                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
+                                                                                            //accumulator.total += parseFloat(receipt.total);
+                                                                                            return accumulator;
+                                                                                        },
+                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
+                                                                                    ).memberBalanceUsed * 100) / 100
                                                                                 },
                                                                             ]}
                                                                             labelLine={false}
@@ -4567,10 +4687,11 @@ const Account = () => {
                                                                         {isMobile ? (
                                                                             <Legend verticalAlign="top" content={renderLegend} />
                                                                         ) : (
-                                                                            <Legend layout="vertical" align="right" verticalAlign="top" content={renderLegend} />
+                                                                            <Legend layout="vertical" align="right" verticalAlign="top" content={renderLegend} wrapperStyle={{ paddingLeft: '30px' }} />
                                                                         )}
                                                                     </PieChart>
                                                                 )}
+
 
                                                                 {!isMobile && !isChartPasswordVerified && (
                                                                     <div className="flex justify-center items-center p-4">
@@ -4856,7 +4977,9 @@ const Account = () => {
                                                                                         <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
                                                                                         <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className=" amount">
                                                                                             <span className='notranslate'>
-                                                                                                {"$" + roundToTwoDecimalsTofix(order.total)}
+                                                                                                {"$" + roundToTwoDecimalsTofix(
+                                                                                                    order.total + (parseFloat(order?.metadata?.memberBalanceUsed || 0))
+                                                                                                )}
                                                                                             </span>
 
                                                                                             <span style={{ color: 'red' }}>
@@ -4932,7 +5055,7 @@ const Account = () => {
                                                                                                     >
                                                                                                         {fanyi("Add Cash Tips")}
                                                                                                     </button>
-                                                                                                    <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
+                                                                                                    <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, (order.total + (parseFloat(order?.metadata?.memberBalanceUsed || 0))), order.metadata.tips)}>
 
                                                                                                         Print Receipt
                                                                                                     </button>
@@ -4965,7 +5088,7 @@ const Account = () => {
                                                                                                                 >
                                                                                                                     {fanyi("Add Cash Tips")}
                                                                                                                 </button>
-                                                                                                                <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
+                                                                                                                <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, (order.total + (parseFloat(order?.metadata?.memberBalanceUsed || 0))), order.metadata.tips)}>
 
                                                                                                                     Print Receipt
                                                                                                                 </button>
@@ -4994,12 +5117,12 @@ const Account = () => {
                                                                                                         {JSON.parse(order.receiptData).map((item, index) => (
                                                                                                             <div className="receipt-item" key={item.id}>
                                                                                                                 <p className='notranslate'>
-                                                                                                                    {(/^#@%\d+#@%/.test(item?.name)) ? 
+                                                                                                                    {(/^#@%\d+#@%/.test(item?.name)) ?
                                                                                                                     localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")
                                                                                                                      ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
-                                                                                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") 
-                                                                                                                        ? t(item?.CHI) : (item?.name)} 
-                                                                                                                        {Object.entries(item?.attributeSelected || {}).length > 0 ? 
+                                                                                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")
+                                                                                                                        ? t(item?.CHI) : (item?.name)}
+                                                                                                                        {Object.entries(item?.attributeSelected || {}).length > 0 ?
                                                                                                                         "(" + Object.entries(item?.attributeSelected).map(([key, value]) => {
                                                                                                                             // 如果是开台商品的特殊属性，显示友好的信息
                                                                                                                             if (key === '开台商品') {
@@ -5024,7 +5147,7 @@ const Account = () => {
                                                                                                                                         }
                                                                                                                                     }
                                                                                                                                     // 如果格式不符或已经是格式化后的，直接返回值
-                                                                                                                                    return itemValue; 
+                                                                                                                                    return itemValue;
                                                                                                                                 }
                                                                                                                             }
                                                                                                                             return Array.isArray(value) ? value.join(' ') : value
@@ -5038,6 +5161,9 @@ const Account = () => {
                                                                                                         {order.status !== "Canceled" && (
                                                                                                             <>
                                                                                                                 <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.discount)}</span></p>
+                                                                                                                {order?.metadata?.memberBalanceUsed && (
+                                                                                                                    <p style={{color: '#059669'}}>Member Balance Used: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.memberBalanceUsed)}</span></p>
+                                                                                                                )}
                                                                                                                 <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.subtotal)}</span></p>
                                                                                                                 <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.service_fee)}</span></p>
                                                                                                                 <p>Tax: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.tax)}</span></p>
@@ -5120,27 +5246,27 @@ const renderLegend = (props) => {
         return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
     }
     return (
-        <ul>
+        <div style={{ transform: 'translateX(140px)', display: 'flex', justifyContent: 'flex-start', gap: '0' }}>
             {revenue !== 0 ? (
-                <div>
-                    <li key="revenue" style={{ fontWeight: 'bold', fontSize: '13px' }}>
-                        {fanyi("Revenue")}
-                        <span class='notranslate'> (${((revenue - (payload[4].payload.value * 2)).toFixed(2))})</span>
-                    </li>
-                    {payload.map((entry, index) => (
-                        <li key={`item-${index}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }} >
-                            {entry.value} <span class='notranslate'>(${entry.payload.value.toFixed(2)})</span>
-                        </li>
-                    ))}
-
-                </div>
+                <>
+                    {/* Left column - Revenue and first items except last 2 */}
+                    <div style={{ listStyle: 'none', flex: '1' }}>
+                        <li key="revenue" style={{ fontWeight: 'bold', fontSize: '13px' }}>{fanyi("Revenue")} <span class='notranslate'>(${((revenue - (payload[4].payload.value * 2)).toFixed(2))})</span></li>
+                        {payload.slice(0, -2).map((entry, index) => (
+                            <li key={`item-${index}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }}>{entry.value} <span class='notranslate'>(${entry.payload.value.toFixed(2)})</span></li>
+                        ))}
+                    </div>
+                    {/* Right column - Only Discount and Member Balance Used */}
+                    <div style={{ listStyle: 'none', flex: '1' }}>
+                        {payload.slice(-2).map((entry, index) => (
+                            <li key={`item-${index + payload.length - 2}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }}>{entry.value} <span class='notranslate'>(${entry.payload.value.toFixed(2)})</span></li>
+                        ))}
+                    </div>
+                </>
             ) : (
-                <li key="revenue">
-                    No Business Data On Date Range
-                </li>
+                <li key="revenue">No Business Data On Date Range</li>
             )}
-
-        </ul>
+        </div>
     );
 };
 

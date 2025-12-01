@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
+/**
+ * ItemSalesAnalytics Component
+ * 
+ * Analyzes sales data for individual items, including complete revenue from all payment methods.
+ * 
+ * Key Features:
+ * - Includes full revenue from both cash and member balance payments
+ * - Revenue = Complete Item Total Price (regardless of payment method)
+ * - This ensures that sales analytics reflect total sales value, not just cash received
+ */
 const ItemSalesAnalytics = ({ orders, dateRange }) => {
   const [sortBy, setSortBy] = useState('quantity'); // 'quantity', 'revenue', 'name'
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
@@ -107,14 +117,17 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
             };
           }
 
+          // Use full item revenue (including both cash and member balance portions)
+          const itemRevenue = parseFloat(item.itemTotalPrice || 0);
+
           // 累加主品
           mainStats[mainKey].quantity += actualQuantity;
-          mainStats[mainKey].revenue += parseFloat(item.itemTotalPrice || 0);
+          mainStats[mainKey].revenue += itemRevenue;
           mainStats[mainKey].orders += 1;
 
           // 累加变体
           mainStats[mainKey].variants[attributesKey].quantity += actualQuantity;
-          mainStats[mainKey].variants[attributesKey].revenue += parseFloat(item.itemTotalPrice || 0);
+          mainStats[mainKey].variants[attributesKey].revenue += itemRevenue;
           mainStats[mainKey].variants[attributesKey].orders += 1;
         });
       } catch (error) {
