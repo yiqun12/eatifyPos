@@ -55,6 +55,8 @@ import { lookup } from 'zipcode-to-timezone';
 
 import useGeolocation from '../components/useGeolocation';
 import Terminal from '../components/Terminal';
+import useSharedCart from '../hooks/useSharedCart';
+import ActiveUsersIndicator from '../components/ActiveUsersIndicator';
 // 定义一个变量来存储全局函数
 let handleOpenModalGlobal = () => {
   console.error("handleOpenModal has not been initialized.");
@@ -222,6 +224,8 @@ const Navbar = () => {
   const params = new URLSearchParams(window.location.search);
 
   const store = params.get('store') ? params.get('store').toLowerCase() : "";
+  const tableValue = params.get('table') ? params.get('table') : "";
+  
   /**listen to localtsorage */
   const { id, saveId } = useMyHook(null);
 
@@ -267,12 +271,48 @@ const Navbar = () => {
   };
 
   const [totalPrice, setTotalPrice] = useState(0);
+  const [hasBackendOrder, setHasBackendOrder] = useState(false);
 
   //console.log(user)
   ///shopping cart products
-  const [products, setProducts] = useState(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []);
+  
+  // Check if this is a customer scan-to-order scenario vs admin/backend scenario
+  // Admin scenario: has localStorage data with products (backend already placed order)
+  // Customer scenario: no localStorage data or empty (fresh scan)
+  const hasExistingLocalData = store && localStorage.getItem(store + "-" + tableValue) && 
+    JSON.parse(localStorage.getItem(store + "-" + tableValue)).length > 0;
+  
+  const isCustomerScanOrder = store && tableValue && 
+    store.trim() !== '' && tableValue.trim() !== '' && 
+    hasBackendOrder === false; // Only use shared cart if NO backend order
+  
+  // Use shared cart for customer scan-to-order, fallback to original localStorage for admin scenarios
+  const sharedCart = useSharedCart(isCustomerScanOrder ? store : null, isCustomerScanOrder ? tableValue : null);
+  
+  // Products state - prioritize existing localStorage data (admin orders), then shared cart, then empty
+  const [products, setProducts] = useState(() => {
+    // First priority: existing localStorage data (admin placed orders)
+    if (hasExistingLocalData) {
+      return JSON.parse(localStorage.getItem(store + "-" + tableValue));
+    }
+    // Second priority: shared cart for customer scan orders
+    if (isCustomerScanOrder && sharedCart.isSharedCart) {
+      return sharedCart.products;
+    }
+    // Fallback: sessionStorage or empty
+    return sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : [];
+  });
 
   const [totalQuant, setTotalQuant] = useState(0);
+  
+  // Sync shared cart products to local state (only for customer scan orders)
+  useEffect(() => {
+    if (isCustomerScanOrder && sharedCart.isSharedCart && !sharedCart.loading && hasBackendOrder === false) {
+      setProducts(sharedCart.products);
+    }
+  }, [sharedCart.products, sharedCart.loading, sharedCart.isSharedCart, isCustomerScanOrder, hasBackendOrder]);
+  
+
   useEffect(() => {
 
     //maybe add a line here...
@@ -290,45 +330,63 @@ const Navbar = () => {
     }
     calculateTotalQuant();
 
-    sessionStorage.setItem(store, JSON.stringify(products));
-  }, [products, width]);
+    // Only update sessionStorage for non-shared cart scenarios
+    if (!isCustomerScanOrder || !sharedCart.isSharedCart) {
+      sessionStorage.setItem(store, JSON.stringify(products));
+    }
+  }, [products, width, isCustomerScanOrder, sharedCart.isSharedCart]);
 
   const handleDeleteClick = (productId, count) => {
-    setProducts((prevProducts) => {
-      return prevProducts.filter((product) => product.count !== count);
-    });
+    // Use shared cart function only for customer scan orders without existing data
+    if (isCustomerScanOrder && sharedCart.isSharedCart && hasBackendOrder === false) {
+      sharedCart.handleDeleteClick(productId, count);
+    } else {
+      setProducts((prevProducts) => {
+        return prevProducts.filter((product) => product.count !== count);
+      });
+    }
   }
 
 
   const handlePlusClick = (productId, targetCount) => {
-    setProducts((prevProducts) => {
-      return prevProducts.map((product) => {
-        if (product.id === productId && product.count === targetCount) {
-          return {
-            ...product,
-            itemTotalPrice: Math.round(100 * product.itemTotalPrice / (product.quantity) * (Math.min(product.quantity + 1, 99))) / 100,
-            quantity: Math.min(product.quantity + 1, 99),
-          };
-        }
-        return product;
+    // Use shared cart function only for customer scan orders without existing data
+    if (isCustomerScanOrder && sharedCart.isSharedCart && hasBackendOrder === false) {
+      sharedCart.handlePlusClick(productId, targetCount);
+    } else {
+      setProducts((prevProducts) => {
+        return prevProducts.map((product) => {
+          if (product.id === productId && product.count === targetCount) {
+            return {
+              ...product,
+              itemTotalPrice: Math.round(100 * product.itemTotalPrice / (product.quantity) * (Math.min(product.quantity + 1, 99))) / 100,
+              quantity: Math.min(product.quantity + 1, 99),
+            };
+          }
+          return product;
+        });
       });
-    });
+    }
   };
 
   const handleMinusClick = (productId, targetCount) => {
-    setProducts((prevProducts) => {
-      return prevProducts.map((product) => {
-        if (product.id === productId && product.count === targetCount) {
-          // Constrain the quantity of the product to be at least 0
-          return {
-            ...product,
-            quantity: Math.max(product.quantity - 1, 1),
-            itemTotalPrice: Math.round(100 * product.itemTotalPrice / (product.quantity) * (Math.max(product.quantity - 1, 1))) / 100,
-          };
-        }
-        return product;
+    // Use shared cart function only for customer scan orders without existing data
+    if (isCustomerScanOrder && sharedCart.isSharedCart && hasBackendOrder === false) {
+      sharedCart.handleMinusClick(productId, targetCount);
+    } else {
+      setProducts((prevProducts) => {
+        return prevProducts.map((product) => {
+          if (product.id === productId && product.count === targetCount) {
+            // Constrain the quantity of the product to be at least 0
+            return {
+              ...product,
+              quantity: Math.max(product.quantity - 1, 1),
+              itemTotalPrice: Math.round(100 * product.itemTotalPrice / (product.quantity) * (Math.max(product.quantity - 1, 1))) / 100,
+            };
+          }
+          return product;
+        });
       });
-    });
+    }
   };
 
   // modal. 
@@ -337,6 +395,18 @@ const Navbar = () => {
   const spanRef = useRef(null);
   const [shoppingCartOpen, setShoppingCartOpen] = useState(false);
 
+  // Real-time sync when shopping cart modal is open
+  useEffect(() => {
+    console.log('meiguolao')
+    console.log(hasExistingLocalData)
+    if (shoppingCartOpen && isCustomerScanOrder && sharedCart.isSharedCart && hasBackendOrder === false) {
+      // Force update products when cart is open and shared cart changes
+      // Use groupAndSumItems to properly merge duplicate items
+      setProducts(groupAndSumItems(sharedCart.products));
+      console.log("Shopping cart modal updated with shared cart changes");
+    }
+  }, [sharedCart.products, shoppingCartOpen, isCustomerScanOrder, sharedCart.isSharedCart, hasBackendOrder]);
+
   const openModal = () => {
     if (user) {
       console.log(user)
@@ -344,7 +414,18 @@ const Navbar = () => {
     } else {
       return
     }
-    setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
+    
+    // Load products from appropriate source
+    if (hasBackendOrder === true) {
+      // Admin placed order - use localStorage
+      // Prefer products already set by backend listener; keep as is
+    } else if (isCustomerScanOrder && sharedCart.isSharedCart) {
+      // Customer scan order - use shared cart
+      setProducts(groupAndSumItems(sharedCart.products));
+    } else {
+      // Fallback - use sessionStorage
+      setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
+    }
     modalRef.current.style.display = 'block';
     setShoppingCartOpen(true)
     // Retrieve the array from local storage
@@ -367,7 +448,17 @@ const Navbar = () => {
       modalRef.current.style.display = 'none';
       setShoppingCartOpen(false)
 
-      setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
+      // Load products from appropriate source when closing modal
+      if (hasBackendOrder === true) {
+        // Admin placed order - use localStorage
+        // Keep products as set by backend listener
+      } else if (isCustomerScanOrder && sharedCart.isSharedCart) {
+        // Customer scan order - use shared cart
+        setProducts(groupAndSumItems(sharedCart.products));
+      } else {
+        // Fallback - use sessionStorage
+        setProducts(groupAndSumItems(sessionStorage.getItem(store) !== null ? JSON.parse(sessionStorage.getItem(store)) : []))
+      }
       setOpenCheckout(false)
       setAddNewAdress(false)
       setSuccessMessage('')
@@ -377,7 +468,6 @@ const Navbar = () => {
   const btnRef2 = useRef(null);
   const spanRef2 = useRef(null);
   const queryParams = new URLSearchParams(location.search);
-  const tableValue = params.get('table') ? params.get('table') : "";
 
 
   const [isDineIn, setIsDineIn] = useState(false);
@@ -557,17 +647,26 @@ const Navbar = () => {
     const unsubscribe = docRef.onSnapshot((snapshot) => {
       if (snapshot.exists) {
         const data = snapshot.data();
-        console.log(data.product)
+        const arr = (() => { try { return JSON.parse(data?.product || '[]'); } catch { return []; } })();
 
-        //sessionStorage.setItem("ReceiptDataDineIn", data.product)
-        if (JSON.parse(data.product).length > 0) {
-          setDirectoryType(true)
-          openModal()
-
-          setProducts(directoryType ? JSON.parse(data.product) : JSON.parse(sessionStorage.getItem(store)))
+        if (Array.isArray(arr) && arr.length > 0) {
+          // Clear shared cart via hook when backend order exists
+          if (sharedCart && sharedCart.isSharedCart && typeof sharedCart.clearCart === 'function') {
+            try { sharedCart.clearCart().catch(() => {}); } catch (e) { /* noop */ }
+            setProducts([]);
+          }
+          setHasBackendOrder(true);
+          setDirectoryType(true);
+          openModal();
+          setProducts(arr); // render backend order directly
+        } else {
+          setHasBackendOrder(false);
+          setDirectoryType(false);
         }
       } else {
         console.log("No such document!");
+        setHasBackendOrder(false);
+        setDirectoryType(false);
       }
     }, err => {
       console.error("Error getting document:", err);
@@ -1101,26 +1200,31 @@ const Navbar = () => {
 
 
   function groupAndSumItems(items) {
-    items.reverse();
-    const groupedItems = {};
-
-    items.forEach(item => {
-      // Create a unique key based on id and JSON stringified attributes
-      const key = `${item.id}-${JSON.stringify(item.attributeSelected)}`;
-
-      if (!groupedItems[key]) {
-        // If this is the first item of its kind, clone it (to avoid modifying the original item)
-        groupedItems[key] = { ...item };
+    const list = Array.isArray(items) ? items.slice() : [];
+    // Pure, stable aggregation without mutating input and with deterministic ordering
+    const groupedMap = new Map();
+    for (const item of list) {
+      const key = `${item.id}-${JSON.stringify(item.attributeSelected || {})}`;
+      if (!groupedMap.has(key)) {
+        groupedMap.set(key, { ...item });
       } else {
-        // If this item already exists, sum up the quantity and itemTotalPrice
-        groupedItems[key].quantity += item.quantity;
-        groupedItems[key].itemTotalPrice += item.itemTotalPrice;
-        // The count remains from the first item
+        const agg = groupedMap.get(key);
+        agg.quantity = (agg.quantity || 0) + (item.quantity || 0);
+        agg.itemTotalPrice = (parseFloat(agg.itemTotalPrice) || 0) + (parseFloat(item.itemTotalPrice) || 0);
       }
+    }
+    const result = Array.from(groupedMap.values());
+    // Deterministic sort to avoid flicker when snapshots arrive in different orders
+    result.sort((a, b) => {
+      const nameCmp = String(a.name || '').localeCompare(String(b.name || ''));
+      if (nameCmp !== 0) return nameCmp;
+      const idCmp = String(a.id).localeCompare(String(b.id));
+      if (idCmp !== 0) return idCmp;
+      const attrA = JSON.stringify(a.attributeSelected || {});
+      const attrB = JSON.stringify(b.attributeSelected || {});
+      return attrA.localeCompare(attrB);
     });
-
-    // Convert the grouped items object back to an array
-    return Object.values(groupedItems).reverse();
+    return result;
   }
 
 
@@ -1151,10 +1255,26 @@ const Navbar = () => {
             style={{ 'cursor': "pointer", "user-select": "none" }} onClick={openModal}>
 
             <div id="cart"
-              style={{ width: "60px", height: "60px", 'color': '#444444' }}
+              style={{ width: "60px", height: "60px", 'color': '#444444', position: 'relative' }}
               className="cart" data-totalitems={totalQuant} >
 
               <img src={cartImage} alt="Shopping Cart" />
+              
+              {/* Show active users indicator for shared cart (only for customer scan orders) */}
+              {/* {isCustomerScanOrder && sharedCart.isSharedCart && !hasExistingLocalData && (
+                <ActiveUsersIndicator
+                  activeUsers={sharedCart.activeUsers}
+                  isOnline={sharedCart.isOnline}
+                  isSharedCart={true}
+                  currentUserId={sharedCart.cartManager?.userId}
+                  style={{ 
+                    position: 'absolute', 
+                    top: '-10px', 
+                    right: '-60px',
+                    minWidth: '120px'
+                  }}
+                />
+              )} */}
 
             </div>
           </a>
