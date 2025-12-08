@@ -52,3 +52,35 @@
 - **Location**: ~Line 852
 - **Change**: Updated Consumption Records table header to use `t('Before Consumption Balance')` and `t('After Consumption Balance')`.
 - **Reason**: To display "消费前余额" and "消费后余额" in the Consumption Records table instead of "充值前余额" and "充值后余额".
+
+## 2025-12-05
+
+### e:\work\eatifyPos\src\components\Account_admin.js
+
+#### Function: renderLegend (Modified)
+- **Location**: ~Line 5137
+- **Change**: Refactored layout from flex-row with translateX to flex-column with left padding. Removed column splitting logic to display a single vertical list.
+- **Reason**: To align with the new UI design (Figure 2) where the legend is displayed as a vertical list above/left of the chart.
+
+#### Component: PieChart (Modified)
+- **Location**: ~Line 4415
+- **Change**: 
+    1. Changed `Pie` `cx` prop from `80` to `"50%"` to center the chart horizontally.
+    2. Updated `Legend` props to `layout="vertical"`, `align="left"`, `verticalAlign="top"` and removed conditional mobile rendering difference.
+    3. Increased `PieChart` height from `380` to `500` and set `Pie` `cy` to `300`.
+- **Reason**: To fix layout overlap between the vertical legend and the pie chart by increasing container height and pushing the pie chart downwards.
+
+#### Component: PieChart (Refactored)
+- **Location**: ~Line 4412-4594
+- **Change**:
+    1. Replaced redundant data processing (6 reduce calls) with a single aggregated calculation.
+    2. Defined local `CHART_COLORS` constant to fix undefined error.
+    3. Centered Pie chart (`cx="50%"`, `cy="50%"`).
+    4. Reduced `PieChart` height to `200px` to reduce blank space.
+    5. Integrated custom legend directly into the component.
+- **Reason**: To fix incomplete chart display, improve performance, resolve undefined variable errors, and reduce excessive blank space.
+
+#### JSX: Main Container (Modified)
+- **Location**: ~Line 3400
+- **Change**: Added `px-2` class to `card-body tab-content`.
+- **Reason**: To reduce the page margin/padding by half as requested.

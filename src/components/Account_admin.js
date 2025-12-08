@@ -272,7 +272,7 @@ const Account = () => {
         { input: "Cash Payment", output: "现金支付" },
         { input: "Mixed Payment", output: "混合支付" },
         { input: "Member Balance", output: "会员余额" },
-        { input: "Member Balance Used", output: "会员余额使用" },
+        { input: "Credit Used", output: "充值积分" },
         { input: "Card Payment", output: "信用卡支付" },
         { input: "Revenue", output: "收入" },
         { input: "Subtotal", output: "小计" },
@@ -3397,7 +3397,7 @@ const Account = () => {
 
                             <div style={{
                                 backgroundColor: 'white', // Set the background color to white
-                            }} className={`card-body tab-content pt-0 pb-0`} ref={elementRef}>
+                            }} className={`card-body tab-content pt-0 pb-0 px-2`} ref={elementRef}>
                                 {user_loading ?
                                     <div>
                                         Loading...
@@ -4411,190 +4411,75 @@ const Account = () => {
                                     purpose={purpose}
                                   />
                                 </div> */}
-                                                                {(isMobile || isChartPasswordVerified) && (
-                                                                    <PieChart className='notranslate' width={isMobile ? width2 / 2 : 300} height={250}>
-                                                                        <Pie
-                                                                            cx={80} // Move the pie to the left by adjusting the cx value
-                                                                            data={[
-                                                                                {
-                                                                                    name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                        (accumulator, receipt) => {
-                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
-                                                                                            //accumulator.total += parseFloat(receipt.total);
-                                                                                            return accumulator;
-                                                                                        },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
-                                                                                    ).subtotal * 100) / 100
-                                                                                },
-                                                                                {
-                                                                                    name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                        (accumulator, receipt) => {
-                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
-                                                                                            //accumulator.total += parseFloat(receipt.total);
-                                                                                            return accumulator;
-                                                                                        },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
-                                                                                    ).tax * 100) / 100
-                                                                                }, {
-                                                                                    name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Cash Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                        (accumulator, receipt) => {
-                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
-                                                                                            //accumulator.total += parseFloat(receipt.total);
-                                                                                            return accumulator;
-                                                                                        },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
-                                                                                    ).tips * 100) / 100
-                                                                                },
-                                                                                {
-                                                                                    name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                        (accumulator, receipt) => {
-                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
-                                                                                            //accumulator.total += parseFloat(receipt.metadata.subtotal);
-                                                                                            return accumulator;
-                                                                                        },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
-                                                                                    ).service_fee * 100) / 100
-                                                                                },
-                                                                                {
-                                                                                    name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                        (accumulator, receipt) => {
-                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
-                                                                                            //accumulator.total += parseFloat(receipt.total);
-                                                                                            return accumulator;
-                                                                                        },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
-                                                                                    ).discount * 100) / 100
-                                                                                },
-                                                                                {
-                                                                                    name: fanyi('Member Balance Used'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                        (accumulator, receipt) => {
-                                                                                            accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                            accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                            accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
-                                                                                            //accumulator.total += parseFloat(receipt.total);
-                                                                                            return accumulator;
-                                                                                        },
-                                                                                        { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 }
-                                                                                    ).memberBalanceUsed * 100) / 100
-                                                                                },
-                                                                            ]}
-                                                                            labelLine={false}
-                                                                            label={renderCustomizedLabel}
-                                                                            outerRadius={75}
-                                                                            fill="#8884d8"
-                                                                            dataKey="value"
-                                                                        >
-                                                                            {
-                                                                                [
-                                                                                    {
-                                                                                        name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Cash Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                            (accumulator, receipt) => {
-                                                                                                accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                                accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                                accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                                //accumulator.total += parseFloat(receipt.total);
-                                                                                                return accumulator;
-                                                                                            },
-                                                                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                        ).tips * 100) / 100
-                                                                                    },
-                                                                                    {
-                                                                                        name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                            (accumulator, receipt) => {
-                                                                                                accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                                accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                                accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                                //accumulator.total += parseFloat(receipt.total);
-                                                                                                return accumulator;
-                                                                                            },
-                                                                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                        ).service_fee * 100) / 100
-                                                                                    },
-                                                                                    {
-                                                                                        name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                            (accumulator, receipt) => {
-                                                                                                accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                                accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                                accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                                //accumulator.total += parseFloat(receipt.total);
-                                                                                                return accumulator;
-                                                                                            },
-                                                                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                        ).tax * 100) / 100
-                                                                                    },
-                                                                                    {
-                                                                                        name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                            (accumulator, receipt) => {
-                                                                                                accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                                accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                                accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                                //accumulator.total += parseFloat(receipt.total);
-                                                                                                return accumulator;
-                                                                                            },
-                                                                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                        ).subtotal * 100) / 100
-                                                                                    },
-                                                                                    {
-                                                                                        name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
-                                                                                            (accumulator, receipt) => {
-                                                                                                accumulator.tips += parseFloat(receipt.metadata.tips);
-                                                                                                accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
-                                                                                                accumulator.discount += parseFloat(receipt.metadata.discount);
-                                                                                                accumulator.tax += parseFloat(receipt.metadata.tax);
-                                                                                                accumulator.subtotal += parseFloat(receipt.metadata.subtotal);
-                                                                                                //accumulator.total += parseFloat(receipt.total);
-                                                                                                return accumulator;
-                                                                                            },
-                                                                                            { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
-                                                                                        ).discount * 100) / 100
-                                                                                    }
-                                                                                ].map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
-                                                                            }
-                                                                        </Pie>
-                                                                        <Tooltip />
-                                                                        {isMobile ? (
-                                                                            <Legend verticalAlign="top" content={renderLegend} />
-                                                                        ) : (
-                                                                            <Legend layout="vertical" align="right" verticalAlign="top" content={renderLegend} wrapperStyle={{ paddingLeft: '30px' }} />
-                                                                        )}
-                                                                    </PieChart>
-                                                                )}
+                                                                {(isMobile || isChartPasswordVerified) && (() => {
+                                                                    const aggregatedData = orders?.filter(order => order?.status.includes(order_status))
+                                                                        .filter(order => order?.tableNum.includes(order_table))
+                                                                        .reduce((accumulator, receipt) => {
+                                                                            accumulator.tips += parseFloat(receipt.metadata.tips || 0);
+                                                                            accumulator.service_fee += parseFloat(receipt.metadata.service_fee || 0);
+                                                                            accumulator.discount += parseFloat(receipt.metadata.discount || 0);
+                                                                            accumulator.tax += parseFloat(receipt.metadata.tax || 0);
+                                                                            accumulator.subtotal += parseFloat(receipt.metadata.subtotal || 0);
+                                                                            accumulator.memberBalanceUsed += parseFloat(receipt.metadata.memberBalanceUsed || 0);
+                                                                            return accumulator;
+                                                                        }, { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0, memberBalanceUsed: 0 });
+
+                                                                    const pieData = [
+                                                                        { name: fanyi('Subtotal'), value: Math.round(aggregatedData.subtotal * 100) / 100 },
+                                                                        { name: fanyi('Tax'), value: Math.round(aggregatedData.tax * 100) / 100 },
+                                                                        { name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Cash Gratuity"), value: Math.round(aggregatedData.tips * 100) / 100 },
+                                                                        { name: fanyi('Service Fee'), value: Math.round(aggregatedData.service_fee * 100) / 100 },
+                                                                        { name: fanyi('Discount'), value: Math.round(aggregatedData.discount * 100) / 100 },
+                                                                        { name: fanyi('Credit Used'), value: Math.round(aggregatedData.memberBalanceUsed * 100) / 100 }
+                                                                    ];
+
+                                                                    const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+                                                                    
+                                                                    const totalRevenue = pieData.reduce((sum, item) => sum + item.value, 0);
+                                                                    const discountValue = pieData[4].value; // Discount is at index 4
+                                                                    const displayRevenue = (totalRevenue - (discountValue * 2)).toFixed(2);
+
+                                                                    return (
+                                                                        <div className="flex flex-col items-center">
+                                                                            {/* Custom Legend */}
+                                                                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '5px', paddingLeft: '10px', width: '100%', marginBottom: '10px' }}>
+                                                                                {totalRevenue !== 0 ? (
+                                                                                    <>
+                                                                                        <li key="revenue" style={{ listStyle: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+                                                                                            {fanyi("Revenue")} <span className='notranslate'>(${displayRevenue})</span>
+                                                                                        </li>
+                                                                                        {pieData.map((entry, index) => (
+                                                                                            <li key={`item-${index}`} style={{ listStyle: 'none', color: CHART_COLORS[index % CHART_COLORS.length], fontWeight: 'bold', fontSize: '13px' }}>
+                                                                                                {entry.name} <span className='notranslate'>(${entry.value.toFixed(2)})</span>
+                                                                                            </li>
+                                                                                        ))}
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <li key="revenue" style={{ listStyle: 'none' }}>No Business Data On Date Range</li>
+                                                                                )}
+                                                                            </div>
+
+                                                                            {/* Pie Chart */}
+                                                                            <PieChart className='notranslate' width={isMobile ? (width2 ? width2 / 2 : 200) : 400} height={200}>
+                                                                                <Pie
+                                                                                    cx="50%"
+                                                                                    cy="50%"
+                                                                                    data={pieData}
+                                                                                    labelLine={false}
+                                                                                    label={renderCustomizedLabel}
+                                                                                    outerRadius={75}
+                                                                                    fill="#8884d8"
+                                                                                    dataKey="value"
+                                                                                >
+                                                                                    {pieData.map((entry, index) => (
+                                                                                        <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                                                                                    ))}
+                                                                                </Pie>
+                                                                                <Tooltip />
+                                                                            </PieChart>
+                                                                        </div>
+                                                                    );
+                                                                })()}
 
 
                                                                 {!isMobile && !isChartPasswordVerified && (
@@ -5052,7 +4937,7 @@ const Account = () => {
                                                                                                             <>
                                                                                                                 <p>Discount: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.discount)}</span></p>
                                                                                                                 {order?.metadata?.memberBalanceUsed && (
-                                                                                                                    <p style={{color: '#059669'}}>Member Balance Used: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.memberBalanceUsed)}</span></p>
+                                                                                                                    <p style={{color: '#059669'}}>Credit Used: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.memberBalanceUsed)}</span></p>
                                                                                                                 )}
                                                                                                                 <p>Subtotal: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.subtotal)}</span></p>
                                                                                                                 <p>Service fee: $ <span className='notranslate'>{roundToTwoDecimalsTofix(order?.metadata?.service_fee)}</span></p>
@@ -5136,25 +5021,16 @@ const renderLegend = (props) => {
         return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
     }
     return (
-        <div style={{ transform: 'translateX(140px)', display: 'flex', justifyContent: 'flex-start', gap: '0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '5px', paddingLeft: '10px' }}>
             {revenue !== 0 ? (
                 <>
-                    {/* Left column - Revenue and first items except last 2 */}
-                    <div style={{ listStyle: 'none', flex: '1' }}>
-                        <li key="revenue" style={{ fontWeight: 'bold', fontSize: '13px' }}>{fanyi("Revenue")} <span class='notranslate'>(${((revenue - (payload[4].payload.value * 2)).toFixed(2))})</span></li>
-                        {payload.slice(0, -2).map((entry, index) => (
-                            <li key={`item-${index}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }}>{entry.value} <span class='notranslate'>(${entry.payload.value.toFixed(2)})</span></li>
-                        ))}
-                    </div>
-                    {/* Right column - Only Discount and Member Balance Used */}
-                    <div style={{ listStyle: 'none', flex: '1' }}>
-                        {payload.slice(-2).map((entry, index) => (
-                            <li key={`item-${index + payload.length - 2}`} style={{ color: entry.color, fontWeight: 'bold', fontSize: '13px' }}>{entry.value} <span class='notranslate'>(${entry.payload.value.toFixed(2)})</span></li>
-                        ))}
-                    </div>
+                    <li key="revenue" style={{ listStyle: 'none', fontWeight: 'bold', fontSize: '13px' }}>{fanyi("Revenue")} <span class='notranslate'>(${((revenue - (payload[4].payload.value * 2)).toFixed(2))})</span></li>
+                    {payload.map((entry, index) => (
+                        <li key={`item-${index}`} style={{ listStyle: 'none', color: entry.color, fontWeight: 'bold', fontSize: '13px' }}>{entry.value} <span class='notranslate'>(${entry.payload.value.toFixed(2)})</span></li>
+                    ))}
                 </>
             ) : (
-                <li key="revenue">No Business Data On Date Range</li>
+                <li key="revenue" style={{ listStyle: 'none' }}>No Business Data On Date Range</li>
             )}
         </div>
     );

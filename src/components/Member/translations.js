@@ -324,7 +324,7 @@ export const memberTranslations = [
     { input: "Use Balance", output: "使用余额" },
     { input: "Member Balance", output: "会员余额" },
     { input: "Mixed Payment", output: "混合支付" },
-    { input: "Member Balance Payment", output: "会员余额支付" },
+    { input: "Credit Used", output: "使用积分" },
     { input: "Search Member", output: "搜索会员" },
     { input: "Phone Verification", output: "手机验证" },
     { input: "Set Amount", output: "设置金额" },
