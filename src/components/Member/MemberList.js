@@ -849,8 +849,8 @@ const MemberList = ({ onSelectMember, onEditMember, onRechargeMember, refreshTri
                         <div className="truncate">{t('Date & Time')}</div>
                         <div className="text-right">{t('Amount')}</div>
                         <div className="truncate">{t('Description')}</div>
-                        <div className="text-right">{t('Before Balance')}</div>
-                        <div className="text-right">{t('After Balance')}</div>
+                        <div className="text-right">{t('Before Consumption Balance')}</div>
+                        <div className="text-right">{t('After Consumption Balance')}</div>
                         <div className="truncate">{t('Store')}</div>
                       </div>
                       {/* Table Body - Scrollable */}

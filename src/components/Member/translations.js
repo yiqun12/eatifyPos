@@ -192,6 +192,8 @@ export const memberTranslations = [
     { input: "Total Amount", output: "总金额" },
     { input: "Before Balance", output: "充值前余额" },
     { input: "After Balance", output: "充值后余额" },
+    { input: "Before Consumption Balance", output: "消费前余额" },
+    { input: "After Consumption Balance", output: "消费后余额" },
     { input: "Amount", output: "金额" },
     { input: "Description", output: "描述" },
     { input: "Purchase", output: "购买" },

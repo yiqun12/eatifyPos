@@ -473,13 +473,24 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       setTotalPrice(total);
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips))
       console.log((val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))
-      console.log("finalPrice")
-      console.log((Math.round(100 * (total * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100))
+      
+      const safeTips = (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips);
+      const safeDiscount = (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount);
+      const safeExtra = (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra);
+      
+      // Calculate Tax: 0 if exempt, otherwise based on rate
+      const taxAmount = isTaxExempt ? 0 : (total * (Number(TaxRate) / 100));
+      
+      // Calculate Final Total
+      // Formula: Subtotal + Tax + Tips + Extra - Discount
+      const calculatedTotal = total + taxAmount + safeTips + safeExtra - safeDiscount;
+      
+      const calculatedPriceAfterDiscount = Math.round(100 * calculatedTotal) / 100;
+
+      console.log("finalPrice", calculatedPriceAfterDiscount);
+
       // Calculate member balance deduction
       const memberBalanceDeduction = memberBalanceUsage ? parseFloat(memberBalanceUsage.balanceToUse) || 0 : 0;
-
-      // Calculate price after discount but before member balance (for member payment modal)
-      const calculatedPriceAfterDiscount = Math.round(100 * (total * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100;
 
       setPriceAfterDiscount(calculatedPriceAfterDiscount);
 
@@ -491,7 +502,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     console.log(tableProductInfo)
     //TO DO: get a better sync. this would write in database twice and this code is not working in mobile unless you get in the shopping cart.
     //GetTableProductInfo(store + "-" + selectedTable)
-  }, [products, width, tips, discount, extra, memberBalanceUsage]);
+  }, [products, width, tips, discount, extra, memberBalanceUsage, isTaxExempt, TaxRate]);
 
   // Auto-adjust member balance when price after discount changes
   useEffect(() => {
@@ -954,13 +965,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
           isDine: true,
           service_fee: tips === "" ? 0 : tips,
           subtotal: Math.round(100 * totalPrice) / 100, // Original item subtotal (before member balance)
-          tax: Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100,
+          tax: Math.round(100 * (isTaxExempt ? 0 : totalPrice * (Number(TaxRate) / 100))) / 100,
           tips: Math.round(100 * extra_tip) / 100,
           total: Math.round((Math.round(100 * finalPrice) / 100 + Math.round(100 * extra_tip) / 100) * 100) / 100,
           // Add member balance information if used
           ...(memberBalanceUsage && {
             memberBalanceUsed: parseFloat(memberBalanceUsage.balanceToUse) || 0,
-            originalTotal: Math.round(100 * (totalPrice * (Number(TaxRate) / 100 + 1) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips) + (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(extra) - (val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount))) / 100
+            originalTotal: priceAfterDiscount
           })
         }, // Assuming an empty map converts to an empty object
         next_action: null,
@@ -1317,38 +1328,27 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   const handleCustomPriceClick = () => {
     let effectiveTargetSubtotalToShow;
     const originalItemsSubtotal = parseFloat(calculateOriginalTotalPrice());
+    const taxRateVal = Number(TaxRate) || 0;
 
     const surchargeItem = products.find(p => p.id === "SURCHARGE_ITEM");
     const currentDiscountValue = parseFloat(discount || 0);
 
+    // Calculate what the current Final Price is (excluding Tips/Extra/MemberBalance)
+    // Current Logic: Subtotal + Surcharge + Tax - Discount
+    // We want to show this Final Price as the "Current Target".
+    
+    let currentSubtotal = originalItemsSubtotal;
     if (surchargeItem) {
-      // If there's a surcharge, the target subtotal was the original items + surcharge amount
-      effectiveTargetSubtotalToShow = originalItemsSubtotal + parseFloat(surchargeItem.itemTotalPrice);
-    } else if (currentDiscountValue > 0) {
-      // If there's a discount and no surcharge, the price was set lower.
-      // We need to find out what the subtotal was *before* this discount was applied.
-      // The discount = (originalItemsSubtotal - effectiveTargetSubtotalToShow_hypothetical) + taxPortion (if exempt)
-      // So, effectiveTargetSubtotalToShow_hypothetical = originalItemsSubtotal - (currentDiscountValue - taxPortion)
-      let priceDropPortionOfDiscount = currentDiscountValue;
-      if (isTaxExempt) {
-        const taxPortion = originalItemsSubtotal * (Number(TaxRate) / 100);
-        priceDropPortionOfDiscount -= taxPortion;
-      }
-      // If priceDropPortionOfDiscount is negative, it means discount was all (or more than) tax, so target was originalItemsSubtotal
-      if (priceDropPortionOfDiscount > 0) {
-        effectiveTargetSubtotalToShow = originalItemsSubtotal - priceDropPortionOfDiscount;
-      } else {
-        effectiveTargetSubtotalToShow = originalItemsSubtotal; // Discount was purely from tax or other reasons not a price drop
-      }
-    } else {
-      // No surcharge, no discount, so the target is just the original items subtotal
-      effectiveTargetSubtotalToShow = originalItemsSubtotal;
+        currentSubtotal += parseFloat(surchargeItem.itemTotalPrice);
     }
-
-    effectiveTargetSubtotalToShow = Math.max(0, effectiveTargetSubtotalToShow); // Ensure not negative
+    
+    let currentTax = isTaxExempt ? 0 : currentSubtotal * (taxRateVal / 100);
+    let currentTotal = currentSubtotal + currentTax - currentDiscountValue;
+    
+    effectiveTargetSubtotalToShow = Math.max(0, currentTotal);
 
     setCustomTotalPrice(effectiveTargetSubtotalToShow > 0 ? effectiveTargetSubtotalToShow.toFixed(2) : '');
-    setModalTaxExempt(isTaxExempt); // Initialize modal's tax exempt state with current global state
+    setModalTaxExempt(isTaxExempt); 
     setIsCustomPriceModalOpen(true);
   };
 
@@ -1373,15 +1373,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
   const applyCustomPrice = (newPriceString, taxChoice) => {
     const newPriceTarget = parseFloat(newPriceString);
 
+    // Handle cancellation or invalid input (Reset to just applying tax choice)
     if (newPriceString === null || newPriceString === undefined || newPriceString.trim() === '' || isNaN(newPriceTarget) || newPriceTarget < 0) {
       setCustomTotalPrice('');
-      // No localStorage interaction
-
       setIsTaxExempt(taxChoice);
-
-      const originalSubtotalForTax = parseFloat(calculateOriginalTotalPrice());
-      const taxExemptionOnlyDiscount = taxChoice ? (originalSubtotalForTax * (Number(TaxRate) / 100)) : 0;
-      setDiscount(taxExemptionOnlyDiscount > 0 ? taxExemptionOnlyDiscount.toFixed(2) : '');
+      setDiscount(''); // Reset discount as we are resetting custom price
       removeSurchargeProduct();
       return;
     }
@@ -1390,34 +1386,50 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     setCustomTotalPrice(formattedNewPrice);
     setIsTaxExempt(taxChoice);
 
-    // No localStorage interaction
-
     const originalSubtotal = parseFloat(calculateOriginalTotalPrice());
-    const difference = newPriceTarget - originalSubtotal;
-
-    let calculatedDiscount = 0;
-
-    if (taxChoice) {
-      const tempPrice = difference > 0 ? newPriceTarget : originalSubtotal;
-      // Calculate tax exemption discount based on the *original item subtotal*
-      const taxExemptionDiscountAmount = tempPrice * (Number(TaxRate) / 100);
-      calculatedDiscount += taxExemptionDiscountAmount;
-    }
-
-    // Clear previous surcharge product before potentially adding a new one or setting a discount
+    const taxRateVal = Number(TaxRate) || 0;
+    
+    // Calculate expected tax based on tax choice
+    // If exempt, tax is 0. Else tax is based on subtotal (and potentially surcharge).
+    // Note: If we add surcharge, the surcharge itself is taxed.
+    // Target = (Subtotal + Surcharge) * (1 + TaxRate) - Discount
+    
+    // We prioritize using Discount to lower price, and Surcharge to raise price.
+    
     removeSurchargeProduct();
 
-    if (difference < 0) {
-      // Custom price is lower than original, this difference is an additional discount
-      calculatedDiscount += Math.abs(difference);
-    } else if (difference > 0) {
-      // Custom price is higher, this difference is a surcharge
-      // The discount, in this case, would only be from tax exemption, if applicable.
-      addSurchargeProduct(difference);
+    // Calculate target WITHOUT discount/surcharge first
+    const baseTax = taxChoice ? 0 : originalSubtotal * (taxRateVal / 100);
+    const baseTotal = originalSubtotal + baseTax;
+    
+    if (newPriceTarget < baseTotal) {
+        // Need Discount
+        // Target = baseTotal - Discount
+        // Discount = baseTotal - Target
+        const discountNeeded = baseTotal - newPriceTarget;
+        setDiscount(discountNeeded.toFixed(2));
+    } else {
+        // Need Surcharge
+        // Target = (Subtotal + Surcharge) * (1 + TaxRate) (if not exempt)
+        // Target = Subtotal + Surcharge (if exempt)
+        
+        let surchargeNeeded = 0;
+        if (taxChoice) {
+            surchargeNeeded = newPriceTarget - originalSubtotal;
+        } else {
+             // Target = (Subtotal + S) * (1 + Rate)
+             // Target / (1 + Rate) = Subtotal + S
+             surchargeNeeded = (newPriceTarget / (1 + (taxRateVal / 100))) - originalSubtotal;
+        }
+        
+        if (surchargeNeeded > 0) {
+            addSurchargeProduct(surchargeNeeded.toFixed(2));
+            setDiscount('');
+        } else {
+             // Should theoretically be covered by discount case, but for safety:
+             setDiscount('');
+        }
     }
-    // If difference is 0, 'calculatedDiscount' will correctly be just the tax exemption amount (if any)
-
-    setDiscount(calculatedDiscount > 0 ? calculatedDiscount.toFixed(2) : '');
   };
 
   const addSurchargeProduct = (surchargeAmount) => {
@@ -1894,20 +1906,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
             <div className="text-left">
               <div className={`text-right notranslate ${!isMobile ? 'text-lg font-semibold' : 'font-medium'} flex items-center justify-end gap-2`}>
                 <span>
-                  {fanyi("Tax")}:<span className="notranslate text-blue-600">${stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100))}</span>
+                  {fanyi("Tax")}:<span className="notranslate text-blue-600">${stringTofixed(isTaxExempt ? 0 : (Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100))}</span>
                 </span>
                 <button
                   onClick={() => {
-                    const taxAmount = Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100;
-                    if (!isTaxExempt) {
-                      // 添加免税折扣
-                      setDiscount(taxAmount.toString());
-                      setIsTaxExempt(true);
-                    } else {
-                      // 取消免税，清除折扣
-                      setDiscount('');
-                      setIsTaxExempt(false);
-                    }
+                    setIsTaxExempt(!isTaxExempt);
                   }}
                   className={`btn btn-sm px-2 py-1 text-xs ${isTaxExempt ? 'btn-success' : 'btn-secondary'}`}
                   style={{ whiteSpace: 'nowrap' }}
@@ -2384,7 +2387,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                         calculateCustomAmount(Math.round((result - finalPrice) * 100) / 100);
                         CashCheckOut(
                           Math.round((result - finalPrice + extra) * 100) / 100,
-                          stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
+                          stringTofixed(isTaxExempt ? 0 : (Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
                           inputValue
                         );
                         closeUniqueModal();
@@ -2404,7 +2407,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   onClick={() => {
                     CashCheckOut(
                       extra,
-                      stringTofixed((Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
+                      stringTofixed(isTaxExempt ? 0 : (Math.round(100 * totalPrice * (Number(TaxRate) / 100)) / 100)),
                       finalPrice
                     );
                     closeUniqueModal();
