@@ -62,7 +62,7 @@ import { ReactComponent as Todo_icon } from './todo_icon.svg';
 import { ReactComponent as Menu_icon } from './menu_icon.svg';
 import file_icon from './file_icon.png';
 import styled from '@emotion/styled';
-import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
+import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC, format5Oclock, getMonthStart5Oclock, getMonthEnd5Oclock } from '../comonFunctions';
 import { el } from 'date-fns/locale';
 import e from 'cors';
 import { json } from 'react-router-dom';
@@ -531,7 +531,7 @@ const Account = () => {
         { date: '1/1/1900', revenue: 1 }
     ]);
     const epochDate = parseDate(format12Oclock((new Date("2023-11-30T00:00:00")).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone);
-    const [startDate, setStartDate] = useState(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone));
+    const [startDate, setStartDate] = useState(parseDate(format5Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone));
     const [endDate, setEndDate] = useState(null);
     const [cancelOrder, setCancelOrder] = useState(null);
 
@@ -590,6 +590,34 @@ const Account = () => {
         //console.log(lastDayOfMonth.toISOString())
     };
 
+    // New function: Use 5:00 AM as the month boundary
+    const getMonthDates5Oclock = (inputDate) => {
+        function formatDate5_(year, month, day) {
+            const date = new Date(year, month, day);
+            const formattedYear = date.getFullYear();
+            const formattedMonth = (date.getMonth() + 1).toString().padStart(2, '0');
+            const formattedDay = date.getDate().toString().padStart(2, '0');
+            const hours = '05'; // Set to 5:00 AM
+            const minutes = '00';
+            const seconds = '00';
+            // Parse the custom date format
+            const date_ = moment.tz(`${formattedYear}${formattedMonth}${formattedDay}${hours}${minutes}${seconds}`, "YYYYMMDDHHmmss", AmericanTimeZone);
+
+            // Format the date in the desired output
+            const losAngelesDate = date_.format('ddd MMM DD YYYY HH:mm:ss [GMT]Z (zz)');
+            return new Date(losAngelesDate);
+        }
+        // Parse the input date string
+        const year = parseInt(inputDate.substring(0, 4), 10);
+        const month = parseInt(inputDate.substring(5, 7), 10) - 1; // Subtract 1 because months are 0-indexed in JavaScript Date
+
+        // Set start date to 5:00 AM on the 1st of the month
+        setStartDate(formatDate5_(year, month, 1).toISOString());
+        
+        // Set end date to 5:00 AM on the 1st of next month
+        setEndDate(formatDate5_(year, month + 1, 1).toISOString());
+    };
+
     const getSeason = (inputDate, quarter) => {
         function formatDate_(year, month, day) {
             const date = new Date(year, month, day);
@@ -642,6 +670,63 @@ const Account = () => {
         //console.log(lastDayOfMonth.toISOString())
     };
 
+    // New function: Use 5:00 AM as the quarter boundary
+    const getSeason5Oclock = (inputDate, quarter) => {
+        function formatDate5_(year, month, day) {
+            const date = new Date(year, month, day);
+            const formattedYear = date.getFullYear();
+            const formattedMonth = (date.getMonth() + 1).toString().padStart(2, '0');
+            const formattedDay = date.getDate().toString().padStart(2, '0');
+            const hours = '05'; // Set to 5:00 AM
+            const minutes = '00';
+            const seconds = '00';
+            // Parse the custom date format
+            const date_ = moment.tz(`${formattedYear}${formattedMonth}${formattedDay}${hours}${minutes}${seconds}`, "YYYYMMDDHHmmss", AmericanTimeZone);
+
+            // Format the date in the desired output
+            const losAngelesDate = date_.format('ddd MMM DD YYYY HH:mm:ss [GMT]Z (zz)');
+            return new Date(losAngelesDate);
+        }
+        
+        // Helper function to get the first day after quarter ends (first day of next quarter)
+        function getQuarterEndDate(year, endMonth, endDay) {
+            const date = new Date(year, endMonth, endDay);
+            date.setDate(date.getDate() + 1); // Move to next day
+            return formatDate5_(date.getFullYear(), date.getMonth(), date.getDate());
+        }
+
+        // Parse the input date string
+        const year = parseInt(inputDate.substring(0, 4), 10);
+        const month = parseInt(inputDate.substring(5, 7), 10) - 1; // Subtract 1 because months are 0-indexed in JavaScript Date
+
+        // Set quarter start and end dates (both using 5:00 AM)
+        if (quarter === "Q1") {
+            setStartDate(formatDate5_(year, 0, 1).toISOString());
+            setEndDate(getQuarterEndDate(year, 2, 31).toISOString()); // April 1st 05:00
+        } else if (quarter === "Q2") {
+            setStartDate(formatDate5_(year, 3, 1).toISOString());
+            setEndDate(getQuarterEndDate(year, 5, 30).toISOString()); // July 1st 05:00
+        } else if (quarter === "Q3") {
+            setStartDate(formatDate5_(year, 6, 1).toISOString());
+            setEndDate(getQuarterEndDate(year, 8, 30).toISOString()); // October 1st 05:00
+        } else if (quarter === "Q4") {
+            setStartDate(formatDate5_(year, 9, 1).toISOString());
+            setEndDate(getQuarterEndDate(year, 11, 31).toISOString()); // Next year January 1st 05:00
+        } else if (quarter === "lastQ1") {
+            setStartDate(formatDate5_(year - 1, 0, 1).toISOString());
+            setEndDate(getQuarterEndDate(year - 1, 2, 31).toISOString());
+        } else if (quarter === "lastQ2") {
+            setStartDate(formatDate5_(year - 1, 3, 1).toISOString());
+            setEndDate(getQuarterEndDate(year - 1, 5, 30).toISOString());
+        } else if (quarter === "lastQ3") {
+            setStartDate(formatDate5_(year - 1, 6, 1).toISOString());
+            setEndDate(getQuarterEndDate(year - 1, 8, 30).toISOString());
+        } else if (quarter === "lastQ4") {
+            setStartDate(formatDate5_(year - 1, 9, 1).toISOString());
+            setEndDate(getQuarterEndDate(year - 1, 11, 31).toISOString());
+        }
+    };
+
 
     const wrapperRef = useRef(null);
 
@@ -654,7 +739,7 @@ const Account = () => {
     };
 
     const handleMonthChange = (date) => {
-        getMonthDates(((format12Oclock((new Date(date.getFullYear(), date.getMonth(), 2)).toLocaleString("en-US", { timeZone: AmericanTimeZone })))))
+        getMonthDates5Oclock(((format5Oclock((new Date(date.getFullYear(), date.getMonth(), 2)).toLocaleString("en-US", { timeZone: AmericanTimeZone })))))
     };
 
     const formatDate = (date) => {
@@ -702,7 +787,7 @@ const Account = () => {
     }
 
 
-    const [selectedTime, setSelectedTime] = useState("00-00"); // Default value as 00-00
+    const [selectedTime, setSelectedTime] = useState("05-00"); // Default value as 05-00
 
     // Generate time options with a 30-minute interval
     const generateTimeOptions = () => {
@@ -723,7 +808,7 @@ const Account = () => {
 
     const timeOptions = generateTimeOptions();
 
-    const [currentTime, setCurrentTime] = useState("23-59"); // Default value as 00-00
+    const [currentTime, setCurrentTime] = useState("05-00"); // Default value as 05-00
 
     // Generate an array of time strings with 30-minute intervals
     const createTimeOptions = () => {
@@ -852,7 +937,7 @@ const Account = () => {
         const paymentsQuery = query(
             collection(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', activeStoreTab, 'success_payment'),
             where('dateTime', '>=', addTimeToDateTime(convertDateFormat(startDate), selectedTime)),
-            where('dateTime', '<', addTimeToDateTime(convertDateFormat(endDate ? endDate : startDate), currentTime))
+            where('dateTime', '<', addTimeToDateTime(convertDateFormat(endDate ? endDate : addDays(startDate, 1)), currentTime))
         );
 
 
@@ -4417,22 +4502,32 @@ const Account = () => {
 
                                                                     </div>
                                                                     <div style={{ fontWeight: 'bold' }}>Select Specific Month</div>
-                                                                    <button className=" btn btn-sm mt-1 mb-1 mr-2 notranslate " style={{
-                                                                        border: '1px solid #ccc',
-                                                                        display: 'inline-flex',
-                                                                        alignItems: 'center',
-                                                                        // Add other styles as needed
-                                                                    }} onClick={() => {
-                                                                        getMonthDates(((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone })))))
-                                                                        setIsPickerOpenStartDay(false)
-                                                                        setIsPickerOpenEndDay(false)
-                                                                        setIsPickerOpenMonth(!isPickerOpenMonth);
-                                                                    }}>
-                                                                        <i class="bi-calendar3"></i>
-                                                                        &nbsp;
-                                                                        {startDate ? format(startDate, "MM/yyyy") : "Month Year"}
+                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                                        <button className=" btn btn-sm mt-1 mb-1 mr-2 notranslate " style={{
+                                                                            border: '1px solid #ccc',
+                                                                            display: 'inline-flex',
+                                                                            alignItems: 'center',
+                                                                            // Add other styles as needed
+                                                                        }} onClick={() => {
+                                                                            getMonthDates(((format12Oclock((new Date(startDate)).toLocaleString("en-US", { timeZone: AmericanTimeZone })))))
+                                                                            setIsPickerOpenStartDay(false)
+                                                                            setIsPickerOpenEndDay(false)
+                                                                            setIsPickerOpenMonth(!isPickerOpenMonth);
+                                                                        }}>
+                                                                            <i class="bi-calendar3"></i>
+                                                                            &nbsp;
+                                                                            {startDate ? format(startDate, "MM/yyyy") : "Month Year"}
 
-                                                                    </button>
+                                                                        </button>
+                                                                        <span style={{ fontSize: '0.75rem', color: '#6c757d', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                                            <i className="bi bi-info-circle"></i>
+                                                                            <span>{
+                                                                                localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? 
+                                                                                "默认营业日为今日早上5点到明日早上5点" : 
+                                                                                "Default business day: Today 5:00 AM to Tomorrow 5:00 AM"
+                                                                            }</span>
+                                                                        </span>
+                                                                    </div>
 
                                                                     <div ref={wrapperRef} style={{ position: 'relative' }}>
 
@@ -4511,6 +4606,7 @@ const Account = () => {
                                                                         <div>
                                                                         </div>
                                                                     </div>
+
                                                                     <div className={`mt-3 ${!isMobile ? 'flex flex-wrap items-start' : ''}`}> {/* MODIFIED: Added responsive flex layout for PC */}
                                                                     {!isMobile && <button
                                                                         onClick={() => { setStartDate(epochDate); setEndDate(parseDate((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone }))), AmericanTimeZone)) }}
@@ -4812,62 +4908,72 @@ const Account = () => {
 
                                                         </div>
                                                         <div>
-                                                            {/* Control Panel - Separated Layout */}
-                                                            <div className="bg-gray-50 p-3 rounded-lg my-3 space-y-4">
-                                                                {/* Quarterly Selection - Separate Row */}
-                                                                <div className="flex items-center gap-3">
-                                                                    <span className="text-sm font-medium text-gray-700 whitespace-nowrap">季度选择:</span>
-                                                                    <select
-                                                                        onChange={(e) => getSeason(format12Oclock(new Date(Date.now()).toLocaleString("en-US", { timeZone: AmericanTimeZone })), e.target.value)}
-                                                                        className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+
+                                                            <select
+                                                                onChange={(e) => getSeason5Oclock(format5Oclock(new Date(Date.now()).toLocaleString("en-US", { timeZone: AmericanTimeZone })), e.target.value)}
+                                                                className="btn btn-sm border-black d-flex align-items-center mx-1 mb-2"
+                                                            >
+
+                                                                <option value="Q1">Show First Quarter of This Year</option>
+                                                                <option value="Q2">Show Second Quarter of This Year</option>
+                                                                <option value="Q3">Show Third Quarter of This Year</option>
+                                                                <option value="Q4">Show Fourth Quarter of This Year</option>
+                                                                <option value="lastQ1">Show First Quarter of Last Year</option>
+                                                                <option value="lastQ2">Show Second Quarter of Last Year</option>
+                                                                <option value="lastQ3">Show Third Quarter of Last Year</option>
+                                                                <option value="lastQ4">Show Fourth Quarter of Last Year</option>
+                                                            </select>
+                                                            <div className={`${true ? 'flex flex-wrap items-start' : ''}`}>
+
+                                                                <div className='flex'>
+                                                                    <button
+                                                                        onClick={() => { 
+                                                                            // Use 5:00 AM as business day boundary
+                                                                            setStartDate(parseDate(format5Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); 
+                                                                            setEndDate(null) 
+                                                                        }}
+                                                                        className="btn btn-sm btn-primary d-flex align-items-center mx-1 mt-1 mb-2"
                                                                     >
-                                                                        <option value="Q1">第一季度 (本年)</option>
-                                                                        <option value="Q2">第二季度 (本年)</option>
-                                                                        <option value="Q3">第三季度 (本年)</option>
-                                                                        <option value="Q4">第四季度 (本年)</option>
-                                                                        <option value="lastQ1">第一季度 (去年)</option>
-                                                                        <option value="lastQ2">第二季度 (去年)</option>
-                                                                        <option value="lastQ3">第三季度 (去年)</option>
-                                                                        <option value="lastQ4">第四季度 (去年)</option>
-                                                                    </select>
+
+                                                                        <span>Today's Orders</span>
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => { 
+                                                                            // Get yesterday's business day (previous day's 5:00 AM)
+                                                                            const yesterday = new Date(Date.now());
+                                                                            yesterday.setDate(yesterday.getDate() - 1);
+                                                                            setStartDate(parseDate(format5Oclock(yesterday.toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); 
+                                                                            setEndDate(null) 
+                                                                        }}
+                                                                        className="btn btn-sm btn-outline-primary d-flex align-items-center mx-1 mt-1 mb-2"
+                                                                    >
+                                                                        <span>Yesterday Orders</span>
+                                                                    </button>
                                                                 </div>
-                                                                
-                                                                {/* Quick Selection and Monthly Statistics - Same Row */}
-                                                                <div className="flex flex-wrap items-center gap-6">
-                                                                    {/* Quick Selection Group */}
-                                                                    <div className="flex items-center gap-3 flex-shrink-0">
-                                                                        <span className="text-sm font-medium text-gray-700 whitespace-nowrap">快速选择:</span>
-                                                                        <button
-                                                                            onClick={() => { setStartDate(parseDate(format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
-                                                                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                                                                        >
-                                                                            今日订单
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => { setStartDate(parseDate(format12Oclock((new Date(new Date().setDate(new Date().getDate() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone })), AmericanTimeZone)); setEndDate(null) }}
-                                                                            className="border border-blue-500 text-blue-500 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                                                                        >
-                                                                            昨日订单
-                                                                        </button>
-                                                                    </div>
-                                                                    
-                                                                    {/* Monthly Statistics Group */}
-                                                                    <div className="flex items-center gap-3 flex-shrink-0">
-                                                                        <span className="text-sm font-medium text-gray-700 whitespace-nowrap">月度统计:</span>
-                                                                        <button
-                                                                            onClick={() => { getMonthDates(((format12Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
-                                                                            className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                                                                        >
+
+                                                                <div className='flex'>
+                                                                    <button
+                                                                        onClick={() => { getMonthDates5Oclock(((format5Oclock((new Date(Date.now())).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
+                                                                        className="btn btn-sm btn-dark d-flex align-items-center mx-1 mt-1 mb-2"
+                                                                    >
+                                                                        <span>
                                                                             {
                                                                                 (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                                                                                     ["一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单", "十二月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
                                                                                     ["January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders", "December Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()])
                                                                             }
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => { getMonthDates(((format12Oclock((new Date(new Date().setMonth(new Date().getMonth() - 1))).toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) }}
-                                                                            className="border border-gray-800 text-gray-800 hover:bg-gray-50 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                                                                        >
+                                                                        </span>
+                                                                    </button>
+
+                                                                    <button
+                                                                        onClick={() => { 
+                                                                            const lastMonth = new Date();
+                                                                            lastMonth.setMonth(lastMonth.getMonth() - 1);
+                                                                            getMonthDates5Oclock(((format5Oclock(lastMonth.toLocaleString("en-US", { timeZone: AmericanTimeZone }))))) 
+                                                                        }}
+                                                                        className="btn btn-sm btn-outline-dark d-flex align-items-center mx-1 mt-1 mb-2"
+                                                                    >
+                                                                        <span>
                                                                             {
                                                                                 (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                                                                                     ["十二月订单", "一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
