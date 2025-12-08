@@ -1,6 +1,6 @@
 //import Navbar from './Navbar'
 import 'bootstrap/dist/css/bootstrap.css';
-import React, { useState, useEffect, useRef, useMemo, useDeferredValue, startTransition } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 //import Checkout from "../components/Checkout";
 import PayFullhistory from "./PayFullhistory";
@@ -11,7 +11,7 @@ import Checkout from "./Checkout_acc";
 import './style.css';
 import './stripeButton.css';
 import { useCallback } from 'react';
-import { collection, doc, addDoc, getDoc, updateDoc, deleteDoc, setDoc, writeBatch, where } from "firebase/firestore";
+import { collection, doc, addDoc, getDoc, updateDoc, deleteDoc, where } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { onSnapshot, query } from "firebase/firestore";
 import mySound from '../pages/new_order_english.mp3'; // Replace with your sound file's path
@@ -74,10 +74,7 @@ import { DateTime } from 'luxon';
 import { lookup } from 'zipcode-to-timezone';
 import EmailVerificationModal from './EmailVerificationModal'; // Import the new modal
 import ChartPasswordModal from './ChartPasswordModal'; // Import the chart password modal
-import { lightenColor, getStoreColor } from '../utils/lightenColor';
-
 registerLocale('zh-CN', zhCN);
-
 
 
 // Initialize Firebase Functions
@@ -1033,10 +1030,7 @@ const Account = () => {
                     newItems.push(newItem);
                 }
             });
-            // Avoid blocking UI: defer massive state updates
-            startTransition(() => {
-                setOrders(newItems);
-            });
+            setOrders(newItems);
             console.log(123123123213)
             console.log(newItems)
             saveId(Math.random());
@@ -1053,7 +1047,7 @@ const Account = () => {
                 } else {
                     dailyRevenue[date] = revenue;
                 }
-                // console.log(dailyRevenue[date])
+                console.log(dailyRevenue[date])
             });
 
             const dailyRevenueArray = Object.keys(dailyRevenue).map(date => ({
@@ -2282,171 +2276,10 @@ const Account = () => {
         }
     }
 
-    // Function to generate test data
-    const generateTestData = (count = 10000) => {
-        const statuses = ['Paid by Cash', 'Paid', 'Processing', 'Stripe', 'POS Machine'];
-        const tableNums = ['Table 1', 'Table 2', 'Table 3', 'Table 4', 'Table 5', 'Table 6', 'Takeout', ''];
-        const stores = ['测试餐厅A', '测试餐厅B', '测试餐厅C'];
-        
-        const testData = [];
-        
-        for (let i = 0; i < count; i++) {
-            const randomDate = new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000);
-            const formattedDate = randomDate.toLocaleString();
-            const subtotal = parseFloat((Math.random() * 180 + 10).toFixed(2));
-            const serviceFee = parseFloat((Math.random() * 20).toFixed(2));
-            const tips = parseFloat((Math.random() * 30).toFixed(2));
-            const total = parseFloat((subtotal + serviceFee + tips).toFixed(2));
-            
-            // Generate receipt data as JSON string (like real data)
-            const receiptItems = [];
-            const numItems = Math.floor(Math.random() * 5) + 1;
-            for (let j = 0; j < numItems; j++) {
-                receiptItems.push({
-                    name: `测试商品${(i * numItems + j) % 20 + 1}`,
-                    quantity: Math.floor(Math.random() * 3) + 1,
-                    price: parseFloat((Math.random() * 30 + 5).toFixed(2)),
-                    category: '测试分类'
-                });
-            }
-            
-            testData.push({
-                id: `test_${i}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                receiptData: JSON.stringify(receiptItems), // Convert to JSON string like real data
-                date: formattedDate,
-                email: `test${i}@example.com`,
-                dineMode: Math.random() > 0.5 ? 'Dine In' : 'Takeout',
-                status: statuses[Math.floor(Math.random() * statuses.length)],
-                total: total,
-                tableNum: tableNums[Math.floor(Math.random() * tableNums.length)],
-                store: stores[Math.floor(Math.random() * stores.length)],
-                intent_ID: `pi_test_${i}_${Math.random().toString(36).substr(2, 9)}`,
-                Charge_ID: `ch_test_${i}_${Math.random().toString(36).substr(2, 9)}`,
-                metadata: {
-                    subtotal: subtotal,
-                    service_fee: serviceFee,
-                    tips: tips,
-                    total: total,
-                    discount: 0,
-                    isDine: Math.random() > 0.5 ? 'Dine In' : 'Takeout'
-                },
-                transaction_json: {
-                    amount: Math.floor(total * 100), // Stripe amounts are in cents
-                    currency: 'usd',
-                    status: 'succeeded'
-                }
-            });
-        }
-        
-        return testData;
-    };
-
-    // Function to add test data to orders
-    const addTestData = () => {
-        try {
-            console.log('开始生成测试数据...');
-            const testData = generateTestData(10000);
-            console.log('测试数据生成完成，数量:', testData.length);
-            console.log('示例数据:', testData[0]);
-            
-            startTransition(() => {
-                setOrders(prevOrders => {
-                    const mergedData = [...testData, ...prevOrders];
-                    return mergedData;
-                });
-            });
-            alert('✅ 已成功添加10000条测试数据！\n数据已添加到本地状态，可以测试分块加载性能。');
-        } catch (error) {
-            console.error('生成测试数据时出错:', error);
-            alert('❌ 生成测试数据失败: ' + error.message);
-        }
-    };
-
-    // Function to add test data to Firebase (批量写入)
-    const addTestDataToFirebase = async () => {
-        if (!user || !user.uid || !activeStoreTab) {
-            alert('❌ 请先选择店铺！');
-            return;
-        }
-        
-        try {
-            const confirmed = window.confirm('⚠️ 确定要将测试数据写入Firebase数据库吗？\n这将创建真实的数据库记录。\n\n⚡ 使用批量写入，速度更快！');
-            if (!confirmed) return;
-
-            console.log('开始生成和批量写入Firebase...');
-            const testData = generateTestData(10000);
-            
-            // Firebase批量写入限制：每批最多500条
-            const batchSize = 500;
-            const totalBatches = Math.ceil(testData.length / batchSize);
-            let completedBatches = 0;
-            
-            // 显示进度
-            const progressAlert = (current, total) => {
-                const percent = Math.round((current / total) * 100);
-                console.log(`批量写入进度: ${current}/${total} (${percent}%)`);
-            };
-
-            for (let i = 0; i < testData.length; i += batchSize) {
-                const batch = writeBatch(db);
-                const batchData = testData.slice(i, i + batchSize);
-                
-                console.log(`准备第 ${completedBatches + 1}/${totalBatches} 批，包含 ${batchData.length} 条记录`);
-                
-                batchData.forEach(item => {
-                    const docRef = doc(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', activeStoreTab, 'success_payment', item.id);
-                    batch.set(docRef, {
-                        ...item,
-                        powerBy: item.status,
-                        user_email: item.email,
-                        dateTime: new Date().toISOString()
-                    });
-                });
-                
-                // 提交当前批次
-                await batch.commit();
-                completedBatches++;
-                progressAlert(completedBatches, totalBatches);
-                
-                // 小延迟避免过载Firebase
-                if (completedBatches < totalBatches) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                }
-            }
-            
-            alert(`✅ 批量写入完成！\n\n📊 统计信息：\n• 总记录数：${testData.length} 条\n• 批次数量：${totalBatches} 批\n• 每批大小：${batchSize} 条\n• 写入速度：大约 ${Math.round(testData.length / (totalBatches * 0.1))} 条/秒`);
-        } catch (error) {
-            console.error('批量写入Firebase时出错:', error);
-            alert('❌ 批量写入失败: ' + error.message);
-        }
-    };
-
     // State to manage the displayed orders based on filters
     const [displayedOrders, setDisplayedOrders] = useState([]);
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true); // Assume initially that there might be no data
-
-    // Performance: memoized filtered orders (used widely in render)
-    const filteredOrders = useMemo(() => {
-        const status = order_status || '';
-        const table = order_table || '';
-        return (orders || [])
-            .filter(o => (o?.status || '').includes(status))
-            .filter(o => (o?.tableNum || '').includes(table));
-    }, [orders, order_status, order_table]);
-
-    const filteredCount = useMemo(() => filteredOrders.length, [filteredOrders]);
-
-    // Defer heavy list to keep UI responsive during filtering
-    const deferredFiltered = useDeferredValue(filteredOrders);
-
-    // Memo parse of receiptData for items list rendering
-    const itemsWithParsed = useMemo(() => {
-        return (items || []).map(o => ({
-            ...o,
-            receiptItems: typeof o?.receiptData === 'string' ? (JSON.parse(o.receiptData || '[]') || []) : (o.receiptData || [])
-        }));
-    }, [items]);
 
     // useRef to persist the chunk generator
     const chunkGeneratorRef = useRef(null);
@@ -3013,411 +2846,283 @@ const Account = () => {
                             </div>
                         </div>
 
-          </div>
-        )}
-        {isPC ?
-          <div className="d-flex justify-acontent-between mx-3 ">
-            {/* <button onClick={toggleVisibility}>
-              {!isVisible ?
-                <div>
-
-                  <button>
-                    <i class="bi bi-bookmarks">  </i>
-                    Open Side Menu
-                  </button>
-
-                </div> :
-
-                <div>
-                </div>
-              }
-            </button> */}
-            {/* {//
-              (previousHash.includes('#charts') && storeID !== '') || (previousHash.includes('#code') && storeID !== '') ?
-                <div>
-                  <button
-                    onClick={(e) => {
-                      OpenCashDraw()
-                    }}
-                    className="btn btn-sm btn-info mr-5">
-                    <i className="bi bi-cash-stack pe-2"></i>
-                    Open Cash Drawer
-                  </button>
-                </div>
-                :
-                null
-            } */}
-
-          </div>
-          :
-          <div></div>
-        }
-        <div className="d-flex flex-column flex-lg-row h-lg-full bg-surface-secondary">
-
-          {/* Removed (isVisible || !isPC) && condition from here */}
-          <div style={{ position: 'relative', height: isPC ? divHeight : 'unset' }}>
-            {isPC && isModalOpenIframe === false ? (
-              <>
-                <nav
-                  className="navbar navbar-vertical navbar-expand-lg px-0 py-3 navbar-light bg-gray-100 border-end shadow-sm overflow-auto"
-                  id="navbarVertical"
-                  style={{
-                    minWidth: isVisible ? '250px' : '70px',
-                    width: isVisible ? '250px' : '70px',
-                    transition: 'width 0.3s ease',
-                    height: `calc(${divHeight} - 50px)`, // Subtract the height of the bottom button
-                    overflowX: 'hidden',
-                    overflowY: 'auto',
-                    position: 'relative'
-                  }}
-                >
-                  <div className="container-fluid" style={{
-                    padding: "5px 10px 10px 10px", // Adjust bottom padding
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5rem',
-                    justifyContent: 'flex-start'
-                  }}>
-                    {/* Removed toggle button from here */}
-
-                    {isOnline && (
-                      <button
-                        className="mt-2 btn w-100 mb-2 btn-primary text-white shadow-sm"
-                        onClick={(e) => {
-                          handleTabClick(e, '#profile')
-                          setActiveStoreTab('');
-                          setShowSection('');
-                          setStoreName_('');
-                          setStoreCHI_('')
-                          setAmericanTimeZone(getTimeZoneByZip("94133"))//dont change this is for init
-                          setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
-                          setActiveStoreId('')
-                          setStoreOpenTime('')
-                          setStoreID('');
-
-                          if (storeFromURL !== '' && storeFromURL !== null) {
-                            window.history.pushState(null, '', `/account?store=${storeFromURL}`);
-                          } else {
-                            window.history.pushState(null, '', '/account');
-                          }
-                        }}
-                      >
-                        <div style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: isVisible ? 'row' : 'column' }}>
-                          <i className="bi bi-person scale-125" style={{ display: 'inline-block', verticalAlign: 'middle' }}></i>
-                          {isVisible && <span style={{ marginLeft: "5px" }}>Account</span>}
-                        </div>
-                      </button>
-                    )}
-
-                    {isOnline && (
-
-
-                      <button
-                      onClick={(e) => {
-                        setActiveStoreTab('');
-                          setShowSection('');
-                          setStoreID('');
-                          setStoreName_('');
-                          setStoreCHI_('')
-                          setAmericanTimeZone(getTimeZoneByZip("94133"))//dont change this is for init
-                          setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
-                          setActiveStoreId('')
-                          setStoreOpenTime('')
-                          setActiveTab('#profile')
-                          window.location.hash = 'createStore'
-                      }}
-                      className="btn w-100 mb-2 btn-success text-white shadow-sm hover:bg-success-dark"
-                      >
-                      <div style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: isVisible ? 'row' : 'column' }}>
-                          <i className="bi bi-plus-circle scale-125" style={{ display: 'inline-block', verticalAlign: 'middle' }}></i>
-                          {isVisible && <span style={{ marginLeft: "5px" }}>Create Store</span>}
-                        </div>
-                      </button>
-                    )}
-
-                    <div className={`store-selector mt-3 ${isVisible ? '' : 'd-none'}`}>
-                      <h6 className='text-muted text-uppercase text-xs font-weight-bold mb-2 px-3'>
-                        Select Store:
-                      </h6>
                     </div>
+                )}
+                {isPC && isModalOpenIframe === false ?
+                    <div className="d-flex justify-acontent-between mx-3 ">
+                        <button onClick={toggleVisibility}>
+                            {!isVisible ?
+                                <div>
 
-                    <div className="store-list mt-2">
-                      {storelist?.map((data, index) => (
-                        <div style={{ display: 'contents' }} key={data.id}>
-                          <button
-                            className={`mb-2 btn w-100 ${activeTab === `#${data.id}` ? 'shadow-sm' : ''}`}
-                            style={{
-                              background: 'white',
-                              color: '#333',
-                              border: activeTab === `#${data.id}`
-                                ? `2px solid ${getStoreColor(index)}`
-                                : 'none',
-                              borderLeft: activeTab === `#${data.id}` ? `4px solid ${getStoreColor(index)}` : '',
-                              textAlign: 'left',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              transition: 'all 0.2s ease',
-                              borderRadius: '6px',
-                              padding: '8px 12px',
-                              position: 'relative'
-                            }}
-                            onClick={(e) => {
-                              handleTabClick(e, `#${data.id}`);
-                              setActiveStoreTab(data.id);
-                              setShowSection('sales');
-                              setStoreName_(data.Name);
-                              setStoreCHI_(data.storeNameCHI)
-                              setAmericanTimeZone(getTimeZoneByZip(data.ZipCode))
-                              setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(data.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
-                              setStoreID(data.id);
-                              setActiveStoreId(data.id)
-                              setStoreOpenTime(data.Open_time)
-                              window.location.hash = `charts?store=${data.id}`;
-                            }}
-                          >
-                            <div style={{
-                              alignItems: 'center',
-                              justifyContent: isVisible ? 'space-between' : 'center',
-                              display: 'flex',
-                              flexDirection: isVisible ? 'row' : 'column',
-                              width: '100%'
-                            }}>
-                              <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                flex: 1,
-                                overflow: 'hidden'
-                              }}>
-                                <div style={{
-                                  width: '24px',
-                                  height: '24px',
-                                  borderRadius: '50%',
-                                  backgroundColor: getStoreColor(index),
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  color: 'white',
-                                  fontWeight: 'bold',
-                                  fontSize: '12px',
-                                  marginRight: isVisible ? '8px' : '0',
-                                  flexShrink: 0
-                                }}>
-                                  {data.Name.charAt(0).toUpperCase()}
+                                    <button>
+                                        <i class="bi bi-bookmarks">  </i>
+                                        Open Side Bar
+                                    </button>
+
+                                </div> :
+
+                                <div>
                                 </div>
-                                {isVisible && (
-                                  <span className="notranslate" style={{
-                                    fontSize: '0.9rem',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap'
-                                  }}>
-                                    {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
-                                      data.storeNameCHI : data.Name
-                                    }
-                                  </span>
-                                )}
-                              </div>
-                              {isVisible && activeTab === `#${data.id}` && (
-                                <i className="bi bi-chevron-down ms-2" style={{ fontSize: '0.9rem', color: '#666' }}></i>
-                              )}
-                              {isVisible && activeTab !== `#${data.id}` && (
-                                <i className="bi bi-chevron-right ms-2" style={{ fontSize: '0.9rem', color: '#666' }}></i>
-                              )}
-                            </div>
-                          </button>
-
-                          {activeStoreId === data.id && isVisible && (
-                            <ul className={`nav nav-tabs mt-2 mb-3 overflow-x border-0 flex flex-col`}
-                               style={{
-                                 paddingLeft: '15px',
-                                 borderLeft: `2px solid ${getStoreColor(index)}`,
-                                 marginLeft: '10px'
-                               }}
-                            >
-                              <div>
-                                <li className={`nav-item p-1`} style={{ width: "95%", margin: "auto", borderColor: "transparent !important" }}
-                                  onClick={() => {
-                                    setShowSection('sales')
-                                    window.location.hash = `charts?store=${data.id}`;
-                                  }}>
-                                  <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `sales` ? 'active bg-light' : ''}`}
-                                     style={{
-                                       marginLeft: "0",
-                                       border: "0px",
-                                       padding: '8px 12px',
-                                       transition: 'all 0.2s ease'
-                                     }}
-                                  >
-                                    <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-bar-chart-line" viewBox="0 0 16 16">
-                                        <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2zm1 12h2V2h-2v12zm-3 0V7H7v7h2zm-5 0v-3H2v3h2z" />
-                                      </svg>
-                                    </i>
-                                    <span style={{ marginLeft: "5%" }}>Daily Revenue</span>
-                                  </a>
-                                </li>
-
-                                <li className={`nav-item p-1`} onClick={() => {
-                                  setShowSection('qrCode')
-                                  window.location.hash = `code?store=${data.id}`
-                                }} style={{ width: "95%", margin: "auto" }}>
-                                  <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `qrCode` ? 'active bg-light' : ''}`}
-                                     style={{
-                                       border: "0px",
-                                       padding: '8px 12px',
-                                       transition: 'all 0.2s ease'
-                                     }}
-                                  >
-                                    <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-columns-gap" viewBox="0 0 16 16">
-                                        <path d="M6 1v3H1V1h5zM1 0a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1H1zm14 12v3h-5v-3h5zm-5-1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5zM6 8v7H1V8h5zM1 7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H1zm14-6v7h-5V1h5zm-5-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1h-5z" />
-                                      </svg>
-                                    </i>
-                                    <span style={{ marginLeft: "5%" }}>Dine In Ordering</span>
-                                  </a>
-                                </li>
-
-                                <li className={`nav-item p-1`}
-                                  onClick={() => {
-                                    setShowSection('stripeCard')
-                                    window.location.hash = `cards?store=${data.id}`;
-                                  }}
-                                  style={{ width: "95%", margin: "auto" }}
-                                >
-                                  <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `stripeCard` ? 'active bg-light' : ''}`}
-                                     style={{
-                                       border: "0px",
-                                       padding: '8px 12px',
-                                       transition: 'all 0.2s ease'
-                                     }}
-                                  >
-                                    <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-chat-right-dots" viewBox="0 0 16 16">
-                                        <path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z" />
-                                        <path d="M5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-                                      </svg>
-                                    </i>
-                                    <span style={{ marginLeft: "5%" }}>Notification&nbsp;<span
-                                      style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        width: '15px',
-                                        height: '15px',
-                                        backgroundColor: 'blue',
-                                        borderRadius: '50%',
-                                        color: 'white',
-                                        fontSize: '10px',
-                                        verticalAlign: 'middle'
-                                      }}
-                                    >
-                                      <span className='notranslate'>
-                                        {numberReviewVariable}
-                                      </span>
-                                    </span>
-                                    </span>
-                                  </a>
-                                </li>
-
-                                {!isOnline ? null :
-                                  <React.Fragment>
-                                    <li className={`nav-item p-1`}
-                                      onClick={() => {
-                                        setShowSection('menu')
-                                        window.location.hash = `book?store=${data.id}`;
-                                      }}
-                                      style={{ width: "95%", margin: "auto" }}
-                                    >
-                                      <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `menu` ? 'active bg-light' : ''}`}
-                                         style={{
-                                           border: "0px",
-                                           padding: '8px 12px',
-                                           transition: 'all 0.2s ease'
-                                         }}
-                                      >
-                                        <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-diagram-3" viewBox="0 0 16 16">
-                                            <path fillRule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
-                                          </svg>
-                                        </i>
-                                        <span style={{ marginLeft: "5%" }}>Menu Settings</span>
-                                      </a>
-                                    </li>
-
-                                    {isOnline && (
-                                      <li className={`nav-item border-b-0 p-1`}
-                                        onClick={() => {
-                                          setShowSection('store')
-                                          window.location.hash = `settings?store=${data.id}`;
-                                        }}
-                                        style={{ width: "95%", margin: "auto", border: "0px" }}
-                                      >
-                                        <a className={`d-flex align-items-center nav-link rounded-md ${showSection === `store` ? 'active bg-light' : ''}`}
-                                           style={{
-                                             marginRight: "0",
-                                             border: "0px",
-                                             padding: '8px 12px',
-                                             transition: 'all 0.2s ease'
-                                           }}
-                                        >
-                                          <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-gear" viewBox="0 0 16 16">
-                                              <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
-                                              <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
-                                            </svg>
-                                          </i>
-                                          <span style={{ marginLeft: "5%" }}>Store Settings</span>
-                                        </a>
-                                      </li>
-                                    )}
-                                  </React.Fragment>
-                                }
-                              </div>
-                            </ul>
-                          )}
-                        </div>
-                      ))}
+                            }
+                        </button>
                     </div>
-                  </div>
-                  
-                  {/* 底部收缩按钮 - 真正固定在底部，不跟滚动 */}
-                  <button
-                    onClick={toggleVisibility}
-                    style={{
-                      position: 'fixed',
-                      bottom: '0',
-                      left: '0',
-                      width: isVisible ? '250px' : '70px',
-                      height: '50px',
-                      padding: '0',
-                      border: 'none',
-                      borderTop: '1px solid #dee2e6',
-                      backgroundColor: '#f8f9fa',
-                      color: '#6c757d',
-                      fontSize: '16px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: '0',
-                      transition: 'all 0.3s ease',
-                      zIndex: 1000,
-                      cursor: 'pointer'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#e9ecef';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '#f8f9fa';
-                    }}
-                  >
-                    <i className={`bi bi-chevron-${isVisible ? 'left' : 'right'}`} 
-                       style={{ fontSize: '16px' }}></i>
-                  </button>
-                </nav>
-              </>
-            ) : ( <div></div> )}
-          </div>
+                    :
+                    <div></div>
+                }
+                <div className="d-flex flex-column flex-lg-row h-lg-full bg-surface-secondary">
+
+                    {isVisible && (
+                        <div>
+
+                            {isPC ? <nav
+                                className="navbar navbar-vertical show z-0 navbar-expand-lg px-0 py-3 navbar-light bg-gray-50 border-bottom border-bottom-lg-0 "
+                                id="navbarVertical"
+                                style={{ minWidth: '250px', height: divHeight }}
+                            >
+
+                                <div className="container-fluid" style={{ minHeight: "0px" }}>
+                                    <button onClick={toggleVisibility}>
+                                        {isVisible ?
+                                            <div>
+                                                <button>
+                                                    <i class="bi bi-backspace">  </i>
+                                                    Hide Side Bar
+                                                </button>
+
+                                            </div> :
+
+                                            <div>
+                                            </div>
+                                        }
+                                    </button>
+                                    {isOnline ? <button
+                                        className={`mt-2 btn mr-2 ml-2 ${activeTab === '#profile' ? 'border-black' : ''}`}
+                                        onClick={(e) => {
+                                            handleTabClick(e, '#profile')
+                                            setActiveStoreTab('');
+                                            setShowSection('');
+                                            setStoreName_('');
+                                            setStoreCHI_('')
+                                            setAmericanTimeZone(getTimeZoneByZip("94133"))//dont change this is for init
+                                            setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
+                                            setActiveStoreId('')
+                                            setStoreOpenTime('')
+                                            setStoreID('');
+
+                                            if (storeFromURL !== '' && storeFromURL !== null) {
+                                                // Use pushState to change the URL without reloading the page
+                                                window.history.pushState(null, '', `/account?store=${storeFromURL}`);
+                                            } else {
+                                                window.history.pushState(null, '', '/account');
+                                            }
+                                            //window.history.pushState({}, '', '/account');
+                                        }
+                                        }
+                                    >
+                                        <div style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                            <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style={{ fill: 'currentColor' }} class="bi bi-person" viewBox="0 0 16 16">
+                                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
+                                                </svg>
+                                            </i>
+                                            {" Account"}
+                                        </div>
+                                    </button>
+                                        : null
+                                    }
+                                    {isOnline ?
+                                        <button
+                                            className={`mt-2 btn mr-2 ml-2 ${activeTab === '#Revenue_Chart' ? 'border-black' : ''}`}
+                                            onClick={(e) => {
+                                                setActiveStoreTab('');
+                                                setShowSection('');
+                                                setStoreID('');
+                                                setStoreName_('');
+                                                setStoreCHI_('')
+                                                setAmericanTimeZone(getTimeZoneByZip("94133"))//dont change this is for init
+                                                setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE))
+                                                setActiveStoreId('')
+                                                setStoreOpenTime('')
+                                                setActiveTab('#profile')
+                                                window.location.hash = 'createStore'
+
+                                            }}
+                                        >
+                                            <div style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                                <i className="bi bi-pencil"></i>
+
+                                                {" Create Store"}
+                                            </div>
+                                        </button> : null
+                                    }
+                                    <ul className={`text-md bold nav nav-tabs overflow-x border-0 flex flex-col `}>
+                                        <li className='pt-0 pb-0'>
+                                            Select Store:
+                                        </li>
+
+                                    </ul>
+
+                                    {storelist?.map((data, index) => (
+                                        <div style={{ display: 'contents' }}>
+
+                                            <button
+                                                className={`mt-2 btn mr-2 ml-2 ${activeTab === `#${data.id}` ? 'border-black' : ''}`}
+                                                onClick={(e) => {
+
+                                                    handleTabClick(e, `#${data.id}`);
+                                                    setActiveStoreTab(data.id);
+                                                    setShowSection('sales');
+                                                    setStoreName_(data.Name);
+                                                    setStoreCHI_(data.storeNameCHI)
+                                                    setAmericanTimeZone(getTimeZoneByZip(data.ZipCode))
+                                                    setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup(data.ZipCode)).toLocaleString(DateTime.TIME_SIMPLE))
+                                                    setStoreID(data.id);
+                                                    setActiveStoreId(data.id)
+                                                    setStoreOpenTime(data.Open_time)
+                                                    window.location.hash = `charts?store=${data.id}`;
+                                                }}
+                                            >
+                                                <div style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                                    <span class="notranslate">
+                                                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
+                                                            data.storeNameCHI : data.Name
+                                                        }
+                                                    </span>
+                                                </div>
+                                            </button>
+
+                                            {activeStoreId === data.id && (
+                                                <ul className={`nav nav-tabs mt-4 overflow-x border-0 flex flex-col`}>
+                                                    <div>
+                                                        <li className={`nav-item p-0`} style={{ width: "80%", margin: "auto", borderColor: "transparent !important" }}
+                                                            onClick={() => {
+                                                                setShowSection('sales')
+                                                                window.location.hash = `charts?store=${data.id}`;
+                                                            }}>
+                                                            <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `sales` ? 'active' : ''}`} style={{ marginLeft: "0", border: "0px" }}>
+                                                                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
+                                                                        <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2zm1 12h2V2h-2v12zm-3 0V7H7v7h2zm-5 0v-3H2v3h2z" />
+                                                                    </svg>
+                                                                </i>
+                                                                <span style={{ marginLeft: "5%" }}>Daily Revenue</span>
+                                                            </a>
+                                                        </li>
+
+
+                                                        <li className={`nav-item p-0`} onClick={() => {
+                                                            setShowSection('qrCode')
+                                                            window.location.hash = `code?store=${data.id}`
+                                                            //setIsVisible(false)
+                                                        }} style={{ width: "80%", margin: "auto" }}>
+                                                            <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `qrCode` ? 'active' : ''}`} style={{ border: "0px" }}>
+                                                                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-columns-gap" viewBox="0 0 16 16">
+                                                                        <path d="M6 1v3H1V1h5zM1 0a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1H1zm14 12v3h-5v-3h5zm-5-1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5zM6 8v7H1V8h5zM1 7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H1zm14-6v7h-5V1h5zm-5-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1h-5z" />
+                                                                    </svg>
+                                                                </i>
+                                                                <span style={{ marginLeft: "5%" }}>Dine In Ordering</span>
+                                                            </a>
+                                                        </li>
+
+                                                        <li className={`nav-item p-0`}
+                                                            onClick={() => {
+                                                                setShowSection('stripeCard')
+                                                                window.location.hash = `cards?store=${data.id}`;
+                                                            }}
+                                                            style={{ width: "80%", margin: "auto" }}
+                                                        >
+                                                            <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `stripeCard` ? 'active' : ''}`} style={{ border: "0px" }}>
+                                                                <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-right-dots" viewBox="0 0 16 16">
+                                                                        <path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z" />
+                                                                        <path d="M5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                                                    </svg>
+                                                                </i>
+                                                                <span style={{ marginLeft: "5%" }}>Notification&nbsp;<span
+                                                                    style={{
+                                                                        display: 'inline-flex', // changed from 'flex' to 'inline-flex'
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                        width: '15px',
+                                                                        height: '15px',
+                                                                        backgroundColor: 'blue',
+                                                                        borderRadius: '50%',
+                                                                        color: 'white',
+                                                                        fontSize: '10px',
+                                                                        verticalAlign: 'middle' // added to vertically center the circle
+                                                                    }}
+                                                                >
+                                                                    <span className='notranslate'>
+                                                                        {numberReviewVariable}
+                                                                    </span>
+                                                                </span>
+                                                                </span>
+                                                            </a>
+
+                                                        </li>
+                                                        {!isOnline ?
+                                                            null
+                                                            :
+                                                            <React.Fragment>
+                                                                <li className={`nav-item p-0`}
+                                                                    onClick={() => {
+                                                                        setShowSection('menu')
+                                                                        window.location.hash = `book?store=${data.id}`;
+                                                                    }}
+                                                                    style={{ width: "80%", margin: "auto" }}
+                                                                >
+                                                                    <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `menu` ? 'active' : ''}`} style={{ border: "0px" }}>
+                                                                        <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-diagram-3" viewBox="0 0 16 16">
+                                                                                <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z" />
+                                                                            </svg>
+                                                                        </i>
+                                                                        <span style={{ marginLeft: "5%" }}>Menu Settings</span>
+
+                                                                    </a>
+
+                                                                </li>
+                                                                {isOnline ?
+                                                                    <li className={`nav-item border-b-0 p-0`}
+                                                                        onClick={() => {
+                                                                            setShowSection('store')
+                                                                            window.location.hash = `settings?store=${data.id}`;
+                                                                        }}
+                                                                        style={{ width: "80%", margin: "auto", border: "0px" }}
+                                                                    >
+                                                                        <a className={`d-flex align-items-center pt-0 nav-link ${showSection === `store` ? 'active' : ''}`} style={{ marginRight: "0", border: "0px" }}>
+                                                                            <i className="scale-125 p-0 m-0" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                                                                                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
+                                                                                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
+                                                                                </svg>
+                                                                            </i>
+
+                                                                            <span style={{ marginLeft: "5%" }}>Store Settings</span>
+
+                                                                        </a>
+
+                                                                    </li> : null}
+                                                            </React.Fragment>
+                                                        }
+
+                                                    </div>
+
+
+                                                </ul>)
+                                            }
+
+
+                                        </div>
+
+
+                                    ))}
+
+                                </div>
+                            </nav> : <div></div>}
+                        </div>
+                    )}
 
                     <div className="flex-grow-1 overflow-y-auto "
                         ref={divRef}
@@ -3781,9 +3486,7 @@ const Account = () => {
                                                     </div> : <div></div>
                                                     }
 
-                                                    {showSection === 'store' ? <div className="p-4">
-                                                        {/* Store Information Card */}
-                                                        <div className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200">
+                                                    {showSection === 'store' ? <div>
                                                         {/* <div className=''>
                               <div className='mx-auto '>
                                 <div className='mt-3 rounded-lg w-full  max-h-[200px] relative'>
@@ -3820,7 +3523,6 @@ const Account = () => {
                                                                 Edit Store Info
                                                             </button>
                                                         )}
-                                                        </div>
 
 
 
@@ -4002,12 +3704,8 @@ const Account = () => {
                                                             </div> : <></>
 
                                                         }
+                                                        <hr />
 
-                                                        {/* Three Cards Responsive Flex Container (no grid) */}
-                                                        <div className="flex flex-wrap -mx-2 mb-6">
-                                                            {/* Password Management Card */}
-                                                            <div className="px-2 mb-4 flex-1 min-w-[320px]">
-                                                        <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 h-full">
                                                         <div style={{ fontWeight: 'bold' }}>
                                                             Password Management:
                                                         </div>
@@ -4062,7 +3760,7 @@ const Account = () => {
                                                                     <>
                                                                         <div className="mb-3">
                                                                             <label htmlFor="newAdminPassword" className="form-label">{t('New Admin Password (min. 6 characters)')}</label>
-                                                                            <div className={`input-group w-full`}>
+                                                                            <div className={`input-group ${isMobile ? 'w-full' : 'w-1/2'}`}>
                                                                                 <input
                                                                                     type={showAdminPassword ? "text" : "password"}
                                                                                     className="form-control"
@@ -4088,7 +3786,7 @@ const Account = () => {
 
                                                                         <div className="mb-3">
                                                                             <label htmlFor="newEmployeePassword" className="form-label">{t('New Employee Password (min. 6 characters)')}</label>
-                                                                            <div className={`input-group w-full`}>
+                                                                            <div className={`input-group ${isMobile ? 'w-full' : 'w-1/2'}`}>
                                                                                 <input
                                                                                     type={showEmployeePassword ? "text" : "password"}
                                                                                     className="form-control"
@@ -4124,13 +3822,9 @@ const Account = () => {
                                                                 )}
                                                             </>
                                                         )}
-                                                        </div>
-                                                            </div>
 
-                                                            {/* QR Code Generator & Online Payment Options Combined Card */}
-                                                            <div className="px-2 mb-4 flex-1 min-w-[320px]">
-                                                        <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 h-full">
-                                                        <div style={{ fontWeight: 'bold' }} className="mb-4">
+
+                                                        <div style={{ fontWeight: 'bold' }}>
                                                             QR code generator:
                                                         </div>
 
@@ -4149,7 +3843,7 @@ const Account = () => {
                               ))} */}
 
                                                         </div>
-                                                        <div className="flex justify-start mb-6">
+                                                        <div className="flex justify-start">
                                                             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                                                 onClick={() => handlePrint()}
                                                             >
@@ -4157,8 +3851,9 @@ const Account = () => {
                                                                 Create A4 Sized QR Code Prints</button>
 
                                                         </div>
-                                                        
-                                                        {/* Online Payment Options Section */}
+
+                                                        <hr />
+
                                                         <div className=' mb-6' >
 
                                                             {data?.stripe_store_acct === "" ?
@@ -4355,23 +4050,19 @@ const Account = () => {
 
                                                             }
                                                         </div>
-                                                        </div>
-                                                            </div>
-                                                        </div>
+                                                        <hr />
 
-                                                        {/* Operating Hours Card */}
-                                                        <div className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200">
+
                                                         <div style={{ fontWeight: 'bold' }}>Operating Hours:</div>
                                                         <ChangeTimeForm storeID={storeID} storeOpenTime={storeOpenTime} />
-                                                        </div>
+
 
                                                     </div> : <div></div>
                                                     }
 
                                                     {showSection === 'sales' ? <div>
-                                                        <div className="flex mt-3 gap-4">
-                                                            {/* Control Panel Card Container */}
-                                                            <div className={`${isMobile ? 'w-full' : 'w-1/2'} bg-white rounded-lg shadow-lg border border-gray-200 p-6`}>
+                                                        <div className="flex mt-3">
+                                                            <div className={`w-50 ${isMobile ? 'mobile-class' : 'desktop-class'}`}>
                                                                 <div>
                                                                     <div style={{ fontWeight: 'bold' }}>Select Date Range</div>
                                                                     <div className={`${isMobile ? '' : 'flex'} flex-wrap`} >
@@ -4635,7 +4326,7 @@ const Account = () => {
                                                                 {/* 物品销量分析模态框 */}
                                                                 {isItemAnalyticsModalOpen && (
                                                                     <div
-                                                                        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4"
+                                                                        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
                                                                         onClick={() => setItemAnalyticsModalOpen(false)}
                                                                     >
                                                                         <div
@@ -4660,7 +4351,7 @@ const Account = () => {
                                                                             </div>
                                                                             <div className="h-[calc(95vh-80px)] overflow-auto">
                                                                                 <ItemSalesAnalytics
-                                                                                    orders={deferredFiltered}
+                                                                                    orders={orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table))}
                                                                                     dateRange={{ startDate, endDate }}
                                                                                 />
                                                                             </div>
@@ -4683,8 +4374,7 @@ const Account = () => {
                                                                 </div>
                                                             </div>
 
-                                                            {/* Data Chart Card Container */}
-                                                            <div className={`${isMobile ? 'w-full mt-4' : 'w-1/2'} bg-white rounded-lg shadow-lg border border-gray-200 p-6`}>
+                                                            <div style={isMobile ? { "width": "50%" } : {}}>
                                                                 {/* <div className="flex flex-col justify-center items-center h-screen space-y-4">
                                   <select
                                     className="p-2 border rounded w-64"
@@ -4717,9 +4407,6 @@ const Account = () => {
                                     purpose={purpose}
                                   />
                                 </div> */}
-                                                                <div className="mb-4">
-                                                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Revenue Analytics</h3>
-                                                                </div>
                                                                 {(isMobile || isChartPasswordVerified) && (
                                                                     <PieChart className='notranslate' width={isMobile ? width2 / 2 : 300} height={250}>
                                                                         <Pie
@@ -4978,38 +4665,9 @@ const Account = () => {
                                                                                 (localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ?
                                                                                     ["十二月订单", "一月订单", "二月订单", "三月订单", "四月订单", "五月订单", "六月订单", "七月订单", "八月订单", "九月订单", "十月订单", "十一月订单"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()] :
                                                                                     ["December Orders", "January Orders", "February Orders", "March Orders", "April Orders", "May Orders", "June Orders", "July Orders", "August Orders", "September Orders", "October Orders", "November Orders"][new Date(new Date().toLocaleString("en-US", { timeZone: AmericanTimeZone })).getMonth()])
-                                                                            }
-                                                                        </button>
-                                                                    </div>
+                                                                            }</span>
+                                                                    </button>
 
-                                                                    {/* Separator */}
-                                                                    {/* <div className="w-px h-6 bg-gray-300 mx-2"></div> */}
-
-                                                                    {/* Test Data Group - Commented out for production */}
-                                                                    {/* <div className="flex items-center gap-3 flex-shrink-0">
-                                                                        <span className="text-sm font-medium text-gray-700 whitespace-nowrap">测试数据:</span>
-                                                                        <button
-                                                                            onClick={addTestData}
-                                                                            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                                                                            title="添加本地测试数据，不写入数据库"
-                                                                        >
-                                                                            本地1万条数据
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={addTestDataToFirebase}
-                                                                            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                                                                            title="批量写入Firebase数据库（每批500条，共20批）"
-                                                                        >
-                                                                            ⚡批量DB写入1万条
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => setOrders(orders.filter(order => !order.id.startsWith('test_')))}
-                                                                            className="border border-red-500 text-red-500 hover:bg-red-50 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                                                                            title="清除本地测试数据"
-                                                                        >
-                                                                            清除测试数据
-                                                                        </button>
-                                                                    </div> */}
                                                                 </div>
                                                             </div>
 
@@ -5062,27 +4720,27 @@ const Account = () => {
 
                                                         <LazyLoad height={762}>
 
-                                                            <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-x-auto overflow-y-hidden mt-4">
-                                                                <table
-                                                                    className="shop_table my_account_orders w-full min-w-max"
-                                                                    style={{
-                                                                        borderCollapse: "collapse",
-                                                                        width: "100%",
-                                                                        minWidth: "800px", // 确保表格有最小宽度
-                                                                        borderSpacing: "0",
-                                                                    }}
-                                                                >
+                                                            <table
+                                                                className="shop_table my_account_orders"
+                                                                style={{
+                                                                    borderCollapse: "collapse",
+                                                                    width: "100%",
+                                                                    borderSpacing: "6px", // added CSS
+                                                                }}
+                                                            >
 
-                                                                <thead className="bg-gray-50">
+                                                                <thead>
+
+
                                                                     <tr>
-                                                                        {isMobile ? null : <th className="notranslate px-3 py-2" >Number.</th>}
+                                                                        {isMobile ? null : <th className="notranslate" >Number.</th>}
                                                                         {(isLocalHost)
                                                                             ?
-                                                                            <th className="order-number px-3 py-2" >Order ID</th>
+                                                                            <th className="order-number" >Order ID</th>
                                                                             :
                                                                             <></>
                                                                         }
-                                                                        <th className="order-name px-3 py-2" >
+                                                                        <th className="order-name" >
                                                                             {!isMobile ?
                                                                                 <select value={order_table} onChange={(e) => setOrder_table(e.target.value)}>
                                                                                     <option value="">Select Specific Dining Table Type</option>
@@ -5094,7 +4752,7 @@ const Account = () => {
                                                                             }
 
                                                                         </th>
-                                                                        <th className="order-status px-3 py-2" >
+                                                                        <th className="order-status" >
                                                                             {!isMobile ?
                                                                                 <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
                                                                                     <option value="">Select Specific Payment Type</option>
@@ -5106,8 +4764,8 @@ const Account = () => {
                                                                                 : "Type"
                                                                             }
                                                                         </th>
-                                                                        <th className="order-total px-3 py-2" >Price</th>
-                                                                        <th className="order-date px-3 py-2" >Date</th>
+                                                                        <th className="order-total" >Price</th>
+                                                                        <th className="order-date" >Date</th>
                                                                     </tr>
                                                                 </thead>
                                                                 {/* {!loading && (
@@ -5119,7 +4777,7 @@ const Account = () => {
                                                                 <tbody
                                                                 >
 
-                                                                    {itemsWithParsed?.map((order, index) => {
+                                                                    {items?.map((order, index) => {
                                                                         if (order.status === "Canceled") {
                                                                         } else {
                                                                             displayIndex++;
@@ -5128,7 +4786,7 @@ const Account = () => {
 
                                                                         return (
                                                                             <>
-                                                                                <div className="order px-3 py-2" style={{ borderBottom: "1px solid #ddd" }}>
+                                                                                <div className="order" style={{ borderBottom: "1px solid #ddd" }}>
                                                                                     {
                                                                                         (() => {
                                                                                             function compareDates(date1, date2) {
@@ -5151,8 +4809,8 @@ const Account = () => {
 
                                                                                             // Ensure index > 0 before calling compareDates
                                                                                             return index > 0
-                                                                                                ? compareDates(itemsWithParsed[index - 1].date.split(' ')[0], itemsWithParsed[index].date.split(' ')[0])
-                                                                                                : `📅 ${itemsWithParsed[index].date.split(' ')[0]}`;
+                                                                                                ? compareDates(items[index - 1].date.split(' ')[0], items[index].date.split(' ')[0])
+                                                                                                : `📅 ${items[index].date.split(' ')[0]}`;
                                                                                         })()
                                                                                     }
                                                                                 </div>
@@ -5168,14 +4826,14 @@ const Account = () => {
                                                                                         {isMobile ? null :
                                                                                             (
                                                                                                 (order.status !== "Canceled") ?
-                                                                                                    <td className='notranslate px-3 py-2'># {filteredCount - displayIndex}</td>
+                                                                                                    <td className='notranslate'># {orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex}</td>
                                                                                                     : <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
 
                                                                                             )
                                                                                         }
                                                                                         {(isLocalHost)
                                                                                             ?
-                                                                                            <td className="order-number notranslate px-3 py-2" data-title="OrderID">
+                                                                                            <td className="order-number notranslate" data-title="OrderID">
                                                                                                 <a>
                                                                                                     {order.id.substring(0, 4)}
                                                                                                 </a>
@@ -5183,11 +4841,11 @@ const Account = () => {
                                                                                             <></>
                                                                                         }
 
-                                                                                        <td className="order-name notranslate px-3 py-2" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>
+                                                                                        <td className="order-name notranslate" data-title="Dining Table" style={{ whiteSpace: "nowrap" }}>
                                                                                             {isMobile ?
                                                                                                 (
                                                                                                     (order.status !== "Canceled") ?
-                                                                                                        <span className='notranslate'>#{filteredCount - displayIndex} </span>
+                                                                                                        <span className='notranslate'>#{orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).length - displayIndex} </span>
                                                                                                         :
                                                                                                         <span className='notranslate'><FontAwesomeIcon icon={faTriangleExclamation} style={{ color: 'red' }} /> </span>
                                                                                                 )
@@ -5195,8 +4853,8 @@ const Account = () => {
                                                                                                 null
                                                                                             }
                                                                                             {order.tableNum === "" ? "Takeout" : order.tableNum}</td>
-                                                                                        <td className="order-status notranslate px-3 py-2" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
-                                                                                        <td className="order-total px-3 py-2" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className=" amount">
+                                                                                        <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
+                                                                                        <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className=" amount">
                                                                                             <span className='notranslate'>
                                                                                                 {"$" + roundToTwoDecimalsTofix(order.total)}
                                                                                             </span>
@@ -5230,7 +4888,7 @@ const Account = () => {
                                             roundToTwoDecimalsTofix(order?.transaction_json?.net) : 0
                                           } */}
                                                                                         </span></td>
-                                                                                        <td className="order-date px-3 py-2" data-title="Date" style={{ whiteSpace: "nowrap" }}>
+                                                                                        <td className="order-date" data-title="Date" style={{ whiteSpace: "nowrap" }}>
                                                                                             <time dateTime={order.date} title={order.date} nowrap>
                                                                                                 <span className='notranslate'>
 
@@ -5243,7 +4901,7 @@ const Account = () => {
                                                                                         </td>
                                                                                         {!isMobile && (
                                                                                             (order.status !== "Canceled") && (
-                                                                                                <td className="order-details px-3 py-2" style={{
+                                                                                                <td className="order-details" style={{
                                                                                                     width: "400px",
                                                                                                     whiteSpace: "nowrap", textAlign: "right"
                                                                                                 }}
@@ -5333,15 +4991,15 @@ const Account = () => {
                                                                                                         <p><span className='notranslate'>{order.name}</span></p>
                                                                                                         {/* <p>{order.email}</p> */}
                                                                                                         {/* <p><span className='notranslate'>{order.date}</span></p> */}
-                                                                                                        {order.receiptItems?.map((item, index) => (
+                                                                                                        {JSON.parse(order.receiptData).map((item, index) => (
                                                                                                             <div className="receipt-item" key={item.id}>
                                                                                                                 <p className='notranslate'>
-                                                                                                                    {(/^#@%\d+#@%/.test(item?.name)) ?
+                                                                                                                    {(/^#@%\d+#@%/.test(item?.name)) ? 
                                                                                                                     localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")
                                                                                                                      ? t(item?.CHI) : (item?.name.replace(/^#@%\d+#@%/, ''))
-                                                                                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中")
-                                                                                                                        ? t(item?.CHI) : (item?.name)}
-                                                                                                                        {Object.entries(item?.attributeSelected || {}).length > 0 ?
+                                                                                                                        : localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") 
+                                                                                                                        ? t(item?.CHI) : (item?.name)} 
+                                                                                                                        {Object.entries(item?.attributeSelected || {}).length > 0 ? 
                                                                                                                         "(" + Object.entries(item?.attributeSelected).map(([key, value]) => {
                                                                                                                             // 如果是开台商品的特殊属性，显示友好的信息
                                                                                                                             if (key === '开台商品') {
@@ -5366,7 +5024,7 @@ const Account = () => {
                                                                                                                                         }
                                                                                                                                     }
                                                                                                                                     // 如果格式不符或已经是格式化后的，直接返回值
-                                                                                                                                    return itemValue;
+                                                                                                                                    return itemValue; 
                                                                                                                                 }
                                                                                                                             }
                                                                                                                             return Array.isArray(value) ? value.join(' ') : value
@@ -5402,7 +5060,6 @@ const Account = () => {
                                                                     })}
                                                                 </tbody>
                                                             </table>
-                                                            </div>
                                                         </LazyLoad>
 
                                                     </div>
@@ -5412,7 +5069,7 @@ const Account = () => {
                                                     {/* 添加物品销量分析section */}
                                                     {showSection === 'itemAnalytics' ? <div>
                                                         <ItemSalesAnalytics
-                                                            orders={deferredFiltered}
+                                                            orders={orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table))}
                                                             dateRange={{ startDate, endDate }}
                                                         />
                                                     </div> : <div></div>
