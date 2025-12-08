@@ -259,10 +259,11 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
 
             const docData = { product: product, date: date };
 
-            const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
-            await setDoc(docRef, docData);
+            // const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
+            // await setDoc(docRef, docData);
             //localStorage.setItem(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(product))))
-            //localStorage.setItem(table_name, product)
+            localStorage.setItem(table_name, product)
+            window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { store, selectedTable } }));
 
         } catch (error) {
             console.error("Error adding document: ", error);
@@ -329,16 +330,31 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
             console.log(tableNumber);
             setModalOpen(true);
             setIsVisible(false)
-            if (localStorage.getItem(store + "-" + tableNumber) === null) {
-                // If it doesn't exist, set the value to an empty array
-                //localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
-                SetTableInfo(store + "-" + tableNumber, JSON.stringify([]))
-            }
-            if (!localStorage.getItem(store + "-" + tableNumber)) {
-                // If it doesn't exist, set the value to an empty array
-                //localStorage.setItem(store + "-" + selectedTable, JSON.stringify([]));
-                SetTableInfo(store + "-" + tableNumber, JSON.stringify([]))
-            }
+
+            // 1. Enter Interface: Fetch data from Firebase and copy to local storage
+            const fetchAndInitLocalStorage = async () => {
+                try {
+                    const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", store + "-" + tableNumber);
+                    const docSnapshot = await getDoc(docRef);
+                    if (docSnapshot.exists()) {
+                        const productData = docSnapshot.data().product;
+                        localStorage.setItem(store + "-" + tableNumber, productData);
+                    } else {
+                        // If not in DB, init empty in local storage
+                        localStorage.setItem(store + "-" + tableNumber, "[]");
+                    }
+                    // Trigger UI update
+                    saveId(Math.random());
+                } catch (error) {
+                    console.error("Error fetching table data from Firebase:", error);
+                    // Fallback to empty if error
+                    if (!localStorage.getItem(store + "-" + tableNumber)) {
+                        localStorage.setItem(store + "-" + tableNumber, "[]");
+                    }
+                }
+            };
+            fetchAndInitLocalStorage();
+
             processPayment()//kepp the cloud function warm and get ready
             cancel()//kepp the cloud function warm and get ready
         } else if (event.data === "admin mode active") {
@@ -800,14 +816,37 @@ function App({ isModalOpen, setModalOpen, setSelectedTable, selectedTable, setIs
                                                             </button>
                                                         )}
                                                         <button
-                                                            onClick={() => {
+                                                            onClick={async () => {
                                                                 if (!isPC && view === true) {
                                                                     setView(false)
                                                                 } else {
                                                                     setModalOpen(false);
                                                                     setIsVisible(true)
                                                                 }
-                                                                SendToKitchen();
+
+                                                                // 2. Print and Back: Save localstorage to firebase, send to kitchen, then delete localstorage
+                                                                try {
+                                                                    const table_name = store + "-" + selectedTable;
+                                                                    const product = localStorage.getItem(table_name);
+
+                                                                    // Save to Firebase
+                                                                    if (product) {
+                                                                        const dateTime = new Date().toISOString();
+                                                                        const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+                                                                        const docData = { product: product, date: date };
+                                                                        const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
+                                                                        await setDoc(docRef, docData);
+                                                                    }
+
+                                                                    // Send to Kitchen
+                                                                    await SendToKitchen();
+
+                                                                    // Delete LocalStorage
+                                                                    // localStorage.removeItem(table_name);
+                                                                    saveId(Math.random());
+                                                                } catch (error) {
+                                                                    console.error("Error in Print and Back:", error);
+                                                                }
 
                                                             }}
                                                             className="btn btn-sm btn-primary mx-1" style={{ backgroundColor: '#007bff', borderColor: '#007bff' }}>
