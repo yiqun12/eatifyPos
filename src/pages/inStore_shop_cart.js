@@ -1706,13 +1706,15 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
           </div>
 
         </div>
-        <div className="flex w-full gap-3 overflow-hidden">
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 flex-1 min-w-0 overflow-hidden">
+        <div className="flex w-full">
+
+          <div className={`flex-grow flex-shrink overflow-auto ${!isMobile ? 'm-2' : 'm-2'}`} style={{ minWidth: "150px", maxWidth: "calc(100vw - 180px)" }} >
+
             <div style={{ overflowY: 'auto', height: `calc(100vh - 355px)` }} >
               {(Array.isArray(products) ? products : []).map((product) => (
                 // the parent div
                 // can make the parent div flexbox
-                <div className="cart-item bg-gray-50 rounded-lg shadow-md border border-gray-100 p-3 mb-3 hover:shadow-lg transition-shadow duration-200">
+                <div className="cart-item bg-white rounded-lg shadow-sm p-2 mb-2">
                   <div className='flex items-start'>
                     <DeleteSvg className='delete-btn mt-1 ml-1 mr-3 cursor-pointer' style={{ width: '20px', flexShrink: 0 }}
                       onClick={() => {
@@ -1766,7 +1768,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                     </div>
 
                     <div className="quantity-section">
+                      {/* 一行布局：按钮在左，数量控制在右，空间不够时自动换行 */}
                       <div className="flex flex-wrap gap-2 justify-between items-center">
+                        {/* 左侧按钮组 */}
                         <div className="flex flex-wrap gap-1">
                           {!product.CHI.includes("开台") ?
 
@@ -1841,16 +1845,17 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               ))}
 
             </div>
-          </div>
 
-          {/* Action Buttons Card Container */}
-          <div className='bg-white rounded-lg shadow-lg border border-gray-200 p-4 flex flex-col space-y-3 flex-shrink-0 w-40'>
-            <button
+          </div>
+          <div className='flex flex-col space-y-2 flex-shrink-0' style={isMobile ? { width: "120px" } : { width: "150px" }}>
+            {/* Display Start Time */}
+            <a
               onClick={() => { SendToKitchen(); setChangeTableModal(true); }}
-              className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-3 px-3 rounded-lg border border-gray-200 transition-all duration-200 hover:shadow-md text-sm"
+              className="mt-3 bg-white btn btn-sm btn-link mx-1 border-black"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
               <span className='notranslate'>{fanyi("Change Desk")}</span>
-            </button>
+            </a>
             {/* <a
               onClick={toggleAllowance}
               className={`mt-3 btn btn-sm ${isAllowed ? 'btn-light' : 'btn-dark'} mx-1`}
@@ -1864,12 +1869,14 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <span className='notranslate'>{isAllowed ? fanyi('Allow Dish Revise') : fanyi('Disallow Dish Revise')}</span>
             </a> */}
 
-            <button
+            <a
               onClick={handleAddTipClick}
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-0 rounded-lg transition-all duration-200 hover:shadow-md text-sm"
+              className="mt-3 btn btn-sm btn-success mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
+
               <span className='notranslate'>{fanyi("Add Service Fee")}</span>
-            </button>
+            </a>
 
             {/* <a
               onClick={handleAddDiscountClick}
@@ -1880,52 +1887,68 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <span className='notranslate'>{fanyi("Add Discount")}</span>
             </a> */}
 
-            <button
+            <a
               onClick={handleCustomPriceClick}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-3 rounded-lg transition-all duration-200 hover:shadow-md text-sm"
+              className="mt-3 btn btn-sm btn-purple mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', backgroundColor: '#6f42c1', color: 'white' }}
             >
+
               <span className='notranslate'>{fanyi("Adjust Total")}</span>
-            </button>
+            </a>
 
-            <button
+            <a
               onClick={() => { listOrder(); }}
-              className="w-full bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-3 rounded-lg transition-all duration-200 hover:shadow-md text-sm whitespace-nowrap"
+              className="mt-3 btn btn-sm btn-secondary mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
+
               <span className='notranslate'>{fanyi("Print Order")}</span>
-            </button>
+            </a>
 
-            <button
+            <a
               onClick={() => { CustomerReceipt(); MerchantReceipt(); }}
-              className="w-full bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-3 rounded-lg transition-all duration-200 hover:shadow-md text-sm whitespace-nowrap"
+              className="mt-3 btn btn-sm btn-secondary mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
+
               <span className='notranslate'>{fanyi("Print Receipt")}</span>
-            </button>
+            </a>
 
-            <button
+            <a
               onClick={() => { setSplitPaymentModalOpen(true); SendToKitchen(); localStorage.setItem("splitSubtotalTotalPrice", Math.round(totalPrice * 100) / 100); localStorage.setItem("splitSubtotalCurrentPrice", 0) }}
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-3 rounded-lg transition-all duration-200 hover:shadow-md text-sm whitespace-nowrap"
+              className="mt-3 btn btn-sm btn-warning mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              <span className='notranslate'>{fanyi("Split Payment")}</span>
-            </button>
-            <button
-              onClick={() => { SendToKitchen(); MarkAsUnPaid(); }}
-              className="w-full bg-white hover:bg-red-50 text-red-600 border border-red-300 font-medium py-3 px-3 rounded-lg transition-all duration-200 hover:shadow-md text-sm whitespace-nowrap"
-            >
-              <span className='notranslate'>{fanyi("Mark as Unpaid")}</span>
-            </button>
-            <button
-              onClick={() => handlePaymentClick('card')}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-3 rounded-lg transition-all duration-200 hover:shadow-md text-sm whitespace-nowrap"
-            >
-              <span className='notranslate'>{fanyi("Card Pay")}</span>
-            </button>
 
-            <button
-              onClick={() => handlePaymentClick('cash')}
-              className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-medium py-3 px-3 rounded-lg transition-all duration-200 hover:shadow-md text-sm whitespace-nowrap"
+
+
+              <span className='notranslate'>{fanyi("Split Payment")}</span>
+            </a>
+            <a
+              onClick={() => { SendToKitchen(); MarkAsUnPaid(); }}
+              className="mt-3 bg-white btn btn-sm btn-outline-danger mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
+
+              <span className='notranslate'>{fanyi("Mark as Unpaid")}</span>
+            </a>
+            <a
+              onClick={() => handlePaymentClick('card')}
+              className="mt-3 btn btn-sm btn-primary mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+
+              <span className='notranslate'>{fanyi("Card Pay")}</span>
+            </a>
+
+            <a
+              onClick={() => handlePaymentClick('cash')}
+              className="mt-3 btn btn-sm btn-info mx-1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
+            >
+
               <span className='notranslate'>{fanyi("Cash Pay")}</span>
-            </button>
+            </a>
           </div>
         </div>
         <div>
