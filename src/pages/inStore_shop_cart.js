@@ -423,8 +423,11 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       const dateTime = new Date().toISOString();
       const date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
       const docData = { product: product, date: date };
-      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
-      await setDoc(docRef, docData);
+      // const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
+      // await setDoc(docRef, docData);
+      localStorage.setItem(table_name, product);
+      setProducts(JSON.parse(product));
+      window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { store, selectedTable } }));
 
     } catch (error) {
       console.error("Error adding document: ", error);
