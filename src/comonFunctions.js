@@ -16,6 +16,65 @@ export function format12Oclock(dateString) {
   return `${year}-${month}-${day}-00-00-00-00`;
 }
 
+// New function: Use 5:00 AM as the business day boundary
+// If current time is before 5:00 AM, return yesterday's 5:00 AM
+// If current time is 5:00 AM or later, return today's 5:00 AM
+export function format5Oclock(dateString) {
+  let date = new Date(dateString);
+  
+  // If current time is before 5:00 AM (0:00 - 4:59), use yesterday's date
+  if (date.getHours() < 5) {
+    date.setDate(date.getDate() - 1);
+  }
+  
+  // Set time to 5:00 AM
+  date.setHours(5, 0, 0, 0);
+
+  let year = date.getFullYear();
+  let month = String(date.getMonth() + 1).padStart(2, '0');
+  let day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}-05-00-00-00`;
+}
+
+// Get month start time (5:00 AM on the 1st day of the month)
+export function getMonthStart5Oclock(dateString) {
+  let date = new Date(dateString);
+  
+  // If current time is before 5:00 AM on the 1st, use previous month
+  if (date.getHours() < 5 && date.getDate() === 1) {
+    date.setMonth(date.getMonth() - 1);
+  }
+  
+  // Set to 5:00 AM on the 1st day of the month
+  date.setDate(1);
+  date.setHours(5, 0, 0, 0);
+
+  let year = date.getFullYear();
+  let month = String(date.getMonth() + 1).padStart(2, '0');
+  let day = '01';
+
+  return `${year}-${month}-${day}-05-00-00-00`;
+}
+
+// Get month end time (5:00 AM on the 1st day of next month)
+export function getMonthEnd5Oclock(dateString) {
+  let date = new Date(dateString);
+  
+  // Move to next month
+  date.setMonth(date.getMonth() + 1);
+  
+  // Set to 5:00 AM on the 1st day of the month
+  date.setDate(1);
+  date.setHours(5, 0, 0, 0);
+
+  let year = date.getFullYear();
+  let month = String(date.getMonth() + 1).padStart(2, '0');
+  let day = '01';
+
+  return `${year}-${month}-${day}-05-00-00-00`;
+}
+
 
 export function parseCustomFormatDate(customDateString) {
   const parts = customDateString.split('-');

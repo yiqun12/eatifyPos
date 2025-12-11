@@ -11,6 +11,7 @@ export const BILLING_RULES = {
   RULE_3: 'first_hour_block_then_30min',      // 首小时(不足按1小时), 后续30分钟计费
   RULE_4: 'first_hour_block_then_minute',     // 首小时(不足按1小时), 后续分钟计费
   RULE_5: 'exact_minute',                     // 按分钟计费
+  RULE_6: 'first_40min_30min_or_hour_then_10min', // 不足40分钟按30分钟，超过40分钟不足1小时按1小时，1小时后每10分钟
   CUSTOM_RULE: 'custom_rule',                 // 新增自定义规则
 };
 
@@ -42,6 +43,24 @@ export const calculatePriceForBillingRule = (totalMinutes, hourlyRate, ruleId, c
             break;
         case BILLING_RULES.RULE_5:
             price = minsElapsed * (rate / 60);
+            break;
+        case BILLING_RULES.RULE_6:
+            // 开台计费规则：
+            // - 不足40分钟按30分钟算
+            // - 超过40分钟不足1小时按1小时算
+            // - 1小时之后每10分钟算一次
+            if (minsElapsed <= 0) {
+                price = 0;
+            } else if (minsElapsed <= 40) {
+                // 不足40分钟按30分钟算
+                price = (30 / 60) * rate;
+            } else if (minsElapsed <= 60) {
+                // 超过40分钟不足1小时按1小时算
+                price = rate;
+            } else {
+                // 1小时之后每10分钟算一次
+                price = rate + Math.ceil((minsElapsed - 60) / 10) * (rate / 6);
+            }
             break;
         case BILLING_RULES.CUSTOM_RULE:
             if (!customRuleConfig) {
@@ -100,7 +119,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
   const [isTimerEnabled, setIsTimerEnabled] = useState(false);
 
   // State for selected billing rule
-  const [selectedBillingRule, setSelectedBillingRule] = useState(BILLING_RULES.RULE_2);
+  const [selectedBillingRule, setSelectedBillingRule] = useState(BILLING_RULES.RULE_6);
 
   // 新增: 自定义计费规则参数的状态
   const [customFirstBlockDuration, setCustomFirstBlockDuration] = useState(60); // 默认60分钟
@@ -169,6 +188,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     { input: "Rule: Hour Block / 30-min", output: "规则: 首小时不足按1小时 / 后续30分钟" },
     { input: "Rule: Hour Block / Minute", output: "规则: 首小时不足按1小时 / 后续分钟" },
     { input: "Rule: Exact Minute", output: "规则: 按分钟" },
+    { input: "Rule: First 40-min → 30-min or 1-hour / 10-min", output: "规则: 首40分钟不足按30分钟,超过40分钟不足1小时按1小时 / 后续10分钟" },
     // 新增自定义规则相关的翻译 (英文优先)
     { input: "Custom Rule", output: "自定义规则" },
     { input: "Configure Custom Rule", output: "配置自定义规则" },
@@ -629,7 +649,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setIsTimerEnabled(false);
         setTimerDuration('');
         setTimerAction('No Action');
-        setSelectedBillingRule(BILLING_RULES.RULE_2);
+        setSelectedBillingRule(BILLING_RULES.RULE_6);
         setCustomFirstBlockDuration(60);
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
@@ -667,7 +687,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setIsTimerEnabled(false);
         setTimerDuration('');
         setTimerAction('No Action');
-        setSelectedBillingRule(BILLING_RULES.RULE_2);
+        setSelectedBillingRule(BILLING_RULES.RULE_6);
         setCustomFirstBlockDuration(60);
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
@@ -688,7 +708,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
         setIsTimerEnabled(false);
         setTimerDuration('');
         setTimerAction('No Action');
-        setSelectedBillingRule(BILLING_RULES.RULE_2);
+        setSelectedBillingRule(BILLING_RULES.RULE_6);
         setCustomFirstBlockDuration(60);
         setCustomInitialSegmentMinutes(15);
         setCustomSubsequentSegmentMinutes(15);
@@ -1230,6 +1250,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                     <option value={BILLING_RULES.RULE_3}>{fanyi("Rule: Hour Block / 30-min")}</option>
                     <option value={BILLING_RULES.RULE_4}>{fanyi("Rule: Hour Block / Minute")}</option>
                     <option value={BILLING_RULES.RULE_5}>{fanyi("Rule: Exact Minute")}</option>
+                    <option value={BILLING_RULES.RULE_6}>{fanyi("Rule: First 40-min → 30-min or 1-hour / 10-min")}</option>
                     <option value={BILLING_RULES.CUSTOM_RULE}>{fanyi("Custom Rule")}</option>
                   </select>
                 </>
@@ -1286,6 +1307,8 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                             return fanyi("Rule: Hour Block / Minute");
                           case BILLING_RULES.RULE_5:
                             return fanyi("Rule: Exact Minute");
+                          case BILLING_RULES.RULE_6:
+                            return fanyi("Rule: First 40-min → 30-min or 1-hour / 10-min");
                           case BILLING_RULES.CUSTOM_RULE:
                             return `${fanyi("Custom Rule")} (${customFirstBlockDuration === 30 ? fanyi("30 minutes") : fanyi("1 hour")} / ${customInitialSegmentMinutes}min → ${customSubsequentSegmentMinutes}min)`;
                           default:
@@ -1305,6 +1328,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                       <option value={BILLING_RULES.RULE_3}>{fanyi("Rule: Hour Block / 30-min")}</option>
                       <option value={BILLING_RULES.RULE_4}>{fanyi("Rule: Hour Block / Minute")}</option>
                       <option value={BILLING_RULES.RULE_5}>{fanyi("Rule: Exact Minute")}</option>
+                      <option value={BILLING_RULES.RULE_6}>{fanyi("Rule: First 40-min → 30-min or 1-hour / 10-min")}</option>
                       <option value={BILLING_RULES.CUSTOM_RULE}>{fanyi("Custom Rule")}</option>
                     </select>
                   )}
