@@ -9,6 +9,7 @@ import './Food.css';
 import $ from 'jquery';
 import './fooddropAnimate.css';
 import { useMyHook } from './myHook';
+import useFoodCart from '../hooks/useFoodCart';
 import { useMemo } from 'react';
 import { ReactComponent as PlusSvg } from './plus.svg';
 import { ReactComponent as MinusSvg } from './minus.svg';
@@ -55,6 +56,9 @@ const customMarkerIcon = L.icon({
 const Food = () => {
 
   const directoryType = getGlobalDirectoryType();
+  
+  // Use food cart hook for unified cart management
+  const foodCart = useFoodCart();
 
   async function processPayment() {
     console.log("processPayment");
@@ -501,96 +505,88 @@ const Food = () => {
     color: 'black',
   };
 
-  const addSpecialFood = (id, name, subtotal, image, attributeSelected, count, CHI) => {
+  const addSpecialFood = async (id, name, subtotal, image, attributeSelected, count, CHI) => {
 
     if (isKiosk) {
       processPayment()//kepp the cloud function warm and get ready
       cancel()//kepp the cloud function warm and get ready
     }
 
-    // Check if the array exists in local storage
-    if (sessionStorage.getItem(store) === null) {
-      // If it doesn't exist, set the value to an empty array
-      sessionStorage.setItem(store, JSON.stringify([]));
+    try {
+      // Use the unified food cart hook
+      const success = await foodCart.addFoodItem(id, name, subtotal, image, attributeSelected, count, CHI);
+      
+      if (success) {
+        console.log('Food item added successfully:', { id, name, isSharedCart: foodCart.isSharedCart });
+      } else {
+        console.warn('Food item added with fallback to sessionStorage');
+      }
+    } catch (error) {
+      console.error('Failed to add food item:', error);
     }
-
-    // Retrieve the array from local storage
-    let products = JSON.parse(sessionStorage.getItem(store));
-    // Find the product with the matching id
-    const product = products?.find((product) => product.id === id && product.count === count);
-    // If the product exists, update its name, subtotal, image, and timesClicked values
-    if (product) {
-      product.name = name;
-      product.subtotal = subtotal;
-      product.image = image;
-      product.quantity++;
-      product.attributeSelected = attributeSelected;
-      product.count = count;
-      product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
-      product.CHI = CHI
-    } else {
-      // If the product doesn't exist, add it to the array
-      products?.unshift({ id: id, name: name, subtotal: subtotal, image: image, quantity: 1, attributeSelected: attributeSelected, count: count, itemTotalPrice: parseFloat(subtotal), CHI: CHI });
-    }
-
-    // Update the array in local storage
-    sessionStorage.setItem(store, JSON.stringify(products));
-    setProducts(products)
-    const calculateTotalQuant = () => {
-      const total = products.reduce((acc, product) => acc + (product.quantity), 0);
-      // console.log(total)
-      $('#cart').attr("data-totalitems", total);
-    }
-    calculateTotalQuant();
   };
 
 
-  const deleteSpecialFood = (id, count, attributeSelected, isDeleted) => {
-    let products = JSON.parse(sessionStorage.getItem(store));
-
-    if (products && products.length > 0) {
-      // Find the index of the product with the given id
-      //const productIndex = products.findIndex((item) => item.id === id);
-      let productIndex = products.findIndex((product) => product.id === id && product.count === count);
-
-      // If the product is found, decrement its quantity
-      if (productIndex !== -1) {
-        products[productIndex].quantity -= 1;
-
-        // If the quantity becomes 0, remove the product from the array
-        if (products[productIndex].quantity <= 0 || isDeleted === 0) {
-          console.log("delete now")
-          products.splice(productIndex, 1);
-          sessionStorage.setItem(store, JSON.stringify(products));
-          const calculateTotalQuant = () => {
-            const total = products.reduce((acc, product) => acc + (product.quantity), 0);
-            // console.log(total)
-            $('#cart').attr("data-totalitems", total);
-          }
-          calculateTotalQuant();
-
+  const deleteSpecialFood = async (id, count, attributeSelected, isDeleted) => {
+    try {
+      if (isDeleted === 0) {
+        // Complete removal of item
+        const success = await foodCart.removeFoodItem(id, count, attributeSelected);
+        if (success) {
+          console.log('Food item removed successfully:', { id, count });
           saveId(Math.random());
-          hideModal()
-          return
+          hideModal();
         }
-        const product = products.find((product) => product.id === id && product.count === count);
-
-        product.itemTotalPrice = Math.round(100 * ((parseFloat(totalPrice) + parseFloat(product.subtotal)) * parseFloat(product.quantity))) / 100
-        // Save the updated array in local storage
-        sessionStorage.setItem(store, JSON.stringify(products));
-        setProducts(products)
-
+        return;
       }
 
-    }
-    const calculateTotalQuant = () => {
-      const total = products.reduce((acc, product) => acc + (product.quantity), 0);
-      // console.log(total)
-      $('#cart').attr("data-totalitems", total);
-    }
-    calculateTotalQuant();
+      // For quantity decrement, we need to handle this differently for shared vs session cart
+      if (foodCart.isSharedCart) {
+        // For shared cart, we need to get the current item and update its quantity
+        // This would require additional methods in the shared cart
+        console.log('Quantity decrement in shared cart not yet implemented');
+        // TODO: Implement quantity decrement for shared cart
+      } else {
+        // Original sessionStorage logic for quantity decrement
+        let products = JSON.parse(sessionStorage.getItem(foodCart.store));
 
-    saveId(Math.random());
+        if (products && products.length > 0) {
+          let productIndex = products.findIndex((product) => product.id === id && product.count === count);
+
+          if (productIndex !== -1) {
+            products[productIndex].quantity -= 1;
+
+            if (products[productIndex].quantity <= 0) {
+              products.splice(productIndex, 1);
+              sessionStorage.setItem(foodCart.store, JSON.stringify(products));
+              const calculateTotalQuant = () => {
+                const total = products.reduce((acc, product) => acc + (product.quantity), 0);
+                $('#cart').attr("data-totalitems", total);
+              }
+              calculateTotalQuant();
+              saveId(Math.random());
+              hideModal();
+              return;
+            }
+            
+            const product = products.find((product) => product.id === id && product.count === count);
+            product.itemTotalPrice = Math.round(100 * (parseFloat(product.subtotal) * parseFloat(product.quantity))) / 100;
+            sessionStorage.setItem(foodCart.store, JSON.stringify(products));
+            setProducts(products);
+          }
+        }
+        
+        const calculateTotalQuant = () => {
+          const products = JSON.parse(sessionStorage.getItem(foodCart.store)) || [];
+          const total = products.reduce((acc, product) => acc + (product.quantity), 0);
+          $('#cart').attr("data-totalitems", total);
+        }
+        calculateTotalQuant();
+        saveId(Math.random());
+      }
+    } catch (error) {
+      console.error('Failed to delete food item:', error);
+    }
   };
   const searchSpeicalFoodQuantity = (id, count) => {
     // Retrieve the array from local storage
@@ -735,8 +731,10 @@ const Food = () => {
   };
   const [isModalVisible, setModalVisibility] = useState(false);
 
-  // Function to show the modal
+  // Function to show the modal (prevent repeated clicks while any popup is visible)
   const showModal = (item) => {
+    // If either the attribute modal or the quick "Added" toast is visible, ignore clicks
+    if (isModalVisible || isOpen) return;
     const randomNum = uuidv4()
     setCount(randomNum);  // Increment the count every time the modal is opened
     if (Object.keys(item.attributesArr).length > 0) {

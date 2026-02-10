@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { collection, doc, setDoc, addDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from '../firebase/index';
 import { useUserContext } from "../context/userContext";
+import { useToast } from '../components/Toast';
 
 import firebase from 'firebase/compat/app';
 import { format12Oclock, addOneDayAndFormat, convertDateFormat, parseDate, parseDateUTC } from '../comonFunctions';
@@ -12,6 +13,9 @@ import { lookup } from 'zipcode-to-timezone';
 
 
 function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }) {
+
+  // Initialize toast for better notifications
+  const { showToast, ToastList } = useToast();
 
   function getTimeZoneByZip(zipCode) {
     // Use the library to find the timezone ID from the ZIP code
@@ -94,6 +98,56 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
 
   const isMobile = width <= 600;
 
+  // Function to add order items to the corresponding table's cart
+  const addOrderToTableCart = async (order) => {
+    try {
+      const tableName = order.table;
+      const orderItems = order.items;
+      
+      if (!tableName || !orderItems) {
+        console.error("Missing table name or order items");
+        return;
+      }
+
+      // Get existing cart data for this table
+      const existingCartKey = `${storeID}-${tableName}`;
+      let existingCart = [];
+      
+      try {
+        const existingCartData = localStorage.getItem(existingCartKey);
+        if (existingCartData) {
+          existingCart = JSON.parse(existingCartData);
+        }
+      } catch (error) {
+        console.log("No existing cart found for table, creating new one");
+      }
+
+      // Process and add new items to the cart
+      const processedItems = orderItems.map(item => ({
+        ...item,
+        // Add a unique count identifier if not present
+        count: item.count || Date.now() + Math.random(),
+        // Ensure proper structure for backend cart
+        isFromCustomerOrder: true,
+        customerOrderId: order.orderId,
+        addedAt: new Date().toISOString()
+      }));
+
+      // Combine existing cart with new items
+      const updatedCart = [...existingCart, ...processedItems];
+
+      // Save to localStorage (backend cart format)
+      localStorage.setItem(existingCartKey, JSON.stringify(updatedCart));
+
+      console.log(`Added ${processedItems.length} items to table ${tableName} cart`);
+      showToast(`Order confirmed! Items added to table ${order.table}`, 'success', 3000);
+
+      
+    } catch (error) {
+      console.error("Error adding order to table cart: ", error);
+      throw error;
+    }
+  };
 
   const deleteDocument = async (orderId, orderStatus, order) => {
     console.log("deleteDocument")
@@ -150,14 +204,17 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
     }
 
     try {
-
+      // Step 1: Add order items to the table's cart
+      await addOrderToTableCart(order);
+      
+      // Step 2: Mark the order as confirmed
       const docRef = doc(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', storeID, 'PendingDineInOrder', orderId);
       await updateDoc(docRef, {
-        isConfirm: true  // Replace "newStatus" with the actual status you want to update to
+        isConfirm: true
       });
-      console.log("Document successfully updated!");
     } catch (error) {
-      console.error("Error deleting document: ", error);
+      console.error("Error confirming order: ", error);
+      showToast("Error confirming order. Please try again.", 'error', 5000);
     }
   };
 
@@ -165,6 +222,7 @@ function Test_Notification_Page({ storeID, reviewVar, setReviewVar, sortedData }
     // <div>Hello</div>
 
     <div >
+      <ToastList />
       <style>
         {`
           /* Webpixels CSS */
