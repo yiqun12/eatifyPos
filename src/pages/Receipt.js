@@ -255,6 +255,18 @@ const Item = () => {
               <b className=" notranslate" >${roundToTwoDecimalsTofix(payment_data.tax)}</b>
             </div>
           </div>
+
+          {(payment_data.memberBalanceUsed && payment_data.memberBalanceUsed != 0.00) ?
+            <div className="row">
+              <div className="col">
+                <b style={{color: '#059669'}}>💳 {t("Member Balance Used")}:</b>
+              </div>
+              <div className="col d-flex justify-content-end">
+                <b className=" notranslate" style={{color: '#059669'}}>-${roundToTwoDecimalsTofix(payment_data.memberBalanceUsed)}</b>
+              </div>
+            </div>
+            : null}
+
           {(payment_data.tips && payment_data.tips != 0.00) ?
             <div className="row">
               <div className="col">
