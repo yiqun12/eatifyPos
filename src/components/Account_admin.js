@@ -265,6 +265,10 @@ const Account = () => {
         { input: "Discount", output: "折扣" },
         { input: "Canceled", output: "取消送厨" },
         { input: "Sales Analytics", output: "销量分析" },
+        { input: "Daily Revenue", output: "每日收入" },
+        { input: "Show Chart", output: "显示折线图" },
+        { input: "Hide Chart", output: "隐藏折线图" },
+        { input: "No Business Data On Date Range", output: "所选日期范围内无营业数据" },
 
     ];
     function translate(input) {
@@ -345,6 +349,8 @@ const Account = () => {
 
 
     const isPC = width >= 1024;
+    const isLocalhost =
+        window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const { promise, logoutUser } = useUserContext();
 
     const [activeTab, setActiveTab] = useState('');
@@ -1124,7 +1130,8 @@ const Account = () => {
     //REVENUE CHART 31 DAYS FROM NOW
     //const today = new Date("2023-12-19");
 
-    const sortedData = revenueData.sort((a, b) => new Date(a.date) - new Date(b.date)).map(item => ({ ...item, date: (new Date(item.date).getMonth() + 1) + '/' + new Date(item.date).getDate() }));
+    const sortedData = [...revenueData].sort((a, b) => new Date(a.date) - new Date(b.date)).map(item => ({ ...item, date: (new Date(item.date).getMonth() + 1) + '/' + new Date(item.date).getDate() }));
+    const chartWidth = Math.max(320, isMobile ? width2 - 75 : Math.min(width2 - 40, 900));
 
 
     if (!sessionStorage.getItem("tableMode")) {
@@ -1290,6 +1297,52 @@ const Account = () => {
         setShowSyncButton(false)
 
     };
+
+    const resetStoreSelectionAfterDelete = () => {
+        setActiveStoreTab('');
+        setShowSection('');
+        setStoreID('');
+        setStoreName_('');
+        setStoreCHI_('');
+        setAmericanTimeZone(getTimeZoneByZip("94133"));
+        setCutoffTime(DateTime.utc().set({ hour: 0, minute: 0 }).setZone(lookup("94133")).toLocaleString(DateTime.TIME_SIMPLE));
+        setActiveStoreId('');
+        setActiveTab('#profile');
+        setStoreOpenTime('');
+        window.history.pushState(null, '', '/account');
+    };
+
+    const handleDeleteStore = async () => {
+        const storeIdToDelete = storeID || activeStoreTab;
+        if (!isLocalhost || !user?.uid || !storeIdToDelete) {
+            return;
+        }
+
+        const storeLabel = storeName_ || storeCHI || storeIdToDelete;
+        const confirmed = window.confirm(
+            `[localhost dev] Delete store "${storeLabel}" (${storeIdToDelete})?\n\nThis removes the main store document. Subcollections (orders, tables, etc.) are NOT auto-deleted.`
+        );
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            await deleteDoc(doc(db, 'stripe_customers', user.uid, 'TitleLogoNameContent', storeIdToDelete));
+
+            const publicDocRef = doc(db, 'TitleLogoNameContent', storeIdToDelete);
+            const publicSnap = await getDoc(publicDocRef);
+            if (publicSnap.exists()) {
+                await deleteDoc(publicDocRef);
+            }
+
+            alert(`Store "${storeIdToDelete}" deleted.`);
+            resetStoreSelectionAfterDelete();
+        } catch (error) {
+            console.error('Error deleting store:', error);
+            alert(`Delete failed: ${error.message}`);
+        }
+    };
+
     const [documents, setDocuments] = useState([]);
     useEffect(() => {
         setNotificationData([
@@ -3527,6 +3580,24 @@ const Account = () => {
                                                                 Edit Store Info
                                                             </button>
                                                         )}
+                                                        {isLocalhost && storeID ? (
+                                                            <div className="mt-4 p-4 border border-red-300 rounded-lg bg-red-50">
+                                                                <div style={{ fontWeight: 'bold' }} className="text-red-700 mb-2">
+                                                                    Developer Tools (localhost only)
+                                                                </div>
+                                                                <p className="text-sm text-red-600 mb-3">
+                                                                    Permanently delete this store document. Subcollections are not auto-deleted.
+                                                                </p>
+                                                                <button
+                                                                    type="button"
+                                                                    className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                                                                    onClick={handleDeleteStore}
+                                                                >
+                                                                    <i className="bi bi-trash me-2"></i>
+                                                                    Delete Store (dev)
+                                                                </button>
+                                                            </div>
+                                                        ) : null}
 
 
 
@@ -4368,13 +4439,13 @@ const Account = () => {
                                                                     {/* {JSON.stringify(startDate)}
                                   {JSON.stringify(endDate)} */}
 
-                                                                    {/* <button
-                                    onClick={() => setShowChart(!showChart)}
-                                    className="btn btn-sm btn-info d-flex align-items-center mx-1 mb-2"
-                                  >
-                                    <i className={`bi ${!showChart ? 'bi-bar-chart' : 'bi-eye-slash'} pe-2`}></i>
-                                    <span>{!showChart ? 'Show Chart' : 'Hide Chart'}</span>
-                                  </button> */}
+                                                                    <button
+                                                                        onClick={() => setShowChart(!showChart)}
+                                                                        className="btn btn-sm btn-info d-flex align-items-center mx-1 mb-2"
+                                                                    >
+                                                                        <i className={`bi ${!showChart ? 'bi-bar-chart' : 'bi-eye-slash'} pe-2`}></i>
+                                                                        <span>{!showChart ? fanyi('Show Chart') : fanyi('Hide Chart')}</span>
+                                                                    </button>
                                                                 </div>
                                                             </div>
 
@@ -4678,25 +4749,30 @@ const Account = () => {
 
                                                         </div>
 
-                                                        {showChart && isMobile ?
-                                                            <div>
-                                                                <button onClick={() => setShowChart(false)} className="btn btn-sm mt-1 mb-1 notranslate" style={{
-                                                                    float: "right",
-                                                                    border: '1px solid #ccc',
-                                                                    display: 'inline-flex',
-                                                                    alignItems: 'center',
-                                                                    // Add other styles as needed
-                                                                }}>
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path fill="currentColor" d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" /></svg>                                </button>
-                                                                <LineChart className="chart" width={width2 - 75} height={250} data={sortedData}>
-                                                                    <CartesianGrid strokeDasharray="3 3" />
-                                                                    <XAxis dataKey="date" />
-                                                                    <YAxis />
-                                                                    <Tooltip />
-                                                                    <Legend />
-                                                                    <Line type="monotone" dataKey="revenue" stroke="#8884d8" />
-                                                                </LineChart>
-
+                                                        {showChart ?
+                                                            <div className="mt-3 mb-3">
+                                                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                                                    <div style={{ fontWeight: 'bold' }}>{fanyi('Daily Revenue')}</div>
+                                                                    <button onClick={() => setShowChart(false)} className="btn btn-sm mt-1 mb-1 notranslate" style={{
+                                                                        border: '1px solid #ccc',
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                    }}>
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16"><path fill="currentColor" d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" /></svg>
+                                                                    </button>
+                                                                </div>
+                                                                {sortedData.length > 0 ? (
+                                                                    <LineChart className="chart" width={chartWidth} height={250} data={sortedData}>
+                                                                        <CartesianGrid strokeDasharray="3 3" />
+                                                                        <XAxis dataKey="date" />
+                                                                        <YAxis />
+                                                                        <Tooltip />
+                                                                        <Legend />
+                                                                        <Line type="monotone" dataKey="revenue" stroke="#8884d8" name={fanyi('Revenue')} />
+                                                                    </LineChart>
+                                                                ) : (
+                                                                    <div className="text-muted">{fanyi('No Business Data On Date Range')}</div>
+                                                                )}
                                                             </div> : null
                                                         }
 

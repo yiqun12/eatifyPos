@@ -115,10 +115,10 @@
 
     <!-- Table Legend Start -->
     <div class="table-legend-container">
-      <div class="legend-item">
+      <!-- <div class="legend-item">
         <span class="legend-color-square" style="background-color: rgba(140, 40, 40, 0.7);"></span>
         <span>Reserved/Occupied (Empty)</span>
-      </div>
+      </div> -->
       <div class="legend-item">
         <span class="legend-color-square" style="background-color: rgba(150, 111, 51, 0.7);"></span>
         <span>Vacant Table</span>
@@ -1184,10 +1184,10 @@
             // First check if _startTime exists
             if (localStorage.getItem(key + "_startTime") !== null) {// starttime exist
               const tableKey = key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length)
-              highlightTable(tableKey, 'rgba(140, 40, 40, 0.7)')//rich red
+              highlightTable(tableKey, 'rgba(150, 111, 51, 0.7)')//rich red
             } else if (localStorage.getItem(key + "-isSent_startTime") !== null) {
               const tableKey = key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length)
-              highlightTable(tableKey, 'rgba(140, 40, 40, 0.7)')//rich red
+              highlightTable(tableKey, 'rgba(150, 111, 51, 0.7)')//rich red
             } else {
               highlightTable(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(150, 111, 51, 0.7)')//original brown
             }
@@ -1206,10 +1206,10 @@
 
           if (localStorage.getItem(event.key + "_startTime") !== null) {// starttime exist
             const tableKey = event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length)
-            highlightTable(tableKey, 'rgba(140, 40, 40, 0.7)')//rich red
+            highlightTable(tableKey, 'rgba(150, 111, 51, 0.7)')//rich red
           } else if (localStorage.getItem(event.key + "-isSent_startTime") !== null) {
             const tableKey = event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length)
-            highlightTable(tableKey, 'rgba(140, 40, 40, 0.7)')//rich red
+            highlightTable(tableKey, 'rgba(150, 111, 51, 0.7)')//rich red
           } else {
             //alert(key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length))
             highlightTable(event.key.slice((store.slice(0, -"_restaurant_seat_arrangement".length) + "-").length), 'rgba(150, 111, 51, 0.7)')//original brown

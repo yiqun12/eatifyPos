@@ -50,12 +50,12 @@ const MemoryMonitor = () => {
       }
 
       statsRef.current.innerHTML = `
-        <div>Used: ${formatMb(mem.used)}</div>
-        <div>Total: ${formatMb(mem.total)}</div>
-        <div>Limit: ${formatMb(mem.limit)}</div>
-        <div>Peak: ${formatMb(peakRef.current)}</div>
-        <div style="color:${trendColor}">Δ last ${INTERVAL_MS / 1000}s: ${deltaMb >= 0 ? "+" : ""}${deltaMb.toFixed(1)} MB</div>
-        <div style="color:${trendColor}">Δ since reset: ${growthMb >= 0 ? "+" : ""}${growthMb.toFixed(1)} MB</div>
+        <div>已用：${formatMb(mem.used)}</div>
+        <div>总计：${formatMb(mem.total)}</div>
+        <div>限制：${formatMb(mem.limit)}</div>
+        <div>峰值：${formatMb(peakRef.current)}</div>
+        <div style="color:${trendColor}">最后 ${INTERVAL_MS / 1000} 秒：${deltaMb >= 0 ? "+" : ""}${deltaMb.toFixed(1)} MB</div>
+        <div style="color:${trendColor}">重置后的变化量：${growthMb >= 0 ? "+" : ""}${growthMb.toFixed(1)} MB</div>
         <div style="opacity:0.75;margin-top:4px;word-break:break-all">${window.location.pathname}</div>
       `;
 
