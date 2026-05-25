@@ -109,6 +109,8 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
   // 新增：页面加载时检查和恢复所有定时器
   useEffect(() => {
+    const restoredTimerIds = [];
+
     const checkAllTimers = () => {
       // 遍历localStorage中所有的定时器
       for (let i = 0; i < localStorage.length; i++) {
@@ -125,9 +127,9 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 const remainingTime = endTime - now;
                 console.log(`恢复定时器 ${key}，剩余时间: ${Math.floor(remainingTime / 1000)}秒`);
 
-                setTimeout(() => {
+                restoredTimerIds.push(setTimeout(() => {
                   executeTimerAction(action, key);
-                }, remainingTime);
+                }, remainingTime));
               } else if (now >= endTime && action === 'Auto Checkout') {
                 // 定时器已到期且是自动结账，立即执行
                 console.log(`定时器 ${key} 已到期，执行自动结账`);
@@ -166,7 +168,12 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
     };
 
     // 延迟执行，确保页面完全加载
-    setTimeout(checkAllTimers, 1000);
+    const scheduleTimeoutId = setTimeout(checkAllTimers, 1000);
+
+    return () => {
+      clearTimeout(scheduleTimeoutId);
+      restoredTimerIds.forEach(clearTimeout);
+    };
   }, [store, selectedTable]);
 
   const translations = useMemo(() => [

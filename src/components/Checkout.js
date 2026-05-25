@@ -1065,7 +1065,7 @@ function PayHistory(props) {
 
   useEffect(() => {
     if (props.receiptToken != "") {
-      firebase
+      const unsubscribe = firebase
         .firestore()
         .collection('stripe_customers')
         .doc(user.uid)
@@ -1134,6 +1134,7 @@ function PayHistory(props) {
           document.querySelector('#payments-list').appendChild(liElement);
 
         });
+      return () => unsubscribe();
     }
   }, [props.receiptToken]); // empty dependency array to run once on mount
   //console.log(elements.getElement(CardElement))
@@ -1165,6 +1166,8 @@ function PayHistory(props) {
     if (!promise || !elements) {
       return;
     }
+
+    let unsubscribePayment = null;
 
     console.log(clientSecret)
     const fetchPaymentIntent = async () => {
@@ -1199,7 +1202,7 @@ function PayHistory(props) {
       await paymentRef.set(payment, { merge: true });
 
       // Listen to updates
-      paymentRef.onSnapshot((docSnapshot) => {
+      unsubscribePayment = paymentRef.onSnapshot((docSnapshot) => {
         const payment = docSnapshot.data();
         //const card = payment.charges.data[0].payment_method_details.card;
         if (payment.status === "succeeded") {
@@ -1213,6 +1216,11 @@ function PayHistory(props) {
       // addMessage(`Payment ${paymentIntent.status}: ${paymentIntent.id}`);
     };
     fetchPaymentIntent();
+    return () => {
+      if (typeof unsubscribePayment === 'function') {
+        unsubscribePayment();
+      }
+    };
   }, [clientSecret, promise, elements]);
   const [location, getLocation] = useGeolocation();
 

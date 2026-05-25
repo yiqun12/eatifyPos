@@ -86,6 +86,8 @@ const Item = () => {
 
   useEffect(() => {
     if (receiptToken) {
+      let unsubscribeSuccessPayment = null;
+
       const unsubscribe =
         firebase
           .firestore()
@@ -116,47 +118,54 @@ const Item = () => {
               setProducts(JSON.parse(paymentData.receipt_data));
             } else {//http://localhost:3000/store?store=demo&order=TH7DXBaLTDgn8yueN7Yb&modal=true#receive-jade-traffic
 
-              firebase
-                .firestore()
-                .collection("stripe_customers")
-                .doc(user.uid)
-                .collection("TitleLogoNameContent")
-                .doc(storeIdentity)
-                .collection("success_payment")
-                .doc(receiptToken)
-                .onSnapshot((doc) => {
-                  if (doc.exists) {
-                    const payment = doc.data();
+              if (!unsubscribeSuccessPayment) {
+                unsubscribeSuccessPayment = firebase
+                  .firestore()
+                  .collection("stripe_customers")
+                  .doc(user.uid)
+                  .collection("TitleLogoNameContent")
+                  .doc(storeIdentity)
+                  .collection("success_payment")
+                  .doc(receiptToken)
+                  .onSnapshot((doc) => {
+                    if (doc.exists) {
+                      const payment = doc.data();
 
-                    const paymentData = {
-                      amount: payment.amount,
-                      receipt_data: payment.receiptData,
-                      document_id: doc.id.substring(0, 4),
-                      time: parseDateUTC(payment.dateTime, AmericanTimeZone),//display purpose
-                      email: payment.user_email,
-                      status: payment.powerBy,
-                      isDinein: payment.metadata.isDine === "TakeOut" ? "TakeOut" : "Table: " + payment.tableNum,
-                      tax: payment.metadata.tax,
-                      tips: payment.metadata.service_fee,
-                      subtotal: payment.metadata.subtotal,
-                      total: payment.metadata.total,
-                      store: payment.store,
-                      tableNum: payment.tableNum
-                    };
-                    console.log("Document data:", paymentData);
-                    setPaymentData(paymentData);
-                    setProducts(JSON.parse(paymentData.receipt_data));
-                    console.log("No such document!");
-                  }
-                }, (error) => {
-                  console.log("Error getting document:", error);
-                });
+                      const paymentData = {
+                        amount: payment.amount,
+                        receipt_data: payment.receiptData,
+                        document_id: doc.id.substring(0, 4),
+                        time: parseDateUTC(payment.dateTime, AmericanTimeZone),//display purpose
+                        email: payment.user_email,
+                        status: payment.powerBy,
+                        isDinein: payment.metadata.isDine === "TakeOut" ? "TakeOut" : "Table: " + payment.tableNum,
+                        tax: payment.metadata.tax,
+                        tips: payment.metadata.service_fee,
+                        subtotal: payment.metadata.subtotal,
+                        total: payment.metadata.total,
+                        store: payment.store,
+                        tableNum: payment.tableNum
+                      };
+                      console.log("Document data:", paymentData);
+                      setPaymentData(paymentData);
+                      setProducts(JSON.parse(paymentData.receipt_data));
+                      console.log("No such document!");
+                    }
+                  }, (error) => {
+                    console.log("Error getting document:", error);
+                  });
+              }
             }//http://localhost:3000/store?store=demo&order=WVpWWerpIyAYsYNyBLAP&modal=true
           }, (error) => {
             console.log("Error getting document:", error);
           });
 
-      return () => unsubscribe(); // Clean up the listener when the component is unmounted
+      return () => {
+        unsubscribe();
+        if (unsubscribeSuccessPayment) {
+          unsubscribeSuccessPayment();
+        }
+      };
     } else {
       console.log("null");
     }

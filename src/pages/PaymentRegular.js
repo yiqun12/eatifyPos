@@ -153,13 +153,14 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
   const [items, setItems] = useState([])
 
   useEffect(() => {
+    let unsubscribe = () => {};
     const fetchTerminals = async () => {
       try {
         // Correct reference to the collection
         const colRef = collection(db, "stripe_customers", user.uid, "TitleLogoNameContent", storeID, "terminals");
   
         // Listening to real-time updates
-        const unsubscribe = onSnapshot(colRef, (snapshot) => {
+        unsubscribe = onSnapshot(colRef, (snapshot) => {
           const terminalsData = snapshot.docs.map(doc => ({
             ...doc.data(),
             id: doc.id,
@@ -175,13 +176,13 @@ const PaymentComponent = ({ setDiscount, setTips, setExtra, setInputValue, setPr
         });
   
         // Returning the unsubscribe function will ensure that the subscription is canceled when the component unmounts
-        return unsubscribe;
       } catch (error) {
         console.error('Error setting up terminals listener:', error);
       }
     };
   
     fetchTerminals();
+    return () => unsubscribe();
   }, []); // Make sure to include all variables used in the useEffect in the dependency array
 
   useEffect(() => {

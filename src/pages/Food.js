@@ -356,10 +356,13 @@ const Food = () => {
 
 
   useEffect(() => {
-    fetchPost(storeValue);
-    //console.log("hello")
+    const unsubscribe = fetchPost(storeValue);
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
   }, []); // <-- Empty dependency array
-
   const [animationClass, setAnimationClass] = useState('');
 
   useEffect(() => {

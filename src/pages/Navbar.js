@@ -470,14 +470,14 @@ const Navbar = () => {
                   }));
                   console.log("sssssssss")
                   console.log(storeData);
+                  unsubscribe();
                   resolve(storeData.reverse());  // Resolve the promise with the data
                 },
                 (error) => {
+                  unsubscribe();
                   reject(error);  // Reject the promise if there's an error
                 }
               );
-
-              return () => unsubscribe();  // Return a function to unsubscribe when no longer needed
             });
           }
 
@@ -1073,32 +1073,39 @@ const Navbar = () => {
     return () => unsubscribe();
   }, [openCheckout]);
 
-  if (localStorage.getItem("Google-language") && localStorage.getItem("Google-language") !== null) {
-  } else {
-    localStorage.setItem("Google-language", "Select Language");
-  }
-  // the below code checks for language option changes with the google translate widget
-  $(document).ready(function () {
+  useEffect(() => {
+    let timeoutId = null;
+    let cancelled = false;
+
     function listenToTranslateWidget() {
+      if (cancelled) return;
       if ($('.goog-te-combo').length) {
-        $('.goog-te-combo').on('change', function () {
+        $('.goog-te-combo').off('change.navbarLang').on('change.navbarLang', function () {
           let language = $("select.goog-te-combo option:selected").text();
           console.log(language);
           if (localStorage.getItem("Google-language") && localStorage.getItem("Google-language") !== null && language !== localStorage.getItem("Google-language")) {
             localStorage.setItem("Google-language", language);
             saveId(Math.random());  // generate a new id here
           }
-
         });
       } else {
-        // If the widget is not yet loaded, wait and try again.
-        setTimeout(listenToTranslateWidget, 1000); // Try again in 1 second
+        timeoutId = setTimeout(listenToTranslateWidget, 1000);
       }
     }
 
     listenToTranslateWidget();
-  });
 
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      $('.goog-te-combo').off('change.navbarLang');
+    };
+  }, []);
+
+  if (localStorage.getItem("Google-language") && localStorage.getItem("Google-language") !== null) {
+  } else {
+    localStorage.setItem("Google-language", "Select Language");
+  }
 
   function groupAndSumItems(items) {
     items.reverse();

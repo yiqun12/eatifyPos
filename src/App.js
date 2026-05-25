@@ -14,6 +14,7 @@ import FreeScanIfarme from './pages/freeScanIframe.js'
 import Resume from './pages/resume'
 
 import ErrorBoundary from './ErrorBoundary'; // Import the ErrorBoundary component
+import MemoryMonitor from './components/MemoryMonitor';
 
 import IframeDesk from './components/iframeDesk'
 import { RemoveScroll } from 'react-remove-scroll';
@@ -121,9 +122,11 @@ function App() {
   }, []);
 
   if (user_loading) {
-    return <p>  <div className="pan-loader">
-      Loading...
-    </div></p>;
+    return (
+      <div className="pan-loader">
+        Loading...
+      </div>
+    );
   } else {
 
     return (
@@ -299,6 +302,7 @@ function App() {
             </MyHookProvider>
           </BrowserRouter>
         </div>
+        {process.env.NODE_ENV === "development" && <MemoryMonitor />}
         {/* Your entire component tree */}
       </ErrorBoundary>
     );

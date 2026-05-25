@@ -42,7 +42,7 @@ export const UserContextProvider = ({ children }) => {
   const [error, setError] = useState("");
   firebase.auth().languageCode = localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? "zh" : 'en'
 
-  useState(() => {
+  useEffect(() => {
     setLoading(true);
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
@@ -67,17 +67,13 @@ export const UserContextProvider = ({ children }) => {
       setLoading(false);
     });
 
-
-
-    return unsubscribe;
+    return () => unsubscribe();
   }, []);
 
   const [debounceTimeout, setDebounceTimeout] = useState(null);
   const DebounceDueTime = 200; // 200 milliseconds
 
   useEffect(() => {
-    setLoading(true);
-
     const onAuthStateChangedHandler = (firebaseUser) => {
       if (debounceTimeout) {
         clearTimeout(debounceTimeout);

@@ -209,7 +209,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
   const [items, setItems] = useState([])
 
   useEffect(() => {
-    firebase
+    const unsubscribe = firebase
       .firestore()
       .collection('stripe_customers')
       .doc(user.uid)
@@ -227,11 +227,12 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
         setItems(terminalsData.sort((a, b) => b.date.localeCompare(a.date)))
         console.log(terminalsData)
       });
+    return () => unsubscribe();
   }, [])
   const [itemsKiosk, setItemsKiosk] = useState([])
 
   useEffect(() => {
-    firebase
+    const unsubscribe = firebase
       .firestore()
       .collection('stripe_customers')
       .doc(user.uid)
@@ -249,6 +250,7 @@ const PaymentComponent = ({ City, Address, State, ZipCode, storeDisplayName, sto
         setItemsKiosk(terminalsData.sort((a, b) => b.date.localeCompare(a.date)))
         console.log(terminalsData)
       });
+    return () => unsubscribe();
   }, [])
   const formatDate = (dateString) => {
     const dateParts = dateString.split('-');

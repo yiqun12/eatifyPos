@@ -59,4 +59,3 @@ enableMultiTabIndexedDbPersistence(db, {
   })
 // Enable offline data persistence
 export const functions = getFunctions(app);
-

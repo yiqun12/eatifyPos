@@ -1,12 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChatBubbleLeftRightIcon,RocketLaunchIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 import NetworkSphere from './NetworkSphere';
 
 const Hero = () => {
   const params = new URLSearchParams(window.location.search);
-
   const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
+  const [isXl, setIsXl] = useState(() => window.matchMedia('(min-width: 1280px)').matches);
+
+  useEffect(() => {
+    const media = window.matchMedia('(min-width: 1280px)');
+    const onChange = (event) => setIsXl(event.matches);
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
 
   const handleAIClick = (e) => {
     e.preventDefault();
@@ -46,19 +53,15 @@ const Hero = () => {
                 <div className="rounded-md shadow mt-3 sm:mt-0 sm:ml-3">
                   <a
                     onClick={() => {
-                      // Skip redirection if we're on the code page
                       if (window.location.hash.slice(1).split('?')[0] === 'code') {
                         return;
                       }
-
-                      // Redirect to account page with store parameter if available
                       const redirectUrl = storeFromURL ? `/account?store=${storeFromURL}` : '/account';
                       window.location.href = redirectUrl;
                     }}
                     className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 transform hover:scale-105 transition-all duration-300 ease-in-out md:py-4 md:text-lg md:px-10 cursor-pointer"
                   >
                     <RocketLaunchIcon className="h-5 w-5 mr-2" />
-
                     Free Trial
                   </a>
                 </div>
@@ -87,30 +90,32 @@ const Hero = () => {
                 </div>
               </motion.div>
               
-              {/* Sphere displays below buttons on small/medium screens */}
-              <motion.div
-                className="mt-8 flex justify-center xl:hidden"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-              >
-                <div className="h-80 w-80 flex items-center justify-center">
-                  <NetworkSphere />
-                </div>
-              </motion.div>
+              {!isXl && (
+                <motion.div
+                  className="mt-8 flex justify-center"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                >
+                  <div className="h-80 w-80 flex items-center justify-center">
+                    <NetworkSphere />
+                  </div>
+                </motion.div>
+              )}
             </div>
           </div>
         </div>
       </div>
       
-      {/* Sphere displays on right side for large screens */}
-      <div className="hidden xl:block xl:absolute xl:inset-y-0 xl:right-0 xl:w-1/2">
-        <div className="xl:w-full xl:h-full flex items-center justify-center relative overflow-hidden">
-          <NetworkSphere />
+      {isXl && (
+        <div className="xl:absolute xl:inset-y-0 xl:right-0 xl:w-1/2">
+          <div className="xl:w-full xl:h-full flex items-center justify-center relative overflow-hidden">
+            <NetworkSphere />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
 
-export default Hero; 
+export default Hero;

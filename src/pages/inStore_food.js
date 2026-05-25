@@ -384,12 +384,19 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   }
 
   useEffect(() => {
-    fetchPost(storeValue);
-    //console.log("hello")
+    let unsubscribe = () => {};
+    fetchPost(storeValue).then((unsub) => {
+      if (typeof unsub === 'function') {
+        unsubscribe = unsub;
+      }
+    });
+    return () => unsubscribe();
   }, []); // <-- Empty dependency array
 
   // 新增：页面加载时检查和恢复所有定时器
   useEffect(() => {
+    const restoredTimerIds = [];
+
     const checkAllTimers = () => {
       console.log(`[Food.js] checkAllTimers called at ${new Date().toLocaleTimeString()}. Store:`, store);
       if (!store) {
@@ -462,7 +469,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
         } else {
           const remainingTime = absoluteEndTime - now;
           console.log(`[Food.js] Restoring timer ${key} for table ${originalSelectedTable}. Action: ${action}. Remaining: ${Math.floor(remainingTime / 1000)}s`);
-          setTimeout(() => {
+          restoredTimerIds.push(setTimeout(() => {
             const stillExists = localStorage.getItem(key);
             if (stillExists) {
               console.log(`[Food.js] setTimeout for ${key} (table ${originalSelectedTable}) fired at ${new Date().toLocaleTimeString()}. Action: ${action}.`);
@@ -481,7 +488,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
             } else {
               console.log(`[Food.js] setTimeout for ${key} (table ${originalSelectedTable}) fired, but key no longer exists. Assuming already processed.`);
             }
-          }, remainingTime);
+          }, remainingTime));
         }
       });
     };
@@ -607,13 +614,17 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
       // alert(`${tableName} ${fanyi("(Restored Timer) Auto checkout processed.")}\n${fanyi("Final Fee")}: $${finalPrice.toFixed(2)}`);
     };
 
+    let scheduleTimeoutId = null;
     if (store) {
       console.log('[Food.js] Scheduling checkAllTimers in 2.5 seconds.');
-      setTimeout(checkAllTimers, 2500); // Increased delay further for safety
+      scheduleTimeoutId = setTimeout(checkAllTimers, 2500); // Increased delay further for safety
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [store, saveId]); // Assuming saveId is a stable function or related to cart updates that might clear timers indirectly.
-  // handleTableEnd should be stable or included if it changes.
+
+    return () => {
+      if (scheduleTimeoutId) clearTimeout(scheduleTimeoutId);
+      restoredTimerIds.forEach(clearTimeout);
+    };
+  }, [store]);
 
   const [animationClass, setAnimationClass] = useState('');
 

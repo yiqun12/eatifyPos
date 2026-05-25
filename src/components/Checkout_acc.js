@@ -37,7 +37,7 @@ const handleMouseLeave = () => {
     /**
      * Get all payment methods for the logged in customer
      */
-    firebase
+    const unsubscribe = firebase
       .firestore()
       .collection('stripe_customers')
       .doc(user.uid)
@@ -163,6 +163,8 @@ const handleMouseLeave = () => {
         }
 
       });
+
+    return unsubscribe;
   }
 
   function zeroDecimalCurrency(amount, currency) {
@@ -183,7 +185,8 @@ const handleMouseLeave = () => {
 
 
   useEffect(() => {
-    startDataListeners();
+    const unsubscribe = startDataListeners();
+    return () => unsubscribe();
   }, []);
 
   const [selectedOption, setSelectedOption] = useState('');

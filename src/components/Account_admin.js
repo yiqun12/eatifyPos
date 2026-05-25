@@ -827,12 +827,12 @@ const Account = () => {
     const timeIntervalOptions = createTimeOptions();
 
 
-    const fetchPostAll = async () => {
+    const fetchPostAll = () => {
         if (activeStoreTab !== '') {
             console.log(activeStoreTab)
             console.log(user.uid)
         } else {
-            return
+            return () => {};
         }
         if (showSection !== 'sales') {
             //return
@@ -852,7 +852,7 @@ const Account = () => {
             where('date', '<', convertDateFormat(endDate ? addDays(endDate, 1) : addDays(startDate, 1)))
         );
 
-        onSnapshot(paymentsQueryDelete, async (snapshot) => {
+        const unsubscribeDelete = onSnapshot(paymentsQueryDelete, async (snapshot) => {
             const newData = snapshot.docs.map((doc) => ({
                 ...doc.data(),
                 id: doc.id,
@@ -940,7 +940,7 @@ const Account = () => {
 
         console.log(addTimeToDateTime(convertDateFormat(endDate ? addDays(endDate, 0) : addDays(startDate, 1)), currentTime))
         console.log(addTimeToDateTime(convertDateFormat(startDate), selectedTime))
-        onSnapshot(paymentsQuery, async (snapshot) => {
+        const unsubscribePayments = onSnapshot(paymentsQuery, async (snapshot) => {
             console.log("new adde2");
             const newData = snapshot.docs.map(doc => ({
                 ...doc.data(),
@@ -1060,13 +1060,17 @@ const Account = () => {
 
         console.log("fetchPost2");
 
+        return () => {
+            unsubscribeDelete();
+            unsubscribePayments();
+        };
     };
 
     useEffect(() => {
-        if (activeStoreTab !== '') {
-            fetchPostAll();
+        if (activeStoreTab === '') {
+            return undefined;
         }
-
+        return fetchPostAll();
     }, [activeStoreTab, endDate, startDate, currentTime, selectedTime])
 
 
@@ -1490,14 +1494,14 @@ const Account = () => {
                             id: doc.id,
                         }));
                         console.log(storeData);
+                        unsubscribe();
                         resolve(storeData.reverse());  // Resolve the promise with the data
                     },
                     (error) => {
+                        unsubscribe();
                         reject(error);  // Reject the promise if there's an error
                     }
                 );
-
-                return () => unsubscribe();  // Return a function to unsubscribe when no longer needed
             });
         }
 
