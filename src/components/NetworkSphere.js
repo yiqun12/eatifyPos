@@ -67,20 +67,42 @@ const showFallbackEarth = (host) => {
   `;
 };
 
-const ensureSharedChart = () => {
-  if (sharedHost && sharedChart) {
-    return;
-  }
-
+const ensureSharedHost = () => {
+  if (sharedHost) return sharedHost;
   sharedHost = document.createElement('div');
   sharedHost.style.width = '100%';
   sharedHost.style.height = '100%';
   sharedHost.style.minHeight = '300px';
   sharedHost.style.minWidth = '300px';
+  return sharedHost;
+};
+
+const addCityMarkers = () => {
+  if (!markerTimer) {
+    markerTimer = setTimeout(() => {
+      if (!sharedChart) return;
+      try {
+        sharedChart.addData('point', [
+          { id: 1, lon: -74.0060, lat: 40.7128, style: { color: "#00FF00", size: 10, opacity: 1.0 }, name: "New York" },
+          { id: 2, lon: -71.0589, lat: 42.3601, style: { color: "#00FF00", size: 10, opacity: 1.0 }, name: "Boston" },
+          { id: 3, lon: -122.4194, lat: 37.7749, style: { color: "#00FF00", size: 10, opacity: 1.0 }, name: "San Francisco" },
+        ]);
+      } catch (error) {
+        console.error('Error adding city markers:', error);
+      }
+    }, 1000);
+  }
+};
+
+const initSharedChart = () => {
+  if (!sharedHost || sharedChart) return true;
+
+  const rect = sharedHost.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return false;
 
   if (!earthFlyLine) {
     showFallbackEarth(sharedHost);
-    return;
+    return true;
   }
 
   try {
@@ -116,23 +138,12 @@ const ensureSharedChart = () => {
       }
     });
 
-    if (!markerTimer) {
-      markerTimer = setTimeout(() => {
-        if (!sharedChart) return;
-        try {
-          sharedChart.addData('point', [
-            { id: 1, lon: -74.0060, lat: 40.7128, style: { color: "#00FF00", size: 10, opacity: 1.0 }, name: "New York" },
-            { id: 2, lon: -71.0589, lat: 42.3601, style: { color: "#00FF00", size: 10, opacity: 1.0 }, name: "Boston" },
-            { id: 3, lon: -122.4194, lat: 37.7749, style: { color: "#00FF00", size: 10, opacity: 1.0 }, name: "San Francisco" },
-          ]);
-        } catch (error) {
-          console.error('Error adding city markers:', error);
-        }
-      }, 1000);
-    }
+    addCityMarkers();
+    return true;
   } catch (error) {
     console.log('earth-flyline initialization failed:', error);
     showFallbackEarth(sharedHost);
+    return true;
   }
 };
 
@@ -140,16 +151,26 @@ const NetworkSphere = () => {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    ensureSharedChart();
+    ensureSharedHost();
     const outer = containerRef.current;
     if (!outer || !sharedHost) return undefined;
+
+    let animationFrameId = null;
 
     mountCount += 1;
     outer.appendChild(sharedHost);
 
+    const initWhenSized = () => {
+      if (initSharedChart()) return;
+      animationFrameId = window.requestAnimationFrame(initWhenSized);
+    };
+
+    animationFrameId = window.requestAnimationFrame(initWhenSized);
+
     return () => {
+      if (animationFrameId) window.cancelAnimationFrame(animationFrameId);
       mountCount -= 1;
-      hideSharedHost();
+      if (mountCount <= 0) hideSharedHost();
     };
   }, []);
 
