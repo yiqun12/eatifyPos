@@ -6,5 +6,5 @@ export function isAppRoute(pathname) {
     ? pathname
     : (typeof window !== 'undefined' ? window.location.pathname : '')
   ).toLowerCase();
-  return APP_ROUTE_PREFIXES.some((prefix) => p === prefix || p.startsWith(prefix + '/') || p.startsWith(prefix));
+  return APP_ROUTE_PREFIXES.some((prefix) => p === prefix || p.startsWith(prefix + '/'));
 }

@@ -11,4 +11,5 @@ test('marketing routes are not app routes', () => {
   expect(isAppRoute('/')).toBe(false);
   expect(isAppRoute('/career')).toBe(false);
   expect(isAppRoute('/scan_article')).toBe(false);
+  expect(isAppRoute('/accounts-payable')).toBe(false);
 });
