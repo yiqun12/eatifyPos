@@ -1901,7 +1901,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                   className="mt-3 btn btn-md btn-info"
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
                 >
-                  <span>Open Cash Drawer</span>
+                  <span>{fanyi("Open Cash Drawer")}</span>
                 </a>
               }
               showCloseButton={true}
@@ -2108,13 +2108,13 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <div className="modal-dialog" role="document">
                 <div className="modal-content">
                   <div className="modal-header">
-                    <h5 className="modal-title">Select Dining Desk to Merge for {selectedTable}</h5>
+                    <h5 className="modal-title">{fanyi("Select Dining Desk to Merge for")} <span className="notranslate">{selectedTable}</span></h5>
                     <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setChangeTableModal(false); }}>
                       &times;
                     </button>
                   </div>
                   <div className="modal-body pt-0">
-                    <div>Empty Dining Desk(s): </div>
+                    <div>{fanyi("Empty Dining Desk(s):")} </div>
                     {arrEmpty.map((option) => (
 
                       <button
@@ -2132,7 +2132,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
                     ))}
                     <hr></hr>
-                    <div>Dining Desk(s) in Use:</div>
+                    <div>{fanyi("Dining Desk(s) in Use:")}</div>
                     {arrOccupied.map((option) => (
 
                       <button
@@ -2162,7 +2162,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
               <div className="modal-dialog" role="document">
                 <div className="modal-content">
                   <div className="modal-header">
-                    <h5 className="modal-title">Select your POS Machine:</h5>
+                    <h5 className="modal-title">{fanyi("Select your POS Machine:")}</h5>
                     <button style={uniqueModalStyles.closeBtnStyle} onClick={() => { setMyModalVisible(false); setReceived(false) }}>
                       &times;
                     </button>
@@ -2171,7 +2171,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
                     <PaymentRegular setDiscount={setDiscount} setTips={setTips} setExtra={setExtra} setInputValue={setInputValue} setProducts={setProducts} setIsPaymentClick={setIsPaymentClick} isPaymentClick={isPaymentClick} received={received} setReceived={setReceived} selectedTable={selectedTable} storeID={store}
                       chargeAmount={finalPrice} discount={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(discount)} service_fee={(val => isNaN(parseFloat(val)) || !val ? 0 : parseFloat(val))(tips)} connected_stripe_account_id={acct} totalPrice={Math.round(totalPrice * 100)} />
-                    <span className="mb-2 notranslate">Or Customer Can Scan To Pay The Whole Table (扫码支付本桌)</span>
+                    <span className="mb-2">{fanyi("Or Customer Can Scan To Pay The Whole Table (扫码支付本桌)")}</span>
 
                     <div className="qrCodeItem flex flex-col items-center mt-1">
                       <QRCode value={`https://7dollar.delivery/store?store=${store}&table=${selectedTable}`} size={100} />
@@ -2225,7 +2225,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 <input
                   type="text"
                   inputMode="decimal"
-                  placeholder="Enter service fee by amount"
+                  placeholder={fanyi("Enter service fee by amount")}
                   value={tips}
                   className="form-control tips-no-spinners"
                   onChange={(e) => {
@@ -2292,7 +2292,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                 <input
                   type="text"
                   inputMode="decimal"
-                  placeholder="Enter discount by amount"
+                  placeholder={fanyi("Enter discount by amount")}
                   value={discount}
                   className="form-control tips-no-spinners"
                   onChange={(e) => {

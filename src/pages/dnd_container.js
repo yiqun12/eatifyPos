@@ -150,12 +150,12 @@ function SortableItem(props) {
 }
 
 // Popup component
-function ConfirmationPopup({ onConfirm, onCancel }) {
+function ConfirmationPopup({ onConfirm, onCancel, fanyi = (text) => text }) {
   return (
     <div className="popup">
-      <p>Are you sure you want to delete?</p>
-      <button onClick={onConfirm}>Confirm</button>
-      <button onClick={onCancel}>Cancel</button>
+      <p>{fanyi("Are you sure you want to delete?")}</p>
+      <button onClick={onConfirm}>{fanyi("Confirm")}</button>
+      <button onClick={onCancel}>{fanyi("Cancel")}</button>
     </div>
   );
 }
@@ -832,11 +832,11 @@ function Container(props) {
                       className="modal-body"
                       style={{ overflowX: 'auto', maxWidth: '100%', paddingBottom: "0.5rem" }}
                     >
-                      If this is deleted, all the items here will be placed in group 0
+                      {fanyi("If this is deleted, all the items here will be placed in group 0")}
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <button type="button" class="btn btn-secondary" onClick={closePopup} style={{ margin: "5px" }}>Cancel</button>
-                      <button type="button" class="btn btn-primary" onClickCapture={confirmDelete} style={{ margin: "5px" }}>Confirm</button>
+                      <button type="button" class="btn btn-secondary" onClick={closePopup} style={{ margin: "5px" }}>{fanyi("Cancel")}</button>
+                      <button type="button" class="btn btn-primary" onClickCapture={confirmDelete} style={{ margin: "5px" }}>{fanyi("Confirm")}</button>
                     </div>
                   </div>
                 </div>
@@ -867,10 +867,10 @@ function Container(props) {
                       className="modal-body"
                       style={{ overflowX: 'auto', maxWidth: '100%', paddingBottom: "0.5rem" }}
                     >
-                      Group0 cannot be deleted
+                      {fanyi("Group0 cannot be deleted")}
                     </div>
                     <div style={{ display: "flex", justifyContent: "center" }}>
-                      <button type="button" class="btn btn-primary" onClickCapture={closeGroup0DeleteModal} style={{ margin: "5px" }}>Confirm</button>
+                      <button type="button" class="btn btn-primary" onClickCapture={closeGroup0DeleteModal} style={{ margin: "5px" }}>{fanyi("Confirm")}</button>
                     </div>
                   </div>
                 </div>
@@ -913,13 +913,13 @@ function Container(props) {
               className="mt-3 btn btn-sm btn-success mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              <span>{"Add Service Fee"}</span>
+              <span>{fanyi("Add Service Fee")}</span>
             </a>
             {isTipsModalOpen && (
               <KeypadModal
                 isOpen={isTipsModalOpen}
                 onClose={() => setTipsModalOpen(false)}
-                title="Add Service Fee"
+                title={fanyi("Add Service Fee")}
                 numberPadValue={tips}
                 onNumberPadChange={(newValue) => {
                   setTips(newValue);
@@ -974,7 +974,7 @@ function Container(props) {
                     <input
                       type="text"
                       inputMode="decimal"
-                      placeholder="Enter percent"
+                      placeholder={fanyi("Enter percent")}
                       value={customPercentage}
                       onChange={handleCustomPercentageChange}
                       className="px-4 py-2 ml-2 form-control tips-no-spinners"
@@ -984,7 +984,7 @@ function Container(props) {
                   <input
                     type="text"
                     inputMode="decimal"
-                    placeholder="Enter service fee by amount"
+                    placeholder={fanyi("Enter service fee by amount")}
                     value={tips}
                     className="form-control tips-no-spinners"
                     onChange={(e) => {
@@ -1016,14 +1016,14 @@ function Container(props) {
               className="mt-3 btn btn-sm btn-danger mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              <span>{"Add Discount"}</span>
+              <span>{fanyi("Add Discount")}</span>
             </a>
 
             {isDiscountModalOpen && (
               <KeypadModal
                 isOpen={isDiscountModalOpen}
                 onClose={() => setDiscountModalOpen(false)}
-                title="Add Discount"
+                title={fanyi("Add Discount")}
                 numberPadValue={discount}
                 onNumberPadChange={(newValue) => applyDiscount(newValue)}
                 onNumberPadConfirm={(confirmedValue) => {
@@ -1074,7 +1074,7 @@ function Container(props) {
                     <input
                       type="text"
                       inputMode="decimal"
-                      placeholder="Enter percent"
+                      placeholder={fanyi("Enter percent")}
                       value={customDiscountPercentage}
                       onChange={handleCustomDiscountPercentageChange}
                       className="px-4 py-2 ml-2 form-control discounts-no-spinners"
@@ -1085,7 +1085,7 @@ function Container(props) {
                   <input
                     type="text"
                     inputMode="decimal"
-                    placeholder="Enter discount by amount"
+                    placeholder={fanyi("Enter discount by amount")}
                     value={discount}
                     className="form-control discounts-no-spinners"
                     onChange={(e) => {
@@ -1125,14 +1125,14 @@ function Container(props) {
               className="mt-3 btn btn-sm btn-primary mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              <span>{"Card Pay"}</span>
+              <span>{fanyi("Card Pay")}</span>
             </a>
             {isMyModalVisible && (
               <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
                 <div className="modal-dialog" role="document">
                   <div className="modal-content">
                     <div className="modal-header">
-                      <h5 className="modal-title">Select your POS Machine:</h5>
+                      <h5 className="modal-title">{fanyi("Select your POS Machine:")}</h5>
                       <button style={uniqueModalStyles.closeBtnStyle}
                         onClick={() => { setMyModalVisible(false); setReceived(false) }}>
                         &times;
@@ -1160,7 +1160,7 @@ function Container(props) {
               }}
               className="mt-3 btn btn-sm btn-info mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-              <span>{"Cash Pay"}</span>
+              <span>{fanyi("Cash Pay")}</span>
             </a>
             {isUniqueModalOpen && (
               <KeypadModal
@@ -1177,7 +1177,7 @@ function Container(props) {
                     className="mt-3 btn btn-md btn-info"
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
                   >
-                    <span>Open Cash Drawer</span>
+                    <span>{fanyi("Open Cash Drawer")}</span>
                   </a>
                 }
                 showCloseButton={true}
@@ -1189,7 +1189,7 @@ function Container(props) {
                 showOneHundred={true}
               >
                 <div>
-                  <p className="mb-2">Enter the Cash Received</p>
+                  <p className="mb-2">{fanyi("Enter the Cash Received")}</p>
                   <input
                     type="text"
                     value={inputValue}
@@ -1208,7 +1208,7 @@ function Container(props) {
                     style={uniqueModalStyles.buttonStyle}
                     className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
                   >
-                    Calculate Give Back Cash
+                    {fanyi("Calculate Give Back Cash")}
                   </button>
                   {errorMessage && (
                     <div className="text-red-500 font-semibold mt-2">
@@ -1216,14 +1216,14 @@ function Container(props) {
                     </div>
                   )}
                   {(extra !== null && extra !== 0) && (
-                    <p className="">Gratuity: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
+                    <p className="">{fanyi("Gratuity")}: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
                   )}
-                  <p className="mt-1">Final Payment: <span className='notranslate'>${finalPrice}</span> </p>
+                  <p className="mt-1">{fanyi("Final Payment")}: <span className='notranslate'>${finalPrice}</span> </p>
 
                   {result !== null && (
                     <div>
                       <p className="mt-1 mb-4 ">
-                        Give Back Cash:
+                        {fanyi("Give Back Cash")}:
                         <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
                       </p>
                       <button
@@ -1265,7 +1265,7 @@ function Container(props) {
                   </button>
 
                   <div className="mt-4">
-                    <p className="mb-4">Gratuity:</p>
+                    <p className="mb-4">{fanyi("Gratuity")}:</p>
                     <div className="flex justify-between mb-4">
                       <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
                         15%
@@ -1283,7 +1283,7 @@ function Container(props) {
 
                     {isCustomAmountVisible && (
                       <div>
-                        <p className="mb-2">Custom Gratuity:</p>
+                        <p className="mb-2">{fanyi("Custom Gratuity")}:</p>
                         <div className="flex">
                           <input
                             type="text"
@@ -1325,18 +1325,18 @@ function Container(props) {
                 </div>
               </KeypadModal>
             )}
-            <div className={`text-right`}>Subtotal: <span className='notranslate'>${round2digtNum(subtotal).toFixed(2)}</span> </div>
+            <div className={`text-right`}>{fanyi("Subtotal")}: <span className='notranslate'>${round2digtNum(subtotal).toFixed(2)}</span> </div>
             {discount && (
-              <div className={`text-right`}>Discount: <span className='notranslate'>-${round2digtNum(discount)} </span></div>
+              <div className={`text-right`}>{fanyi("Discount")}: <span className='notranslate'>-${round2digtNum(discount)} </span></div>
             )}
             {tips && (
-              <div className={`text-right`}>Service Fee: <span className='notranslate'>${round2digtNum(tips)}</span> </div>
+              <div className={`text-right`}>{fanyi("Service Fee")}: <span className='notranslate'>${round2digtNum(tips)}</span> </div>
             )}
             {(extra !== null && extra !== 0) && (
-              <div className={`text-right`}>Gratuity: <span className='notranslate'>{round2digtNum(extra)} </span></div>
+              <div className={`text-right`}>{fanyi("Gratuity")}: <span className='notranslate'>{round2digtNum(extra)} </span></div>
             )}
             <div className={`text-right `}>Tax ({(Number(TaxRate))}%): <span className='notranslate'>${round2digtNum(subtotal * (Number(TaxRate) / 100))}</span>  </div>
-            <div className={`text-right `}>Total Price: <span className='notranslate'>${round2digtNum(finalPrice)}</span>  </div>
+            <div className={`text-right `}>{fanyi("Total Price")}: <span className='notranslate'>${round2digtNum(finalPrice)}</span>  </div>
 
           </div>
         </div>

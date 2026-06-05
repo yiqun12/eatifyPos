@@ -1330,14 +1330,14 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                         <div className="flex flex-row gap-3 mb-2">
                           <div className="w-1/2">
                             <label className="form-label">
-                              {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? "更改理由（比如加蒜）" : "Update Reason (E.g. add garlic)"}
+                              {fanyi("Update Reason (E.g. add garlic)")}
 
                             </label>
                             <input
                               type="text"
                               className="form-control"
                               id="customVariantName"
-                              placeholder="Reason for price change"
+                              placeholder={fanyi("Reason for price change")}
                               value={customVariant.name}
                               onChange={(e) =>
                                 setCustomVariant({ ...customVariant, name: e.target.value })
@@ -1348,7 +1348,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                           </div>
 
                           <div className="w-1/2">
-                            <label htmlFor="customVariantPrice" className="form-label">Amount Update (Enter "0" if no change)</label>
+                            <label htmlFor="customVariantPrice" className="form-label">{fanyi('Amount Update (Enter "0" if no change)')}</label>
                             <input
                               type="text"
                               className="form-control"
@@ -1528,7 +1528,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                     deleteSpecialFood(selectedFoodItem.id, count, selectedAttributes, 0);
                     setOpenChangeAttributeTrigger(false);
                     setOpenChangeAttributeModal(false)
-                  }} className="btn btn-danger">Cancel</button>
+                  }} className="btn btn-danger">{fanyi("Cancel")}</button>
                   <button type="button" className="btn btn-success" onClick={() => {
                     if (OpenChangeAttributeTrigger === false) {
                       hideModal();//no change
@@ -1582,7 +1582,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                     }
 
 
-                  }}>Confirm</button>
+                  }}>{fanyi("Confirm")}</button>
                 </div>
               </div>
             </div>
@@ -1680,7 +1680,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                         <input
                           type="search"
                           class="form-control text-base shadow-none rounded-end-pill"
-                          placeholder={translateProductText('Search Food Item')}
+                          placeholder={fanyi('Search Food Item')}
                           onChange={handleInputChange}
                           translate="no"
                           style={{ fontSize: '16px' }}

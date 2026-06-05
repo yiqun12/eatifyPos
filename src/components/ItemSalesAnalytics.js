@@ -48,7 +48,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
             if (Array.isArray(v)) return v.join(' ');
             return v;
           }).filter(Boolean).join(', ');
-          if (!attributesLabel) attributesLabel = '(No attributes)';
+          if (!attributesLabel) attributesLabel = t('(No attributes)');
 
           // 初始化主品
           if (!mainStats[mainKey]) {
@@ -101,7 +101,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
     });
 
     return Object.values(mainStats);
-  }, [orders]);
+  }, [orders, t]);
 
   // 过滤和排序数据
   const filteredAndSortedData = useMemo(() => {
@@ -242,8 +242,8 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                 onChange={(e) => setSortOrder(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="desc">High to Low</option>
-                <option value="asc">Low to High</option>
+                <option value="desc">{t("High to Low")}</option>
+                <option value="asc">{t("Low to High")}</option>
               </select>
             </div>
 
@@ -267,7 +267,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
           <div className="text-center py-16 text-gray-500 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
             <i className="bi bi-inbox text-6xl text-gray-300 mb-6 block"></i>
             <p className="text-xl font-medium">{t("No data available")}</p>
-            <p className="text-gray-400 mt-2">Try adjusting your search or date range</p>
+            <p className="text-gray-400 mt-2">{t("Try adjusting your search or date range")}</p>
           </div>
         ) : (
           <>
@@ -306,7 +306,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                           {expandedMainKeys.includes(item.name) && (
                             <div className="mt-2 border-t pt-2">
                               <div className="flex text-xs text-gray-500 font-semibold pb-1">
-                                <div className="flex-1">Attributes</div>
+                                <div className="flex-1">{t("Attributes")}</div>
                                 <div style={{width: 60}} className="text-right">{t("Quantity")}</div>
                                 <div style={{width: 70}} className="text-right">{t("Amount")}</div>
                               </div>
@@ -358,10 +358,10 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                                   <table className="w-full text-xs">
                                     <thead>
                                       <tr>
-                                        <th className="text-left py-1">Attributes</th>
-                                        <th className="text-right py-1">Quantity</th>
-                                        <th className="text-right py-1">Revenue</th>
-                                        <th className="text-right py-1">Avg Price</th>
+                                        <th className="text-left py-1">{t("Attributes")}</th>
+                                        <th className="text-right py-1">{t("Quantity")}</th>
+                                        <th className="text-right py-1">{t("Revenue")}</th>
+                                        <th className="text-right py-1">{t("Avg Price")}</th>
                                       </tr>
                                     </thead>
                                     <tbody>
