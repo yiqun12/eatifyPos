@@ -1,31 +1,18 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import './Terminal.css';
 import { io } from 'socket.io-client';
 import { DateTime } from 'luxon';
 
 const Terminal = ({ timeZone = "America/New_York" }) => {
+    const { t } = useTranslation();
+    const fanyi = t;
+
     const [isOpen, setIsOpen] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [logs, setLogs] = useState([]);
     const [socket, setSocket] = useState(null);
     const terminalRef = useRef(null);
-
-    // Translation array like inStore_shop_cart.js
-    const translations = useMemo(() => [
-        { input: "Printer", output: "打印机驱动" },
-        { input: "Printer not connected", output: "打印机驱动未连接" },
-        { input: "Print Service Connected", output: "打印服务已连接" },
-    ], []);
-
-    // Translation function like inStore_shop_cart.js
-    const fanyi = useCallback((input) => {
-        const lang = localStorage.getItem("Google-language");
-        if (lang?.includes("Chinese") || lang?.includes("中")) {
-            const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
-            return translation ? translation.output : input;
-        }
-        return input;
-    }, [translations]);
 
     // Add log entry
     const appendLog = (type, message, timestamp) => {
