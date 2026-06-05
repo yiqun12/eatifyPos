@@ -74,6 +74,8 @@ import { DateTime } from 'luxon';
 import { lookup } from 'zipcode-to-timezone';
 import EmailVerificationModal from './EmailVerificationModal'; // Import the new modal
 import ChartPasswordModal from './ChartPasswordModal'; // Import the chart password modal
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 registerLocale('zh-CN', zhCN);
 
 
@@ -83,6 +85,7 @@ const verifyCodeAndSavePasswordFunction = firebase.functions().httpsCallable('ve
 
 
 const Account = () => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [timeZone, setTimeZone] = useState('America/New_York'); // Default to Eastern Time Zone
     // --- Password Management State --- >
@@ -250,31 +253,6 @@ const Account = () => {
 
     const storeFromURL = params.get('store') ? params.get('store').toLowerCase() : "";
 
-    const translations = [
-        { input: "Add Cash Tips", output: "现金小费" },
-        { input: "Paid by Cash", output: "现金支付" },
-        { input: "POS Machine", output: "POS机" },
-        { input: "Unpaid", output: "未付" },
-        { input: "Online App", output: "在线应用程序" },
-        { input: "Cash Gratuity", output: "现金小费" },
-        { input: "Gratuity", output: "小费" },
-        { input: "Revenue", output: "收入" },
-        { input: "Subtotal", output: "小计" },
-        { input: "Tax", output: "税" },
-        { input: "Service Fee", output: "信用卡小费" },
-        { input: "Discount", output: "折扣" },
-        { input: "Canceled", output: "取消送厨" },
-        { input: "Sales Analytics", output: "销量分析" },
-        { input: "Daily Revenue", output: "每日收入" },
-        { input: "Show Chart", output: "显示折线图" },
-        { input: "Hide Chart", output: "隐藏折线图" },
-        { input: "No Business Data On Date Range", output: "所选日期范围内无营业数据" },
-
-    ];
-    function translate(input) {
-        const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
-        return translation ? translation.output : "Translation not found";
-    }
     // This function plays the sound
     const playSound = () => {
 
@@ -495,9 +473,6 @@ const Account = () => {
 
 
 
-    function fanyi(input) {
-        return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
-    }
     const { user, user_loading } = useUserContext();
     //console.log(user)
     useEffect(() => {
@@ -506,25 +481,6 @@ const Account = () => {
     function removeFromLocalStorage() {
     }
     //google login button functions
-
-    const trans = JSON.parse(sessionStorage.getItem("translations"))
-    const t = (text) => {
-        // const trans = sessionStorage.getItem("translations")
-        //console.log(trans)
-        //console.log(sessionStorage.getItem("translationsMode"))
-
-        if (trans != null) {
-            if (sessionStorage.getItem("translationsMode") != null) {
-                // return the translated text with the right mode
-                if (trans[text] != null) {
-                    if (trans[text][sessionStorage.getItem("translationsMode")] != null)
-                        return trans[text][sessionStorage.getItem("translationsMode")]
-                }
-            }
-        }
-        // base case to just return the text if no modes/translations are found
-        return text
-    }
 
     const [orders, setOrders] = useState([]);
     const [showSection, setShowSection] = useState('');
@@ -4394,7 +4350,7 @@ const Account = () => {
                                                                             className="btn btn-sm bg-green-600 hover:bg-green-700 text-white mx-1 mt-1 mb-2 whitespace-nowrap"
                                                                         >
                                                                             <i className="bi bi-graph-up mr-2"></i>
-                                                                                {fanyi("Sales Analytics")}
+                                                                                {t("Sales Analytics")}
                                                                     </button>
                                                                      </div> {/* END OF ADDED WRAPPER */}
 
@@ -4416,7 +4372,7 @@ const Account = () => {
                                                                                 ×
                                                                             </button>
                                                                             <div className="flex justify-between items-center p-6 border-b bg-gray-50">
-                                                                                <h2 className="text-2xl font-bold text-gray-800">{fanyi("Sales Analytics")}</h2>
+                                                                                <h2 className="text-2xl font-bold text-gray-800">{t("Sales Analytics")}</h2>
                                                                                 <button
                                                                                     onClick={() => setItemAnalyticsModalOpen(false)}
                                                                                     className="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-200 rounded-full transition-colors"
@@ -4444,7 +4400,7 @@ const Account = () => {
                                                                         className="btn btn-sm btn-info d-flex align-items-center mx-1 mb-2"
                                                                     >
                                                                         <i className={`bi ${!showChart ? 'bi-bar-chart' : 'bi-eye-slash'} pe-2`}></i>
-                                                                        <span>{!showChart ? fanyi('Show Chart') : fanyi('Hide Chart')}</span>
+                                                                        <span>{!showChart ? t('Show Chart') : t('Hide Chart')}</span>
                                                                     </button>
                                                                 </div>
                                                             </div>
@@ -4488,7 +4444,7 @@ const Account = () => {
                                                                             cx={80} // Move the pie to the left by adjusting the cx value
                                                                             data={[
                                                                                 {
-                                                                                    name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                                                                    name: t('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                                                                         (accumulator, receipt) => {
                                                                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                                                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -4502,7 +4458,7 @@ const Account = () => {
                                                                                     ).subtotal * 100) / 100
                                                                                 },
                                                                                 {
-                                                                                    name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                                                                    name: t('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                                                                         (accumulator, receipt) => {
                                                                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                                                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -4515,7 +4471,7 @@ const Account = () => {
                                                                                         { tips: 0, service_fee: 0, tax: 0, subtotal: 0, total: 0, discount: 0 }
                                                                                     ).tax * 100) / 100
                                                                                 }, {
-                                                                                    name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Cash Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                                                                    name: order_status === "POS Machine" ? t('Cash Gratuity') : t("Cash Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                                                                         (accumulator, receipt) => {
                                                                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                                                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -4529,7 +4485,7 @@ const Account = () => {
                                                                                     ).tips * 100) / 100
                                                                                 },
                                                                                 {
-                                                                                    name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                                                                    name: t('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                                                                         (accumulator, receipt) => {
                                                                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                                                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -4543,7 +4499,7 @@ const Account = () => {
                                                                                     ).service_fee * 100) / 100
                                                                                 },
                                                                                 {
-                                                                                    name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                                                                    name: t('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                                                                         (accumulator, receipt) => {
                                                                                             accumulator.tips += parseFloat(receipt.metadata.tips);
                                                                                             accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -4566,7 +4522,7 @@ const Account = () => {
                                                                             {
                                                                                 [
                                                                                     {
-                                                                                        name: order_status === "POS Machine" ? fanyi('Cash Gratuity') : fanyi("Cash Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                                                                        name: order_status === "POS Machine" ? t('Cash Gratuity') : t("Cash Gratuity"), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                                                                             (accumulator, receipt) => {
                                                                                                 accumulator.tips += parseFloat(receipt.metadata.tips);
                                                                                                 accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -4580,7 +4536,7 @@ const Account = () => {
                                                                                         ).tips * 100) / 100
                                                                                     },
                                                                                     {
-                                                                                        name: fanyi('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                                                                        name: t('Service Fee'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                                                                             (accumulator, receipt) => {
                                                                                                 accumulator.tips += parseFloat(receipt.metadata.tips);
                                                                                                 accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -4594,7 +4550,7 @@ const Account = () => {
                                                                                         ).service_fee * 100) / 100
                                                                                     },
                                                                                     {
-                                                                                        name: fanyi('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                                                                        name: t('Tax'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                                                                             (accumulator, receipt) => {
                                                                                                 accumulator.tips += parseFloat(receipt.metadata.tips);
                                                                                                 accumulator.tax += parseFloat(receipt.metadata.tax);
@@ -4608,7 +4564,7 @@ const Account = () => {
                                                                                         ).tax * 100) / 100
                                                                                     },
                                                                                     {
-                                                                                        name: fanyi('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                                                                        name: t('Subtotal'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                                                                             (accumulator, receipt) => {
                                                                                                 accumulator.tips += parseFloat(receipt.metadata.tips);
                                                                                                 accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -4622,7 +4578,7 @@ const Account = () => {
                                                                                         ).subtotal * 100) / 100
                                                                                     },
                                                                                     {
-                                                                                        name: fanyi('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
+                                                                                        name: t('Discount'), value: Math.round(orders?.filter(order => order?.status.includes(order_status)).filter(order => order?.tableNum.includes(order_table)).reduce(
                                                                                             (accumulator, receipt) => {
                                                                                                 accumulator.tips += parseFloat(receipt.metadata.tips);
                                                                                                 accumulator.service_fee += parseFloat(receipt.metadata.service_fee);
@@ -4752,7 +4708,7 @@ const Account = () => {
                                                         {showChart ?
                                                             <div className="mt-3 mb-3">
                                                                 <div className="d-flex justify-content-between align-items-center mb-2">
-                                                                    <div style={{ fontWeight: 'bold' }}>{fanyi('Daily Revenue')}</div>
+                                                                    <div style={{ fontWeight: 'bold' }}>{t('Daily Revenue')}</div>
                                                                     <button onClick={() => setShowChart(false)} className="btn btn-sm mt-1 mb-1 notranslate" style={{
                                                                         border: '1px solid #ccc',
                                                                         display: 'inline-flex',
@@ -4768,10 +4724,10 @@ const Account = () => {
                                                                         <YAxis />
                                                                         <Tooltip />
                                                                         <Legend />
-                                                                        <Line type="monotone" dataKey="revenue" stroke="#8884d8" name={fanyi('Revenue')} />
+                                                                        <Line type="monotone" dataKey="revenue" stroke="#8884d8" name={t('Revenue')} />
                                                                     </LineChart>
                                                                 ) : (
-                                                                    <div className="text-muted">{fanyi('No Business Data On Date Range')}</div>
+                                                                    <div className="text-muted">{t('No Business Data On Date Range')}</div>
                                                                 )}
                                                             </div> : null
                                                         }
@@ -4789,7 +4745,7 @@ const Account = () => {
                                                             <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
                                                                 <option value="">Select Specific Payment Type</option>
                                                                 {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
-                                                                    <option class="notranslate" key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
+                                                                    <option class="notranslate" key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(option) : option}</option>
                                                                 ))}
                                                                 {/* The options will be dynamically created here */}
                                                             </select>
@@ -4837,7 +4793,7 @@ const Account = () => {
                                                                                 <select value={order_status} onChange={(e) => setOrder_status(e.target.value)}>
                                                                                     <option value="">Select Specific Payment Type</option>
                                                                                     {Array.from(new Set(orders?.map(order => order?.status))).map((option, index) => (
-                                                                                        <option key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(option) : option}</option>
+                                                                                        <option key={index} value={option}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(option) : option}</option>
                                                                                     ))}
                                                                                     {/* The options will be dynamically created here */}
                                                                                 </select>
@@ -4933,7 +4889,7 @@ const Account = () => {
                                                                                                 null
                                                                                             }
                                                                                             {order.tableNum === "" ? "Takeout" : order.tableNum}</td>
-                                                                                        <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(order.status) : order.status} </td>
+                                                                                        <td className="order-status notranslate" data-title="Status" style={{ whiteSpace: "nowrap" }}>{localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(order.status) : order.status} </td>
                                                                                         <td className="order-total" data-title="Total" style={{ whiteSpace: "nowrap" }}><span className=" amount">
                                                                                             <span className='notranslate'>
                                                                                                 {"$" + roundToTwoDecimalsTofix(order.total)}
@@ -5010,7 +4966,7 @@ const Account = () => {
                                                                                                         className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
                                                                                                         onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
                                                                                                     >
-                                                                                                        {fanyi("Add Cash Tips")}
+                                                                                                        {t("Add Cash Tips")}
                                                                                                     </button>
                                                                                                     <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
 
@@ -5043,7 +4999,7 @@ const Account = () => {
                                                                                                                     className="border-black p-2 m-2 bg-green-500 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
                                                                                                                     onClick={() => { setSplitPaymentModalOpen(true); setModalStore(order.store); setModalID(order.id); setModalTips(order.metadata.tips); setModalSubtotal(order.metadata.subtotal); setModalTotal(order.metadata.total) }}
                                                                                                                 >
-                                                                                                                    {fanyi("Add Cash Tips")}
+                                                                                                                    {t("Add Cash Tips")}
                                                                                                                 </button>
                                                                                                                 <button className="border-black p-2 m-2 bg-orange-500 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-300" onClick={() => MerchantReceipt(order.store, order.receiptData, order.metadata.discount, order.tableNum, order.metadata.service_fee, order.total, order.metadata.tips)}>
 
@@ -5187,24 +5143,12 @@ const renderLegend = (props) => {
     payload.forEach(entry => {
         revenue += entry.payload.value;
     });
-    const translations = [
-        { input: "Revenue", output: "总营收" },
-
-    ];
-    function translate(input) {
-        const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
-        return translation ? translation.output : "Translation not found";
-    }
-
-    function fanyi(input) {
-        return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
-    }
     return (
         <ul>
             {revenue !== 0 ? (
                 <div>
                     <li key="revenue" style={{ fontWeight: 'bold', fontSize: '13px' }}>
-                        {fanyi("Revenue")}
+                        {i18n.t("Revenue")}
                         <span class='notranslate'> (${((revenue - (payload[4].payload.value * 2)).toFixed(2))})</span>
                     </li>
                     {payload.map((entry, index) => (

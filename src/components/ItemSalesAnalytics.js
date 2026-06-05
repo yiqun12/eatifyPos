@@ -1,46 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const ItemSalesAnalytics = ({ orders, dateRange }) => {
+  const { t } = useTranslation();
   const [sortBy, setSortBy] = useState('quantity'); // 'quantity', 'revenue', 'name'
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
   const [viewMode, setViewMode] = useState('table'); // 'table', 'chart', 'pie'
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedMainKeys, setExpandedMainKeys] = useState([]);
-
-  // 翻译功能
-  const translations = [
-    { input: "Item Sales Analytics", output: "物品销量分析" },
-    { input: "Item Name", output: "物品名称" },
-    { input: "Quantity Sold", output: "销售数量" },
-    { input: "Total Revenue", output: "总营收" },
-    { input: "Average Price", output: "平均价格" },
-    { input: "Sort by", output: "排序方式" },
-    { input: "Quantity", output: "数量" },
-    { input: "Revenue", output: "营收" },
-    { input: "Name", output: "名称" },
-    { input: "View Mode", output: "查看模式" },
-    { input: "Table", output: "表格" },
-    { input: "Bar Chart", output: "柱状图" },
-    { input: "Pie Chart", output: "饼图" },
-    { input: "Search Items", output: "搜索物品" },
-    { input: "Total Items", output: "总物品数" },
-    { input: "Total Quantity", output: "总销量" },
-    { input: "Total Revenue", output: "总营收" },
-    { input: "No data available", output: "暂无数据" },
-    { input: "Top 10 Items by Quantity", output: "销量前10物品" },
-    { input: "Top 10 Items by Revenue", output: "营收前10物品" },
-    { input: "Amount", output: "金额" },
-  ];
-
-  function translate(input) {
-    const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
-    return translation ? translation.output : input;
-  }
-
-  function fanyi(input) {
-    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input;
-  }
 
   // 分析订单数据，统计每个物品的销量（主品+变体结构）
   const itemAnalytics = useMemo(() => {
@@ -211,7 +179,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
           <div className="flex-1 min-w-[280px] bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium text-blue-800 text-base">{fanyi("Total Items")}</h4>
+                <h4 className="font-medium text-blue-800 text-base">{t("Total Items")}</h4>
                 <p className="text-3xl font-bold text-blue-600 notranslate mt-2">{totalStats.totalItems}</p>
               </div>
               <i className="bi bi-box text-blue-400 text-4xl"></i>
@@ -220,7 +188,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
           <div className="flex-1 min-w-[280px] bg-gradient-to-r from-green-50 to-green-100 p-6 rounded-xl border border-green-200 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium text-green-800 text-base">{fanyi("Total Quantity")}</h4>
+                <h4 className="font-medium text-green-800 text-base">{t("Total Quantity")}</h4>
                 <p className="text-3xl font-bold text-green-600 notranslate mt-2">{formatQuantity(totalStats.totalQuantity)}</p>
               </div>
               <i className="bi bi-stack text-green-400 text-4xl"></i>
@@ -229,7 +197,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
           <div className="flex-1 min-w-[280px] bg-gradient-to-r from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium text-purple-800 text-base">{fanyi("Total Revenue")}</h4>
+                <h4 className="font-medium text-purple-800 text-base">{t("Total Revenue")}</h4>
                 <p className="text-3xl font-bold text-purple-600 notranslate mt-2">{formatCurrency(totalStats.totalRevenue)}</p>
               </div>
               <i className="bi bi-currency-dollar text-purple-400 text-4xl"></i>
@@ -248,7 +216,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full py-3 pl-10 pr-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder={fanyi("Search Items")}
+                  placeholder={t("Search Items")}
                 />
                 <i className="bi bi-search absolute left-3 top-3.5 text-gray-400"></i>
               </div>
@@ -261,9 +229,9 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                 onChange={(e) => setSortBy(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="quantity">{fanyi("Quantity")}</option>
-                <option value="revenue">{fanyi("Revenue")}</option>
-                <option value="name">{fanyi("Name")}</option>
+                <option value="quantity">{t("Quantity")}</option>
+                <option value="revenue">{t("Revenue")}</option>
+                <option value="name">{t("Name")}</option>
               </select>
             </div>
 
@@ -286,9 +254,9 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                 onChange={(e) => setViewMode(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="table">{fanyi("Table")}</option>
-                <option value="chart">{fanyi("Bar Chart")}</option>
-                <option value="pie">{fanyi("Pie Chart")}</option>
+                <option value="table">{t("Table View")}</option>
+                <option value="chart">{t("Bar Chart")}</option>
+                <option value="pie">{t("Pie Chart")}</option>
               </select>
             </div>
           </div>
@@ -298,7 +266,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
         {filteredAndSortedData.length === 0 ? (
           <div className="text-center py-16 text-gray-500 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
             <i className="bi bi-inbox text-6xl text-gray-300 mb-6 block"></i>
-            <p className="text-xl font-medium">{fanyi("No data available")}</p>
+            <p className="text-xl font-medium">{t("No data available")}</p>
             <p className="text-gray-400 mt-2">Try adjusting your search or date range</p>
           </div>
         ) : (
@@ -327,11 +295,11 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                             </span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">{fanyi("Total Revenue")}:</span>
+                            <span className="text-gray-600">{t("Total Revenue")}:</span>
                             <span className="font-semibold text-green-600 notranslate">{formatCurrency(item.revenue)}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">{fanyi("Average Price")}:</span>
+                            <span className="text-gray-600">{t("Average Price")}:</span>
                             <span className="font-semibold text-purple-600 notranslate">{formatCurrency(item.averagePrice)}</span>
                           </div>
                           {/* 变体明细 */}
@@ -339,8 +307,8 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                             <div className="mt-2 border-t pt-2">
                               <div className="flex text-xs text-gray-500 font-semibold pb-1">
                                 <div className="flex-1">Attributes</div>
-                                <div style={{width: 60}} className="text-right">{fanyi("Quantity")}</div>
-                                <div style={{width: 70}} className="text-right">{fanyi("Amount")}</div>
+                                <div style={{width: 60}} className="text-right">{t("Quantity")}</div>
+                                <div style={{width: 70}} className="text-right">{t("Amount")}</div>
                               </div>
                               {item.variants.map((variant, vIdx) => (
                                 <div key={vIdx} className="flex text-xs text-gray-700 py-1 items-center">
@@ -363,10 +331,10 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                     <table className="w-full">
                       <thead className="bg-gray-50 sticky top-0 z-10">
                         <tr>
-                          <th className="px-6 py-4 text-left font-semibold text-gray-700 border-b text-base">{fanyi("Item Name")}</th>
-                          <th className="px-6 py-4 text-right font-semibold text-gray-700 border-b text-base">{fanyi("Quantity Sold")}</th>
-                          <th className="px-6 py-4 text-right font-semibold text-gray-700 border-b text-base">{fanyi("Total Revenue")}</th>
-                          <th className="px-6 py-4 text-right font-semibold text-gray-700 border-b text-base">{fanyi("Average Price")}</th>
+                          <th className="px-6 py-4 text-left font-semibold text-gray-700 border-b text-base">{t("Item Name")}</th>
+                          <th className="px-6 py-4 text-right font-semibold text-gray-700 border-b text-base">{t("Quantity Sold")}</th>
+                          <th className="px-6 py-4 text-right font-semibold text-gray-700 border-b text-base">{t("Total Revenue")}</th>
+                          <th className="px-6 py-4 text-right font-semibold text-gray-700 border-b text-base">{t("Average Price")}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
@@ -424,7 +392,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                 <div className="bg-white rounded-lg border shadow-sm p-4">
                   <h4 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
                     <i className="bi bi-bar-chart text-blue-600 mr-2"></i>
-                    {fanyi("Top 10 Items by Quantity")}
+                    {t("Top 10 Items by Quantity")}
                   </h4>
                   <div className="h-64 md:h-80">
                     <ResponsiveContainer width="100%" height="100%">
@@ -443,7 +411,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                         <Tooltip 
                           formatter={(value, name) => [
                             name === 'quantity' ? formatQuantity(value) : formatCurrency(value),
-                            name === 'quantity' ? fanyi("Quantity") : fanyi("Revenue")
+                            name === 'quantity' ? t("Quantity") : t("Revenue")
                           ]}
                           labelFormatter={(label) => {
                             const item = chartData.find(d => d.name === label);
@@ -457,7 +425,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                           }}
                         />
                         <Legend />
-                        <Bar dataKey="quantity" fill="#3b82f6" name={fanyi("Quantity")} radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="quantity" fill="#3b82f6" name={t("Quantity")} radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -466,7 +434,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                 <div className="bg-white rounded-lg border shadow-sm p-4">
                   <h4 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
                     <i className="bi bi-currency-dollar text-green-600 mr-2"></i>
-                    {fanyi("Top 10 Items by Revenue")}
+                    {t("Top 10 Items by Revenue")}
                   </h4>
                   <div className="h-64 md:h-80">
                     <ResponsiveContainer width="100%" height="100%">
@@ -485,7 +453,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                         <Tooltip 
                           formatter={(value, name) => [
                             name === 'quantity' ? formatQuantity(value) : formatCurrency(value),
-                            name === 'quantity' ? fanyi("Quantity") : fanyi("Revenue")
+                            name === 'quantity' ? t("Quantity") : t("Revenue")
                           ]}
                           labelFormatter={(label) => {
                             const item = chartData.find(d => d.name === label);
@@ -499,7 +467,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                           }}
                         />
                         <Legend />
-                        <Bar dataKey="revenue" fill="#10b981" name={fanyi("Revenue")} radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="revenue" fill="#10b981" name={t("Revenue")} radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -512,7 +480,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                 <div className="flex-1 min-w-[300px] bg-white rounded-lg border shadow-sm p-4">
                   <h4 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
                     <i className="bi bi-pie-chart text-blue-600 mr-2"></i>
-                    {fanyi("Top 10 Items by Quantity")}
+                    {t("Top 10 Items by Quantity")}
                   </h4>
                   <div className="h-64 md:h-80 flex">
                     <ResponsiveContainer width="70%" height="100%">
@@ -555,7 +523,7 @@ const ItemSalesAnalytics = ({ orders, dateRange }) => {
                 <div className="flex-1 min-w-[300px] bg-white rounded-lg border shadow-sm p-4">
                   <h4 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
                     <i className="bi bi-pie-chart text-green-600 mr-2"></i>
-                    {fanyi("Top 10 Items by Revenue")}
+                    {t("Top 10 Items by Revenue")}
                   </h4>
                   <div className="h-64 md:h-80 flex">
                     <ResponsiveContainer width="70%" height="100%">
