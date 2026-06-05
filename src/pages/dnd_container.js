@@ -1,4 +1,5 @@
 import { React, useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
+import { useTranslation } from 'react-i18next';
 import { useDroppable, DragOverlay } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -199,6 +200,9 @@ const cleanProductData = (products) => {
 };
 
 function Container(props) {
+  const { t } = useTranslation();
+  const fanyi = t;
+
   const [products, setProducts] = useState([]);
   const { isPaidArray, setIsPaidArray } = props;
 
@@ -638,59 +642,6 @@ function Container(props) {
   function stringTofixed(n) {
     return (Math.round(n * 100) / 100).toFixed(2)
   }
-
-  const translations = [
-    { input: "Change Desk", output: "更换餐桌" },
-    { input: "Allow Dish Revise", output: "打开菜品修改" },
-    { input: "Disallow Dish Revise", output: "关闭菜品修改" },
-    { input: "Add Service Fee", output: "添加服务费" },
-    { input: "Add Discount", output: "添加折扣" },
-    { input: "Send to kitchen", output: "送到厨房" },
-    { input: "Print Order", output: "打印订单" },
-    { input: "Print Receipt", output: "商户收据" },
-    { input: "Split payment", output: "分单付款" },
-    { input: "Mark as Unpaid", output: "未付款" },
-    { input: "Card Pay", output: "信用卡支付" },
-    { input: "Cash Pay", output: "现金支付" },
-    { input: "Subtotal", output: "小计" },
-    { input: "Tax", output: "税" },
-    { input: "Total", output: "总额" },
-    { input: "Discount", output: "折扣" },
-    { input: "Disc.", output: "折扣" },
-    { input: "Duration", output: "用餐时长" },
-    { input: "Start", output: "开始时间" },
-    { input: "Service Fee", output: "服务费" },
-    { input: "Tips", output: "小费" },
-    { input: "Gratuity", output: "小费" },
-    { input: "Revise", output: "修订" },
-    { input: "Cash Pay", output: "现金支付" },
-    { input: "Enter the Cash Received", output: "输入收到的现金" },
-    { input: "Calculate Give Back Cash", output: "计算返还现金" },
-    { input: "Receivable Payment", output: "应收付款" },
-    { input: "Give Back Cash", output: "返还现金" },
-    { input: "Add return cash as a gratuity", output: "添加返还现金作为小费" },
-    { input: "Total", output: "总计" },
-    { input: "Custom Gratuity", output: "自定义小费" },
-    { input: "Other", output: "其他" },
-    { input: "Add", output: "添加" },
-    { input: "and finalize", output: "并最终确定" },
-    { input: "Finalize the Order. Total Gratuity", output: "完成订单。小费总额" },
-    { input: "Collect", output: "现收" },
-    { input: "including", output: "其中包含" },
-    { input: "Gratuity", output: "小费" },
-    { input: "Original Total", output: "修改前总价" },
-    { input: "New Total", output: "修改后总价" },
-
-  ];
-  function translate(input) {
-    const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
-    return translation ? translation.output : "Translation not found";
-  }
-  function fanyi(input) {
-    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
-  }
-
-
 
   // Add refs for inputs - only keeping necessary references
   const serviceFeeTipsInputRef = useRef(null);
