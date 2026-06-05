@@ -1,5 +1,6 @@
 import React from 'react'
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.css';
 import Button from 'react-bootstrap/Button';
@@ -47,6 +48,9 @@ import KeypadModal from '../components/KeypadModal'; // Import KeypadModal compo
 import TableTimingModal from '../components/TableTimingModal';
 
 const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, acct, openSplitPaymentModal, TaxRate }) => {
+  const { t } = useTranslation();
+  const fanyi = t;
+
   // Removed startTime prop as it's read from localStorage now
   // startTime = 1744625303617 // Removed hardcoded value
 
@@ -175,89 +179,6 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
       restoredTimerIds.forEach(clearTimeout);
     };
   }, [store, selectedTable]);
-
-  const translations = useMemo(() => [
-    { input: "Cart", output: "购物车" },
-    { input: "Table", output: "桌号" },
-    { input: "Change Desk", output: "更换餐桌" },
-    { input: "Allow Dish Revise", output: "打开菜品修改" },
-    { input: "Disallow Dish Revise", output: "关闭菜品修改" },
-    { input: "Add Service Fee", output: "添加服务费" },
-    { input: "Add Discount", output: "添加折扣" },
-    { input: "Adjust Total", output: "全桌改价" },
-    { input: "Send to kitchen", output: "送到厨房" },
-    { input: "Print Order", output: "打印订单" },
-    { input: "Print Receipt", output: "商户收据" },
-    { input: "Split payment", output: "分单付款" },
-    { input: "Mark as Unpaid", output: "未付款" },
-    { input: "Card Pay", output: "信用卡支付" },
-    { input: "Cash Pay", output: "现金支付" },
-    { input: "Subtotal", output: "小计" },
-    { input: "Tax", output: "税" },
-    { input: "Total", output: "总额" },
-    { input: "Discount", output: "折扣" },
-    { input: "Disc.", output: "折扣" },
-    { input: "Duration", output: "用餐时长" },
-    { input: "Start", output: "开始时间" },
-    { input: "Start Table", output: "开台" },
-    { input: "End Table", output: "结台" },
-    { input: "Table Timing", output: "开台计时" },
-    { input: "Service Fee", output: "服务费" },
-    { input: "Tips", output: "小费" },
-    { input: "Gratuity", output: "小费" },
-    { input: "Revise", output: "修订" },
-    { input: "Cash Pay", output: "现金支付" },
-    { input: "Enter the Cash Received", output: "输入收到的现金" },
-    { input: "Calculate Give Back Cash", output: "计算返还现金" },
-    { input: "Receivable Payment", output: "应收付款" },
-    { input: "Give Back Cash", output: "返还现金" },
-    { input: "Add return cash as a gratuity", output: "添加返还现金作为小费" },
-    { input: "Total", output: "总计" },
-    { input: "Custom Gratuity", output: "自定义小费" },
-    { input: "Other", output: "其他" },
-    { input: "Add", output: "添加" },
-    { input: "and finalize", output: "并最终确定" },
-    { input: "Finalize the Order. Total Gratuity", output: "完成订单。小费总额" },
-    { input: "Collect", output: "现收" },
-    { input: "including", output: "其中包含" },
-    { input: "Gratuity", output: "小费" },
-    { input: "Cancel", output: "返回" },
-    { input: "Cancel Add", output: "取消添加" },
-    { input: "Tax Exempt", output: "免税" },
-    { input: "✓ Tax Exempt", output: "✓ 免税" },
-    { input: "Original Total", output: "修改前总价" },
-    { input: "New Total", output: "修改后总价" },
-    { input: "Enter new total price", output: "输入新的总价" },
-    { input: "Surcharge!", output: "加价！" },
-    { input: "Discount", output: "折扣" },
-    { input: "Enter new total price", output: "输入新的总价" },
-    { input: "✓ Tax Exempt", output: "✓ 免税" },
-    { input: "Tax Exempt", output: "免税" },
-    { input: "Cancel Add", output: "取消添加" },
-    { input: "5% Off", output: "95折" },
-    { input: "15% Off", output: "85折" },
-    { input: "25% Off", output: "75折" },
-    { input: "Tips", output: "小费" },
-    { input: "Service Fee", output: "服务费" },
-    { input: "Custom Amount", output: "自定金额" },
-    { input: "Enter service fee by amount", output: "输入服务费金额" },
-    { input: "No service fee", output: "无服务费" },
-    { input: "Apply", output: "应用" },
-    { input: "Unfinished Tables Warning", output: "未结台提醒" },
-    { input: "There are unfinished tables that need to be ended before payment.", output: "有未结台的桌子需要先结台才能支付。" },
-    { input: "Please end all tables first, then proceed with payment.", output: "请先结台所有桌子，再进行支付。" },
-    { input: "Go to End Tables", output: "去结台" },
-    { input: "OK", output: "确定" },
-  ], []);
-
-  const fanyi = useCallback((input) => {
-    const lang = localStorage.getItem("Google-language");
-    if (lang?.includes("Chinese") || lang?.includes("中")) {
-      const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
-      return translation ? translation.output : input;
-    }
-    return input;
-  }, [translations]);
 
   const handleOpenCustomPriceModal = () => {
     const originalTotal = calculateOriginalTotalPrice();
@@ -525,7 +446,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 
 
   // for translations sake
-  const t = useMemo(() => {
+  const translateProductText = useMemo(() => {
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const translationsMode = sessionStorage.getItem("translationsMode")
 
@@ -1730,7 +1651,7 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
                     <div className={`flex flex-col w-full ${!isMobile ? 'text-lg' : ''} notranslate`}>
                       <div className="flex justify-between w-full">
                         <span className="product-title" style={{ wordBreak: 'break-word', hyphens: 'auto' }}>
-                          {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(product?.CHI) : (product?.name)}
+                          {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translateProductText(product?.CHI) : (product?.name)}
                         </span>
                         <span className="product-price ml-2" style={{ flexShrink: 0 }}>${(Math.round(product.itemTotalPrice * 100) / 100).toFixed(2)}</span>
                       </div>
@@ -2636,4 +2557,3 @@ const Navbar = ({ OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAl
 }
 
 export default Navbar
-
