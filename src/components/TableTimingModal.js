@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import './TableTimingModal.css';
 import { v4 as uuidv4 } from 'uuid';
 import Modal from 'react-modal';
@@ -105,6 +106,7 @@ export const calculatePriceForBillingRule = (totalMinutes, hourlyRate, ruleId, c
 };
 
 const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, onTableStart, onTableEnd, onRemarksUpdate, forceStartMode = false }) => {
+  const { t } = useTranslation();
   const [basePrice, setBasePrice] = useState('0.00'); // 基础价格（不可修改）
   const [calculatedFee, setCalculatedFee] = useState('0.00'); // 计算出的台费（有颜色显示）
   const [finalFee, setFinalFee] = useState(''); // 最终台费（用户可输入，空则用计算的）
@@ -144,88 +146,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
   // 确认结台弹窗状态
   const [showEndTableConfirm, setShowEndTableConfirm] = useState(false);
 
-  // 翻译功能
-  const translations = [
-    { input: "Table Timing", output: "开台计时" },
-    { input: "Base Price", output: "基础价格" },
-    { input: "Calculated Fee", output: "计算台费" },
-    { input: "Final Fee", output: "最终台费" },
-    { input: "Current Status", output: "当前状态" },
-    { input: "Start Time", output: "开台时间" },
-    { input: "Current Time", output: "当前时间" },
-    { input: "Used Duration", output: "已用时长" },
-    { input: "Custom Duration", output: "自定义时长" },
-    { input: "Timer Settings", output: "定时操作设置" },
-    { input: "Timer Duration", output: "定时时长" },
-    { input: "Timer Action", output: "到时执行" },
-    { input: "Remarks", output: "备注" },
-    { input: "No remarks", output: "无备注" },
-    { input: "Not Started", output: "未开台" },
-    { input: "In Service", output: "正在用餐" },
-    { input: "No Action", output: "无操作" },
-    { input: "Auto Checkout", output: "自动结账" },
-    { input: "Continue Billing", output: "到时继续计费" },
-    { input: "Start Table", output: "开台" },
-    { input: "End Table", output: "结台" },
-    { input: "Cancel", output: "取消" },
-    { input: "Confirm", output: "确认" },
-    { input: "minutes", output: "分钟" },
-    { input: "hours", output: "小时" },
-    { input: "Table", output: "桌台" },
-    { input: "Enter remarks here...", output: "在此输入备注..." },
-    { input: "Start table successful!", output: "开台成功！" },
-    { input: "End table successful!", output: "结台成功！" },
-    { input: "Dining time has reached", output: "用餐时间已到达" },
-    { input: "Total used time", output: "总用时" },
-    { input: "Leave empty to use calculated fee", output: "留空则使用计算台费" },
-    { input: "Timer checkout executed", output: "定时结账已执行" },
-    { input: "Active Timer", output: "当前定时器" },
-    { input: "Remaining time", output: "剩余时间" },
-    // New translations for billing rules
-    { input: "Billing Rule", output: "计费规则" },
-    { input: "Rule: Hour Block / 15-min", output: "规则: 首小时不足按1小时 / 后续15分钟" },
-    { input: "Rule: 30-min Block, then Hour Block / 15-min", output: "规则: 首30分钟按半小时,不足1小时按1小时 / 后续15分钟" },
-    { input: "Rule: Hour Block / 30-min", output: "规则: 首小时不足按1小时 / 后续30分钟" },
-    { input: "Rule: Hour Block / Minute", output: "规则: 首小时不足按1小时 / 后续分钟" },
-    { input: "Rule: Exact Minute", output: "规则: 按分钟" },
-    { input: "Rule: First 40-min → 30-min or 1-hour / 10-min", output: "规则: 首40分钟不足按30分钟,超过40分钟不足1小时按1小时 / 后续10分钟" },
-    // 新增自定义规则相关的翻译 (英文优先)
-    { input: "Custom Rule", output: "自定义规则" },
-    { input: "Configure Custom Rule", output: "配置自定义规则" },
-    { input: "First Block (30/60 min)", output: "首个固定时段 (30/60 分钟)" },
-    { input: "30 minutes", output: "30分钟" },
-    { input: "1 hour", output: "1小时" },
-    { input: "Initial Segment (min, round up)", output: "首时段计费单位 (分钟, 向上取整)" },
-    { input: "Subsequent Segment (min)", output: "后续计费单位 (分钟)" },
-    { input: "Invalid custom rule parameters. Please check inputs.", output: "自定义规则参数无效，请检查输入。" },
-    // 数字键盘相关翻译
-    { input: "Number Pad", output: "数字键盘" },
-    { input: "Click input field to activate keypad", output: "点击输入框激活键盘" },
-    { input: "No input fields available for keypad", output: "暂无可用的输入字段" },
-    { input: "First Block Billing Unit", output: "首时段计费单位" },
-    { input: "Subsequent Billing Unit", output: "后续计费单位" },
-    { input: "Update Settings", output: "更新设置" },
-    { input: "Settings updated successfully", output: "设置更新成功" },
-    { input: "Edit", output: "编辑" },
-    { input: "Save", output: "保存" },
-    { input: "Edit Rule", output: "编辑规则" },
-    { input: "Current Rule", output: "当前规则" },
-    { input: "Confirm End Table", output: "确认结台" },
-    { input: "Are you sure you want to end this table?", output: "确定要结台吗？" },
-    { input: "This action cannot be undone.", output: "此操作无法撤销。" },
-    { input: "Yes, End Table", output: "确认结台" },
-  ];
-
-  function translate(input) {
-    const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
-    return translation ? translation.output : input;
-  }
-
-  function fanyi(input) {
-    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input;
-  }
-
-  // 数字键盘相关函数  
+  // 数字键盘相关函数
   const getAvailableInputFields = () => {
     const fields = [];
     
@@ -407,7 +328,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
       if (isNaN(firstBlock) || !(firstBlock === 30 || firstBlock === 60) ||
           isNaN(initialSegment) || initialSegment <= 0 ||
           isNaN(subsequentSegment) || subsequentSegment <= 0) {
-        alert(fanyi("Invalid custom rule parameters. Please check inputs."));
+        alert(t("Invalid custom rule parameters. Please check inputs."));
         return;
       }
       
@@ -465,9 +386,9 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     if (hours > 0) {
-      return `${hours}${fanyi("hours")}${mins}${fanyi("minutes")}`;
+      return `${hours}${t("hours")}${mins}${t("minutes")}`;
     }
-    return `${mins}${fanyi("minutes")}`;
+    return `${mins}${t("minutes")}`;
   };
 
   // 按分钟计算费用
@@ -543,7 +464,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                 if (isNaN(firstBlock) || !(firstBlock === 30 || firstBlock === 60) ||
                     isNaN(initialSegment) || initialSegment <= 0 ||
                     isNaN(subsequentSegment) || subsequentSegment <= 0) {
-                  setCustomRuleError(fanyi("Invalid custom rule parameters. Please check inputs."));
+                  setCustomRuleError(t("Invalid custom rule parameters. Please check inputs."));
                   setCalculatedFee('0.00'); // Set to 0 or an error state if params invalid during UI update
                   // Skip price calculation if params are bad for the UI display part
                   return; 
@@ -569,7 +490,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     const interval = setInterval(updateCurrentTime, 1000);
 
     return () => clearInterval(interval);
-  }, [currentStatus, startTime, basePrice, customDuration, selectedBillingRule, store, tableItem, selectedTable, fanyi]);
+  }, [currentStatus, startTime, basePrice, customDuration, selectedBillingRule, store, tableItem, selectedTable, t]);
 
   // 检查是否已经开台
   useEffect(() => {
@@ -835,7 +756,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
     let displayRemarks = '';
     if (targetProduct && targetProduct.tableRemarks) {
-      displayRemarks = `\n${fanyi("Remarks")}: ${targetProduct.tableRemarks}`;
+      displayRemarks = `\n${t("Remarks")}: ${targetProduct.tableRemarks}`;
     }
 
     localStorage.removeItem(itemSpecificStartTimeKey);
@@ -843,7 +764,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     localStorage.removeItem(`${itemSpecificKeyPrefix}-billingRule`); // <-- Clean up billing rule
     localStorage.removeItem(persistentTimerKey); // Clean the active timer details
 
-    alert(`${currentSelectedTableName} ${fanyi("Timer checkout executed")}\n${fanyi("Total used time")}: ${formatDuration(finalDuration)}\n${fanyi("Final Fee")}: $${finalPrice.toFixed(2)}${displayRemarks}`);
+    alert(`${currentSelectedTableName} ${t("Timer checkout executed")}\n${t("Total used time")}: ${formatDuration(finalDuration)}\n${t("Final Fee")}: $${finalPrice.toFixed(2)}${displayRemarks}`);
 
     if (onTableEnd && targetProduct) {
       console.log('自动结账更新商品:', targetProduct.id, targetProduct.count, finalPrice);
@@ -937,7 +858,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
        if (isNaN(firstBlock) || !(firstBlock === 30 || firstBlock === 60) ||
            isNaN(initialSegment) || initialSegment <= 0 ||
            isNaN(subsequentSegment) || subsequentSegment <= 0) {
-        alert(fanyi("Invalid custom rule parameters. Please check inputs.") + ` Cannot start table.`);
+        alert(t("Invalid custom rule parameters. Please check inputs.") + ` Cannot start table.`);
         // Do not proceed with starting the table if custom params are bad
         localStorage.removeItem(`${itemSpecificKeyPrefix}-isSent_startTime`);
         localStorage.removeItem(`${itemSpecificKeyPrefix}-basePrice`);
@@ -1010,7 +931,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
       }, durationMs);
     }
 
-    // alert(`${selectedTable} ${fanyi("Start table successful!")}`);
+    // alert(`${selectedTable} ${t("Start table successful!")}`);
     setRemarks('');
     setTimerDuration('');
     setIsTimerEnabled(false);
@@ -1077,11 +998,11 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     // 获取备注内容用于显示
     let displayRemarks = '';
     if (tableItem && tableItem.attributeSelected && tableItem.attributeSelected['备注'] && tableItem.attributeSelected['备注'][0]) {
-      displayRemarks = `\n${fanyi("Remarks")}: ${tableItem.attributeSelected['备注'][0]}`;
+      displayRemarks = `\n${t("Remarks")}: ${tableItem.attributeSelected['备注'][0]}`;
     } else if (tableItem && tableItem.tableRemarks) {
-      displayRemarks = `\n${fanyi("Remarks")}: ${tableItem.tableRemarks}`;
+      displayRemarks = `\n${t("Remarks")}: ${tableItem.tableRemarks}`;
     } else if (remarks) {
-      displayRemarks = `\n${fanyi("Remarks")}: ${remarks}`;
+      displayRemarks = `\n${t("Remarks")}: ${remarks}`;
     }
 
     // 清除存储的数据（包括定时器信息）
@@ -1093,7 +1014,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     localStorage.removeItem(persistentTimerKey); // Clean the active timer details
 
     // 显示结台信息（包含备注）
-    // alert(`${selectedTable} ${fanyi("End table successful!")}\n${fanyi("Total used time")}: ${formatDuration(finalDuration)}\n${fanyi("Final Fee")}: $${finalPrice.toFixed(2)}${displayRemarks}`);
+    // alert(`${selectedTable} ${t("End table successful!")}\n${t("Total used time")}: ${formatDuration(finalDuration)}\n${t("Final Fee")}: $${finalPrice.toFixed(2)}${displayRemarks}`);
 
     // 重置状态
     setStartTime('');
@@ -1123,7 +1044,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
     <div className="table-timing-modal-overlay">
               <div className="table-timing-modal" style={{ maxWidth: isPC ? '1100px' : '700px', minHeight: '600px' }}>
         <div className="table-timing-modal-header">
-          <h2 className="text-xl font-semibold mb-4">{fanyi("开台计时")} - <span className="notranslate">{tableItem?.name}</span></h2>
+          <h2 className="text-xl font-semibold mb-4">{t("Table Timing")} - <span className="notranslate">{tableItem?.name}</span></h2>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'row', gap: isPC ? '20px' : '0' }}>
@@ -1131,15 +1052,15 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           {/* 基础价格 和 当前状态 - 修改为一行显示 */}
           <div className="form-row">
             <div className="form-group half">
-            <label>{fanyi("Base Price")}:</label>
+            <label>{t("Base Price")}:</label>
             <div className="status-display inactive notranslate">
               ${(Math.round(parseFloat(basePrice) * 100) / 100).toFixed(2)}
             </div>
           </div>
             <div className="form-group half">
-            <label>{fanyi("Current Status")}:</label>
+            <label>{t("Current Status")}:</label>
             <div className={`status-display ${currentStatus === 'In Service' ? 'active' : 'inactive'}`}>
-              {fanyi(currentStatus)}
+              {t(currentStatus)}
               </div>
             </div>
           </div>
@@ -1147,13 +1068,13 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           {/* 时间显示区域 */}
           <div className="form-row">
             <div className="form-group half">
-              <label>{fanyi("Start Time")}:</label>
+              <label>{t("Start Time")}:</label>
               <div className="time-display notranslate">
                 {startTime || '--:--:--'}
               </div>
             </div>
             <div className="form-group half">
-              <label>{fanyi("Current Time")}:</label>
+              <label>{t("Current Time")}:</label>
               <div className="time-display notranslate">{currentTime}</div>
             </div>
           </div>
@@ -1162,7 +1083,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
              <>
               {/* 已用时长 */}
               <div className="form-group">
-                <label>{fanyi("Used Duration")}:</label>
+                <label>{t("Used Duration")}:</label>
                 <div className="time-display">
                   {usedDuration || '--:--:--'}
                 </div>
@@ -1181,7 +1102,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                     checked={isTimerEnabled}
                     onChange={(e) => setIsTimerEnabled(e.target.checked)}
                   />
-                  {fanyi("Timer Settings")}
+                  {t("Timer Settings")}
                 </label>
               </div>
 
@@ -1189,7 +1110,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                 <div className="timer-settings">
                   <div className="form-row">
                     <div className="form-group half">
-                      <label>{fanyi("Timer Duration")}:</label>
+                      <label>{t("Timer Duration")}:</label>
                       <div className="input-group">
                         <input
                           type="number"
@@ -1199,19 +1120,19 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                           className={`${inputStyle} ${activeInputField === 'timerDuration' ? 'ring-2 ring-blue-500' : ''}`}
                           placeholder="30"
                         />
-                        <span className="input-suffix">{fanyi("minutes")}</span>
+                        <span className="input-suffix">{t("minutes")}</span>
                       </div>
                     </div>
                     <div className="form-group half">
-                      <label>{fanyi("Timer Action")}:</label>
+                      <label>{t("Timer Action")}:</label>
                       <select
                         value={timerAction}
                         onChange={(e) => setTimerAction(e.target.value)}
                         className={inputStyle}
                       >
-                        <option value="No Action">{fanyi("No Action")}</option>
-                        <option value="Auto Checkout">{fanyi("Auto Checkout")}</option>
-                        <option value="Continue Billing">{fanyi("Continue Billing")}</option>
+                        <option value="No Action">{t("No Action")}</option>
+                        <option value="Auto Checkout">{t("Auto Checkout")}</option>
+                        <option value="Continue Billing">{t("Continue Billing")}</option>
                       </select>
                     </div>
                   </div>
@@ -1220,13 +1141,13 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
               {/* 备注（开台时可编辑） */}
               <div className="form-group">
-                <label>{fanyi("Remarks")}:</label>
+                <label>{t("Remarks")}:</label>
                 <textarea
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   className={inputStyle}
                   rows="3"
-                  placeholder={fanyi("Enter remarks here...")}
+                  placeholder={t("Enter remarks here...")}
                 />
               </div>
             </>
@@ -1238,20 +1159,20 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
               {/* 开台模式：直接显示选择框 */}
               {(forceStartMode || currentStatus === 'Not Started') && (
                 <>
-                  <label htmlFor="billingRuleSelect">{fanyi("Billing Rule")}:</label>
+                  <label htmlFor="billingRuleSelect">{t("Billing Rule")}:</label>
                   <select 
                     id="billingRuleSelect" 
                     className={inputStyle} 
                     value={selectedBillingRule} 
                     onChange={(e) => setSelectedBillingRule(e.target.value)}
                   >
-                    <option value={BILLING_RULES.RULE_1}>{fanyi("Rule: Hour Block / 15-min")}</option>
-                    <option value={BILLING_RULES.RULE_2}>{fanyi("Rule: 30-min Block, then Hour Block / 15-min")}</option>
-                    <option value={BILLING_RULES.RULE_3}>{fanyi("Rule: Hour Block / 30-min")}</option>
-                    <option value={BILLING_RULES.RULE_4}>{fanyi("Rule: Hour Block / Minute")}</option>
-                    <option value={BILLING_RULES.RULE_5}>{fanyi("Rule: Exact Minute")}</option>
-                    <option value={BILLING_RULES.RULE_6}>{fanyi("Rule: First 40-min → 30-min or 1-hour / 10-min")}</option>
-                    <option value={BILLING_RULES.CUSTOM_RULE}>{fanyi("Custom Rule")}</option>
+                    <option value={BILLING_RULES.RULE_1}>{t("Rule: Hour Block / 15-min")}</option>
+                    <option value={BILLING_RULES.RULE_2}>{t("Rule: 30-min Block, then Hour Block / 15-min")}</option>
+                    <option value={BILLING_RULES.RULE_3}>{t("Rule: Hour Block / 30-min")}</option>
+                    <option value={BILLING_RULES.RULE_4}>{t("Rule: Hour Block / Minute")}</option>
+                    <option value={BILLING_RULES.RULE_5}>{t("Rule: Exact Minute")}</option>
+                    <option value={BILLING_RULES.RULE_6}>{t("Rule: First 40-min → 30-min or 1-hour / 10-min")}</option>
+                    <option value={BILLING_RULES.CUSTOM_RULE}>{t("Custom Rule")}</option>
                   </select>
                 </>
               )}
@@ -1260,7 +1181,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
               {currentStatus === 'In Service' && (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <label>{fanyi("Billing Rule")}:</label>
+                    <label>{t("Billing Rule")}:</label>
                     <div>
                       {!isEditingBillingRule ? (
                         <button 
@@ -1269,7 +1190,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                           className="btn btn-sm btn-outline-primary notranslate"
                           style={{ padding: '4px 8px', fontSize: '12px' }}
                         >
-                          {fanyi("Edit Rule")}
+                          {t("Edit Rule")}
                         </button>
                       ) : (
                         <div style={{ display: 'flex', gap: '4px' }}>
@@ -1279,7 +1200,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                             className="btn btn-sm btn-success notranslate"
                             style={{ padding: '4px 8px', fontSize: '12px' }}
                           >
-                            {fanyi("Save")}
+                            {t("Save")}
                           </button>
                           <button 
                             type="button"
@@ -1287,7 +1208,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                             className="btn btn-sm btn-secondary notranslate"
                             style={{ padding: '4px 8px', fontSize: '12px' }}
                           >
-                            {fanyi("Cancel")}
+                            {t("Cancel")}
                           </button>
                         </div>
                       )}
@@ -1298,21 +1219,21 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                       {(() => {
                         switch (selectedBillingRule) {
                           case BILLING_RULES.RULE_1:
-                            return fanyi("Rule: Hour Block / 15-min");
+                            return t("Rule: Hour Block / 15-min");
                           case BILLING_RULES.RULE_2:
-                            return fanyi("Rule: 30-min Block, then Hour Block / 15-min");
+                            return t("Rule: 30-min Block, then Hour Block / 15-min");
                           case BILLING_RULES.RULE_3:
-                            return fanyi("Rule: Hour Block / 30-min");
+                            return t("Rule: Hour Block / 30-min");
                           case BILLING_RULES.RULE_4:
-                            return fanyi("Rule: Hour Block / Minute");
+                            return t("Rule: Hour Block / Minute");
                           case BILLING_RULES.RULE_5:
-                            return fanyi("Rule: Exact Minute");
+                            return t("Rule: Exact Minute");
                           case BILLING_RULES.RULE_6:
-                            return fanyi("Rule: First 40-min → 30-min or 1-hour / 10-min");
+                            return t("Rule: First 40-min → 30-min or 1-hour / 10-min");
                           case BILLING_RULES.CUSTOM_RULE:
-                            return `${fanyi("Custom Rule")} (${customFirstBlockDuration === 30 ? fanyi("30 minutes") : fanyi("1 hour")} / ${customInitialSegmentMinutes}min → ${customSubsequentSegmentMinutes}min)`;
+                            return `${t("Custom Rule")} (${customFirstBlockDuration === 30 ? t("30 minutes") : t("1 hour")} / ${customInitialSegmentMinutes}min → ${customSubsequentSegmentMinutes}min)`;
                           default:
-                            return fanyi("Rule: Hour Block / 15-min");
+                            return t("Rule: Hour Block / 15-min");
                         }
                       })()}
                     </div>
@@ -1323,13 +1244,13 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                       value={selectedBillingRule} 
                       onChange={(e) => setSelectedBillingRule(e.target.value)}
                     >
-                      <option value={BILLING_RULES.RULE_1}>{fanyi("Rule: Hour Block / 15-min")}</option>
-                      <option value={BILLING_RULES.RULE_2}>{fanyi("Rule: 30-min Block, then Hour Block / 15-min")}</option>
-                      <option value={BILLING_RULES.RULE_3}>{fanyi("Rule: Hour Block / 30-min")}</option>
-                      <option value={BILLING_RULES.RULE_4}>{fanyi("Rule: Hour Block / Minute")}</option>
-                      <option value={BILLING_RULES.RULE_5}>{fanyi("Rule: Exact Minute")}</option>
-                      <option value={BILLING_RULES.RULE_6}>{fanyi("Rule: First 40-min → 30-min or 1-hour / 10-min")}</option>
-                      <option value={BILLING_RULES.CUSTOM_RULE}>{fanyi("Custom Rule")}</option>
+                      <option value={BILLING_RULES.RULE_1}>{t("Rule: Hour Block / 15-min")}</option>
+                      <option value={BILLING_RULES.RULE_2}>{t("Rule: 30-min Block, then Hour Block / 15-min")}</option>
+                      <option value={BILLING_RULES.RULE_3}>{t("Rule: Hour Block / 30-min")}</option>
+                      <option value={BILLING_RULES.RULE_4}>{t("Rule: Hour Block / Minute")}</option>
+                      <option value={BILLING_RULES.RULE_5}>{t("Rule: Exact Minute")}</option>
+                      <option value={BILLING_RULES.RULE_6}>{t("Rule: First 40-min → 30-min or 1-hour / 10-min")}</option>
+                      <option value={BILLING_RULES.CUSTOM_RULE}>{t("Custom Rule")}</option>
                     </select>
                   )}
                 </>
@@ -1340,23 +1261,23 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           {/* 自定义规则配置区域 */}
           {selectedBillingRule === BILLING_RULES.CUSTOM_RULE && (forceStartMode || currentStatus === 'Not Started' || (currentStatus === 'In Service' && isEditingBillingRule)) && (
             <div className="custom-billing-config form-group">
-              <h4>{fanyi("Configure Custom Rule")}</h4>
+              <h4>{t("Configure Custom Rule")}</h4>
               {customRuleError && <p className="error-message" style={{color: 'red'}}>{customRuleError}</p>}
               <div className="form-row" style={{display: 'flex', gap: '10px'}}>
                 <div className="form-group" style={{flex: '1'}}>
-                  <label htmlFor="customFirstBlockDuration">{fanyi("First Block (30/60 min)")}:</label>
+                  <label htmlFor="customFirstBlockDuration">{t("First Block (30/60 min)")}:</label>
                   <select
                     id="customFirstBlockDuration"
                     className={inputStyle}
                     value={customFirstBlockDuration}
                     onChange={(e) => setCustomFirstBlockDuration(parseInt(e.target.value))}
                   >
-                    <option value={30}>{fanyi("30 minutes")}</option>
-                    <option value={60}>{fanyi("1 hour")}</option>
+                    <option value={30}>{t("30 minutes")}</option>
+                    <option value={60}>{t("1 hour")}</option>
                   </select>
                 </div>
                 <div className="form-group" style={{flex: '1'}}>
-                  <label htmlFor="customInitialSegmentMinutes">{fanyi("Initial Segment (min, round up)")}:</label>
+                  <label htmlFor="customInitialSegmentMinutes">{t("Initial Segment (min, round up)")}:</label>
                   <input
                     type="number"
                     id="customInitialSegmentMinutes"
@@ -1368,7 +1289,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                   />
                 </div>
                 <div className="form-group" style={{flex: '1'}}>
-                  <label htmlFor="customSubsequentSegmentMinutes">{fanyi("Subsequent Segment (min)")}:</label>
+                  <label htmlFor="customSubsequentSegmentMinutes">{t("Subsequent Segment (min)")}:</label>
                   <input
                     type="number"
                     id="customSubsequentSegmentMinutes"
@@ -1389,9 +1310,9 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
               {/* 显示当前定时器信息（如果有） */}
               {currentTimerInfo && (
                 <div className="form-group">
-                  <label>{fanyi("Active Timer")}:</label>
+                  <label>{t("Active Timer")}:</label>
                   <div className="status-display active notranslate" style={{backgroundColor: '#e8f5ff', color: '#2d2d5a', border: '2px solid #5050ff'}}>
-                    {fanyi("Timer Duration")}: {currentTimerInfo.duration}{fanyi("minutes")} | {fanyi("Timer Action")}: {fanyi(currentTimerInfo.action)}
+                    {t("Timer Duration")}: {currentTimerInfo.duration}{t("minutes")} | {t("Timer Action")}: {t(currentTimerInfo.action)}
                   </div>
                 </div>
               )}
@@ -1399,13 +1320,13 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
               {/* 已用时长 + 自定义时长合并为一行 */}
               <div className="form-row">
                 <div className="form-group half">
-                  <label>{fanyi("Used Duration")}:</label>
+                  <label>{t("Used Duration")}:</label>
                   <div className="time-display">
                     {usedDuration || '--:--:--'}
                   </div>
                 </div>
                 <div className="form-group half">
-                  <label>{fanyi("Custom Duration")}:</label>
+                  <label>{t("Custom Duration")}:</label>
                   <div className="input-group">
                     <input
                       type="number"
@@ -1415,7 +1336,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                       className={`${inputStyle} ${activeInputField === 'customDuration' ? 'ring-2 ring-blue-500' : ''}`}
                       placeholder="30"
                     />
-                    <span className="input-suffix">{fanyi("minutes")}</span>
+                    <span className="input-suffix">{t("minutes")}</span>
                   </div>
                 </div>
               </div>
@@ -1423,13 +1344,13 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
               {/* 计算台费（有颜色显示）+ 最终台费（用户可输入）合并为一行 */}
               <div className="form-row">
                 <div className="form-group half">
-                  <label>{fanyi("Calculated Fee")}:</label>
+                  <label>{t("Calculated Fee")}:</label>
                   <div className="status-display active notranslate" style={{backgroundColor: '#e8f5e8', color: '#2d5a2d', border: '2px solid #4caf50'}}>
                     ${(Math.round(parseFloat(calculatedFee) * 100) / 100).toFixed(2)}
                   </div>
                 </div>
                 <div className="form-group half">
-                  <label>{fanyi("Final Fee")} ({fanyi("Leave empty to use calculated fee")}):</label>
+                  <label>{t("Final Fee")} ({t("Leave empty to use calculated fee")}):</label>
                   <div className="input-group">
                     <input
                       type="number"
@@ -1447,7 +1368,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
               {/* 结台时显示备注内容（可编辑） */}
               <div className="form-group">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <label>{fanyi("Remarks")}:</label>
+                  <label>{t("Remarks")}:</label>
                   <div>
                     {!isEditingRemarks ? (
                       <button 
@@ -1456,7 +1377,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                         className="btn btn-sm btn-outline-primary notranslate"
                         style={{ padding: '4px 8px', fontSize: '12px' }}
                       >
-                        {fanyi("Edit")}
+                        {t("Edit")}
                       </button>
                     ) : (
                       <div style={{ display: 'flex', gap: '4px' }}>
@@ -1466,7 +1387,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                           className="btn btn-sm btn-success notranslate"
                           style={{ padding: '4px 8px', fontSize: '12px' }}
                         >
-                          {fanyi("Save")}
+                          {t("Save")}
                         </button>
                         <button 
                           type="button"
@@ -1474,7 +1395,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                           className="btn btn-sm btn-secondary notranslate"
                           style={{ padding: '4px 8px', fontSize: '12px' }}
                         >
-                          {fanyi("Cancel")}
+                          {t("Cancel")}
                         </button>
                       </div>
                     )}
@@ -1482,7 +1403,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                 </div>
                 {!isEditingRemarks ? (
                   <div className="status-display inactive notranslate" style={{whiteSpace: 'pre-wrap', textAlign: 'left', minHeight: '40px', padding: '8px'}}>
-                    {remarks || fanyi("No remarks")}
+                    {remarks || t("No remarks")}
                   </div>
                 ) : (
                   <textarea
@@ -1490,7 +1411,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                     onChange={(e) => setRemarks(e.target.value)}
                     className={inputStyle}
                     rows="3"
-                    placeholder={fanyi("Enter remarks here...")}
+                    placeholder={t("Enter remarks here...")}
                     style={{ minHeight: '60px' }}
                   />
                 )}
@@ -1503,30 +1424,30 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
           {isPC && (
             <div style={{ width: '300px', flexShrink: 0, borderLeft: '1px solid #e0e0e0', paddingLeft: '20px' }}>
               <div className="mb-4">
-                <h4 className="text-lg font-semibold mb-2">{fanyi("Number Pad")}</h4>
+                <h4 className="text-lg font-semibold mb-2">{t("Number Pad")}</h4>
                 <div className="text-sm text-gray-600 mb-3">
                   {(() => {
                     const availableFields = getAvailableInputFields();
                     
                     if (availableFields.length === 0) {
-                      return fanyi("No input fields available for keypad");
+                      return t("No input fields available for keypad");
                     }
                     
                     switch (activeInputField) {
                       case 'timerDuration':
-                        return `${fanyi("Timer Duration")}: ${timerDuration || '--'} ${fanyi("minutes")}`;
+                        return `${t("Timer Duration")}: ${timerDuration || '--'} ${t("minutes")}`;
                       case 'customInitialSegment':
-                        return `${fanyi("First Block Billing Unit")}: ${customInitialSegmentMinutes} ${fanyi("minutes")}`;
+                        return `${t("First Block Billing Unit")}: ${customInitialSegmentMinutes} ${t("minutes")}`;
                       case 'customSubsequentSegment':
-                        return `${fanyi("Subsequent Billing Unit")}: ${customSubsequentSegmentMinutes} ${fanyi("minutes")}`;
+                        return `${t("Subsequent Billing Unit")}: ${customSubsequentSegmentMinutes} ${t("minutes")}`;
                       case 'customDuration':
-                        return `${fanyi("Custom Duration")}: ${customDuration || '--'} ${fanyi("minutes")}`;
+                        return `${t("Custom Duration")}: ${customDuration || '--'} ${t("minutes")}`;
                       case 'finalFee':
-                        return `${fanyi("Final Fee")}: $${finalFee || (Math.round(parseFloat(calculatedFee) * 100) / 100).toFixed(2)}`;
+                        return `${t("Final Fee")}: $${finalFee || (Math.round(parseFloat(calculatedFee) * 100) / 100).toFixed(2)}`;
                       case 'none':
-                        return fanyi("No input fields available for keypad");
+                        return t("No input fields available for keypad");
                       default:
-                        return fanyi("Click input field to activate keypad");
+                        return t("Click input field to activate keypad");
                     }
                   })()}
                 </div>
@@ -1546,15 +1467,15 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
 
         <div className="table-timing-modal-footer">
           <button className="btn btn-secondary" onClick={onClose}>
-            {fanyi("Cancel")}
+            {t("Cancel")}
           </button>
           {(forceStartMode || currentStatus === 'Not Started') ? (
             <button className="btn btn-primary" onClick={handleStartTable}>
-              {fanyi("Start Table")}
+              {t("Start Table")}
             </button>
           ) : (
             <button className="btn btn-danger" onClick={handleEndTable}>
-              {fanyi("End Table")}
+              {t("End Table")}
             </button>
           )}
         </div>
@@ -1588,21 +1509,21 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                 fontWeight: '600',
                 color: '#dc3545'
               }}>
-                {fanyi("Confirm End Table")}
+                {t("Confirm End Table")}
               </h3>
               <p style={{
                 margin: '0 0 8px 0',
                 fontSize: '14px',
                 color: '#666'
               }}>
-                {fanyi("Are you sure you want to end this table?")}
+                {t("Are you sure you want to end this table?")}
               </p>
               <p style={{
                 margin: '0 0 20px 0',
                 fontSize: '12px',
                 color: '#999'
               }}>
-                {fanyi("This action cannot be undone.")}
+                {t("This action cannot be undone.")}
               </p>
               <div style={{
                 display: 'flex',
@@ -1623,7 +1544,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                   onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'}
                   onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
                 >
-                  {fanyi("Cancel")}
+                  {t("Cancel")}
                 </button>
                 <button 
                   onClick={confirmEndTable}
@@ -1640,7 +1561,7 @@ const TableTimingModal = ({ isOpen, onClose, selectedTable, store, tableItem, on
                   onMouseOver={(e) => e.target.style.backgroundColor = '#c82333'}
                   onMouseOut={(e) => e.target.style.backgroundColor = '#dc3545'}
                 >
-                  {fanyi("Yes, End Table")}
+                  {t("Yes, End Table")}
                 </button>
               </div>
             </div>

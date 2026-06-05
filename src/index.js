@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
+import "./i18n"; // initialize i18next before App renders
 import { UserContextProvider } from "./context/userContext";
 
 ReactDOM.render(

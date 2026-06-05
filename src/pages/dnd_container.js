@@ -1,4 +1,5 @@
 import { React, useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
+import { useTranslation } from 'react-i18next';
 import { useDroppable, DragOverlay } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -149,12 +150,12 @@ function SortableItem(props) {
 }
 
 // Popup component
-function ConfirmationPopup({ onConfirm, onCancel }) {
+function ConfirmationPopup({ onConfirm, onCancel, fanyi = (text) => text }) {
   return (
     <div className="popup">
-      <p>Are you sure you want to delete?</p>
-      <button onClick={onConfirm}>Confirm</button>
-      <button onClick={onCancel}>Cancel</button>
+      <p>{fanyi("Are you sure you want to delete?")}</p>
+      <button onClick={onConfirm}>{fanyi("Confirm")}</button>
+      <button onClick={onCancel}>{fanyi("Cancel")}</button>
     </div>
   );
 }
@@ -199,6 +200,9 @@ const cleanProductData = (products) => {
 };
 
 function Container(props) {
+  const { t } = useTranslation();
+  const fanyi = t;
+
   const [products, setProducts] = useState([]);
   const { isPaidArray, setIsPaidArray } = props;
 
@@ -639,59 +643,6 @@ function Container(props) {
     return (Math.round(n * 100) / 100).toFixed(2)
   }
 
-  const translations = [
-    { input: "Change Desk", output: "更换餐桌" },
-    { input: "Allow Dish Revise", output: "打开菜品修改" },
-    { input: "Disallow Dish Revise", output: "关闭菜品修改" },
-    { input: "Add Service Fee", output: "添加服务费" },
-    { input: "Add Discount", output: "添加折扣" },
-    { input: "Send to kitchen", output: "送到厨房" },
-    { input: "Print Order", output: "打印订单" },
-    { input: "Print Receipt", output: "商户收据" },
-    { input: "Split payment", output: "分单付款" },
-    { input: "Mark as Unpaid", output: "未付款" },
-    { input: "Card Pay", output: "信用卡支付" },
-    { input: "Cash Pay", output: "现金支付" },
-    { input: "Subtotal", output: "小计" },
-    { input: "Tax", output: "税" },
-    { input: "Total", output: "总额" },
-    { input: "Discount", output: "折扣" },
-    { input: "Disc.", output: "折扣" },
-    { input: "Duration", output: "用餐时长" },
-    { input: "Start", output: "开始时间" },
-    { input: "Service Fee", output: "服务费" },
-    { input: "Tips", output: "小费" },
-    { input: "Gratuity", output: "小费" },
-    { input: "Revise", output: "修订" },
-    { input: "Cash Pay", output: "现金支付" },
-    { input: "Enter the Cash Received", output: "输入收到的现金" },
-    { input: "Calculate Give Back Cash", output: "计算返还现金" },
-    { input: "Receivable Payment", output: "应收付款" },
-    { input: "Give Back Cash", output: "返还现金" },
-    { input: "Add return cash as a gratuity", output: "添加返还现金作为小费" },
-    { input: "Total", output: "总计" },
-    { input: "Custom Gratuity", output: "自定义小费" },
-    { input: "Other", output: "其他" },
-    { input: "Add", output: "添加" },
-    { input: "and finalize", output: "并最终确定" },
-    { input: "Finalize the Order. Total Gratuity", output: "完成订单。小费总额" },
-    { input: "Collect", output: "现收" },
-    { input: "including", output: "其中包含" },
-    { input: "Gratuity", output: "小费" },
-    { input: "Original Total", output: "修改前总价" },
-    { input: "New Total", output: "修改后总价" },
-
-  ];
-  function translate(input) {
-    const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
-    return translation ? translation.output : "Translation not found";
-  }
-  function fanyi(input) {
-    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translate(input) : input
-  }
-
-
-
   // Add refs for inputs - only keeping necessary references
   const serviceFeeTipsInputRef = useRef(null);
   const discountInputRef = useRef(null);
@@ -881,11 +832,11 @@ function Container(props) {
                       className="modal-body"
                       style={{ overflowX: 'auto', maxWidth: '100%', paddingBottom: "0.5rem" }}
                     >
-                      If this is deleted, all the items here will be placed in group 0
+                      {fanyi("If this is deleted, all the items here will be placed in group 0")}
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <button type="button" class="btn btn-secondary" onClick={closePopup} style={{ margin: "5px" }}>Cancel</button>
-                      <button type="button" class="btn btn-primary" onClickCapture={confirmDelete} style={{ margin: "5px" }}>Confirm</button>
+                      <button type="button" class="btn btn-secondary" onClick={closePopup} style={{ margin: "5px" }}>{fanyi("Cancel")}</button>
+                      <button type="button" class="btn btn-primary" onClickCapture={confirmDelete} style={{ margin: "5px" }}>{fanyi("Confirm")}</button>
                     </div>
                   </div>
                 </div>
@@ -916,10 +867,10 @@ function Container(props) {
                       className="modal-body"
                       style={{ overflowX: 'auto', maxWidth: '100%', paddingBottom: "0.5rem" }}
                     >
-                      Group0 cannot be deleted
+                      {fanyi("Group0 cannot be deleted")}
                     </div>
                     <div style={{ display: "flex", justifyContent: "center" }}>
-                      <button type="button" class="btn btn-primary" onClickCapture={closeGroup0DeleteModal} style={{ margin: "5px" }}>Confirm</button>
+                      <button type="button" class="btn btn-primary" onClickCapture={closeGroup0DeleteModal} style={{ margin: "5px" }}>{fanyi("Confirm")}</button>
                     </div>
                   </div>
                 </div>
@@ -962,13 +913,13 @@ function Container(props) {
               className="mt-3 btn btn-sm btn-success mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              <span>{"Add Service Fee"}</span>
+              <span>{fanyi("Add Service Fee")}</span>
             </a>
             {isTipsModalOpen && (
               <KeypadModal
                 isOpen={isTipsModalOpen}
                 onClose={() => setTipsModalOpen(false)}
-                title="Add Service Fee"
+                title={fanyi("Add Service Fee")}
                 numberPadValue={tips}
                 onNumberPadChange={(newValue) => {
                   setTips(newValue);
@@ -1023,7 +974,7 @@ function Container(props) {
                     <input
                       type="text"
                       inputMode="decimal"
-                      placeholder="Enter percent"
+                      placeholder={fanyi("Enter percent")}
                       value={customPercentage}
                       onChange={handleCustomPercentageChange}
                       className="px-4 py-2 ml-2 form-control tips-no-spinners"
@@ -1033,7 +984,7 @@ function Container(props) {
                   <input
                     type="text"
                     inputMode="decimal"
-                    placeholder="Enter service fee by amount"
+                    placeholder={fanyi("Enter service fee by amount")}
                     value={tips}
                     className="form-control tips-no-spinners"
                     onChange={(e) => {
@@ -1065,14 +1016,14 @@ function Container(props) {
               className="mt-3 btn btn-sm btn-danger mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              <span>{"Add Discount"}</span>
+              <span>{fanyi("Add Discount")}</span>
             </a>
 
             {isDiscountModalOpen && (
               <KeypadModal
                 isOpen={isDiscountModalOpen}
                 onClose={() => setDiscountModalOpen(false)}
-                title="Add Discount"
+                title={fanyi("Add Discount")}
                 numberPadValue={discount}
                 onNumberPadChange={(newValue) => applyDiscount(newValue)}
                 onNumberPadConfirm={(confirmedValue) => {
@@ -1123,7 +1074,7 @@ function Container(props) {
                     <input
                       type="text"
                       inputMode="decimal"
-                      placeholder="Enter percent"
+                      placeholder={fanyi("Enter percent")}
                       value={customDiscountPercentage}
                       onChange={handleCustomDiscountPercentageChange}
                       className="px-4 py-2 ml-2 form-control discounts-no-spinners"
@@ -1134,7 +1085,7 @@ function Container(props) {
                   <input
                     type="text"
                     inputMode="decimal"
-                    placeholder="Enter discount by amount"
+                    placeholder={fanyi("Enter discount by amount")}
                     value={discount}
                     className="form-control discounts-no-spinners"
                     onChange={(e) => {
@@ -1174,14 +1125,14 @@ function Container(props) {
               className="mt-3 btn btn-sm btn-primary mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
             >
-              <span>{"Card Pay"}</span>
+              <span>{fanyi("Card Pay")}</span>
             </a>
             {isMyModalVisible && (
               <div id="addTipsModal" className="modal fade show" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
                 <div className="modal-dialog" role="document">
                   <div className="modal-content">
                     <div className="modal-header">
-                      <h5 className="modal-title">Select your POS Machine:</h5>
+                      <h5 className="modal-title">{fanyi("Select your POS Machine:")}</h5>
                       <button style={uniqueModalStyles.closeBtnStyle}
                         onClick={() => { setMyModalVisible(false); setReceived(false) }}>
                         &times;
@@ -1209,7 +1160,7 @@ function Container(props) {
               }}
               className="mt-3 btn btn-sm btn-info mx-1"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-              <span>{"Cash Pay"}</span>
+              <span>{fanyi("Cash Pay")}</span>
             </a>
             {isUniqueModalOpen && (
               <KeypadModal
@@ -1226,7 +1177,7 @@ function Container(props) {
                     className="mt-3 btn btn-md btn-info"
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}
                   >
-                    <span>Open Cash Drawer</span>
+                    <span>{fanyi("Open Cash Drawer")}</span>
                   </a>
                 }
                 showCloseButton={true}
@@ -1238,7 +1189,7 @@ function Container(props) {
                 showOneHundred={true}
               >
                 <div>
-                  <p className="mb-2">Enter the Cash Received</p>
+                  <p className="mb-2">{fanyi("Enter the Cash Received")}</p>
                   <input
                     type="text"
                     value={inputValue}
@@ -1257,7 +1208,7 @@ function Container(props) {
                     style={uniqueModalStyles.buttonStyle}
                     className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-md w-full"
                   >
-                    Calculate Give Back Cash
+                    {fanyi("Calculate Give Back Cash")}
                   </button>
                   {errorMessage && (
                     <div className="text-red-500 font-semibold mt-2">
@@ -1265,14 +1216,14 @@ function Container(props) {
                     </div>
                   )}
                   {(extra !== null && extra !== 0) && (
-                    <p className="">Gratuity: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
+                    <p className="">{fanyi("Gratuity")}: <span className='notranslate'>${Math.round((extra) * 100) / 100} </span></p>
                   )}
-                  <p className="mt-1">Final Payment: <span className='notranslate'>${finalPrice}</span> </p>
+                  <p className="mt-1">{fanyi("Final Payment")}: <span className='notranslate'>${finalPrice}</span> </p>
 
                   {result !== null && (
                     <div>
                       <p className="mt-1 mb-4 ">
-                        Give Back Cash:
+                        {fanyi("Give Back Cash")}:
                         <span className='notranslate'>${Math.round((result - finalPrice) * 100) / 100}</span>
                       </p>
                       <button
@@ -1314,7 +1265,7 @@ function Container(props) {
                   </button>
 
                   <div className="mt-4">
-                    <p className="mb-4">Gratuity:</p>
+                    <p className="mb-4">{fanyi("Gratuity")}:</p>
                     <div className="flex justify-between mb-4">
                       <button onClick={() => { calculateExtra(15); setCustomAmountVisible(false) }} className="bg-purple-500 text-white px-4 py-2 rounded-md w-full mr-2">
                         15%
@@ -1332,7 +1283,7 @@ function Container(props) {
 
                     {isCustomAmountVisible && (
                       <div>
-                        <p className="mb-2">Custom Gratuity:</p>
+                        <p className="mb-2">{fanyi("Custom Gratuity")}:</p>
                         <div className="flex">
                           <input
                             type="text"
@@ -1374,18 +1325,18 @@ function Container(props) {
                 </div>
               </KeypadModal>
             )}
-            <div className={`text-right`}>Subtotal: <span className='notranslate'>${round2digtNum(subtotal).toFixed(2)}</span> </div>
+            <div className={`text-right`}>{fanyi("Subtotal")}: <span className='notranslate'>${round2digtNum(subtotal).toFixed(2)}</span> </div>
             {discount && (
-              <div className={`text-right`}>Discount: <span className='notranslate'>-${round2digtNum(discount)} </span></div>
+              <div className={`text-right`}>{fanyi("Discount")}: <span className='notranslate'>-${round2digtNum(discount)} </span></div>
             )}
             {tips && (
-              <div className={`text-right`}>Service Fee: <span className='notranslate'>${round2digtNum(tips)}</span> </div>
+              <div className={`text-right`}>{fanyi("Service Fee")}: <span className='notranslate'>${round2digtNum(tips)}</span> </div>
             )}
             {(extra !== null && extra !== 0) && (
-              <div className={`text-right`}>Gratuity: <span className='notranslate'>{round2digtNum(extra)} </span></div>
+              <div className={`text-right`}>{fanyi("Gratuity")}: <span className='notranslate'>{round2digtNum(extra)} </span></div>
             )}
             <div className={`text-right `}>Tax ({(Number(TaxRate))}%): <span className='notranslate'>${round2digtNum(subtotal * (Number(TaxRate) / 100))}</span>  </div>
-            <div className={`text-right `}>Total Price: <span className='notranslate'>${round2digtNum(finalPrice)}</span>  </div>
+            <div className={`text-right `}>{fanyi("Total Price")}: <span className='notranslate'>${round2digtNum(finalPrice)}</span>  </div>
 
           </div>
         </div>

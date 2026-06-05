@@ -55,6 +55,9 @@ import { lookup } from 'zipcode-to-timezone';
 
 import useGeolocation from '../components/useGeolocation';
 import Terminal from '../components/Terminal';
+import { isAppRoute } from '../i18n/appRoutes';
+import { ensureGoogleTranslate } from '../i18n/googleTranslate';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 // 定义一个变量来存储全局函数
 let handleOpenModalGlobal = () => {
   console.error("handleOpenModal has not been initialized.");
@@ -66,7 +69,7 @@ let globalDirectoryType = false;
 const Navbar = () => {
   const failedItem = getGlobalFailedItem();
   const [timeZone, setTimeZone] = useState(getTimeZoneByZip("11214")); // Default to Eastern Time Zone
-  const [currentTimeDisplay, setCurrentTimeDisplay] = useState(''); // Add state for current time display
+  const currentTimeDisplayRef = useRef(null);
 
   function getTimeZoneByZip(zipCode) {
     // Use the library to find the timezone ID from the ZIP code
@@ -83,12 +86,12 @@ const Navbar = () => {
         const now = DateTime.now().setZone(timeZone);
         // 用 .toFormat 自定义 token
         const formatted = now.toFormat('M/d HH:mm:ss');
-        setCurrentTimeDisplay(formatted);
+        if (currentTimeDisplayRef.current) currentTimeDisplayRef.current.textContent = formatted;
       } catch (error) {
         console.error("Invalid timezone, using local time:", error);
         const now = DateTime.now();
         const formatted = now.toFormat('M/d HH:mm:ss');
-        setCurrentTimeDisplay(formatted);
+        if (currentTimeDisplayRef.current) currentTimeDisplayRef.current.textContent = formatted;
       }
     };
 
@@ -153,71 +156,10 @@ const Navbar = () => {
 
   const { isOnline } = useNetworkStatus();
 
-  const googleTranslateElementInit = () => {
-    if (window.google && window.google.translate) {
-      new window.google.translate.TranslateElement(
-        {
-          includedLanguages: "en,zh-CN",
-          autoDisplay: false
-        },
-        "google_translate_element"
-      );
-    } else {
-      console.error('Google Translate not initialized correctly');
-    }
-  };
-
-
   useEffect(() => {
-    const path = window.location.pathname; // Get the current URL path
-    console.log("user: ", user)
-    function removeTranslateElement() {
-      // 1. 清空容器
-      const container = document.getElementById('google_translate_element');
-      if (container) {
-        container.innerHTML = '';
-      }
-
-      // 2. 移除翻译脚本
-      const scripts = Array.from(document.getElementsByTagName('script'));
-      scripts.forEach((s) => {
-        if (s.src.includes('translate_a/element.js')) {
-          s.parentNode.removeChild(s);
-        }
-      });
-
-      // 3. 清理全局对象
-      if (window.google && window.google.translate) {
-        delete window.google.translate;
-      }
-      if (window.googleTranslateElementInit) {
-        delete window.googleTranslateElementInit;
-      }
-    }
-
-
-    if (user === null) {
-      removeTranslateElement()
-      return;
-    }
-
-    console.log("1 widget")
-    // Check if the script is already loaded
-    if (window.google && window.google.translate) {
-      googleTranslateElementInit();
-      return;
-    }
-
-    var addScript = document.createElement("script");
-    addScript.setAttribute(
-      "src",
-      "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-    );
-    addScript.onerror = function () {
-      console.error('Failed to load the Google Translate script');
-    };
-    document.body.appendChild(addScript);
-    window.googleTranslateElementInit = googleTranslateElementInit;
+    if (isAppRoute()) return;     // app routes: no GT (i18next handles translation)
+    if (user === null) return;    // keep original gate
+    ensureGoogleTranslate();
   }, [user]);
   const params = new URLSearchParams(window.location.search);
 
@@ -2011,10 +1953,9 @@ const Navbar = () => {
 
             <div className='flex ml-auto pr-4 '>
               <div className='flex mt-1'>
-                {user ?
-                  <div className='' id="google_translate_element"></div>
-                  : null
-                }
+                {isAppRoute()
+                  ? <LanguageSwitcher />
+                  : (user ? <div className='' id="google_translate_element"></div> : null)}
               </div>
 
               {((location.pathname.includes('/store')) || (location.pathname.includes('/Checkout'))) && (
@@ -2117,9 +2058,8 @@ const Navbar = () => {
                 <div className="ml-3 mt-1" style={{ cursor: "pointer", fontSize: "20px", display: "flex", alignItems: "center", gap: "6px", height: "32px" }}>
                   <i className="bi bi-calendar3"></i>
                   <span
-                    className="ml-1 notranslate">
-                    {currentTimeDisplay}
-                  </span>
+                    ref={currentTimeDisplayRef}
+                    className="ml-1 notranslate" />
                 </div>
                 :
                 <div></div>

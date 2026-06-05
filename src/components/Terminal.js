@@ -1,31 +1,19 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import './Terminal.css';
 import { io } from 'socket.io-client';
 import { DateTime } from 'luxon';
 
+const MAX_LOG_ENTRIES = 100;
+
 const Terminal = ({ timeZone = "America/New_York" }) => {
+    const { t } = useTranslation();
+    const fanyi = t;
+
     const [isOpen, setIsOpen] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [logs, setLogs] = useState([]);
-    const [socket, setSocket] = useState(null);
     const terminalRef = useRef(null);
-
-    // Translation array like inStore_shop_cart.js
-    const translations = useMemo(() => [
-        { input: "Printer", output: "打印机驱动" },
-        { input: "Printer not connected", output: "打印机驱动未连接" },
-        { input: "Print Service Connected", output: "打印服务已连接" },
-    ], []);
-
-    // Translation function like inStore_shop_cart.js
-    const fanyi = useCallback((input) => {
-        const lang = localStorage.getItem("Google-language");
-        if (lang?.includes("Chinese") || lang?.includes("中")) {
-            const translation = translations.find(t => t.input.toLowerCase() === input.toLowerCase());
-            return translation ? translation.output : input;
-        }
-        return input;
-    }, [translations]);
 
     // Add log entry
     const appendLog = (type, message, timestamp) => {
@@ -35,7 +23,7 @@ const Terminal = ({ timeZone = "America/New_York" }) => {
             message,
             timestamp
         };
-        setLogs(prevLogs => [...prevLogs, logEntry]);
+        setLogs(prevLogs => [...prevLogs, logEntry].slice(-MAX_LOG_ENTRIES));
     };
     
     const getFormattedTime = useCallback(() => {
@@ -50,39 +38,41 @@ const Terminal = ({ timeZone = "America/New_York" }) => {
     }, [timeZone]);
 
     useEffect(() => {
+        let activeSocket = null;
+
         // Delay initialization to ensure everything is ready
         const timer = setTimeout(() => {
             // Initialize Socket.IO connection to specified server
             const newSocket = io('http://localhost:3001');
-            setSocket(newSocket);
+            activeSocket = newSocket;
 
             // Connection status management
             newSocket.on('connect', () => {
                 setIsConnected(true);
-                appendLog('system', 'Connected to server', getFormattedTime());
+                appendLog('system', t('Connected to server'), getFormattedTime());
             });
 
             newSocket.on('disconnect', () => {
                 setIsConnected(false);
-                appendLog('system', 'Disconnected from server', getFormattedTime());
+                appendLog('system', t('Disconnected from server'), getFormattedTime());
             });
 
             // Connection error handling
             newSocket.on('connect_error', (error) => {
                 setIsConnected(false);
-                appendLog('error', `Connection error: ${error.message}`, getFormattedTime());
+                appendLog('error', `${t('Connection error')}: ${error.message}`, getFormattedTime());
                 console.error('Socket.IO connection error:', error);
             });
 
             // Reconnect attempts
             newSocket.on('reconnect_attempt', (attemptNumber) => {
-                appendLog('warning', `Reconnecting... (attempt ${attemptNumber})`, getFormattedTime());
+                appendLog('warning', t('Reconnecting... (attempt {{count}})', { count: attemptNumber }), getFormattedTime());
             });
 
             // Reconnect success
             newSocket.on('reconnect', (attemptNumber) => {
                 setIsConnected(true);
-                appendLog('success', `Reconnected successfully! (${attemptNumber} attempts)`, getFormattedTime());
+                appendLog('success', t('Reconnected successfully! ({{count}} attempts)', { count: attemptNumber }), getFormattedTime());
             });
 
             // Receive command output
@@ -95,11 +85,11 @@ const Terminal = ({ timeZone = "America/New_York" }) => {
 
         return () => {
             clearTimeout(timer);
-            if (socket) {
-                socket.close();
+            if (activeSocket) {
+                activeSocket.close();
             }
         };
-    }, [getFormattedTime]);
+    }, [getFormattedTime, t]);
 
     // Auto scroll to bottom
     useEffect(() => {
@@ -111,7 +101,7 @@ const Terminal = ({ timeZone = "America/New_York" }) => {
     // Clear logs - pure frontend operation
     const clearLogs = () => {
         setLogs([]);
-        appendLog('system', 'Logs cleared', getFormattedTime());
+        appendLog('system', t('Logs cleared'), getFormattedTime());
     };
 
     // Toggle terminal display
@@ -156,22 +146,22 @@ const Terminal = ({ timeZone = "America/New_York" }) => {
             <div className={`terminal-panel ${isOpen ? 'open' : ''}`}>
                 <div className="terminal-header">
                     <div className="terminal-title">
-                        <span>Print Service Terminal</span>
+                        <span>{t("Print Service Terminal")}</span>
                         <div className="connection-status">
                             <span className={`status-badge ${isConnected ? 'connected' : 'disconnected'}`}>
-                                {isConnected ? 'Connected' : 'Disconnected'}
+                                {isConnected ? t('Connected') : t('Disconnected')}
                             </span>
                         </div>
                     </div>
                     <div className="terminal-controls">
-                        <button className="btn-clear" onClick={clearLogs} title="Clear logs">
+                        <button className="btn-clear" onClick={clearLogs} title={t("Clear logs")}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M3 6h18" stroke="currentColor" strokeWidth="2"/>
                                 <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" stroke="currentColor" strokeWidth="2"/>
                                 <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" stroke="currentColor" strokeWidth="2"/>
                             </svg>
                         </button>
-                        <button className="terminal-btn-close" onClick={toggleTerminal} title="Close">
+                        <button className="terminal-btn-close" onClick={toggleTerminal} title={t("Close")}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2"/>
                                 <path d="M6 6l12 12" stroke="currentColor" strokeWidth="2"/>
@@ -188,7 +178,7 @@ const Terminal = ({ timeZone = "America/New_York" }) => {
                     ))}
                     {logs.length === 0 && (
                         <div className="log-entry system">
-                            <span className="message">Waiting for command output...</span>
+                            <span className="message">{t("Waiting for command output...")}</span>
                         </div>
                     )}
                 </div>
