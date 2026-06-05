@@ -8,6 +8,7 @@ import $ from 'jquery';
 import './fooddropAnimate.css';
 import { useMyHook } from './myHook';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ReactComponent as PlusSvg } from './plus.svg';
 import { ReactComponent as MinusSvg } from './minus.svg';
 import { FiSearch } from 'react-icons/fi';
@@ -34,6 +35,9 @@ function convertToPinyin(text) {
 }
 
 const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeModal, setIsAllowed, isAllowed, store, selectedTable, view, TaxRate }) => {
+  const { t } = useTranslation();
+  const fanyi = t;
+
   const initialGlobal = [
     { "type": "外卖", "price": 0, "typeCategory": "要求添加" },
     { "type": "加酱料", "price": 0, "typeCategory": "要求添加" },
@@ -888,27 +892,9 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
   const [translationsMode_, settranslationsMode_] = useState("en");
 
-  // 本地翻译数组
-  const localTranslations = [
-    { input: "Start Table", output: "开台" },
-    { input: "End Table", output: "结台" },
-    { input: "Table Timing", output: "开台计时" },
-    { input: "Search Food Item", output: "搜索食品" },
-    { input: "Start", output: "开始时间" },
-  ];
-
-  function translateLocal(input) {
-    const translation = localTranslations.find(t => t.input.toLowerCase() === input.toLowerCase());
-    return translation ? translation.output : null;
-  }
-
-  function fanyi(input) {
-    return localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translateLocal(input) || input : input;
-  }
-
   // for translations sake
   const trans = JSON.parse(sessionStorage.getItem("translations"))
-  const t = useMemo(() => {
+  const translateProductText = useMemo(() => {
     const trans = JSON.parse(sessionStorage.getItem("translations"))
     const translationsMode = sessionStorage.getItem("translationsMode")
     settranslationsMode_(sessionStorage.getItem("translationsMode"))
@@ -1331,7 +1317,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                   <div className='mb-1 flex flex-col md:flex-row gap-3'>
                     <div className='flex-1'>
                       <h4 className='notranslate'>
-                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
+                        {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translateProductText(selectedFoodItem?.CHI) : (selectedFoodItem?.name)}
                       </h4>
 
                       <div
@@ -1657,7 +1643,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                           >
                             <div>
                               {foodType && foodType.length > 1
-                                ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                                ? translateProductText(foodType.charAt(0).toUpperCase() + foodType.slice(1))
                                 : ''}
                             </div>
                           </button>
@@ -1694,7 +1680,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                         <input
                           type="search"
                           class="form-control text-base shadow-none rounded-end-pill"
-                          placeholder={t('Search Food Item')}
+                          placeholder={translateProductText('Search Food Item')}
                           onChange={handleInputChange}
                           translate="no"
                           style={{ fontSize: '16px' }}
@@ -1752,7 +1738,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                                 }`}
                             >
                               {foodType && foodType.length > 1
-                                ? t(foodType.charAt(0).toUpperCase() + foodType.slice(1))
+                                ? translateProductText(foodType.charAt(0).toUpperCase() + foodType.slice(1))
                                 : ""}
                             </div>
                             {nextFoodType && (
@@ -1766,7 +1752,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                                   }`}
                               >
                                 {nextFoodType.length > 1
-                                  ? t(nextFoodType.charAt(0).toUpperCase() + nextFoodType.slice(1))
+                                  ? translateProductText(nextFoodType.charAt(0).toUpperCase() + nextFoodType.slice(1))
                                   : ""}
                               </div>
                             )}
@@ -1845,7 +1831,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                               <div className="col-span-4 ">
                                 <p class="notranslate text-md">
                                   ${(Math.round(item.subtotal * 100) / 100).toFixed(2)}&nbsp;
-                                  {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? t(item?.CHI) : (item?.name)}
+                                  {localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? translateProductText(item?.CHI) : (item?.name)}
                                 </p></div>
 
                               {/* parent div of the quantity and buttons */}

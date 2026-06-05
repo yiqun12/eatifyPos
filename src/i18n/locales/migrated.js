@@ -31,6 +31,7 @@ export const migrated = {
   'Disc.': { ch: '折扣', en: 'Disc.' },
   'Duration': { ch: '用餐时长', en: 'Duration' },
   'Start': { ch: '开始时间', en: 'Start' },
+  'Search Food Item': { ch: '搜索食品', en: 'Search Food Item' },
   'Revise': { ch: '修订', en: 'Revise' },
   'Enter the Cash Received': { ch: '输入收到的现金', en: 'Enter the Cash Received' },
   'Calculate Give Back Cash': { ch: '计算返还现金', en: 'Calculate Give Back Cash' },
