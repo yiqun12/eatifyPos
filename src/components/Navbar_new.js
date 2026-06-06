@@ -7,6 +7,33 @@ import Logo from './Logo';
 import { HashLink as Link } from 'react-router-hash-link';
 
 import { useUserContext } from "../context/userContext";
+
+const GOOGLE_TRANSLATE_SCRIPT_ID = 'google-translate-script';
+const GOOGLE_TRANSLATE_CALLBACK = 'googleTranslateElementInit';
+const GOOGLE_TRANSLATE_CONTAINER_ID = 'google_translate_element';
+
+const clearGoogleTranslate = () => {
+  const container = document.getElementById(GOOGLE_TRANSLATE_CONTAINER_ID);
+  if (container) {
+    container.innerHTML = '';
+    delete container.dataset.gtInit;
+  }
+
+  document
+    .querySelectorAll(`#${GOOGLE_TRANSLATE_SCRIPT_ID}, script[src*="translate_a/element.js"], .skiptranslate, iframe.goog-te-menu-frame`)
+    .forEach((node) => node.remove());
+
+  if (window.google && window.google.translate) {
+    delete window.google.translate;
+  }
+  if (window[GOOGLE_TRANSLATE_CALLBACK]) {
+    delete window[GOOGLE_TRANSLATE_CALLBACK];
+  }
+  document.body.style.top = '';
+  document.body.classList.remove('translated-ltr', 'translated-rtl');
+  document.documentElement.classList.remove('translated-ltr', 'translated-rtl');
+};
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [width, setWidth] = useState(window.innerWidth);
@@ -27,42 +54,48 @@ const Navbar = () => {
     };
   }, []);
 
+  const isMobile = width <= 768;
+
   // Initialize Google Translate
   useEffect(() => {
+    let disposed = false;
+
     const googleTranslateElementInit = () => {
-      if (window.google && window.google.translate) {
-        new window.google.translate.TranslateElement(
-          {
-            includedLanguages: "en,zh-CN",
-            autoDisplay: false
-          },
-          "google_translate_element"
-        );
-      }
+      const TranslateElement = window.google && window.google.translate && window.google.translate.TranslateElement;
+      const container = document.getElementById(GOOGLE_TRANSLATE_CONTAINER_ID);
+      if (disposed || !TranslateElement || !container || container.dataset.gtInit === 'true') return;
+
+      container.innerHTML = '';
+      new TranslateElement(
+        {
+          includedLanguages: "en,zh-CN",
+          autoDisplay: false
+        },
+        GOOGLE_TRANSLATE_CONTAINER_ID
+      );
+      container.dataset.gtInit = 'true';
     };
 
-    if (window.google && window.google.translate) {
+    window[GOOGLE_TRANSLATE_CALLBACK] = googleTranslateElementInit;
+
+    if (window.google && window.google.translate && window.google.translate.TranslateElement) {
       googleTranslateElementInit();
-      return;
+    } else if (!document.getElementById(GOOGLE_TRANSLATE_SCRIPT_ID)) {
+      const addScript = document.createElement("script");
+      addScript.id = GOOGLE_TRANSLATE_SCRIPT_ID;
+      addScript.async = true;
+      addScript.src = `//translate.google.com/translate_a/element.js?cb=${GOOGLE_TRANSLATE_CALLBACK}`;
+      addScript.onerror = () => {
+        console.error('Failed to load the Google Translate script');
+      };
+      document.body.appendChild(addScript);
     }
 
-    const addScript = document.createElement("script");
-    addScript.setAttribute(
-      "src",
-      "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-    );
-    addScript.onerror = () => {
-      console.error('Failed to load the Google Translate script');
-    };
-    document.body.appendChild(addScript);
-    window.googleTranslateElementInit = googleTranslateElementInit;
-
     return () => {
-      document.body.removeChild(addScript);
+      disposed = true;
+      clearGoogleTranslate();
     };
-  }, []);
-
-  const isMobile = width <= 768;
+  }, [isMobile]);
 
   return (
     <nav className="bg-white shadow-sm fixed w-full z-[99]">
@@ -91,9 +124,11 @@ const Navbar = () => {
               <a href="/career" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
                 Career
               </a>
-              <a className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
-                <div className='mt-4' id="google_translate_element"></div>
-              </a>
+              {!isMobile ? (
+                <a className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-primary transition-colors duration-300">
+                  <div className='mt-4' id={GOOGLE_TRANSLATE_CONTAINER_ID}></div>
+                </a>
+              ) : null}
             </div>
           </div>
 
@@ -159,10 +194,12 @@ const Navbar = () => {
             className="block w-full py-2 px-3 rounded-md text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-primary transition-colors duration-300">
             Career
           </a>
-          <a
-            className="block w-full py-2 px-3 rounded-md text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-primary transition-colors duration-300">
-            <div className='mt-2' id="google_translate_element"></div>
-          </a>
+          {isMobile ? (
+            <a
+              className="block w-full py-2 px-3 rounded-md text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-primary transition-colors duration-300">
+              <div className='mt-2' id={GOOGLE_TRANSLATE_CONTAINER_ID}></div>
+            </a>
+          ) : null}
 
 
           <a
