@@ -168,6 +168,21 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
     }
   };
 
+  // 监听来自购物车的更新事件
+  useEffect(() => {
+    const handleCartUpdate = (event) => {
+      const { store: eventStore, selectedTable: eventTable } = event.detail;
+      if (eventStore === store && eventTable === selectedTable) {
+        let productArray = displayAllProductInfo();
+        setProducts(productArray);
+        saveId(Math.random());
+      }
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+  }, [store, selectedTable]);
+
   const [priceError, setPriceError] = useState("");  // Set up a state
   const SetTableInfo = async (table_name, product) => {
     try {
@@ -176,9 +191,11 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
 
       const docData = { product: product, date: date };
 
-      const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
-      await setDoc(docRef, docData);
-      //localStorage.setItem(table_name, product)
+      // const docRef = doc(db, "stripe_customers", user.uid, "TitleLogoNameContent", store, "Table", table_name);
+      // await setDoc(docRef, docData);
+      localStorage.setItem(table_name, product)
+      saveId(Math.random());
+      window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { store, selectedTable } }));
 
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -1090,8 +1107,8 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
   const hideModal = () => {
     setModalVisibility(false);
     handleRemoveAllCustomVariants();
-    SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
-    saveId(Math.random)
+    // SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
+    // saveId(Math.random)
     setRandomNum(null)
   }
 
@@ -1570,6 +1587,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                       if (compareObjects(selectedFoodItem.attributeSelected, selectedAttributes)) {//no attr changes
                         if (totalPrice != selectedFoodItem.totalPrice) {
                           deleteSpecialFood(selectedFoodItem.id, selectedFoodItem.count, selectedAttributes, 0);//delete old one
+                          SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
                           //SetTableInfo(store + "-" + selectedTable, JSON.stringify(groupAndSumItems(JSON.parse(localStorage.getItem(store + "-" + selectedTable)))))
                           console.log("confirm the change")
                           setOpenChangeAttributeTrigger(false);//confirm the change
@@ -1811,6 +1829,7 @@ const Food = ({ setIsVisible, OpenChangeAttributeModal, setOpenChangeAttributeMo
                             setSelectedAttributes({})
                             setTotalPrice(0);
                             addSpecialFood(item.id, item.name, item.subtotal, item.image, {}, randomNum, item.CHI, item, item.availability, item.attributesArr)
+                            saveId(Math.random());
                           }
                         }
 
