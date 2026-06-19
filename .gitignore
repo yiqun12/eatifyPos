@@ -23,3 +23,16 @@ yarn-debug.log*
 yarn-error.log*
 
 .idea
+
+.kiro
+.roo
+.cursor
+.roomodes
+.windsurfrules
+auth.json
+.taskmaster
+
+playwright*
+test-results
+tests/
+.env.example
