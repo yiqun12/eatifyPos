@@ -24,7 +24,12 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  useLocation,
 } from "react-router-dom";
+import {
+  shouldBlockForAuth,
+  resolveProtectedAccountView,
+} from "./utils/authRoute";
 import './loading.css';
 import React, { useState, useEffect } from 'react'
 
@@ -75,73 +80,67 @@ import SoundButtonNewOrderEnglish from "./pages/new_order_sound_english.js";
 import Dnd_Test from "./pages/dnd_test";
 
 function App() {
+  useEffect(() => {
+    sessionStorage.setItem("translations", JSON.stringify(translations))
+    sessionStorage.setItem("timezoneOffsets", JSON.stringify(timeZones[(businessHours[1])["timezone"]]))
+  }, []);
+
+  return (
+    <ErrorBoundary>
+      <div className="App">
+        <BrowserRouter>
+          <MyHookProvider>
+            <AppRoutes />
+          </MyHookProvider>
+        </BrowserRouter>
+      </div>
+      {process.env.NODE_ENV === "development" && <MemoryMonitor />}
+    </ErrorBoundary>
+  );
+}
+
+function AppRoutes() {
   const { user, user_loading } = useUserContext();
+  const location = useLocation();
   const [isKiosk, setIsKiosk] = useState(false);
   const [kioskHash, setkioskHash] = useState("");
 
   useEffect(() => {
-    // Function to check the URL format
     const checkUrlFormat = () => {
       try {
-        // Assuming you want to check the current window's URL
         const url = new URL(window.location.href);
-
-        // Check if hash matches the specific pattern
-        // This pattern matches hashes like #string-string-string
         const hashPattern = /^#(\w+)-(\w+)-(\w+)$/;
-        //console.log(url.hash)
         setkioskHash(url.hash)
         return hashPattern.test(url.hash);
       } catch (error) {
-        // Handle potential errors, e.g., invalid URL
         console.error("Invalid URL:", error);
         return false;
       }
     };
 
-    // Call the checkUrlFormat function and log the result
     const result = checkUrlFormat();
     setIsKiosk(result)
     console.log("URL format check result:", result);
-  }, []); // Empty dependency array means this effect runs only once after the initial render
-
+  }, []);
 
   const [loading, setLoading] = useState(true);
 
-  const [dndTestKey, setDndTestKey] = useState(0); // initial key set to 0
+  const [dndTestKey, setDndTestKey] = useState(0);
   const resetDndTest = () => {
-    setDndTestKey(prevKey => prevKey + 1); // increment key to force re-render
+    setDndTestKey(prevKey => prevKey + 1);
   };
 
-  useEffect(() => {
-    // Added line to grab translation file (can use the same method as food_data to grab translations file)
-    sessionStorage.setItem("translations", JSON.stringify(translations))
-
-    sessionStorage.setItem("timezoneOffsets", JSON.stringify(timeZones[(businessHours[1])["timezone"]]))
-
-  }, []);
-
-  const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
-  const isPublicHome = pathname === '/' || pathname === '/home';
-
-  // Homepage does not need auth. Blocking on user_loading flashes "Loading..."
-  // on mobile (slower Firebase restore) while desktop often skips the flash.
-  if (user_loading && !isPublicHome) {
+  if (shouldBlockForAuth(user_loading, location.pathname)) {
     return (
       <div className="pan-loader">
         Loading...
       </div>
     );
-  } else {
+  }
 
-    return (
-      <ErrorBoundary>
+  const accountView = resolveProtectedAccountView(user, user_loading);
 
-        <div className="App" >
-
-          <BrowserRouter>
-            <MyHookProvider>
-
+  return (
               <Routes>
 
                 <Route
@@ -208,27 +207,24 @@ function App() {
                 />
 
 
-                {user ? (
-                  <Route
-                    path="Account"
-                    element={
+                <Route
+                  path="Account"
+                  element={
+                    accountView === 'loading' ? (
+                      <div className="pan-loader">Loading...</div>
+                    ) : accountView === 'account' ? (
                       <>
                         <Navbar />
                         <Account_admin />
                       </>
-                    }
-                  />
-                ) : (
-                  <Route
-                    path="Account"
-                    element={
+                    ) : (
                       <>
                         <Navbar />
                         <LogIn />
                       </>
-                    }
-                  />
-                )}
+                    )
+                  }
+                />
 
                 {/* <Route
                   path="SignUp"
@@ -241,27 +237,24 @@ function App() {
                 /> */}
 
 
-                {user ? (
-                  <Route
-                    path="ForgotPassword"
-                    element={
+                <Route
+                  path="ForgotPassword"
+                  element={
+                    accountView === 'loading' ? (
+                      <div className="pan-loader">Loading...</div>
+                    ) : accountView === 'account' ? (
                       <>
                         <Navbar />
                         <Account_admin />
                       </>
-                    }
-                  />
-                ) : (
-                  <Route
-                    path="ForgotPassword"
-                    element={
+                    ) : (
                       <>
                         <Navbar />
                         <ForgotPassword />
                       </>
-                    }
-                  />
-                )}
+                    )
+                  }
+                />
                 {user || !isKiosk ? (
                   <Route
                     exact
@@ -303,15 +296,7 @@ function App() {
                 {/* <Route exact path="/Checklist" element={<Checklist />} /> */}
 
               </Routes>
-
-            </MyHookProvider>
-          </BrowserRouter>
-        </div>
-        {process.env.NODE_ENV === "development" && <MemoryMonitor />}
-        {/* Your entire component tree */}
-      </ErrorBoundary>
-    );
-  }
+  );
 }
 
 export default App;
