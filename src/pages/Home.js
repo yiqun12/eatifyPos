@@ -22,24 +22,27 @@ const Food = () => {
   const sectionsRef = useRef([]);
 
   useEffect(() => {
-    // Animate sections on scroll
-    sectionsRef.current.forEach((section) => {
-      gsap.fromTo(
-        section,
-        { autoAlpha: 0, y: 50 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top bottom-=100',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
+    const ctx = gsap.context(() => {
+      sectionsRef.current.forEach((section) => {
+        gsap.fromTo(
+          section,
+          { autoAlpha: 0, y: 50 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top bottom-=100',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      });
     });
+
+    return () => ctx.revert();
   }, []);
 
   const addToRefs = (el) => {

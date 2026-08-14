@@ -121,7 +121,12 @@ function App() {
 
   }, []);
 
-  if (user_loading) {
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
+  const isPublicHome = pathname === '/' || pathname === '/home';
+
+  // Homepage does not need auth. Blocking on user_loading flashes "Loading..."
+  // on mobile (slower Firebase restore) while desktop often skips the flash.
+  if (user_loading && !isPublicHome) {
     return (
       <div className="pan-loader">
         Loading...

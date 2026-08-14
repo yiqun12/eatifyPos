@@ -43,7 +43,8 @@ export const UserContextProvider = ({ children }) => {
   firebase.auth().languageCode = localStorage.getItem("Google-language")?.includes("Chinese") || localStorage.getItem("Google-language")?.includes("中") ? "zh" : 'en'
 
   useEffect(() => {
-    setLoading(true);
+    // Do not set loading=true here. That remounts the whole app as "Loading..."
+    // and is much more visible on slower mobile devices than on desktop.
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         const { uid, displayName, email, storelist } = firebaseUser;

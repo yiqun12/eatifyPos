@@ -160,7 +160,8 @@ export default function RoadTimeline() {
             y: translateY,
             scale: scale,
             ease: "power1.out",
-            duration: 0.5
+            duration: 0.5,
+            overwrite: true,
           });
 
           let activeIndex = -1;
@@ -192,6 +193,7 @@ export default function RoadTimeline() {
     );
 
     return () => {
+      gsap.killTweensOf(wrapper);
       if (tl.scrollTrigger) {
         tl.scrollTrigger.kill();
       }
