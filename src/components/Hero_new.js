@@ -21,7 +21,7 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative bg-white overflow-hidden pt-16">
+    <div className="relative bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 xl:max-w-2xl xl:w-full xl:pb-28 2xl:pb-32 pt-10 sm:pt-12 md:pt-16 xl:pt-20 2xl:pt-28">
           

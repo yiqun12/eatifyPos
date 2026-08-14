@@ -150,6 +150,17 @@ const NetworkSphere = () => {
     return () => {
       mountCount -= 1;
       hideSharedHost();
+      if (mountCount > 0) return;
+
+      if (markerTimer) {
+        clearTimeout(markerTimer);
+        markerTimer = null;
+      }
+      destroyChart(sharedChart);
+      sharedChart = null;
+      sharedHost = null;
+      hiddenFragment = null;
+      mountCount = 0;
     };
   }, []);
 
