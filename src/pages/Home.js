@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar_new';
+import AppStoreBanner from '../components/AppStoreBanner';
 import Hero from '../components/Hero_new';
 import Features from '../components/Features';
 import Gallery from '../components/Gallery';
@@ -54,7 +55,10 @@ const Food = () => {
   return (
     <div>
       <Navbar />
-      <Hero />
+      <div className="pt-16">
+        <AppStoreBanner />
+        <Hero />
+      </div>
 
       <div ref={addToRefs}>
         <Features />
